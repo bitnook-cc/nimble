@@ -74,7 +74,7 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd nimble-navigator
+cd nimble
 
 # Install dependencies
 npm install
