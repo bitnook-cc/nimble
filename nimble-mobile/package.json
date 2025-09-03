@@ -1,0 +1,26 @@
+{
+  "name": "nimble-mobile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd .. && npm run build && mkdir -p nimble-mobile/dist && cp -r out/* nimble-mobile/dist/",
+    "build:web": "cd .. && npm run build",
+    "copy:web": "rm -rf dist && mkdir -p dist && cp -r ../out/* dist/",
+    "sync": "npm run build && npx cap sync",
+    "open:ios": "npx cap open ios",
+    "open:android": "npx cap open android",
+    "run:ios": "npm run sync && npx cap run ios",
+    "run:android": "npm run sync && npx cap run android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/ios": "^7.4.3"
+  }
+}
