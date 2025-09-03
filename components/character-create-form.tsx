@@ -13,6 +13,7 @@ import {
   getCharacterService
 } from "@/lib/services/service-factory";
 import { useToastService } from "@/lib/hooks/use-toast-service";
+import { gameConfig } from "@/lib/config/game-config";
 
 interface CharacterCreateFormProps {
   onComplete?: () => void; // Called when character is successfully created
@@ -28,7 +29,7 @@ export function CharacterCreateForm({
   autoFocus = true
 }: CharacterCreateFormProps) {
   const [newCharacterName, setNewCharacterName] = useState("");
-  const [selectedClass, setSelectedClass] = useState("fighter");
+  const [selectedClass, setSelectedClass] = useState(gameConfig.defaults.classId);
   const [showBuilder, setShowBuilder] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -54,7 +55,7 @@ export function CharacterCreateForm({
       
       // Reset form
       setNewCharacterName("");
-      setSelectedClass("fighter");
+      setSelectedClass(gameConfig.defaults.classId);
       
       // Notify parent that creation is complete
       onComplete?.();
@@ -68,7 +69,7 @@ export function CharacterCreateForm({
 
   const handleCancel = () => {
     setNewCharacterName("");
-    setSelectedClass("fighter");
+    setSelectedClass(gameConfig.defaults.classId);
     onCancel?.();
   };
 

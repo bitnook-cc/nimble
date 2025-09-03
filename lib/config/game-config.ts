@@ -30,6 +30,9 @@ export interface GameConfig {
   equipment: {
     maxWeaponSize: number;
   };
+  defaults: {
+    classId: string;
+  };
 }
 
 export const gameConfig: GameConfig = {
@@ -68,5 +71,8 @@ export const gameConfig: GameConfig = {
   },
   equipment: {
     maxWeaponSize: 2,
+  },
+  defaults: {
+    classId: 'cheat',
   },
 };
