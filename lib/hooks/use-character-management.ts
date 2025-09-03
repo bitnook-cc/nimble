@@ -21,7 +21,7 @@ export interface UseCharacterManagementReturn {
 
 export function useCharacterManagement(): UseCharacterManagementReturn {
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ mode: 'full', activeCharacterId: 'default-character' });
+  const [settings, setSettings] = useState<AppSettings>({ mode: 'full', activeCharacterId: undefined });
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
@@ -54,7 +54,13 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
         } else {
           // Load active character through CharacterService
           const characterService = getCharacterService();
-          let activeCharacter = await characterService.loadCharacter(loadedSettings.activeCharacterId);
+          let activeCharacter = null;
+          
+          // Only try to load if we have an active character ID
+          if (loadedSettings.activeCharacterId) {
+            activeCharacter = await characterService.loadCharacter(loadedSettings.activeCharacterId);
+          }
+          
           if (!activeCharacter) {
             // Use the first available character instead
             try {
@@ -121,10 +127,14 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       const newSettings = await settingsService.getSettings();
       setSettings(newSettings);
       
-      // Show character selection if no characters left
+      // Show character selection if no characters left or if the deleted character was the active one
       if (updatedCharacters.length === 0) {
         setShowCharacterSelection(true);
         setLoadError("No characters remaining. Please create a new character.");
+      } else if (event.characterId === settings.activeCharacterId) {
+        // The active character was deleted, show selection to choose a new one
+        setShowCharacterSelection(true);
+        setLoadError("Active character was deleted. Please select a character.");
       }
     });
 
@@ -133,7 +143,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       unsubscribeSwitched();
       unsubscribeDeleted();
     };
-  }, [subscribeToEvent, characterStorage, settingsService]);
+  }, [subscribeToEvent, characterStorage, settingsService, settings.activeCharacterId]);
 
 
 

@@ -39,13 +39,20 @@ export function CharacterSelector({
   };
 
   const handleDeleteCharacter = (characterId: string) => {
-    if (characters.length <= 1) {
-      alert("Cannot delete the last character. Create another character first.");
-      return;
+    const character = characters.find(c => c.id === characterId);
+    if (!character) return;
+    
+    const isLastCharacter = characters.length === 1;
+    const isActiveCharacter = character.id === activeCharacterId;
+    
+    let confirmMessage = `Are you sure you want to delete "${character.name}"?`;
+    if (isLastCharacter) {
+      confirmMessage += "\n\nThis is your last character. You'll need to create a new one after deletion.";
+    } else if (isActiveCharacter) {
+      confirmMessage += "\n\nThis is your currently active character.";
     }
     
-    const character = characters.find(c => c.id === characterId);
-    if (character && confirm(`Are you sure you want to delete "${character.name}"?`)) {
+    if (confirm(confirmMessage)) {
       deleteCharacter(characterId);
     }
   };
@@ -149,7 +156,6 @@ export function CharacterSelector({
                             handleDeleteCharacter(character.id);
                           }}
                           className="text-red-500 hover:text-red-700"
-                          disabled={character.id === activeCharacterId && characters.length === 1}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

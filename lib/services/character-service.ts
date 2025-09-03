@@ -878,6 +878,15 @@ export class CharacterService implements ICharacterService {
       this._character = null;
     }
     
+    // Check if any characters remain
+    const remainingCharacters = await this.storageService.getAllCharacters();
+    
+    // If no characters remain, clear the active character from settings
+    if (remainingCharacters.length === 0) {
+      const settingsService = getSettingsService();
+      await settingsService.clearActiveCharacter();
+    }
+    
     // Emit delete event
     this.emitEvent({
       type: 'deleted',
