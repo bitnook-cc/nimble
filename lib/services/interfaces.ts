@@ -56,9 +56,11 @@ export interface IActivityLog {
  * Handles ability management and usage
  */
 export interface IAbilityService {
-  resetAbilities(abilities: Ability[], frequency: 'per_turn' | 'per_encounter' | 'per_safe_rest'): Ability[];
+  resetAbilities(abilities: Ability[], frequency: 'per_turn' | 'per_encounter' | 'per_safe_rest', character: Character): Ability[];
   useAbility(abilities: Ability[], abilityId: string, availableActions?: number, inEncounter?: boolean, availableResources?: ResourceInstance[], variableResourceAmount?: number): { success: boolean; updatedAbilities: Ability[]; usedAbility: ActionAbility | SpellAbility | null; actionsRequired?: number; resourceCost?: { resourceId: string; amount: number }; insufficientResource?: string };
   calculateAbilityRollModifier(roll: AbilityRoll, character: Character): number;
+  recalculateAbilityUses(abilities: Ability[], character: Character): Ability[];
+  calculateMaxUses(ability: ActionAbility, character: Character): number;
 }
 
 /**

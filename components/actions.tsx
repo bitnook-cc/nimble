@@ -215,9 +215,13 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                       
                       <div className="flex justify-center gap-2 mb-2 flex-wrap">
                         {getFrequencyBadge(ability.frequency)}
-                        {ability.frequency !== 'at_will' && ability.maxUses && (
+                        {ability.frequency !== 'at_will' && ability.maxUses && character && (
                           <Badge variant="secondary">
-                            {ability.currentUses}/{ability.maxUses} uses
+                            {ability.currentUses}/
+                            {ability.maxUses.type === 'fixed' 
+                              ? ability.maxUses.value 
+                              : abilityService.calculateMaxUses(ability, character)
+                            } uses
                           </Badge>
                         )}
                         {actionCost > 0 && (

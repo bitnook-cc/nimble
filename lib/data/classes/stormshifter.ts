@@ -98,7 +98,7 @@ const stormshifterFeatures: ClassFeature[] = [
       description: 'Transform into a harmless beast. While transformed, you can speak with animals. Lasts until you drop to 0 HP, cast a spell, or end it for free.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 2,
+      maxUses: { type: 'fixed', value: 2 },
       actionCost: 1
     }
   },
@@ -123,7 +123,7 @@ const stormshifterFeatures: ClassFeature[] = [
       description: 'Beastshift into a Fearsome Beast.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 2,
+      maxUses: { type: 'fixed', value: 2 },
     }
   },
   {

@@ -335,9 +335,9 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset all abilities (safe rest resets everything)
-    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn');
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_encounter');
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_safe_rest');
+    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn', this._character);
+    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_encounter', this._character);
+    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_safe_rest', this._character);
 
     // Reset resources that reset on safe rest
     const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'safe_rest');
@@ -522,8 +522,8 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset both per-encounter and per-turn abilities when encounter ends
-    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_encounter');
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_turn');
+    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_encounter', this._character);
+    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_turn', this._character);
 
     // Reset resources that reset on encounter end
     const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'encounter_end');
@@ -588,7 +588,7 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset per-turn abilities
-    const resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn');
+    const resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn', this._character);
     
     // Reset resources that reset on turn end
     const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'turn_end');
@@ -738,11 +738,14 @@ export class CharacterService implements ICharacterService {
         await this.logService.addLogEntry(spellLogEntry);
       } else {
         const actionAbility = result.usedAbility as ActionAbility;
+        const maxUses = actionAbility.maxUses 
+          ? this.abilityService.calculateMaxUses(actionAbility, this._character!)
+          : 0;
         const logEntry = this.logService.createAbilityUsageEntry(
           actionAbility.name,
           actionAbility.frequency,
           actionAbility.currentUses || 0,
-          actionAbility.maxUses || 0
+          maxUses
         );
         await this.logService.addLogEntry(logEntry);
       }
@@ -792,6 +795,18 @@ export class CharacterService implements ICharacterService {
           ...updatedCharacter.inventory,
           maxSize: 10 + newStrength,
         },
+      };
+    }
+
+    // If attributes or level changed, recalculate formula-based ability uses
+    if (updates.attributes || updates.level) {
+      const recalculatedAbilities = this.abilityService.recalculateAbilityUses(
+        updatedCharacter.abilities,
+        updatedCharacter
+      );
+      updatedCharacter = {
+        ...updatedCharacter,
+        abilities: recalculatedAbilities,
       };
     }
 

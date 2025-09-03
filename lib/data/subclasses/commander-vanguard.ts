@@ -14,7 +14,7 @@ const vanguardFeatures: ClassFeature[] = [
       description: 'After you move toward an enemy, gain advantage on the first melee attack you make against it. When you use your Coordinated Strike, you and all allies within 12 spaces can first move up to half their speed for free.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 7

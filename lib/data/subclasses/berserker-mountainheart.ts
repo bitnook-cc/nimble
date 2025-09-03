@@ -31,7 +31,7 @@ const mountainheartFeatures: ClassFeature[] = [
       description: 'While Raging, if you would suffer your last Wound or other negative condition of your choice, you don\'t.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 11

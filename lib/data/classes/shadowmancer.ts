@@ -22,7 +22,7 @@ const lesserInvocations: ClassFeature[] = [
       description: 'Reroll an Influence check.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -37,7 +37,7 @@ const lesserInvocations: ClassFeature[] = [
       description: 'Reroll an Examination check. You can also detect traces of blood.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -106,7 +106,7 @@ const lesserInvocations: ClassFeature[] = [
       description: 'Ask a dead creature 3 yes/no questions.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   }
 ];

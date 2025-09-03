@@ -3,6 +3,18 @@ import { DiceExpression } from './dice';
 
 export type AbilityFrequency = 'per_turn' | 'per_encounter' | 'per_safe_rest' | 'at_will';
 
+export interface FixedAbilityUses {
+  type: 'fixed';
+  value: number;
+}
+
+export interface FormulaAbilityUses {
+  type: 'formula';
+  expression: string; // e.g., "DEX + WIL + 1", "STR * 2", "level + 3"
+}
+
+export type AbilityUses = FixedAbilityUses | FormulaAbilityUses;
+
 export interface AbilityRoll {
   dice: DiceExpression;
   modifier?: number; // fixed modifier, e.g., +2
@@ -37,7 +49,7 @@ export interface FreeformAbility extends BaseAbility {
 export interface ActionAbility extends BaseAbility {
   type: 'action';
   frequency: AbilityFrequency;
-  maxUses?: number; // Optional for at-will abilities
+  maxUses?: AbilityUses; // Optional for at-will abilities
   currentUses?: number; // Optional for at-will abilities
   roll?: AbilityRoll; // Optional roll information
   actionCost?: number; // Optional action cost (0 = free action, 1 = action, etc.)

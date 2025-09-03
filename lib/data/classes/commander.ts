@@ -14,7 +14,7 @@ const commandersOrdersFeatures: ClassFeature[] = [
       description: 'You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -43,7 +43,7 @@ const commandersOrdersFeatures: ClassFeature[] = [
       description: 'Command an ally who drops to 0 HP to continue the fight! Set their HP to 3 × your LVL.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -58,7 +58,7 @@ const commandersOrdersFeatures: ClassFeature[] = [
       description: 'When you would drop to 0 HP, expend any number of Hit Dice and set your HP to the sum rolled instead (do not add your STR).',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -187,7 +187,7 @@ const commanderFeatures: ClassFeature[] = [
       description: 'You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 2

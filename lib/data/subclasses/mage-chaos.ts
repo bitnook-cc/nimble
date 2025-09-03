@@ -42,7 +42,7 @@ export const mageChaos: SubclassDefinition = {
         description: 'When an enemy moves adjacent to you: They are pushed back 2 spaces, and on a failed WIL save, knocked Prone as well. Invoke Chaos.',
         type: 'action',
         frequency: 'per_encounter',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {
@@ -57,7 +57,7 @@ export const mageChaos: SubclassDefinition = {
         description: 'When you Invoke Chaos, choose which of your two rolls to use.',
         type: 'action',
         frequency: 'per_safe_rest',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {

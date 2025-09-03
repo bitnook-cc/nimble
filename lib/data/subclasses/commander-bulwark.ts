@@ -40,7 +40,7 @@ const bulwarkFeatures: ClassFeature[] = [
       description: 'Taunt a creature you hit until the end of their next turn.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 15

@@ -1,9 +1,23 @@
-import { Ability, ActionAbility, SpellAbility, AbilityRoll, ResourceCost } from '../types/abilities';
+import { Ability, ActionAbility, SpellAbility, AbilityRoll, ResourceCost, AbilityUses } from '../types/abilities';
 import { Character } from '../types/character';
 import { ResourceInstance } from '../types/resources';
+import { formulaEvaluatorService } from './formula-evaluator-service';
 
 export class AbilityService {
   
+  /**
+   * Calculate the actual max uses for an ability based on its maxUses definition
+   */
+  calculateMaxUses(ability: ActionAbility, character: Character): number {
+    if (!ability.maxUses) return 0;
+    
+    if (ability.maxUses.type === 'fixed') {
+      return ability.maxUses.value;
+    } else {
+      return formulaEvaluatorService.evaluateFormula(ability.maxUses.expression, character);
+    }
+  }
+
   /**
    * Use an ability and return the updated abilities array
    */
@@ -148,10 +162,27 @@ export class AbilityService {
   /**
    * Reset abilities based on frequency
    */
-  resetAbilities(abilities: Ability[], frequency: 'per_turn' | 'per_encounter' | 'per_safe_rest'): Ability[] {
+  resetAbilities(abilities: Ability[], frequency: 'per_turn' | 'per_encounter' | 'per_safe_rest', character: Character): Ability[] {
     return abilities.map(ability => {
       if (ability.type === 'action' && ability.frequency === frequency && ability.maxUses) {
-        return { ...ability, currentUses: ability.maxUses };
+        const calculatedMaxUses = this.calculateMaxUses(ability, character);
+        return { ...ability, currentUses: calculatedMaxUses };
+      }
+      return ability;
+    });
+  }
+
+  /**
+   * Recalculate current uses for all formula-based abilities
+   * This should be called when character attributes or level change
+   */
+  recalculateAbilityUses(abilities: Ability[], character: Character): Ability[] {
+    return abilities.map(ability => {
+      if (ability.type === 'action' && ability.maxUses?.type === 'formula') {
+        const newMaxUses = this.calculateMaxUses(ability, character);
+        // Don't exceed the new maximum, but don't reduce current uses below the new max either
+        const currentUses = Math.min(ability.currentUses || 0, newMaxUses);
+        return { ...ability, currentUses };
       }
       return ability;
     });

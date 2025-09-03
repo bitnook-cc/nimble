@@ -42,7 +42,7 @@ export const hunterShadowpath: SubclassDefinition = {
         description: 'Your weapon attacks ignore cover and armor this turn.',
         type: 'action',
         frequency: 'per_encounter',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {
@@ -65,7 +65,7 @@ export const hunterShadowpath: SubclassDefinition = {
         description: 'Your weapon attacks ignore cover and armor this turn.',
         type: 'action',
         frequency: 'per_encounter',
-        maxUses: 2
+        maxUses: { type: 'fixed', value: 2 }
       }
     }
   ]

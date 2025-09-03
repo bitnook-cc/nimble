@@ -57,7 +57,7 @@ export const hunterWildheart: SubclassDefinition = {
         description: 'If an attack would cause you to drop to 0 HP, you instead move up to your speed away and take no damage.',
         type: 'action',
         frequency: 'per_safe_rest',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {

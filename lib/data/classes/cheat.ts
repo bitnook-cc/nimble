@@ -131,7 +131,7 @@ const cheatFeatures: ClassFeature[] = [
       description: '(1/turn) When you crit, deal +1d6 damage.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       roll: {
         dice: { count: 1, sides: 6 }
       }
@@ -363,7 +363,7 @@ const cheatFeatures: ClassFeature[] = [
       description: 'You can Twist the Blade for free.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {

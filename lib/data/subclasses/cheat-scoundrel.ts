@@ -38,7 +38,7 @@ const scoundrelFeatures: ClassFeature[] = [
       description: 'When you Defend against a melee attack, Blind the attacker until the start of their next turn and force them to reroll the attack (Blinded creatures attack with disadvantage).',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 2
+      maxUses: { type: 'fixed', value: 2 }
     }
   },
   // Level 11
@@ -54,7 +54,7 @@ const scoundrelFeatures: ClassFeature[] = [
       description: 'When you would drop to 0 HP or gain a Wound, you don\'t. Instead, you turn Invisible for 1 minute or until you attack.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 15
@@ -70,7 +70,7 @@ const scoundrelFeatures: ClassFeature[] = [
       description: 'Attacks you make this round don\'t miss, you crit on 1 less than normally needed, and you gain LVL temp HP.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   }
 ];

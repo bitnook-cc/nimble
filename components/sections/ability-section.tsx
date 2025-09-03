@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Ability, ActionAbility, FreeformAbility, AbilityFrequency, AbilityRoll, ResourceCost } from "@/lib/types/abilities";
+import { Ability, ActionAbility, FreeformAbility, AbilityFrequency, AbilityRoll, ResourceCost, AbilityUses } from "@/lib/types/abilities";
 import { AttributeName } from "@/lib/types/character";
 import { abilityService } from "@/lib/services/ability-service";
 import { parseDiceExpression } from "@/lib/utils/dice-parser";
@@ -22,7 +22,10 @@ interface NewAbilityForm {
   description: string;
   type: 'freeform' | 'action';
   frequency: AbilityFrequency;
-  maxUses?: number;
+  maxUses?: AbilityUses;
+  maxUsesType?: 'fixed' | 'formula'; // For form UI
+  maxUsesValue?: number; // For fixed type
+  maxUsesExpression?: string; // For formula type
   actionCost?: number;
   roll?: {
     dice: string;
@@ -51,7 +54,9 @@ export function AbilitySection() {
     description: '',
     type: 'freeform',
     frequency: 'per_encounter',
-    maxUses: 1,
+    maxUsesType: 'fixed',
+    maxUsesValue: 1,
+    maxUsesExpression: 'DEX + WIL',
     actionCost: 0,
   });
   const [variableResourceAmount, setVariableResourceAmount] = useState<number>(1);
@@ -87,9 +92,16 @@ export function AbilitySection() {
           description: newAbility.description,
           type: 'action',
           frequency: newAbility.frequency,
-          ...(newAbility.frequency !== 'at_will' && newAbility.maxUses ? {
-            maxUses: newAbility.maxUses,
-            currentUses: newAbility.maxUses,
+          ...(newAbility.frequency !== 'at_will' && newAbility.maxUsesType ? {
+            maxUses: newAbility.maxUsesType === 'fixed' 
+              ? { type: 'fixed' as const, value: newAbility.maxUsesValue || 1 }
+              : { type: 'formula' as const, expression: newAbility.maxUsesExpression || 'DEX + WIL' },
+            currentUses: newAbility.maxUsesType === 'fixed' 
+              ? (newAbility.maxUsesValue || 1)
+              : (character ? abilityService.calculateMaxUses({
+                  id: '', name: '', description: '', type: 'action', frequency: newAbility.frequency,
+                  maxUses: { type: 'formula', expression: newAbility.maxUsesExpression || 'DEX + WIL' }
+                } as ActionAbility, character) : 1),
           } : {}),
           ...(newAbility.actionCost ? { actionCost: newAbility.actionCost } : {}),
           ...(newAbility.roll && newAbility.roll.dice ? { 
@@ -120,7 +132,9 @@ export function AbilitySection() {
       description: '',
       type: 'freeform',
       frequency: 'per_encounter',
-      maxUses: 1,
+      maxUsesType: 'fixed',
+      maxUsesValue: 1,
+      maxUsesExpression: 'DEX + WIL',
       actionCost: 0,
     });
     setIsAddingAbility(false);
@@ -212,9 +226,18 @@ export function AbilitySection() {
                 <Zap className="w-4 h-4 text-yellow-500" />
                 <h4 className="font-semibold">{ability.name}</h4>
                 {getFrequencyBadge(actionAbility.frequency)}
-                {actionAbility.frequency !== 'at_will' && actionAbility.maxUses && (
+                {actionAbility.frequency !== 'at_will' && actionAbility.maxUses && character && (
                   <Badge variant="secondary">
-                    {actionAbility.currentUses}/{actionAbility.maxUses} uses
+                    {actionAbility.currentUses}/
+                    {actionAbility.maxUses.type === 'fixed' 
+                      ? actionAbility.maxUses.value 
+                      : abilityService.calculateMaxUses(actionAbility, character)
+                    } uses
+                    {actionAbility.maxUses.type === 'formula' && (
+                      <span className="text-xs opacity-70 ml-1">
+                        ({actionAbility.maxUses.expression})
+                      </span>
+                    )}
                   </Badge>
                 )}
                 {actionAbility.frequency === 'at_will' && (
@@ -394,18 +417,47 @@ export function AbilitySection() {
 
                       {newAbility.frequency !== 'at_will' && (
                         <div className="space-y-2">
-                          <Label htmlFor="ability-uses">Maximum Uses</Label>
-                          <Input
-                            id="ability-uses"
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={newAbility.maxUses}
-                            onChange={(e) => setNewAbility({ 
-                              ...newAbility, 
-                              maxUses: parseInt(e.target.value) || 1 
-                            })}
-                          />
+                          <Label>Maximum Uses</Label>
+                          <div className="space-y-2">
+                            <Select
+                              value={newAbility.maxUsesType}
+                              onValueChange={(value: 'fixed' | 'formula') => 
+                                setNewAbility({ ...newAbility, maxUsesType: value })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="fixed">Fixed Number</SelectItem>
+                                <SelectItem value="formula">Formula</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            {newAbility.maxUsesType === 'fixed' ? (
+                              <Input
+                                type="number"
+                                min="1"
+                                max="20"
+                                value={newAbility.maxUsesValue}
+                                onChange={(e) => setNewAbility({ 
+                                  ...newAbility, 
+                                  maxUsesValue: parseInt(e.target.value) || 1 
+                                })}
+                                placeholder="Number of uses"
+                              />
+                            ) : (
+                              <Input
+                                type="text"
+                                value={newAbility.maxUsesExpression}
+                                onChange={(e) => setNewAbility({ 
+                                  ...newAbility, 
+                                  maxUsesExpression: e.target.value 
+                                })}
+                                placeholder="e.g., DEX + WIL + 1"
+                              />
+                            )}
+                          </div>
                         </div>
                       )}
                       
@@ -631,7 +683,9 @@ export function AbilitySection() {
                           description: '',
                           type: 'freeform',
                           frequency: 'per_encounter',
-                          maxUses: 1,
+                          maxUsesType: 'fixed',
+                          maxUsesValue: 1,
+                          maxUsesExpression: 'DEX + WIL',
                           actionCost: 0,
                         });
                       }}

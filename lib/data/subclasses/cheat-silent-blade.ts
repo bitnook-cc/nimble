@@ -31,7 +31,7 @@ const silentBladeFeatures: ClassFeature[] = [
       description: 'When you land a Sneak Attack, you may force the target to make a STR save (DC 10+INT). On a failure, instead of rolling your Sneak Attack dice, you may do the maximum amount of damage (if your target saves, regain 1 use).',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 2
+      maxUses: { type: 'fixed', value: 2 }
     }
   },
   // Level 11

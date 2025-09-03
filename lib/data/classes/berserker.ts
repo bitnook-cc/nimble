@@ -23,7 +23,7 @@ const savageArsenalFeatures: ClassFeature[] = [
       description: '(1/turn) While Dying, you may suffer 1 Wound to gain 1 action.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -77,7 +77,7 @@ const savageArsenalFeatures: ClassFeature[] = [
       description: '(1/turn) After you land a hit, you may treat your next attack this turn as if you rolled that same amount instead of rolling again.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -150,7 +150,7 @@ const berserkerFeatures: ClassFeature[] = [
       description: 'Roll a Fury Die (1d4) and set it aside. Add it to every STR attack you make. You can have a max of KEY Fury Dice; they are lost when your Rage ends.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       actionCost: 1,
       roll: {
         dice: { count: 1, sides: 4 }

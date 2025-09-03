@@ -26,6 +26,22 @@ const ResourceCostSchema = z.discriminatedUnion('type', [
   })
 ]).meta({ title: 'Resource Cost', description: 'Resource cost for using this ability' });
 
+// AbilityUses schema for flexible ability max uses
+const FixedAbilityUsesSchema = z.object({
+  type: z.literal('fixed').meta({ title: 'Fixed Uses', description: 'Fixed number of uses' }),
+  value: z.number().int().min(0).meta({ title: 'Value', description: 'Number of uses allowed (integer)' }),
+});
+
+const FormulaAbilityUsesSchema = z.object({
+  type: z.literal('formula').meta({ title: 'Formula Uses', description: 'Formula-based uses' }),
+  expression: z.string().min(1).max(100).meta({ title: 'Expression', description: 'Formula expression (e.g., "DEX + WIL + 1")' }),
+});
+
+const AbilityUsesSchema = z.discriminatedUnion('type', [
+  FixedAbilityUsesSchema,
+  FormulaAbilityUsesSchema,
+]).meta({ title: 'Max Uses', description: 'Maximum uses per frequency period' });
+
 // Armor proficiency schemas
 const ArmorProficiencySchema = z.union([
   z.object({ type: z.literal('cloth') }),
@@ -56,7 +72,7 @@ const ActionAbilitySchema = z.object({
   description: z.string().min(1).meta({ title: 'Description', description: 'Detailed description of what the ability does' }),
   type: z.literal('action').meta({ title: 'Type', description: 'Must be "action" for action abilities' }),
   frequency: z.enum(['per_turn', 'per_encounter', 'per_safe_rest', 'at_will']).meta({ title: 'Frequency', description: 'How often the ability can be used' }),
-  maxUses: z.number().int().min(0).optional().meta({ title: 'Max Uses', description: 'Maximum uses per frequency period (integer)' }),
+  maxUses: AbilityUsesSchema.optional(),
   currentUses: z.number().int().min(0).optional().meta({ title: 'Current Uses', description: 'Current remaining uses (integer)' }),
   roll: AbilityRollSchema.optional().meta({ title: 'Roll', description: 'Dice roll configuration for the ability' }),
   actionCost: z.number().int().min(0).max(2).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),

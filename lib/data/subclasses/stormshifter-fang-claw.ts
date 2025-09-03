@@ -28,7 +28,7 @@ const fangAndClawFeatures: ClassFeature[] = [
       description: 'When an enemy attacks, spend 2 mana to shift into Fearsome Beast. Interpose from up to 12 spaces away and Defend for free.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -52,7 +52,7 @@ const fangAndClawFeatures: ClassFeature[] = [
       description: 'When you miss, you can crit instead.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -67,7 +67,7 @@ const fangAndClawFeatures: ClassFeature[] = [
       description: 'Spend 3 mana to shift into Beast of the Pack, teleport up to 12 spaces in a straight line, dealing WIL d8 lightning damage to adjacent creatures.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       actionCost: 1
     }
   },
@@ -92,7 +92,7 @@ const fangAndClawFeatures: ClassFeature[] = [
       description: 'Spend 2 mana to shift into Beast of Nightmares. Force creature to move toward you on failed WIL save, then Sting for free if they reach you.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       actionCost: 1
     }
   },

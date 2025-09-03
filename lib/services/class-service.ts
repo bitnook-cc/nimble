@@ -5,6 +5,7 @@ import { ResourceInstance, createResourceInstance } from '../types/resources';
 import { SpellAbility } from '../types/abilities';
 import { IClassService, ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
+import { abilityService } from './ability-service';
 
 /**
  * Class Service with Dependency Injection
@@ -207,7 +208,7 @@ export class ClassService implements IClassService {
     // Initialize the ability with proper currentUses if it has maxUses
     let abilityToAdd = { ...feature.ability };
     if (abilityToAdd.type === 'action' && abilityToAdd.maxUses !== undefined && abilityToAdd.currentUses === undefined) {
-      abilityToAdd.currentUses = abilityToAdd.maxUses;
+      abilityToAdd.currentUses = abilityService.calculateMaxUses(abilityToAdd, character);
     }
 
     // Add the ability to character's abilities

@@ -15,6 +15,22 @@ const saveAdvantageMapSchema = z.object({
   will: saveAdvantageTypeSchema.optional(),
 }).default({});
 
+// AbilityUses schema for flexible ability max uses
+const fixedAbilityUsesSchema = z.object({
+  type: z.literal('fixed'),
+  value: z.number().int().min(0),
+});
+
+const formulaAbilityUsesSchema = z.object({
+  type: z.literal('formula'),
+  expression: z.string().min(1).max(100), // Reasonable limit for formula expressions
+});
+
+const abilityUsesSchema = z.discriminatedUnion('type', [
+  fixedAbilityUsesSchema,
+  formulaAbilityUsesSchema,
+]);
+
 const baseItemSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
@@ -175,7 +191,7 @@ export const abilitySchema = z.discriminatedUnion('type', [
     description: z.string(),
     type: z.literal('action'),
     frequency: z.enum(['per_turn', 'per_encounter', 'per_safe_rest', 'at_will']),
-    maxUses: z.int().min(1).optional(),
+    maxUses: abilityUsesSchema.optional(),
     currentUses: z.int().min(0).optional(),
     roll: abilityRollSchema.optional(),
     actionCost: z.int().min(0).optional(),

@@ -14,7 +14,7 @@ const redMistFeatures: ClassFeature[] = [
       description: 'While Raging, whenever you crit or kill an enemy, change 1 Fury Die to the maximum.',
       type: 'action',
       frequency: 'per_turn',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {

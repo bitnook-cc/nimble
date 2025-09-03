@@ -18,7 +18,7 @@ export const mageControl: SubclassDefinition = {
         description: 'Choose 1 option from the Control Table: I INSIST (Cast a cantrip for free, ignoring all disadvantage, it cannot miss), ELEMENTAL AFFLICTION (A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition), NO (Choose a creature, it cannot harm a creature of your choice during its next turn), LOSE CONTROL (Do ALL of the above, but the GM chooses each time).',
         type: 'action',
         frequency: 'at_will',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {
@@ -57,7 +57,7 @@ export const mageControl: SubclassDefinition = {
         description: 'Ignore all disadvantage and other negative effects on your next action this turn, then Demand Control.',
         type: 'action',
         frequency: 'per_encounter',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {
@@ -72,7 +72,7 @@ export const mageControl: SubclassDefinition = {
         description: 'Whenever you would fail a save, you may succeed instead.',
         type: 'action',
         frequency: 'per_safe_rest',
-        maxUses: 1
+        maxUses: { type: 'fixed', value: 1 }
       }
     },
     {

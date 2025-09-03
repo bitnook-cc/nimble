@@ -22,7 +22,7 @@ const martialArtsAbilities: ClassFeature[] = [
       description: 'When you Defend, first move up to half your speed away. Take no damage if out of range or have Full Cover.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -213,7 +213,7 @@ const zephyrFeatures: ClassFeature[] = [
       description: 'Project an ethereal version of yourself up to 30 ft. away that can pass through solid objects.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   // Level 4

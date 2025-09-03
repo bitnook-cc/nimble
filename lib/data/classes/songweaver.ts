@@ -28,7 +28,7 @@ const lyricalWeaponry: ClassFeature[] = [
       description: 'Grant all friendly Dying creatures who can hear you 1d4+WIL+1 actions.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       actionCost: 1
     }
   },
@@ -44,7 +44,7 @@ const lyricalWeaponry: ClassFeature[] = [
       description: 'When defending, force attacker to make WIL save or be redirected.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -67,7 +67,7 @@ const lyricalWeaponry: ClassFeature[] = [
       description: 'Enemies who fail WIL save are moved 6 spaces and cannot move next turn.',
       type: 'action',
       frequency: 'per_encounter',
-      maxUses: 1,
+      maxUses: { type: 'fixed', value: 1 },
       actionCost: 2
     }
   }
@@ -103,7 +103,7 @@ const peoplePerson: ClassFeature[] = [
       description: 'Summon Gran Gran to bake healing pastries during rest.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 1
+      maxUses: { type: 'fixed', value: 1 }
     }
   },
   {
@@ -157,7 +157,7 @@ const songweaverFeatures: ClassFeature[] = [
       description: 'Allow an ally to reroll a single die for an attack or save.',
       type: 'action',
       frequency: 'per_safe_rest',
-      maxUses: 2,
+      maxUses: { type: 'fixed', value: 2 },
     }
   },
   {
