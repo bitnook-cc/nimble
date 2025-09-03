@@ -165,8 +165,8 @@ export function CharacterSelector({
 
   if (fullScreen) {
     return (
-      <main className="min-h-screen bg-background">
-        <div className="container mx-auto py-8">
+      <main className="min-h-screen bg-background flex flex-col">
+        <div className="container mx-auto py-8 flex-1">
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="text-center">
               <h1 className="text-3xl font-bold mb-2">Nimble Navigator</h1>
@@ -175,6 +175,15 @@ export function CharacterSelector({
             {content}
           </div>
         </div>
+        
+        {/* Disclaimer Footer */}
+        <footer className="border-t bg-muted/30 py-3 px-4">
+          <div className="container mx-auto">
+            <p className="text-xs text-muted-foreground text-center">
+              Nimble Navigator is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+            </p>
+          </div>
+        </footer>
       </main>
     );
   }

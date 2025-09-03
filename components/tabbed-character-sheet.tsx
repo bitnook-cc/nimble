@@ -49,13 +49,23 @@ export function TabbedCharacterSheet() {
 
   return (
     <div className="relative">
-      {/* Content area with bottom padding for tab bar */}
-      <div className="pb-20 sm:pb-24 min-h-[calc(100vh-8rem)]">
+      {/* Content area with bottom padding for tab bar and footer */}
+      <div className="pb-32 sm:pb-36 min-h-[calc(100vh-8rem)]">
         {renderActiveTab()}
       </div>
       
+
+      
       {/* Bottom tab navigation */}
       <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
+            {/* Disclaimer Footer */}
+      <div className="fixed bottom-14 sm:bottom-16 left-0 right-0 border-t bg-muted/30 py-2 px-4 z-40">
+        <div className="container mx-auto">
+          <p className="text-xs text-muted-foreground text-center">
+            Nimble Navigator is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
