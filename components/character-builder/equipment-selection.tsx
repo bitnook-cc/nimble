@@ -21,11 +21,15 @@ export function EquipmentSelection({
   onEquipmentReady 
 }: EquipmentSelectionProps) {
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
-  const [equipment, setEquipment] = useState<Item[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const itemService = getItemService();
   const contentRepository = getContentRepository();
+  
+  // Convert selectedEquipment repository IDs to display items
+  const equipment = selectedEquipment.map(repositoryId => {
+    return itemService.createInventoryItem(repositoryId);
+  }).filter(item => item !== null) as Item[];
 
   useEffect(() => {
     if (!isInitialized && classId) {
@@ -33,38 +37,39 @@ export function EquipmentSelection({
       setIsInitialized(true);
     }
   }, [classId, isInitialized]);
+  
+  // Sync with selectedEquipment changes
+  useEffect(() => {
+    // This effect ensures the component re-renders when selectedEquipment changes
+    // The equipment array is computed from selectedEquipment above
+  }, [selectedEquipment]);
 
   const loadStartingEquipment = () => {
     // Get starting equipment for the class
     const classDefinition = contentRepository.getClassDefinition(classId);
     if (classDefinition?.startingEquipment) {
-      // Convert repository items to inventory items
-      const equipmentItems = classDefinition.startingEquipment.map(repositoryId => {
-        const inventoryItem = itemService.createInventoryItem(repositoryId);
-        return inventoryItem;
-      }).filter(item => item !== null) as Item[];
-
-      setEquipment(equipmentItems);
-      
-      // Notify parent with equipment IDs
-      const equipmentIds = equipmentItems.map(item => item.id);
-      onEquipmentReady(equipmentIds);
+      // Notify parent with original repository IDs
+      onEquipmentReady(classDefinition.startingEquipment);
     } else {
       // No starting equipment
       onEquipmentReady([]);
     }
   };
 
-  const handleAddItem = (item: Item) => {
-    const newEquipment = [...equipment, item];
-    setEquipment(newEquipment);
-    onEquipmentReady(newEquipment.map(item => item.id));
+  const handleAddItem = (repositoryId: string) => {
+    // Add to the selectedEquipment array
+    const newSelectedEquipment = [...selectedEquipment, repositoryId];
+    onEquipmentReady(newSelectedEquipment);
   };
 
   const handleRemoveItem = (itemId: string) => {
-    const newEquipment = equipment.filter(item => item.id !== itemId);
-    setEquipment(newEquipment);
-    onEquipmentReady(newEquipment.map(item => item.id));
+    // Find the item in the equipment array to get its index
+    const itemIndex = equipment.findIndex(item => item.id === itemId);
+    if (itemIndex >= 0) {
+      // Remove the corresponding repository ID from selectedEquipment
+      const newSelectedEquipment = selectedEquipment.filter((_, index) => index !== itemIndex);
+      onEquipmentReady(newSelectedEquipment);
+    }
   };
 
   const getItemIcon = (item: Item) => {
@@ -168,10 +173,7 @@ export function EquipmentSelection({
         isOpen={isItemBrowserOpen}
         onClose={() => setIsItemBrowserOpen(false)}
         onItemAdd={(repositoryId) => {
-          const item = itemService.createInventoryItem(repositoryId);
-          if (item) {
-            handleAddItem(item);
-          }
+          handleAddItem(repositoryId);
           setIsItemBrowserOpen(false);
         }}
       />

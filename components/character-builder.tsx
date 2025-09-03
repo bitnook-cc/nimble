@@ -5,7 +5,8 @@ import { WizardDialog } from "./wizard/wizard-dialog";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
 import { ClassSelection } from "./character-builder/class-selection";
-import { HeritageSelection } from "./character-builder/heritage-selection";
+import { AncestrySelection } from "./character-builder/ancestry-selection";
+import { BackgroundSelection } from "./character-builder/background-selection";
 import { AttributeSelection } from "./character-builder/attribute-selection";
 import { SkillsSelection } from "./character-builder/skills-selection";
 import { EquipmentSelection } from "./character-builder/equipment-selection";
@@ -102,7 +103,8 @@ interface CharacterBuilderState {
 // Builder steps
 const STEPS = [
   { id: 'class', label: 'Class' },
-  { id: 'heritage', label: 'Heritage' },
+  { id: 'ancestry', label: 'Ancestry' },
+  { id: 'background', label: 'Background' },
   { id: 'features', label: 'Features' },
   { id: 'attributes', label: 'Attributes' },
   { id: 'skills', label: 'Skills' },
@@ -181,6 +183,14 @@ export function CharacterBuilder({
     setBuilderState(prev => ({ ...prev, skillAllocations }));
   };
 
+  const canProceedFromAncestry = (): boolean => {
+    return !!(builderState.ancestryId && builderState.name.trim());
+  };
+
+  const canProceedFromBackground = (): boolean => {
+    return !!(builderState.backgroundId && canProceedFromAncestry());
+  };
+
   const canProceedFromHeritage = (): boolean => {
     return !!(builderState.classId && 
               builderState.ancestryId && 
@@ -189,7 +199,7 @@ export function CharacterBuilder({
   };
 
   const createCharacterFromBuilder = async () => {
-    if (!canProceedFromHeritage()) return;
+    if (!canProceedFromBackground()) return;
     if (!builderState.classId || !builderState.ancestryId || !builderState.backgroundId) return;
 
     try {
@@ -230,8 +240,10 @@ export function CharacterBuilder({
     switch (STEPS[currentStep].id) {
       case 'class':
         return !!builderState.classId;
-      case 'heritage':
-        return canProceedFromHeritage();
+      case 'ancestry':
+        return canProceedFromAncestry();
+      case 'background':
+        return canProceedFromBackground();
       case 'features':
         return canProceedFromHeritage();
       case 'attributes':
@@ -250,19 +262,22 @@ export function CharacterBuilder({
     
     switch (currentStepId) {
       case 'class':
-        setCurrentStep(1); // Go to heritage
+        setCurrentStep(1); // Go to ancestry
         break;
-      case 'heritage':
-        setCurrentStep(2); // Go to features
+      case 'ancestry':
+        setCurrentStep(2); // Go to background
+        break;
+      case 'background':
+        setCurrentStep(3); // Go to features
         break;
       case 'features':
-        setCurrentStep(3); // Go to attributes
+        setCurrentStep(4); // Go to attributes
         break;
       case 'attributes':
-        setCurrentStep(4); // Go to skills
+        setCurrentStep(5); // Go to skills
         break;
       case 'skills':
-        setCurrentStep(5); // Go to equipment
+        setCurrentStep(6); // Go to equipment
         break;
       case 'equipment':
         await handleFinalizeCharacter();
@@ -279,8 +294,10 @@ export function CharacterBuilder({
   const getNextButtonText = (): string => {
     switch (STEPS[currentStep].id) {
       case 'class':
-        return 'Next: Heritage';
-      case 'heritage':
+        return 'Next: Ancestry';
+      case 'ancestry':
+        return 'Next: Background';
+      case 'background':
         return 'Next: Features';
       case 'features':
         return 'Next: Attributes';
@@ -297,10 +314,12 @@ export function CharacterBuilder({
 
   const getPreviousButtonText = (): string => {
     switch (STEPS[currentStep].id) {
-      case 'heritage':
+      case 'ancestry':
         return 'Back to Class';
+      case 'background':
+        return 'Back to Ancestry';
       case 'features':
-        return 'Back to Heritage';
+        return 'Back to Background';
       case 'attributes':
         return 'Back to Features';
       case 'skills':
@@ -322,17 +341,22 @@ export function CharacterBuilder({
             onClassSelect={handleClassSelect}
           />
         );
-      case 'heritage':
+      case 'ancestry':
         return (
-          <HeritageSelection
+          <AncestrySelection
             availableAncestries={availableAncestries}
-            availableBackgrounds={availableBackgrounds}
             selectedAncestryId={builderState.ancestryId}
-            selectedBackgroundId={builderState.backgroundId}
             characterName={builderState.name}
             onAncestrySelect={handleAncestrySelect}
-            onBackgroundSelect={handleBackgroundSelect}
             onNameChange={handleNameChange}
+          />
+        );
+      case 'background':
+        return (
+          <BackgroundSelection
+            availableBackgrounds={availableBackgrounds}
+            selectedBackgroundId={builderState.backgroundId}
+            onBackgroundSelect={handleBackgroundSelect}
           />
         );
       case 'features':
@@ -384,22 +408,26 @@ export function CharacterBuilder({
       completed.push(0); // Class step
     }
     
-    if (canProceedFromHeritage()) {
-      completed.push(1); // Heritage step
+    if (canProceedFromAncestry()) {
+      completed.push(1); // Ancestry step
+    }
+    
+    if (canProceedFromBackground()) {
+      completed.push(2); // Background step
     }
     
     if (canProceedFromHeritage()) {
-      completed.push(2); // Features step (available after heritage)
+      completed.push(3); // Features step (available after heritage)
       
       // Mark subsequent steps as available once features are done
-      if (currentStep > 2) {
-        completed.push(3); // Attributes step
-        completed.push(4); // Skills step
+      if (currentStep > 3) {
+        completed.push(4); // Attributes step
+        completed.push(5); // Skills step
       }
     }
     
     if (builderState.equipmentReady) {
-      completed.push(4); // Equipment step
+      completed.push(6); // Equipment step
     }
     
     return completed;
@@ -415,7 +443,10 @@ export function CharacterBuilder({
       currentStep={currentStep}
       onStepChange={(step) => {
         // Only allow direct step navigation if the step is accessible
-        if (step < currentStep || (step === 0 || (step === 1 && builderState.classId))) {
+        if (step < currentStep || 
+            (step === 0) || 
+            (step === 1 && builderState.classId) ||
+            (step === 2 && canProceedFromAncestry())) {
           setCurrentStep(step);
         }
       }}
