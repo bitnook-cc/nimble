@@ -89,8 +89,7 @@ const oathswornFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Sacred Oath',
-    description: 'Commit yourself to an Oath and gain its benefits.',
-    availableSubclasses: ['oathsworn-vengeance', 'oathsworn-refuge']
+    description: 'Commit yourself to an Oath and gain its benefits.'
   },
   {
     id: 'radiant-judgment-2',

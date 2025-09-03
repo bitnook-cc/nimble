@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition, FeaturePool } from '../../types/class';
+import { ClassDefinition, ClassFeature, FeaturePool } from '../../types/class';
 
 // Sacred Graces - Feature Pool
 const sacredGraces: ClassFeature[] = [
@@ -143,8 +143,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Subclass',
-    description: 'Choose a Shepherd subclass.',
-    availableSubclasses: ['shepherd-mercy', 'shepherd-malice']
+    description: 'Choose a Shepherd subclass.'
   },
   {
     id: 'master-of-twilight-1',
@@ -414,106 +413,6 @@ const shepherdFeatures: ClassFeature[] = [
   }
 ];
 
-// Luminary of Mercy Subclass
-const luminaryOfMercyFeatures: ClassFeature[] = [
-  {
-    id: 'merciful-healing',
-    level: 3,
-    type: 'passive_feature',
-    name: 'Merciful Healing',
-    description: 'When an effect caused by you heals a Dying creature, they are healed for twice as much. (1/round) Your Lifebinding Spirit can act for free while you are Dying. Life is Beautiful: Harmless and lovely creatures such as butterflies and humming birds are attracted to your presence and often follow you. Flowers bloom more vibrantly in your presence.',
-    category: 'combat'
-  },
-  {
-    id: 'conduit-of-light',
-    level: 7,
-    type: 'passive_feature',
-    name: 'Conduit of Light',
-    description: 'When an effect caused by you would heal HP, you may expend 1 use of Searing Light to heal (or damage, ignoring armor) another target within 6 spaces of yourself for the same amount.',
-    category: 'combat'
-  },
-  {
-    id: 'powerful-healer',
-    level: 11,
-    type: 'ability',
-    name: 'Powerful Healer',
-    description: '(WIL times/Safe Rest) Whenever you would roll dice to heal damage, you may instead heal the max amount you could roll, or give that many temp HP.',
-    ability: {
-      id: 'powerful-healer',
-      name: 'Powerful Healer',
-      description: 'Heal the maximum amount instead of rolling dice.',
-      type: 'action',
-      frequency: 'per_safe_rest'
-    }
-  },
-  {
-    id: 'empowered-conduit',
-    level: 15,
-    type: 'passive_feature',
-    name: 'Empowered Conduit',
-    description: 'Your Conduit of Light may target 1 additional creature. Regain 1 charge of Searing Light when you roll Initiative (this expires if unspent at the end of combat).',
-    category: 'combat'
-  }
-];
-
-const luminaryOfMercy: SubclassDefinition = {
-  id: 'shepherd-mercy',
-  name: 'Luminary of Mercy',
-  description: 'A divine healer who channels radiant energy to heal and protect allies.',
-  parentClassId: 'shepherd',
-  features: luminaryOfMercyFeatures
-};
-
-// Luminary of Malice Subclass
-const luminaryOfMaliceFeatures: ClassFeature[] = [
-  {
-    id: 'soul-reaper',
-    level: 3,
-    type: 'passive_feature',
-    name: 'Soul Reaper',
-    description: 'When you use Searing Light to harm an enemy, make a 2nd enemy within range take the same amount of damage (ignoring armor). Harbinger of Decay: Vibrant colors and lovely smells are suppressed near you. Foods spoil more rapidly in your presence, and you frequently awaken to flies wherever you lodge. You may have your Lifebinding Spirit shift into a deathly version of itself (a zombie dog, a devious imp, etc.) and have its damage type become necrotic.',
-    category: 'combat'
-  },
-  {
-    id: 'veilwalkers-blessing',
-    level: 7,
-    type: 'ability',
-    name: 'Veilwalker\'s Blessing',
-    description: '(1/Safe Rest) Reaction (when you would drop to 0 HP): Drop to 1 HP instead and force an enemy within 6 spaces to make a STR save. On a failure, they become Bloodied, or if they are already Bloodied, they drop to 0 HP.',
-    ability: {
-      id: 'veilwalkers-blessing',
-      name: 'Veilwalker\'s Blessing',
-      description: 'Drop to 1 HP instead of 0 and force an enemy to make a STR save.',
-      type: 'action',
-      frequency: 'per_safe_rest',
-      maxUses: 1
-    }
-  },
-  {
-    id: 'deathbringers-touch',
-    level: 11,
-    type: 'passive_feature',
-    name: 'Deathbringer\'s Touch',
-    description: 'Your first melee attack each round against a Bloodied creature is an automatic critical hit. Your Lifebinding Spirit deals additional damage equal to your STR.',
-    category: 'combat'
-  },
-  {
-    id: 'conduit-of-death',
-    level: 15,
-    type: 'passive_feature',
-    name: 'Conduit of Death',
-    description: 'Your Veilwalker\'s Blessing ability recharges when you roll Initiative. This charge is lost if unspent at the end of combat.',
-    category: 'combat'
-  }
-];
-
-const luminaryOfMalice: SubclassDefinition = {
-  id: 'shepherd-malice',
-  name: 'Luminary of Malice',
-  description: 'A dark priest who channels necrotic energy to harm enemies and manipulate death.',
-  parentClassId: 'shepherd',
-  features: luminaryOfMaliceFeatures
-};
 
 // Main Class Definition
 export const shepherd: ClassDefinition = {
@@ -535,8 +434,7 @@ export const shepherd: ClassDefinition = {
       description: 'Divine gifts that enhance your Lifebinding Spirit and grant special abilities.',
       features: sacredGraces
     }
-  ],
-  subclasses: [luminaryOfMercy, luminaryOfMalice]
+  ]
 };
 
 export const shepherdClass = shepherd;

@@ -1,7 +1,5 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition } from '../../types/class';
+import { ClassDefinition, ClassFeature } from '../../types/class';
 import { ActionAbility } from '../../types/abilities';
-import { berserkerMountainheart } from '../subclasses/berserker-mountainheart';
-import { berserkerRedMist } from '../subclasses/berserker-red-mist';
 
 // Savage Arsenal abilities - Feature Pool
 const savageArsenalFeatures: ClassFeature[] = [
@@ -190,8 +188,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Berserker Subclass',
-    description: 'Choose your path of rage and fury.',
-    availableSubclasses: ['path-of-the-mountainheart', 'path-of-the-red-mist']
+    description: 'Choose your path of rage and fury.'
   },
   {
     id: 'berserker-bloodlust',
@@ -508,9 +505,5 @@ export const berserkerClass: ClassDefinition = {
       description: 'A collection of brutal combat techniques that Berserkers can learn as they progress.',
       features: savageArsenalFeatures
     }
-  ],
-  subclasses: [
-    berserkerMountainheart,
-    berserkerRedMist
   ]
 };

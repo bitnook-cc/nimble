@@ -1,6 +1,4 @@
 import { ClassDefinition, ClassFeature, FeaturePool } from '../../types/class';
-import { circleOfSkyAndStorm } from '../subclasses/stormshifter-sky-storm';
-import { circleOfFangAndClaw } from '../subclasses/stormshifter-fang-claw';
 
 // Chimeric Boons - Feature Pool
 const chimericBoonsFeatures: ClassFeature[] = [
@@ -151,8 +149,7 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Subclass',
-    description: 'Choose a Stormshifter subclass.',
-    availableSubclasses: ['circle-of-sky-and-storm', 'circle-of-fang-and-claw']
+    description: 'Choose a Stormshifter subclass.'
   },
   {
     id: 'direbeast-form-2',
@@ -559,9 +556,5 @@ export const stormshifterClass: ClassDefinition = {
       features: chimericBoonsFeatures
     },
     direbestFormsPool
-  ],
-  subclasses: [
-    circleOfSkyAndStorm,
-    circleOfFangAndClaw
   ]
 };

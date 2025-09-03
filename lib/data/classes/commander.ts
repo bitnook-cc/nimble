@@ -1,6 +1,4 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition } from '../../types/class';
-import { commanderBulwark } from '../subclasses/commander-bulwark';
-import { commanderVanguard } from '../subclasses/commander-vanguard';
+import { ClassDefinition, ClassFeature } from '../../types/class';
 
 // Commander's Orders - Feature Pool
 const commandersOrdersFeatures: ClassFeature[] = [
@@ -222,8 +220,7 @@ const commanderFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Commander Subclass',
-    description: 'Choose your path of command.',
-    availableSubclasses: ['champion-of-the-bulwark', 'champion-of-the-vanguard']
+    description: 'Choose your path of command.'
   },
   // Level 4
   {
@@ -580,9 +577,5 @@ export const commanderClass: ClassDefinition = {
       description: 'Specialized weapon techniques for different damage types.',
       features: weaponMasteryFeatures
     }
-  ],
-  subclasses: [
-    commanderBulwark,
-    commanderVanguard
   ]
 };

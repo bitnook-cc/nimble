@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition, FeaturePool } from '../../types/class';
+import { ClassDefinition, ClassFeature, FeaturePool } from '../../types/class';
 
 // Lyrical Weaponry - Feature Pool
 const lyricalWeaponry: ClassFeature[] = [
@@ -198,8 +198,7 @@ const songweaverFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Subclass',
-    description: 'Choose a Songweaver subclass.',
-    availableSubclasses: ['songweaver-snark', 'songweaver-courage']
+    description: 'Choose a Songweaver subclass.'
   },
   {
     id: 'quick-wit',
@@ -480,120 +479,6 @@ const songweaverFeatures: ClassFeature[] = [
   }
 ];
 
-// Herald of Snark Subclass
-const heraldOfSnarkFeatures: ClassFeature[] = [
-  {
-    id: 'opportunistic-snark',
-    level: 3,
-    type: 'ability',
-    name: 'Opportunistic Snark',
-    description: 'Reaction (when an enemy within Range 12 misses an attack): You may cast Vicious Mockery at them; it deals double damage when cast this way.',
-    ability: {
-      id: 'opportunistic-snark',
-      name: 'Opportunistic Snark',
-      description: 'Cast Vicious Mockery for double damage when enemy misses.',
-      type: 'action',
-      frequency: 'at_will'
-    }
-  },
-  {
-    id: 'fight-picker',
-    level: 7,
-    type: 'ability',
-    name: 'Fight Picker',
-    description: '(1/turn) When an enemy is damaged by your Vicious Mockery, you may have one of your allies Taunt them until the end of the enemy\'s turn instead.',
-    ability: {
-      id: 'fight-picker',
-      name: 'Fight Picker',
-      description: 'Transfer Vicious Mockery taunt to an ally.',
-      type: 'action',
-      frequency: 'at_will'
-    }
-  },
-  {
-    id: 'chord-of-chaos',
-    level: 11,
-    type: 'ability',
-    name: 'Chord of Chaos',
-    description: '(1/encounter) Action: You may move ALL creatures within hearing of your song up to 3 spaces as long as they do not move into an obviously dangerous place.',
-    ability: {
-      id: 'chord-of-chaos',
-      name: 'Chord of Chaos',
-      description: 'Move all creatures within hearing up to 3 spaces.',
-      type: 'action',
-      frequency: 'per_encounter',
-      maxUses: 1,
-      actionCost: 1
-    }
-  },
-  {
-    id: 'words-like-swords',
-    level: 15,
-    type: 'passive_feature',
-    name: 'Words Like Swords',
-    description: 'Your Vicious Mockery damage becomes 1d6+INT+WIL.',
-    category: 'combat'
-  }
-];
-
-const heraldOfSnark: SubclassDefinition = {
-  id: 'songweaver-snark',
-  name: 'Herald of Snark',
-  description: 'A master of cutting words and mockery who uses wit as a weapon.',
-  parentClassId: 'songweaver',
-  features: heraldOfSnarkFeatures
-};
-
-// Herald of Courage Subclass
-const heraldOfCourageFeatures: ClassFeature[] = [
-  {
-    id: 'inspiring-presence',
-    level: 3,
-    type: 'passive_feature',
-    name: 'Inspiring Presence',
-    description: 'Whenever you use Songweaver\'s Inspiration, your allies within 12 spaces who can hear you gain WIL temp HP.',
-    category: 'combat'
-  },
-  {
-    id: 'unfailing-courage',
-    level: 7,
-    type: 'passive_feature',
-    name: 'Unfailing Courage',
-    description: 'Your presence inspires others to feats of heroism and courage heard of only in legend. Your Songweaver\'s Inspiration allows your target to roll with advantage.',
-    category: 'combat'
-  },
-  {
-    id: 'fire-in-my-bones',
-    level: 11,
-    type: 'passive_feature',
-    name: 'Fire in my Bones',
-    description: 'Your Songweaver\'s Inspiration also grants your target 1 additional action.',
-    category: 'combat'
-  },
-  {
-    id: 'chorus-of-champions',
-    level: 15,
-    type: 'ability',
-    name: 'Chorus of Champions',
-    description: '(1/encounter) Free Reaction: Give all party members 1 action.',
-    ability: {
-      id: 'chorus-of-champions',
-      name: 'Chorus of Champions',
-      description: 'Give all party members 1 action.',
-      type: 'action',
-      frequency: 'per_encounter',
-      maxUses: 1
-    }
-  }
-];
-
-const heraldOfCourage: SubclassDefinition = {
-  id: 'songweaver-courage',
-  name: 'Herald of Courage',
-  description: 'An inspiring leader who bolsters allies with songs of heroism and valor.',
-  parentClassId: 'songweaver',
-  features: heraldOfCourageFeatures
-};
 
 // Main Class Definition
 export const songweaver: ClassDefinition = {
@@ -621,8 +506,7 @@ export const songweaver: ClassDefinition = {
       description: 'Friends and allies you\'ve met in your travels who can be summoned to aid you.',
       features: peoplePerson
     }
-  ],
-  subclasses: [heraldOfSnark, heraldOfCourage]
+  ]
 };
 
 export const songweaverClass = songweaver;

@@ -120,21 +120,15 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
   const getContentForType = (contentType: CustomContentType): ContentItem[] => {
     switch (contentType) {
       case CustomContentType.CLASS_DEFINITION:
-        return contentRepository.getAllClasses().filter(cls => 
-          !['fighter', 'wizard', 'cleric', 'rogue'].includes(cls.id)
-        );
+        return contentRepository.getAllClasses();
       case CustomContentType.SUBCLASS_DEFINITION:
         return contentRepository.getAllSubclasses();
       case CustomContentType.SPELL_SCHOOL_DEFINITION:
         return contentRepository.getAllSpellSchools();
       case CustomContentType.ANCESTRY_DEFINITION:
-        return contentRepository.getAllAncestries().filter(ancestry => 
-          !['human', 'elf', 'dwarf', 'halfling'].includes(ancestry.id)
-        );
+        return contentRepository.getAllAncestries();
       case CustomContentType.BACKGROUND_DEFINITION:
-        return contentRepository.getAllBackgrounds().filter(background => 
-          !['noble', 'scholar', 'soldier', 'folk-hero'].includes(background.id)
-        );
+        return contentRepository.getAllBackgrounds();
       case CustomContentType.ACTION_ABILITY:
         return contentRepository.getAllActionAbilities();
       case CustomContentType.SPELL_ABILITY:

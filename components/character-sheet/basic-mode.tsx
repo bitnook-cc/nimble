@@ -5,6 +5,7 @@ import { HealthManagement } from "./health-management";
 import { CombatSection } from "./combat-section";
 import { ResourceSection } from "../sections/resource-section";
 import { PoolSelectionsSection } from "../sections/pool-selections-section";
+import { SubclassSelectionsSection } from "../sections/subclass-selections-section";
 
 /**
  * BasicMode component renders the essential character sheet features.
@@ -20,6 +21,9 @@ export function BasicMode() {
 
   return (
     <>
+      {/* Subclass Selections - Important actions that need player attention */}
+      <SubclassSelectionsSection />
+
       {/* Pool Selections - Important actions that need player attention */}
       <PoolSelectionsSection />
 

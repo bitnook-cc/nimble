@@ -256,12 +256,18 @@ const selectedUtilitySpellsSchema = baseSelectedFeatureSchema.extend({
   fromSchools: z.array(z.string().min(1))
 });
 
+const selectedSubclassSchema = baseSelectedFeatureSchema.extend({
+  type: z.literal('subclass'),
+  subclassId: z.string().min(1)
+});
+
 // Union of all selected feature types
 const selectedFeatureSchema = z.discriminatedUnion('type', [
   selectedPoolFeatureSchema,
   selectedSpellSchoolSchema,
   selectedStatBoostSchema,
-  selectedUtilitySpellsSchema
+  selectedUtilitySpellsSchema,
+  selectedSubclassSchema
 ]);
 
 export const createCharacterSchema = z.object({

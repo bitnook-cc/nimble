@@ -41,8 +41,7 @@ const mageFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Mage Subclass',
-    description: 'Choose a Mage subclass.',
-    availableSubclasses: ['mage-control', 'mage-chaos']
+    description: 'Choose a Mage subclass.'
   },
   {
     id: 'elemental-mastery',

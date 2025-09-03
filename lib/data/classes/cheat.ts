@@ -1,6 +1,4 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition } from '../../types/class';
-import { cheatSilentBlade } from '../subclasses/cheat-silent-blade';
-import { cheatScoundrel } from '../subclasses/cheat-scoundrel';
+import { ClassDefinition, ClassFeature } from '../../types/class';
 
 // Underhanded Abilities - Feature Pool
 const underhandedAbilitiesFeatures: ClassFeature[] = [
@@ -162,8 +160,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Cheat Subclass',
-    description: 'Choose your path of deception.',
-    availableSubclasses: ['tools-of-the-silent-blade', 'tools-of-the-scoundrel']
+    description: 'Choose your path of deception.'
   },
   {
     id: 'cheat-sneak-attack-2',
@@ -544,9 +541,5 @@ export const cheatClass: ClassDefinition = {
       description: 'A collection of sneaky tricks and exploits that Cheats can learn as they progress.',
       features: underhandedAbilitiesFeatures
     }
-  ],
-  subclasses: [
-    cheatSilentBlade,
-    cheatScoundrel
   ]
 };

@@ -51,33 +51,33 @@ import { wayOfFlame } from './zephyr-flame';
 import { SubclassDefinition } from '../../types/class';
 
 // All subclass definitions
-export const subclassDefinitions: Record<string, SubclassDefinition> = {
-  'berserker-red-mist': berserkerRedMist,
-  'berserker-mountainheart': berserkerMountainheart,
-  'cheat-silent-blade': cheatSilentBlade,
-  'cheat-scoundrel': cheatScoundrel,
-  'commander-bulwark': commanderBulwark,
-  'commander-vanguard': commanderVanguard,
-  'hunter-wildheart': hunterWildheart,
-  'hunter-shadowpath': hunterShadowpath,
-  'mage-chaos': mageChaos,
-  'mage-control': mageControl,
-  'oathsworn-vengeance': oathswornVengeance,
-  'oathsworn-refuge': oathswornRefuge,
-  'stormshifter-sky-storm': circleOfSkyAndStorm,
-  'stormshifter-fang-claw': circleOfFangAndClaw,
-  'zephyr-pain': wayOfPain,
-  'zephyr-flame': wayOfFlame
-};
+export const subclassDefinitions: SubclassDefinition[] = [
+  berserkerRedMist,
+  berserkerMountainheart,
+  cheatSilentBlade,
+  cheatScoundrel,
+  commanderBulwark,
+  commanderVanguard,
+  hunterWildheart,
+  hunterShadowpath,
+  mageChaos,
+  mageControl,
+  oathswornVengeance,
+  oathswornRefuge,
+  circleOfSkyAndStorm,
+  circleOfFangAndClaw,
+  wayOfPain,
+  wayOfFlame
+];
 
 // Helper function to get a subclass definition by ID
 export function getSubclassDefinition(subclassId: string): SubclassDefinition | null {
-  return subclassDefinitions[subclassId] || null;
+  return subclassDefinitions.find(subclass => subclass.id === subclassId) || null;
 }
 
 // Helper function to get all subclasses for a specific class
 export function getSubclassesForClass(classId: string): SubclassDefinition[] {
-  return Object.values(subclassDefinitions).filter(subclass => subclass.parentClassId === classId);
+  return subclassDefinitions.filter(subclass => subclass.parentClassId === classId);
 }
 
 // Helper function to get features for a specific subclass and level

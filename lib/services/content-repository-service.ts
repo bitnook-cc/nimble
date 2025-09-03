@@ -9,6 +9,7 @@ import { ITEM_REPOSITORY } from '../data/items';
 
 // Built-in content imports
 import { classDefinitions as builtInClasses } from '../data/classes/index';
+import { subclassDefinitions as builtInSubclasses } from '../data/subclasses/index';
 import { ancestryDefinitions as builtInAncestries } from '../data/ancestries/index';
 import { backgroundDefinitions as builtInBackgrounds } from '../data/backgrounds/index';
 import { 
@@ -64,12 +65,12 @@ export class ContentRepositoryService {
   // Class Management
   public getAllClasses(): ClassDefinition[] {
     const customClasses = this.getCustomClasses();
-    return [...Object.values(builtInClasses), ...customClasses];
+    return [...builtInClasses, ...customClasses];
   }
 
   public getClassDefinition(classId: string): ClassDefinition | null {
     // Check built-in classes first
-    const builtInClass = builtInClasses[classId];
+    const builtInClass = builtInClasses.find(cls => cls.id === classId);
     if (builtInClass) return builtInClass;
 
     // Check custom classes
@@ -459,11 +460,36 @@ export class ContentRepositoryService {
 
   // Subclass Management
   public getAllSubclasses(): SubclassDefinition[] {
-    return this.getCustomSubclasses();
+    const customSubclasses = this.getCustomSubclasses();
+    return [...builtInSubclasses, ...customSubclasses];
+  }
+
+  public getSubclassDefinition(subclassId: string): SubclassDefinition | null {
+    // Check built-in subclasses first
+    const builtInSubclass = builtInSubclasses.find(sub => sub.id === subclassId);
+    if (builtInSubclass) return builtInSubclass;
+
+    // Check custom subclasses
+    const customSubclasses = this.getCustomSubclasses();
+    return customSubclasses.find(sub => sub.id === subclassId) || null;
   }
 
   public getSubclassesForClass(classId: string): SubclassDefinition[] {
-    return this.getCustomSubclasses().filter(sub => sub.parentClassId === classId);
+    return this.getAllSubclasses().filter(sub => sub.parentClassId === classId);
+  }
+
+  public getSubclassFeaturesForLevel(subclassId: string, level: number): SubclassDefinition['features'] {
+    const subclassDef = this.getSubclassDefinition(subclassId);
+    if (!subclassDef) return [];
+    
+    return subclassDef.features.filter(feature => feature.level === level);
+  }
+
+  public getAllSubclassFeaturesUpToLevel(subclassId: string, level: number): SubclassDefinition['features'] {
+    const subclassDef = this.getSubclassDefinition(subclassId);
+    if (!subclassDef) return [];
+    
+    return subclassDef.features.filter(feature => feature.level <= level);
   }
 
   public uploadSubclasses(subclassesJson: string): ContentUploadResult {

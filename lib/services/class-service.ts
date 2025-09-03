@@ -1,7 +1,7 @@
-import { Character, SelectedFeature, SelectedPoolFeature } from '../types/character';
+import { Character, SelectedFeature, SelectedPoolFeature, SelectedSubclass } from '../types/character';
 import { ClassDefinition, ClassFeature, ClassFeatureGrant, AbilityFeature, StatBoostFeature, ProficiencyFeature, SpellSchoolFeature, SpellSchoolChoiceFeature, UtilitySpellsFeature, SpellTierAccessFeature, ResourceFeature, SubclassChoiceFeature, SubclassDefinition, PickFeatureFromPoolFeature, FeaturePool } from '../types/class';
 import { ResourceInstance, createResourceInstance } from '../types/resources';
-import { getSubclassDefinition, getSubclassFeaturesForLevel, getAllSubclassFeaturesUpToLevel } from '../data/subclasses/index';
+// Removed direct subclass imports - now using ContentRepositoryService
 import { SpellAbility } from '../types/abilities';
 import { IClassService, ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
@@ -29,7 +29,7 @@ export class ClassService implements IClassService {
    */
   getCharacterSubclass(character: Character): SubclassDefinition | null {
     if (!character.subclassId) return null;
-    return getSubclassDefinition(character.subclassId);
+    return this.contentRepository.getSubclassDefinition(character.subclassId);
   }
 
   /**
@@ -40,7 +40,7 @@ export class ClassService implements IClassService {
     
     // Add subclass features if character has a subclass
     if (character.subclassId) {
-      const subclassFeatures = getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
+      const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
       return [...classFeatures, ...subclassFeatures];
     }
     
@@ -60,7 +60,7 @@ export class ClassService implements IClassService {
       
       // Check if this feature comes from a subclass
       if (character.subclassId) {
-        const subclassFeatures = getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
+        const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
         const isSubclassFeature = subclassFeatures.some(sf => sf.name === feature.name && sf.level === feature.level);
         
         if (isSubclassFeature) {
@@ -148,12 +148,30 @@ export class ClassService implements IClassService {
    * Grant a specific feature to a character
    */
   async grantFeature(character: Character, feature: ClassFeature, level: number): Promise<ClassFeatureGrant> {
-    const featureId = this.generateFeatureId(character.classId, level, feature.name);
+    // Check if this feature comes from a subclass
+    let featureId: string;
+    let sourceClassId: string;
+    
+    if (character.subclassId) {
+      const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
+      const isSubclassFeature = subclassFeatures.some(sf => sf.id === feature.id);
+      
+      if (isSubclassFeature) {
+        featureId = this.generateSubclassFeatureId(character.subclassId, level, feature.name);
+        sourceClassId = character.subclassId;
+      } else {
+        featureId = this.generateFeatureId(character.classId, level, feature.name);
+        sourceClassId = character.classId;
+      }
+    } else {
+      featureId = this.generateFeatureId(character.classId, level, feature.name);
+      sourceClassId = character.classId;
+    }
     
     // Create the feature grant record
     const featureGrant: ClassFeatureGrant = {
       featureId,
-      classId: character.classId,
+      classId: sourceClassId,
       level,
       feature,
       grantedAt: new Date()
@@ -377,14 +395,9 @@ export class ClassService implements IClassService {
   /**
    * Select a subclass for a character
    */
-  async selectSubclass(characterId: string, subclassId: string): Promise<Character> {
-    const character = await this.characterService.loadCharacter(characterId);
-    if (!character) {
-      throw new Error('Character not found');
-    }
-
+  async selectSubclass(character: Character, subclassId: string, grantedByFeatureId: string): Promise<Character> {
     // Validate that the subclass is available for this character's class
-    const subclassDefinition = getSubclassDefinition(subclassId);
+    const subclassDefinition = this.contentRepository.getSubclassDefinition(subclassId);
     if (!subclassDefinition) {
       throw new Error(`Subclass not found: ${subclassId}`);
     }
@@ -396,21 +409,36 @@ export class ClassService implements IClassService {
     // Check if character has the appropriate subclass choice feature
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
     const hasSubclassChoice = expectedFeatures.some(feature => 
-      feature.type === 'subclass_choice' && 
-      feature.availableSubclasses.includes(subclassId)
+      feature.type === 'subclass_choice'
     );
 
     if (!hasSubclassChoice) {
-      throw new Error(`Character does not have access to subclass ${subclassId} at their current level`);
+      throw new Error(`Character does not have a subclass choice feature at their current level`);
     }
+
+    // Check if already have a subclass selection
+    const existingSubclassSelection = character.selectedFeatures?.find(
+      f => f.type === 'subclass' && f.grantedByFeatureId === grantedByFeatureId
+    );
+    if (existingSubclassSelection) {
+      throw new Error('Subclass has already been selected for this feature');
+    }
+
+    // Create the selected subclass record
+    const selectedSubclass: SelectedSubclass = {
+      type: 'subclass',
+      subclassId,
+      selectedAt: new Date(),
+      grantedByFeatureId
+    };
 
     // Update character with selected subclass
     const updatedCharacter = {
       ...character,
-      subclassId: subclassId
+      subclassId: subclassId,
+      selectedFeatures: [...(character.selectedFeatures || []), selectedSubclass]
     };
 
-    // Save the updated character
     await this.characterService.updateCharacter(updatedCharacter);
 
     // Sync any missing subclass features
@@ -424,15 +452,37 @@ export class ClassService implements IClassService {
    */
   getAvailableSubclassChoices(character: Character): SubclassChoiceFeature[] {
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    return expectedFeatures.filter(feature => feature.type === 'subclass_choice') as SubclassChoiceFeature[];
+    const subclassChoices = expectedFeatures.filter(feature => feature.type === 'subclass_choice') as SubclassChoiceFeature[];
+    
+    // Filter out subclass choices that have already been made
+    return subclassChoices.filter(choice => {
+      const grantedByFeatureId = this.generateFeatureId(character.classId, choice.level, choice.name);
+      const hasSelection = character.selectedFeatures?.some(
+        f => f.type === 'subclass' && f.grantedByFeatureId === grantedByFeatureId
+      );
+      return !hasSelection;
+    });
+  }
+
+  /**
+   * Get available subclasses for a character's class
+   */
+  getAvailableSubclassesForCharacter(character: Character): SubclassDefinition[] {
+    return this.contentRepository.getSubclassesForClass(character.classId);
   }
 
   /**
    * Check if character can choose a subclass
    */
   canChooseSubclass(character: Character): boolean {
-    // Can choose if they don't have a subclass and have subclass choice features available
-    return !character.subclassId && this.getAvailableSubclassChoices(character).length > 0;
+    return this.getAvailableSubclassChoices(character).length > 0;
+  }
+
+  /**
+   * Check if character has pending subclass selections to make
+   */
+  hasPendingSubclassSelections(character: Character): boolean {
+    return this.getAvailableSubclassChoices(character).length > 0;
   }
 
   /**

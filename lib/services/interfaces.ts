@@ -102,8 +102,11 @@ export interface IClassService {
   getMissingFeatures(character: Character): ClassFeature[];
   syncCharacterFeatures(): Promise<ClassFeatureGrant[]>;
   levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]>;
-  selectSubclass(characterId: string, subclassId: string): Promise<Character>;
+  selectSubclass(character: Character, subclassId: string, grantedByFeatureId: string): Promise<Character>;
   canChooseSubclass(character: Character): boolean;
+  getAvailableSubclassChoices(character: Character): import('../types/class').SubclassChoiceFeature[];
+  getAvailableSubclassesForCharacter(character: Character): import('../types/class').SubclassDefinition[];
+  hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
   getAvailablePoolFeatures(character: Character, poolId: string): ClassFeature[];
   getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeature[];

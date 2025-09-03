@@ -26,8 +26,8 @@ import { zephyrClass as zephyr } from './zephyr';
 
 import { ClassDefinition } from '../../types/class';
 
-// Main class definitions object
-export const classDefinitions: Record<string, ClassDefinition> = {
+// Main class definitions array
+export const classDefinitions: ClassDefinition[] = [
   berserker,
   cheat,
   commander,
@@ -39,16 +39,16 @@ export const classDefinitions: Record<string, ClassDefinition> = {
   songweaver,
   stormshifter,
   zephyr
-};
+];
 
 // Helper function to get a class definition by ID
 export function getClassDefinition(classId: string): ClassDefinition | null {
-  return classDefinitions[classId] || null;
+  return classDefinitions.find(cls => cls.id === classId) || null;
 }
 
 // Helper function to get all available classes
 export function getAllClasses(): ClassDefinition[] {
-  return Object.values(classDefinitions);
+  return classDefinitions;
 }
 
 // Helper function to get features for a specific class and level

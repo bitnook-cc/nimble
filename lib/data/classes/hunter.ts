@@ -79,8 +79,7 @@ const hunterFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Hunter Subclass',
-    description: 'Choose a Hunter subclass.',
-    availableSubclasses: ['hunter-shadowpath', 'hunter-wildheart']
+    description: 'Choose a Hunter subclass.'
   },
   {
     id: 'trackers-intuition',

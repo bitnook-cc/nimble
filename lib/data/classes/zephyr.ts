@@ -1,6 +1,4 @@
 import { ClassDefinition, ClassFeature, FeaturePool } from '../../types/class';
-import { wayOfPain } from '../subclasses/zephyr-pain';
-import { wayOfFlame } from '../subclasses/zephyr-flame';
 
 // Martial Arts Abilities - Feature Pool
 const martialArtsAbilities: ClassFeature[] = [
@@ -193,8 +191,7 @@ const zephyrFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'Subclass',
-    description: 'Choose a Zephyr subclass.',
-    availableSubclasses: ['way-of-pain', 'way-of-flame']
+    description: 'Choose a Zephyr subclass.'
   },
   {
     id: 'kinetic-momentum',
@@ -520,9 +517,5 @@ export const zephyrClass: ClassDefinition = {
       description: 'Special martial arts techniques that Zephyrs can master.',
       features: martialArtsAbilities
     }
-  ],
-  subclasses: [
-    wayOfPain,
-    wayOfFlame
   ]
 };

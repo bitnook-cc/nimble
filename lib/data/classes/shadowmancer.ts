@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature, SubclassDefinition, FeaturePool } from '../../types/class';
+import { ClassDefinition, ClassFeature, FeaturePool } from '../../types/class';
 
 // Shadow Invocations - Lesser Invocations Feature Pool
 const lesserInvocations: ClassFeature[] = [
@@ -268,8 +268,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 3,
     type: 'subclass_choice',
     name: 'THE PACT IS SEALED',
-    description: 'Choose a subclass and 1 Lesser Shadow Invocation.',
-    availableSubclasses: ['shadowmancer-red-dragon', 'shadowmancer-abyssal-depths']
+    description: 'Choose a subclass and 1 Lesser Shadow Invocation.'
   },
   {
     id: 'key-stat-increase-1',
@@ -556,100 +555,6 @@ const shadowmancerFeatures: ClassFeature[] = [
   }
 ];
 
-// Pact of the Red Dragon Subclass
-const redDragonFeatures: ClassFeature[] = [
-  {
-    id: 'draconic-crimson-rite',
-    level: 3,
-    type: 'passive_feature',
-    name: 'Draconic Crimson Rite',
-    description: 'Your Patron grants you knowledge of Fire spells. Your shadow minions become flaming dragon wyrmling shadows. Your Shadow Blast and minions can deal fire or necrotic damage and inflict Smoldering whenever they would crit.',
-    category: 'combat'
-  },
-  {
-    id: 'well-all-burn',
-    level: 7,
-    type: 'passive_feature',
-    name: 'We\'ll ALL Burn!',
-    description: 'You may cast Pyroclasm without Pilfered Power by including yourself in the damage. You have advantage on the save. Choose 1 Fire Utility Spell.',
-    category: 'combat'
-  },
-  {
-    id: 'heart-of-burning-fire',
-    level: 11,
-    type: 'passive_feature',
-    name: 'Heart of Burning Fire',
-    description: 'Regain 1 use of Pilfered Power each time you roll Initiative. This expires at the end of combat if unused.',
-    category: 'combat'
-  },
-  {
-    id: 'enveloped-by-the-master',
-    level: 15,
-    type: 'passive_feature',
-    name: 'Enveloped by the Master',
-    description: 'Gain 1d4 Wounds to cast Dragonform.',
-    category: 'combat'
-  }
-];
-
-const pactOfTheRedDragon: SubclassDefinition = {
-  id: 'shadowmancer-red-dragon',
-  name: 'Pact of the Red Dragon',
-  description: 'Your patron is a mighty red dragon who grants you fire magic and burning minions.',
-  parentClassId: 'shadowmancer',
-  features: redDragonFeatures
-};
-
-// Pact of the Abyssal Depths Subclass
-const abyssalDepthsFeatures: ClassFeature[] = [
-  {
-    id: 'master-of-nightfrost',
-    level: 3,
-    type: 'passive_feature',
-    name: 'Master of Nightfrost',
-    description: 'Your Patron grants you knowledge of Ice spells. Gain the ability to breathe underwater. Your Shadow minions become beings of nightfrost. Your shadow blast and minions can deal cold or necrotic damage, and whenever they would crit, you gain INT + LVL temp HP.',
-    category: 'combat'
-  },
-  {
-    id: 'shadowfrost',
-    level: 7,
-    type: 'passive_feature',
-    name: 'Shadowfrost',
-    description: 'Your Shadow Blast also Slows. You can cast Cryosleep or Rimeblades without Pilfered Power by expending 10 temp HP. Choose 1 Ice Utility Spell.',
-    category: 'combat'
-  },
-  {
-    id: 'glacial-resilience',
-    level: 11,
-    type: 'ability',
-    name: 'Glacial Resilience',
-    description: '(1/Safe Rest) Reaction (whenever you are attacked or would gain a condition), gain 10 + LVL temp HP and end ALL negative conditions on yourself. At the end of your next turn, any remaining temp HP are lost.',
-    ability: {
-      id: 'glacial-resilience',
-      name: 'Glacial Resilience',
-      description: 'Gain 10 + LVL temp HP and end ALL negative conditions on yourself.',
-      type: 'action',
-      frequency: 'per_safe_rest',
-      maxUses: 1
-    }
-  },
-  {
-    id: 'cryomancers-reprisal',
-    level: 15,
-    type: 'passive_feature',
-    name: 'Cryomancer\'s Reprisal',
-    description: 'Pay half your max HP to cast ANY Ice spell. After casting an Ice spell in this way, you gain an invisible aura. The next creature that hits you with a melee attack this encounter takes cold damage equal to half the HP you spent on this casting.',
-    category: 'combat'
-  }
-];
-
-const pactOfTheAbyssalDepths: SubclassDefinition = {
-  id: 'shadowmancer-abyssal-depths',
-  name: 'Pact of the Abyssal Depths',
-  description: 'Your patron is an ancient entity from the frozen depths who grants you ice magic and frost minions.',
-  parentClassId: 'shadowmancer',
-  features: abyssalDepthsFeatures
-};
 
 // Main Class Definition
 export const shadowmancer: ClassDefinition = {
@@ -677,8 +582,7 @@ export const shadowmancer: ClassDefinition = {
       description: 'Major powers granted by your shadow patron that enhance your combat abilities and shadow magic.',
       features: greaterInvocations
     }
-  ],
-  subclasses: [pactOfTheRedDragon, pactOfTheAbyssalDepths]
+  ]
 };
 
 export const shadowmancerClass = shadowmancer;

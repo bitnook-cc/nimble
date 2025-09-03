@@ -58,12 +58,19 @@ export interface SelectedUtilitySpells extends BaseSelectedFeature {
   fromSchools: string[]; // Which schools these spells came from
 }
 
+// Subclass selection
+export interface SelectedSubclass extends BaseSelectedFeature {
+  type: 'subclass';
+  subclassId: string; // ID of the selected subclass
+}
+
 // Union type for all selected features
 export type SelectedFeature = 
   | SelectedPoolFeature 
   | SelectedSpellSchool 
   | SelectedStatBoost 
-  | SelectedUtilitySpells;
+  | SelectedUtilitySpells
+  | SelectedSubclass;
 
 export interface ActionTracker {
   current: number; // Currently available actions

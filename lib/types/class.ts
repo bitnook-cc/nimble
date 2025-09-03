@@ -99,7 +99,6 @@ export interface SpellTierAccessFeature extends BaseClassFeature {
 // Subclass Choice - allows player to choose a subclass specialization
 export interface SubclassChoiceFeature extends BaseClassFeature {
   type: 'subclass_choice';
-  availableSubclasses: string[]; // Array of subclass IDs that can be chosen
 }
 
 // Pick Feature From Pool - allows player to choose a feature from a specific pool
@@ -156,7 +155,6 @@ export interface ClassDefinition {
   startingEquipment: string[]; // Array of repository item IDs for starting equipment
   features: ClassFeature[]; // All features available to this class
   featurePools?: FeaturePool[]; // Feature pools available for selection
-  subclasses?: SubclassDefinition[]; // Available subclasses for this class
 }
 
 // Helper types for working with class data
