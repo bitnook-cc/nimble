@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ItemBrowser } from "../item-browser";
@@ -31,20 +31,7 @@ export function EquipmentSelection({
     return itemService.createInventoryItem(repositoryId);
   }).filter(item => item !== null) as Item[];
 
-  useEffect(() => {
-    if (!isInitialized && classId) {
-      loadStartingEquipment();
-      setIsInitialized(true);
-    }
-  }, [classId, isInitialized]);
-  
-  // Sync with selectedEquipment changes
-  useEffect(() => {
-    // This effect ensures the component re-renders when selectedEquipment changes
-    // The equipment array is computed from selectedEquipment above
-  }, [selectedEquipment]);
-
-  const loadStartingEquipment = () => {
+  const loadStartingEquipment = useCallback(() => {
     // Get starting equipment for the class
     const classDefinition = contentRepository.getClassDefinition(classId);
     if (classDefinition?.startingEquipment) {
@@ -54,7 +41,20 @@ export function EquipmentSelection({
       // No starting equipment
       onEquipmentReady([]);
     }
-  };
+  }, [classId, contentRepository, onEquipmentReady]);
+
+  useEffect(() => {
+    if (!isInitialized && classId) {
+      loadStartingEquipment();
+      setIsInitialized(true);
+    }
+  }, [classId, isInitialized, loadStartingEquipment]);
+  
+  // Sync with selectedEquipment changes
+  useEffect(() => {
+    // This effect ensures the component re-renders when selectedEquipment changes
+    // The equipment array is computed from selectedEquipment above
+  }, [selectedEquipment]);
 
   const handleAddItem = (repositoryId: string) => {
     // Add to the selectedEquipment array

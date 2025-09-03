@@ -104,7 +104,7 @@ export function FeaturesOverview({
     };
 
     setCategorizedFeatures(features);
-  }, [classId, ancestryId, backgroundId]);
+  }, [classId, ancestryId, backgroundId, contentRepo]);
 
   const handleStatBoostSelection = (featureId: string, attribute: AttributeName) => {
     onFeatureSelectionsChange({
