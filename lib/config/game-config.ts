@@ -32,6 +32,8 @@ export interface GameConfig {
   };
   defaults: {
     classId: string;
+    ancestryId: string;
+    backgroundId: string;
   };
 }
 
@@ -74,5 +76,7 @@ export const gameConfig: GameConfig = {
   },
   defaults: {
     classId: 'cheat',
+    ancestryId: 'goblin',
+    backgroundId: 'former-con-artist',
   },
 };

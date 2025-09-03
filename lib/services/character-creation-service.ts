@@ -2,6 +2,7 @@ import { Character, Attributes, SelectedFeature } from '../types/character';
 import { ICharacterCreation, ICharacterStorage, ICharacterService, IAncestryService, IBackgroundService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
 import { ItemService } from './item-service';
+import { gameConfig } from '../config/game-config';
 import { 
   createDefaultCharacterConfiguration, 
   createDefaultHitPoints, 
@@ -59,8 +60,8 @@ export class CharacterCreationService implements ICharacterCreation {
   async createCharacterWithClass(options: CreateCharacterOptions): Promise<Character> {
     const {
       name,
-      ancestryId = 'human',
-      backgroundId = 'folk-hero',
+      ancestryId = gameConfig.defaults.ancestryId,
+      backgroundId = gameConfig.defaults.backgroundId,
       classId,
       level = 1,
       attributes = { strength: 0, dexterity: 0, intelligence: 0, will: 0 }
