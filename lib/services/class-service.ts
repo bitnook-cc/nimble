@@ -204,8 +204,14 @@ export class ClassService implements IClassService {
       return character;
     }
 
-    // Add the ability directly to character's abilities
-    const updatedAbilities = [...character.abilities, feature.ability];
+    // Initialize the ability with proper currentUses if it has maxUses
+    let abilityToAdd = { ...feature.ability };
+    if (abilityToAdd.type === 'action' && abilityToAdd.maxUses !== undefined && abilityToAdd.currentUses === undefined) {
+      abilityToAdd.currentUses = abilityToAdd.maxUses;
+    }
+
+    // Add the ability to character's abilities
+    const updatedAbilities = [...character.abilities, abilityToAdd];
 
     return {
       ...character,

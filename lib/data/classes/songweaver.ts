@@ -102,7 +102,8 @@ const peoplePerson: ClassFeature[] = [
       name: 'Gran Gran (NOT a hag)',
       description: 'Summon Gran Gran to bake healing pastries during rest.',
       type: 'action',
-      frequency: 'per_safe_rest'
+      frequency: 'per_safe_rest',
+      maxUses: 1
     }
   },
   {
@@ -155,7 +156,8 @@ const songweaverFeatures: ClassFeature[] = [
       name: 'Songweaver\'s Inspiration',
       description: 'Allow an ally to reroll a single die for an attack or save.',
       type: 'action',
-      frequency: 'per_safe_rest'
+      frequency: 'per_safe_rest',
+      maxUses: 2,
     }
   },
   {
