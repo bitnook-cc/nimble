@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Heart, Minus, Plus, Zap, Swords, Dice6, Square, ChevronDown, ChevronUp, Bandage, Skull, Circle, RotateCcw, Settings, HelpCircle, Sparkles } from "lucide-react";
+import { Heart, Plus, Dice6, Square, Bandage, Skull, Circle, RotateCcw, HelpCircle, Sparkles, Droplets, HeartPlus, ShieldPlus } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
@@ -108,164 +108,198 @@ function WoundsDisplay() {
   );
 }
 
-// Quick Actions Bar Subcomponent
-function QuickActionsBar() {
-  const { character, applyDamage, applyHealing, applyTemporaryHP } = useCharacterService();
-  const [showCustomPanel, setShowCustomPanel] = useState(false);
-  const [customAmount, setCustomAmount] = useState("1");
-  
-  // All hooks called first, then safety check
-  if (!character) return null;
-  
-  const { current: currentHp, max: maxHp } = character.hitPoints;
-  
-  const handleQuickDamage = (amount: number) => {
-    applyDamage(amount);
+// HP Action Panel Types
+type ActionType = 'damage' | 'healing' | 'tempHP';
+
+// HP Action Panel Subcomponent
+function HPActionPanel({ 
+  actionType, 
+  onClose, 
+  onApply 
+}: { 
+  actionType: ActionType; 
+  onClose: () => void; 
+  onApply: (amount: number) => void; 
+}) {
+  const [amount, setAmount] = useState(1);
+
+  const adjustAmount = (delta: number) => {
+    setAmount(prev => Math.max(1, prev + delta));
   };
 
-  const handleQuickHeal = (amount: number) => {
-    applyHealing(amount);
+  const handleApply = () => {
+    onApply(amount);
+    onClose();
   };
 
-  const handleCustomDamage = () => {
-    const damage = parseInt(customAmount) || 0;
-    applyDamage(damage);
-    setShowCustomPanel(false);
+  const getActionConfig = () => {
+    switch (actionType) {
+      case 'damage':
+        return {
+          title: 'Apply Damage',
+          buttonClass: 'bg-red-600 hover:bg-red-700 text-white',
+          icon: <Droplets className="w-4 h-4" />
+        };
+      case 'healing':
+        return {
+          title: 'Apply Healing',
+          buttonClass: 'bg-green-600 hover:bg-green-700 text-white',
+          icon: <HeartPlus className="w-4 h-4" />
+        };
+      case 'tempHP':
+        return {
+          title: 'Add Temporary HP',
+          buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white',
+          icon: <ShieldPlus className="w-4 h-4" />
+        };
+    }
   };
 
-  const handleCustomHeal = () => {
-    const heal = parseInt(customAmount) || 0;
-    applyHealing(heal);
-    setShowCustomPanel(false);
-  };
+  const config = getActionConfig();
 
-  const handleCustomTempHp = () => {
-    const tempAmount = parseInt(customAmount) || 0;
-    applyTemporaryHP(tempAmount);
-    setShowCustomPanel(false);
-  };
   return (
-    <div className="space-y-3 mb-3">
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Damage Buttons */}
+    <div className="mt-3 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-gray-700">{config.title}</h4>
         <Button 
-          variant="destructive" 
+          variant="ghost" 
           size="sm" 
-          onClick={() => handleQuickDamage(1)}
-          disabled={currentHp <= 0}
-          className="text-xs h-7"
+          onClick={onClose}
+          className="h-6 w-6 p-0"
         >
-          -1
+          ×
         </Button>
+      </div>
+      
+      <div className="flex items-center gap-2 mb-3">
         <Button 
-          variant="destructive" 
+          variant="outline" 
           size="sm" 
-          onClick={() => handleQuickDamage(5)}
-          disabled={currentHp <= 0}
-          className="text-xs h-7"
+          onClick={() => adjustAmount(-5)}
+          className="h-8 w-12 p-0 text-xs"
         >
           -5
         </Button>
         <Button 
-          variant="destructive" 
+          variant="outline" 
           size="sm" 
-          onClick={() => handleQuickDamage(10)}
-          disabled={currentHp <= 0}
-          className="text-xs h-7"
+          onClick={() => adjustAmount(-1)}
+          className="h-8 w-12 p-0 text-xs"
         >
-          -10
+          -1
         </Button>
-
-        <div className="w-px h-6 bg-gray-300 mx-1" />
-
-        {/* Heal Buttons */}
+        
+        <input
+          type="number"
+          min="1"
+          value={amount}
+          onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
+          className={`w-20 px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+            actionType === 'damage' 
+              ? 'border-red-600 text-red-600 focus:border-red-700 focus:ring-red-200' 
+              : actionType === 'healing'
+              ? 'border-green-600 text-green-600 focus:border-green-700 focus:ring-green-200'
+              : 'border-blue-600 text-blue-600 focus:border-blue-700 focus:ring-blue-200'
+          }`}
+        />
+        
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => handleQuickHeal(1)}
-          disabled={currentHp >= maxHp}
-          className="text-green-600 border-green-600 hover:bg-green-50 text-xs h-7"
+          onClick={() => adjustAmount(1)}
+          className="h-8 w-12 p-0 text-xs"
         >
           +1
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => handleQuickHeal(5)}
-          disabled={currentHp >= maxHp}
-          className="text-green-600 border-green-600 hover:bg-green-50 text-xs h-7"
+          onClick={() => adjustAmount(5)}
+          className="h-8 w-12 p-0 text-xs"
         >
           +5
         </Button>
+      </div>
+      
+      <Button 
+        onClick={handleApply}
+        className={`w-full ${config.buttonClass}`}
+        size="sm"
+      >
+        {config.icon}
+        <span className="ml-2">{config.title}</span>
+      </Button>
+    </div>
+  );
+}
+
+// Quick Actions Bar Subcomponent
+function QuickActionsBar() {
+  const { character, applyDamage, applyHealing, applyTemporaryHP } = useCharacterService();
+  const [activePanel, setActivePanel] = useState<ActionType | null>(null);
+  
+  // All hooks called first, then safety check
+  if (!character) return null;
+  
+  const { current: currentHp, max: maxHp } = character.hitPoints;
+  
+  const handleApplyAction = (actionType: ActionType, amount: number) => {
+    switch (actionType) {
+      case 'damage':
+        applyDamage(amount);
+        break;
+      case 'healing':
+        applyHealing(amount);
+        break;
+      case 'tempHP':
+        applyTemporaryHP(amount);
+        break;
+    }
+  };
+
+  return (
+    <div className="space-y-3 mb-3">
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => handleQuickHeal(10)}
+          onClick={() => setActivePanel(activePanel === 'damage' ? null : 'damage')}
+          disabled={currentHp <= 0}
+          className="text-red-600 border-red-600 hover:bg-red-50 text-xs h-7"
+        >
+          <Droplets className="w-3 h-3 mr-1" />
+          Damage
+        </Button>
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setActivePanel(activePanel === 'healing' ? null : 'healing')}
           disabled={currentHp >= maxHp}
           className="text-green-600 border-green-600 hover:bg-green-50 text-xs h-7"
         >
-          +10
+          <HeartPlus className="w-3 h-3 mr-1" />
+          Healing
         </Button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
-
-        {/* Custom Button */}
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => setShowCustomPanel(!showCustomPanel)}
-          className="text-xs h-7"
+          onClick={() => setActivePanel(activePanel === 'tempHP' ? null : 'tempHP')}
+          className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs h-7"
         >
-          <Settings className="w-3 h-3 mr-1" />
-          Custom
+          <ShieldPlus className="w-3 h-3 mr-1" />
+          Temp HP
         </Button>
       </div>
       
-      {/* Custom Panel */}
-      {showCustomPanel && (
-        <div className="mt-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Custom Amount</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                min="1"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                className="flex-1 px-3 py-1 border border-gray-300 rounded text-sm"
-                placeholder="Amount"
-              />
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={handleCustomDamage}
-                disabled={currentHp <= 0}
-                title="Apply Damage"
-              >
-                <Minus className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleCustomHeal}
-                disabled={currentHp >= maxHp}
-                className="text-green-600 border-green-600 hover:bg-green-50"
-                title="Apply Healing"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleCustomTempHp}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                title="Add Temporary HP"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Action Panel */}
+      {activePanel && (
+        <HPActionPanel
+          actionType={activePanel}
+          onClose={() => setActivePanel(null)}
+          onApply={(amount) => handleApplyAction(activePanel, amount)}
+        />
       )}
     </div>
   );
