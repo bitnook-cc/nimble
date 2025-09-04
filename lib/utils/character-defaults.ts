@@ -113,6 +113,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     resources: [],
     config: createDefaultCharacterConfiguration(),
     _initiative: createDefaultInitiative(),
+    speed: gameConfig.character.defaultSpeed,
     actionTracker: createDefaultActionTracker(),
     inEncounter: false,
     _skills: createDefaultSkills(),

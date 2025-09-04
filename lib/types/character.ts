@@ -125,6 +125,7 @@ export interface Character {
   resources: ResourceInstance[]; // Character's resources (mana, fury, etc.)
   config: CharacterConfiguration; // Character configuration settings
   _initiative: Skill; // Private: Use CharacterService.getInitiative() instead
+  speed: number; // Character's movement speed
   actionTracker: ActionTracker;
   inEncounter: boolean; // Whether currently in an encounter/combat
   _skills: Skills; // Private: Use CharacterService.getSkills() instead
@@ -162,6 +163,7 @@ export interface CreateCharacterData {
   resources: ResourceInstance[];
   config: CharacterConfiguration;
   _initiative: Skill;
+  speed: number;
   actionTracker: ActionTracker;
   inEncounter: boolean;
   _skills: Skills;

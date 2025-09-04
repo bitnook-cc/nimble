@@ -108,5 +108,6 @@ export function useCharacterService() {
     getArmorValue: characterService.getArmorValue.bind(characterService),
     getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
     getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
+    getSpeed: characterService.getSpeed.bind(characterService),
   };
 }

@@ -25,6 +25,7 @@ export interface StatBonus {
   maxWoundsBonus?: FlexibleValue;
   armorBonus?: FlexibleValue;
   initiativeBonus?: FlexibleValue;
+  speedBonus?: FlexibleValue;
   
   // Resource bonuses (by resource definition id)
   resourceMaxBonuses?: Record<string, FlexibleValue>;

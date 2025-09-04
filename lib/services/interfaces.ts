@@ -104,6 +104,7 @@ export interface ICharacterService {
   getArmorValue(): number;
   getResourceMaxValue(resourceId: string): number;
   getResourceMinValue(resourceId: string): number;
+  getSpeed(): number;
 }
 
 /**

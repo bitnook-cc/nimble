@@ -20,6 +20,7 @@ export const statBonusSchema = z.object({
   maxWoundsBonus: flexibleValueSchema.optional(),
   armorBonus: flexibleValueSchema.optional(),
   initiativeBonus: flexibleValueSchema.optional(),
+  speedBonus: flexibleValueSchema.optional(),
   
   // Resource bonuses (by resource definition id)
   resourceMaxBonuses: z.record(z.string(), flexibleValueSchema).optional(),

@@ -220,6 +220,7 @@ export class CharacterCreationService implements ICharacterCreation {
       resources: [],
       config,
       _initiative: createDefaultInitiative(),
+      speed: gameConfig.character.defaultSpeed,
       actionTracker: createDefaultActionTracker(),
       inEncounter: false,
       _skills: skills,

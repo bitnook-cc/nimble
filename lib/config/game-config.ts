@@ -22,6 +22,7 @@ export interface GameConfig {
       max: number;
     };
     initialSkillPoints: number;
+    defaultSpeed: number;
   };
   skills: SkillDefinition[];
   storage: {
@@ -55,6 +56,7 @@ export const gameConfig: GameConfig = {
       max: 12,
     },
     initialSkillPoints: 4,
+    defaultSpeed: 6,
   },
   skills: [
     { name: 'arcana', label: 'Arcana', attribute: 'intelligence' },

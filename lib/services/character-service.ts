@@ -317,6 +317,27 @@ export class CharacterService implements ICharacterService {
     return result;
   }
 
+  /**
+   * Get computed speed with bonuses applied
+   */
+  getSpeed(): number {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseSpeed = this._character.speed;
+    const bonuses = this.getAllStatBonuses();
+    
+    let result = baseSpeed;
+
+    // Apply speed bonuses
+    for (const bonus of bonuses) {
+      if (bonus.speedBonus) {
+        result += getValue(bonus.speedBonus, this._character);
+      }
+    }
+
+    return Math.max(0, result); // Minimum 0 speed
+  }
+
 
   // Event Management
   subscribeToEvent(eventType: CharacterEventType, listener: (event: CharacterEvent) => void): () => void {
