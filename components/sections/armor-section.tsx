@@ -168,7 +168,7 @@ export function ArmorSection() {
               {/* Additional Info */}
               {isDexterityCapped && (
                 <div className="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200">
-                  <strong>Dexterity Cap:</strong> Your Dexterity bonus is limited by your main armor's maximum Dex bonus of {mainArmorMaxDex}.
+                  <strong>Dexterity Cap:</strong> Your Dexterity bonus is limited by your main armor&apos;s maximum Dex bonus of {mainArmorMaxDex}.
                 </div>
               )}
             </div>
