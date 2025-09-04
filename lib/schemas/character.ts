@@ -5,6 +5,7 @@ import { BackgroundTraitSchema } from './background';
 import { ClassFeatureSchema } from './class';
 import { flexibleValueSchema } from './flexible-value';
 import { statBonusSchema } from './stat-bonus';
+import { currencySchema } from './currency';
 
 const attributeNameSchema = z.enum(['strength', 'dexterity', 'intelligence', 'will']);
 
@@ -25,6 +26,7 @@ const baseItemSchema = z.object({
   name: z.string().min(1),
   size: z.int().min(0),
   description: z.string().optional(),
+  cost: currencySchema.optional(),
   statBonus: statBonusSchema.optional(),
 });
 

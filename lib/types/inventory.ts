@@ -1,5 +1,6 @@
 import { AttributeName } from './character';
 import { StatBonus } from './stat-bonus';
+import { Currency } from './currency';
 
 export type ItemType = 'weapon' | 'armor' | 'freeform' | 'consumable' | 'ammunition';
 
@@ -9,6 +10,7 @@ export interface BaseItem {
   size: number;
   type: ItemType;
   description?: string;
+  cost?: Currency; // Optional cost in gold pieces
   statBonus?: StatBonus; // Optional stat bonuses provided by this item
 }
 
@@ -62,5 +64,6 @@ export interface CreateItemData {
   isMainArmor?: boolean;
   properties?: string[];
   description?: string;
+  cost?: Currency;
   count?: number;
 }
