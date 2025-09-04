@@ -485,7 +485,7 @@ function CombatStatusBar() {
   // All hooks called first, then safety check
   if (!character) return null;
   
-  const { inEncounter, initiative, attributes } = character;
+  const { inEncounter, _initiative: initiative, _attributes: attributes } = character;
   const totalModifier = attributes.dexterity + initiative.modifier;
   
   const handleInitiativeRoll = async () => {

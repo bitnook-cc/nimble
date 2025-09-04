@@ -113,21 +113,21 @@ export interface Character {
   selectedFeatures: SelectedFeature[]; // All feature selections made by the character
   spellTierAccess: number; // Highest tier of spells character can access (1-9, 0 for no spell access)
   proficiencies: Proficiencies; // Armor and weapon proficiencies
-  attributes: Attributes;
+  _attributes: Attributes; // Private: Use CharacterService.getAttributes() instead
   saveAdvantages: SaveAdvantageMap; // Permanent advantage/disadvantage on saves
   hitPoints: {
     current: number;
     max: number;
     temporary: number;
   };
-  hitDice: HitDice; // Hit dice for healing and recovery
+  _hitDice: HitDice; // Private: Use CharacterService.getHitDice() instead
   wounds: Wounds; // Wounds sustained from reaching 0 HP
   resources: ResourceInstance[]; // Character's resources (mana, fury, etc.)
   config: CharacterConfiguration; // Character configuration settings
-  initiative: Skill;
+  _initiative: Skill; // Private: Use CharacterService.getInitiative() instead
   actionTracker: ActionTracker;
   inEncounter: boolean; // Whether currently in an encounter/combat
-  skills: Skills;
+  _skills: Skills; // Private: Use CharacterService.getSkills() instead
   inventory: Inventory;
   abilities: Ability[];
   createdAt: Date;
@@ -145,7 +145,7 @@ export interface CreateCharacterData {
   selectedFeatures: SelectedFeature[]; // All feature selections made by the character
   spellTierAccess: number; // Highest tier of spells character can access (1-9, 0 for no spell access)
   proficiencies: Proficiencies;
-  attributes: {
+  _attributes: {
     strength: number;
     dexterity: number;
     intelligence: number;
@@ -157,14 +157,14 @@ export interface CreateCharacterData {
     max: number;
     temporary: number;
   };
-  hitDice: HitDice;
+  _hitDice: HitDice;
   wounds: Wounds;
   resources: ResourceInstance[];
   config: CharacterConfiguration;
-  initiative: Skill;
+  _initiative: Skill;
   actionTracker: ActionTracker;
   inEncounter: boolean;
-  skills: Skills;
+  _skills: Skills;
   inventory: Inventory;
   abilities: Ability[];
 }

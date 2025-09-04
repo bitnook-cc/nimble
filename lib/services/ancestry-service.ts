@@ -107,7 +107,7 @@ export class AncestryService implements IAncestryService {
    */
   private async applyStatBoostFeature(character: Character, feature: AncestryStatBoostFeature): Promise<void> {
     for (const boost of feature.statBoosts) {
-      character.attributes[boost.attribute] += boost.amount;
+      character._attributes[boost.attribute] += boost.amount;
     }
   }
 
@@ -117,9 +117,9 @@ export class AncestryService implements IAncestryService {
   private async applyProficiencyFeature(character: Character, feature: AncestryProficiencyFeature): Promise<void> {
     for (const proficiency of feature.proficiencies) {
       if (proficiency.type === 'skill' && proficiency.bonus) {
-        const skillName = proficiency.name as keyof typeof character.skills;
-        if (character.skills[skillName]) {
-          character.skills[skillName].modifier += proficiency.bonus;
+        const skillName = proficiency.name as keyof typeof character._skills;
+        if (character._skills[skillName]) {
+          character._skills[skillName].modifier += proficiency.bonus;
         }
       }
       // Other proficiency types (tool, language) are informational
@@ -156,5 +156,12 @@ export class AncestryService implements IAncestryService {
    */
   async removeCustomAncestry(ancestryId: string): Promise<void> {
     return this.contentRepository.removeCustomAncestry(ancestryId);
+  }
+
+  /**
+   * Get all granted features for the given character
+   */
+  getAllGrantedFeatures(character: Character): AncestryFeature[] {
+    return this.getExpectedFeaturesForCharacter(character);
   }
 }

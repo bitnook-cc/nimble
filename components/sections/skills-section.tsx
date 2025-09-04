@@ -31,7 +31,7 @@ function getSkillIcon(skillName: SkillName) {
 
 export function SkillsSection() {
   // Get everything we need from service hooks
-  const { character } = useCharacterService();
+  const { character, updateCharacter, getSkills, getAttributes } = useCharacterService();
   const { rollSkill } = useDiceActions();
   const { uiState, updateCollapsibleState } = useUIStateService();
   
@@ -42,27 +42,31 @@ export function SkillsSection() {
   const onSkillChange = useCallback(async (skillName: SkillName, delta: number) => {
     if (!character) return;
     
-    const currentValue = character.skills[skillName].modifier;
+    const currentValue = character._skills[skillName].modifier;
     const newValue = Math.max(0, Math.min(20, currentValue + delta));
     
     if (newValue !== currentValue) {
-      const characterService = getCharacterService();
       const updated = {
         ...character,
-        skills: {
-          ...character.skills,
+        _skills: {
+          ...character._skills,
           [skillName]: {
-            ...character.skills[skillName],
+            ...character._skills[skillName],
             modifier: newValue,
           },
         },
       };
-      await characterService.updateCharacter(updated);
+      await updateCharacter(updated);
     }
-  }, [character]);
+  }, [character, updateCharacter]);
   
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
+  
+  // Get computed skills and attributes
+  const computedSkills = getSkills();
+  const computedAttributes = getAttributes();
+  
   return (
     <Card>
       <Collapsible open={isOpen} onOpenChange={onToggle}>
@@ -78,10 +82,12 @@ export function SkillsSection() {
           <div className="border-t" />
           <CardContent className="p-0">
             <div className="divide-y">
-              {Object.entries(character.skills).map(([skillKey, skill], index) => {
+              {Object.entries(computedSkills).map(([skillKey, skill], index) => {
                 const skillName = skillKey as SkillName;
-                const attributeValue = character.attributes[skill.associatedAttribute];
+                const attributeValue = computedAttributes[skill.associatedAttribute];
+                const baseSkill = character._skills[skillName];
                 const totalModifier = attributeValue + skill.modifier;
+                const hasBonus = baseSkill.modifier !== skill.modifier;
                 
                 return (
                   <div key={skillKey} className="p-3 flex items-center justify-between">
@@ -96,28 +102,33 @@ export function SkillsSection() {
                             {skill.name} ({skill.associatedAttribute.slice(0, 3).toUpperCase()})
                           </h3>
                           <p className="text-xs text-muted-foreground">
-                            {attributeValue > 0 ? '+' : ''}{attributeValue} ({skill.associatedAttribute.slice(0, 3).toUpperCase()}) + {skill.modifier} (Skill) = {totalModifier > 0 ? '+' : ''}{totalModifier}
+                            {attributeValue > 0 ? '+' : ''}{attributeValue} ({skill.associatedAttribute.slice(0, 3).toUpperCase()}) + {skill.modifier} (Skill{hasBonus ? ` +${skill.modifier - baseSkill.modifier} bonus` : ''}) = {totalModifier > 0 ? '+' : ''}{totalModifier}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center border rounded">
+                          <div className="flex items-center border rounded relative">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => onSkillChange(skillName, -1)}
-                              disabled={skill.modifier <= 0}
+                              disabled={baseSkill.modifier <= 0}
                               className="h-8 w-8 p-0 rounded-none border-r"
                             >
                               <Minus className="w-3 h-3" />
                             </Button>
-                            <span className="w-8 h-8 flex items-center justify-center text-sm font-medium bg-background">
-                              {skill.modifier}
+                            <span className="w-8 h-8 flex items-center justify-center text-sm font-medium bg-background relative">
+                              {baseSkill.modifier}
+                              {hasBonus && (
+                                <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">
+                                  {skill.modifier}
+                                </div>
+                              )}
                             </span>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => onSkillChange(skillName, 1)}
-                              disabled={skill.modifier >= 20}
+                              disabled={baseSkill.modifier >= 20}
                               className="h-8 w-8 p-0 rounded-none border-l"
                             >
                               <Plus className="w-3 h-3" />

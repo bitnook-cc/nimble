@@ -9,7 +9,7 @@ import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 
 export function ArmorSection() {
   // Get everything we need from service hooks
-  const { character } = useCharacterService();
+  const { character, getAttributes, getArmorValue } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   
   // Early return if no character (shouldn't happen in normal usage)
@@ -20,9 +20,13 @@ export function ArmorSection() {
   const equippedArmor = getEquippedArmor(character.inventory.items);
   const mainArmor = getEquippedMainArmor(character.inventory.items);
   const supplementaryArmor = getEquippedSupplementaryArmor(character.inventory.items);
-  const dexterityBonus = character.attributes.dexterity;
   
-  // Calculate armor value for each piece including dex bonus
+  // Use computed attributes and armor value from character service
+  const attributes = getAttributes();
+  const dexterityBonus = attributes.dexterity;
+  const totalArmorValue = getArmorValue();
+  
+  // Calculate armor value for each piece including dex bonus (for display breakdown)
   const armorValues = equippedArmor.map(armor => {
     const baseArmor = armor.armor || 0;
     const maxDexBonus = armor.maxDexBonus ?? Infinity; // Default to no limit if not specified
@@ -35,9 +39,6 @@ export function ArmorSection() {
     };
   });
   
-  const totalArmorValue = equippedArmor.length === 0 
-    ? Math.max(0, dexterityBonus) // When no armor, use dex with minimum of 0
-    : armorValues.reduce((total, armorValue) => total + armorValue.totalValue, 0);
   const totalBaseArmor = armorValues.reduce((total, armorValue) => total + armorValue.baseArmor, 0);
   const totalDexBonus = armorValues.reduce((total, armorValue) => total + armorValue.dexBonus, 0);
 

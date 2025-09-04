@@ -122,4 +122,11 @@ export class BackgroundService implements IBackgroundService {
       background.features
     );
   }
+
+  /**
+   * Get all granted features for the given character
+   */
+  getAllGrantedFeatures(character: Character): BackgroundFeature[] {
+    return this.getExpectedFeaturesForCharacter(character);
+  }
 }

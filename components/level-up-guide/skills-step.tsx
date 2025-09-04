@@ -44,16 +44,16 @@ export function SkillsStep({
   };
 
   const getCurrentSkillValue = (skillName: string) => {
-    const skill = character.skills[skillName as keyof typeof character.skills];
+    const skill = character._skills[skillName as keyof typeof character._skills];
     return skill?.modifier || 0;
   };
 
   const getAttributeValues = () => {
     return {
-      strength: character.attributes.strength || 0,
-      dexterity: character.attributes.dexterity || 0,
-      intelligence: character.attributes.intelligence || 0,
-      will: character.attributes.will || 0,
+      strength: character._attributes.strength || 0,
+      dexterity: character._attributes.dexterity || 0,
+      intelligence: character._attributes.intelligence || 0,
+      will: character._attributes.will || 0,
     };
   };
 

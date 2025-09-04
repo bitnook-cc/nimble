@@ -1,3 +1,5 @@
+import { StatBonus } from './stat-bonus';
+
 export type BackgroundFeatureType = 'passive_feature';
 
 // Base interface for all background features
@@ -9,6 +11,7 @@ interface BaseBackgroundFeature {
 // Passive feature - background benefits, social traits, knowledge, etc.
 export interface BackgroundPassiveFeature extends BaseBackgroundFeature {
   type: 'passive_feature';
+  statBonus?: StatBonus; // Optional stat bonuses provided by this feature
 }
 
 export type BackgroundFeature = BackgroundPassiveFeature;

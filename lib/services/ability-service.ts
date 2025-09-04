@@ -246,7 +246,7 @@ export class AbilityService {
     let totalModifier = abilityRoll.modifier || 0;
     
     if (abilityRoll.attribute) {
-      totalModifier += character.attributes[abilityRoll.attribute];
+      totalModifier += character._attributes[abilityRoll.attribute];
     }
     
     return totalModifier;
@@ -264,7 +264,7 @@ export class AbilityService {
     }
     
     if (abilityRoll.attribute) {
-      const attributeValue = character.attributes[abilityRoll.attribute];
+      const attributeValue = character._attributes[abilityRoll.attribute];
       const attributeName = abilityRoll.attribute.charAt(0).toUpperCase() + abilityRoll.attribute.slice(1, 3);
       parts.push(attributeValue >= 0 ? `+${attributeValue} ${attributeName}` : `${attributeValue} ${attributeName}`);
     }

@@ -1,6 +1,7 @@
 import { HitDieSize, AttributeName, SaveAdvantageMap } from './character';
 import { Ability } from './abilities';
 import { ResourceDefinition } from './resources';
+import { StatBonus } from './stat-bonus';
 
 export type ClassFeatureType = 'ability' | 'passive_feature' | 'stat_boost' | 'proficiency' | 'spell_school' | 'spell_school_choice' | 'utility_spells' | 'spell_tier_access' | 'resource' | 'subclass_choice' | 'pick_feature_from_pool';
 
@@ -49,6 +50,7 @@ export interface AbilityFeature extends BaseClassFeature {
 export interface PassiveFeature extends BaseClassFeature {
   type: 'passive_feature';
   category?: 'combat' | 'exploration' | 'social' | 'utility'; // Optional categorization
+  statBonus?: StatBonus; // Optional stat bonuses provided by this feature
 }
 
 // Stat boost - permanent attribute increases

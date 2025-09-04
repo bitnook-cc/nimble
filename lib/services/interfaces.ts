@@ -1,4 +1,4 @@
-import { Character, ActionTracker, CharacterConfiguration, Attributes } from '../types/character';
+import { Character, ActionTracker, CharacterConfiguration, Attributes, Skills, Skill, HitDice } from '../types/character';
 import { Ability, ActionAbility, SpellAbility, AbilityRoll } from '../types/abilities';
 import { LogEntry, SingleDie } from '../types/log-entries';
 import { Item } from '../types/inventory';
@@ -93,6 +93,17 @@ export interface ICharacterService {
   deleteCharacterById(characterId: string): Promise<void>;
   notifyCharacterCreated(character: Character): void;
   addItemToInventory(item: Item): Promise<void>;
+  
+  // Dynamic stat calculation methods
+  getAttributes(): Attributes;
+  getSkills(): Skills;
+  getSkillValue(skillName: string): Skill | null;
+  getInitiative(): Skill;
+  getHitDice(): HitDice;
+  getMaxWounds(): number;
+  getArmorValue(): number;
+  getResourceMaxValue(resourceId: string): number;
+  getResourceMinValue(resourceId: string): number;
 }
 
 /**
@@ -115,6 +126,7 @@ export interface IClassService {
   selectPoolFeature(character: Character, poolId: string, selectedFeature: ClassFeature, grantedByFeatureId: string): Promise<Character>;
   getRemainingPoolSelections(character: Character, pickFeatureFromPoolFeature: PickFeatureFromPoolFeature): number;
   generateFeatureId(classId: string, level: number, featureName: string, subclassId?: string): string;
+  getAllGrantedFeatures(character: Character): ClassFeature[];
 }
 
 /**
@@ -130,6 +142,7 @@ export interface IAncestryService {
   getAvailableAncestries(): AncestryDefinition[];
   addCustomAncestry(ancestry: AncestryDefinition): Promise<void>;
   removeCustomAncestry(ancestryId: string): Promise<void>;
+  getAllGrantedFeatures(character: Character): AncestryFeature[];
 }
 
 /**
@@ -146,6 +159,7 @@ export interface IBackgroundService {
   addCustomBackground(background: BackgroundDefinition): Promise<void>;
   removeCustomBackground(backgroundId: string): Promise<void>;
   validateBackgroundDefinition(background: Partial<BackgroundDefinition>): boolean;
+  getAllGrantedFeatures(character: Character): BackgroundFeature[];
 }
 
 /**

@@ -27,7 +27,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
 
   const getAttributeModifier = (attributeName?: AttributeName): number => {
     if (!attributeName) return 0;
-    return character.attributes[attributeName];
+    return character._attributes[attributeName];
   };
 
   const handleAttack = async (weapon: WeaponItem) => {

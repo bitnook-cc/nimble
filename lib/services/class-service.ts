@@ -135,10 +135,10 @@ export class ClassService implements IClassService {
       level: targetLevel,
       // Update hit dice to match new level
       hitDice: {
-        ...character.hitDice,
+        ...character._hitDice,
         size: classDef.hitDieSize,
         max: targetLevel,
-        current: Math.min(character.hitDice.current + (targetLevel - character.level), targetLevel)
+        current: Math.min(character._hitDice.current + (targetLevel - character.level), targetLevel)
       }
     };
 
@@ -225,7 +225,7 @@ export class ClassService implements IClassService {
    * Grant a stat boost feature (increases character attributes)
    */
   private async grantStatBoostFeature(character: Character, feature: StatBoostFeature): Promise<Character> {
-    let updatedAttributes = { ...character.attributes };
+    let updatedAttributes = { ...character._attributes };
 
     // Apply each stat boost
     for (const boost of feature.statBoosts) {
@@ -237,7 +237,7 @@ export class ClassService implements IClassService {
 
     return {
       ...character,
-      attributes: updatedAttributes
+      _attributes: updatedAttributes
     };
   }
 
@@ -694,5 +694,17 @@ export class ClassService implements IClassService {
     ).length;
     
     return Math.max(0, pickFeatureFromPoolFeature.choicesAllowed - currentSelections);
+  }
+
+  /**
+   * Get all granted features for the given character
+   */
+  getAllGrantedFeatures(character: Character): ClassFeature[] {
+    const grantedFeatures = this.getExpectedFeaturesForCharacter(character);
+    const selectedFeatures = (character.selectedFeatures || [])
+      .filter((f: SelectedFeature) => f.type === 'pool_feature')
+      .map((f: SelectedFeature) => (f as SelectedPoolFeature).feature);
+    
+    return [...grantedFeatures, ...selectedFeatures];
   }
 }

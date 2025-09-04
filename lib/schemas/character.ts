@@ -4,6 +4,7 @@ import { AncestryTraitSchema } from './ancestry';
 import { BackgroundTraitSchema } from './background';
 import { ClassFeatureSchema } from './class';
 import { flexibleValueSchema } from './flexible-value';
+import { statBonusSchema } from './stat-bonus';
 
 const attributeNameSchema = z.enum(['strength', 'dexterity', 'intelligence', 'will']);
 
@@ -24,6 +25,7 @@ const baseItemSchema = z.object({
   name: z.string().min(1),
   size: z.int().min(0),
   description: z.string().optional(),
+  statBonus: statBonusSchema.optional(),
 });
 
 export const itemSchema = z.discriminatedUnion('type', [
@@ -285,17 +287,17 @@ export const createCharacterSchema = z.object({
   selectedFeatures: z.array(selectedFeatureSchema),
   spellTierAccess: z.int().min(0).max(9),
   proficiencies: proficienciesSchema,
-  attributes: attributeSchema,
+  _attributes: attributeSchema,
   saveAdvantages: saveAdvantageMapSchema,
   hitPoints: hitPointsSchema,
-  hitDice: hitDiceSchema,
+  _hitDice: hitDiceSchema,
   wounds: woundsSchema,
   resources: z.array(resourceInstanceSchema),
   config: characterConfigurationSchema,
-  initiative: skillSchema,
+  _initiative: skillSchema,
   actionTracker: actionTrackerSchema,
   inEncounter: z.boolean(),
-  skills: z.record(z.string(), skillSchema),
+  _skills: z.record(z.string(), skillSchema),
   inventory: inventorySchema,
   abilities: z.array(abilitySchema),
 });
@@ -312,17 +314,17 @@ export const characterSchema = z.object({
   selectedFeatures: z.array(selectedFeatureSchema),
   spellTierAccess: z.int().min(0).max(9),
   proficiencies: proficienciesSchema,
-  attributes: attributeSchema,
+  _attributes: attributeSchema,
   saveAdvantages: saveAdvantageMapSchema,
   hitPoints: hitPointsSchema,
-  hitDice: hitDiceSchema,
+  _hitDice: hitDiceSchema,
   wounds: woundsSchema,
   resources: z.array(resourceInstanceSchema),
   config: characterConfigurationSchema,
-  initiative: skillSchema,
+  _initiative: skillSchema,
   actionTracker: actionTrackerSchema,
   inEncounter: z.boolean(),
-  skills: z.record(z.string(), skillSchema),
+  _skills: z.record(z.string(), skillSchema),
   inventory: inventorySchema,
   abilities: z.array(abilitySchema),
   createdAt: z.date(),

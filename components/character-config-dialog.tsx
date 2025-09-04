@@ -91,7 +91,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     const updatedCharacter = {
       ...character,
       initiative: {
-        ...character.initiative,
+        ...character._initiative,
         modifier
       }
     };
@@ -265,12 +265,12 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 type="number"
                 min="-10"
                 max="10"
-                value={character.initiative.modifier}
+                value={character._initiative.modifier}
                 onChange={(e) => updateInitiativeModifier(e.target.value)}
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Additional modifier for initiative rolls (added to Dexterity). Current total: {character.attributes.dexterity + character.initiative.modifier >= 0 ? '+' : ''}{character.attributes.dexterity + character.initiative.modifier}.
+                Additional modifier for initiative rolls (added to Dexterity). Current total: {character._attributes.dexterity + character._initiative.modifier >= 0 ? '+' : ''}{character._attributes.dexterity + character._initiative.modifier}.
               </p>
             </div>
           </div>
@@ -291,7 +291,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Base inventory slots (before strength bonus). Final size = {character.config.maxInventorySize} + {character.attributes.strength} (strength) = {character.config.maxInventorySize + character.attributes.strength}.
+                Base inventory slots (before strength bonus). Final size = {character.config.maxInventorySize} + {character._attributes.strength} (strength) = {character.config.maxInventorySize + character._attributes.strength}.
               </p>
             </div>
           </div>

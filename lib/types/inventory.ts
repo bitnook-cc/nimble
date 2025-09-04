@@ -1,4 +1,5 @@
 import { AttributeName } from './character';
+import { StatBonus } from './stat-bonus';
 
 export type ItemType = 'weapon' | 'armor' | 'freeform' | 'consumable' | 'ammunition';
 
@@ -8,6 +9,7 @@ export interface BaseItem {
   size: number;
   type: ItemType;
   description?: string;
+  statBonus?: StatBonus; // Optional stat bonuses provided by this item
 }
 
 export interface WeaponItem extends BaseItem {

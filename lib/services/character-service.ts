@@ -1,10 +1,12 @@
-import { Character, ActionTracker, CharacterConfiguration } from '../types/character';
+import { Character, ActionTracker, CharacterConfiguration, Attributes, Skills, Skill } from '../types/character';
 import { Ability, ActionAbility, SpellAbility } from '../types/abilities';
 import { DiceType } from '../types/dice';
 import { Item } from '../types/inventory';
 import { ICharacterService, ICharacterStorage, IActivityLog, IAbilityService, IClassService, IAncestryService, IBackgroundService } from './interfaces';
 import { resourceService } from './resource-service';
 import { getDiceService, getSettingsService, getClassService, getAncestryService, getBackgroundService } from './service-factory';
+import { StatBonus } from '../types/stat-bonus';
+import { getValue } from '../types/flexible-value';
 
 // Character event types
 export type CharacterEventType = 'created' | 'switched' | 'deleted' | 'updated';
@@ -37,6 +39,282 @@ export class CharacterService implements ICharacterService {
   // Public getter for character
   get character(): Character | null {
     return this._character;
+  }
+
+  // Dynamic stat calculation methods
+
+  /**
+   * Get all stat bonuses from class features, ancestry features, background features, and equipped items
+   */
+  private getAllStatBonuses(): StatBonus[] {
+    if (!this._character) return [];
+
+    const bonuses: StatBonus[] = [];
+    const classService = getClassService();
+    const ancestryService = getAncestryService();
+    const backgroundService = getBackgroundService();
+
+    // Get class feature stat bonuses
+    const classFeatures = classService.getAllGrantedFeatures(this._character);
+    for (const feature of classFeatures) {
+      if (feature.type === 'passive_feature' && feature.statBonus) {
+        bonuses.push(feature.statBonus);
+      }
+    }
+
+    // Get ancestry feature stat bonuses
+    const ancestryFeatures = ancestryService.getAllGrantedFeatures(this._character);
+    for (const feature of ancestryFeatures) {
+      if (feature.type === 'passive_feature' && feature.statBonus) {
+        bonuses.push(feature.statBonus);
+      }
+    }
+
+    // Get background feature stat bonuses
+    const backgroundFeatures = backgroundService.getAllGrantedFeatures(this._character);
+    for (const feature of backgroundFeatures) {
+      if (feature.type === 'passive_feature' && feature.statBonus) {
+        bonuses.push(feature.statBonus);
+      }
+    }
+
+    // Get equipped item stat bonuses
+    const equippedItems = this._character.inventory.items.filter(item => 
+      (item.type === 'weapon' && item.equipped) || 
+      (item.type === 'armor' && item.equipped)
+    );
+    for (const item of equippedItems) {
+      if (item.statBonus) {
+        bonuses.push(item.statBonus);
+      }
+    }
+
+    return bonuses;
+  }
+
+  /**
+   * Get computed attributes with bonuses applied
+   */
+  getAttributes(): Attributes {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseAttributes = this._character._attributes;
+    const bonuses = this.getAllStatBonuses();
+    
+    const result: Attributes = {
+      strength: baseAttributes.strength,
+      dexterity: baseAttributes.dexterity,
+      intelligence: baseAttributes.intelligence,
+      will: baseAttributes.will
+    };
+
+    // Apply stat bonuses
+    for (const bonus of bonuses) {
+      if (bonus.attributes) {
+        if (bonus.attributes.strength) {
+          result.strength += getValue(bonus.attributes.strength, this._character);
+        }
+        if (bonus.attributes.dexterity) {
+          result.dexterity += getValue(bonus.attributes.dexterity, this._character);
+        }
+        if (bonus.attributes.intelligence) {
+          result.intelligence += getValue(bonus.attributes.intelligence, this._character);
+        }
+        if (bonus.attributes.will) {
+          result.will += getValue(bonus.attributes.will, this._character);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get computed skills with bonuses applied
+   */
+  getSkills(): Skills {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseSkills = this._character._skills;
+    const bonuses = this.getAllStatBonuses();
+    const result: Skills = {};
+
+    // Start with base skills
+    for (const [skillName, skill] of Object.entries(baseSkills)) {
+      result[skillName] = { ...skill };
+    }
+
+    // Apply skill bonuses
+    for (const bonus of bonuses) {
+      if (bonus.skillBonuses) {
+        for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
+          if (result[skillName]) {
+            result[skillName].modifier += getValue(skillBonus, this._character);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get specific skill value with bonuses applied
+   */
+  getSkillValue(skillName: string): Skill | null {
+    const skills = this.getSkills();
+    return skills[skillName] || null;
+  }
+
+  /**
+   * Get computed initiative with bonuses applied
+   */
+  getInitiative(): Skill {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseInitiative = this._character._initiative;
+    const bonuses = this.getAllStatBonuses();
+    
+    let result: Skill = { ...baseInitiative };
+
+    // Apply initiative bonuses
+    for (const bonus of bonuses) {
+      if (bonus.initiativeBonus) {
+        result.modifier += getValue(bonus.initiativeBonus, this._character);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get computed hit dice with bonuses applied
+   */
+  getHitDice() {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseHitDice = this._character._hitDice;
+    const bonuses = this.getAllStatBonuses();
+    
+    let result = { ...baseHitDice };
+
+    // Apply hit dice bonuses
+    for (const bonus of bonuses) {
+      if (bonus.hitDiceBonus) {
+        result.max += getValue(bonus.hitDiceBonus, this._character);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get computed max wounds with bonuses applied
+   */
+  getMaxWounds(): number {
+    if (!this._character) throw new Error('No character loaded');
+
+    const baseMaxWounds = this._character.config.maxWounds;
+    const bonuses = this.getAllStatBonuses();
+    
+    let result = baseMaxWounds;
+
+    // Apply max wounds bonuses
+    for (const bonus of bonuses) {
+      if (bonus.maxWoundsBonus) {
+        result += getValue(bonus.maxWoundsBonus, this._character);
+      }
+    }
+
+    return Math.max(1, result); // Minimum 1 wound
+  }
+
+  /**
+   * Get computed armor value with bonuses applied
+   */
+  getArmorValue(): number {
+    if (!this._character) throw new Error('No character loaded');
+
+    const attributes = this.getAttributes();
+    const bonuses = this.getAllStatBonuses();
+    
+    // Start with base dexterity
+    let armorValue = attributes.dexterity;
+
+    // Add armor bonuses from equipped armor items
+    const equippedArmor = this._character.inventory.items.filter(item => 
+      item.type === 'armor' && item.equipped
+    );
+
+    for (const armor of equippedArmor) {
+      if (armor.type === 'armor' && armor.armor) {
+        armorValue += armor.armor;
+        
+        // Apply max dex bonus restriction if this is main armor
+        if (armor.isMainArmor && armor.maxDexBonus !== undefined) {
+          const baseDex = this._character._attributes.dexterity;
+          const maxDexFromArmor = Math.min(attributes.dexterity - baseDex + armor.maxDexBonus, attributes.dexterity);
+          armorValue = armorValue - attributes.dexterity + maxDexFromArmor;
+        }
+      }
+    }
+
+    // Apply additional armor bonuses from features
+    for (const bonus of bonuses) {
+      if (bonus.armorBonus) {
+        armorValue += getValue(bonus.armorBonus, this._character);
+      }
+    }
+
+    return Math.max(0, armorValue);
+  }
+
+  /**
+   * Get computed resource max value with bonuses applied
+   */
+  getResourceMaxValue(resourceId: string): number {
+    if (!this._character) throw new Error('No character loaded');
+
+    const resource = this._character.resources.find(r => r.definition.id === resourceId);
+    if (!resource) return 0;
+
+    const baseMax = getValue(resource.definition.maxValue, this._character);
+    const bonuses = this.getAllStatBonuses();
+    
+    let result = baseMax;
+
+    // Apply resource max bonuses
+    for (const bonus of bonuses) {
+      if (bonus.resourceMaxBonuses && bonus.resourceMaxBonuses[resourceId]) {
+        result += getValue(bonus.resourceMaxBonuses[resourceId], this._character);
+      }
+    }
+
+    return Math.max(0, result);
+  }
+
+  /**
+   * Get computed resource min value with bonuses applied
+   */
+  getResourceMinValue(resourceId: string): number {
+    if (!this._character) throw new Error('No character loaded');
+
+    const resource = this._character.resources.find(r => r.definition.id === resourceId);
+    if (!resource) return 0;
+
+    const baseMin = getValue(resource.definition.minValue, this._character);
+    const bonuses = this.getAllStatBonuses();
+    
+    let result = baseMin;
+
+    // Apply resource min bonuses
+    for (const bonus of bonuses) {
+      if (bonus.resourceMinBonuses && bonus.resourceMinBonuses[resourceId]) {
+        result += getValue(bonus.resourceMinBonuses[resourceId], this._character);
+      }
+    }
+
+    return result;
   }
 
 
@@ -344,7 +622,7 @@ export class CharacterService implements ICharacterService {
 
     // Calculate what was restored for logging
     const healingAmount = this._character.hitPoints.max - this._character.hitPoints.current;
-    const hitDiceRestored = this._character.hitDice.max - this._character.hitDice.current;
+    const hitDiceRestored = this._character._hitDice.max - this._character._hitDice.current;
     const woundsRemoved = this._character.wounds.current > 0 ? 1 : 0;
     const abilitiesReset = this._character.abilities.filter(ability => 
       ability.type === 'action' && 
@@ -360,9 +638,9 @@ export class CharacterService implements ICharacterService {
         current: this._character.hitPoints.max, // Full HP restoration
         temporary: 0, // Clear temporary HP
       },
-      hitDice: {
-        ...this._character.hitDice,
-        current: this._character.hitDice.max, // Restore all hit dice
+      _hitDice: {
+        ...this._character._hitDice,
+        current: this._character._hitDice.max, // Restore all hit dice
       },
       wounds: {
         ...this._character.wounds,
@@ -404,7 +682,7 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Can't rest without hit dice
-    if (this._character.hitDice.current <= 0) {
+    if (this._character._hitDice.current <= 0) {
       await this.logService.addLogEntry(
         this.logService.createCatchBreathEntry(0, 0, 0)
       );
@@ -413,8 +691,8 @@ export class CharacterService implements ICharacterService {
 
     // Roll the hit die using dice service
     const diceService = getDiceService();
-    const hitDieSize = this._character.hitDice.size;
-    const strengthMod = this._character.attributes.strength;
+    const hitDieSize = this._character._hitDice.size;
+    const strengthMod = this.getAttributes().strength;
     
     const rollResult = diceService.rollBasicDice(1, hitDieSize as DiceType, 0); // No advantage/disadvantage
     const dieRoll = rollResult.dice[0].result;
@@ -433,9 +711,9 @@ export class CharacterService implements ICharacterService {
         current: Math.min(maxHP, currentHP + actualHealing),
         temporary: 0, // Clear temporary HP on rest
       },
-      hitDice: {
-        ...this._character.hitDice,
-        current: this._character.hitDice.current - 1, // Spend one hit die
+      _hitDice: {
+        ...this._character._hitDice,
+        current: this._character._hitDice.current - 1, // Spend one hit die
       },
       inEncounter: false, // Catch breath ends encounter
       actionTracker: {
@@ -472,13 +750,13 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Can't rest without hit dice
-    if (this._character.hitDice.current <= 0) {
+    if (this._character._hitDice.current <= 0) {
       return;
     }
 
     // Calculate healing: max hit die + strength
-    const hitDieSize = this._character.hitDice.size;
-    const strengthMod = this._character.attributes.strength;
+    const hitDieSize = this._character._hitDice.size;
+    const strengthMod = this.getAttributes().strength;
     const totalHealing = Math.max(1, hitDieSize + strengthMod); // Minimum 1 HP
 
     // Calculate actual healing applied
@@ -494,9 +772,9 @@ export class CharacterService implements ICharacterService {
         current: Math.min(maxHP, currentHP + actualHealing),
         temporary: 0, // Clear temporary HP
       },
-      hitDice: {
-        ...this._character.hitDice,
-        current: this._character.hitDice.current - 1, // Use one hit die
+      _hitDice: {
+        ...this._character._hitDice,
+        current: this._character._hitDice.current - 1, // Use one hit die
       },
       inEncounter: false, // Make camp ends any encounter
       actionTracker: {
@@ -786,9 +1064,9 @@ export class CharacterService implements ICharacterService {
       updatedAt: new Date(),
     };
 
-    // If attributes were updated, recalculate inventory max size based on strength
-    if (updates.attributes) {
-      const newStrength = updates.attributes.strength ?? this._character.attributes.strength;
+    // If attributes were updated, recalculate inventory max size based on computed strength
+    if (updates._attributes) {
+      const newStrength = this.getAttributes().strength;
       updatedCharacter = {
         ...updatedCharacter,
         inventory: {
@@ -799,7 +1077,7 @@ export class CharacterService implements ICharacterService {
     }
 
     // If attributes or level changed, recalculate formula-based ability uses
-    if (updates.attributes || updates.level) {
+    if (updates._attributes || updates.level) {
       const recalculatedAbilities = this.abilityService.recalculateAbilityUses(
         updatedCharacter.abilities,
         updatedCharacter

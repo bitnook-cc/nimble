@@ -84,7 +84,7 @@ export class FormulaEvaluatorService {
     };
     
     for (const [key, attributeName] of Object.entries(attributeMap)) {
-      const value = character.attributes[attributeName];
+      const value = character._attributes[attributeName];
       // Use word boundaries to avoid partial matches
       result = result.replace(new RegExp(`\\b${key}\\b`, 'g'), value.toString());
     }

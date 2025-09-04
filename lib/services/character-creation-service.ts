@@ -212,17 +212,17 @@ export class CharacterCreationService implements ICharacterCreation {
       selectedFeatures,
       spellTierAccess: 0, // Will be updated by class features
       proficiencies,
-      attributes,
+      _attributes: attributes,
       saveAdvantages: { ...classDefinition.saveAdvantages },
       hitPoints,
-      hitDice,
+      _hitDice: hitDice,
       wounds: createDefaultWounds(config.maxWounds),
       resources: [],
       config,
-      initiative: createDefaultInitiative(),
+      _initiative: createDefaultInitiative(),
       actionTracker: createDefaultActionTracker(),
       inEncounter: false,
-      skills,
+      _skills: skills,
       inventory,
       abilities: []
     }, characterId);

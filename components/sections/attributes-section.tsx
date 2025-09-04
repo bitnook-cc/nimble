@@ -17,7 +17,7 @@ import { combineAdvantages } from "@/lib/utils/advantage";
 
 export function AttributesSection() {
   // Direct singleton access with automatic re-rendering - no context needed!
-  const { character, updateCharacter } = useCharacterService();
+  const { character, updateCharacter, getAttributes } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   const { rollAttribute, rollSave } = useDiceActions();
   
@@ -37,8 +37,8 @@ export function AttributesSection() {
     if (numValue >= -2 && numValue <= 10) {
       const updated = {
         ...character,
-        attributes: {
-          ...character.attributes,
+        _attributes: {
+          ...character._attributes,
           [attributeName]: numValue,
         },
       };
@@ -109,8 +109,12 @@ export function AttributesSection() {
     if (!character) return null;
     
     const isKeyAttribute = keyAttributes.includes(attributeName);
-    const value = character.attributes[attributeName];
+    // Use computed attributes for display, but base attributes for editing
+    const computedAttributes = getAttributes();
+    const baseValue = character._attributes[attributeName];
+    const computedValue = computedAttributes[attributeName];
     const saveAdvantage = character.saveAdvantages?.[attributeName] || 'normal';
+    const hasBonus = baseValue !== computedValue;
     
     return (
       <Card key={attributeName} className={`${isKeyAttribute ? 'ring-2 ring-primary' : ''} relative`}>
@@ -138,28 +142,35 @@ export function AttributesSection() {
           </div>
         </CardHeader>
         <CardContent className="space-y-1">
-          <Input
-            type="number"
-            min="-2"
-            max="10"
-            value={value}
-            onChange={(e) => onAttributeChange(attributeName, e.target.value)}
-            className="text-center text-lg font-bold h-8"
-          />
+          <div className="relative">
+            <Input
+              type="number"
+              min="-2"
+              max="10"
+              value={baseValue}
+              onChange={(e) => onAttributeChange(attributeName, e.target.value)}
+              className="text-center text-lg font-bold h-8"
+            />
+            {hasBonus && (
+              <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">
+                {computedValue}
+              </div>
+            )}
+          </div>
           <div className="flex gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => rollAttribute(attributeName, value, advantageLevel)}
+                  onClick={() => rollAttribute(attributeName, computedValue, advantageLevel)}
                   className="flex-1 h-7 px-2"
                 >
                   <Dice6 className="w-3 h-3" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Roll {displayName}</p>
+                <p>Roll {displayName} ({computedValue})</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -167,14 +178,14 @@ export function AttributesSection() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => rollSave(attributeName, value, combineAdvantages(advantageLevel, saveAdvantage))}
+                  onClick={() => rollSave(attributeName, computedValue, combineAdvantages(advantageLevel, saveAdvantage))}
                   className="flex-1 h-7 px-2"
                 >
                   <Shield className="w-3 h-3" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Save {displayName}</p>
+                <p>Save {displayName} ({computedValue})</p>
               </TooltipContent>
             </Tooltip>
           </div>

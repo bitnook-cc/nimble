@@ -21,8 +21,8 @@ export function HitDiceSection() {
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     level: character?.level || 1,
-    hitDieSize: character?.hitDice.size || 6,
-    currentHitDice: character?.hitDice.current || 1,
+    hitDieSize: character?._hitDice.size || 6,
+    currentHitDice: character?._hitDice.current || 1,
   });
   
   // Early return if no character (shouldn't happen in normal usage)
@@ -48,8 +48,8 @@ export function HitDiceSection() {
   const handleCancel = () => {
     setEditValues({
       level: character.level,
-      hitDieSize: character.hitDice.size,
-      currentHitDice: character.hitDice.current,
+      hitDieSize: character._hitDice.size,
+      currentHitDice: character._hitDice.current,
     });
     setIsEditing(false);
   };
@@ -62,7 +62,7 @@ export function HitDiceSection() {
     }));
   };
 
-  const canRollHitDie = character.hitDice.current > 0;
+  const canRollHitDie = character._hitDice.current > 0;
 
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
@@ -81,8 +81,8 @@ export function HitDiceSection() {
                 </div>
                 <div className="text-lg font-bold flex items-center gap-2">
                   <Dices className="w-4 h-4" />
-                  <span>{character.hitDice.current}/{character.hitDice.max}</span>
-                  <span className="text-sm text-muted-foreground">d{character.hitDice.size}</span>
+                  <span>{character._hitDice.current}/{character._hitDice.max}</span>
+                  <span className="text-sm text-muted-foreground">d{character._hitDice.size}</span>
                 </div>
                 {isOpen ? (
                   <ChevronDown className="w-4 h-4" />
@@ -162,24 +162,24 @@ export function HitDiceSection() {
                   </div>
                   
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">d{character.hitDice.size}</div>
+                    <div className="text-2xl font-bold">d{character._hitDice.size}</div>
                     <div className="text-sm text-muted-foreground">Hit Die</div>
                   </div>
                   
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{character.hitDice.current}</div>
+                    <div className="text-2xl font-bold">{character._hitDice.current}</div>
                     <div className="text-sm text-muted-foreground">Available</div>
                   </div>
                   
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{character.hitDice.max}</div>
+                    <div className="text-2xl font-bold">{character._hitDice.max}</div>
                     <div className="text-sm text-muted-foreground">Maximum</div>
                   </div>
                 </div>
                 
                 <div className="space-y-3">
                   <div className="text-center text-sm font-medium text-muted-foreground">
-                    Field Rest Options (d{character.hitDice.size} + STR {character.attributes.strength >= 0 ? '+' : ''}{character.attributes.strength})
+                    Field Rest Options (d{character._hitDice.size} + STR {character._attributes.strength >= 0 ? '+' : ''}{character._attributes.strength})
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -202,7 +202,7 @@ export function HitDiceSection() {
                     >
                       <Heart className="w-4 h-4 mr-2" />
                       Make Camp
-                      <div className="text-xs ml-2">({character.hitDice.size} + STR)</div>
+                      <div className="text-xs ml-2">({character._hitDice.size} + STR)</div>
                     </Button>
                   </div>
                   

@@ -1,6 +1,7 @@
 import { Ability } from './abilities';
 import { StatBoost, ProficiencyGrant } from './class';
 import { NameConfig } from '../utils/name-generator';
+import { StatBonus } from './stat-bonus';
 
 
 export type AncestryFeatureType = 'ability' | 'passive_feature' | 'stat_boost' | 'proficiency' | 'darkvision' | 'resistance';
@@ -30,6 +31,7 @@ export interface AncestryAbilityFeature extends BaseAncestryFeature {
 // Passive feature - background benefits, cultural traits
 export interface AncestryPassiveFeature extends BaseAncestryFeature {
   type: 'passive_feature';
+  statBonus?: StatBonus; // Optional stat bonuses provided by this feature
 }
 
 // Stat boost - racial attribute modifiers

@@ -53,7 +53,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
     hpRolls: [],
     totalHpGain: 0,
     newMaxHp: character?.hitPoints.max || 0,
-    newHitDice: character ? { ...character.hitDice } : { current: 0, max: 0 },
+    newHitDice: character ? { ...character._hitDice } : { current: 0, max: 0 },
     skillAllocations: {},
     featureSelections: {}
   });
@@ -127,8 +127,8 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       totalHpGain: totalGain,
       newMaxHp: character.hitPoints.max + totalGain,
       newHitDice: {
-        current: character.hitDice.current + levelUpData.levelsToGain,
-        max: character.hitDice.max + levelUpData.levelsToGain
+        current: character._hitDice.current + levelUpData.levelsToGain,
+        max: character._hitDice.max + levelUpData.levelsToGain
       }
     }));
   };
@@ -136,7 +136,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
   const applyLevelUp = async () => {
     try {
       // Apply skill allocations
-      const updatedSkills = { ...character.skills };
+      const updatedSkills = { ...character._skills };
       Object.entries(levelUpData.skillAllocations).forEach(([skillName, points]) => {
         const skill = updatedSkills[skillName as keyof typeof updatedSkills];
         if (points > 0 && skill) {
@@ -148,7 +148,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       });
       
       // Prepare feature-related updates
-      let updatedAttributes = { ...character.attributes };
+      let updatedAttributes = { ...character._attributes };
       let updatedAbilities = [...character.abilities];
       let updatedResources = [...character.resources];
       let grantedFeatures = [...character.grantedFeatures];
@@ -341,7 +341,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           current: levelUpData.newMaxHp // Set current HP to new max HP after level up
         },
         hitDice: {
-          ...character.hitDice,
+          ...character._hitDice,
           current: levelUpData.newHitDice.current,
           max: levelUpData.newHitDice.max
         },

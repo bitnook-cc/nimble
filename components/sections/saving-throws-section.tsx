@@ -37,7 +37,7 @@ export function SavingThrowsSection() {
   const handleSaveRoll = useCallback((attributeName: AttributeName) => {
     if (!character) return;
     
-    const attributeValue = character.attributes[attributeName];
+    const attributeValue = character._attributes[attributeName];
     const saveAdvantage = character.saveAdvantages?.[attributeName] || 'normal';
     const combinedAdvantage = combineAdvantages(advantageLevel, saveAdvantage);
     
@@ -91,7 +91,7 @@ export function SavingThrowsSection() {
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-2">
                 {attributes.map(({ name, label }) => {
-                  const value = character.attributes[name];
+                  const value = character._attributes[name];
                   const saveAdvantage = character.saveAdvantages?.[name] || 'normal';
                   const combinedAdvantage = combineAdvantages(advantageLevel, saveAdvantage);
                   

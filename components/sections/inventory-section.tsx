@@ -29,7 +29,7 @@ export function InventorySection() {
   const isOpen = uiState.collapsibleSections.inventory;
   const onToggle = (isOpen: boolean) => updateCollapsibleState('inventory', isOpen);
   const inventory = character.inventory;
-  const characterDexterity = character.attributes.dexterity;
+  const characterDexterity = character._attributes.dexterity;
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>

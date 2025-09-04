@@ -97,5 +97,16 @@ export function useCharacterService() {
     performAttack: characterService.performAttack.bind(characterService),
     performUseAbility: characterService.performUseAbility.bind(characterService),
     updateCharacterConfiguration: characterService.updateCharacterConfiguration.bind(characterService),
+    
+    // Dynamic stat calculation methods
+    getAttributes: characterService.getAttributes.bind(characterService),
+    getSkills: characterService.getSkills.bind(characterService),
+    getSkillValue: characterService.getSkillValue.bind(characterService),
+    getInitiative: characterService.getInitiative.bind(characterService),
+    getHitDice: characterService.getHitDice.bind(characterService),
+    getMaxWounds: characterService.getMaxWounds.bind(characterService),
+    getArmorValue: characterService.getArmorValue.bind(characterService),
+    getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
+    getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
   };
 }
