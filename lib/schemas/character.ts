@@ -62,6 +62,7 @@ export const itemSchema = z.discriminatedUnion('type', [
 export const inventorySchema = z.object({
   maxSize: z.int().min(0),
   items: z.array(itemSchema),
+  currency: currencySchema,
 });
 
 export const attributeSchema = z.object({

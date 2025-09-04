@@ -52,6 +52,7 @@ export type Item = WeaponItem | ArmorItem | FreeformItem | ConsumableItem | Ammu
 export interface Inventory {
   maxSize: number;
   items: Item[];
+  currency: Currency;
 }
 
 export interface CreateItemData {

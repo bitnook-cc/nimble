@@ -1,3 +1,4 @@
 export interface Currency {
-  gold: number;
+  gold?: number;
+  silver?: number;
 }

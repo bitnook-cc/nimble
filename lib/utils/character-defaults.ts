@@ -3,6 +3,7 @@ import { Inventory, ArmorItem, WeaponItem, ConsumableItem } from '../types/inven
 import { Ability } from '../types/abilities';
 import { ClassDefinition } from '../types/class';
 import { ResourceInstance, ResourceDefinition, createResourceInstance } from '../types/resources';
+import { Currency } from '../types/currency';
 import { gameConfig } from '../config/game-config';
 
 export const createDefaultSkills = () => {
@@ -19,10 +20,18 @@ export const createDefaultSkills = () => {
   return defaultSkills as Record<string, { name: string; associatedAttribute: AttributeName; modifier: number }>;
 };
 
+export const createDefaultCurrency = (): Currency => {
+  return {
+    gold: 0,
+    silver: 0,
+  };
+};
+
 export const createDefaultInventory = (strength: number = 0): Inventory => {
   return {
     maxSize: gameConfig.character.skillModifierRange.max - 2 + strength, // Using max inventory size from game config indirectly
     items: [],
+    currency: createDefaultCurrency(),
   };
 };
 
