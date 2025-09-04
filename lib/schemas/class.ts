@@ -63,7 +63,7 @@ const ActionAbilitySchema = z.object({
   maxUses: AbilityUsesSchema.optional(),
   currentUses: z.number().int().min(0).optional().meta({ title: 'Current Uses', description: 'Current remaining uses (integer)' }),
   roll: AbilityRollSchema.optional().meta({ title: 'Roll', description: 'Dice roll configuration for the ability' }),
-  actionCost: z.number().int().min(0).max(2).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),
+  actionCost: z.number().int().min(0).max(5).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),
   resourceCost: ResourceCostSchema.optional().meta({ title: 'Resource Cost', description: 'Resource cost to use the ability' })
 }).meta({ title: 'Action Ability', description: 'Non-spell ability that characters can use' });
 
@@ -75,7 +75,7 @@ const SpellAbilitySchema = z.object({
   school: z.string().min(1).meta({ title: 'School', description: 'ID of the spell school this belongs to' }),
   tier: z.number().int().min(0).max(9).meta({ title: 'Tier', description: 'Spell tier/level (0-9, integer)' }),
   roll: AbilityRollSchema.optional().meta({ title: 'Roll', description: 'Dice roll configuration for the spell' }),
-  actionCost: z.number().int().min(0).max(2).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),
+  actionCost: z.number().int().min(0).max(5).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),
   resourceCost: ResourceCostSchema.optional().meta({ title: 'Resource Cost', description: 'Resource cost to cast the spell' })
 }).meta({ title: 'Spell Ability', description: 'Spell that characters can cast' });
 
