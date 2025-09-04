@@ -1,16 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ArrowRightLeft, Coins } from "lucide-react";
+import { Coins, ChevronRight, ChevronLeft, ArrowRight, ArrowLeft } from "lucide-react";
 import { useCharacterService } from "../../lib/hooks/use-character-service";
+
+// Coin icons using Lucide
+const GoldCoin = ({ className }: { className?: string }) => (
+  <Coins className={`w-6 h-6 text-yellow-500 ${className}`} />
+);
+
+const SilverCoin = ({ className }: { className?: string }) => (
+  <Coins className={`w-6 h-6 text-gray-500 ${className}`} />
+);
 
 export function CurrencySection() {
   const { character, updateCharacter } = useCharacterService();
-  const [goldInput, setGoldInput] = useState("");
-  const [silverInput, setSilverInput] = useState("");
 
   if (!character) {
     return null;
@@ -52,135 +58,97 @@ export function CurrencySection() {
     }
   };
 
-  const convertGoldToSilver = () => {
-    const goldToConvert = parseInt(goldInput) || 0;
-    if (goldToConvert > 0 && goldToConvert <= gold) {
-      const newGold = gold - goldToConvert;
-      const newSilver = silver + (goldToConvert * 10);
-      
+  const convertOneGoldToSilver = () => {
+    if (gold >= 1) {
       updateCharacter({
         ...character,
         inventory: {
           ...character.inventory,
           currency: {
-            gold: newGold,
-            silver: newSilver,
+            gold: gold - 1,
+            silver: silver + 10,
           },
         },
       });
-      
-      setGoldInput("");
     }
   };
 
-  const convertSilverToGold = () => {
-    const silverToConvert = parseInt(silverInput) || 0;
-    if (silverToConvert >= 10 && silverToConvert <= silver && silverToConvert % 10 === 0) {
-      const newSilver = silver - silverToConvert;
-      const newGold = gold + (silverToConvert / 10);
-      
+  const convertTenSilverToGold = () => {
+    if (silver >= 10) {
       updateCharacter({
         ...character,
         inventory: {
           ...character.inventory,
           currency: {
-            gold: newGold,
-            silver: newSilver,
+            gold: gold + 1,
+            silver: silver - 10,
           },
         },
       });
-      
-      setSilverInput("");
     }
   };
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Coins className="h-5 w-5" />
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Coins className="h-4 w-4" />
           Currency
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Current Currency Display */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Gold</label>
-            <Input
-              type="number"
-              min="0"
-              value={gold}
-              onChange={(e) => handleGoldChange(e.target.value)}
-              className="text-center"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Silver</label>
-            <Input
-              type="number"
-              min="0"
-              value={silver}
-              onChange={(e) => handleSilverChange(e.target.value)}
-              className="text-center"
-            />
-          </div>
-        </div>
-
-        {/* Currency Conversion */}
-        <div className="border-t pt-4 space-y-3">
-          <h4 className="text-sm font-medium flex items-center gap-2">
-            <ArrowRightLeft className="h-4 w-4" />
-            Convert Currency
-          </h4>
+      <CardContent className="space-y-3">
+        {/* Compact Currency Layout */}
+        <div className="flex items-center justify-center gap-2">
+          {/* Gold Section */}
+          <GoldCoin />
+          <Input
+            type="number"
+            min="0"
+            value={gold}
+            onChange={(e) => handleGoldChange(e.target.value)}
+            className="w-20 text-center h-8"
+          />
           
-          {/* Gold to Silver */}
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              min="1"
-              max={gold}
-              placeholder="Gold"
-              value={goldInput}
-              onChange={(e) => setGoldInput(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={convertGoldToSilver}
-              disabled={!goldInput || parseInt(goldInput) <= 0 || parseInt(goldInput) > gold}
-            >
-              → {goldInput ? (parseInt(goldInput) * 10) : 0} Silver
-            </Button>
-          </div>
-
-          {/* Silver to Gold */}
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              min="10"
-              step="10"
-              max={silver}
-              placeholder="Silver (multiples of 10)"
-              value={silverInput}
-              onChange={(e) => setSilverInput(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={convertSilverToGold}
-              disabled={!silverInput || parseInt(silverInput) < 10 || parseInt(silverInput) > silver || parseInt(silverInput) % 10 !== 0}
-            >
-              → {silverInput ? Math.floor(parseInt(silverInput) / 10) : 0} Gold
-            </Button>
-          </div>
+          {/* Gold to Silver Conversion */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={convertOneGoldToSilver}
+            disabled={gold < 1}
+            className="h-8 w-16 p-0"
+            title="Convert 1 Gold to 10 Silver"
+          >
+            <GoldCoin className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+          
+          {/* Silver to Gold Conversion */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={convertTenSilverToGold}
+            disabled={silver < 10}
+            className="h-8 w-16 p-0"
+            title="Convert 10 Silver to 1 Gold"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <SilverCoin className="h-4 w-4" />
+          </Button>
+          
+          {/* Silver Section */}
+          <Input
+            type="number"
+            min="0"
+            value={silver}
+            onChange={(e) => handleSilverChange(e.target.value)}
+            className="w-20 text-center h-8"
+          />
+          <SilverCoin />
         </div>
 
         {/* Exchange Rate Info */}
-        <div className="text-xs text-muted-foreground text-center border-t pt-2">
-          Exchange Rate: 1 Gold = 10 Silver
+        <div className="text-xs text-muted-foreground text-center">
+          1 Gold = 10 Silver
         </div>
       </CardContent>
     </Card>

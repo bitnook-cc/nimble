@@ -21,12 +21,22 @@ import {
   Apple,
   Target,
   FileText,
-  Star
+  Star,
+  Coins
 } from "lucide-react";
 import { getItemService } from "@/lib/services/service-factory";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { RepositoryItem, ItemFilter } from "@/lib/types/item-repository";
 import { ItemType } from "@/lib/types/inventory";
+
+// Coin icons using Lucide (same as currency section)
+const GoldCoin = ({ className }: { className?: string }) => (
+  <Coins className={`w-4 h-4 text-yellow-600 ${className}`} />
+);
+
+const SilverCoin = ({ className }: { className?: string }) => (
+  <Coins className={`w-4 h-4 text-gray-500 ${className}`} />
+);
 
 interface ItemBrowserProps {
   isOpen: boolean;
@@ -302,6 +312,23 @@ export function ItemBrowser({
                                   
                                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                     <span>Size: {repositoryItem.item.size}</span>
+                                    {repositoryItem.item.cost && (
+                                      <div className="flex items-center gap-1">
+                                        <span>Cost:</span>
+                                        {repositoryItem.item.cost.gold && (
+                                          <div className="flex items-center gap-1">
+                                            <GoldCoin />
+                                            <span>{repositoryItem.item.cost.gold}</span>
+                                          </div>
+                                        )}
+                                        {repositoryItem.item.cost.silver && (
+                                          <div className="flex items-center gap-1">
+                                            <SilverCoin />
+                                            <span>{repositoryItem.item.cost.silver}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                     {repositoryItem.item.type === 'weapon' && (repositoryItem.item as any).damage && (
                                       <span>Damage: {(repositoryItem.item as any).damage}</span>
                                     )}
