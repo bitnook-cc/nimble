@@ -4,6 +4,11 @@ import { ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
 import { getClassService, getAncestryService, getBackgroundService } from './service-factory';
 
+export interface PDFExportOptions {
+  template: 'full-page' | 'half-page';
+  editable: boolean;
+}
+
 export class PDFExportService {
   private static instance: PDFExportService;
 
@@ -38,12 +43,20 @@ export class PDFExportService {
   /**
    * Export character sheet as PDF using form-fillable template
    */
-  async exportCharacterToPDF(character: Character, characterService: ICharacterService): Promise<void> {
+  async exportCharacterToPDF(
+    character: Character, 
+    characterService: ICharacterService, 
+    options: PDFExportOptions = { template: 'full-page', editable: true }
+  ): Promise<void> {
     try {      
-      // Load the template PDF
-      const response = await fetch('/character-sheet-template.pdf');
+      // Load the template PDF based on selected template
+      const templateFile = options.template === 'half-page' 
+        ? '/character-sheet-half-page.pdf' 
+        : '/character-sheet-full-page.pdf';
+      
+      const response = await fetch(templateFile);
       if (!response.ok) {
-        throw new Error('Could not load PDF template');
+        throw new Error(`Could not load PDF template: ${templateFile}`);
       }
       
       const templateBytes = await response.arrayBuffer();
@@ -121,14 +134,20 @@ export class PDFExportService {
         }
       });
       
-      // Keep form editable - don't flatten
-      // form.flatten();
+      // Flatten form if not editable
+      if (!options.editable) {
+        form.flatten();
+      }
       
       // Save and download the PDF
       const pdfBytes = await pdfDoc.save();
       const arrayBuffer = new Uint8Array(pdfBytes).buffer;
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-      const filename = `${character.name.replace(/[^a-zA-Z0-9]/g, '_')}_character_sheet.pdf`;
+      
+      // Create filename with template suffix
+      const templateSuffix = options.template === 'half-page' ? '_half' : '_full';
+      const editableSuffix = options.editable ? '_editable' : '_flattened';
+      const filename = `${character.name.replace(/[^a-zA-Z0-9]/g, '_')}_character_sheet${templateSuffix}${editableSuffix}.pdf`;
       
       this.downloadFile(blob, filename);
       

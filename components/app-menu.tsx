@@ -15,6 +15,7 @@ import { SettingsPanel } from "./settings-panel";
 import { CharacterSelector } from "./character-selector";
 import { CharacterCreateForm } from "./character-create-form";
 import { ContentManagementPanel } from "./content-management-panel";
+import { PDFExportDialog, PDFExportOptions } from "./pdf-export-dialog";
 import { AppSettings } from "@/lib/services/settings-service";
 import { Character } from "@/lib/types/character";
 import { pdfExportService } from "@/lib/services/pdf-export-service";
@@ -35,17 +36,27 @@ export function AppMenu({
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
   const [showContentManagement, setShowContentManagement] = useState(false);
+  const [showPDFExport, setShowPDFExport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const handleExportPDF = async () => {
+  const handleShowPDFExport = () => {
+    setShowPDFExport(true);
+  };
+
+  const handlePDFExport = async (options: PDFExportOptions) => {
     const characterService = getCharacterService();
     const activeCharacter = characterService.character;
     
     if (activeCharacter) {
+      setIsExporting(true);
       try {
-        await pdfExportService.exportCharacterToPDF(activeCharacter, characterService);
+        await pdfExportService.exportCharacterToPDF(activeCharacter, characterService, options);
+        setShowPDFExport(false);
       } catch (error) {
         console.error('Failed to export PDF:', error);
         // Could add toast notification here
+      } finally {
+        setIsExporting(false);
       }
     }
   };
@@ -66,7 +77,7 @@ export function AppMenu({
               Characters
             </DropdownMenuItem>
             {activeCharacter && (
-              <DropdownMenuItem onClick={handleExportPDF}>
+              <DropdownMenuItem onClick={handleShowPDFExport}>
                 <Download className="w-4 h-4 mr-2" />
                 Export PDF
               </DropdownMenuItem>
@@ -121,6 +132,13 @@ export function AppMenu({
           />
         </DialogContent>
       </Dialog>
+
+      <PDFExportDialog
+        isOpen={showPDFExport}
+        onClose={() => setShowPDFExport(false)}
+        onExport={handlePDFExport}
+        isExporting={isExporting}
+      />
     </>
   );
 }
