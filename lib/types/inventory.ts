@@ -19,6 +19,8 @@ export interface WeaponItem extends BaseItem {
   equipped?: boolean;
   attribute?: AttributeName;
   damage?: string;
+  damageType?: 'Slashing' | 'Piercing' | 'Bludgeoning';
+  vicious?: boolean;
   properties?: string[];
 }
 
@@ -59,6 +61,8 @@ export interface CreateItemData {
   equipped?: boolean;
   attribute?: AttributeName;
   damage?: string;
+  damageType?: 'Slashing' | 'Piercing' | 'Bludgeoning';
+  vicious?: boolean;
   armor?: number;
   maxDexBonus?: number;
   isMainArmor?: boolean;
