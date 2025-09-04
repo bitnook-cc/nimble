@@ -70,7 +70,7 @@ export function CharacterNameSection({ name, onNameChange, onOpenConfig }: Chara
         
         {/* Ancestry, Background, Class, Level */}
         <div className="text-center text-lg text-muted-foreground">
-          {ancestryName} {backgroundName} • {className} • Level {character.level}
+          {ancestryName} • {backgroundName} • {className} • Level {character.level}
         </div>
       </div>
 

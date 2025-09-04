@@ -88,9 +88,7 @@ export class PDFExportService {
       this.setSaveAdvantages(form, character.saveAdvantages);
       
       // Hit Points - using exact field names with centered alignment
-      this.setTextField(form, 'HP - Current', character.hitPoints.current.toString(), true);
       this.setTextField(form, 'HP - Max', character.hitPoints.max.toString(), true);
-      this.setTextField(form, 'Temp HP', character.hitPoints.temporary.toString(), true);
       
       // Armor Class - using exact field name with centered alignment
       this.setTextField(form, 'Armor', armorValue.toString(), true);
@@ -102,7 +100,6 @@ export class PDFExportService {
       this.setTextField(form, 'Height, Weight', `Speed: ${character.speed}`);
       
       // Hit Dice - using exact field names with centered alignment
-      this.setTextField(form, 'Hit Dice', hitDice.current.toString(), true);
       this.setTextField(form, 'Hit Dice Total', hitDice.max.toString(), true);
       
       // Skills - using exact field names (capitalized)
