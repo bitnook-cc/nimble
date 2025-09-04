@@ -1,5 +1,5 @@
-import { PDFDocument } from 'pdf-lib';
-import { Character } from '../types/character';
+import { PDFDocument, PDFForm } from 'pdf-lib';
+import { Character, SaveAdvantageMap, SaveAdvantageType } from '../types/character';
 import { ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
 import { inspectPDFFields } from '../utils/pdf-field-inspector';
@@ -76,7 +76,7 @@ export class PDFExportService {
       this.setTextField(form, 'Ancestry, Class, Level', ancestryClassLevel);
       
       // Character Features - populate the three body columns
-      this.populateFeatureColumns(form, character, characterService);
+      this.populateFeatureColumns(form, character);
       
       // Attributes - using exact field names with centered alignment
       this.setTextField(form, 'STR', attributes.strength.toString(), true);
@@ -123,8 +123,8 @@ export class PDFExportService {
         }
       });
       
-      // Flatten the form to make it non-editable
-      form.flatten();
+      // Keep form editable - don't flatten
+      // form.flatten();
       
       // Save and download the PDF
       const pdfBytes = await pdfDoc.save();
@@ -143,7 +143,7 @@ export class PDFExportService {
   /**
    * Helper to set a text field with exact field name
    */
-  private setTextField(form: any, fieldName: string, value: string, centered: boolean = false): void {
+  private setTextField(form: PDFForm, fieldName: string, value: string, centered: boolean = false): void {
     try {
       const field = form.getTextField(fieldName);
       if (field) {
@@ -163,7 +163,7 @@ export class PDFExportService {
   /**
    * Helper to set a checkbox field
    */
-  private setCheckbox(form: any, fieldName: string, checked: boolean): void {
+  private setCheckbox(form: PDFForm, fieldName: string, checked: boolean): void {
     try {
       const field = form.getCheckBox(fieldName);
       if (field) {
@@ -184,22 +184,25 @@ export class PDFExportService {
   /**
    * Set save advantage/disadvantage checkboxes
    */
-  private setSaveAdvantages(form: any, saveAdvantages: any): void {
-    const attributes = ['STR', 'DEX', 'INT', 'WIL'];
-    
-    attributes.forEach(attr => {
-      const advantage = saveAdvantages?.[attr.toLowerCase()] === 'advantage';
-      const disadvantage = saveAdvantages?.[attr.toLowerCase()] === 'disadvantage';
+  private setSaveAdvantages(form: PDFForm, saveAdvantages: SaveAdvantageMap): void {
+    const setSaveAdvantage = (formName: String, type?: SaveAdvantageType) => {
+      const advantage = type === 'advantage';
+      const disadvantage = type === 'disadvantage';
       
-      this.setCheckbox(form, `${attr} Adv`, advantage);
-      this.setCheckbox(form, `${attr} Dis`, disadvantage);
-    });
+      this.setCheckbox(form, `${formName} Adv`, advantage);
+      this.setCheckbox(form, `${formName} Dis`, disadvantage);
+    }
+
+    setSaveAdvantage('STR', saveAdvantages?.strength);
+    setSaveAdvantage('DEX', saveAdvantages?.dexterity);
+    setSaveAdvantage('INT', saveAdvantages?.intelligence);
+    setSaveAdvantage('WIL', saveAdvantages?.will);
   }
 
   /**
    * Populate the three body columns with character features
    */
-  private populateFeatureColumns(form: any, character: Character, characterService: ICharacterService): void {
+  private populateFeatureColumns(form: PDFForm, character: Character): void {
     const contentRepository = ContentRepositoryService.getInstance();
     const classService = getClassService();
     const ancestryService = getAncestryService();
