@@ -102,7 +102,7 @@ export class PDFExportService {
       // Hit Dice - using exact field names with centered alignment
       this.setTextField(form, 'Hit Dice Total', hitDice.max.toString(), true);
       
-      // Skills - using exact field names (capitalized)
+      // Skills - using exact field names (capitalized) with associated attribute values
       const skillMappings = [
         { key: 'arcana', fieldName: 'Arcana' },
         { key: 'examination', fieldName: 'Examination' },
@@ -119,7 +119,9 @@ export class PDFExportService {
       skillMappings.forEach(({ key, fieldName }) => {
         const skill = skills[key];
         if (skill) {
-          this.setTextField(form, fieldName, this.formatModifier(skill.modifier), true);
+          const associatedAttributeValue = attributes[skill.associatedAttribute];
+          const totalModifier = skill.modifier + associatedAttributeValue;
+          this.setTextField(form, fieldName, this.formatModifier(totalModifier), true);
         }
       });
       
