@@ -8,7 +8,12 @@ export const wildOne: BackgroundDefinition = {
     {
       type: 'passive_feature',
       name: 'One with Nature',
-      description: 'Wild creatures are less frightened of you and more willing to aid you. +1 Naturecraft.'
+      description: 'Wild creatures are less frightened of you and more willing to aid you. +1 Naturecraft.',
+      statBonus: {
+        skillBonuses: {
+          'naturecraft': { type: 'fixed', value: 1 }
+        }
+      }
     },
     {
       type: 'passive_feature',

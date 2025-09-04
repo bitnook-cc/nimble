@@ -13,7 +13,10 @@ export const backOutOfRetirement: BackgroundDefinition = {
     {
       type: 'passive_feature',
       name: 'These Old Bones',
-      description: 'Your age has long since started to show. -1 max Wounds.'
+      description: 'Your age has long since started to show. -1 max Wounds.',
+      statBonus: {
+        maxWoundsBonus: { type: 'fixed', value: -1 }
+      }
     }
   ]
 };

@@ -18,7 +18,10 @@ export const survivalist: BackgroundDefinition = {
     {
       type: 'passive_feature',
       name: 'Hardy Constitution',
-      description: '+1 max Hit Die.'
+      description: '+1 max Hit Die.',
+      statBonus: {
+        hitDiceBonus: { type: 'fixed', value: 1 }
+      }
     }
   ]
 };
