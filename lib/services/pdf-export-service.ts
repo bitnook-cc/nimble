@@ -1,0 +1,273 @@
+import { PDFDocument } from 'pdf-lib';
+import { Character } from '../types/character';
+import { ICharacterService } from './interfaces';
+import { ContentRepositoryService } from './content-repository-service';
+import { inspectPDFFields } from '../utils/pdf-field-inspector';
+import { getClassService, getAncestryService, getBackgroundService } from './service-factory';
+
+export class PDFExportService {
+  private static instance: PDFExportService;
+
+  static getInstance(): PDFExportService {
+    if (!PDFExportService.instance) {
+      PDFExportService.instance = new PDFExportService();
+    }
+    return PDFExportService.instance;
+  }
+
+  /**
+   * Helper to format modifiers with +/- signs
+   */
+  private formatModifier(value: number): string {
+    return value >= 0 ? `+${value}` : `${value}`;
+  }
+
+  /**
+   * Download blob as file
+   */
+  private downloadFile(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Export character sheet as PDF using form-fillable template
+   */
+  async exportCharacterToPDF(character: Character, characterService: ICharacterService): Promise<void> {
+    try {
+      // First, let's inspect the form fields for debugging
+      await inspectPDFFields();
+      
+      // Load the template PDF
+      const response = await fetch('/character-sheet-template.pdf');
+      if (!response.ok) {
+        throw new Error('Could not load PDF template');
+      }
+      
+      const templateBytes = await response.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(templateBytes);
+      const form = pdfDoc.getForm();
+      
+      // Get character data
+      const contentRepository = ContentRepositoryService.getInstance();
+      const characterClass = contentRepository.getClassDefinition(character.classId);
+      const subclass = character.subclassId ? contentRepository.getSubclassDefinition(character.subclassId) : null;
+      const ancestry = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
+      const background = contentRepository.getBackgroundDefinition(character.background.backgroundId);
+      const attributes = characterService.getAttributes();
+      const skills = characterService.getSkills();
+      const initiative = characterService.getInitiative();
+      const hitDice = characterService.getHitDice();
+      const armorValue = characterService.getArmorValue();
+
+      // Fill form fields using exact field names
+      
+      // Character Name - using exact field name
+      this.setTextField(form, 'Character Name', character.name);
+      
+      // Ancestry, Class, Level - using combined field
+      const ancestryClassLevel = `${ancestry?.name || character.ancestry.ancestryId}, ${characterClass?.name || character.classId}, Level ${character.level}`;
+      this.setTextField(form, 'Ancestry, Class, Level', ancestryClassLevel);
+      
+      // Character Features - populate the three body columns
+      this.populateFeatureColumns(form, character, characterService);
+      
+      // Attributes - using exact field names with centered alignment
+      this.setTextField(form, 'STR', attributes.strength.toString(), true);
+      this.setTextField(form, 'DEX', attributes.dexterity.toString(), true);
+      this.setTextField(form, 'INT', attributes.intelligence.toString(), true);
+      this.setTextField(form, 'WIL', attributes.will.toString(), true);
+      
+      // Save Advantages/Disadvantages - using checkboxes
+      this.setSaveAdvantages(form, character.saveAdvantages);
+      
+      // Hit Points - using exact field names with centered alignment
+      this.setTextField(form, 'HP - Current', character.hitPoints.current.toString(), true);
+      this.setTextField(form, 'HP - Max', character.hitPoints.max.toString(), true);
+      this.setTextField(form, 'Temp HP', character.hitPoints.temporary.toString(), true);
+      
+      // Armor Class - using exact field name with centered alignment
+      this.setTextField(form, 'Armor', armorValue.toString(), true);
+      
+      // Initiative - using exact field name with centered alignment
+      this.setTextField(form, 'Initiative', this.formatModifier(initiative.modifier), true);
+      
+      // Speed - using exact field name with formatted text
+      this.setTextField(form, 'Height, Weight', `Speed: ${character.speed}`);
+      
+      // Hit Dice - using exact field names with centered alignment
+      this.setTextField(form, 'Hit Dice', hitDice.current.toString(), true);
+      this.setTextField(form, 'Hit Dice Total', hitDice.max.toString(), true);
+      
+      // Skills - using exact field names (capitalized)
+      const skillMappings = [
+        { key: 'arcana', fieldName: 'Arcana' },
+        { key: 'examination', fieldName: 'Examination' },
+        { key: 'finesse', fieldName: 'Finesse' },
+        { key: 'influence', fieldName: 'Influence' },
+        { key: 'insight', fieldName: 'Insight' },
+        { key: 'lore', fieldName: 'Lore' },
+        { key: 'might', fieldName: 'Might' },
+        { key: 'naturecraft', fieldName: 'Naturecraft' },
+        { key: 'perception', fieldName: 'Perception' },
+        { key: 'stealth', fieldName: 'Stealth' }
+      ];
+      
+      skillMappings.forEach(({ key, fieldName }) => {
+        const skill = skills[key];
+        if (skill) {
+          this.setTextField(form, fieldName, this.formatModifier(skill.modifier), true);
+        }
+      });
+      
+      // Flatten the form to make it non-editable
+      form.flatten();
+      
+      // Save and download the PDF
+      const pdfBytes = await pdfDoc.save();
+      const arrayBuffer = new Uint8Array(pdfBytes).buffer;
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      const filename = `${character.name.replace(/[^a-zA-Z0-9]/g, '_')}_character_sheet.pdf`;
+      
+      this.downloadFile(blob, filename);
+      
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Helper to set a text field with exact field name
+   */
+  private setTextField(form: any, fieldName: string, value: string, centered: boolean = false): void {
+    try {
+      const field = form.getTextField(fieldName);
+      if (field) {
+        field.setText(value);
+        if (centered) {
+          field.setAlignment(1); // 0 = left, 1 = center, 2 = right
+        }
+        console.log(`Set field "${fieldName}" to "${value}"${centered ? ' (centered)' : ''}`);
+      } else {
+        console.log(`Field "${fieldName}" exists but is null`);
+      }
+    } catch (error) {
+      console.log(`Could not find field "${fieldName}" (value: ${value})`);
+    }
+  }
+
+  /**
+   * Helper to set a checkbox field
+   */
+  private setCheckbox(form: any, fieldName: string, checked: boolean): void {
+    try {
+      const field = form.getCheckBox(fieldName);
+      if (field) {
+        if (checked) {
+          field.check();
+        } else {
+          field.uncheck();
+        }
+        console.log(`Set checkbox "${fieldName}" to ${checked ? 'checked' : 'unchecked'}`);
+      } else {
+        console.log(`Checkbox field "${fieldName}" exists but is null`);
+      }
+    } catch (error) {
+      console.log(`Could not find checkbox "${fieldName}"`);
+    }
+  }
+
+  /**
+   * Set save advantage/disadvantage checkboxes
+   */
+  private setSaveAdvantages(form: any, saveAdvantages: any): void {
+    const attributes = ['STR', 'DEX', 'INT', 'WIL'];
+    
+    attributes.forEach(attr => {
+      const advantage = saveAdvantages?.[attr.toLowerCase()] === 'advantage';
+      const disadvantage = saveAdvantages?.[attr.toLowerCase()] === 'disadvantage';
+      
+      this.setCheckbox(form, `${attr} Adv`, advantage);
+      this.setCheckbox(form, `${attr} Dis`, disadvantage);
+    });
+  }
+
+  /**
+   * Populate the three body columns with character features
+   */
+  private populateFeatureColumns(form: any, character: Character, characterService: ICharacterService): void {
+    const contentRepository = ContentRepositoryService.getInstance();
+    const classService = getClassService();
+    const ancestryService = getAncestryService();
+    const backgroundService = getBackgroundService();
+    
+    const allFeatures: string[] = [];
+    
+    // Get class features
+    try {
+      const classFeatures = classService.getAllGrantedFeatures(character);
+      classFeatures.forEach(feature => {
+        allFeatures.push(`${feature.name}: ${feature.description || 'Class feature'}`);
+      });
+    } catch (error) {
+      console.log('Could not get class features:', error);
+    }
+    
+    // Get ancestry features
+    try {
+      const ancestryFeatures = ancestryService.getAllGrantedFeatures(character);
+      ancestryFeatures.forEach(feature => {
+        allFeatures.push(`${feature.name}: ${feature.description || 'Ancestry feature'}`);
+      });
+    } catch (error) {
+      console.log('Could not get ancestry features:', error);
+    }
+    
+    // Get background features
+    try {
+      const backgroundFeatures = backgroundService.getAllGrantedFeatures(character);
+      backgroundFeatures.forEach(feature => {
+        allFeatures.push(`${feature.name}: ${feature.description || 'Background feature'}`);
+      });
+    } catch (error) {
+      console.log('Could not get background features:', error);
+    }
+    
+    // Add character abilities (non-spell abilities)
+    character.abilities.forEach(ability => {
+      if (ability.type === 'action' || ability.type === 'freeform') {
+        allFeatures.push(`${ability.name}: ${ability.description || 'Character ability'}`);
+      }
+    });
+    
+    // Add equipped items with special properties
+    character.inventory.items
+      .filter(item => (item.type === 'weapon' || item.type === 'armor') && item.equipped)
+      .forEach(item => {
+        if (item.description) {
+          allFeatures.push(`${item.name}: ${item.description}`);
+        }
+      });
+    
+    // Distribute features across three columns
+    const featuresPerColumn = Math.ceil(allFeatures.length / 3);
+    
+    for (let col = 1; col <= 3; col++) {
+      const startIndex = (col - 1) * featuresPerColumn;
+      const endIndex = startIndex + featuresPerColumn;
+      const columnFeatures = allFeatures.slice(startIndex, endIndex);
+      
+      const columnText = columnFeatures.join('\n\n');
+      this.setTextField(form, `Body - Column ${col}`, columnText);
+    }
+  }
+}
+
+export const pdfExportService = PDFExportService.getInstance();

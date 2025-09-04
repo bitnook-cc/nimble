@@ -10,13 +10,15 @@ import {
   DropdownMenuTrigger 
 } from "./ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Menu, Settings, Users, Plus, Database } from "lucide-react";
+import { Menu, Settings, Users, Plus, Database, Download } from "lucide-react";
 import { SettingsPanel } from "./settings-panel";
 import { CharacterSelector } from "./character-selector";
 import { CharacterCreateForm } from "./character-create-form";
 import { ContentManagementPanel } from "./content-management-panel";
 import { AppSettings } from "@/lib/services/settings-service";
 import { Character } from "@/lib/types/character";
+import { pdfExportService } from "@/lib/services/pdf-export-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 
 interface AppMenuProps {
   settings: AppSettings;
@@ -34,6 +36,22 @@ export function AppMenu({
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
   const [showContentManagement, setShowContentManagement] = useState(false);
 
+  const handleExportPDF = async () => {
+    const characterService = getCharacterService();
+    const activeCharacter = characterService.character;
+    
+    if (activeCharacter) {
+      try {
+        await pdfExportService.exportCharacterToPDF(activeCharacter, characterService);
+      } catch (error) {
+        console.error('Failed to export PDF:', error);
+        // Could add toast notification here
+      }
+    }
+  };
+
+  const activeCharacter = characters.find(c => c.id === settings.activeCharacterId);
+
   return (
     <>
       <DropdownMenu>
@@ -47,6 +65,12 @@ export function AppMenu({
               <Users className="w-4 h-4 mr-2" />
               Characters
             </DropdownMenuItem>
+            {activeCharacter && (
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => setShowContentManagement(true)}>
               <Database className="w-4 h-4 mr-2" />
               Manage Content
