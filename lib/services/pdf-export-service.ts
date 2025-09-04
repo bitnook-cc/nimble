@@ -2,7 +2,6 @@ import { PDFDocument, PDFForm } from 'pdf-lib';
 import { Character, SaveAdvantageMap, SaveAdvantageType } from '../types/character';
 import { ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
-import { inspectPDFFields } from '../utils/pdf-field-inspector';
 import { getClassService, getAncestryService, getBackgroundService } from './service-factory';
 
 export class PDFExportService {
@@ -40,10 +39,7 @@ export class PDFExportService {
    * Export character sheet as PDF using form-fillable template
    */
   async exportCharacterToPDF(character: Character, characterService: ICharacterService): Promise<void> {
-    try {
-      // First, let's inspect the form fields for debugging
-      await inspectPDFFields();
-      
+    try {      
       // Load the template PDF
       const response = await fetch('/character-sheet-template.pdf');
       if (!response.ok) {
@@ -153,7 +149,6 @@ export class PDFExportService {
         if (centered) {
           field.setAlignment(1); // 0 = left, 1 = center, 2 = right
         }
-        console.log(`Set field "${fieldName}" to "${value}"${centered ? ' (centered)' : ''}`);
       } else {
         console.log(`Field "${fieldName}" exists but is null`);
       }
@@ -174,7 +169,6 @@ export class PDFExportService {
         } else {
           field.uncheck();
         }
-        console.log(`Set checkbox "${fieldName}" to ${checked ? 'checked' : 'unchecked'}`);
       } else {
         console.log(`Checkbox field "${fieldName}" exists but is null`);
       }
