@@ -54,6 +54,9 @@ export const gnome: AncestryDefinition = {
       type: 'passive_feature',
       name: 'Optimistic',
       description: 'Allow an ally within Reach 6 to reroll any single die, resets when healed to your max HP. -1 Speed. You know Dwarvish if your INT is not negative (but you call it Gnomish, of course).',
+      statBonus: {
+        speedBonus: { type: 'fixed', value: -1 }
+      }
     }
   ],
   nameConfig: gnomeNames

@@ -53,7 +53,22 @@ export const human: AncestryDefinition = {
     {
       type: 'passive_feature',
       name: 'Tenacious',
-      description: '+1 to all skills and Initiative.'
+      description: '+1 to all skills and Initiative.',
+      statBonus: {
+        skillBonuses: {
+          'arcana': { type: 'fixed', value: 1 },
+          'examination': { type: 'fixed', value: 1 },
+          'finesse': { type: 'fixed', value: 1 },
+          'influence': { type: 'fixed', value: 1 },
+          'insight': { type: 'fixed', value: 1 },
+          'might': { type: 'fixed', value: 1 },
+          'lore': { type: 'fixed', value: 1 },
+          'naturecraft': { type: 'fixed', value: 1 },
+          'perception': { type: 'fixed', value: 1 },
+          'stealth': { type: 'fixed', value: 1 }
+        },
+        initiativeBonus: { type: 'fixed', value: 1 }
+      }
     }
   ],
   nameConfig: humanNames

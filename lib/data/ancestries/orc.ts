@@ -10,7 +10,12 @@ export const orc: AncestryDefinition = {
     {
       type: 'passive_feature',
       name: 'Relentless',
-      description: 'When you would drop to 0 HP, you may set your HP to LVL instead, 1/Safe Rest. +1 Might. You know Goblin if your INT is not negative (but you call it Orcish, of course).'
+      description: 'When you would drop to 0 HP, you may set your HP to LVL instead, 1/Safe Rest. +1 Might. You know Goblin if your INT is not negative (but you call it Orcish, of course).',
+      statBonus: {
+        skillBonuses: {
+          'might': { type: 'fixed', value: 1 }
+        }
+      }
     }
   ],
   nameConfig: {

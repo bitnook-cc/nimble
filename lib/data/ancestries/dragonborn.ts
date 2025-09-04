@@ -10,7 +10,10 @@ export const dragonborn: AncestryDefinition = {
     {
       type: 'passive_feature',
       name: 'Draconic Heritage',
-      description: '+1 Armor. When you attack: deal an additional LVL+KEY damage (ignoring armor) divided as you choose among any of your targets; recharges whenever you Safe Rest or gain a Wound. You know Draconic if your INT is not negative.'
+      description: '+1 Armor. When you attack: deal an additional LVL+KEY damage (ignoring armor) divided as you choose among any of your targets; recharges whenever you Safe Rest or gain a Wound. You know Draconic if your INT is not negative.',
+      statBonus: {
+        armorBonus: { type: 'fixed', value: 1 }
+      }
     }
   ],
   nameConfig: {

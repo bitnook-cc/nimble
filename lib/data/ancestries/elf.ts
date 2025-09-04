@@ -54,6 +54,9 @@ export const elf: AncestryDefinition = {
       type: 'passive_feature',
       name: 'Lithe',
       description: 'Advantage on Initiative, +1 Speed. You know Elvish if your INT is not negative.',
+      statBonus: {
+        speedBonus: { type: 'fixed', value: 1 }
+      }
     }
   ],
   nameConfig: elfNames

@@ -10,7 +10,10 @@ export const planarbeing: AncestryDefinition = {
     {
       type: 'passive_feature',
       name: 'Planeshift',
-      description: 'Whenever you Defend, you can gain 1 Wound to temporarily phase out of the material plane and ignore the damage. -2 max Wounds.'
+      description: 'Whenever you Defend, you can gain 1 Wound to temporarily phase out of the material plane and ignore the damage. -2 max Wounds.',
+      statBonus: {
+        maxWoundsBonus: { type: 'fixed', value: -2 }
+      }
     }
   ],
   nameConfig: {

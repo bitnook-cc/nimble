@@ -10,7 +10,11 @@ export const turtlefolk: AncestryDefinition = {
     {
       type: 'passive_feature',
       name: 'Slow & Steady',
-      description: '+4 Armor, -2 speed.'
+      description: '+4 Armor, -2 speed.',
+      statBonus: {
+        armorBonus: { type: 'fixed', value: 4 },
+        speedBonus: { type: 'fixed', value: -2 }
+      }
     }
   ],
   nameConfig: {
