@@ -260,7 +260,8 @@ const shadowmancerFeatures: ClassFeature[] = [
       name: 'Pilfered Power',
       description: 'Cast tiered spells at highest unlocked tier. DEX uses before patron takes notice.',
       type: 'action',
-      frequency: 'per_safe_rest'
+      frequency: 'per_safe_rest',
+      maxUses: { type: 'formula', expression: 'DEX' }
     }
   },
   {

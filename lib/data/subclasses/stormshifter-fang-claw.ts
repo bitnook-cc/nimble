@@ -5,16 +5,10 @@ const fangAndClawFeatures: ClassFeature[] = [
   {
     id: 'swiftshift',
     level: 3,
-    type: 'ability',
+    type: 'passive_feature',
     name: 'Swiftshift',
     description: 'When you roll Initiative, you may Beastshift or move for free. While transformed, you may shift between different Direbeast forms for free (and as a reaction by spending 1 mana); however, Beastshifting for free does not grant any temp HP.',
-    ability: {
-      id: 'swiftshift',
-      name: 'Swiftshift',
-      description: 'When you roll Initiative, Beastshift or move for free. While transformed, shift between Direbeast forms for free (or as reaction for 1 mana).',
-      type: 'action',
-      frequency: 'at_will'
-    }
+    category: 'combat'
   },
   {
     id: 'windborne-protector',
