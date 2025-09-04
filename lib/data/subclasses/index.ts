@@ -26,6 +26,18 @@ export { oathswornRefuge } from './oathsworn-refuge';
 export { circleOfSkyAndStorm } from './stormshifter-sky-storm';
 export { circleOfFangAndClaw } from './stormshifter-fang-claw';
 
+// Shadowmancer subclasses
+export { shadowmancerRedDragon } from './shadowmancer-red-dragon';
+export { shadowmancerAbyssalDepths } from './shadowmancer-abyssal-depths';
+
+// Shepherd subclasses
+export { shepherdLuminaryMercy } from './shepherd-luminary-mercy';
+export { shepherdLuminaryMalice } from './shepherd-luminary-malice';
+
+// Songweaver subclasses
+export { songweaverHeraldSnark } from './songweaver-herald-snark';
+export { songweaverHeraldCourage } from './songweaver-herald-courage';
+
 // Zephyr subclasses
 export { wayOfPain } from './zephyr-pain';
 export { wayOfFlame } from './zephyr-flame';
@@ -45,6 +57,12 @@ import { oathswornVengeance } from './oathsworn-vengeance';
 import { oathswornRefuge } from './oathsworn-refuge';
 import { circleOfSkyAndStorm } from './stormshifter-sky-storm';
 import { circleOfFangAndClaw } from './stormshifter-fang-claw';
+import { shadowmancerRedDragon } from './shadowmancer-red-dragon';
+import { shadowmancerAbyssalDepths } from './shadowmancer-abyssal-depths';
+import { shepherdLuminaryMercy } from './shepherd-luminary-mercy';
+import { shepherdLuminaryMalice } from './shepherd-luminary-malice';
+import { songweaverHeraldSnark } from './songweaver-herald-snark';
+import { songweaverHeraldCourage } from './songweaver-herald-courage';
 import { wayOfPain } from './zephyr-pain';
 import { wayOfFlame } from './zephyr-flame';
 
@@ -66,6 +84,12 @@ export const subclassDefinitions: SubclassDefinition[] = [
   oathswornRefuge,
   circleOfSkyAndStorm,
   circleOfFangAndClaw,
+  shadowmancerRedDragon,
+  shadowmancerAbyssalDepths,
+  shepherdLuminaryMercy,
+  shepherdLuminaryMalice,
+  songweaverHeraldSnark,
+  songweaverHeraldCourage,
   wayOfPain,
   wayOfFlame
 ];
