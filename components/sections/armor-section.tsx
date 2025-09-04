@@ -6,6 +6,8 @@ import { getEquippedArmor, getEquippedMainArmor, getEquippedSupplementaryArmor }
 import { Shield, ChevronDown, ChevronRight, Shirt } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { StatBonus } from "@/lib/types/stat-bonus";
 
 export function ArmorSection() {
   // Get everything we need from service hooks
@@ -19,28 +21,22 @@ export function ArmorSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState('armor', isOpen);
   const equippedArmor = getEquippedArmor(character.inventory.items);
   const mainArmor = getEquippedMainArmor(character.inventory.items);
-  const supplementaryArmor = getEquippedSupplementaryArmor(character.inventory.items);
   
   // Use computed attributes and armor value from character service
   const attributes = getAttributes();
   const dexterityBonus = attributes.dexterity;
   const totalArmorValue = getArmorValue();
   
-  // Calculate armor value for each piece including dex bonus (for display breakdown)
-  const armorValues = equippedArmor.map(armor => {
-    const baseArmor = armor.armor || 0;
-    const maxDexBonus = armor.maxDexBonus ?? Infinity; // Default to no limit if not specified
-    const actualDexBonus = Math.min(dexterityBonus, maxDexBonus);
-    return {
-      armor,
-      baseArmor,
-      dexBonus: actualDexBonus,
-      totalValue: baseArmor + actualDexBonus
-    };
-  });
+  // Calculate dexterity bonus with cap information
+  const mainArmorMaxDex = mainArmor?.maxDexBonus;
+  const isDexterityCapped = mainArmorMaxDex !== undefined && dexterityBonus > mainArmorMaxDex;
+  const effectiveDexBonus = isDexterityCapped ? mainArmorMaxDex : dexterityBonus;
   
-  const totalBaseArmor = armorValues.reduce((total, armorValue) => total + armorValue.baseArmor, 0);
-  const totalDexBonus = armorValues.reduce((total, armorValue) => total + armorValue.dexBonus, 0);
+  // Calculate total armor from equipped items
+  const totalEquippedArmor = equippedArmor.reduce((total, armor) => total + (armor.armor || 0), 0);
+  
+  // Calculate feature bonuses (total armor value - dex bonus - equipped armor = feature bonuses)
+  const featureBonuses = totalArmorValue - effectiveDexBonus - totalEquippedArmor;
 
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
@@ -64,124 +60,118 @@ export function ArmorSection() {
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent className="space-y-3">
-            {equippedArmor.length === 0 ? (
-              <div className="text-center py-4">
-                <div className="text-muted-foreground mb-3">
-                  No armor equipped.
-                </div>
-                <div className="text-sm space-y-1">
-                  <div>
-                    Armor Value: <span className="font-bold">{Math.max(0, dexterityBonus)}</span>
-                    {dexterityBonus >= 0 ? (
-                      <span className="text-green-600 ml-1">(from Dexterity: {dexterityBonus})</span>
-                    ) : (
-                      <span className="text-muted-foreground ml-1">(minimum: 0, Dex: {dexterityBonus})</span>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Equip armor in your inventory to improve protection.
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {/* Main Armor Section */}
-                {mainArmor && (
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-2">Main Armor</div>
-                    {(() => {
-                      const armorValue = armorValues.find(av => av.armor.id === mainArmor.id);
-                      if (!armorValue) return null;
-                      const { armor, baseArmor, dexBonus, totalValue } = armorValue;
-                      return (
-                        <div className="flex items-center justify-between p-2 bg-primary/5 border border-primary/20 rounded">
-                          <div className="flex items-center gap-2">
-                            <Shirt className="w-4 h-4 text-primary" />
-                            <span className="font-medium">{armor.name}</span>
-                            {armor.properties && armor.properties.length > 0 && (
-                              <span className="text-xs text-muted-foreground">
-                                ({armor.properties.join(', ')})
-                              </span>
-                            )}
-                            {armor.maxDexBonus !== undefined && armor.maxDexBonus < Infinity && (
-                              <span className="text-xs text-blue-600">
-                                (Max Dex: {armor.maxDexBonus})
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold">{totalValue}</div>
-                            {dexBonus > 0 && (
-                              <div className="text-xs text-muted-foreground">
-                                {baseArmor} + {dexBonus} dex
-                              </div>
-                            )}
-                          </div>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-muted-foreground mb-3">Armor Calculation Breakdown</div>
+              
+              {/* Calculation Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-3 font-medium">Source</th>
+                      <th className="text-right p-3 font-medium">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Dexterity Bonus Row */}
+                    <tr className="border-b">
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <span>Dexterity Bonus</span>
+                          {isDexterityCapped && (
+                            <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                              Capped by {mainArmor?.name}
+                            </span>
+                          )}
                         </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-                {/* Supplementary Armor Section */}
-                {supplementaryArmor.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-2">Supplementary Armor</div>
-                    <div className="space-y-2">
-                      {supplementaryArmor.map(armor => {
-                        const armorValue = armorValues.find(av => av.armor.id === armor.id);
-                        if (!armorValue) return null;
-                        const { baseArmor, dexBonus, totalValue } = armorValue;
-                        return (
-                          <div key={armor.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                            <div className="flex items-center gap-2">
-                              <Shield className="w-4 h-4" />
-                              <span className="font-medium">{armor.name}</span>
-                              {armor.properties && armor.properties.length > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({armor.properties.join(', ')})
-                                </span>
-                              )}
-                              {armor.maxDexBonus !== undefined && armor.maxDexBonus < Infinity && (
-                                <span className="text-xs text-blue-600">
-                                  (Max Dex: {armor.maxDexBonus})
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <div className="font-bold">{totalValue}</div>
-                              {dexBonus > 0 && (
-                                <div className="text-xs text-muted-foreground">
-                                  {baseArmor} + {dexBonus} dex
-                                </div>
-                              )}
-                            </div>
+                      </td>
+                      <td className="p-3 text-right">
+                        {isDexterityCapped ? (
+                          <div>
+                            <span className="line-through text-muted-foreground">+{dexterityBonus}</span>
+                            <span className="ml-2 font-medium">+{effectiveDexBonus}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Total Armor Section */}
-                {equippedArmor.length > 1 && (
-                  <div className="border-t pt-2 mt-2">
-                    <div className="flex items-center justify-between font-bold">
-                      <span>Total Armor Value:</span>
-                      <div className="text-right">
-                        <div>{totalArmorValue}</div>
-                        {totalDexBonus > 0 && (
-                          <div className="text-xs text-muted-foreground font-normal">
-                            {totalBaseArmor} base + {totalDexBonus} dex
-                          </div>
+                        ) : (
+                          <span className="font-medium">+{effectiveDexBonus}</span>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                      </td>
+                    </tr>
+
+                    {/* Equipped Armor Items */}
+                    {equippedArmor.map(armor => (
+                      <tr key={armor.id} className="border-b">
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            {armor.isMainArmor ? (
+                              <Shirt className="w-4 h-4 text-primary" />
+                            ) : (
+                              <Shield className="w-4 h-4" />
+                            )}
+                            <span>{armor.name}</span>
+                            {armor.isMainArmor && (
+                              <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                                Main
+                              </span>
+                            )}
+                          </div>
+                          {armor.properties && armor.properties.length > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {armor.properties.join(', ')}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          +{armor.armor || 0}
+                        </td>
+                      </tr>
+                    ))}
+
+                    {/* Feature-based Armor Bonuses */}
+                    {featureBonuses !== 0 && (
+                      <tr className="border-b">
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <span>Feature Bonuses</span>
+                            <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                              Features
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          {featureBonuses >= 0 ? '+' : ''}{featureBonuses}
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* No armor equipped message */}
+                    {equippedArmor.length === 0 && featureBonuses === 0 && (
+                      <tr>
+                        <td colSpan={2} className="p-4 text-center text-muted-foreground">
+                          No armor equipped or feature bonuses active.
+                          <div className="text-xs mt-1">
+                            Equip armor in your inventory to improve protection.
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Total Row */}
+                    <tr className="bg-muted/30 font-bold">
+                      <td className="p-3">Total Armor Value</td>
+                      <td className="p-3 text-right text-lg">{totalArmorValue}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            )}
+
+              {/* Additional Info */}
+              {isDexterityCapped && (
+                <div className="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200">
+                  <strong>Dexterity Cap:</strong> Your Dexterity bonus is limited by your main armor's maximum Dex bonus of {mainArmorMaxDex}.
+                </div>
+              )}
+            </div>
           </CardContent>
         </CollapsibleContent>
       </Card>
