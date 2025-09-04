@@ -251,10 +251,8 @@ export class CharacterService implements ICharacterService {
         armorValue += armor.armor;
         
         // Apply max dex bonus restriction if this is main armor
-        if (armor.isMainArmor && armor.maxDexBonus !== undefined) {
-          const baseDex = this._character._attributes.dexterity;
-          const maxDexFromArmor = Math.min(attributes.dexterity - baseDex + armor.maxDexBonus, attributes.dexterity);
-          armorValue = armorValue - attributes.dexterity + maxDexFromArmor;
+        if (armor.isMainArmor && armor.maxDexBonus !== undefined && attributes.dexterity > armor.maxDexBonus) {
+           armorValue = armorValue - (attributes.dexterity - armor.maxDexBonus);
         }
       }
     }
