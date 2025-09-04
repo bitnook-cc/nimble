@@ -84,8 +84,8 @@ export class PDFExportService {
       const ancestryClassLevel = `${ancestry?.name || character.ancestry.ancestryId}, ${characterClass?.name || character.classId}, Level ${character.level}`;
       this.setTextField(form, 'Ancestry, Class, Level', ancestryClassLevel);
       
-      // Character Features - populate the three body columns
-      this.populateFeatureColumns(form, character);
+      // Character Features - populate the body columns
+      this.populateFeatureColumns(form, character, options);
       
       // Attributes - using exact field names with centered alignment
       this.setTextField(form, 'STR', attributes.strength.toString(), true);
@@ -215,9 +215,9 @@ export class PDFExportService {
   }
 
   /**
-   * Populate the three body columns with character features
+   * Populate the body columns with character features (2 or 3 columns based on template)
    */
-  private populateFeatureColumns(form: PDFForm, character: Character): void {
+  private populateFeatureColumns(form: PDFForm, character: Character, options: PDFExportOptions): void {
     const contentRepository = ContentRepositoryService.getInstance();
     const classService = getClassService();
     const ancestryService = getAncestryService();
@@ -271,10 +271,11 @@ export class PDFExportService {
         }
       });
     
-    // Distribute features across three columns
-    const featuresPerColumn = Math.ceil(allFeatures.length / 3);
+    // Distribute features across columns (2 for half-page, 3 for full-page)
+    const columnCount = options.template === 'half-page' ? 2 : 3;
+    const featuresPerColumn = Math.ceil(allFeatures.length / columnCount);
     
-    for (let col = 1; col <= 3; col++) {
+    for (let col = 1; col <= columnCount; col++) {
       const startIndex = (col - 1) * featuresPerColumn;
       const endIndex = startIndex + featuresPerColumn;
       const columnFeatures = allFeatures.slice(startIndex, endIndex);
