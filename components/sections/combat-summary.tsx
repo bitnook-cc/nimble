@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Heart, Plus, Dice6, Square, Bandage, Skull, Circle, RotateCcw, HelpCircle, Sparkles, Droplets, HeartPlus, ShieldPlus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Heart, Minus, Plus, Dice6, Square, Bandage, Skull, Circle, RotateCcw, HelpCircle, Sparkles, Droplets, HeartPlus, ShieldPlus } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
@@ -63,16 +64,39 @@ function HealthBar() {
   );
 }
 
+// Hook to track viewport width
+function useViewportWidth() {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    function updateWidth() {
+      setWidth(window.innerWidth);
+    }
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  return width;
+}
+
 // Wounds Display Subcomponent
 function WoundsDisplay() {
   const { character, updateWounds } = useCharacterService();
   const [hoveredWound, setHoveredWound] = useState<number | null>(null);
+  const viewportWidth = useViewportWidth();
   
   // All hooks called first, then safety check
   if (!character) return null;
   
   const { wounds } = character;
-  const shouldUseIcons = wounds.max <= 8;
+  
+  // Calculate if icons would exceed 70% of viewport width
+  // Each icon is roughly 24px (w-5 h-5 = 20px + gap-1 = 4px between icons)
+  const iconWidth = 24; // 20px icon + 4px gap
+  const iconsWidth = wounds.max * iconWidth;
+  const shouldUseIcons = iconsWidth <= (viewportWidth * 0.6);
   
   const handleWoundClick = (woundIndex: number) => {
     const newWoundCount = woundIndex + 1;
@@ -91,32 +115,48 @@ function WoundsDisplay() {
   };
   
   if (!shouldUseIcons) {
+    // Determine status icon based on wound percentage
+    const getStatusIcon = () => {
+      if (wounds.current >= wounds.max) {
+        return <Skull className="w-4 h-4 text-red-600" />;
+      }
+      
+      const criticalThreshold = Math.min(wounds.max * 0.8, wounds.max - 1);
+      if (wounds.current > criticalThreshold) {
+        return <Heart className="w-4 h-4 text-red-500" />;
+      }
+      
+      if (wounds.current > wounds.max * 0.5) {
+        return <Bandage className="w-4 h-4 text-orange-600" />;
+      }
+      
+      return <Heart className="w-4 h-4 text-green-600" />;
+    };
+
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-600">Wounds:</span>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => adjustWounds(-1)}
-            disabled={wounds.current <= 0}
-            className="h-6 w-6 p-0 text-xs"
-          >
-            -
-          </Button>
-          <span className="text-sm font-medium text-gray-600 min-w-[3ch] text-center">
-            {wounds.current}/{wounds.max}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => adjustWounds(1)}
-            disabled={wounds.current >= wounds.max}
-            className="h-6 w-6 p-0 text-xs"
-          >
-            +
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => adjustWounds(-1)}
+          disabled={wounds.current <= 0}
+          className="h-6 w-6 p-0 text-xs"
+        >
+          <Minus className="w-4 h-4" />
+        </Button>
+        {getStatusIcon()}
+        <span className="text-sm font-medium text-gray-600 min-w-[3ch] text-center">
+          {wounds.current}/{wounds.max}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => adjustWounds(1)}
+          disabled={wounds.current >= wounds.max}
+          className="h-6 w-6 p-0 text-xs"
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
     );
   }
@@ -156,11 +196,8 @@ function WoundsDisplay() {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-600">Wounds:</span>
-      <div className="flex items-center gap-1">
-        {woundIcons}
-      </div>
+    <div className="flex items-center gap-1">
+      {woundIcons}
     </div>
   );
 }
@@ -168,14 +205,16 @@ function WoundsDisplay() {
 // HP Action Panel Types
 type ActionType = 'damage' | 'healing' | 'tempHP';
 
-// HP Action Panel Subcomponent
-function HPActionPanel({ 
+// HP Action Dialog Subcomponent
+function HPActionDialog({ 
   actionType, 
-  onClose, 
+  open,
+  onOpenChange,
   onApply 
 }: { 
   actionType: ActionType; 
-  onClose: () => void; 
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onApply: (amount: number) => void; 
 }) {
   const [amount, setAmount] = useState(1);
@@ -186,7 +225,8 @@ function HPActionPanel({
 
   const handleApply = () => {
     onApply(amount);
-    onClose();
+    onOpenChange(false);
+    setAmount(1); // Reset amount for next time
   };
 
   const getActionConfig = () => {
@@ -215,85 +255,84 @@ function HPActionPanel({
   const config = getActionConfig();
 
   return (
-    <div className="mt-3 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium text-gray-700">{config.title}</h4>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onClose}
-          className="h-6 w-6 p-0"
-        >
-          ×
-        </Button>
-      </div>
-      
-      <div className="flex items-center gap-2 mb-3">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => adjustAmount(-5)}
-          className="h-8 w-12 p-0 text-xs"
-        >
-          -5
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => adjustAmount(-1)}
-          className="h-8 w-12 p-0 text-xs"
-        >
-          -1
-        </Button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {config.icon}
+            {config.title}
+          </DialogTitle>
+        </DialogHeader>
         
-        <input
-          type="number"
-          min="1"
-          value={amount}
-          onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
-          className={`w-20 px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-            actionType === 'damage' 
-              ? 'border-red-600 text-red-600 focus:border-red-700 focus:ring-red-200' 
-              : actionType === 'healing'
-              ? 'border-green-600 text-green-600 focus:border-green-700 focus:ring-green-200'
-              : 'border-blue-600 text-blue-600 focus:border-blue-700 focus:ring-blue-200'
-          }`}
-        />
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => adjustAmount(1)}
-          className="h-8 w-12 p-0 text-xs"
-        >
-          +1
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => adjustAmount(5)}
-          className="h-8 w-12 p-0 text-xs"
-        >
-          +5
-        </Button>
-      </div>
-      
-      <Button 
-        onClick={handleApply}
-        className={`w-full ${config.buttonClass}`}
-        size="sm"
-      >
-        {config.icon}
-        <span className="ml-2">{config.title}</span>
-      </Button>
-    </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => adjustAmount(-5)}
+              className="h-8 w-12 p-0 text-xs"
+            >
+              -5
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => adjustAmount(-1)}
+              className="h-8 w-12 p-0 text-xs"
+            >
+              -1
+            </Button>
+            
+            <input
+              type="number"
+              min="1"
+              value={amount}
+              onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
+              className={`flex-1 px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+                actionType === 'damage' 
+                  ? 'border-red-600 text-red-600 focus:border-red-700 focus:ring-red-200' 
+                  : actionType === 'healing'
+                  ? 'border-green-600 text-green-600 focus:border-green-700 focus:ring-green-200'
+                  : 'border-blue-600 text-blue-600 focus:border-blue-700 focus:ring-blue-200'
+              }`}
+            />
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => adjustAmount(1)}
+              className="h-8 w-12 p-0 text-xs"
+            >
+              +1
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => adjustAmount(5)}
+              className="h-8 w-12 p-0 text-xs"
+            >
+              +5
+            </Button>
+          </div>
+          
+          <Button 
+            onClick={handleApply}
+            className={`w-full ${config.buttonClass}`}
+            size="sm"
+          >
+            {config.icon}
+            <span className="ml-2">{config.title}</span>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 // Quick Actions Bar Subcomponent
 function QuickActionsBar() {
   const { character, applyDamage, applyHealing, applyTemporaryHP } = useCharacterService();
-  const [activePanel, setActivePanel] = useState<ActionType | null>(null);
+  const [openDialog, setOpenDialog] = useState<ActionType | null>(null);
   
   // All hooks called first, then safety check
   if (!character) return null;
@@ -315,12 +354,12 @@ function QuickActionsBar() {
   };
 
   return (
-    <div className="space-y-3 mb-3">
+    <div className="mb-3">
       <div className="flex items-center justify-center gap-2 flex-wrap">
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => setActivePanel(activePanel === 'damage' ? null : 'damage')}
+          onClick={() => setOpenDialog('damage')}
           disabled={currentHp <= 0}
           className="text-red-600 border-red-600 hover:bg-red-50 text-xs h-7"
         >
@@ -331,7 +370,7 @@ function QuickActionsBar() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => setActivePanel(activePanel === 'healing' ? null : 'healing')}
+          onClick={() => setOpenDialog('healing')}
           disabled={currentHp >= maxHp}
           className="text-green-600 border-green-600 hover:bg-green-50 text-xs h-7"
         >
@@ -342,7 +381,7 @@ function QuickActionsBar() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => setActivePanel(activePanel === 'tempHP' ? null : 'tempHP')}
+          onClick={() => setOpenDialog('tempHP')}
           className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs h-7"
         >
           <ShieldPlus className="w-3 h-3 mr-1" />
@@ -350,14 +389,16 @@ function QuickActionsBar() {
         </Button>
       </div>
       
-      {/* Action Panel */}
-      {activePanel && (
-        <HPActionPanel
-          actionType={activePanel}
-          onClose={() => setActivePanel(null)}
-          onApply={(amount) => handleApplyAction(activePanel, amount)}
+      {/* Action Dialogs */}
+      {(['damage', 'healing', 'tempHP'] as ActionType[]).map(actionType => (
+        <HPActionDialog
+          key={actionType}
+          actionType={actionType}
+          open={openDialog === actionType}
+          onOpenChange={(open) => setOpenDialog(open ? actionType : null)}
+          onApply={(amount) => handleApplyAction(actionType, amount)}
         />
-      )}
+      ))}
     </div>
   );
 }
@@ -583,12 +624,63 @@ function CombatStatusBar() {
     const result = await rollInitiative(totalModifier, uiState.advantageLevel);
     await startEncounter(result.rollTotal);
   };
-  const getCombatStatus = () => {
-    if (!inEncounter) return { text: "Ready", color: "text-green-600" };
-    return { text: "In Combat", color: "text-red-600" };
+  const getHealthStatus = () => {
+    // Check if character has max wounds (dead)
+    if (character.wounds.current >= character.wounds.max) {
+      return { 
+        text: "Dead", 
+        color: "text-red-600", 
+        icon: <Skull className="w-4 h-4 text-red-600" /> 
+      };
+    }
+    
+    // Check if character is critical (>80% wounds OR one less than max, whichever is lower)
+    const criticalThreshold = Math.min(character.wounds.max * 0.8, character.wounds.max - 1);
+    if (character.wounds.current > criticalThreshold) {
+      return { 
+        text: "Critical", 
+        color: "text-red-500", 
+        icon: <Heart className="w-4 h-4 text-red-500" /> 
+      };
+    }
+    
+    // Check if character has more than 50% max wounds (injured)
+    if (character.wounds.current > character.wounds.max * 0.5) {
+      return { 
+        text: "Injured", 
+        color: "text-orange-600", 
+        icon: <Bandage className="w-4 h-4 text-orange-600" /> 
+      };
+    }
+    
+    // Healthy
+    return { 
+      text: "Healthy", 
+      color: "text-green-600", 
+      icon: null 
+    };
   };
 
-  const status = getCombatStatus();
+  const getCombinedStatus = () => {
+    const healthStatus = getHealthStatus();
+    
+    // If dead, just show dead status
+    if (healthStatus.text === "Dead") {
+      return healthStatus;
+    }
+    
+    // Combine health status with combat status
+    const combatText = inEncounter ? "In Combat" : "Ready";
+    const combatColor = inEncounter ? "text-red-600" : "text-green-600";
+    
+    return {
+      text: `${healthStatus.text} - ${combatText}`,
+      color: healthStatus.color, // Use health status color as primary
+      icon: healthStatus.icon
+    };
+  };
+
+  const status = getCombinedStatus();
 
   return (
     <Card className="border-2 border-gray-200">
@@ -598,9 +690,10 @@ function CombatStatusBar() {
             <Heart className="w-4 h-4 text-red-500" />
             <span className="text-sm font-medium">Combat Summary</span>
           </div>
-          <span className={`text-sm font-medium ${status.color}`}>
-            {status.text}
-          </span>
+          <div className={`flex items-center gap-1 text-sm font-medium ${status.color}`}>
+            {status.icon}
+            <span>{status.text}</span>
+          </div>
         </div>
 
         <HealthBar />
@@ -608,23 +701,30 @@ function CombatStatusBar() {
         {/* Integrated Quick Actions */}
         <QuickActionsBar />
 
-        {/* Wounds and Combat Status */}
-        <div className="flex items-center justify-between">
-          <WoundsDisplay />
+        {/* Wounds and Initiative Layout */}
+        <div className="grid grid-cols-2 gap-4 items-start">
+          {/* Wounds Column */}
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-600 mb-1">Wounds</span>
+            <div className="flex items-center h-8">
+              <WoundsDisplay />
+            </div>
+          </div>
           
-          {/* Combat Status and Initiative */}
-          <div className="flex items-center gap-3">
-            {!inEncounter ? (
-              <>
-                <span className="text-sm text-gray-600">Initiative: {totalModifier > 0 ? '+' : ''}{totalModifier}</span>
+          {/* Initiative Column */}
+          <div className="flex flex-col items-end">
+            <span className="text-sm font-medium text-gray-600 mb-1">Initiative</span>
+            <div className="flex items-center justify-end">
+              {!inEncounter ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleInitiativeRoll}
-                      className="h-8 w-8 p-0"
+                      className="h-8 px-2 text-xs"
                     >
+                      <span className="mr-1">{totalModifier > 0 ? '+' : ''}{totalModifier}</span>
                       <Dice6 className="w-4 h-4" />
                     </Button>
                   </TooltipTrigger>
@@ -632,18 +732,18 @@ function CombatStatusBar() {
                     <p>Roll Initiative: d20{totalModifier > 0 ? '+' + totalModifier : totalModifier}</p>
                   </TooltipContent>
                 </Tooltip>
-              </>
-            ) : (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={endEncounter}
-                className="text-xs"
-              >
-                <Square className="w-3 h-3 mr-1" />
-                End Combat
-              </Button>
-            )}
+              ) : (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={endEncounter}
+                  className="text-xs"
+                >
+                  <Square className="w-3 h-3 mr-1" />
+                  End Combat
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
