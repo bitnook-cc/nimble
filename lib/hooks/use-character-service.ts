@@ -86,6 +86,7 @@ export function useCharacterService() {
     applyDamage: characterService.applyDamage.bind(characterService),
     applyHealing: characterService.applyHealing.bind(characterService),
     applyTemporaryHP: characterService.applyTemporaryHP.bind(characterService),
+    updateWounds: characterService.updateWounds.bind(characterService),
     updateActionTracker: characterService.updateActionTracker.bind(characterService),
     updateAbilities: characterService.updateAbilities.bind(characterService),
     startEncounter: characterService.startEncounter.bind(characterService),

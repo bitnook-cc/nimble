@@ -65,7 +65,8 @@ function HealthBar() {
 
 // Wounds Display Subcomponent
 function WoundsDisplay() {
-  const { character } = useCharacterService();
+  const { character, updateWounds } = useCharacterService();
+  const [hoveredWound, setHoveredWound] = useState<number | null>(null);
   
   // All hooks called first, then safety check
   if (!character) return null;
@@ -73,13 +74,49 @@ function WoundsDisplay() {
   const { wounds } = character;
   const shouldUseIcons = wounds.max <= 8;
   
+  const handleWoundClick = (woundIndex: number) => {
+    const newWoundCount = woundIndex + 1;
+    if (newWoundCount === wounds.current) {
+      // Clicking on the current highest wound clears all wounds
+      updateWounds(0, wounds.max);
+    } else {
+      // Set wounds to the clicked position
+      updateWounds(newWoundCount, wounds.max);
+    }
+  };
+
+  const adjustWounds = (delta: number) => {
+    const newWounds = Math.max(0, Math.min(wounds.max, wounds.current + delta));
+    updateWounds(newWounds, wounds.max);
+  };
+  
   if (!shouldUseIcons) {
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-gray-600">Wounds:</span>
-        <span className="text-sm font-medium text-gray-600">
-          {wounds.current}/{wounds.max}
-        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => adjustWounds(-1)}
+            disabled={wounds.current <= 0}
+            className="h-6 w-6 p-0 text-xs"
+          >
+            -
+          </Button>
+          <span className="text-sm font-medium text-gray-600 min-w-[3ch] text-center">
+            {wounds.current}/{wounds.max}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => adjustWounds(1)}
+            disabled={wounds.current >= wounds.max}
+            className="h-6 w-6 p-0 text-xs"
+          >
+            +
+          </Button>
+        </div>
       </div>
     );
   }
@@ -87,21 +124,41 @@ function WoundsDisplay() {
   const woundIcons = [];
   for (let i = 0; i < wounds.max; i++) {
     const isLastWound = i === wounds.max - 1;
-    const isWounded = i < wounds.current;
+    const currentWounds = hoveredWound !== null ? hoveredWound + 1 : wounds.current;
+    const isWounded = i < currentWounds;
+    const isHovered = hoveredWound === i;
     const IconComponent = isLastWound ? Skull : Bandage;
     
     woundIcons.push(
-      <IconComponent
-        key={i} 
-        className={`w-3 h-3 ${isWounded ? 'text-red-500' : 'text-gray-300'}`} 
-      />
+      <button
+        key={i}
+        onClick={() => handleWoundClick(i)}
+        onMouseEnter={() => setHoveredWound(i)}
+        onMouseLeave={() => setHoveredWound(null)}
+        className={`transition-all duration-200 hover:scale-110 ${
+          isHovered ? 'drop-shadow-lg' : ''
+        }`}
+        title={`Click to ${i + 1 === wounds.current ? 'clear all wounds' : `set wounds to ${i + 1}`}`}
+      >
+        <IconComponent
+          className={`w-5 h-5 transition-colors duration-200 ${
+            isWounded 
+              ? isHovered 
+                ? 'text-red-400' 
+                : 'text-red-500'
+              : isHovered
+                ? 'text-red-300'
+                : 'text-gray-300'
+          }`} 
+        />
+      </button>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-gray-600">Wounds:</span>
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-1">
         {woundIcons}
       </div>
     </div>
