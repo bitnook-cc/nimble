@@ -1,0 +1,43 @@
+import { z } from 'zod';
+import { flexibleValueSchema, flexibleValueWithMetaSchema } from './flexible-value';
+
+// Resource reset condition schema
+const resourceResetConditionSchema = z.enum(['safe_rest', 'encounter_end', 'turn_end', 'never', 'manual']);
+
+// Resource reset type schema
+const resourceResetTypeSchema = z.enum(['to_max', 'to_zero', 'to_default']);
+
+// Resource definition schema
+export const resourceDefinitionSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  colorScheme: z.string().min(1),
+  icon: z.string().optional(),
+  resetCondition: resourceResetConditionSchema,
+  resetType: resourceResetTypeSchema,
+  resetValue: flexibleValueSchema.optional(),
+  minValue: flexibleValueSchema,
+  maxValue: flexibleValueSchema,
+});
+
+// Resource definition schema with metadata for content management
+export const resourceDefinitionWithMetaSchema = z.object({
+  id: z.string().min(1).meta({ title: 'ID', description: 'Unique identifier for the resource' }),
+  name: z.string().min(1).meta({ title: 'Name', description: 'Display name of the resource' }),
+  description: z.string().optional().meta({ title: 'Description', description: 'Optional description of the resource' }),
+  colorScheme: z.string().min(1).meta({ title: 'Color Scheme', description: 'Color scheme ID (e.g., blue-magic, red-fury)' }),
+  icon: z.string().optional().meta({ title: 'Icon', description: 'Icon identifier (e.g., sparkles, fire)' }),
+  resetCondition: resourceResetConditionSchema.meta({ title: 'Reset Condition', description: 'When this resource resets' }),
+  resetType: resourceResetTypeSchema.meta({ title: 'Reset Type', description: 'How this resource resets' }),
+  resetValue: flexibleValueWithMetaSchema.optional().meta({ title: 'Reset Value', description: 'Value to reset to (for to_default reset type)' }),
+  minValue: flexibleValueWithMetaSchema.meta({ title: 'Minimum Value', description: 'Minimum value for this resource' }),
+  maxValue: flexibleValueWithMetaSchema.meta({ title: 'Maximum Value', description: 'Maximum value for this resource' }),
+});
+
+// Resource instance schema
+export const resourceInstanceSchema = z.object({
+  definition: resourceDefinitionSchema,
+  current: z.number().int().min(0),
+  sortOrder: z.number().int().min(0),
+});

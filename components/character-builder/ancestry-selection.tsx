@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Sparkles } from "lucide-react";
 import { AncestryDefinition } from "@/lib/types/ancestry";
 import { NameGenerator } from "@/lib/utils/name-generator";
-import { genericNames } from "@/lib/data/name-configs";
+import { genericNames } from "@/lib/config/name-config";
 
 interface AncestrySelectionProps {
   availableAncestries: AncestryDefinition[];

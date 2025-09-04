@@ -1,11 +1,12 @@
 import { Character, SelectedFeature, SelectedPoolFeature, SelectedSubclass } from '../types/character';
 import { ClassDefinition, ClassFeature, ClassFeatureGrant, AbilityFeature, StatBoostFeature, ProficiencyFeature, SpellSchoolFeature, SpellSchoolChoiceFeature, UtilitySpellsFeature, SpellTierAccessFeature, ResourceFeature, SubclassChoiceFeature, SubclassDefinition, PickFeatureFromPoolFeature, FeaturePool } from '../types/class';
-import { ResourceInstance, createResourceInstance } from '../types/resources';
+import { ResourceInstance } from '../types/resources';
 // Removed direct subclass imports - now using ContentRepositoryService
 import { SpellAbility } from '../types/abilities';
 import { IClassService, ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
 import { abilityService } from './ability-service';
+import { resourceService } from './resource-service';
 
 /**
  * Class Service with Dependency Injection
@@ -365,7 +366,7 @@ export class ClassService implements IClassService {
    * Grant resource feature (adds new resources like Ki Points, etc.)
    */
   private async grantResourceFeature(character: Character, feature: ResourceFeature): Promise<Character> {
-    const { resourceDefinition, startingAmount } = feature;
+    const { resourceDefinition } = feature;
     
     // Check if resource already exists to avoid duplicates
     const existingResource = character.resources.find(r => r.definition.id === resourceDefinition.id);
@@ -374,10 +375,11 @@ export class ClassService implements IClassService {
       return character;
     }
 
-    // Create a resource instance from the definition
-    const resourceInstance = createResourceInstance(
+    // Create a resource instance using ResourceService to handle proper initialization
+    const resourceInstance = resourceService.createResourceInstanceForCharacter(
       resourceDefinition,
-      startingAmount, // Use provided starting amount or default to maxValue
+      character,
+      undefined, // No explicit current value - let it initialize based on reset type
       character.resources.length + 1 // Sort order
     );
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { flexibleValueWithMetaSchema } from './flexible-value';
 
 // Basic building blocks with metadata
 const DiceExpressionSchema = z.object({
@@ -26,21 +27,8 @@ const ResourceCostSchema = z.discriminatedUnion('type', [
   })
 ]).meta({ title: 'Resource Cost', description: 'Resource cost for using this ability' });
 
-// AbilityUses schema for flexible ability max uses
-const FixedAbilityUsesSchema = z.object({
-  type: z.literal('fixed').meta({ title: 'Fixed Uses', description: 'Fixed number of uses' }),
-  value: z.number().int().min(0).meta({ title: 'Value', description: 'Number of uses allowed (integer)' }),
-});
-
-const FormulaAbilityUsesSchema = z.object({
-  type: z.literal('formula').meta({ title: 'Formula Uses', description: 'Formula-based uses' }),
-  expression: z.string().min(1).max(100).meta({ title: 'Expression', description: 'Formula expression (e.g., "DEX + WIL + 1")' }),
-});
-
-const AbilityUsesSchema = z.discriminatedUnion('type', [
-  FixedAbilityUsesSchema,
-  FormulaAbilityUsesSchema,
-]).meta({ title: 'Max Uses', description: 'Maximum uses per frequency period' });
+// Type alias for backward compatibility and semantic clarity
+const AbilityUsesSchema = flexibleValueWithMetaSchema;
 
 // Armor proficiency schemas
 const ArmorProficiencySchema = z.union([
@@ -142,11 +130,10 @@ const ResourceFeatureSchema = BaseClassFeatureSchema.extend({
     icon: z.string().optional(),
     resetCondition: z.enum(['safe_rest', 'encounter_end', 'turn_end', 'never', 'manual']),
     resetType: z.enum(['to_max', 'to_zero', 'to_default']),
-    resetValue: z.number().int().optional(),
-    minValue: z.number().int(),
-    maxValue: z.number().int()
-  }),
-  startingAmount: z.number().int().optional()
+    resetValue: flexibleValueWithMetaSchema.optional(),
+    minValue: flexibleValueWithMetaSchema,
+    maxValue: flexibleValueWithMetaSchema
+  })
 });
 
 const SpellSchoolFeatureSchema = BaseClassFeatureSchema.extend({

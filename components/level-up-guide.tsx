@@ -6,7 +6,7 @@ import { useCharacterService } from '@/lib/hooks/use-character-service';
 import { getDiceService, getClassService, getContentRepository } from '@/lib/services/service-factory';
 import { ClassFeature, StatBoostFeature, SpellSchoolFeature, UtilitySpellsFeature, PickFeatureFromPoolFeature, SpellTierAccessFeature, ResourceFeature, AbilityFeature } from '@/lib/types/class';
 import { AttributeName, SelectedFeature } from '@/lib/types/character';
-import { createResourceInstance } from '@/lib/types/resources';
+import { resourceService } from '@/lib/services/resource-service';
 import { WizardDialog } from '@/components/wizard/wizard-dialog';
 import { LevelSelectionStep, HitPointsStep, SkillsStep, FeatureSelectionStep } from './level-up-guide/index';
 
@@ -311,9 +311,10 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             case 'resource':
               const resourceFeature = feature as ResourceFeature;
               if (resourceFeature.resourceDefinition && !updatedResources.some(r => r.definition.id === resourceFeature.resourceDefinition.id)) {
-                const resourceInstance = createResourceInstance(
+                const resourceInstance = resourceService.createResourceInstanceForCharacter(
                   resourceFeature.resourceDefinition,
-                  resourceFeature.startingAmount,
+                  character, // Pass character for formula evaluation
+                  undefined, // No explicit current value - let it initialize based on reset type
                   updatedResources.length
                 );
                 updatedResources.push(resourceInstance);

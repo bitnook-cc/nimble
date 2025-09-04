@@ -1,19 +1,11 @@
 import { AttributeName } from './character';
 import { DiceExpression } from './dice';
+import { FlexibleValue } from './flexible-value';
 
 export type AbilityFrequency = 'per_turn' | 'per_encounter' | 'per_safe_rest' | 'at_will';
 
-export interface FixedAbilityUses {
-  type: 'fixed';
-  value: number;
-}
-
-export interface FormulaAbilityUses {
-  type: 'formula';
-  expression: string; // e.g., "DEX + WIL + 1", "STR * 2", "level + 3"
-}
-
-export type AbilityUses = FixedAbilityUses | FormulaAbilityUses;
+// Type alias for backward compatibility and semantic clarity
+export type AbilityUses = FlexibleValue;
 
 export interface AbilityRoll {
   dice: DiceExpression;

@@ -153,17 +153,16 @@ export interface IBackgroundService {
  * Handles character creation and initialization
  */
 export interface ICharacterCreation {
-  createCharacterWithClass(options: CreateCharacterOptions): Promise<Character>;
+  quickCreateCharacter(options: QuickCreateOptions): Promise<Character>;
   createCompleteCharacter(options: any): Promise<Character>; // Using any temporarily to avoid circular dependency
-  createSampleCharacter(name: string, classId: string): Promise<Character>;
   applyStartingEquipment(characterId: string, equipmentIds: string[]): Promise<void>;
   getClassStartingEquipment(classId: string): string[];
 }
 
-export interface CreateCharacterOptions {
-  name: string;
-  ancestryId?: string;
-  backgroundId?: string;
+export interface QuickCreateOptions {
+  name?: string; // Optional - will be generated if not provided
+  ancestryId?: string; // Optional - will be random if not provided
+  backgroundId?: string; // Optional - will be random if not provided
   classId: string;
   level?: number;
   attributes?: Attributes;

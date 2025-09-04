@@ -5,7 +5,10 @@
  * that can handle mana, fury, focus, energy, etc.
  * 
  * Separates pure resource definitions from runtime instance state.
+ * Supports both fixed and formula-based min/max values.
  */
+
+import { FlexibleValue, createFixedValue } from './flexible-value';
 
 export type ResourceResetCondition = 
   | 'safe_rest'      // Reset on safe rest (mana, spell slots)
@@ -30,9 +33,9 @@ export interface ResourceDefinition {
   icon?: string;                        // Icon identifier (e.g., 'sparkles', 'fire')
   resetCondition: ResourceResetCondition;
   resetType: ResourceResetType;
-  resetValue?: number;                  // Used with 'to_default' reset type
-  minValue: number;                     // Minimum value (usually 0)
-  maxValue: number;                     // Maximum value
+  resetValue?: FlexibleValue;           // Used with 'to_default' reset type
+  minValue: FlexibleValue;              // Minimum value (can be formula-based)
+  maxValue: FlexibleValue;              // Maximum value (can be formula-based)
 }
 
 /**
@@ -44,6 +47,19 @@ export interface ResourceInstance {
   sortOrder: number;                    // Display order in UI
 }
 
+// Helper function to create a ResourceInstance from a ResourceDefinition
+// Note: For formula-based max values, you'll need to use ResourceService.calculateMaxValue with a character
+export function createResourceInstance(
+  definition: ResourceDefinition, 
+  current?: number, 
+  sortOrder?: number
+): ResourceInstance {
+  return {
+    definition,
+    current: current ?? (definition.maxValue.type === 'fixed' ? definition.maxValue.value : 0),
+    sortOrder: sortOrder ?? 1,
+  };
+}
 
 // Default resource definitions for character creation
 export const DEFAULT_RESOURCE_DEFINITIONS: ResourceDefinition[] = [
@@ -55,21 +71,7 @@ export const DEFAULT_RESOURCE_DEFINITIONS: ResourceDefinition[] = [
     icon: 'sparkles',
     resetCondition: 'safe_rest',
     resetType: 'to_max',
-    minValue: 0,
-    maxValue: 10,
+    minValue: createFixedValue(0),
+    maxValue: createFixedValue(10),
   },
 ];
-
-// Helper function to create a ResourceInstance from a ResourceDefinition
-export function createResourceInstance(
-  definition: ResourceDefinition, 
-  current?: number, 
-  sortOrder?: number
-): ResourceInstance {
-  return {
-    definition,
-    current: current ?? definition.maxValue,
-    sortOrder: sortOrder ?? 1,
-  };
-}
-

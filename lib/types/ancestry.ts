@@ -1,6 +1,7 @@
 import { Ability } from './abilities';
 import { StatBoost, ProficiencyGrant } from './class';
-import { AncestryNameConfig } from '../utils/name-generator';
+import { NameConfig } from '../utils/name-generator';
+
 
 export type AncestryFeatureType = 'ability' | 'passive_feature' | 'stat_boost' | 'proficiency' | 'darkvision' | 'resistance';
 
@@ -74,7 +75,7 @@ export interface AncestryDefinition {
   size: SizeCategory; // Default size category
   rarity: AncestryRarity; // Common or exotic
   features: AncestryFeature[]; // All features provided by this ancestry
-  nameConfig?: AncestryNameConfig; // Optional name generation configuration
+  nameConfig?: NameConfig; // Optional name generation configuration
 }
 
 // Helper types for working with ancestry data

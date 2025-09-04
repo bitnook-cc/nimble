@@ -38,10 +38,9 @@ const oathswornFeatures: ClassFeature[] = [
       icon: 'heart',
       resetCondition: 'safe_rest',
       resetType: 'to_max',
-      minValue: 0,
-      maxValue: 5 // Will be calculated as 5 × LVL
+      minValue: { type: 'fixed', value: 0 },
+      maxValue: { type: 'fixed', value: 5 } // Will be calculated as 5 × LVL
     },
-    startingAmount: 5
   },
   {
     id: 'mana-and-radiant-spellcasting',
@@ -57,10 +56,9 @@ const oathswornFeatures: ClassFeature[] = [
       icon: 'sun',
       resetCondition: 'safe_rest',
       resetType: 'to_max',
-      minValue: 0,
-      maxValue: 10 // Will be calculated as WIL + LVL
+      minValue: { type: 'fixed', value: 0 },
+      maxValue: { type: 'fixed', value: 10 } // Will be calculated as WIL + LVL
     },
-    startingAmount: 4 // Level 2 with assumed WIL 2
   },
   {
     id: 'zealot',

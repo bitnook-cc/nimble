@@ -1,4 +1,4 @@
-export interface NameGeneratorConfig {
+export interface NamePatterns {
   syllables: {
     prefixes: string[]
     middle: string[]
@@ -12,11 +12,11 @@ export interface NameGeneratorConfig {
   }
 }
 
-export interface AncestryNameConfig {
-  male?: NameGeneratorConfig
-  female?: NameGeneratorConfig
-  surnames?: NameGeneratorConfig
-  unisex?: NameGeneratorConfig
+export interface NameConfig {
+  male?: NamePatterns
+  female?: NamePatterns
+  surnames?: NamePatterns
+  unisex?: NamePatterns
 }
 
 export class NameGenerator {
@@ -24,7 +24,7 @@ export class NameGenerator {
     return array[Math.floor(Math.random() * array.length)]
   }
 
-  private static generateFromPattern(config: NameGeneratorConfig, pattern: string): string {
+  private static generateFromPattern(config: NamePatterns, pattern: string): string {
     let name = ''
     
     for (const char of pattern) {
@@ -44,12 +44,12 @@ export class NameGenerator {
     return name
   }
 
-  private static meetsConstraints(name: string, config: NameGeneratorConfig): boolean {
+  private static meetsConstraints(name: string, config: NamePatterns): boolean {
     const length = name.length
     return length >= config.constraints.minLength && length <= config.constraints.maxLength
   }
 
-  private static generateName(config: NameGeneratorConfig): string {
+  private static generateName(config: NamePatterns): string {
     const maxAttempts = 50
     let attempt = 0
     
@@ -69,7 +69,7 @@ export class NameGenerator {
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
   }
 
-  static generateFirstName(raceConfig: AncestryNameConfig, gender?: 'male' | 'female'): string {
+  static generateFirstName(raceConfig: NameConfig, gender?: 'male' | 'female'): string {
     if (raceConfig.unisex) {
       return this.generateName(raceConfig.unisex)
     }
@@ -82,7 +82,7 @@ export class NameGenerator {
       return this.generateName(raceConfig.female)
     }
     
-    const availableConfigs = [raceConfig.male, raceConfig.female].filter(Boolean) as NameGeneratorConfig[]
+    const availableConfigs = [raceConfig.male, raceConfig.female].filter(Boolean) as NamePatterns[]
     if (availableConfigs.length > 0) {
       return this.generateName(this.getRandomElement(availableConfigs))
     }
@@ -90,7 +90,7 @@ export class NameGenerator {
     throw new Error('No valid name configuration found')
   }
 
-  static generateSurname(raceConfig: AncestryNameConfig): string {
+  static generateSurname(raceConfig: NameConfig): string {
     if (!raceConfig.surnames) {
       throw new Error('No surname configuration found')
     }
@@ -98,7 +98,7 @@ export class NameGenerator {
     return this.generateName(raceConfig.surnames)
   }
 
-  static generateFullName(raceConfig: AncestryNameConfig, gender?: 'male' | 'female'): string {
+  static generateFullName(raceConfig: NameConfig, gender?: 'male' | 'female'): string {
     const firstName = this.generateFirstName(raceConfig, gender)
     
     if (raceConfig.surnames) {

@@ -87,7 +87,6 @@ export interface UtilitySpellsFeature extends BaseClassFeature {
 export interface ResourceFeature extends BaseClassFeature {
   type: 'resource';
   resourceDefinition: ResourceDefinition;
-  startingAmount?: number; // Optional override for initial current amount (defaults to maxValue)
 }
 
 // Spell Tier Access - grants access to higher tiers of spells

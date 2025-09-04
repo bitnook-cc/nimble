@@ -1,5 +1,47 @@
 import { AncestryDefinition } from '../../types/ancestry';
-import { halflingNames } from '../name-configs';
+import { NameConfig } from '../../utils/name-generator';
+
+const halflingNames: NameConfig = {
+  male: {
+    syllables: {
+      prefixes: ['bil', 'bob', 'dro', 'fro', 'mer', 'per', 'pip', 'sam', 'ted', 'tom', 'ban', 'pod'],
+      middle: ['a', 'e', 'i', 'o', 'er', 'ar', 'in', 'on', 'od', 'id'],
+      suffixes: ['bo', 'do', 'go', 'to', 'rin', 'ron', 'son', 'wich', 'wick', 'wise']
+    },
+    patterns: ['PM', 'PS', 'PMS'],
+    constraints: {
+      minLength: 3,
+      maxLength: 11,
+      syllableCount: { min: 2, max: 3 }
+    }
+  },
+  female: {
+    syllables: {
+      prefixes: ['bell', 'daisy', 'hol', 'lil', 'may', 'prim', 'ros', 'rue', 'poppy', 'pearl'],
+      middle: ['a', 'e', 'i', 'o', 'an', 'en', 'in', 'la', 'ly'],
+      suffixes: ['a', 'y', 'ie', 'ina', 'ella', 'wyn', 'rose', 'lily', 'belle']
+    },
+    patterns: ['PM', 'PS', 'PMS'],
+    constraints: {
+      minLength: 3,
+      maxLength: 12,
+      syllableCount: { min: 2, max: 3 }
+    }
+  },
+  surnames: {
+    syllables: {
+      prefixes: ['bag', 'took', 'brand', 'boff', 'brown', 'good', 'green', 'under', 'over', 'hedge'],
+      middle: ['hill', 'buck', 'foot', 'bottom', 'top', 'burrow'],
+      suffixes: ['gins', 'buck', 'foot', 'bottom', 'hill', 'burrow', 'field', 'garden', 'meadow']
+    },
+    patterns: ['PS', 'PM'],
+    constraints: {
+      minLength: 3,
+      maxLength: 16,
+      syllableCount: { min: 1, max: 2 }
+    }
+  }
+};
 
 export const halfling: AncestryDefinition = {
   id: 'halfling',

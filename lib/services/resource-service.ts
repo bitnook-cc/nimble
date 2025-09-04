@@ -1,9 +1,11 @@
 import { Character } from '../types/character';
 import { 
   ResourceInstance,
-  ResourceResetCondition
+  ResourceResetCondition,
+  ResourceDefinition
 } from '../types/resources';
 import { ResourceUsageEntry } from '../types/log-entries';
+import { getValue as getFlexibleValue } from '../types/flexible-value';
 
 /**
  * Resource Service
@@ -24,6 +26,71 @@ export class ResourceService {
    */
   getActiveResources(character: Character): ResourceInstance[] {
     return character.resources;
+  }
+
+  /**
+   * Calculate the actual minimum value for a resource definition
+   */
+  calculateMinValue(definition: ResourceDefinition, character: Character): number {
+    return getFlexibleValue(definition.minValue, character);
+  }
+
+  /**
+   * Calculate the actual maximum value for a resource definition
+   */
+  calculateMaxValue(definition: ResourceDefinition, character: Character): number {
+    return getFlexibleValue(definition.maxValue, character);
+  }
+
+  /**
+   * Calculate the actual reset value for a resource definition (if applicable)
+   */
+  calculateResetValue(definition: ResourceDefinition, character: Character): number | undefined {
+    if (!definition.resetValue) return undefined;
+    return getFlexibleValue(definition.resetValue, character);
+  }
+
+  /**
+   * Create a resource instance with calculated values based on character
+   * Initializes current value based on the resource's reset type
+   */
+  createResourceInstanceForCharacter(
+    definition: ResourceDefinition, 
+    character: Character,
+    current?: number, 
+    sortOrder?: number
+  ): ResourceInstance {
+    if (current !== undefined) {
+      return {
+        definition,
+        current,
+        sortOrder: sortOrder ?? 1,
+      };
+    }
+
+    // Initialize based on reset type
+    let initialValue: number;
+    switch (definition.resetType) {
+      case 'to_max':
+        initialValue = this.calculateMaxValue(definition, character);
+        break;
+      case 'to_zero':
+        initialValue = this.calculateMinValue(definition, character);
+        break;
+      case 'to_default':
+        initialValue = this.calculateResetValue(definition, character) || 
+                      this.calculateMaxValue(definition, character); // Default to max if no resetValue specified
+        break;
+      default:
+        initialValue = this.calculateMaxValue(definition, character);
+        break;
+    }
+
+    return {
+      definition,
+      current: initialValue,
+      sortOrder: sortOrder ?? 1,
+    };
   }
 
   /**
@@ -62,8 +129,9 @@ export class ResourceService {
       return null;
     }
 
+    const minValue = this.calculateMinValue(resourceInstance.definition, character);
     const actualAmount = Math.min(amount, resourceInstance.current);
-    resourceInstance.current = Math.max(resourceInstance.definition.minValue, resourceInstance.current - actualAmount);
+    resourceInstance.current = Math.max(minValue, resourceInstance.current - actualAmount);
 
     return {
       resourceId,
@@ -82,8 +150,9 @@ export class ResourceService {
       return null;
     }
 
-    const actualAmount = Math.min(amount, resourceInstance.definition.maxValue - resourceInstance.current);
-    resourceInstance.current = Math.min(resourceInstance.definition.maxValue, resourceInstance.current + actualAmount);
+    const maxValue = this.calculateMaxValue(resourceInstance.definition, character);
+    const actualAmount = Math.min(amount, maxValue - resourceInstance.current);
+    resourceInstance.current = Math.min(maxValue, resourceInstance.current + actualAmount);
 
     return {
       resourceId,
@@ -102,7 +171,9 @@ export class ResourceService {
       return false;
     }
 
-    resourceInstance.current = Math.max(resourceInstance.definition.minValue, Math.min(value, resourceInstance.definition.maxValue));
+    const minValue = this.calculateMinValue(resourceInstance.definition, character);
+    const maxValue = this.calculateMaxValue(resourceInstance.definition, character);
+    resourceInstance.current = Math.max(minValue, Math.min(value, maxValue));
     return true;
   }
 
@@ -119,13 +190,14 @@ export class ResourceService {
 
       switch (resourceInstance.definition.resetType) {
         case 'to_max':
-          newValue = resourceInstance.definition.maxValue;
+          newValue = this.calculateMaxValue(resourceInstance.definition, character);
           break;
         case 'to_zero':
-          newValue = resourceInstance.definition.minValue;
+          newValue = this.calculateMinValue(resourceInstance.definition, character);
           break;
         case 'to_default':
-          newValue = resourceInstance.definition.resetValue || resourceInstance.definition.maxValue; // Default to max if no resetValue specified
+          newValue = this.calculateResetValue(resourceInstance.definition, character) || 
+                     this.calculateMaxValue(resourceInstance.definition, character); // Default to max if no resetValue specified
           break;
         default:
           continue;
@@ -173,7 +245,8 @@ export class ResourceService {
   /**
    * Create a log entry for resource usage
    */
-  createResourceLogEntry(entry: { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance }): ResourceUsageEntry {
+  createResourceLogEntry(entry: { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance }, character: Character): ResourceUsageEntry {
+    const maxValue = this.calculateMaxValue(entry.resource.definition, character);
     return {
       id: `${Date.now()}-${Math.random()}`,
       timestamp: new Date(),
@@ -183,7 +256,7 @@ export class ResourceService {
       amount: entry.amount,
       action: entry.type === 'spend' ? 'spent' : 'restored',
       currentAmount: entry.resource.current,
-      maxAmount: entry.resource.definition.maxValue,
+      maxAmount: maxValue,
       description: `${entry.type === 'spend' ? 'Spent' : 'Restored'} ${entry.amount} ${entry.resource.definition.name}`,
     };
   }

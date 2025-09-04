@@ -3,6 +3,7 @@ import { gameConfig } from '../config/game-config';
 import { AncestryTraitSchema } from './ancestry';
 import { BackgroundTraitSchema } from './background';
 import { ClassFeatureSchema } from './class';
+import { flexibleValueSchema } from './flexible-value';
 
 const attributeNameSchema = z.enum(['strength', 'dexterity', 'intelligence', 'will']);
 
@@ -15,21 +16,8 @@ const saveAdvantageMapSchema = z.object({
   will: saveAdvantageTypeSchema.optional(),
 }).default({});
 
-// AbilityUses schema for flexible ability max uses
-const fixedAbilityUsesSchema = z.object({
-  type: z.literal('fixed'),
-  value: z.number().int().min(0),
-});
-
-const formulaAbilityUsesSchema = z.object({
-  type: z.literal('formula'),
-  expression: z.string().min(1).max(100), // Reasonable limit for formula expressions
-});
-
-const abilityUsesSchema = z.discriminatedUnion('type', [
-  fixedAbilityUsesSchema,
-  formulaAbilityUsesSchema,
-]);
+// Type alias for backward compatibility and semantic clarity
+const abilityUsesSchema = flexibleValueSchema;
 
 const baseItemSchema = z.object({
   id: z.string(),
@@ -130,9 +118,9 @@ export const resourceDefinitionSchema = z.object({
   ]).optional(),
   resetCondition: z.enum(['safe_rest', 'encounter_end', 'turn_end', 'never', 'manual']),
   resetType: z.enum(['to_max', 'to_zero', 'to_default']),
-  resetValue: z.int().optional(),
-  minValue: z.int().min(0),
-  maxValue: z.int().min(1),
+  resetValue: flexibleValueSchema.optional(),
+  minValue: flexibleValueSchema,
+  maxValue: flexibleValueSchema,
 });
 
 export const resourceInstanceSchema = z.object({

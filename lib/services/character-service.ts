@@ -392,7 +392,7 @@ export class CharacterService implements ICharacterService {
 
     // Log resource resets
     for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry);
+      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
       await this.logService.addLogEntry(logEntry);
     }
   }
@@ -544,7 +544,7 @@ export class CharacterService implements ICharacterService {
 
     // Log resource resets
     for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry);
+      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
       await this.logService.addLogEntry(logEntry);
     }
   }
@@ -608,7 +608,7 @@ export class CharacterService implements ICharacterService {
 
     // Log resource resets
     for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry);
+      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
       await this.logService.addLogEntry(logEntry);
     }
   }

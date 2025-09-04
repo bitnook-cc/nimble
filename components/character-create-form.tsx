@@ -28,7 +28,6 @@ export function CharacterCreateForm({
   showAsCard = true,
   autoFocus = true
 }: CharacterCreateFormProps) {
-  const [newCharacterName, setNewCharacterName] = useState("");
   const [selectedClass, setSelectedClass] = useState(gameConfig.defaults.classId);
   const [showBuilder, setShowBuilder] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -38,23 +37,26 @@ export function CharacterCreateForm({
   const { showError, showSuccess } = useToastService();
 
   const handleCreateCharacter = async () => {
-    if (!newCharacterName.trim() || isCreating) return;
+    if (isCreating) return;
 
     setIsCreating(true);
     try {
       const characterCreation = getCharacterCreation();
       const characterService = getCharacterService();
       
-      const name = newCharacterName.trim();
-      const newCharacter = await characterCreation.createSampleCharacter(name, selectedClass);
+      // Create character with random ancestry/background and generated name
+      const newCharacter = await characterCreation.quickCreateCharacter({
+        classId: selectedClass,
+        level: 1
+        // No name, ancestryId, or backgroundId provided - will be randomly generated
+      });
       
       // Load the new character (this will automatically update settings)
       await characterService.loadCharacter(newCharacter.id);
       
-      showSuccess("Character created", `${name} has been created successfully!`);
+      showSuccess("Character created", `${newCharacter.name} has been created successfully!`);
       
       // Reset form
-      setNewCharacterName("");
       setSelectedClass(gameConfig.defaults.classId);
       
       // Notify parent that creation is complete
@@ -68,7 +70,6 @@ export function CharacterCreateForm({
   };
 
   const handleCancel = () => {
-    setNewCharacterName("");
     setSelectedClass(gameConfig.defaults.classId);
     onCancel?.();
   };
@@ -95,18 +96,17 @@ export function CharacterCreateForm({
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">or create quickly</span>
+            <span className="bg-background px-2 text-muted-foreground">or quick create</span>
           </div>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="character-name">Character Name</Label>
-        <Input
-          id="character-name"
-          value={newCharacterName}
-          onChange={(e) => setNewCharacterName(e.target.value)}
-          placeholder="Enter character name"
+        <Label htmlFor="character-class">Class</Label>
+        <select 
+          id="character-class"
+          value={selectedClass} 
+          onChange={(e) => setSelectedClass(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleCreateCharacter();
@@ -114,16 +114,8 @@ export function CharacterCreateForm({
               handleCancel();
             }
           }}
-          autoFocus={autoFocus}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="character-class">Class</Label>
-        <select 
-          id="character-class"
-          value={selectedClass} 
-          onChange={(e) => setSelectedClass(e.target.value)}
           className="w-full p-2 border rounded-md"
+          autoFocus={autoFocus}
         >
           {availableClasses.map((cls: any) => (
             <option key={cls.id} value={cls.id}>
@@ -135,7 +127,7 @@ export function CharacterCreateForm({
       <div className="flex gap-2">
         <Button 
           onClick={handleCreateCharacter}
-          disabled={!newCharacterName.trim() || isCreating}
+          disabled={isCreating}
           size="sm"
         >
           <Plus className="w-4 h-4 mr-2" />

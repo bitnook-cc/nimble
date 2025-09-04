@@ -1,4 +1,5 @@
 import { Character, AttributeName } from '../types/character';
+import { FlexibleValue, isFixedValue } from '../types/flexible-value';
 
 export class FormulaEvaluatorService {
   private readonly allowedAttributes: string[] = [
@@ -114,6 +115,17 @@ export class FormulaEvaluatorService {
     }
   }
 
+
+  /**
+   * Evaluate a FlexibleValue (either fixed or formula-based) with character context
+   */
+  evaluateFlexibleValue(value: FlexibleValue, character: Character): number {
+    if (isFixedValue(value)) {
+      return value.value;
+    } else {
+      return this.evaluateFormula(value.expression, character);
+    }
+  }
 
   /**
    * Get a preview of what a formula would evaluate to with given character

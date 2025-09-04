@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { Sparkles, ChevronDown, ChevronRight, Zap, Lock } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { 
   hasEnoughResourcesForSpell, 
@@ -158,7 +159,7 @@ export function SpellsSection() {
                   {manaResource.current}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  / {manaResource.definition.maxValue}
+                  / {getFlexibleValue(manaResource.definition.maxValue, character)}
                 </div>
               </div>
             </div>
@@ -167,7 +168,7 @@ export function SpellsSection() {
               <div
                 className="bg-blue-500 h-2 rounded-full transition-all duration-200"
                 style={{
-                  width: `${Math.max(0, Math.min(100, (manaResource.current / manaResource.definition.maxValue) * 100))}%`
+                  width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue, character)) * 100))}%`
                 }}
               />
             </div>

@@ -1,5 +1,47 @@
 import { AncestryDefinition } from '../../types/ancestry';
-import { dwarfNames } from '../name-configs';
+import { NameConfig } from '../../utils/name-generator';
+
+const dwarfNames: NameConfig = {
+  male: {
+    syllables: {
+      prefixes: ['bor', 'dain', 'dur', 'fal', 'gim', 'gro', 'kil', 'nor', 'ori', 'tho', 'ulf', 'bal'],
+      middle: ['an', 'ar', 'in', 'or', 'un', 'am', 'im', 'om', 'ek', 'ok', 'uk'],
+      suffixes: ['in', 'on', 'un', 'li', 'ri', 'din', 'dor', 'dur', 'grim', 'helm']
+    },
+    patterns: ['PM', 'PS', 'PMS'],
+    constraints: {
+      minLength: 3,
+      maxLength: 12,
+      syllableCount: { min: 2, max: 3 }
+    }
+  },
+  female: {
+    syllables: {
+      prefixes: ['bal', 'dar', 'dor', 'fal', 'hil', 'kira', 'nala', 'rial', 'tova', 'vera'],
+      middle: ['a', 'e', 'i', 'an', 'en', 'in', 'ar', 'er', 'or'],
+      suffixes: ['a', 'i', 'ana', 'ina', 'wen', 'dis', 'la', 'ra', 'wa']
+    },
+    patterns: ['PM', 'PS', 'PMS'],
+    constraints: {
+      minLength: 3,
+      maxLength: 12,
+      syllableCount: { min: 2, max: 3 }
+    }
+  },
+  surnames: {
+    syllables: {
+      prefixes: ['iron', 'stone', 'gold', 'steel', 'hammer', 'forge', 'mountain', 'deep', 'rock', 'coal'],
+      middle: ['beard', 'fist', 'hammer', 'pick', 'shield', 'axe'],
+      suffixes: ['beard', 'fist', 'hammer', 'pick', 'shield', 'axe', 'born', 'song', 'heart', 'forge']
+    },
+    patterns: ['P', 'PS', 'PM'],
+    constraints: {
+      minLength: 4,
+      maxLength: 18,
+      syllableCount: { min: 1, max: 2 }
+    }
+  }
+};
 
 export const dwarf: AncestryDefinition = {
   id: 'dwarf',

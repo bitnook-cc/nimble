@@ -15,11 +15,13 @@ import {
   createDefaultWounds,
 } from '../utils/character-defaults';
 import { Item } from '../types/inventory';
+import { NameGenerator } from '../utils/name-generator';
+import { genericNames } from '../config/name-config';
 
-export interface CreateCharacterOptions {
-  name: string;
-  ancestryId?: string;
-  backgroundId?: string;
+export interface QuickCreateOptions {
+  name?: string; // Optional - will be generated if not provided
+  ancestryId?: string; // Optional - will be random if not provided
+  backgroundId?: string; // Optional - will be random if not provided
   classId: string;
   level?: number;
   attributes?: Attributes;
@@ -55,17 +57,11 @@ export class CharacterCreationService implements ICharacterCreation {
   }
 
   /**
-   * Creates a new character with proper initialization and class features
+   * Quick character creation with random ancestry, background, and generated name
+   * Uses createCompleteCharacter internally for consistency
    */
-  async createCharacterWithClass(options: CreateCharacterOptions): Promise<Character> {
-    const {
-      name,
-      ancestryId = gameConfig.defaults.ancestryId,
-      backgroundId = gameConfig.defaults.backgroundId,
-      classId,
-      level = 1,
-      attributes = { strength: 0, dexterity: 0, intelligence: 0, will: 0 }
-    } = options;
+  async quickCreateCharacter(options: QuickCreateOptions): Promise<Character> {
+    const { classId, level = 1 } = options;
 
     // Validate class exists
     const classDefinition = this.contentRepository.getClassDefinition(classId);
@@ -73,58 +69,72 @@ export class CharacterCreationService implements ICharacterCreation {
       throw new Error(`Class not found: ${classId}`);
     }
 
-    // Validate ancestry exists
+    // Get or select ancestry
+    let ancestryId = options.ancestryId;
+    if (!ancestryId) {
+      const availableAncestries = this.ancestryService.getAvailableAncestries();
+      if (availableAncestries.length === 0) {
+        throw new Error('No ancestries available');
+      }
+      ancestryId = availableAncestries[Math.floor(Math.random() * availableAncestries.length)].id;
+    }
+
+    // Get or select background
+    let backgroundId = options.backgroundId;
+    if (!backgroundId) {
+      const availableBackgrounds = this.backgroundService.getAvailableBackgrounds();
+      if (availableBackgrounds.length === 0) {
+        throw new Error('No backgrounds available');
+      }
+      backgroundId = availableBackgrounds[Math.floor(Math.random() * availableBackgrounds.length)].id;
+    }
+
+    // Validate selected ancestry and background exist
     const ancestryDefinition = this.contentRepository.getAncestryDefinition(ancestryId);
     if (!ancestryDefinition) {
       throw new Error(`Ancestry not found: ${ancestryId}`);
     }
 
-    // Validate background exists
     const backgroundDefinition = this.contentRepository.getBackgroundDefinition(backgroundId);
     if (!backgroundDefinition) {
       throw new Error(`Background not found: ${backgroundId}`);
     }
 
-    // Create ancestry and background traits
-    const ancestry = this.ancestryService.createAncestryTrait(ancestryId);
-    const background = this.backgroundService.createBackgroundTrait(backgroundId);
+    // Generate name if not provided
+    let name = options.name;
+    if (!name) {
+      if (ancestryDefinition.nameConfig) {
+        name = NameGenerator.generateFullName(ancestryDefinition.nameConfig);
+      } else {
+        // Fallback to generic names
+        name = NameGenerator.generateFullName(genericNames);
+      }
+    }
 
-    // Create base character configuration
-    const config = createDefaultCharacterConfiguration();
-    const hitPoints = createDefaultHitPoints(classDefinition.startingHP);
-    const hitDice = createDefaultHitDice(level, classDefinition.hitDieSize);
-    const proficiencies = createDefaultProficiencies(classDefinition);
+    // Set attributes based on class or use provided ones
+    let attributes = options.attributes;
+    if (!attributes) {
+      // Generate sample attributes based on class key attributes
+      const [primary, secondary] = classDefinition.keyAttributes;
+      attributes = {
+        strength: primary === 'strength' || secondary === 'strength' ? 3 : 1,
+        dexterity: primary === 'dexterity' || secondary === 'dexterity' ? 3 : 1,
+        intelligence: primary === 'intelligence' || secondary === 'intelligence' ? 3 : 1,
+        will: primary === 'will' || secondary === 'will' ? 3 : 1,
+      };
+    }
 
-    // Create the base character
-    const characterId = `character-${Date.now()}`;
-    const baseCharacter = await this.characterStorage.createCharacter({
+    // Use createCompleteCharacter with generated/selected values
+    return this.createCompleteCharacter({
       name,
-      ancestry,
-      background,
-      level,
+      ancestryId,
+      backgroundId,
       classId,
-      grantedFeatures: [], // Start with no features
-      selectedFeatures: [], // Start with no feature selections
-      spellTierAccess: 0, // No spell access by default - class features will grant this
-      proficiencies,
       attributes,
-      saveAdvantages: { ...classDefinition.saveAdvantages }, // Initialize from class defaults
-      hitPoints,
-      hitDice,
-      wounds: createDefaultWounds(config.maxWounds),
-      resources: [],
-      config,
-      initiative: createDefaultInitiative(),
-      actionTracker: createDefaultActionTracker(),
-      inEncounter: false,
-      skills: createDefaultSkills(),
-      inventory: createDefaultInventory(attributes.strength),
-      abilities: [],
-    }, characterId);
-
-    this.characterService.notifyCharacterCreated(baseCharacter);
-
-    return baseCharacter;
+      skillAllocations: {}, // Use defaults
+      selectedFeatures: [], // No custom feature selections for quick create
+      selectedEquipment: classDefinition.startingEquipment || [] // Use class default equipment
+    });
   }
 
   /**
@@ -230,31 +240,6 @@ export class CharacterCreationService implements ICharacterCreation {
     return this.characterService.getCurrentCharacter() || character;
   }
 
-  /**
-   * Creates a character with sample attributes for quick setup
-   */
-  async createSampleCharacter(name: string, classId: string): Promise<Character> {
-    // Define sample attributes based on class
-    const classDefinition = this.contentRepository.getClassDefinition(classId);
-    let sampleAttributes = { strength: 1, dexterity: 1, intelligence: 1, will: 1 };
-
-    if (classDefinition) {
-      const [primary, secondary] = classDefinition.keyAttributes;
-      sampleAttributes = {
-        strength: primary === 'strength' || secondary === 'strength' ? 3 : 1,
-        dexterity: primary === 'dexterity' || secondary === 'dexterity' ? 3 : 1,
-        intelligence: primary === 'intelligence' || secondary === 'intelligence' ? 3 : 1,
-        will: primary === 'will' || secondary === 'will' ? 3 : 1,
-      };
-    }
-
-    return this.createCharacterWithClass({
-      name,
-      classId,
-      level: 1,
-      attributes: sampleAttributes
-    });
-  }
 
   /**
    * Applies starting equipment to a character based on their class

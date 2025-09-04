@@ -90,12 +90,12 @@ const NameGeneratorConfigSchema = z.object({
   }).meta({ title: 'Constraints', description: 'Name generation constraints' })
 }).meta({ title: 'Name Generator Config', description: 'Configuration for generating names' });
 
-const AncestryNameConfigSchema = z.object({
+const NameConfigSchema = z.object({
   male: NameGeneratorConfigSchema.optional().meta({ title: 'Male Names', description: 'Configuration for male names' }),
   female: NameGeneratorConfigSchema.optional().meta({ title: 'Female Names', description: 'Configuration for female names' }),
   surnames: NameGeneratorConfigSchema.optional().meta({ title: 'Surnames', description: 'Configuration for surnames' }),
   unisex: NameGeneratorConfigSchema.optional().meta({ title: 'Unisex Names', description: 'Configuration for unisex names' })
-}).meta({ title: 'Ancestry Name Config', description: 'Name generation configuration for an ancestry' });
+}).meta({ title: 'Name Config', description: 'Name generation configuration' });
 
 export const AncestryDefinitionSchema = z.object({
   id: z.string().min(1).meta({ title: 'ID', description: 'Unique identifier for the ancestry' }),
@@ -104,7 +104,7 @@ export const AncestryDefinitionSchema = z.object({
   size: SizeCategorySchema.meta({ title: 'Size', description: 'Default size category' }),
   rarity: AncestryRaritySchema.meta({ title: 'Rarity', description: 'Common or exotic ancestry' }),
   features: z.array(AncestryFeatureSchema).meta({ title: 'Features', description: 'All features provided by this ancestry' }),
-  nameConfig: AncestryNameConfigSchema.optional().meta({ title: 'Name Config', description: 'Optional name generation configuration' })
+  nameConfig: NameConfigSchema.optional().meta({ title: 'Name Config', description: 'Optional name generation configuration' })
 }).meta({ title: 'Ancestry Definition', description: 'Character ancestry definition with features and traits' });
 
 export const AncestryTraitSchema = z.object({
@@ -117,6 +117,6 @@ export {
   SizeCategorySchema,
   AncestryRaritySchema,
   ResistanceSchema,
-  AncestryNameConfigSchema,
+  NameConfigSchema,
   NameGeneratorConfigSchema
 };

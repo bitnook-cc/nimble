@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Character, CharacterConfiguration } from "@/lib/types/character";
 import { ResourceInstance, ResourceDefinition, ResourceResetCondition, ResourceResetType, createResourceInstance } from "@/lib/types/resources";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import { RESOURCE_COLOR_SCHEMES, RESOURCE_ICONS, getIconById, getColorSchemeById, getDefaultColorSchemeForIcon } from "@/lib/utils/resource-config";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
@@ -116,8 +117,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
       icon: 'sparkles',
       resetCondition: 'safe_rest',
       resetType: 'to_max',
-      minValue: 0,
-      maxValue: 10,
+      minValue: { type: 'fixed', value: 0 },
+      maxValue: { type: 'fixed', value: 10 },
     });
     setIsCreatingResource(true);
   };
@@ -175,13 +176,13 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
       resetCondition: newResource.resetCondition || 'safe_rest',
       resetType: newResource.resetType || 'to_max',
       resetValue: newResource.resetValue,
-      minValue: newResource.minValue || 0,
-      maxValue: newResource.maxValue || 10,
+      minValue: newResource.minValue || { type: 'fixed', value: 0 },
+      maxValue: newResource.maxValue || { type: 'fixed', value: 10 },
     };
 
     const resourceInstance = createResourceInstance(
       definition,
-      newResource.maxValue || 10,
+      getFlexibleValue(definition.maxValue, character),
       character.resources.length + 1
     );
 
@@ -461,8 +462,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Min</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.minValue}
-                                  onChange={(e) => updateResource(resource.definition.id, 'minValue', parseInt(e.target.value) || 0)}
+                                  value={resource.definition.minValue.type === 'fixed' ? resource.definition.minValue.value : 0}
+                                  onChange={(e) => updateResource(resource.definition.id, 'minValue', { type: 'fixed', value: parseInt(e.target.value) || 0 })}
                                   className="text-sm"
                                 />
                               </div>
@@ -470,8 +471,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Max</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.maxValue}
-                                  onChange={(e) => updateResource(resource.definition.id, 'maxValue', parseInt(e.target.value) || 10)}
+                                  value={resource.definition.maxValue.type === 'fixed' ? resource.definition.maxValue.value : 10}
+                                  onChange={(e) => updateResource(resource.definition.id, 'maxValue', { type: 'fixed', value: parseInt(e.target.value) || 10 })}
                                   className="text-sm"
                                 />
                               </div>
@@ -488,8 +489,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Default</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.resetValue || ''}
-                                  onChange={(e) => updateResource(resource.definition.id, 'resetValue', e.target.value ? parseInt(e.target.value) : undefined)}
+                                  value={resource.definition.resetValue?.type === 'fixed' ? resource.definition.resetValue.value : ''}
+                                  onChange={(e) => updateResource(resource.definition.id, 'resetValue', e.target.value ? { type: 'fixed', value: parseInt(e.target.value) } : undefined)}
                                   className="text-sm"
                                   disabled={resource.definition.resetType !== 'to_default'}
                                 />
@@ -521,7 +522,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 </div>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                ID: {resource.definition.id} | {resource.current}/{resource.definition.maxValue} | 
+                                ID: {resource.definition.id} | {resource.current}/{getFlexibleValue(resource.definition.maxValue, character)} | 
                                 Reset: {resource.definition.resetCondition} → {resource.definition.resetType}
                               </div>
                               {resource.definition.description && (
@@ -708,8 +709,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         <Input
                           id="resource-min"
                           type="number"
-                          value={newResource.minValue || 0}
-                          onChange={(e) => updateNewResource('minValue', parseInt(e.target.value) || 0)}
+                          value={newResource.minValue?.type === 'fixed' ? newResource.minValue.value : 0}
+                          onChange={(e) => updateNewResource('minValue', { type: 'fixed', value: parseInt(e.target.value) || 0 })}
                           className="text-sm"
                         />
                       </div>
@@ -718,8 +719,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         <Input
                           id="resource-max"
                           type="number"
-                          value={newResource.maxValue || 10}
-                          onChange={(e) => updateNewResource('maxValue', parseInt(e.target.value) || 10)}
+                          value={newResource.maxValue?.type === 'fixed' ? newResource.maxValue.value : 10}
+                          onChange={(e) => updateNewResource('maxValue', { type: 'fixed', value: parseInt(e.target.value) || 10 })}
                           className="text-sm"
                         />
                       </div>
@@ -728,8 +729,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         <Input
                           id="resource-default"
                           type="number"
-                          value={newResource.resetValue || ''}
-                          onChange={(e) => updateNewResource('resetValue', e.target.value ? parseInt(e.target.value) : undefined)}
+                          value={newResource.resetValue?.type === 'fixed' ? newResource.resetValue.value : ''}
+                          onChange={(e) => updateNewResource('resetValue', e.target.value ? { type: 'fixed', value: parseInt(e.target.value) } : undefined)}
                           className="text-sm"
                           disabled={newResource.resetType !== 'to_default'}
                         />

@@ -11,6 +11,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { useResourceService } from "@/lib/hooks/use-resource-service";
 import { getResourceColor, getIconById } from "@/lib/utils/resource-config";
+import { resourceService } from "@/lib/services/resource-service";
 
 
 export function ResourceSection() {
@@ -93,8 +94,9 @@ export function ResourceSection() {
         <div className="space-y-4">
           {activeResources.map((resource) => {
             const resourceIcon = getResourceIcon(resource);
-            const resourceBarColor = getResourceBarColor(resource, resource.current, resource.definition.maxValue);
-            const resourcePercentage = (resource.current / resource.definition.maxValue) * 100;
+            const calculatedMaxValue = resourceService.calculateMaxValue(resource.definition, character);
+            const resourceBarColor = getResourceBarColor(resource, resource.current, calculatedMaxValue);
+            const resourcePercentage = (resource.current / calculatedMaxValue) * 100;
             const resourceName = resource.definition.name;
             const spendAmount = spendAmounts[resource.definition.id] || "1";
             const restoreAmount = restoreAmounts[resource.definition.id] || "1";
@@ -111,7 +113,12 @@ export function ResourceSection() {
                   {/* Resource Display and Bar */}
                   <div className="text-center space-y-2">
                     <div className="text-3xl font-bold">
-                      {resource.current} / {resource.definition.maxValue}
+                      {resource.current} / {calculatedMaxValue}
+                      {resource.definition.maxValue.type === 'formula' && (
+                        <span className="text-xs opacity-70 ml-2">
+                          ({resource.definition.maxValue.expression})
+                        </span>
+                      )}
                       {resource.current === 0 && (
                         <span className="text-lg text-red-600 ml-2 font-semibold">
                           (Depleted)
@@ -173,7 +180,7 @@ export function ResourceSection() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => applyRestore(resource.definition.id, 1)}
-                          disabled={resource.current >= resource.definition.maxValue}
+                          disabled={resource.current >= calculatedMaxValue}
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
                           +1
@@ -182,7 +189,7 @@ export function ResourceSection() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => applyRestore(resource.definition.id, 3)}
-                          disabled={resource.current >= resource.definition.maxValue}
+                          disabled={resource.current >= calculatedMaxValue}
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
                           +3
@@ -191,7 +198,7 @@ export function ResourceSection() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => applyRestore(resource.definition.id, 5)}
-                          disabled={resource.current >= resource.definition.maxValue}
+                          disabled={resource.current >= calculatedMaxValue}
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
                           +5
@@ -241,7 +248,7 @@ export function ResourceSection() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => handleRestore(resource.definition.id)}
-                          disabled={resource.current >= resource.definition.maxValue}
+                          disabled={resource.current >= calculatedMaxValue}
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
                           <Plus className="w-4 h-4" />

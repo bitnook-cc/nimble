@@ -38,10 +38,9 @@ const hunterFeatures: ClassFeature[] = [
       icon: 'zap',
       resetCondition: 'encounter_end',
       resetType: 'to_zero',
-      minValue: 0,
-      maxValue: 10
+      minValue: { type: 'fixed', value: 0 },
+      maxValue: { type: 'fixed', value: 10 }
     },
-    startingAmount: 0
   },
   {
     id: 'thrill-of-the-hunt-1',

@@ -8,7 +8,7 @@ import { Sparkles } from "lucide-react";
 import { AncestryDefinition } from "@/lib/types/ancestry";
 import { BackgroundDefinition } from "@/lib/types/background";
 import { NameGenerator } from "@/lib/utils/name-generator";
-import { genericNames } from "@/lib/data/name-configs";
+import { genericNames } from "@/lib/config/name-config";
 
 interface HeritageSelectionProps {
   availableAncestries: AncestryDefinition[];

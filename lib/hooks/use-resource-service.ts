@@ -19,7 +19,7 @@ export function useResourceService() {
       await updateCharacter({ ...character });
       
       // Log the resource usage
-      const logEntry = resourceService.createResourceLogEntry(usage);
+      const logEntry = resourceService.createResourceLogEntry(usage, character);
       await addLogEntry(logEntry);
     }
   }, [character, updateCharacter, addLogEntry]);
@@ -32,7 +32,7 @@ export function useResourceService() {
       await updateCharacter({ ...character });
       
       // Log the resource usage
-      const logEntry = resourceService.createResourceLogEntry(usage);
+      const logEntry = resourceService.createResourceLogEntry(usage, character);
       await addLogEntry(logEntry);
     }
   }, [character, updateCharacter, addLogEntry]);
@@ -71,7 +71,7 @@ export function useResourceService() {
       
       // Log all resource resets
       for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry);
+        const logEntry = resourceService.createResourceLogEntry(entry, character);
         await addLogEntry(logEntry);
       }
     }
@@ -86,7 +86,7 @@ export function useResourceService() {
       
       // Log all resource resets
       for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry);
+        const logEntry = resourceService.createResourceLogEntry(entry, character);
         await addLogEntry(logEntry);
       }
     }
@@ -101,7 +101,7 @@ export function useResourceService() {
       
       // Log all resource resets
       for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry);
+        const logEntry = resourceService.createResourceLogEntry(entry, character);
         await addLogEntry(logEntry);
       }
     }

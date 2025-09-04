@@ -23,10 +23,9 @@ const mageFeatures: ClassFeature[] = [
       icon: 'sparkles',
       resetCondition: 'safe_rest',
       resetType: 'to_max',
-      minValue: 0,
-      maxValue: 20 // Will be calculated dynamically based on (INT × 3) + LVL
+      minValue: { type: 'fixed', value: 0 },
+      maxValue: { type: 'fixed', value: 20 } // Will be calculated dynamically based on (INT × 3) + LVL
     },
-    startingAmount: 7 // Starting at level 2 with assumed INT 2: (2 × 3) + 1 = 7
   },
   {
     id: 'talented-researcher',

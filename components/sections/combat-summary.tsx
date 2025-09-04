@@ -9,6 +9,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getResourceColor } from "@/lib/utils/resource-config";
+import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
 
 // Health Bar Subcomponent
 function HealthBar() {
@@ -452,17 +453,18 @@ function ResourceTracker() {
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {character.resources.map((resource) => {
-            const percentage = resource.definition.maxValue > 0 ? (resource.current / resource.definition.maxValue) * 100 : 0;
+            const maxValue = getFlexibleValue(resource.definition.maxValue, character);
+            const percentage = maxValue > 0 ? (resource.current / maxValue) * 100 : 0;
             const color = getResourceColor(resource.definition.colorScheme, percentage);
             return (
               <div key={resource.definition.id} className="flex flex-col items-center">
-                {createPieChart(resource.current, resource.definition.maxValue, color)}
+                {createPieChart(resource.current, maxValue, color)}
                 <div className="mt-1 text-center">
                   <div className="text-xs font-medium text-gray-700 leading-tight">
                     {resource.definition.name}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {resource.current}/{resource.definition.maxValue}
+                    {resource.current}/{maxValue}
                   </div>
                 </div>
               </div>

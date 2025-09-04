@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { Sparkles, ChevronDown, ChevronRight, Star, Zap, TrendingUp, Lock, Unlock } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getFormula } from "@/lib/types/flexible-value";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 
 export function ClassFeaturesSection() {
@@ -462,7 +463,7 @@ export function ClassFeaturesSection() {
                               {feature.type === 'resource' && feature.resourceDefinition && (
                                 <div className="flex gap-2 mt-2">
                                   <Badge variant="secondary" className="text-xs">
-                                    {feature.resourceDefinition.name}: {feature.resourceDefinition.maxValue}
+                                    {feature.resourceDefinition.name}: {getFormula(feature.resourceDefinition.maxValue)}
                                   </Badge>
                                   <Badge variant="secondary" className="text-xs">
                                     {feature.resourceDefinition.resetCondition.replace('_', ' ')}
