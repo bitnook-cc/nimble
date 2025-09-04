@@ -2,6 +2,7 @@ import { LogEntry, DiceRollEntry, DamageEntry, HealingEntry, TempHPEntry, Initia
 import { logEntrySchema } from '../schemas/dice';
 import { gameConfig } from '../config/game-config';
 import { toast } from 'sonner';
+import { createElement } from 'react';
 
 export class ActivityLogService {
   private readonly storageKey = 'nimble-navigator-activity-log';
@@ -50,19 +51,62 @@ export class ActivityLogService {
     this.showToastForLogEntry(newEntry);
   }
 
+  private createDiceDisplayComponent(rollEntry: DiceRollEntry) {
+    // If no advantage/disadvantage, show normally
+    if (!rollEntry.advantageLevel || rollEntry.advantageLevel === 0) {
+      const diceText = rollEntry.dice.map(d => `${d.result}${d.isCritical ? '*' : ''}`).join(', ');
+      return createElement('span', { className: 'font-mono' }, diceText);
+    }
+    
+    // For advantage/disadvantage, combine all dice and mark dropped ones
+    const allDice = [...rollEntry.dice, ...(rollEntry.droppedDice || [])];
+    const droppedSet = new Set((rollEntry.droppedDice || []).map(d => `${d.result}-${d.type}`));
+    
+    const diceElements = allDice.map((d, index) => {
+      const result = `${d.result}${d.isCritical ? '*' : ''}`;
+      const diceKey = `${d.result}-${d.type}`;
+      const isDropped = droppedSet.has(diceKey);
+      
+      return createElement(
+        'span',
+        { 
+          key: index,
+          className: isDropped ? 'line-through text-gray-500' : ''
+        },
+        result + (index < allDice.length - 1 ? ' ' : '')
+      );
+    });
+    
+    return createElement('span', { className: 'font-mono' }, ...diceElements);
+  }
+
   private showToastForLogEntry(entry: LogEntry): void {
     const { description } = entry;
     
     switch (entry.type) {
       case 'roll':
         const rollEntry = entry as DiceRollEntry;
-        const resultText = `${description}: ${rollEntry.total}`;
+        const modifierText = rollEntry.modifier !== 0 ? 
+          ` ${rollEntry.modifier >= 0 ? '+' : ''}${rollEntry.modifier}` : '';
+        
+        const detailedComponent = createElement('div', { className: 'font-mono' }, 
+          `${rollEntry.rollExpression}: [`,
+          this.createDiceDisplayComponent(rollEntry),
+          `]${modifierText} = ${rollEntry.total}`
+        );
+        
         if (rollEntry.isMiss) {
-          toast.error(resultText, { description: 'Critical miss!' });
+          toast.error(`${description}: MISS`, { description: detailedComponent });
         } else if (rollEntry.criticalHits && rollEntry.criticalHits > 0) {
-          toast.success(resultText, { description: `${rollEntry.criticalHits} critical hit${rollEntry.criticalHits > 1 ? 's' : ''}!` });
+          const critComponent = createElement('div', {},
+            detailedComponent,
+            createElement('div', { className: 'text-yellow-600 font-semibold' }, 
+              ` (${rollEntry.criticalHits} crit${rollEntry.criticalHits > 1 ? 's' : ''}!)`
+            )
+          );
+          toast.success(`${description}: ${rollEntry.total}`, { description: critComponent });
         } else {
-          toast.info(resultText);
+          toast.info(`${description}: ${rollEntry.total}`, { description: detailedComponent });
         }
         break;
         
@@ -119,6 +163,7 @@ export class ActivityLogService {
     modifier: number,
     total: number,
     description: string,
+    rollExpression: string,
     advantageLevel?: number,
     isMiss?: boolean,
     criticalHits?: number
@@ -132,6 +177,7 @@ export class ActivityLogService {
       modifier,
       total,
       description,
+      rollExpression,
       advantageLevel: advantageLevel !== 0 ? advantageLevel : undefined,
       isMiss,
       criticalHits: criticalHits && criticalHits > 0 ? criticalHits : undefined,

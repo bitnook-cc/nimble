@@ -21,6 +21,7 @@ export interface DiceRollEntry extends BaseLogEntry {
   droppedDice?: SingleDie[]; // Dice that were dropped due to advantage/disadvantage
   modifier: number;
   total: number;
+  rollExpression: string; // Original dice expression like "2d6+3" or "d20+5"
   isMiss?: boolean; // For attack rolls
   criticalHits?: number; // Number of critical hits that occurred
   advantageLevel?: number; // Positive for advantage, negative for disadvantage, 0/undefined for normal

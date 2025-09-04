@@ -73,6 +73,7 @@ export function RollPanel() {
       droppedDice: [],
       total: totalSum,
       modifier: 0,
+      rollExpression: diceDescription,
       criticalHits: 0,
       isMiss: false,
     });

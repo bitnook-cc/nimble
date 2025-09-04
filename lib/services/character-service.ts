@@ -757,7 +757,8 @@ export class CharacterService implements ICharacterService {
         rollResult.droppedDice,
         strengthMod,
         totalHealing,
-        `Catch Breath (d${hitDieSize} + ${strengthMod} STR = ${totalHealing} healing)`
+        `Catch Breath (d${hitDieSize} + ${strengthMod} STR = ${totalHealing} healing)`,
+        `d${hitDieSize}${strengthMod !== 0 ? (strengthMod >= 0 ? '+' : '') + strengthMod : ''}`
       )
     );
   }
@@ -928,12 +929,14 @@ export class CharacterService implements ICharacterService {
       const rollResult = diceService.rollAttack(damage, attributeModifier, advantageLevel);
       
       // Log the attack
+      const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? '+' : '') + attributeModifier : ''}`;
       const logEntry = this.logService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
         attributeModifier,
         rollResult.total,
         `${weaponName} attack`,
+        rollExpression,
         advantageLevel,
         rollResult.isMiss,
         rollResult.criticalHits
@@ -1056,12 +1059,14 @@ export class CharacterService implements ICharacterService {
         const diceService = getDiceService();
         const diceString = `${roll.dice.count}d${roll.dice.sides}`;
         const rollResult = diceService.rollAttack(diceString, totalModifier, 0);
+        const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? '+' : '') + totalModifier : ''}`;
         const rollLogEntry = this.logService.createDiceRollEntry(
           rollResult.dice,
           rollResult.droppedDice,
           totalModifier,
           rollResult.total,
           `${result.usedAbility.name} ability roll`,
+          rollExpression,
           0 // No advantage for ability rolls by default
         );
         await this.logService.addLogEntry(rollLogEntry);

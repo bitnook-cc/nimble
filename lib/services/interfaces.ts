@@ -35,6 +35,7 @@ export interface IActivityLog {
     modifier: number,
     total: number,
     description: string,
+    rollExpression: string,
     advantageLevel?: number,
     isMiss?: boolean,
     criticalHits?: number

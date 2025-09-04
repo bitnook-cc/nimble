@@ -27,12 +27,14 @@ export function useDiceActions(): UseDiceActionsReturn {
     try {
       const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
       const rollResult = diceService.rollAttributeCheck(value, advantageLevel);
+      const rollExpression = `d20${value !== 0 ? (value >= 0 ? '+' : '') + value : ''}`;
       const logEntry = activityLogService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
         value,
         rollResult.total,
         `${attributeLabel} check`,
+        rollExpression,
         advantageLevel
       );
       await addLogEntry(logEntry);
@@ -45,12 +47,14 @@ export function useDiceActions(): UseDiceActionsReturn {
     try {
       const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
       const rollResult = diceService.rollAttributeCheck(value, advantageLevel);
+      const rollExpression = `d20${value !== 0 ? (value >= 0 ? '+' : '') + value : ''}`;
       const logEntry = activityLogService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
         value,
         rollResult.total,
         `${attributeLabel} save`,
+        rollExpression,
         advantageLevel
       );
       await addLogEntry(logEntry);
@@ -64,12 +68,14 @@ export function useDiceActions(): UseDiceActionsReturn {
     try {
       const totalModifier = attributeValue + skillModifier;
       const rollResult = diceService.rollAttributeCheck(totalModifier, advantageLevel);
+      const rollExpression = `d20${totalModifier !== 0 ? (totalModifier >= 0 ? '+' : '') + totalModifier : ''}`;
       const logEntry = activityLogService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
         totalModifier,
         rollResult.total,
         `${skillName} skill check`,
+        rollExpression,
         advantageLevel
       );
       await addLogEntry(logEntry);
@@ -96,12 +102,14 @@ export function useDiceActions(): UseDiceActionsReturn {
   const attack = useCallback(async (weaponName: string, damage: string, attributeModifier: number, advantageLevel: number) => {
     try {
       const rollResult = diceService.rollAttack(damage, attributeModifier, advantageLevel);
+      const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? '+' : '') + attributeModifier : ''}`;
       const logEntry = activityLogService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
         attributeModifier,
         rollResult.total,
         `${weaponName} attack`,
+        rollExpression,
         advantageLevel,
         rollResult.isMiss,
         rollResult.criticalHits
