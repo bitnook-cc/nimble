@@ -12,6 +12,15 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getFormula } from "@/lib/types/flexible-value";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+import { getClassService } from "@/lib/services/service-factory";
+import { SelectedPoolFeature } from "@/lib/types/character";
+import { AncestryFeature } from "@/lib/types/ancestry";
+import { BackgroundFeature } from "@/lib/types/background";
+
+type ClassFeatureWithSource = [
+  source: 'class' | 'subclass',
+  feature: ClassFeature
+];
 
 export function ClassFeaturesSection() {
   // Get everything we need from service hooks
@@ -20,6 +29,7 @@ export function ClassFeaturesSection() {
   const [expandedSpellSchools, setExpandedSpellSchools] = useState<Record<string, boolean>>({});
   
   const contentRepository = ContentRepositoryService.getInstance();
+  const classService = getClassService();
   
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
@@ -27,22 +37,54 @@ export function ClassFeaturesSection() {
   const isOpen = uiState.collapsibleSections.classFeatures;
   const onToggle = (isOpen: boolean) => updateCollapsibleState('classFeatures', isOpen);
   const classDefinition = contentRepository.getClassDefinition(character.classId);
+  const subclassDefinition = character.subclassId ? contentRepository.getSubclassDefinition(character.subclassId) : null;
   
   if (!classDefinition) {
     return null;
   }
 
-  // Get all features the character should have at their level
-  const availableFeatures = contentRepository.getAllClassFeaturesUpToLevel(character.classId, character.level);
+  // Get all class and subclass features with source information
+  const classFeatures = contentRepository.getAllClassFeaturesUpToLevel(character.classId, character.level);
+  const subclassFeatures = character.subclassId 
+    ? contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level)
+    : [];
   
-  // Separate features by type for better organization
-  const abilities = availableFeatures.filter(f => f.type === 'ability');
-  const passiveFeatures = availableFeatures.filter(f => f.type === 'passive_feature');
-  const statBoosts = availableFeatures.filter(f => f.type === 'stat_boost');
-  const proficiencies = availableFeatures.filter(f => f.type === 'proficiency');
-  const spellSchools = availableFeatures.filter(f => f.type === 'spell_school');
-  const spellTierAccess = availableFeatures.filter(f => f.type === 'spell_tier_access');
-  const resources = availableFeatures.filter(f => f.type === 'resource');
+  // Get pool feature selections (these come from class features)
+  const poolSelections = character.selectedFeatures.filter((sf): sf is SelectedPoolFeature => 
+    sf.type === 'pool_feature'
+  );
+
+  // Create array of class/subclass features with source information
+  const classSubclassFeatures: ClassFeatureWithSource[] = [
+    ...classFeatures.map((feature): ClassFeatureWithSource => 
+      ['class', feature]
+    ),
+    ...subclassFeatures.map((feature): ClassFeatureWithSource => 
+      ['subclass', feature]
+    ),
+    ...poolSelections.map((selection): ClassFeatureWithSource => 
+      ['class', selection.feature] // Pool selections come from class
+    )
+  ];
+
+  // Sort by level for display
+  classSubclassFeatures.sort((a, b) => a[1].level - b[1].level);
+
+  // Get ancestry and background features separately
+  const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
+  const backgroundDefinition = contentRepository.getBackgroundDefinition(character.background.backgroundId);
+  
+  const ancestryFeatures = ancestryDefinition?.features || [];
+  const backgroundFeatures = backgroundDefinition?.features || [];
+  
+  // Separate class/subclass features by type for better organization
+  const abilities = classSubclassFeatures.filter(([, f]) => f.type === 'ability');
+  const passiveFeatures = classSubclassFeatures.filter(([, f]) => f.type === 'passive_feature');
+  const statBoosts = classSubclassFeatures.filter(([, f]) => f.type === 'stat_boost');
+  const proficiencies = classSubclassFeatures.filter(([, f]) => f.type === 'proficiency');
+  const spellSchools = classSubclassFeatures.filter(([, f]) => f.type === 'spell_school');
+  const spellTierAccess = classSubclassFeatures.filter(([, f]) => f.type === 'spell_tier_access');
+  const resources = classSubclassFeatures.filter(([, f]) => f.type === 'resource');
 
   const getFeatureIcon = (type: ClassFeature['type']) => {
     switch (type) {
@@ -97,6 +139,36 @@ export function ClassFeaturesSection() {
     }
   };
 
+  const getSourceDisplayName = (source: 'class' | 'subclass' | 'ancestry' | 'background'): string => {
+    switch (source) {
+      case 'class':
+        return classDefinition.name;
+      case 'subclass':
+        return subclassDefinition?.name || 'Subclass';
+      case 'ancestry':
+        return ancestryDefinition?.name || 'Ancestry';
+      case 'background':
+        return backgroundDefinition?.name || 'Background';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getSourceBadgeColor = (source: 'class' | 'subclass' | 'ancestry' | 'background') => {
+    switch (source) {
+      case 'class':
+        return 'bg-slate-100 text-slate-800 border-slate-200';
+      case 'subclass':
+        return 'bg-violet-100 text-violet-800 border-violet-200';
+      case 'ancestry':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'background':
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   const formatFeatureType = (type: ClassFeature['type']) => {
     switch (type) {
       case 'ability':
@@ -132,7 +204,7 @@ export function ClassFeaturesSection() {
       <CollapsibleContent>
         <Card className="w-full">
           <CardContent className="space-y-4 pt-6">
-            {availableFeatures.length === 0 ? (
+            {(classSubclassFeatures.length === 0 && ancestryFeatures.length === 0 && backgroundFeatures.length === 0) ? (
               <div className="text-center text-muted-foreground py-8">
                 No class features unlocked yet. Level up to gain new abilities!
               </div>
@@ -146,14 +218,17 @@ export function ClassFeaturesSection() {
                       Active Abilities ({abilities.length})
                     </h3>
                     <div className="space-y-3">
-                      {abilities.map((feature, index) => (
+                      {abilities.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -176,14 +251,17 @@ export function ClassFeaturesSection() {
                       Passive Features ({passiveFeatures.length})
                     </h3>
                     <div className="space-y-3">
-                      {passiveFeatures.map((feature, index) => (
+                      {passiveFeatures.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -206,14 +284,17 @@ export function ClassFeaturesSection() {
                       Stat Improvements ({statBoosts.length})
                     </h3>
                     <div className="space-y-3">
-                      {statBoosts.map((feature, index) => (
+                      {statBoosts.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -245,14 +326,17 @@ export function ClassFeaturesSection() {
                       Proficiencies ({proficiencies.length})
                     </h3>
                     <div className="space-y-3">
-                      {proficiencies.map((feature, index) => (
+                      {proficiencies.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -284,7 +368,7 @@ export function ClassFeaturesSection() {
                       Spell Schools ({spellSchools.length})
                     </h3>
                     <div className="space-y-3">
-                      {spellSchools.map((feature, index) => {
+                      {spellSchools.map(([source, feature], index) => {
                         if (feature.type !== 'spell_school' || !feature.spellSchool) return null;
                         
                         const schoolId = feature.spellSchool.schoolId;
@@ -302,10 +386,13 @@ export function ClassFeaturesSection() {
                                 <Button variant="ghost" className="w-full justify-between p-4 h-auto">
                                   <div className="flex items-start justify-between w-full">
                                     <div className="space-y-1 text-left">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 flex-wrap">
                                         <h4 className="font-semibold">{feature.name}</h4>
                                         <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                           Level {feature.level}
+                                        </Badge>
+                                        <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                          {getSourceDisplayName(source)}
                                         </Badge>
                                       </div>
                                       <p className="text-sm text-muted-foreground">
@@ -410,14 +497,17 @@ export function ClassFeaturesSection() {
                       Spell Tier Access ({spellTierAccess.length})
                     </h3>
                     <div className="space-y-3">
-                      {spellTierAccess.map((feature, index) => (
+                      {spellTierAccess.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -447,14 +537,17 @@ export function ClassFeaturesSection() {
                       Resources ({resources.length})
                     </h3>
                     <div className="space-y-3">
-                      {resources.map((feature, index) => (
+                      {resources.map(([source, feature], index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-semibold">{feature.name}</h4>
                                 <Badge variant="outline" className={getFeatureTypeColor(feature.type)}>
                                   Level {feature.level}
+                                </Badge>
+                                <Badge variant="outline" className={getSourceBadgeColor(source)}>
+                                  {getSourceDisplayName(source)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
@@ -475,6 +568,64 @@ export function ClassFeaturesSection() {
                               )}
                             </div>
                             {getFeatureIcon(feature.type)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Ancestry Features */}
+                {ancestryFeatures.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-emerald-600 flex items-center gap-2">
+                      <Star className="w-5 h-5" />
+                      Ancestry Features ({ancestryFeatures.length})
+                    </h3>
+                    <div className="space-y-3">
+                      {ancestryFeatures.map((feature, index) => (
+                        <div key={index} className="border rounded-lg p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-semibold">{feature.name}</h4>
+                                <Badge variant="outline" className={getSourceBadgeColor('ancestry')}>
+                                  {getSourceDisplayName('ancestry')}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {feature.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Background Features */}
+                {backgroundFeatures.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-cyan-600 flex items-center gap-2">
+                      <Star className="w-5 h-5" />
+                      Background Features ({backgroundFeatures.length})
+                    </h3>
+                    <div className="space-y-3">
+                      {backgroundFeatures.map((feature, index) => (
+                        <div key={index} className="border rounded-lg p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-semibold">{feature.name}</h4>
+                                <Badge variant="outline" className={getSourceBadgeColor('background')}>
+                                  {getSourceDisplayName('background')}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {feature.description}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ))}
