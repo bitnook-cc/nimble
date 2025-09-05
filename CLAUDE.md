@@ -3,9 +3,11 @@
 ## Recent Major Refactor: Multiple Effects Per Feature (December 2024)
 
 ### Overview
+
 Completed a major refactor changing from single "effect" per feature to multiple "effects" per feature. This enables features to grant multiple different benefits (e.g., a feature can grant both an ability AND a resource, or multiple attribute boosts).
 
 ### Key Changes
+
 - **Features now have `effects: FeatureEffect[]`** instead of `effect: FeatureEffect`
 - **Effect-level tracking**: Each effect gets a unique ID (`${parentFeatureId}-${effectIndex}`)
 - **FeatureEffectGrant**: Tracks individual effect grants with source information
@@ -20,6 +22,7 @@ Nimble Navigator: A comprehensive digital character sheet application for the Ni
 ## Technology Stack
 
 ### Frontend
+
 - **Next.js 14** with App Router (client-side only)
 - **TypeScript** for type safety
 - **Tailwind CSS** for responsive styling
@@ -28,10 +31,12 @@ Nimble Navigator: A comprehensive digital character sheet application for the Ni
 - **pdf-lib** for PDF generation and manipulation
 
 ### Storage
+
 - **Local Storage** with abstraction layer for future server sync
 - **No server-side state** currently (designed for easy migration)
 
 ### Mobile
+
 - **Capacitor** wrapper for native iOS and Android apps
 - **Static export** deployment from Next.js build
 - **Native platform integration** with device capabilities
@@ -41,57 +46,64 @@ Nimble Navigator: A comprehensive digital character sheet application for the Ni
 ### Data Layer
 
 #### Character Model
+
 ```typescript
 interface Character {
-  id: string
-  name: string
-  level: number
-  classId: string
-  subclassId?: string
-  ancestry: AncestryTrait // Ancestry with features and size category
-  background: BackgroundTrait // Background with passive features
-  attributes: { strength, dexterity, intelligence, will }
-  hitPoints: { current, max, temporary }
-  hitDice: { size, current, max }
-  wounds: { current, max }
-  resources: ResourceInstance[] // Generic resource system (mana, fury, focus, etc.)
-  config: CharacterConfiguration
-  initiative: Skill
-  actionTracker: { current, base, bonus }
-  inEncounter: boolean
-  skills: { [skillName]: Skill }
-  inventory: Inventory
-  abilities: Abilities
-  grantedFeatures: string[]
-  timestamps: { createdAt, updatedAt }
+  id: string;
+  name: string;
+  level: number;
+  classId: string;
+  subclassId?: string;
+  ancestry: AncestryTrait; // Ancestry with features and size category
+  background: BackgroundTrait; // Background with passive features
+  attributes: { strength; dexterity; intelligence; will };
+  hitPoints: { current; max; temporary };
+  hitDice: { size; current; max };
+  wounds: { current; max };
+  resources: ResourceInstance[]; // Generic resource system (mana, fury, focus, etc.)
+  config: CharacterConfiguration;
+  initiative: Skill;
+  actionTracker: { current; base; bonus };
+  inEncounter: boolean;
+  skills: { [skillName]: Skill };
+  inventory: Inventory;
+  abilities: Abilities;
+  grantedFeatures: string[];
+  timestamps: { createdAt; updatedAt };
 }
 
 // Resource System - Separates pure definitions from runtime state
 interface ResourceDefinition {
-  id: string
-  name: string
-  description?: string
-  colorScheme: string // Predefined color scheme (blue-magic, red-fury, etc.)
-  icon?: string // Icon identifier (sparkles, fire, etc.)
-  resetCondition: 'safe_rest' | 'encounter_end' | 'turn_end' | 'never' | 'manual'
-  resetType: 'to_max' | 'to_zero' | 'to_default'
-  resetValue?: number
-  minValue: number
-  maxValue: number
+  id: string;
+  name: string;
+  description?: string;
+  colorScheme: string; // Predefined color scheme (blue-magic, red-fury, etc.)
+  icon?: string; // Icon identifier (sparkles, fire, etc.)
+  resetCondition:
+    | "safe_rest"
+    | "encounter_end"
+    | "turn_end"
+    | "never"
+    | "manual";
+  resetType: "to_max" | "to_zero" | "to_default";
+  resetValue?: number;
+  minValue: number;
+  maxValue: number;
 }
 
 interface ResourceInstance {
-  definition: ResourceDefinition
-  current: number
-  sortOrder: number
+  definition: ResourceDefinition;
+  current: number;
+  sortOrder: number;
 }
 ```
 
 #### Service Architecture
+
 - **CharacterCreationService** handles character creation with proper initialization and class/ancestry/background features
 - **CharacterService** handles character CRUD operations with validation and business logic
 - **ClassService** handles class definitions, subclass management, feature progression, and spell tier system
-- **AncestryService** manages ancestry definitions, features (stat boosts, proficiencies, darkvision, resistances)
+- **AncestryService** manages ancestry definitions, features (stat boosts, proficiencies, resistances)
 - **BackgroundService** manages background definitions with passive features
 - **ContentRepositoryService** unified storage for all custom content (classes, ancestries, backgrounds, abilities, spells)
 - **ResourceService** manages generic resource system (mana, fury, focus, etc.) with configurable reset conditions
@@ -102,6 +114,7 @@ interface ResourceInstance {
 - **Singleton pattern** for direct service access without React Context overhead
 
 #### Storage & State
+
 - **Local Storage** with JSON serialization for persistence
 - **Character activity logging** with type-safe log entries
 - **App settings** with mode switching (basic/full) and character selection
@@ -110,6 +123,7 @@ interface ResourceInstance {
 ### Component Architecture
 
 #### Main Structure
+
 ```
 app/page.tsx (main orchestrator)
 ├── AppMenu (settings, character selector)
@@ -136,6 +150,7 @@ app/page.tsx (main orchestrator)
 ```
 
 #### Modular Design
+
 - **Direct service access** eliminating React Context overhead
 - **Component composition** over inheritance
 - **Single responsibility** principle per component
@@ -147,9 +162,10 @@ app/page.tsx (main orchestrator)
 #### Core Functionality
 
 1. **Character Management**
+
    - Editable name and attributes (-2 to 10 range)
    - Class and subclass system with automatic feature progression
-   - Ancestry system with size categories, stat boosts, proficiencies, darkvision, and resistances
+   - Ancestry system with size categories, stat boosts, proficiencies and resistances
    - Background system with passive features and cultural descriptions
    - Level-based character advancement with hit dice tracking
    - Custom content upload for classes, ancestries, backgrounds, abilities, and spells
@@ -157,6 +173,7 @@ app/page.tsx (main orchestrator)
    - Hit points with current/max/temporary tracking and dying status
 
 2. **Combat & Health System**
+
    - Hit points with temporary HP (D&D 5e rules)
    - Temporary HP absorbs damage first, doesn't stack
    - Wounds system for tracking serious injuries
@@ -165,11 +182,13 @@ app/page.tsx (main orchestrator)
    - Dying indicator when at 0 HP
 
 3. **Initiative System**
+
    - Dexterity-based with skill modifier
    - d20 + dexterity + modifier rolling
    - Collapsible section with persistent state
 
 4. **Attribute & Saving Throws**
+
    - Four core attributes (Strength, Dexterity, Intelligence, Will)
    - **Key Attribute Highlighting**: Class key attributes shown with bold, underlined text and ring borders
    - **Compact Design**: Icon-only roll/save buttons with hover tooltips
@@ -179,18 +198,21 @@ app/page.tsx (main orchestrator)
    - **Smart Layout**: Responsive grid with tighter spacing for mobile-friendly design
 
 5. **Skills System**
+
    - 10 predefined skills with attribute associations
    - Base attribute + skill modifier calculation
    - Editable skill-specific bonuses (0-20 range)
    - Individual skill rolling with breakdown
 
 6. **Action Tracker & Encounter System**
+
    - Combat action tracking with current/base/bonus actions
    - Initiative rolls that set action count for encounters
    - End turn/encounter functionality with ability resets
    - Encounter state management affecting UI and abilities
 
 7. **Equipment System**
+
    - Equipment flags for weapons and armor
    - Size-based weapon limits (configurable, default: 2)
    - Equip/unequip toggles with validation
@@ -198,6 +220,7 @@ app/page.tsx (main orchestrator)
    - Only equipped weapons appear in actions
 
 8. **Armor System**
+
    - Main armor vs supplementary armor distinction
    - Only one main armor can be equipped at a time
    - Automatic replacement when equipping new main armor
@@ -205,6 +228,7 @@ app/page.tsx (main orchestrator)
    - Visual indicators for armor types and effective bonuses
 
 9. **Generic Resource System**
+
    - Configurable resources (mana, fury, focus, ki, divine power, etc.)
    - 8 predefined color schemes with dynamic percentage-based gradients
    - 25+ categorized icons (magic, energy, physical, special)
@@ -220,6 +244,7 @@ app/page.tsx (main orchestrator)
    - **Examples**: Wizard "Spell Slots", Fighter "Battlefield Fury", Rogue "Focus", Cleric "Divine Blessing"
 
 10. **Ability System**
+
     - Freeform abilities (text-only descriptions)
     - Action abilities with frequency-based usage (per-turn, per-encounter, at-will)
     - Integrated roll mechanics with dice, modifiers, and attribute bonuses
@@ -227,6 +252,7 @@ app/page.tsx (main orchestrator)
     - Visual usage tracking and roll descriptions
 
 11. **Spell System**
+
     - **Tier-Based Access (1-9)**: Progressive spell unlocking as characters level up
     - **School-Based Organization**: Spells grouped by magical schools (fire, radiant, frost, nature, shadow, arcane)
     - **Class Integration**: Automatic spell school access through class features (Wizard gets Fire Magic, Cleric gets Radiant Magic)
@@ -240,6 +266,7 @@ app/page.tsx (main orchestrator)
     - **Visual Spell Status**: Clear indicators for unlocked vs locked spells with tier requirements
 
 12. **Dice Rolling & Combat**
+
     - **Attack Rolls**: Exploding crits, miss on natural 1
     - **Checks/Saves**: Standard d20 + modifier (no crits/misses)
     - **Ability Rolls**: Custom dice with modifiers and attribute bonuses
@@ -248,6 +275,7 @@ app/page.tsx (main orchestrator)
     - Activity log with comprehensive action tracking
 
 13. **Inventory Management**
+
     - Five item types: weapons, armor, freeform, consumables, ammunition
     - Size-based capacity system with visual indicators (10 + Strength attribute)
     - Automatic inventory size adjustment when Strength changes
@@ -255,6 +283,7 @@ app/page.tsx (main orchestrator)
     - Equipment state tracking and validation
 
 14. **App Modes & Character Management**
+
     - Basic mode: simplified interface (HP, actions, saves, attributes, skills)
     - Full mode: complete character sheet with inventory and abilities
     - Multiple character support with switching and creation
@@ -262,6 +291,7 @@ app/page.tsx (main orchestrator)
     - Character selector with creation and deletion
 
 15. **Class and Subclass System**
+
     - Four core classes: Fighter, Wizard, Cleric, Rogue
     - Subclass selection at appropriate levels with automatic feature grants
     - Level-based feature progression with validation
@@ -269,6 +299,7 @@ app/page.tsx (main orchestrator)
     - Feature tracking with unique identifiers and grant history
 
 16. **Custom Content Management**
+
     - Unified content management panel for all custom content types
     - JSON file upload with schema validation and error reporting
     - Support for classes, subclasses, ancestries, backgrounds, abilities, and spells
@@ -290,119 +321,6 @@ app/page.tsx (main orchestrator)
 - **Extensible**: Modular systems allow easy addition of new content and features
 - **DRY Principle**: Centralized type definitions and reusable components
 
-## File Structure
-
-```
-lib/
-├── config/          # Game configuration and constants
-│   └── game-config.ts # Core game rules and limits
-├── data/            # Static game data definitions
-│   ├── classes/     # Class progression and feature definitions
-│   │   ├── index.ts # Class registry and utilities
-│   │   ├── fighter.ts # Fighter class features and progression
-│   │   ├── wizard.ts # Wizard class with spell school access
-│   │   ├── cleric.ts # Cleric class with divine magic
-│   │   └── rogue.ts # Rogue class features and abilities
-│   ├── ancestries/  # Built-in ancestry definitions
-│   │   ├── index.ts # Ancestry registry and utilities
-│   │   ├── human.ts # Human ancestry traits
-│   │   ├── elf.ts # Elf ancestry with darkvision
-│   │   ├── dwarf.ts # Dwarf ancestry with resistances
-│   │   └── halfling.ts # Halfling ancestry traits
-│   ├── backgrounds/ # Built-in background definitions
-│   │   ├── index.ts # Background registry and utilities
-│   │   ├── noble.ts # Noble background
-│   │   ├── scholar.ts # Scholar background
-│   │   ├── soldier.ts # Soldier background
-│   │   └── folk-hero.ts # Folk hero background
-│   ├── subclasses/  # Specialization options for classes
-│   │   └── index.ts # Subclass registry and utilities
-│   └── example-abilities.ts # Predefined spells and abilities by school
-├── types/           # TypeScript type definitions
-│   ├── character.ts # Character model with ancestry and background traits
-│   ├── class.ts # Class features including spell schools
-│   ├── ancestry.ts # Ancestry definitions with size and features
-│   ├── background.ts # Background definitions with passive features
-│   ├── custom-content.ts # Shared types for content management
-│   ├── inventory.ts # Equipment and item type definitions
-│   ├── abilities.ts # Action and spell ability types
-│   ├── resources.ts # Generic resource system types
-│   ├── actions.ts # Combat action type definitions
-│   ├── dice.ts # Dice rolling type definitions
-│   └── log-entries.ts # Activity logging including spell casting
-├── schemas/         # Runtime validation with Zod
-│   ├── character.ts # Character data validation schemas
-│   ├── ancestry.ts # Ancestry validation schemas
-│   ├── background.ts # Background validation schemas
-│   ├── class.ts # Class and spell school validation
-│   └── dice.ts # Dice roll and log entry validation
-├── services/        # Business logic and state management
-│   ├── character-service.ts # Core character operations and spell casting
-│   ├── character-creation-service.ts # New character generation with ancestry/background
-│   ├── class-service.ts # Class progression and feature management
-│   ├── ancestry-service.ts # Ancestry feature management and validation
-│   ├── background-service.ts # Background feature management
-│   ├── content-repository-service.ts # Unified storage for all custom content
-│   ├── content-validation-service.ts # Zod validation for custom content
-│   ├── resource-service.ts # Generic resource tracking and resets
-│   ├── dice-service.ts # Dice rolling with advantage/disadvantage
-│   ├── activity-log-service.ts # Action and spell cast logging
-│   ├── ability-service.ts # Ability usage for actions and spells
-│   ├── settings-service.ts # App configuration and preferences
-│   ├── service-factory.ts # Singleton service access pattern
-│   └── interfaces.ts # Service interface definitions
-├── hooks/           # React hooks for service integration
-│   ├── use-character-service.ts # Character state and operations
-│   ├── use-dice-actions.ts # Dice rolling functionality
-│   ├── use-activity-log.ts # Activity log state management
-│   └── use-ui-state-service.ts # UI state and preferences
-└── utils/           # Utility functions and helpers
-    ├── character-defaults.ts # Default character generation
-    ├── equipment.ts # Equipment management utilities
-    ├── dice-parser.ts # Dice expression parsing
-    └── resource-config.ts # Resource color schemes and icons
-
-components/
-├── ui/              # shadcn/ui component library
-├── sections/        # Modular character sheet sections
-│   ├── attributes-section.tsx # Attribute rolls/saves with key highlighting
-│   ├── skills-section.tsx # Skill checks with attribute bonuses
-│   ├── actions-section.tsx # Equipped weapon and ability actions
-│   ├── action-tracker-section.tsx # Combat action management
-│   ├── ability-section.tsx # Ability management excluding spells
-│   ├── armor-section.tsx # Armor equipment and AC calculation
-│   ├── hit-points-section.tsx # HP, temporary HP, and wounds
-│   ├── initiative-section.tsx # Initiative rolling and display
-│   ├── inventory-section.tsx # Equipment management and capacity
-│   ├── resource-section.tsx # Generic resource bars and management
-│   ├── character-name-section.tsx # Editable character name
-│   ├── class-features-section.tsx # Class progression with expandable spell schools
-│   └── spells-section.tsx # Spell casting with mana tracker and locked spells
-├── tabs/            # Tabbed interface organization
-│   ├── combat-tab.tsx # Combat-focused interface
-│   ├── skills-tab.tsx # Skills and attribute interface
-│   ├── character-tab.tsx # Character information and features
-│   ├── equipment-tab.tsx # Equipment and inventory management
-│   ├── spells-tab.tsx # Dedicated spell management interface
-│   └── log-tab.tsx # Activity and action history
-├── character-sheet/
-│   ├── basic-mode.tsx # Simplified character interface
-│   ├── full-mode.tsx # Complete character sheet
-│   └── character-stats.tsx # Character statistics display
-├── character-sheet.tsx # Main character sheet orchestrator
-├── tabbed-character-sheet.tsx # Tabbed interface with auto-switching
-├── bottom-tab-bar.tsx # Mobile-friendly tab navigation
-├── advantage-toggle.tsx # Global advantage/disadvantage toggle
-├── activity-log.tsx # Comprehensive action and spell logging
-├── app-menu.tsx # Application settings and character selection
-├── character-config-dialog.tsx # Advanced character configuration
-├── settings-panel.tsx # Application preferences and modes
-└── character-selector.tsx # Character management and creation
-
-app/
-└── page.tsx         # Main application entry
-```
-
 ## Data Flow
 
 1. **Initialization**: Load character and UI state from localStorage via service factory
@@ -411,15 +329,104 @@ app/
 4. **Storage**: Service layer abstracts localStorage operations
 5. **UI Updates**: Service hooks trigger automatic re-renders without Context overhead
 
+## File Structure
+
+```
+lib/
+├── config/          # Game configuration and constants
+│   └── game-config.ts # Core game rules and limits
+├── data/            # Static game data definitions
+│   ├── classes/     # Class progression and feature definitions
+│   │   ├── berserker.ts, cheat.ts, commander.ts, hunter.ts
+│   │   ├── mage.ts, oathsworn.ts, shadowmancer.ts
+│   │   └── shepherd.ts, songweaver.ts, stormshifter.ts, zephyr.ts
+│   ├── ancestries/  # Built-in ancestry definitions (24 files)
+│   │   ├── birdfolk.ts, bunbun.ts, celestial.ts, changeling.ts
+│   │   ├── crystalborn.ts, dragonborn.ts, dryad.ts, dwarf.ts
+│   │   └── [... and 16 more ancestry files]
+│   ├── backgrounds/ # Built-in background definitions (22 files)
+│   │   ├── academy-dropout.ts, acrobat.ts, at-home-underground.ts
+│   │   └── [... and 19 more background files]
+│   ├── subclasses/  # Specialization options for classes (22 files)
+│   │   ├── berserker-mountainheart.ts, berserker-red-mist.ts
+│   │   └── [... paired subclasses for each class]
+│   └── spell-schools.ts # Spell school definitions
+├── types/           # TypeScript type definitions
+│   ├── character.ts # Character model with traits
+│   ├── class.ts # Class and feature types
+│   ├── ancestry.ts # Ancestry definitions
+│   ├── background.ts # Background definitions
+│   ├── feature-effects.ts # Feature effect types (NEW)
+│   ├── inventory.ts # Equipment types
+│   ├── abilities.ts # Action and spell types
+│   ├── resources.ts # Resource system types
+│   └── [other type files]
+├── schemas/         # Zod validation schemas
+│   ├── character.ts # Character validation
+│   ├── class.ts # Class validation
+│   ├── ancestry.ts # Ancestry validation
+│   ├── background.ts # Background validation
+│   ├── feature-effects.ts # Effect validation (NEW)
+│   ├── resources.ts # Resource validation
+│   └── [other schema files]
+├── services/        # Business logic layer
+│   ├── character-service.ts # Core character operations
+│   ├── character-creation-service.ts # Character generation
+│   ├── class-service.ts # Class progression
+│   ├── feature-effect-service.ts # Effect application (NEW)
+│   ├── ancestry-service.ts # Ancestry management
+│   ├── background-service.ts # Background management
+│   ├── content-repository-service.ts # Content storage
+│   ├── resource-service.ts # Resource tracking
+│   └── [other service files]
+├── hooks/           # React hooks
+│   ├── use-character-service.ts
+│   ├── use-dice-actions.ts
+│   └── use-activity-log.ts
+└── utils/           # Utility functions
+    ├── character-defaults.ts
+    ├── equipment.ts
+    └── dice-parser.ts
+
+components/
+├── ui/              # shadcn/ui components
+├── sections/        # Character sheet sections
+│   ├── attributes-section.tsx
+│   ├── skills-section.tsx
+│   ├── class-features-section.tsx
+│   ├── subclass-selections-section.tsx
+│   └── [other section components]
+├── tabs/            # Tabbed interface
+│   ├── combat-tab.tsx
+│   ├── skills-tab.tsx
+│   ├── character-tab.tsx
+│   ├── equipment-tab.tsx
+│   └── spells-tab.tsx
+├── character-builder/ # Character creation flow
+│   ├── features-overview.tsx
+│   └── level-up-guide/
+│       └── feature-selection-step.tsx
+├── feature-effects-display.tsx # Effect rendering (NEW)
+├── feature-display.tsx # Feature rendering (NEW)
+├── character-sheet.tsx # Main sheet component
+├── app-menu.tsx # Settings and character selection
+└── [other components]
+
+app/
+└── page.tsx         # Main application entry
+```
+
 ## Key Technical Achievements
 
 ### Architecture Improvements
+
 - **Eliminated React Context**: Direct service access via singleton pattern
 - **ResourceFeature Integration**: Class features automatically grant resources
 - **Pure Resource Definitions**: Separated immutable templates from runtime state
 - **Type Safety**: Comprehensive TypeScript coverage with runtime validation
 
 ### UI/UX Enhancements
+
 - **Key Attribute Highlighting**: Visual emphasis on class-specific attributes
 - **Compact Design**: Space-efficient mobile-first interface
 - **Tooltip System**: Icon-only buttons with informative hover tooltips
@@ -428,6 +435,7 @@ app/
 ## Development & Configuration
 
 ### Development Commands
+
 ```bash
 npm run dev      # Start development server
 npm run build    # Build for production
@@ -436,6 +444,7 @@ npm run typecheck # Type checking
 ```
 
 ### Storage & Configuration
+
 - **Local Storage Keys**: `nimble-navigator-characters`, `nimble-navigator-activity-log`, `nimble-navigator-settings`
 - **Game Rules**: Centralized in `lib/config/game-config.ts` (dice mechanics, attribute ranges, equipment limits)
 - **Validation**: Zod schemas enforce data integrity with configurable limits
@@ -443,15 +452,18 @@ npm run typecheck # Type checking
 ## Mobile Application
 
 ### Capacitor Wrapper
+
 The mobile application is a Capacitor wrapper located in `../nimble-mobile/` that packages the web app for native iOS and Android deployment.
 
 #### Mobile Setup
+
 - **App Name**: "Nimble Navigator"
 - **Bundle ID**: `com.nimble.mobile`
 - **Web Directory**: `../nimble/out` (Next.js static export)
 - **Platforms**: iOS and Android with native project files
 
 #### Mobile Development Commands
+
 ```bash
 # In nimble-mobile directory
 npm run build        # Build web app from ../nimble
@@ -463,15 +475,17 @@ npm run run:android  # Run on Android emulator/device
 ```
 
 #### Mobile Architecture
+
 - **Static Export**: Next.js builds to `out/` directory for Capacitor consumption
 - **Native Integration**: Capacitor provides native device API access
 - **Offline-First**: Local storage works seamlessly in mobile environment
 - **Responsive Design**: Existing mobile-first web design optimized for native apps
 
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
 KEEP THINGS SHORT AND CONCISE - avoid verbose explanations, long commit messages, and unnecessary details.
 NEVER commit changes automatically - ALWAYS wait for explicit user instruction to commit.
