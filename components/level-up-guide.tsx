@@ -382,6 +382,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           levelUpData={levelUpData}
           hitDieSize={`d${hitDieSize}`}
           onHpChange={(newHp) => setLevelUpData(prev => ({ ...prev, newMaxHp: newHp }))}
+          onReroll={rollHitPoints}
         />;
       
       case 'skills':

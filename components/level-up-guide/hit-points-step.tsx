@@ -4,8 +4,10 @@ import React from 'react';
 import { Character } from '@/lib/types/character';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RotateCcw } from 'lucide-react';
 
 interface LevelUpData {
   levelsToGain: number;
@@ -25,13 +27,15 @@ interface HitPointsStepProps {
   levelUpData: LevelUpData;
   hitDieSize: string;
   onHpChange: (hp: number) => void;
+  onReroll: () => void;
 }
 
 export function HitPointsStep({ 
   character, 
   levelUpData,
   hitDieSize,
-  onHpChange 
+  onHpChange,
+  onReroll
 }: HitPointsStepProps) {
   return (
     <div className="space-y-6">
@@ -62,7 +66,18 @@ export function HitPointsStep({
           </div>
 
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-3">Hit Die Rolls (with advantage):</p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium">Hit Die Rolls (with advantage):</p>
+              <Button
+                onClick={onReroll}
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+              >
+                <RotateCcw className="w-3 h-3 mr-1" />
+                Reroll
+              </Button>
+            </div>
             <div className="space-y-2">
               {levelUpData.hpRolls.map((roll, index) => (
                 <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
