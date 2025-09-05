@@ -1,4 +1,4 @@
-import { CharacterNameSection } from "../sections/character-name-section";
+import { CharacterNameSection } from "./sections/character-name-section";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 
 interface CharacterHeaderProps {

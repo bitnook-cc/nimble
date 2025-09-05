@@ -1,7 +1,7 @@
 "use client";
 
 import { TabbedCharacterSheet } from "@/components/tabbed-character-sheet";
-import { CharacterHeader } from "@/components/character-sheet/character-header";
+import { CharacterHeader } from "@/components/character-header";
 import { CharacterSelector } from "@/components/character-selector";
 import { CharacterConfigDialog } from "@/components/character-config-dialog";
 import { TopBar } from "@/components/top-bar";

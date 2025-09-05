@@ -21,7 +21,7 @@ export interface UseCharacterManagementReturn {
 
 export function useCharacterManagement(): UseCharacterManagementReturn {
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ mode: 'full', activeCharacterId: undefined });
+  const [settings, setSettings] = useState<AppSettings>({ activeCharacterId: undefined });
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);

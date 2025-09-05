@@ -1,7 +1,4 @@
-export type AppMode = 'basic' | 'full';
-
 export interface AppSettings {
-  mode: AppMode;
   activeCharacterId?: string; // Optional to allow null state when no characters exist
 }
 
@@ -25,10 +22,6 @@ export class SettingsService {
     localStorage.setItem(this.storageKey, JSON.stringify(settings));
   }
 
-  async updateMode(mode: AppMode): Promise<void> {
-    const settings = await this.getSettings();
-    await this.saveSettings({ ...settings, mode });
-  }
 
   async updateActiveCharacter(characterId?: string): Promise<void> {
     const settings = await this.getSettings();
@@ -42,7 +35,6 @@ export class SettingsService {
 
   private getDefaultSettings(): AppSettings {
     return {
-      mode: 'full',
       activeCharacterId: undefined, // No default character when starting fresh
     };
   }
