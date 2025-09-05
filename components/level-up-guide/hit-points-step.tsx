@@ -100,13 +100,15 @@ export function HitPointsStep({
           </div>
 
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-2">Hit Dice:</p>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Current: {character._hitDice.current}/{character._hitDice.max}</span>
-              <span>→</span>
-              <span className="text-foreground font-medium">
-                New: {levelUpData.newHitDice.current}/{levelUpData.newHitDice.max}
-              </span>
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Hit Dice:</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>{character._hitDice.current}/{character._hitDice.max}</span>
+                <span>→</span>
+                <span className="text-foreground font-medium">
+                  {levelUpData.newHitDice.current}/{levelUpData.newHitDice.max}
+                </span>
+              </div>
             </div>
           </div>
         </CardContent>
