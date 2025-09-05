@@ -167,14 +167,26 @@ export function FeatureSelectionStep({
                 value={selectedAttribute || ''} 
                 onValueChange={(value) => handleStatBoostSelection(featureId, value as AttributeName)}
               >
-                {(['strength', 'dexterity', 'intelligence', 'will'] as AttributeName[]).map(attr => (
-                  <div key={attr} className="flex items-center space-x-2 mb-2">
-                    <RadioGroupItem value={attr} id={`${featureId}-${attr}`} />
-                    <Label htmlFor={`${featureId}-${attr}`} className="capitalize cursor-pointer">
-                      {attr} (+{statBoostFeature.statBoosts[0]?.amount || 1})
-                    </Label>
-                  </div>
-                ))}
+                {(() => {
+                  // Get available attributes from the stat boost feature
+                  const availableAttributes = statBoostFeature.statBoosts.length > 0 
+                    ? statBoostFeature.statBoosts.map(boost => boost.attribute)
+                    : ['strength', 'dexterity', 'intelligence', 'will'] as AttributeName[];
+                  
+                  return availableAttributes.map(attr => {
+                    const boost = statBoostFeature.statBoosts.find(b => b.attribute === attr);
+                    const amount = boost?.amount || 1;
+                    
+                    return (
+                      <div key={attr} className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value={attr} id={`${featureId}-${attr}`} />
+                        <Label htmlFor={`${featureId}-${attr}`} className="capitalize cursor-pointer">
+                          {attr} (+{amount})
+                        </Label>
+                      </div>
+                    );
+                  });
+                })()}
               </RadioGroup>
             </CardContent>
           </Card>

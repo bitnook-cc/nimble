@@ -11,7 +11,6 @@ export interface UIState {
     resources: boolean;
     attributes: boolean;
     skills: boolean;
-    actions: boolean;
     armor: boolean;
     abilities: boolean;
     inventory: boolean;
@@ -120,7 +119,6 @@ export class UIStateService {
         resources: sections.resources ?? true,
         attributes: sections.attributes ?? true,
         skills: sections.skills ?? true,
-        actions: sections.actions ?? true,
         armor: sections.armor ?? true,
         abilities: sections.abilities ?? true,
         inventory: sections.inventory ?? true,
@@ -142,7 +140,6 @@ export class UIStateService {
         resources: true,
         attributes: true,
         skills: true,
-        actions: true,
         armor: true,
         abilities: true,
         inventory: true,
