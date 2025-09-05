@@ -15,6 +15,7 @@ import { AttributeBoostFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpe
 import { getContentRepository, getClassService } from '@/lib/services/service-factory';
 import { SpellAbility } from '@/lib/types/abilities';
 import { FeatureSelectionType } from '@/components/character-builder/features-overview';
+import { FeatureEffectsDisplay } from '@/components/feature-effects-display';
 
 interface FeatureSelectionStepProps {
   character: Character;
@@ -333,7 +334,7 @@ export function FeatureSelectionStep({
         );
       }
 
-      // Non-interactive features - just display them
+      // Non-interactive features - display them with their effects
       default:
         return (
           <Card key={featureId} className="mb-4 bg-muted/30">
@@ -347,6 +348,11 @@ export function FeatureSelectionStep({
               </div>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
+            {feature.effects.length > 0 && (
+              <CardContent className="pt-0">
+                <FeatureEffectsDisplay effects={feature.effects} />
+              </CardContent>
+            )}
           </Card>
         );
     }

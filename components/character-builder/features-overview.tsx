@@ -24,6 +24,7 @@ import {
   PickFeatureFromPoolFeatureEffect 
 } from '@/lib/types/feature-effects';
 import { hasEffectType } from '@/lib/types/class';
+import { FeatureEffectsDisplay } from '@/components/feature-effects-display';
 
 // Type for feature selections during character creation
 export type FeatureSelectionType = 
@@ -347,7 +348,7 @@ export function FeaturesOverview({
       );
     }
 
-    // Non-interactive features - just display them
+    // Non-interactive features - just display them with their effects
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
         <CardHeader className="pb-3">
@@ -360,6 +361,11 @@ export function FeaturesOverview({
           </div>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
+        {feature.effects.length > 0 && (
+          <CardContent className="pt-0">
+            <FeatureEffectsDisplay effects={feature.effects} />
+          </CardContent>
+        )}
       </Card>
     );
   };
@@ -406,7 +412,7 @@ export function FeaturesOverview({
       );
     }
 
-    // Non-interactive ancestry features
+    // Non-interactive ancestry features with their effects
     const featureType = feature.effects.length > 0 ? feature.effects[0].type : 'passive_feature';
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
@@ -420,6 +426,11 @@ export function FeaturesOverview({
           </div>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
+        {feature.effects.length > 0 && (
+          <CardContent className="pt-0">
+            <FeatureEffectsDisplay effects={feature.effects} />
+          </CardContent>
+        )}
       </Card>
     );
   };
@@ -427,7 +438,7 @@ export function FeaturesOverview({
   const renderBackgroundFeature = (feature: BackgroundFeature) => {
     const featureId = generateFeatureId(backgroundId, feature);
     
-    // Background features are typically passive
+    // Background features are typically passive - show with their effects
     const featureType = feature.effects.length > 0 ? feature.effects[0].type : 'passive_feature';
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
@@ -441,6 +452,11 @@ export function FeaturesOverview({
           </div>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
+        {feature.effects.length > 0 && (
+          <CardContent className="pt-0">
+            <FeatureEffectsDisplay effects={feature.effects} />
+          </CardContent>
+        )}
       </Card>
     );
   };
