@@ -340,7 +340,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           max: levelUpData.newMaxHp,
           current: levelUpData.newMaxHp // Set current HP to new max HP after level up
         },
-        hitDice: {
+        _hitDice: {
           ...character._hitDice,
           current: levelUpData.newHitDice.current,
           max: levelUpData.newHitDice.max
