@@ -6,9 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Shield, Zap, Book, Heart, Swords, Info } from 'lucide-react';
 import { Character, AttributeName } from '@/lib/types/character';
 import { ClassFeature } from '@/lib/types/class';
 import { AttributeBoostFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpellsFeatureEffect, PickFeatureFromPoolFeatureEffect } from '@/lib/types/feature-effects';
@@ -29,37 +27,6 @@ interface GroupedFeatures {
   features: ClassFeature[];
 }
 
-// Helper to get icon for feature type
-function getFeatureIcon(type: string) {
-  switch (type) {
-    case 'ability': return <Zap className="h-4 w-4" />;
-    case 'passive_feature': return <Shield className="h-4 w-4" />;
-    case 'attribute_boost': return <Heart className="h-4 w-4" />;
-    case 'stat_bonus': return <Heart className="h-4 w-4" />;
-    case 'spell_school': 
-    case 'spell_school_choice': return <Sparkles className="h-4 w-4" />;
-    case 'utility_spells': return <Book className="h-4 w-4" />;
-    case 'resource': return <Zap className="h-4 w-4" />;
-    case 'pick_feature_from_pool': return <Swords className="h-4 w-4" />;
-    default: return <Info className="h-4 w-4" />;
-  }
-}
-
-// Helper to get feature type label
-function getFeatureTypeLabel(type: string) {
-  switch (type) {
-    case 'ability': return 'Ability';
-    case 'passive_feature': return 'Passive';
-    case 'attribute_boost': return 'Attribute Boost';
-    case 'stat_bonus': return 'Stat Bonus';
-    case 'spell_school': return 'Spell School';
-    case 'spell_school_choice': return 'Spell School Choice';
-    case 'utility_spells': return 'Utility Spells';
-    case 'resource': return 'Resource';
-    case 'pick_feature_from_pool': return 'Feature Selection';
-    default: return type;
-  }
-}
 
 // Helper function to determine primary feature type from effects
 function getPrimaryFeatureType(feature: ClassFeature): string {
@@ -162,13 +129,7 @@ export function FeatureSelectionStep({
         return (
           <Card key={featureId} className="mb-4">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                {getFeatureIcon(primaryType)}
-                <CardTitle className="text-base">{feature.name}</CardTitle>
-                <Badge variant="secondary" className="ml-auto">
-                  {getFeatureTypeLabel(primaryType)}
-                </Badge>
-              </div>
+              <CardTitle className="text-base">{feature.name}</CardTitle>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -205,13 +166,7 @@ export function FeatureSelectionStep({
         return (
           <Card key={featureId} className="mb-4">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                {getFeatureIcon(primaryType)}
-                <CardTitle className="text-base">{feature.name}</CardTitle>
-                <Badge variant="secondary" className="ml-auto">
-                  {getFeatureTypeLabel(primaryType)}
-                </Badge>
-              </div>
+              <CardTitle className="text-base">{feature.name}</CardTitle>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -254,13 +209,7 @@ export function FeatureSelectionStep({
         return (
           <Card key={featureId} className="mb-4">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                {getFeatureIcon(primaryType)}
-                <CardTitle className="text-base">{feature.name}</CardTitle>
-                <Badge variant="secondary" className="ml-auto">
-                  {getFeatureTypeLabel(primaryType)}
-                </Badge>
-              </div>
+              <CardTitle className="text-base">{feature.name}</CardTitle>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -302,13 +251,7 @@ export function FeatureSelectionStep({
         return (
           <Card key={featureId} className="mb-4">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                {getFeatureIcon(primaryType)}
-                <CardTitle className="text-base">{feature.name}</CardTitle>
-                <Badge variant="secondary" className="ml-auto">
-                  {getFeatureTypeLabel(primaryType)}
-                </Badge>
-              </div>
+              <CardTitle className="text-base">{feature.name}</CardTitle>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -339,13 +282,7 @@ export function FeatureSelectionStep({
         return (
           <Card key={featureId} className="mb-4 bg-muted/30">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                {getFeatureIcon(primaryType)}
-                <CardTitle className="text-base">{feature.name}</CardTitle>
-                <Badge variant="outline" className="ml-auto">
-                  {getFeatureTypeLabel(primaryType)}
-                </Badge>
-              </div>
+              <CardTitle className="text-base">{feature.name}</CardTitle>
               <CardDescription className="text-sm">{feature.description}</CardDescription>
             </CardHeader>
             {feature.effects.length > 0 && (

@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles, Shield, Zap, Book, Heart, Swords, Info, Eye, Mountain, Brain } from 'lucide-react';
+import { Swords, Mountain, Book } from 'lucide-react';
 import { AttributeName } from '@/lib/types/character';
 import { ClassFeature } from '@/lib/types/class';
 import { AncestryFeature } from '@/lib/types/ancestry';
@@ -47,41 +46,6 @@ interface CategorizedFeatures {
   background: BackgroundFeature[];
 }
 
-// Helper to get icon for feature type
-function getFeatureIcon(type: string) {
-  switch (type) {
-    case 'ability': return <Zap className="h-4 w-4" />;
-    case 'passive_feature': return <Shield className="h-4 w-4" />;
-    case 'stat_boost': return <Heart className="h-4 w-4" />;
-    case 'spell_school': 
-    case 'spell_school_choice': return <Sparkles className="h-4 w-4" />;
-    case 'utility_spells': return <Book className="h-4 w-4" />;
-    case 'resource': return <Zap className="h-4 w-4" />;
-    case 'pick_feature_from_pool': return <Swords className="h-4 w-4" />;
-    case 'size': return <Mountain className="h-4 w-4" />;
-    case 'resistance': return <Shield className="h-4 w-4" />;
-    case 'skill_proficiency': return <Brain className="h-4 w-4" />;
-    default: return <Info className="h-4 w-4" />;
-  }
-}
-
-// Helper to get feature type label
-function getFeatureTypeLabel(type: string) {
-  switch (type) {
-    case 'ability': return 'Ability';
-    case 'passive_feature': return 'Passive';
-    case 'stat_boost': return 'Stat Boost';
-    case 'spell_school': return 'Spell School';
-    case 'spell_school_choice': return 'Spell School Choice';
-    case 'utility_spells': return 'Utility Spells';
-    case 'resource': return 'Resource';
-    case 'pick_feature_from_pool': return 'Feature Selection';
-    case 'size': return 'Size';
-    case 'resistance': return 'Resistance';
-    case 'skill_proficiency': return 'Skill Proficiency';
-    default: return type;
-  }
-}
 
 export function FeaturesOverview({
   classId,
@@ -175,13 +139,7 @@ export function FeaturesOverview({
       return (
         <Card key={featureId} className="mb-4">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              {getFeatureIcon('stat_boost')}
-              <CardTitle className="text-base">{feature.name}</CardTitle>
-              <Badge variant="secondary" className="ml-auto">
-                Attribute Boost
-              </Badge>
-            </div>
+            <CardTitle className="text-base">{feature.name}</CardTitle>
             <CardDescription className="text-sm">{feature.description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -218,13 +176,7 @@ export function FeaturesOverview({
       return (
         <Card key={featureId} className="mb-4">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              {getFeatureIcon('spell_school_choice')}
-              <CardTitle className="text-base">{feature.name}</CardTitle>
-              <Badge variant="secondary" className="ml-auto">
-                Spell School Choice
-              </Badge>
-            </div>
+            <CardTitle className="text-base">{feature.name}</CardTitle>
             <CardDescription className="text-sm">{feature.description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -267,13 +219,7 @@ export function FeaturesOverview({
       return (
         <Card key={featureId} className="mb-4">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              {getFeatureIcon('utility_spells')}
-              <CardTitle className="text-base">{feature.name}</CardTitle>
-              <Badge variant="secondary" className="ml-auto">
-                Utility Spells
-              </Badge>
-            </div>
+            <CardTitle className="text-base">{feature.name}</CardTitle>
             <CardDescription className="text-sm">{feature.description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -316,13 +262,7 @@ export function FeaturesOverview({
       return (
         <Card key={featureId} className="mb-4">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              {getFeatureIcon('pick_feature_from_pool')}
-              <CardTitle className="text-base">{feature.name}</CardTitle>
-              <Badge variant="secondary" className="ml-auto">
-                Feature Selection
-              </Badge>
-            </div>
+            <CardTitle className="text-base">{feature.name}</CardTitle>
             <CardDescription className="text-sm">{feature.description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -352,13 +292,7 @@ export function FeaturesOverview({
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            {getFeatureIcon('passive_feature')}
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <Badge variant="outline" className="ml-auto">
-              Passive
-            </Badge>
-          </div>
+          <CardTitle className="text-base">{feature.name}</CardTitle>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
         {feature.effects.length > 0 && (
@@ -383,13 +317,7 @@ export function FeaturesOverview({
       return (
         <Card key={featureId} className="mb-4">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              {getFeatureIcon('stat_boost')}
-              <CardTitle className="text-base">{feature.name}</CardTitle>
-              <Badge variant="secondary" className="ml-auto">
-                Attribute Boost
-              </Badge>
-            </div>
+            <CardTitle className="text-base">{feature.name}</CardTitle>
             <CardDescription className="text-sm">{feature.description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -413,17 +341,10 @@ export function FeaturesOverview({
     }
 
     // Non-interactive ancestry features with their effects
-    const featureType = feature.effects.length > 0 ? feature.effects[0].type : 'passive_feature';
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            {getFeatureIcon(featureType)}
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <Badge variant="outline" className="ml-auto">
-              {getFeatureTypeLabel(featureType)}
-            </Badge>
-          </div>
+          <CardTitle className="text-base">{feature.name}</CardTitle>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
         {feature.effects.length > 0 && (
@@ -439,17 +360,10 @@ export function FeaturesOverview({
     const featureId = generateFeatureId(backgroundId, feature);
     
     // Background features are typically passive - show with their effects
-    const featureType = feature.effects.length > 0 ? feature.effects[0].type : 'passive_feature';
     return (
       <Card key={featureId} className="mb-4 bg-muted/30">
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            {getFeatureIcon(featureType)}
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <Badge variant="outline" className="ml-auto">
-              {getFeatureTypeLabel(featureType)}
-            </Badge>
-          </div>
+          <CardTitle className="text-base">{feature.name}</CardTitle>
           <CardDescription className="text-sm">{feature.description}</CardDescription>
         </CardHeader>
         {feature.effects.length > 0 && (
