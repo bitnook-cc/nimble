@@ -7,6 +7,14 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 ![Next.js](https://img.shields.io/badge/Next.js-14.0+-black)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0+-38bdf8)
 
+## 🚀 Recent Updates
+
+### Multiple Effects Per Feature (December 2024)
+- Features can now grant multiple effects (abilities, resources, boosts, etc.)
+- Improved effect tracking system with granular source attribution
+- New UI components for displaying complex feature effects
+- Better support for multi-benefit class and ancestry features
+
 ## ✨ Features
 
 ### Core Character Management

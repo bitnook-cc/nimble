@@ -6,22 +6,30 @@ export const survivalist: BackgroundDefinition = {
   description: 'You never run out of your own personal rations. Anything can be food if you try hard enough! Advantage against poison saves. +1 max Hit Die.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'survivalist-personal-rations',
       name: 'Personal Rations',
-      description: 'You never run out of your own personal rations. Anything can be food if you try hard enough!'
+      description: 'You never run out of your own personal rations. Anything can be food if you try hard enough!',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'survivalist-poison-resistance',
       name: 'Poison Resistance',
-      description: 'Advantage against poison saves.'
+      description: 'Advantage against poison saves.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'survivalist-hardy-constitution',
       name: 'Hardy Constitution',
       description: '+1 max Hit Die.',
-      statBonus: {
-        hitDiceBonus: { type: 'fixed', value: 1 }
-      }
+      effects: [
+        {
+          id: 'survivalist-hardy-constitution-0',
+          type: 'stat_bonus',
+          statBonus: {
+            hitDiceBonus: { type: 'fixed', value: 1 }
+          }
+        }
+      ]
     }
   ]
 };

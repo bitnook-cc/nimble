@@ -8,9 +8,10 @@ export const minotaur: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'minotaur-charge',
       name: 'Charge',
-      description: 'When you move at least 4 spaces, you can push a creature in your path. Medium: 1 space; Small/Tiny: up to 2 spaces. 1/turn.'
+      description: 'When you move at least 4 spaces, you can push a creature in your path. Medium: 1 space; Small/Tiny: up to 2 spaces. 1/turn.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

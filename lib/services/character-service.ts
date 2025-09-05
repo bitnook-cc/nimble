@@ -57,24 +57,30 @@ export class CharacterService implements ICharacterService {
     // Get class feature stat bonuses
     const classFeatures = classService.getAllGrantedFeatures(this._character);
     for (const feature of classFeatures) {
-      if (feature.type === 'passive_feature' && feature.statBonus) {
-        bonuses.push(feature.statBonus);
+      for (const effect of feature.effects) {
+        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+          bonuses.push((effect as any).statBonus);
+        }
       }
     }
 
     // Get ancestry feature stat bonuses
     const ancestryFeatures = ancestryService.getAllGrantedFeatures(this._character);
     for (const feature of ancestryFeatures) {
-      if (feature.type === 'passive_feature' && feature.statBonus) {
-        bonuses.push(feature.statBonus);
+      for (const effect of feature.effects) {
+        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+          bonuses.push((effect as any).statBonus);
+        }
       }
     }
 
     // Get background feature stat bonuses
     const backgroundFeatures = backgroundService.getAllGrantedFeatures(this._character);
     for (const feature of backgroundFeatures) {
-      if (feature.type === 'passive_feature' && feature.statBonus) {
-        bonuses.push(feature.statBonus);
+      for (const effect of feature.effects) {
+        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+          bonuses.push((effect as any).statBonus);
+        }
       }
     }
 

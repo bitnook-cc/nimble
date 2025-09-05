@@ -1,20 +1,12 @@
-import { StatBonus } from './stat-bonus';
+import { FeatureEffect } from './feature-effects';
 
-export type BackgroundFeatureType = 'passive_feature';
-
-// Base interface for all background features
-interface BaseBackgroundFeature {
+// Background feature - now contains multiple effects
+export interface BackgroundFeature {
+  id: string; // Unique identifier for the feature
   name: string;
   description: string;
+  effects: FeatureEffect[]; // Array of effects this feature provides
 }
-
-// Passive feature - background benefits, social traits, knowledge, etc.
-export interface BackgroundPassiveFeature extends BaseBackgroundFeature {
-  type: 'passive_feature';
-  statBonus?: StatBonus; // Optional stat bonuses provided by this feature
-}
-
-export type BackgroundFeature = BackgroundPassiveFeature;
 
 export interface BackgroundDefinition {
   id: string; // Unique identifier for the background

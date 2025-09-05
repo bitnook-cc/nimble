@@ -1,5 +1,5 @@
-import { Character, SelectedFeature, SelectedPoolFeature, SelectedSubclass } from '../types/character';
-import { ClassDefinition, ClassFeature, ClassFeatureGrant, AbilityFeature, StatBoostFeature, ProficiencyFeature, SpellSchoolFeature, SpellSchoolChoiceFeature, UtilitySpellsFeature, SpellTierAccessFeature, ResourceFeature, SubclassChoiceFeature, SubclassDefinition, PickFeatureFromPoolFeature, FeaturePool } from '../types/class';
+import { Character, SelectedFeature, SelectedPoolFeature, SelectedSubclass, SelectedAttributeBoost, AttributeName } from '../types/character';
+import { ClassDefinition, ClassFeature, ClassFeatureGrant, SubclassDefinition, FeaturePool } from '../types/class';
 import { ResourceInstance } from '../types/resources';
 // Removed direct subclass imports - now using ContentRepositoryService
 import { SpellAbility } from '../types/abilities';
@@ -7,6 +7,8 @@ import { IClassService, ICharacterService } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
 import { abilityService } from './ability-service';
 import { resourceService } from './resource-service';
+import { FeatureEffectService } from './feature-effect-service';
+import { SubclassChoiceFeatureEffect, AttributeBoostFeatureEffect, PickFeatureFromPoolFeatureEffect, SpellSchoolFeatureEffect } from '../types/feature-effects';
 
 /**
  * Class Service with Dependency Injection
@@ -14,9 +16,11 @@ import { resourceService } from './resource-service';
  */
 export class ClassService implements IClassService {
   private contentRepository: ContentRepositoryService;
+  private featureEffectService: FeatureEffectService;
 
   constructor(private characterService: ICharacterService) {
     this.contentRepository = ContentRepositoryService.getInstance();
+    this.featureEffectService = new FeatureEffectService(characterService, resourceService, abilityService);
   }
 
   /**
@@ -51,30 +55,26 @@ export class ClassService implements IClassService {
 
   /**
    * Get features that are missing for a character (should have but don't)
+   * Now checks for missing effects rather than missing features
    */
   getMissingFeatures(character: Character): ClassFeature[] {
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const grantedFeatureIds = new Set(character.grantedFeatures);
+    const grantedEffectsByFeature = new Map<string, Set<string>>();
+    
+    // Build map of granted effects by parent feature ID
+    for (const grant of character.grantedEffects) {
+      if (!grantedEffectsByFeature.has(grant.parentFeatureId)) {
+        grantedEffectsByFeature.set(grant.parentFeatureId, new Set());
+      }
+      grantedEffectsByFeature.get(grant.parentFeatureId)!.add(grant.effectId);
+    }
     
     return expectedFeatures.filter(feature => {
-      // Generate feature ID based on whether it's from class or subclass
-      let featureId: string;
+      // Check if all effects from this feature have been granted
+      const grantedEffectsForFeature = grantedEffectsByFeature.get(feature.id) || new Set();
       
-      // Check if this feature comes from a subclass
-      if (character.subclassId) {
-        const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
-        const isSubclassFeature = subclassFeatures.some(sf => sf.name === feature.name && sf.level === feature.level);
-        
-        if (isSubclassFeature) {
-          featureId = this.generateSubclassFeatureId(character.subclassId, feature.level, feature.name);
-        } else {
-          featureId = this.generateFeatureId(character.classId, feature.level, feature.name);
-        }
-      } else {
-        featureId = this.generateFeatureId(character.classId, feature.level, feature.name);
-      }
-      
-      return !grantedFeatureIds.has(featureId);
+      // A feature is missing if any of its effects haven't been granted
+      return feature.effects.some(effect => !grantedEffectsForFeature.has(effect.id));
     });
   }
 
@@ -86,7 +86,7 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Generate a unique ID for a class feature grant
+   * Generate a unique ID for a class feature grant (DEPRECATED - transitioning to effect-level tracking)
    */
   generateFeatureId(classId: string, level: number, featureName: string, subclassId?: string): string {
     const prefix = subclassId || classId;
@@ -94,7 +94,7 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Generate a feature ID for a subclass feature
+   * Generate a feature ID for a subclass feature (DEPRECATED - transitioning to effect-level tracking)
    */
   generateSubclassFeatureId(subclassId: string, level: number, featureName: string): string {
     return this.generateFeatureId('', level, featureName, subclassId);
@@ -147,122 +147,53 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Grant a specific feature to a character
+   * Grant a specific feature to a character using effect-level tracking
    */
   async grantFeature(character: Character, feature: ClassFeature, level: number): Promise<ClassFeatureGrant> {
-    // Check if this feature comes from a subclass
-    let featureId: string;
-    let sourceClassId: string;
+    // Determine source type and ID
+    const sourceType = character.subclassId && this.isSubclassFeature(feature) ? 'subclass' : 'class';
+    const sourceId = sourceType === 'subclass' ? character.subclassId! : character.classId;
     
-    if (character.subclassId) {
-      const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level);
-      const isSubclassFeature = subclassFeatures.some(sf => sf.id === feature.id);
-      
-      if (isSubclassFeature) {
-        featureId = this.generateSubclassFeatureId(character.subclassId, level, feature.name);
-        sourceClassId = character.subclassId;
-      } else {
-        featureId = this.generateFeatureId(character.classId, level, feature.name);
-        sourceClassId = character.classId;
-      }
-    } else {
-      featureId = this.generateFeatureId(character.classId, level, feature.name);
-      sourceClassId = character.classId;
-    }
-    
-    // Create the feature grant record
+    // Apply the feature effects using the shared effect service
+    const updatedCharacter = await this.featureEffectService.applyEffects(
+      character, 
+      feature.effects, 
+      feature.id, 
+      sourceType, 
+      sourceId, 
+      level
+    );
+
+    await this.characterService.updateCharacter(updatedCharacter);
+
+    // Create the feature grant record for backwards compatibility
     const featureGrant: ClassFeatureGrant = {
-      featureId,
-      classId: sourceClassId,
+      featureId: feature.id, // Use actual feature ID instead of generated one
+      classId: sourceId,
       level,
       feature,
       grantedAt: new Date()
     };
 
-    // Add to character's granted features
-    const updatedGrantedFeatures = [...character.grantedFeatures, featureId];
-
-    // Apply the feature effects
-    let updatedCharacter = {
-      ...character,
-      grantedFeatures: updatedGrantedFeatures
-    };
-
-    // Apply feature effects
-    updatedCharacter = await this.applyFeatureEffects(updatedCharacter, feature);
-
-    await this.characterService.updateCharacter(updatedCharacter);
     return featureGrant;
   }
 
-  /**
-   * Grant an ability-type feature (adds ability to character's abilities)
-   */
-  private async grantAbilityFeature(character: Character, feature: AbilityFeature): Promise<Character> {
-    // Check if ability already exists to avoid duplicates
-    const existingAbility = character.abilities.find(ability => ability.id === feature.ability.id);
-    if (existingAbility) {
-      // If ability already exists, don't add it again
-      return character;
-    }
-
-    // Initialize the ability with proper currentUses if it has maxUses
-    let abilityToAdd = { ...feature.ability };
-    if (abilityToAdd.type === 'action' && abilityToAdd.maxUses !== undefined && abilityToAdd.currentUses === undefined) {
-      abilityToAdd.currentUses = abilityService.calculateMaxUses(abilityToAdd, character);
-    }
-
-    // Add the ability to character's abilities
-    const updatedAbilities = [...character.abilities, abilityToAdd];
-
-    return {
-      ...character,
-      abilities: updatedAbilities
-    };
-  }
-
-  /**
-   * Grant a stat boost feature (increases character attributes)
-   */
-  private async grantStatBoostFeature(character: Character, feature: StatBoostFeature): Promise<Character> {
-    let updatedAttributes = { ...character._attributes };
-
-    // Apply each stat boost
-    for (const boost of feature.statBoosts) {
-      updatedAttributes[boost.attribute] = Math.min(
-        10, // Cap at maximum attribute value
-        updatedAttributes[boost.attribute] + boost.amount
-      );
-    }
-
-    return {
-      ...character,
-      _attributes: updatedAttributes
-    };
-  }
-
-  /**
-   * Grant a proficiency feature (adds proficiencies to character)
-   */
-  private async grantProficiencyFeature(character: Character, feature: ProficiencyFeature): Promise<Character> {
-    // For now, proficiencies are just recorded as granted features
-    // In the future, we could add a proficiencies system to the character model
-    return character;
-  }
 
   /**
    * Synchronize character spells based on their spell school access and tier access
+   * Now works with effect-based system
    */
   private syncCharacterSpells(character: Character): Character {
-    // Find all spell school features the character has been granted
-    const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const spellSchoolFeatures = expectedFeatures.filter(f => f.type === 'spell_school') as SpellSchoolFeature[];
+    // Find all spell school effects the character has been granted
+    const spellSchoolEffects = character.grantedEffects
+      .filter(grant => grant.effect.type === 'spell_school')
+      .map(grant => grant.effect as SpellSchoolFeatureEffect);
     
     // Get all spells the character should have access to
     const eligibleSpells: SpellAbility[] = [];
     
-    for (const schoolFeature of spellSchoolFeatures) {
-      const schoolSpells = this.contentRepository.getSpellsBySchool(schoolFeature.spellSchool.schoolId);
+    for (const schoolEffect of spellSchoolEffects) {
+      const schoolSpells = this.contentRepository.getSpellsBySchool(schoolEffect.spellSchool.schoolId);
       
       // Filter by character's spell tier access
       const accessibleSpells = schoolSpells.filter(spell => spell.tier <= character.spellTierAccess);
@@ -290,121 +221,11 @@ export class ClassService implements IClassService {
     return character;
   }
 
-  /**
-   * Grant spell school feature (adds spellcasting capabilities and syncs spells)
-   */
-  private async grantSpellSchoolFeature(character: Character, feature: SpellSchoolFeature): Promise<Character> {
-    // Sync spells after granting the school access
-    return this.syncCharacterSpells(character);
-  }
 
   /**
-   * Grant spell school choice feature (allows player to choose a spell school)
+   * Select a subclass for a character (now using effect-based tracking)
    */
-  private async grantSpellSchoolChoiceFeature(character: Character, feature: SpellSchoolChoiceFeature): Promise<Character> {
-    // This feature enables a choice - the actual selection happens through UI interaction
-    // The feature is recorded in grantedFeatures to track that the choice is available
-    return character;
-  }
-
-  /**
-   * Grant utility spells feature (grants access to utility spells from specified schools)
-   */
-  private async grantUtilitySpellsFeature(character: Character, feature: UtilitySpellsFeature): Promise<Character> {
-    // Collect all utility spells from the specified schools
-    const utilitySpells: SpellAbility[] = [];
-    
-    for (const schoolId of feature.schools) {
-      const schoolUtilitySpells = this.contentRepository.getUtilitySpellsForSchool(schoolId);
-      
-      if (feature.spellsPerSchool && feature.spellsPerSchool < schoolUtilitySpells.length) {
-        // Only grant a subset of utility spells - this would require UI selection
-        // For now, grant the first N spells
-        utilitySpells.push(...schoolUtilitySpells.slice(0, feature.spellsPerSchool));
-      } else {
-        // Grant all utility spells from the school
-        utilitySpells.push(...schoolUtilitySpells);
-      }
-    }
-    
-    // Add utility spells to character's abilities
-    if (utilitySpells.length > 0) {
-      const currentAbilities = character.abilities || [];
-      // Filter out spells that are already in the character's abilities
-      const newSpells = utilitySpells.filter(spell => 
-        !currentAbilities.some(existing => 
-          existing.type === 'spell' && existing.id === spell.id
-        )
-      );
-      
-      return {
-        ...character,
-        abilities: [...currentAbilities, ...newSpells]
-      };
-    }
-    
-    return character;
-  }
-
-  /**
-   * Grant spell tier access feature (increases max spell tier and syncs spells)
-   */
-  private async grantSpellTierAccessFeature(character: Character, feature: SpellTierAccessFeature): Promise<Character> {
-    // Update the character's spell tier access to the highest tier they can now access
-    const newSpellTierAccess = Math.max(character.spellTierAccess, feature.maxTier);
-    
-    const updatedCharacter = {
-      ...character,
-      spellTierAccess: newSpellTierAccess
-    };
-    
-    // Sync spells after updating tier access
-    return this.syncCharacterSpells(updatedCharacter);
-  }
-
-  /**
-   * Grant resource feature (adds new resources like Ki Points, etc.)
-   */
-  private async grantResourceFeature(character: Character, feature: ResourceFeature): Promise<Character> {
-    const { resourceDefinition } = feature;
-    
-    // Check if resource already exists to avoid duplicates
-    const existingResource = character.resources.find(r => r.definition.id === resourceDefinition.id);
-    if (existingResource) {
-      // If resource already exists, don't add it again
-      return character;
-    }
-
-    // Create a resource instance using ResourceService to handle proper initialization
-    const resourceInstance = resourceService.createResourceInstanceForCharacter(
-      resourceDefinition,
-      character,
-      undefined, // No explicit current value - let it initialize based on reset type
-      character.resources.length + 1 // Sort order
-    );
-
-    // Add the resource to character's resources
-    const updatedResources = [...character.resources, resourceInstance];
-
-    return {
-      ...character,
-      resources: updatedResources
-    };
-  }
-
-  /**
-   * Grant subclass choice feature (records that player can choose a subclass)
-   */
-  private async grantSubclassChoiceFeature(character: Character, feature: SubclassChoiceFeature): Promise<Character> {
-    // Subclass choice features are recorded as granted but don't modify the character directly
-    // The actual subclass selection happens separately via selectSubclass method
-    return character;
-  }
-
-  /**
-   * Select a subclass for a character
-   */
-  async selectSubclass(character: Character, subclassId: string, grantedByFeatureId: string): Promise<Character> {
+  async selectSubclass(character: Character, subclassId: string, grantedByEffectId: string): Promise<Character> {
     // Validate that the subclass is available for this character's class
     const subclassDefinition = this.contentRepository.getSubclassDefinition(subclassId);
     if (!subclassDefinition) {
@@ -415,22 +236,21 @@ export class ClassService implements IClassService {
       throw new Error(`Subclass ${subclassId} is not available for class ${character.classId}`);
     }
 
-    // Check if character has the appropriate subclass choice feature
-    const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const hasSubclassChoice = expectedFeatures.some(feature => 
-      feature.type === 'subclass_choice'
+    // Check if character has the appropriate subclass choice effect
+    const hasSubclassChoiceEffect = character.grantedEffects.some(grant => 
+      grant.effect.type === 'subclass_choice'
     );
 
-    if (!hasSubclassChoice) {
-      throw new Error(`Character does not have a subclass choice feature at their current level`);
+    if (!hasSubclassChoiceEffect) {
+      throw new Error(`Character does not have a subclass choice effect at their current level`);
     }
 
-    // Check if already have a subclass selection
+    // Check if already have a subclass selection for this effect
     const existingSubclassSelection = character.selectedFeatures?.find(
-      f => f.type === 'subclass' && f.grantedByFeatureId === grantedByFeatureId
+      f => f.type === 'subclass' && f.grantedByEffectId === grantedByEffectId
     );
     if (existingSubclassSelection) {
-      throw new Error('Subclass has already been selected for this feature');
+      throw new Error('Subclass has already been selected for this effect');
     }
 
     // Create the selected subclass record
@@ -438,7 +258,7 @@ export class ClassService implements IClassService {
       type: 'subclass',
       subclassId,
       selectedAt: new Date(),
-      grantedByFeatureId
+      grantedByEffectId
     };
 
     // Update character with selected subclass
@@ -457,17 +277,18 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Get available subclass choices for a character at their current level
+   * Get available subclass choice effects for a character at their current level
    */
-  getAvailableSubclassChoices(character: Character): SubclassChoiceFeature[] {
-    const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const subclassChoices = expectedFeatures.filter(feature => feature.type === 'subclass_choice') as SubclassChoiceFeature[];
+  getAvailableSubclassChoices(character: Character): SubclassChoiceFeatureEffect[] {
+    // Find all subclass choice effects the character has been granted
+    const subclassChoiceEffects = character.grantedEffects
+      .filter(grant => grant.effect.type === 'subclass_choice')
+      .map(grant => grant.effect as SubclassChoiceFeatureEffect);
     
     // Filter out subclass choices that have already been made
-    return subclassChoices.filter(choice => {
-      const grantedByFeatureId = this.generateFeatureId(character.classId, choice.level, choice.name);
+    return subclassChoiceEffects.filter(effect => {
       const hasSelection = character.selectedFeatures?.some(
-        f => f.type === 'subclass' && f.grantedByFeatureId === grantedByFeatureId
+        f => f.type === 'subclass' && f.grantedByEffectId === effect.id
       );
       return !hasSelection;
     });
@@ -492,6 +313,68 @@ export class ClassService implements IClassService {
    */
   hasPendingSubclassSelections(character: Character): boolean {
     return this.getAvailableSubclassChoices(character).length > 0;
+  }
+
+  /**
+   * Get available attribute boost choices for a character
+   */
+  getAvailableAttributeBoostChoices(character: Character): AttributeBoostFeatureEffect[] {
+    // Find all attribute boost effects the character has been granted
+    const attributeBoostEffects = character.grantedEffects
+      .filter(grant => grant.effect.type === 'attribute_boost')
+      .map(grant => grant.effect as AttributeBoostFeatureEffect);
+    
+    // Filter out attribute boosts that have already been made
+    return attributeBoostEffects.filter(effect => {
+      const hasSelection = character.selectedFeatures?.some(
+        f => f.type === 'attribute_boost' && f.grantedByEffectId === effect.id
+      );
+      return !hasSelection;
+    });
+  }
+
+  /**
+   * Select an attribute boost for a character
+   */
+  async selectAttributeBoost(character: Character, effectId: string, attribute: AttributeName, amount: number): Promise<Character> {
+    const effect = character.grantedEffects.find(grant => grant.effect.id === effectId)?.effect as AttributeBoostFeatureEffect;
+    if (!effect || effect.type !== 'attribute_boost') {
+      throw new Error(`Attribute boost effect ${effectId} not found`);
+    }
+
+    if (!effect.allowedAttributes.includes(attribute)) {
+      throw new Error(`Attribute ${attribute} is not allowed for this boost`);
+    }
+
+    // Create the selection record
+    const selection: SelectedAttributeBoost = {
+      type: 'attribute_boost',
+      grantedByEffectId: effectId,
+      attribute,
+      amount,
+      selectedAt: new Date()
+    };
+
+    // Add the selection and apply the attribute boost
+    const updatedCharacter = {
+      ...character,
+      selectedFeatures: [...character.selectedFeatures, selection],
+      _attributes: {
+        ...character._attributes,
+        [attribute]: character._attributes[attribute] + amount
+      }
+    };
+
+    // Save to storage
+    await this.characterService.updateCharacter(updatedCharacter);
+    return updatedCharacter;
+  }
+
+  /**
+   * Check if character has pending attribute boost selection
+   */
+  hasAttributeBoostSelectionAvailable(character: Character): boolean {
+    return this.getAvailableAttributeBoostChoices(character).length > 0;
   }
 
   /**
@@ -521,42 +404,39 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Apply the effects of a feature to a character
+   * Apply the effects of a feature to a character using the shared effect service
    */
   private async applyFeatureEffects(character: Character, feature: ClassFeature): Promise<Character> {
-    switch (feature.type) {
-      case 'ability':
-        return await this.grantAbilityFeature(character, feature);
-      case 'stat_boost':
-        return await this.grantStatBoostFeature(character, feature);
-      case 'proficiency':
-        return await this.grantProficiencyFeature(character, feature);
-      case 'spell_school':
-        return await this.grantSpellSchoolFeature(character, feature);
-      case 'spell_school_choice':
-        return await this.grantSpellSchoolChoiceFeature(character, feature);
-      case 'utility_spells':
-        return await this.grantUtilitySpellsFeature(character, feature);
-      case 'spell_tier_access':
-        return await this.grantSpellTierAccessFeature(character, feature);
-      case 'resource':
-        return await this.grantResourceFeature(character, feature);
-      case 'subclass_choice':
-        return await this.grantSubclassChoiceFeature(character, feature);
-      case 'pick_feature_from_pool':
-        return await this.grantPickFeatureFromPoolFeature(character, feature);
-      case 'passive_feature':
-        // Passive features don't need special handling beyond being recorded
-        return character;
-      default:
-        return character;
-    }
+    const sourceType = character.subclassId && this.isSubclassFeature(feature) ? 'subclass' : 'class';
+    const sourceId = sourceType === 'subclass' ? character.subclassId! : character.classId;
+    
+    return await this.featureEffectService.applyEffects(
+      character, 
+      feature.effects, 
+      feature.id, 
+      sourceType, 
+      sourceId, 
+      feature.level
+    );
+  }
+
+  /**
+   * Check if a feature belongs to a subclass
+   */
+  private isSubclassFeature(feature: ClassFeature): boolean {
+    if (!feature.id) return false;
+    
+    // Check if this feature exists in any subclass
+    const allSubclasses = this.contentRepository.getAllSubclasses();
+    return allSubclasses.some((subclass: SubclassDefinition) => 
+      subclass.features.some((subFeature: ClassFeature) => subFeature.id === feature.id)
+    );
   }
 
   /**
    * Grant a pick feature from pool feature - this just records that the choice is available
    */
-  private async grantPickFeatureFromPoolFeature(character: Character, feature: PickFeatureFromPoolFeature): Promise<Character> {
+  private async grantPickFeatureFromPoolFeature(character: Character, feature: ClassFeature, effect: PickFeatureFromPoolFeatureEffect): Promise<Character> {
     // For pick feature from pool features, we don't automatically grant anything
     // The feature simply unlocks the ability to make choices from the specified pool
     // The actual selection happens through UI interaction
@@ -605,20 +485,26 @@ export class ClassService implements IClassService {
   /**
    * Get pick feature from pool features that are available for a character.
    * 
-   * This returns PickFeatureFromPoolFeature objects (the "chooser" features) that still have selections remaining.
+   * This returns PickFeatureFromPoolFeatureEffect objects (the "chooser" effects) that still have selections remaining.
    * These are the features that grant the ability to pick from a pool, not the pool contents themselves.
    * Used to show which pool selections the player still needs to make.
    * 
    * @param character - The character to check for available selections
-   * @returns Array of PickFeatureFromPoolFeature objects that have remaining selections to make
+   * @returns Array of PickFeatureFromPoolFeatureEffect objects that have remaining selections to make
    */
-  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeature[] {
+  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[] {
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const pickFeatures = expectedFeatures.filter(feature => feature.type === 'pick_feature_from_pool') as PickFeatureFromPoolFeature[];
+    const pickEffects: PickFeatureFromPoolFeatureEffect[] = [];
     
-    // Filter out features where all selections have been made
-    return pickFeatures.filter(pickFeature => {
-      const remaining = this.getRemainingPoolSelections(character, pickFeature);
+    // Find all pick_feature_from_pool effects
+    for (const feature of expectedFeatures) {
+      const effects = feature.effects.filter(e => e.type === 'pick_feature_from_pool') as PickFeatureFromPoolFeatureEffect[];
+      pickEffects.push(...effects);
+    }
+    
+    // Filter out effects where all selections have been made
+    return pickEffects.filter(pickEffect => {
+      const remaining = this.getRemainingPoolSelections(character, pickEffect);
       return remaining > 0;
     });
   }
@@ -641,7 +527,7 @@ export class ClassService implements IClassService {
       featureId: selectedFeature.id,
       feature: selectedFeature,
       selectedAt: new Date(),
-      grantedByFeatureId
+      grantedByEffectId: grantedByFeatureId
     };
 
     // Add to character's selected features
@@ -661,7 +547,7 @@ export class ClassService implements IClassService {
   /**
    * Check if character has pending pool selections to make.
    * 
-   * This is a convenience method that checks if there are any PickFeatureFromPoolFeature 
+   * This is a convenience method that checks if there are any PickFeatureFromPoolFeatureEffect 
    * features with remaining selections. Returns true if the player needs to make selections.
    * 
    * @param character - The character to check
@@ -676,24 +562,24 @@ export class ClassService implements IClassService {
    * Get count of remaining selections for a specific pool selection feature.
    * 
    * This calculates how many more times a player can select from a specific pool.
-   * For example, if a PickFeatureFromPoolFeature allows 2 choices and the player has made 1,
+   * For example, if a PickFeatureFromPoolFeatureEffect allows 2 choices and the player has made 1,
    * this returns 1.
    * 
    * @param character - The character making selections
-   * @param pickFeatureFromPoolFeature - The specific PickFeatureFromPoolFeature to check
+   * @param pickFeatureFromPoolEffect - The specific PickFeatureFromPoolFeatureEffect to check
    * @returns Number of remaining selections allowed (0 if all selections have been made)
    */
-  getRemainingPoolSelections(character: Character, pickFeatureFromPoolFeature: PickFeatureFromPoolFeature): number {
-    const grantedByFeatureId = this.generateFeatureId(character.classId, pickFeatureFromPoolFeature.level, pickFeatureFromPoolFeature.name);
+  getRemainingPoolSelections(character: Character, pickFeatureFromPoolEffect: PickFeatureFromPoolFeatureEffect): number {
+    const grantedByEffectId = pickFeatureFromPoolEffect.id;
     
     const selectedPoolFeatures = (character.selectedFeatures || [])
       .filter((f): f is SelectedPoolFeature => f.type === 'pool_feature');
     
     const currentSelections = selectedPoolFeatures.filter(
-      selected => selected.grantedByFeatureId === grantedByFeatureId
+      selected => selected.grantedByEffectId === grantedByEffectId
     ).length;
     
-    return Math.max(0, pickFeatureFromPoolFeature.choicesAllowed - currentSelections);
+    return Math.max(0, pickFeatureFromPoolEffect.choicesAllowed - currentSelections);
   }
 
   /**

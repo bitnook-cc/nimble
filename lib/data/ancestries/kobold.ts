@@ -8,9 +8,10 @@ export const kobold: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'kobold-wily',
       name: 'Wily',
-      description: 'Force an enemy to reroll a non-critical attack against you, 1/encounter. +3 to Influence friendly characters. Advantage on skill checks related to dragons. You know Draconic if your INT is not negative.'
+      description: 'Force an enemy to reroll a non-critical attack against you, 1/encounter. +3 to Influence friendly characters. Advantage on skill checks related to dragons. You know Draconic if your INT is not negative.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

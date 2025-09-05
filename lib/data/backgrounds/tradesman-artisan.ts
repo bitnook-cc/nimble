@@ -6,14 +6,16 @@ export const tradesmanArtisan: BackgroundDefinition = {
   description: 'Choose a profession (Baker/Cook, Smith, Stonemason, Weaver, Leatherworker, etc.). Checks you make related to that profession are made with advantage. You also retain special knowledge related to your profession.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'tradesman-artisan-professional-expertise',
       name: 'Professional Expertise',
-      description: 'Choose a profession (Baker/Cook, Smith, Stonemason, Weaver, Leatherworker, etc.). Checks you make related to that profession are made with advantage.'
+      description: 'Choose a profession (Baker/Cook, Smith, Stonemason, Weaver, Leatherworker, etc.). Checks you make related to that profession are made with advantage.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'tradesman-artisan-professional-knowledge',
       name: 'Professional Knowledge',
-      description: 'You retain special knowledge related to your profession.'
+      description: 'You retain special knowledge related to your profession.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

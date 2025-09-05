@@ -1,27 +1,5 @@
 import { HitDieSize, AttributeName, SaveAdvantageMap } from './character';
-import { Ability } from './abilities';
-import { ResourceDefinition } from './resources';
-import { StatBonus } from './stat-bonus';
-
-export type ClassFeatureType = 'ability' | 'passive_feature' | 'stat_boost' | 'proficiency' | 'spell_school' | 'spell_school_choice' | 'utility_spells' | 'spell_tier_access' | 'resource' | 'subclass_choice' | 'pick_feature_from_pool';
-
-export interface StatBoost {
-  attribute: AttributeName;
-  amount: number;
-}
-
-export interface ProficiencyGrant {
-  type: 'skill' | 'save' | 'tool' | 'language';
-  name: string;
-  bonus?: number; // Optional bonus beyond proficiency
-}
-
-export interface SpellSchool {
-  schoolId: string; // Unique identifier for the school (e.g., 'fire', 'radiant')
-  name: string; // Display name (e.g., 'Fire Magic', 'Radiant Magic')
-  description: string; // Description of the school
-  // Spells are accessed via ContentRepositoryService.getSpellsBySchool(schoolId)
-}
+import { FeatureEffect, AttributeBoostFeatureEffect, SpellSchoolFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpellsFeatureEffect, SpellTierAccessFeatureEffect, PickFeatureFromPoolFeatureEffect } from './feature-effects';
 
 // Feature pool - a collection of features that players can choose from
 export interface FeaturePool {
@@ -31,96 +9,14 @@ export interface FeaturePool {
   features: ClassFeature[]; // Array of features available for selection
 }
 
-
-// Base interface for all class features
-interface BaseClassFeature {
+// Class feature - now contains multiple effects
+export interface ClassFeature {
   id: string; // Unique identifier for the feature
   level: number;
   name: string;
   description: string;
+  effects: FeatureEffect[]; // Array of effects this feature provides
 }
-
-// Ability feature - grants a new ability to the character
-export interface AbilityFeature extends BaseClassFeature {
-  type: 'ability';
-  ability: Ability; // The actual ability definition
-}
-
-// Passive feature - background benefits, rules modifications
-export interface PassiveFeature extends BaseClassFeature {
-  type: 'passive_feature';
-  category?: 'combat' | 'exploration' | 'social' | 'utility'; // Optional categorization
-  statBonus?: StatBonus; // Optional stat bonuses provided by this feature
-}
-
-// Stat boost - permanent attribute increases
-export interface StatBoostFeature extends BaseClassFeature {
-  type: 'stat_boost';
-  statBoosts: StatBoost[];
-}
-
-// Proficiency - grants new proficiencies
-export interface ProficiencyFeature extends BaseClassFeature {
-  type: 'proficiency';
-  proficiencies: ProficiencyGrant[];
-}
-
-// Spell school - grants access to a specific school of magic
-export interface SpellSchoolFeature extends BaseClassFeature {
-  type: 'spell_school';
-  spellSchool: SpellSchool;
-}
-
-// Spell school choice - allows player to choose a spell school
-export interface SpellSchoolChoiceFeature extends BaseClassFeature {
-  type: 'spell_school_choice';
-  availableSchools?: string[]; // Optional: specific schools to choose from. If not provided, any school can be chosen
-  numberOfChoices?: number; // Optional: number of schools to choose (default: 1)
-}
-
-// Utility spells - grants access to utility spells from specific schools
-export interface UtilitySpellsFeature extends BaseClassFeature {
-  type: 'utility_spells';
-  schools: string[]; // Array of school IDs to grant utility spells from
-  spellsPerSchool?: number; // Optional: how many utility spells to grant per school (default: all)
-}
-
-// Resource - grants new resources (like Ki, Bardic Inspiration, etc.)
-export interface ResourceFeature extends BaseClassFeature {
-  type: 'resource';
-  resourceDefinition: ResourceDefinition;
-}
-
-// Spell Tier Access - grants access to higher tiers of spells
-export interface SpellTierAccessFeature extends BaseClassFeature {
-  type: 'spell_tier_access';
-  maxTier: number; // Maximum spell tier this feature grants access to (1-9)
-}
-
-// Subclass Choice - allows player to choose a subclass specialization
-export interface SubclassChoiceFeature extends BaseClassFeature {
-  type: 'subclass_choice';
-}
-
-// Pick Feature From Pool - allows player to choose a feature from a specific pool
-export interface PickFeatureFromPoolFeature extends BaseClassFeature {
-  type: 'pick_feature_from_pool';
-  poolId: string; // ID of the feature pool to choose from
-  choicesAllowed: number; // Number of features that can be chosen (default: 1)
-}
-
-export type ClassFeature = 
-  | AbilityFeature 
-  | PassiveFeature 
-  | StatBoostFeature 
-  | ProficiencyFeature 
-  | SpellSchoolFeature 
-  | SpellSchoolChoiceFeature
-  | UtilitySpellsFeature
-  | SpellTierAccessFeature
-  | ResourceFeature
-  | SubclassChoiceFeature
-  | PickFeatureFromPoolFeature;
 
 export type ArmorProficiency = 
   | { type: 'cloth' }
@@ -165,4 +61,9 @@ export interface ClassFeatureGrant {
   level: number;
   feature: ClassFeature;
   grantedAt: Date; // When this feature was granted to the character
+}
+
+// Helper to check if a feature has a specific effect type
+export function hasEffectType(feature: ClassFeature, effectType: string): boolean {
+  return feature.effects.some(effect => effect.type === effectType);
 }

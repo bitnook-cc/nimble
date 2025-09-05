@@ -73,9 +73,33 @@ export class BackgroundService implements IBackgroundService {
    * Apply a specific background feature to a character
    */
   private async applyBackgroundFeature(character: Character, feature: BackgroundFeature, featureId: string): Promise<void> {
-    switch (feature.type) {
+    // Process each effect in the feature
+    for (const effect of feature.effects) {
+      await this.applyFeatureEffect(character, effect);
+    }
+  }
+
+  /**
+   * Apply a specific feature effect to a character
+   */
+  private async applyFeatureEffect(character: Character, effect: any): Promise<void> {
+    switch (effect.type) {
+      case 'ability':
+        if (effect.ability) {
+          character.abilities.push(effect.ability);
+        }
+        break;
+      case 'attribute_boost':
+        // Attribute boosts require user selection, handled separately
+        // The selection process happens in the UI and is stored as SelectedAttributeBoost
+        break;
+      case 'proficiency':
+        // Handle proficiency effects if needed
+        // For now, these are mostly informational
+        break;
       case 'passive_feature':
-        // Background passive features are informational and don't require mechanical changes
+      default:
+        // These features are informational and don't require mechanical changes
         break;
     }
   }

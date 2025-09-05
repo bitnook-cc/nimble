@@ -8,9 +8,10 @@ export const bunbun: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'bunbun-bunny-legs',
       name: 'Bunny Legs',
-      description: 'Before Interposing or after Defending (after damage), hop up to your Speed in any direction for free, 1/encounter.'
+      description: 'Before Interposing or after Defending (after damage), hop up to your Speed in any direction for free, 1/encounter.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

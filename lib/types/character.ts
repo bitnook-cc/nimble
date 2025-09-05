@@ -23,10 +23,11 @@ import { ArmorProficiency, WeaponProficiency, ClassFeature } from './class';
 import { ResourceInstance } from './resources';
 import { AncestryTrait } from './ancestry';
 import { BackgroundTrait } from './background';
+import { FeatureEffectGrant } from './feature-effects';
 
-// Base interface for all feature selections
+// Base interface for all feature selections (now tracks by effect ID)
 export interface BaseSelectedFeature {
-  grantedByFeatureId: string; // ID of the feature that granted this selection
+  grantedByEffectId: string; // ID of the effect that granted this selection
   selectedAt: Date; // When this selection was made
 }
 
@@ -44,9 +45,9 @@ export interface SelectedSpellSchool extends BaseSelectedFeature {
   schoolId: string; // ID of the selected spell school
 }
 
-// Stat boost selection
-export interface SelectedStatBoost extends BaseSelectedFeature {
-  type: 'stat_boost';
+// Attribute boost selection
+export interface SelectedAttributeBoost extends BaseSelectedFeature {
+  type: 'attribute_boost';
   attribute: AttributeName; // Which attribute was boosted
   amount: number; // How much the boost was
 }
@@ -68,7 +69,7 @@ export interface SelectedSubclass extends BaseSelectedFeature {
 export type SelectedFeature = 
   | SelectedPoolFeature 
   | SelectedSpellSchool 
-  | SelectedStatBoost 
+  | SelectedAttributeBoost 
   | SelectedUtilitySpells
   | SelectedSubclass;
 
@@ -109,8 +110,9 @@ export interface Character {
   level: number; // Character level (starting at 1)
   classId: string; // Character's class (e.g., 'fighter', 'wizard')
   subclassId?: string; // Character's subclass (e.g., 'fighter-champion', 'wizard-evocation')
-  grantedFeatures: string[]; // IDs of class features already granted to this character
+  grantedFeatures: string[]; // IDs of class features already granted to this character (DEPRECATED - transitioning to grantedEffects)
   selectedFeatures: SelectedFeature[]; // All feature selections made by the character
+  grantedEffects: FeatureEffectGrant[]; // All effects granted to this character from all sources
   spellTierAccess: number; // Highest tier of spells character can access (1-9, 0 for no spell access)
   proficiencies: Proficiencies; // Armor and weapon proficiencies
   _attributes: Attributes; // Private: Use CharacterService.getAttributes() instead
@@ -143,6 +145,7 @@ export interface CreateCharacterData {
   classId: string;
   subclassId?: string;
   grantedFeatures: string[];
+  grantedEffects: FeatureEffectGrant[]; // All effects granted to this character from all sources
   selectedFeatures: SelectedFeature[]; // All feature selections made by the character
   spellTierAccess: number; // Highest tier of spells character can access (1-9, 0 for no spell access)
   proficiencies: Proficiencies;

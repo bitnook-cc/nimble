@@ -6,9 +6,10 @@ export const earToTheGround: BackgroundDefinition = {
   description: 'Advantage on checks to know or obtain gossip for events that will soon happen or have happened less than 1 year ago.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'ear-to-the-ground-information-network',
       name: 'Information Network',
-      description: 'Advantage on checks to know or obtain gossip for events that will soon happen or have happened less than 1 year ago.'
+      description: 'Advantage on checks to know or obtain gossip for events that will soon happen or have happened less than 1 year ago.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

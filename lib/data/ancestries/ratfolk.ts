@@ -8,9 +8,10 @@ export const ratfolk: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'ratfolk-scurry',
       name: 'Scurry',
-      description: 'Gain +2 armor if you moved on your last turn.'
+      description: 'Gain +2 armor if you moved on your last turn.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

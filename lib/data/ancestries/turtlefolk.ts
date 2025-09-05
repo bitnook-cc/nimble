@@ -8,13 +8,19 @@ export const turtlefolk: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'turtlefolk-slow-and-steady',
       name: 'Slow & Steady',
       description: '+4 Armor, -2 speed.',
-      statBonus: {
-        armorBonus: { type: 'fixed', value: 4 },
-        speedBonus: { type: 'fixed', value: -2 }
-      }
+      effects: [
+        {
+          id: 'turtlefolk-slow-and-steady-0',
+          type: 'stat_bonus',
+          statBonus: {
+            armorBonus: { type: 'fixed', value: 4 },
+            speedBonus: { type: 'fixed', value: -2 }
+          }
+        }
+      ]
     }
   ],
   nameConfig: {

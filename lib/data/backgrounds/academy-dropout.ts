@@ -6,9 +6,10 @@ export const academyDropout: BackgroundDefinition = {
   description: 'School just isn\'t for everyone! You learn by experience in the real world (or at least that\'s what you tell yourself). Learn any 1 Utility Spell.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'academy-dropout-street-smart-learning',
       name: 'Street Smart Learning',
-      description: 'Learn any 1 Utility Spell of your choice.'
+      description: 'Learn any 1 Utility Spell of your choice.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

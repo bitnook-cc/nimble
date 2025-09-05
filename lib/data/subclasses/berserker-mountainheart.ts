@@ -5,52 +5,53 @@ const mountainheartFeatures: ClassFeature[] = [
   {
     id: 'mountainheart-stones-resilience',
     level: 3,
-    type: 'passive_feature',
     name: "Stone's Resilience",
     description: 'Whenever you expend Fury Dice to reduce incoming damage, add the value of the die to the amount reduced.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   {
     id: 'mountainheart-tenacity',
     level: 3,
-    type: 'passive_feature',
     name: 'Mountain Tenacity',
     description: 'Whenever you expend your Hit Dice to recover HP, for every 10 HP you would recover, you may heal 1 Wound instead.',
-    category: 'utility'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   // Level 7
   {
     id: 'mountainheart-unbreakable',
     level: 7,
-    type: 'ability',
     name: 'Unbreakable',
     description: '(1/encounter) While Raging, if you would suffer your last Wound or other negative condition of your choice, you don\'t.',
-    ability: {
-      id: 'unbreakable',
-      name: 'Unbreakable',
-      description: 'While Raging, if you would suffer your last Wound or other negative condition of your choice, you don\'t.',
-      type: 'action',
-      frequency: 'per_encounter',
-      maxUses: { type: 'fixed', value: 1 }
-    }
+    effects: [
+      {
+        id: 'mountainheart-unbreakable-0',
+        type: 'ability',
+        ability: {
+          id: 'unbreakable',
+          name: 'Unbreakable',
+          description: 'While Raging, if you would suffer your last Wound or other negative condition of your choice, you don\'t.',
+          type: 'action',
+          frequency: 'per_encounter',
+          maxUses: { type: 'fixed', value: 1 }
+        }
+      }
+    ]
   },
   // Level 11
   {
     id: 'mountainheart-titans-fury',
     level: 11,
-    type: 'passive_feature',
     name: "Titan's Fury",
     description: 'After you miss an attack or are crit by an enemy, Rage for free.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   // Level 15
   {
     id: 'mountainheart-mountains-endurance',
     level: 15,
-    type: 'passive_feature',
     name: "Mountain's Endurance",
     description: 'While Dying, if an attack against you would be a crit, the attack is rerolled instead (when-crit abilities, such as Titan\'s Fury, still trigger).',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   }
 ];
 

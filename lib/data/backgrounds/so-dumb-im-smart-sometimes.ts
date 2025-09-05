@@ -6,9 +6,10 @@ export const soDumbImSmartSometimes: BackgroundDefinition = {
   description: '(Req. 0 or negative INT at character creation.) Reroll an INT-related skill check, 1/day. Reroll a failed INT save with advantage, 1/Safe Rest.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'so-dumb-im-smart-sometimes-lucky-stupidity',
       name: 'Lucky Stupidity',
-      description: 'Reroll an INT-related skill check, 1/day. Reroll a failed INT save with advantage, 1/Safe Rest.'
+      description: 'Reroll an INT-related skill check, 1/day. Reroll a failed INT save with advantage, 1/Safe Rest.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

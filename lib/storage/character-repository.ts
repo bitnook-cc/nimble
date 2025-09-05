@@ -57,6 +57,7 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
     const character: Character = {
       id: id || crypto.randomUUID(),
       ...data,
+      grantedEffects: [], // Initialize empty effects array
       createdAt: new Date(),
       updatedAt: new Date(),
     };

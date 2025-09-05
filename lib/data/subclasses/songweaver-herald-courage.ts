@@ -9,41 +9,43 @@ export const songweaverHeraldCourage: SubclassDefinition = {
     {
       id: 'inspiring-presence',
       level: 3,
-      type: 'passive_feature',
       name: 'Inspiring Presence',
       description: 'Whenever you use Songweaver\'s Inspiration, your allies within 12 spaces who can hear you gain WIL temp HP.',
-      category: 'combat'
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
       id: 'unfailing-courage',
       level: 7,
-      type: 'passive_feature',
       name: 'Unfailing Courage',
       description: 'Your presence inspires others to feats of heart and courage ahead of only in legend. Your Songweaver\'s Inspiration allows your target to roll with advantage.',
-      category: 'combat'
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
       id: 'fire-in-my-bones',
       level: 11,
-      type: 'passive_feature',
       name: 'Fire in my Bones',
       description: 'Your Songweaver\'s Inspiration also grants your target 1 additional action.',
-      category: 'combat'
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
       id: 'chorus-of-champions',
       level: 15,
-      type: 'ability',
       name: 'Chorus of Champions',
       description: '(1/encounter) Free Reaction: Give all party members 1 action.',
-      ability: {
-        id: 'chorus-of-champions',
-        name: 'Chorus of Champions',
-        description: 'Give all party members 1 action as a free reaction.',
-        type: 'action',
-        frequency: 'per_encounter',
-        maxUses: { type: 'fixed', value: 1 }
-      }
+      effects: [
+        {
+          id: 'chorus-of-champions-0',
+          type: 'ability',
+          ability: {
+            id: 'chorus-of-champions',
+            name: 'Chorus of Champions',
+            description: 'Give all party members 1 action as a free reaction.',
+            type: 'action',
+            frequency: 'per_encounter',
+            maxUses: { type: 'fixed', value: 1 }
+          }
+        }
+      ]
     }
   ]
 };

@@ -6,14 +6,16 @@ export const homeAtSea: BackgroundDefinition = {
   description: 'Recover twice as many Wounds and HP while resting on a ship or near water. You can fill in for a first mate or captain in a pinch. Advantage on water-related skill checks.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'home-at-sea-nautical-recovery',
       name: 'Nautical Recovery',
-      description: 'Recover twice as many Wounds and HP while resting on a ship or near water.'
+      description: 'Recover twice as many Wounds and HP while resting on a ship or near water.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'home-at-sea-seamanship',
       name: 'Seamanship',
-      description: 'You can fill in for a first mate or captain in a pinch. Advantage on water-related skill checks.'
+      description: 'You can fill in for a first mate or captain in a pinch. Advantage on water-related skill checks.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

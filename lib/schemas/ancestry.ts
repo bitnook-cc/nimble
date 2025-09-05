@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FeatureEffectSchema } from './feature-effects';
 
 // Size categories for different ancestries
 const SizeCategorySchema = z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']);
@@ -13,64 +14,13 @@ const ResistanceSchema = z.object({
   description: z.string().optional().meta({ title: 'Description', description: 'Optional description of the resistance' })
 }).meta({ title: 'Resistance', description: 'Damage or condition resistance' });
 
-// Base schema for ancestry features
-const BaseAncestryFeatureSchema = z.object({
+// Ancestry Feature Schema - now uses effects array
+export const AncestryFeatureSchema = z.object({
+  id: z.string().min(1).meta({ title: 'ID', description: 'Unique identifier for the feature' }),
   name: z.string().min(1).meta({ title: 'Name', description: 'Feature name' }),
-  description: z.string().min(1).meta({ title: 'Description', description: 'Feature description' })
-});
-
-// Ability feature - grants a new ability to the character
-const AncestryAbilityFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('ability'),
-  ability: z.any() // Import from class schema if needed
-});
-
-// Passive feature - background benefits, cultural traits
-const AncestryPassiveFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('passive_feature'),
-});
-
-// Stat boost - racial attribute modifiers
-const AncestryStatBoostFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('stat_boost'),
-  statBoosts: z.array(z.object({
-    attribute: z.enum(['strength', 'dexterity', 'intelligence', 'will']),
-    amount: z.number().int().min(-5).max(5)
-  })).meta({ title: 'Stat Boosts', description: 'Attribute modifications' })
-});
-
-// Proficiency - cultural or biological proficiencies
-const AncestryProficiencyFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('proficiency'),
-  proficiencies: z.array(z.object({
-    type: z.enum(['skill', 'save', 'tool', 'language']),
-    name: z.string().min(1),
-    bonus: z.number().int().optional()
-  })).meta({ title: 'Proficiencies', description: 'Granted proficiencies' })
-});
-
-// Speed and special movement handled through passive features
-
-// Darkvision - enhanced vision in darkness
-const AncestryDarkvisionFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('darkvision'),
-  range: z.number().int().min(0).meta({ title: 'Range', description: 'Darkvision range in feet' })
-});
-
-// Resistance - damage or condition resistances
-const AncestryResistanceFeatureSchema = BaseAncestryFeatureSchema.extend({
-  type: z.literal('resistance'),
-  resistances: z.array(ResistanceSchema).meta({ title: 'Resistances', description: 'Damage or condition resistances' })
-});
-
-export const AncestryFeatureSchema = z.discriminatedUnion('type', [
-  AncestryAbilityFeatureSchema,
-  AncestryPassiveFeatureSchema,
-  AncestryStatBoostFeatureSchema,
-  AncestryProficiencyFeatureSchema,
-  AncestryDarkvisionFeatureSchema,
-  AncestryResistanceFeatureSchema
-]);
+  description: z.string().min(1).meta({ title: 'Description', description: 'Feature description' }),
+  effects: z.array(FeatureEffectSchema).meta({ title: 'Effects', description: 'Array of effects this feature provides' })
+}).meta({ title: 'Ancestry Feature', description: 'A feature that provides effects to characters from their ancestry' });
 
 // Name generator configuration schemas
 const NameGeneratorConfigSchema = z.object({

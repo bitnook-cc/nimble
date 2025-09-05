@@ -8,9 +8,10 @@ export const celestial: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'celestial-highborn',
       name: 'Highborn',
-      description: "Your disadvantaged save is Neutral instead. You know Celestial if your INT isn't negative."
+      description: "Your disadvantaged save is Neutral instead. You know Celestial if your INT isn't negative.",
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

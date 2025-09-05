@@ -8,14 +8,20 @@ export const orc: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'orc-relentless',
       name: 'Relentless',
       description: 'When you would drop to 0 HP, you may set your HP to LVL instead, 1/Safe Rest. +1 Might. You know Goblin if your INT is not negative (but you call it Orcish, of course).',
-      statBonus: {
-        skillBonuses: {
-          'might': { type: 'fixed', value: 1 }
+      effects: [
+        {
+          id: 'orc-relentless-0',
+          type: 'stat_bonus',
+          statBonus: {
+            skillBonuses: {
+              'might': { type: 'fixed', value: 1 }
+            }
+          }
         }
-      }
+      ]
     }
   ],
   nameConfig: {

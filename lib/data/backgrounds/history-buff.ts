@@ -6,9 +6,10 @@ export const historyBuff: BackgroundDefinition = {
   description: 'Advantage on all Lore checks related to knowledge about items, facts, or events that happened more than 100 years ago.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'history-buff-ancient-knowledge',
       name: 'Ancient Knowledge',
-      description: 'Advantage on all Lore checks related to knowledge about items, facts, or events that happened more than 100 years ago.'
+      description: 'Advantage on all Lore checks related to knowledge about items, facts, or events that happened more than 100 years ago.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

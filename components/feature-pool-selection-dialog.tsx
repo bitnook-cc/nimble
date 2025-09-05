@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Character } from "@/lib/types/character";
-import { ClassFeature, PickFeatureFromPoolFeature } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/types/class";
+import { PickFeatureFromPoolFeatureEffect, FeatureEffect } from "@/lib/types/feature-effects";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -11,8 +12,115 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 
 interface FeaturePoolSelectionDialogProps {
-  pickFeature: PickFeatureFromPoolFeature;
+  pickFeature: PickFeatureFromPoolFeatureEffect;
   onClose: () => void;
+}
+
+// Helper function to render individual effects
+function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
+  switch (effect.type) {
+    case 'ability':
+      if ('ability' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Ability: {effect.ability.name || 'Unnamed'}</div>
+            <div>Type: {effect.ability.type}</div>
+            {effect.ability.type === 'action' && effect.ability.frequency && (
+              <div>Frequency: {effect.ability.frequency.replace('_', ' ')}</div>
+            )}
+          </div>
+        );
+      }
+      break;
+    case 'stat_bonus':
+      if ('statBonus' in effect) {
+        const bonuses: string[] = [];
+        if (effect.statBonus.attributes) {
+          Object.entries(effect.statBonus.attributes).forEach(([attr, value]) => {
+            if (value) {
+              bonuses.push(`${attr} +${typeof value === 'object' ? value.base || 0 : value}`);
+            }
+          });
+        }
+        if (bonuses.length > 0) {
+          return (
+            <div key={index} className="text-xs text-muted-foreground">
+              <div className="font-medium">Stat Bonuses: {bonuses.join(', ')}</div>
+            </div>
+          );
+        }
+      }
+      break;
+    case 'attribute_boost':
+      if ('allowedAttributes' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Attribute Boost: +{effect.amount}</div>
+            <div>Choose from: {effect.allowedAttributes.join(', ')}</div>
+          </div>
+        );
+      }
+      break;
+    case 'proficiency':
+      if ('proficiencies' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Proficiencies: {effect.proficiencies.map(prof => prof.name).join(', ')}</div>
+          </div>
+        );
+      }
+      break;
+    case 'resource':
+      if ('resourceDefinition' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Grants Resource: {effect.resourceDefinition.name}</div>
+          </div>
+        );
+      }
+      break;
+    case 'spell_school':
+      if ('spellSchool' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Spell School: {effect.spellSchool.name}</div>
+          </div>
+        );
+      }
+      break;
+    case 'spell_school_choice':
+      if ('availableSchools' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Spell School Choice: {effect.availableSchools?.join(', ') || 'Any'}</div>
+          </div>
+        );
+      }
+      break;
+    case 'pick_feature_from_pool':
+      if ('poolId' in effect) {
+        return (
+          <div key={index} className="text-xs text-muted-foreground">
+            <div className="font-medium">Feature Choice: {effect.poolId}</div>
+            <div>Choose {effect.choicesAllowed} feature{effect.choicesAllowed !== 1 ? 's' : ''}</div>
+          </div>
+        );
+      }
+      break;
+    case 'subclass_choice':
+      return (
+        <div key={index} className="text-xs text-muted-foreground">
+          <div className="font-medium">Subclass Choice Available</div>
+        </div>
+      );
+    default:
+      return (
+        <div key={index} className="text-xs text-muted-foreground">
+          <div className="font-medium">Effect: {effect.type}</div>
+        </div>
+      );
+  }
+  return null;
 }
 
 export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePoolSelectionDialogProps) {
@@ -52,55 +160,13 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
 
     setIsSelecting(true);
     try {
-      const grantedByFeatureId = classService.generateFeatureId(character.classId, pickFeature.level, pickFeature.name);
-      await classService.selectPoolFeature(character, pickFeature.poolId, selectedFeature, grantedByFeatureId);
+      // Use the effect ID instead of generating a feature ID
+      await classService.selectPoolFeature(character, pickFeature.poolId, selectedFeature, pickFeature.id);
       onClose();
     } catch (error) {
       console.error('Failed to select pool feature:', error);
     } finally {
       setIsSelecting(false);
-    }
-  };
-
-  const getFeatureTypeDisplay = (feature: ClassFeature) => {
-    switch (feature.type) {
-      case 'ability':
-        return 'Ability';
-      case 'passive_feature':
-        return 'Passive Feature';
-      case 'stat_boost':
-        return 'Stat Boost';
-      case 'proficiency':
-        return 'Proficiency';
-      case 'spell_school':
-        return 'Spell School';
-      case 'spell_tier_access':
-        return 'Spell Tier Access';
-      case 'resource':
-        return 'Resource';
-      default:
-        return 'Feature';
-    }
-  };
-
-  const getFeatureBadgeColor = (feature: ClassFeature) => {
-    switch (feature.type) {
-      case 'ability':
-        return 'bg-red-100 text-red-800';
-      case 'passive_feature':
-        return 'bg-blue-100 text-blue-800';
-      case 'stat_boost':
-        return 'bg-green-100 text-green-800';
-      case 'proficiency':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'spell_school':
-        return 'bg-purple-100 text-purple-800';
-      case 'spell_tier_access':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'resource':
-        return 'bg-orange-100 text-orange-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -138,9 +204,6 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{feature.name}</CardTitle>
-                      <Badge className={getFeatureBadgeColor(feature)}>
-                        {getFeatureTypeDisplay(feature)}
-                      </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -148,26 +211,9 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
                       {feature.description}
                     </p>
                     
-                    {feature.type === 'ability' && feature.ability && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        <div>Type: {feature.ability.type}</div>
-                        {feature.ability.type === 'action' && feature.ability.frequency && (
-                          <div>Frequency: {feature.ability.frequency.replace('_', ' ')}</div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {feature.type === 'stat_boost' && feature.statBoosts && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        Boosts: {feature.statBoosts.map((boost: any) => 
-                          `${boost.attribute} ${boost.amount > 0 ? '+' : ''}${boost.amount}`
-                        ).join(', ')}
-                      </div>
-                    )}
-                    
-                    {feature.type === 'proficiency' && feature.proficiencies && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        Proficiencies: {feature.proficiencies.map((prof: any) => prof.name).join(', ')}
+                    {feature.effects.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {feature.effects.map((effect, index) => renderEffect(effect, index))}
                       </div>
                     )}
                   </CardContent>

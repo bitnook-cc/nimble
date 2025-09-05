@@ -8,12 +8,18 @@ export const planarbeing: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'planarbeing-planeshift',
       name: 'Planeshift',
       description: 'Whenever you Defend, you can gain 1 Wound to temporarily phase out of the material plane and ignore the damage. -2 max Wounds.',
-      statBonus: {
-        maxWoundsBonus: { type: 'fixed', value: -2 }
-      }
+      effects: [
+        {
+          id: 'planarbeing-planeshift-0',
+          type: 'stat_bonus',
+          statBonus: {
+            maxWoundsBonus: { type: 'fixed', value: -2 }
+          }
+        }
+      ]
     }
   ],
   nameConfig: {

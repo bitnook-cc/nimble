@@ -8,9 +8,10 @@ export const fiendkin: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'fiendkin-flameborn',
       name: 'Flameborn',
-      description: '1 of your neutral saves is advantaged instead. You know Infernal if your INT is not negative.'
+      description: '1 of your neutral saves is advantaged instead. You know Infernal if your INT is not negative.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

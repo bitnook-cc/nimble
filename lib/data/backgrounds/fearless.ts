@@ -6,25 +6,38 @@ export const fearless: BackgroundDefinition = {
   description: 'You are immune to the Frightened condition. +1 Initiative. -1 Armor.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'fearless-fear-immunity',
       name: 'Fear Immunity',
-      description: 'You are immune to the Frightened condition.'
+      description: 'You are immune to the Frightened condition.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'fearless-quick-reflexes',
       name: 'Quick Reflexes',
       description: '+1 Initiative.',
-      statBonus: {
-        initiativeBonus: { type: 'fixed', value: 1 }
-      }
+      effects: [
+        {
+          id: 'fearless-quick-reflexes-0',
+          type: 'stat_bonus',
+          statBonus: {
+            initiativeBonus: { type: 'fixed', value: 1 }
+          }
+        }
+      ]
     },
     {
-      type: 'passive_feature',
+      id: 'fearless-reckless',
       name: 'Reckless',
       description: '-1 Armor.',
-      statBonus: {
-        armorBonus: { type: 'fixed', value: -1 }
-      }
+      effects: [
+        {
+          id: 'fearless-reckless-0',
+          type: 'stat_bonus',
+          statBonus: {
+            armorBonus: { type: 'fixed', value: -1 }
+          }
+        }
+      ]
     }
   ]
 };

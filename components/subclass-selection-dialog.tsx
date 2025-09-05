@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SubclassChoiceFeature, SubclassDefinition } from "@/lib/types/class";
+import { SubclassDefinition } from "@/lib/types/class";
+import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 
 interface SubclassSelectionDialogProps {
-  subclassChoice: SubclassChoiceFeature;
+  subclassChoice: SubclassChoiceFeatureEffect;
   onClose: () => void;
 }
 
@@ -31,8 +32,8 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
 
     setIsSelecting(true);
     try {
-      const grantedByFeatureId = classService.generateFeatureId(character.classId, subclassChoice.level, subclassChoice.name);
-      await classService.selectSubclass(character, selectedSubclass.id, grantedByFeatureId);
+      const grantedByEffectId = subclassChoice.id;
+      await classService.selectSubclass(character, selectedSubclass.id, grantedByEffectId);
       onClose();
     } catch (error) {
       console.error('Failed to select subclass:', error);
@@ -47,7 +48,7 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
         <DialogHeader>
           <DialogTitle>Choose Your {character.classId} Subclass</DialogTitle>
           <DialogDescription>
-            {subclassChoice.description}
+            Choose your class specialization
             <br />
             <span className="font-medium">
               This choice will define your character&apos;s specialization and grant unique features.

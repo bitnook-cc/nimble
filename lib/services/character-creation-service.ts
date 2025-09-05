@@ -209,6 +209,7 @@ export class CharacterCreationService implements ICharacterCreation {
       level: 1,
       classId,
       grantedFeatures: [], // Will be populated by syncCharacterFeatures
+      grantedEffects: [], // Will be populated by feature services
       selectedFeatures,
       spellTierAccess: 0, // Will be updated by class features
       proficiencies,

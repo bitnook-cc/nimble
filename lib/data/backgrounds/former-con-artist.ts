@@ -6,19 +6,22 @@ export const formerConArtist: BackgroundDefinition = {
   description: 'You can forge most documents or mimic voices flawlessly. You have a criminal contact in most major cities. However, your reputation often precedes you—until you prove yourself to be trustworthy.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'former-con-artist-master-forger',
       name: 'Master Forger',
-      description: 'You can forge most documents or mimic voices flawlessly.'
+      description: 'You can forge most documents or mimic voices flawlessly.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'former-con-artist-criminal-network',
       name: 'Criminal Network',
-      description: 'You have a criminal contact in most major cities.'
+      description: 'You have a criminal contact in most major cities.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'former-con-artist-questionable-reputation',
       name: 'Questionable Reputation',
-      description: 'Your reputation often precedes you—until you prove yourself to be trustworthy.'
+      description: 'Your reputation often precedes you—until you prove yourself to be trustworthy.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

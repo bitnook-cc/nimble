@@ -8,9 +8,10 @@ export const birdfolk: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'birdfolk-hollow-bones',
       name: 'Hollow Bones',
-      description: 'You have a fly Speed as long as you are wearing armor no heavier than Leather. Crits against you are Vicious (the attacker rolls 1 additional die). Forced movement moves you twice as far.'
+      description: 'You have a fly Speed as long as you are wearing armor no heavier than Leather. Crits against you are Vicious (the attacker rolls 1 additional die). Forced movement moves you twice as far.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

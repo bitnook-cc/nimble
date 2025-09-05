@@ -8,9 +8,10 @@ export const wyrdling: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'wyrdling-chaotic-surge',
       name: 'Chaotic Surge',
-      description: 'Whenever you or a willing ally within Reach 6 casts a tiered spell, you may allow them to roll on the Chaos Table. 1/encounter.'
+      description: 'Whenever you or a willing ally within Reach 6 casts a tiered spell, you may allow them to roll on the Chaos Table. 1/encounter.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

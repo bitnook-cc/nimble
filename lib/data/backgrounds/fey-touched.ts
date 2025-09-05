@@ -6,9 +6,10 @@ export const feyTouched: BackgroundDefinition = {
   description: 'You take half damage from all magical effects, double from weapons made of metal (before armor is applied).',
   features: [
     {
-      type: 'passive_feature',
+      id: 'fey-touched-fey-resilience',
       name: 'Fey Resilience',
-      description: 'You take half damage from all magical effects, double from weapons made of metal (before armor is applied).'
+      description: 'You take half damage from all magical effects, double from weapons made of metal (before armor is applied).',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

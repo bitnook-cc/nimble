@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { SubclassChoiceFeature } from "@/lib/types/class";
+import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
 import { getClassService } from "@/lib/services/service-factory";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -12,7 +12,7 @@ import { SubclassSelectionDialog } from "../subclass-selection-dialog";
 export function SubclassSelectionsSection() {
   // Get everything we need from service hooks
   const { character } = useCharacterService();
-  const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeature | null>(null);
+  const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
 
   if (!character) return null;
 
@@ -23,7 +23,7 @@ export function SubclassSelectionsSection() {
     return null;
   }
 
-  const handleOpenSelection = (subclassChoice: SubclassChoiceFeature) => {
+  const handleOpenSelection = (subclassChoice: SubclassChoiceFeatureEffect) => {
     setSelectedSubclassChoice(subclassChoice);
   };
 
@@ -44,16 +44,16 @@ export function SubclassSelectionsSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {availableSubclassChoices.map((subclassChoice: SubclassChoiceFeature, index: number) => {
+          {availableSubclassChoices.map((subclassChoice: SubclassChoiceFeatureEffect, index: number) => {
             return (
               <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border">
                 <div className="flex-1">
-                  <div className="font-medium">{subclassChoice.name}</div>
+                  <div className="font-medium">Subclass Choice</div>
                   <div className="text-sm text-muted-foreground">
-                    {subclassChoice.description}
+                    Choose your class specialization
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    Level {subclassChoice.level} feature • Choose your specialization
+                    Choose your specialization
                   </div>
                 </div>
                 <Button 

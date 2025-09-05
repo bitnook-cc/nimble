@@ -1,5 +1,5 @@
 import { Character } from '../types/character';
-import { AncestryDefinition, AncestryFeature, AncestryFeatureGrant, AncestryAbilityFeature, AncestryStatBoostFeature, AncestryProficiencyFeature, AncestryTrait } from '../types/ancestry';
+import { AncestryDefinition, AncestryFeature, AncestryFeatureGrant, AncestryTrait } from '../types/ancestry';
 import { ResourceInstance, createResourceInstance } from '../types/resources';
 import { IAncestryService, ICharacterService, ICharacterStorage } from './interfaces';
 import { ContentRepositoryService } from './content-repository-service';
@@ -74,55 +74,35 @@ export class AncestryService implements IAncestryService {
    * Apply a specific ancestry feature to a character
    */
   private async applyAncestryFeature(character: Character, feature: AncestryFeature, featureId: string): Promise<void> {
-    switch (feature.type) {
+    // Process each effect in the feature
+    for (const effect of feature.effects) {
+      await this.applyFeatureEffect(character, effect);
+    }
+  }
+
+  /**
+   * Apply a specific feature effect to a character
+   */
+  private async applyFeatureEffect(character: Character, effect: any): Promise<void> {
+    switch (effect.type) {
       case 'ability':
-        await this.applyAbilityFeature(character, feature as AncestryAbilityFeature);
+        if (effect.ability) {
+          character.abilities.push(effect.ability);
+        }
         break;
-      case 'stat_boost':
-        await this.applyStatBoostFeature(character, feature as AncestryStatBoostFeature);
+      case 'attribute_boost':
+        // Attribute boosts require user selection, handled separately
+        // The selection process happens in the UI and is stored as SelectedAttributeBoost
         break;
       case 'proficiency':
-        await this.applyProficiencyFeature(character, feature as AncestryProficiencyFeature);
+        // Handle proficiency effects if needed
+        // For now, these are mostly informational
         break;
       case 'passive_feature':
-      case 'darkvision':
       case 'resistance':
+      default:
         // These features are informational and don't require mechanical changes
         break;
-    }
-  }
-
-  /**
-   * Apply an ability feature from ancestry
-   */
-  private async applyAbilityFeature(character: Character, feature: AncestryAbilityFeature): Promise<void> {
-    const ability = feature.ability;
-    
-    // Add to the abilities array
-    character.abilities.push(ability);
-  }
-
-  /**
-   * Apply stat boost from ancestry
-   */
-  private async applyStatBoostFeature(character: Character, feature: AncestryStatBoostFeature): Promise<void> {
-    for (const boost of feature.statBoosts) {
-      character._attributes[boost.attribute] += boost.amount;
-    }
-  }
-
-  /**
-   * Apply proficiency feature from ancestry
-   */
-  private async applyProficiencyFeature(character: Character, feature: AncestryProficiencyFeature): Promise<void> {
-    for (const proficiency of feature.proficiencies) {
-      if (proficiency.type === 'skill' && proficiency.bonus) {
-        const skillName = proficiency.name as keyof typeof character._skills;
-        if (character._skills[skillName]) {
-          character._skills[skillName].modifier += proficiency.bonus;
-        }
-      }
-      // Other proficiency types (tool, language) are informational
     }
   }
 

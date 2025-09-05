@@ -6,6 +6,7 @@ import { ClassFeatureSchema } from './class';
 import { flexibleValueSchema } from './flexible-value';
 import { statBonusSchema } from './stat-bonus';
 import { currencySchema } from './currency';
+import { FeatureEffectGrantSchema } from './feature-effects';
 
 const attributeNameSchema = z.enum(['strength', 'dexterity', 'intelligence', 'will']);
 
@@ -236,7 +237,7 @@ export const proficienciesSchema = z.object({
 
 // Base schema for all selected features
 const baseSelectedFeatureSchema = z.object({
-  grantedByFeatureId: z.string().min(1),
+  grantedByEffectId: z.string().min(1),
   selectedAt: z.coerce.date()
 });
 
@@ -253,8 +254,8 @@ const selectedSpellSchoolSchema = baseSelectedFeatureSchema.extend({
   schoolId: z.string().min(1)
 });
 
-const selectedStatBoostSchema = baseSelectedFeatureSchema.extend({
-  type: z.literal('stat_boost'),
+const selectedAttributeBoostSchema = baseSelectedFeatureSchema.extend({
+  type: z.literal('attribute_boost'),
   attribute: attributeNameSchema,
   amount: z.number().int().positive()
 });
@@ -274,7 +275,7 @@ const selectedSubclassSchema = baseSelectedFeatureSchema.extend({
 const selectedFeatureSchema = z.discriminatedUnion('type', [
   selectedPoolFeatureSchema,
   selectedSpellSchoolSchema,
-  selectedStatBoostSchema,
+  selectedAttributeBoostSchema,
   selectedUtilitySpellsSchema,
   selectedSubclassSchema
 ]);
@@ -288,6 +289,7 @@ export const createCharacterSchema = z.object({
   subclassId: z.string().optional(),
   grantedFeatures: z.array(z.string()),
   selectedFeatures: z.array(selectedFeatureSchema),
+  grantedEffects: z.array(FeatureEffectGrantSchema),
   spellTierAccess: z.int().min(0).max(9),
   proficiencies: proficienciesSchema,
   _attributes: attributeSchema,
@@ -316,6 +318,7 @@ export const characterSchema = z.object({
   subclassId: z.string().optional(),
   grantedFeatures: z.array(z.string()),
   selectedFeatures: z.array(selectedFeatureSchema),
+  grantedEffects: z.array(FeatureEffectGrantSchema).default([]),
   spellTierAccess: z.int().min(0).max(9),
   proficiencies: proficienciesSchema,
   _attributes: attributeSchema,

@@ -8,9 +8,10 @@ export const dryad: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'dryad-danger-pollen-spores',
       name: 'Danger Pollen/Spores',
-      description: 'Whenever an enemy causes you one or more Wounds, you excrete soporific spores: all adjacent enemies are Dazed. You know Elvish if your INT is not negative.'
+      description: 'Whenever an enemy causes you one or more Wounds, you excrete soporific spores: all adjacent enemies are Dazed. You know Elvish if your INT is not negative.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

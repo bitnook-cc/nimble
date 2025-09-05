@@ -1,4 +1,4 @@
-import { SpellSchool } from '../types/class';
+import { SpellSchool } from '../types/feature-effects';
 
 /**
  * Predefined spell school definitions

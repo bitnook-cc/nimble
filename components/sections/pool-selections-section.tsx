@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { PickFeatureFromPoolFeature } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/types/class";
+import { PickFeatureFromPoolFeatureEffect } from "@/lib/types/feature-effects";
 import { getClassService } from "@/lib/services/service-factory";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -12,7 +13,7 @@ import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
 export function PoolSelectionsSection() {
   // Get everything we need from service hooks
   const { character } = useCharacterService();
-  const [selectedPickFeature, setSelectedPickFeature] = useState<PickFeatureFromPoolFeature | null>(null);
+  const [selectedPickFeature, setSelectedPickFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
 
   if (!character) return null;
 
@@ -23,8 +24,8 @@ export function PoolSelectionsSection() {
     return null;
   }
 
-  const handleOpenSelection = (pickFeature: PickFeatureFromPoolFeature) => {
-    setSelectedPickFeature(pickFeature);
+  const handleOpenSelection = (pickEffect: PickFeatureFromPoolFeatureEffect) => {
+    setSelectedPickFeature(pickEffect);
   };
 
   const handleCloseSelection = () => {
@@ -44,16 +45,16 @@ export function PoolSelectionsSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {availableSelections.map((pickFeature: PickFeatureFromPoolFeature, index: number) => {
-            const pool = classService.getFeaturePool(character.classId, pickFeature.poolId);
-            const remaining = classService.getRemainingPoolSelections(character, pickFeature);
+          {availableSelections.map((pickEffect: PickFeatureFromPoolFeatureEffect, index: number) => {
+            const pool = classService.getFeaturePool(character.classId, pickEffect.poolId);
+            const remaining = classService.getRemainingPoolSelections(character, pickEffect);
             
             return (
               <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border">
                 <div className="flex-1">
-                  <div className="font-medium">{pickFeature.name}</div>
+                  <div className="font-medium">Feature Pool Selection</div>
                   <div className="text-sm text-muted-foreground">
-                    {pickFeature.description}
+                    Choose from {pickEffect.poolId}
                   </div>
                   {pool && (
                     <div className="text-xs text-muted-foreground mt-1">
@@ -63,7 +64,7 @@ export function PoolSelectionsSection() {
                 </div>
                 <Button 
                   size="sm"
-                  onClick={() => handleOpenSelection(pickFeature)}
+                  onClick={() => handleOpenSelection(pickEffect)}
                   disabled={remaining <= 0}
                 >
                   Select Feature

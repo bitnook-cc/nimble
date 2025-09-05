@@ -8,14 +8,20 @@ export const halfGiant: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'half-giant-strength-of-stone',
       name: 'Strength of Stone',
       description: 'Force an enemy to reroll a crit against you, 1/encounter. +2 Might. You know Dwarvish if your INT is not negative.',
-      statBonus: {
-        skillBonuses: {
-          'might': { type: 'fixed', value: 2 }
+      effects: [
+        {
+          id: 'half-giant-strength-of-stone-0',
+          type: 'stat_bonus',
+          statBonus: {
+            skillBonuses: {
+              'might': { type: 'fixed', value: 2 }
+            }
+          }
         }
-      }
+      ]
     }
   ],
   nameConfig: {

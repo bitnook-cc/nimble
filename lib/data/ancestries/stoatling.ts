@@ -8,9 +8,10 @@ export const stoatling: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'stoatling-small-but-ferocious',
       name: 'Small But Ferocious',
-      description: 'Whenever you make a single-target attack against a creature larger than you, roll 1 additional d6 for each size category it is larger. They do the same.'
+      description: 'Whenever you make a single-target attack against a creature larger than you, roll 1 additional d6 for each size category it is larger. They do the same.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

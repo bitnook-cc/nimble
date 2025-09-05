@@ -51,14 +51,20 @@ export const dwarf: AncestryDefinition = {
   rarity: 'common',
   features: [
     {
-      type: 'passive_feature',
+      id: 'dwarf-stout',
       name: 'Stout',
       description: '+2 max Hit Dice, +1 max Wounds, -1 Speed. You know Dwarvish if your INT is not negative.',
-      statBonus: {
-        hitDiceBonus: { type: 'fixed', value: 2 },
-        maxWoundsBonus: { type: 'fixed', value: 1 },
-        speedBonus: { type: 'fixed', value: -1 }
-      }
+      effects: [
+        {
+          id: 'dwarf-stout-0',
+          type: 'stat_bonus',
+          statBonus: {
+            hitDiceBonus: { type: 'fixed', value: 2 },
+            maxWoundsBonus: { type: 'fixed', value: 1 },
+            speedBonus: { type: 'fixed', value: -1 }
+          }
+        }
+      ]
     }
   ],
   nameConfig: dwarfNames

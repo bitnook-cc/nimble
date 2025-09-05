@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { flexibleValueWithMetaSchema } from './flexible-value';
+import { flexibleValueSchema } from './flexible-value';
+import { FeatureEffectSchema } from './feature-effects';
 
 // Basic building blocks with metadata
 const DiceExpressionSchema = z.object({
@@ -26,9 +27,6 @@ const ResourceCostSchema = z.discriminatedUnion('type', [
     maxAmount: z.int().int().min(0).meta({ title: 'Maximum Amount', description: 'Maximum amount of resource to consume (integer)' })
   })
 ]).meta({ title: 'Resource Cost', description: 'Resource cost for using this ability' });
-
-// Type alias for backward compatibility and semantic clarity
-const AbilityUsesSchema = flexibleValueWithMetaSchema;
 
 // Armor proficiency schemas
 const ArmorProficiencySchema = z.union([
@@ -60,7 +58,7 @@ const ActionAbilitySchema = z.object({
   description: z.string().min(1).meta({ title: 'Description', description: 'Detailed description of what the ability does' }),
   type: z.literal('action').meta({ title: 'Type', description: 'Must be "action" for action abilities' }),
   frequency: z.enum(['per_turn', 'per_encounter', 'per_safe_rest', 'at_will']).meta({ title: 'Frequency', description: 'How often the ability can be used' }),
-  maxUses: AbilityUsesSchema.optional(),
+  maxUses: flexibleValueSchema.optional(),
   currentUses: z.number().int().min(0).optional().meta({ title: 'Current Uses', description: 'Current remaining uses (integer)' }),
   roll: AbilityRollSchema.optional().meta({ title: 'Roll', description: 'Dice roll configuration for the ability' }),
   actionCost: z.number().int().min(0).max(5).optional().meta({ title: 'Action Cost', description: 'Action cost (0=bonus, 1=action, 2=full turn, integer)' }),
@@ -81,112 +79,14 @@ const SpellAbilitySchema = z.object({
 
 const AbilitySchema = z.discriminatedUnion('type', [ActionAbilitySchema, SpellAbilitySchema]);
 
-// Class Feature Schemas
-const BaseClassFeatureSchema = z.object({
-  id: z.string().min(1),
-  level: z.number().int().min(1).max(20),
-  name: z.string().min(1),
-  description: z.string().min(1)
-});
-
-const AbilityFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('ability'),
-  ability: AbilitySchema
-});
-
-const PassiveFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('passive_feature'),
-  category: z.enum(['combat', 'exploration', 'social', 'utility']).optional()
-});
-
-const StatBoostSchema = z.object({
-  attribute: z.enum(['strength', 'dexterity', 'intelligence', 'will']),
-  amount: z.number().int().min(-5).max(5)
-});
-
-const StatBoostFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('stat_boost'),
-  statBoosts: z.array(StatBoostSchema)
-});
-
-const ProficiencyGrantSchema = z.object({
-  type: z.enum(['skill', 'save', 'tool', 'language']),
-  name: z.string().min(1),
-  bonus: z.number().int().optional()
-});
-
-const ProficiencyFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('proficiency'),
-  proficiencies: z.array(ProficiencyGrantSchema)
-});
-
-const ResourceFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('resource'),
-  resourceDefinition: z.object({
-    id: z.string().min(1),
-    name: z.string().min(1),
-    description: z.string().optional(),
-    colorScheme: z.string(),
-    icon: z.string().optional(),
-    resetCondition: z.enum(['safe_rest', 'encounter_end', 'turn_end', 'never', 'manual']),
-    resetType: z.enum(['to_max', 'to_zero', 'to_default']),
-    resetValue: flexibleValueWithMetaSchema.optional(),
-    minValue: flexibleValueWithMetaSchema,
-    maxValue: flexibleValueWithMetaSchema
-  })
-});
-
-const SpellSchoolFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('spell_school'),
-  spellSchool: z.object({
-    schoolId: z.string().min(1),
-    name: z.string().min(1),
-    description: z.string().min(1)
-    // Removed spells array - access to school gives access to all spells in that school
-  })
-});
-
-const SpellSchoolChoiceFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('spell_school_choice'),
-  availableSchools: z.array(z.string()).optional(),
-  numberOfChoices: z.number().int().min(1).optional()
-});
-
-const UtilitySpellsFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('utility_spells'),
-  schools: z.array(z.string()).min(1),
-  spellsPerSchool: z.number().int().min(1).optional()
-});
-
-const SpellTierAccessFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('spell_tier_access'),
-  maxTier: z.number().int().min(1).max(9)
-});
-
-const SubclassChoiceFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('subclass_choice'),
-  availableSubclasses: z.array(z.string())
-});
-
-const PickFeatureFromPoolFeatureSchema = BaseClassFeatureSchema.extend({
-  type: z.literal('pick_feature_from_pool'),
-  poolId: z.string().min(1),
-  choicesAllowed: z.number().int().min(1)
-});
-
-export const ClassFeatureSchema = z.discriminatedUnion('type', [
-  AbilityFeatureSchema,
-  PassiveFeatureSchema,
-  StatBoostFeatureSchema,
-  ProficiencyFeatureSchema,
-  ResourceFeatureSchema,
-  SpellSchoolFeatureSchema,
-  SpellSchoolChoiceFeatureSchema,
-  UtilitySpellsFeatureSchema,
-  SpellTierAccessFeatureSchema,
-  SubclassChoiceFeatureSchema,
-  PickFeatureFromPoolFeatureSchema
-]);
+// Class Feature Schema - now uses effects array
+export const ClassFeatureSchema = z.object({
+  id: z.string().min(1).meta({ title: 'ID', description: 'Unique identifier for the feature' }),
+  level: z.number().int().min(1).max(20).meta({ title: 'Level', description: 'Level at which this feature is gained' }),
+  name: z.string().min(1).meta({ title: 'Name', description: 'Display name of the feature' }),
+  description: z.string().min(1).meta({ title: 'Description', description: 'Detailed description of the feature' }),
+  effects: z.array(FeatureEffectSchema).meta({ title: 'Effects', description: 'Array of effects this feature provides' })
+}).meta({ title: 'Class Feature', description: 'A feature that provides effects to characters' });
 
 const FeaturePoolSchema = z.object({
   id: z.string().min(1),

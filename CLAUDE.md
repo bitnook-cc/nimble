@@ -1,5 +1,18 @@
 # Nimble Navigator - Application Design
 
+## Recent Major Refactor: Multiple Effects Per Feature (December 2024)
+
+### Overview
+Completed a major refactor changing from single "effect" per feature to multiple "effects" per feature. This enables features to grant multiple different benefits (e.g., a feature can grant both an ability AND a resource, or multiple attribute boosts).
+
+### Key Changes
+- **Features now have `effects: FeatureEffect[]`** instead of `effect: FeatureEffect`
+- **Effect-level tracking**: Each effect gets a unique ID (`${parentFeatureId}-${effectIndex}`)
+- **FeatureEffectGrant**: Tracks individual effect grants with source information
+- **grantedEffects on Character**: Replaces grantedFeatures for granular tracking
+- **New FeatureEffectService**: Centralized service for applying effects from features
+- **Updated UI components**: New FeatureEffectsDisplay component for rendering multiple effects
+
 ## Overview
 
 Nimble Navigator: A comprehensive digital character sheet application for the Nimble RPG system, built as a web application with offline-first architecture and local storage persistence. The app provides a clean, mobile-responsive interface for managing characters, rolling dice, tracking equipment, and managing combat encounters with full support for temporary HP, saving throws, and equipment management.
@@ -12,10 +25,16 @@ Nimble Navigator: A comprehensive digital character sheet application for the Ni
 - **Tailwind CSS** for responsive styling
 - **shadcn/ui** component library (built on Radix UI)
 - **Zod** for runtime data validation
+- **pdf-lib** for PDF generation and manipulation
 
 ### Storage
 - **Local Storage** with abstraction layer for future server sync
 - **No server-side state** currently (designed for easy migration)
+
+### Mobile
+- **Capacitor** wrapper for native iOS and Android apps
+- **Static export** deployment from Next.js build
+- **Native platform integration** with device capabilities
 
 ## Architecture
 
@@ -420,6 +439,34 @@ npm run typecheck # Type checking
 - **Local Storage Keys**: `nimble-navigator-characters`, `nimble-navigator-activity-log`, `nimble-navigator-settings`
 - **Game Rules**: Centralized in `lib/config/game-config.ts` (dice mechanics, attribute ranges, equipment limits)
 - **Validation**: Zod schemas enforce data integrity with configurable limits
+
+## Mobile Application
+
+### Capacitor Wrapper
+The mobile application is a Capacitor wrapper located in `../nimble-mobile/` that packages the web app for native iOS and Android deployment.
+
+#### Mobile Setup
+- **App Name**: "Nimble Navigator"
+- **Bundle ID**: `com.nimble.mobile`
+- **Web Directory**: `../nimble/out` (Next.js static export)
+- **Platforms**: iOS and Android with native project files
+
+#### Mobile Development Commands
+```bash
+# In nimble-mobile directory
+npm run build        # Build web app from ../nimble
+npm run sync         # Sync platforms with latest build
+npm run open:ios     # Open iOS project in Xcode
+npm run open:android # Open Android project in Android Studio
+npm run run:ios      # Run on iOS simulator/device
+npm run run:android  # Run on Android emulator/device
+```
+
+#### Mobile Architecture
+- **Static Export**: Next.js builds to `out/` directory for Capacitor consumption
+- **Native Integration**: Capacitor provides native device API access
+- **Offline-First**: Local storage works seamlessly in mobile environment
+- **Responsive Design**: Existing mobile-first web design optimized for native apps
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

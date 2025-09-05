@@ -6,14 +6,16 @@ export const secretlyUndead: BackgroundDefinition = {
   description: 'Unnatural Resilience: You are immune to disease and do not need to eat, drink, or breathe. Children, animals, and Celestials are uneasy in your presence; many will be horrified to discover your true nature.',
   features: [
     {
-      type: 'passive_feature',
+      id: 'secretly-undead-unnatural-resilience',
       name: 'Unnatural Resilience',
-      description: 'You are immune to disease and do not need to eat, drink, or breathe.'
+      description: 'You are immune to disease and do not need to eat, drink, or breathe.',
+      effects: [] // Passive feature - no mechanical effects to process
     },
     {
-      type: 'passive_feature',
+      id: 'secretly-undead-unsettling-presence',
       name: 'Unsettling Presence',
-      description: 'Children, animals, and Celestials are uneasy in your presence; many will be horrified to discover your true nature.'
+      description: 'Children, animals, and Celestials are uneasy in your presence; many will be horrified to discover your true nature.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ]
 };

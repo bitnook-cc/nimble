@@ -51,14 +51,20 @@ export const halfling: AncestryDefinition = {
   rarity: 'common',
   features: [
     {
-      type: 'passive_feature',
+      id: 'halfling-elusive',
       name: 'Elusive',
       description: '+1 to Stealth. If you fail a save, you can succeed instead, 1/Safe Rest.',
-      statBonus: {
-        skillBonuses: {
-          'stealth': { type: 'fixed', value: 1 }
+      effects: [
+        {
+          id: 'halfling-elusive-0',
+          type: 'stat_bonus',
+          statBonus: {
+            skillBonuses: {
+              'stealth': { type: 'fixed', value: 1 }
+            }
+          }
         }
-      }
+      ]
     }
   ],
   nameConfig: halflingNames

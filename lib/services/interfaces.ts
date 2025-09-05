@@ -2,11 +2,12 @@ import { Character, ActionTracker, CharacterConfiguration, Attributes, Skills, S
 import { Ability, ActionAbility, SpellAbility, AbilityRoll } from '../types/abilities';
 import { LogEntry, SingleDie } from '../types/log-entries';
 import { Item } from '../types/inventory';
-import { ClassFeatureGrant, ClassFeature, PickFeatureFromPoolFeature, FeaturePool } from '../types/class';
+import { ClassFeatureGrant, ClassFeature, FeaturePool } from '../types/class';
 import { ResourceInstance } from '../types/resources';
 import { AncestryDefinition, AncestryFeature, AncestryTrait } from '../types/ancestry';
 import { BackgroundDefinition, BackgroundFeature, BackgroundTrait } from '../types/background';
 import { CharacterEventType, CharacterEvent } from './character-service';
+import { PickFeatureFromPoolFeatureEffect } from '../types/feature-effects';
 
 /**
  * Character Storage Interface
@@ -119,14 +120,14 @@ export interface IClassService {
   levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]>;
   selectSubclass(character: Character, subclassId: string, grantedByFeatureId: string): Promise<Character>;
   canChooseSubclass(character: Character): boolean;
-  getAvailableSubclassChoices(character: Character): import('../types/class').SubclassChoiceFeature[];
+  getAvailableSubclassChoices(character: Character): import('../types/feature-effects').SubclassChoiceFeatureEffect[];
   getAvailableSubclassesForCharacter(character: Character): import('../types/class').SubclassDefinition[];
   hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
   getAvailablePoolFeatures(character: Character, poolId: string): ClassFeature[];
-  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeature[];
+  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[];
   selectPoolFeature(character: Character, poolId: string, selectedFeature: ClassFeature, grantedByFeatureId: string): Promise<Character>;
-  getRemainingPoolSelections(character: Character, pickFeatureFromPoolFeature: PickFeatureFromPoolFeature): number;
+  getRemainingPoolSelections(character: Character, pickFeatureFromPoolFeature: PickFeatureFromPoolFeatureEffect): number;
   generateFeatureId(classId: string, level: number, featureName: string, subclassId?: string): string;
   getAllGrantedFeatures(character: Character): ClassFeature[];
 }

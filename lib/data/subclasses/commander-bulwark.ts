@@ -5,52 +5,53 @@ const bulwarkFeatures: ClassFeature[] = [
   {
     id: 'bulwark-armor-master',
     level: 3,
-    type: 'passive_feature',
     name: 'Armor Master',
     description: 'You are proficient with plate armor.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   {
     id: 'bulwark-shield-expert',
     level: 3,
-    type: 'passive_feature',
     name: 'Shield Expert',
     description: 'While wearing a shield, you may Defend 2× each round. The first time each round you block all of the damage from an attack, you may make an opportunity attack against the attacker for free.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   // Level 7
   {
     id: 'bulwark-juggernaut',
     level: 7,
-    type: 'passive_feature',
     name: 'Juggernaut',
     description: 'When you use Coordinated Strike, you deal extra damage equal to your armor, and you can add 1 to your primary die.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   },
   // Level 11
   {
     id: 'bulwark-taunting-strike',
     level: 11,
-    type: 'ability',
     name: 'Taunting Strike',
     description: '(1/turn) You may Taunt a creature you hit until the end of their next turn.',
-    ability: {
-      id: 'taunting-strike',
-      name: 'Taunting Strike',
-      description: 'Taunt a creature you hit until the end of their next turn.',
-      type: 'action',
-      frequency: 'per_turn',
-      maxUses: { type: 'fixed', value: 1 }
-    }
+    effects: [
+      {
+        id: 'bulwark-taunting-strike-0',
+        type: 'ability',
+        ability: {
+          id: 'taunting-strike',
+          name: 'Taunting Strike',
+          description: 'Taunt a creature you hit until the end of their next turn.',
+          type: 'action',
+          frequency: 'per_turn',
+          maxUses: { type: 'fixed', value: 1 }
+        }
+      }
+    ]
   },
   // Level 15
   {
     id: 'bulwark-shield-wall',
     level: 15,
-    type: 'passive_feature',
     name: 'Shield Wall',
     description: 'Allies within 2 spaces gain ALL the benefits of the shield you have equipped.',
-    category: 'combat'
+    effects: [] // Passive feature - no mechanical effects to process
   }
 ];
 

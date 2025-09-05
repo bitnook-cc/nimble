@@ -8,9 +8,10 @@ export const crystalborn: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'crystalborn-reflective-aura',
       name: 'Reflective Aura',
-      description: 'When you Defend, gain KEY armor and deal KEY damage back to the attacker. 1/encounter.'
+      description: 'When you Defend, gain KEY armor and deal KEY damage back to the attacker. 1/encounter.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

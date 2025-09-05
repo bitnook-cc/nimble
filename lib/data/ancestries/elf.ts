@@ -51,12 +51,18 @@ export const elf: AncestryDefinition = {
   rarity: 'common',
   features: [
     {
-      type: 'passive_feature',
+      id: 'elf-lithe',
       name: 'Lithe',
       description: 'Advantage on Initiative, +1 Speed. You know Elvish if your INT is not negative.',
-      statBonus: {
-        speedBonus: { type: 'fixed', value: 1 }
-      }
+      effects: [
+        {
+          id: 'elf-lithe-0',
+          type: 'stat_bonus',
+          statBonus: {
+            speedBonus: { type: 'fixed', value: 1 }
+          }
+        }
+      ]
     }
   ],
   nameConfig: elfNames

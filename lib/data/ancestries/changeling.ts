@@ -8,9 +8,10 @@ export const changeling: AncestryDefinition = {
   rarity: 'exotic',
   features: [
     {
-      type: 'passive_feature',
+      id: 'changeling-new-place-new-face',
       name: 'New Place, New Face',
-      description: '+2 shifting skill points. You may take on the appearance of any ancestry. When you do, you may place your 2 shifting skill points into any 1 skill. 1/day.'
+      description: '+2 shifting skill points. You may take on the appearance of any ancestry. When you do, you may place your 2 shifting skill points into any 1 skill. 1/day.',
+      effects: [] // Passive feature - no mechanical effects to process
     }
   ],
   nameConfig: {

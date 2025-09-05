@@ -24,13 +24,13 @@ async function applyFeatureSelections(
   // Process each selection
   for (const [featureId, selection] of Object.entries(featureSelections)) {
     switch (selection.type) {
-      case 'stat_boost':
+      case 'attribute_boost':
         selectedFeatures.push({
-          type: 'stat_boost',
+          type: 'attribute_boost',
           attribute: selection.attribute,
           amount: 1, // Default amount, could be extracted from feature definition
           selectedAt: now,
-          grantedByFeatureId: featureId
+          grantedByEffectId: featureId
         });
         break;
 
@@ -39,7 +39,7 @@ async function applyFeatureSelections(
           type: 'spell_school',
           schoolId: selection.schoolId,
           selectedAt: now,
-          grantedByFeatureId: featureId
+          grantedByEffectId: featureId
         });
         break;
 
@@ -50,7 +50,7 @@ async function applyFeatureSelections(
             spellIds: selection.spellIds,
             fromSchools: [], // Would need to determine from feature definition
             selectedAt: now,
-            grantedByFeatureId: featureId
+            grantedByEffectId: featureId
           });
         }
         break;
@@ -64,7 +64,7 @@ async function applyFeatureSelections(
           featureId: selection.selectedFeatureId,
           feature: {} as any, // Would need to get actual feature
           selectedAt: now,
-          grantedByFeatureId: featureId
+          grantedByEffectId: featureId
         });
         break;
     }

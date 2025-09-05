@@ -51,24 +51,30 @@ export const human: AncestryDefinition = {
   rarity: 'common',
   features: [
     {
-      type: 'passive_feature',
+      id: 'human-tenacious',
       name: 'Tenacious',
       description: '+1 to all skills and Initiative.',
-      statBonus: {
-        skillBonuses: {
-          'arcana': { type: 'fixed', value: 1 },
-          'examination': { type: 'fixed', value: 1 },
-          'finesse': { type: 'fixed', value: 1 },
-          'influence': { type: 'fixed', value: 1 },
-          'insight': { type: 'fixed', value: 1 },
-          'might': { type: 'fixed', value: 1 },
-          'lore': { type: 'fixed', value: 1 },
-          'naturecraft': { type: 'fixed', value: 1 },
-          'perception': { type: 'fixed', value: 1 },
-          'stealth': { type: 'fixed', value: 1 }
-        },
-        initiativeBonus: { type: 'fixed', value: 1 }
-      }
+      effects: [
+        {
+          id: 'human-tenacious-0',
+          type: 'stat_bonus',
+          statBonus: {
+            skillBonuses: {
+              'arcana': { type: 'fixed', value: 1 },
+              'examination': { type: 'fixed', value: 1 },
+              'finesse': { type: 'fixed', value: 1 },
+              'influence': { type: 'fixed', value: 1 },
+              'insight': { type: 'fixed', value: 1 },
+              'might': { type: 'fixed', value: 1 },
+              'lore': { type: 'fixed', value: 1 },
+              'naturecraft': { type: 'fixed', value: 1 },
+              'perception': { type: 'fixed', value: 1 },
+              'stealth': { type: 'fixed', value: 1 }
+            },
+            initiativeBonus: { type: 'fixed', value: 1 }
+          }
+        }
+      ]
     }
   ],
   nameConfig: humanNames
