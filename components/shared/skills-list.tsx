@@ -10,7 +10,6 @@ interface SkillsListProps {
   skillAllocations: Record<string, number>;
   attributeValues: Record<string, number>;
   onSkillChange: (skillName: string, newValue: number) => void;
-  maxPerSkill?: number;
   availablePoints?: number;
   readOnly?: boolean;
 }
@@ -19,10 +18,10 @@ export function SkillsList({
   skillAllocations, 
   attributeValues,
   onSkillChange,
-  maxPerSkill = gameConfig.character.skillModifierRange.max,
   availablePoints,
   readOnly = false
 }: SkillsListProps) {
+  const maxPerSkill = gameConfig.character.skillModifierRange.max;
   
   const getAttributeModifier = (attributeName: string) => {
     return attributeValues[attributeName] || 0;

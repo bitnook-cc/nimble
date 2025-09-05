@@ -38,7 +38,6 @@ export function useUIStateService() {
         initiative: true,
         actionTracker: true,
         attributes: true,
-        skills: true,
         armor: true,
         abilities: true,
         inventory: true,

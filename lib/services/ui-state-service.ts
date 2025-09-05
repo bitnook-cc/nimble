@@ -10,7 +10,6 @@ export interface UIState {
     actionTracker: boolean;
     resources: boolean;
     attributes: boolean;
-    skills: boolean;
     armor: boolean;
     abilities: boolean;
     inventory: boolean;
@@ -118,7 +117,6 @@ export class UIStateService {
         actionTracker: sections.actionTracker ?? true,
         resources: sections.resources ?? true,
         attributes: sections.attributes ?? true,
-        skills: sections.skills ?? true,
         armor: sections.armor ?? true,
         abilities: sections.abilities ?? true,
         inventory: sections.inventory ?? true,
@@ -139,7 +137,6 @@ export class UIStateService {
         actionTracker: true,
         resources: true,
         attributes: true,
-        skills: true,
         armor: true,
         abilities: true,
         inventory: true,

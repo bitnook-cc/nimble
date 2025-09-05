@@ -120,7 +120,6 @@ export function SkillsSelection({
             skillAllocations={localAllocations}
             attributeValues={attributes}
             onSkillChange={handleSkillChange}
-            maxPerSkill={gameConfig.character.skillModifierRange.max}
             availablePoints={getRemainingPoints()}
             readOnly={false}
           />

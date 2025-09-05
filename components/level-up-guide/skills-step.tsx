@@ -136,7 +136,6 @@ export function SkillsStep({
             attributeValues={getAttributeValues()}
             onSkillChange={handleSkillChange}
             availablePoints={getRemainingPoints()}
-            maxPerSkill={gameConfig.character.skillModifierRange.max}
           />
         </CardContent>
       </Card>

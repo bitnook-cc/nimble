@@ -4,9 +4,8 @@ import { useCallback } from "react";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Character, SkillName } from "@/lib/types/character";
-import { ChevronDown, ChevronRight, Dice6, Plus, Minus, Sparkles, Search, Target, MessageCircle, Brain, Dumbbell, BookOpen, Leaf, Radar, EyeOff } from "lucide-react";
+import { Dice6, Plus, Minus, Sparkles, Search, Target, MessageCircle, Brain, Dumbbell, BookOpen, Leaf, Radar, EyeOff } from "lucide-react";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
@@ -33,11 +32,9 @@ export function SkillsSection() {
   // Get everything we need from service hooks
   const { character, updateCharacter, getSkills, getAttributes } = useCharacterService();
   const { rollSkill } = useDiceActions();
-  const { uiState, updateCollapsibleState } = useUIStateService();
+  const { uiState } = useUIStateService();
   
-  const isOpen = uiState.collapsibleSections.skills;
   const advantageLevel = uiState.advantageLevel;
-  const onToggle = (isOpen: boolean) => updateCollapsibleState('skills', isOpen);
   
   const onSkillChange = useCallback(async (skillName: SkillName, delta: number) => {
     if (!character) return;
@@ -69,18 +66,11 @@ export function SkillsSection() {
   
   return (
     <Card>
-      <Collapsible open={isOpen} onOpenChange={onToggle}>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-semibold">Skills</CardTitle>
-              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="border-t" />
-          <CardContent className="p-0">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold">Skills</CardTitle>
+      </CardHeader>
+      <div className="border-t" />
+      <CardContent className="p-0">
             <div className="divide-y">
               {Object.entries(computedSkills).map(([skillKey, skill], index) => {
                 const skillName = skillKey as SkillName;
@@ -150,9 +140,7 @@ export function SkillsSection() {
                 );
               })}
             </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
+      </CardContent>
     </Card>
   );
 }
