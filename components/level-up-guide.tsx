@@ -21,7 +21,8 @@ type FeatureSelectionType =
   | { type: 'attribute_boost'; attribute: AttributeName }
   | { type: 'spell_school_choice'; schoolId: string }
   | { type: 'utility_spells'; spellIds: string[] }
-  | { type: 'feature_pool'; selectedFeatureId: string };
+  | { type: 'feature_pool'; selectedFeatureId: string }
+  | { type: 'subclass_choice'; subclassId: string };
 
 interface LevelUpData {
   levelsToGain: number;
@@ -165,6 +166,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       let grantedFeatures = [...character.grantedFeatures];
       let selectedFeatures: SelectedFeature[] = [...(character.selectedFeatures || [])];
       let spellTierAccess = character.spellTierAccess;
+      let updatedSubclassId = character.subclassId;
       
       // Process feature selections
       const classService = getClassService();
@@ -276,6 +278,21 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               }
               break;
               
+            case 'subclass_choice':
+              if (selection?.type === 'subclass_choice' && selection.subclassId) {
+                // Apply the subclass selection
+                updatedSubclassId = selection.subclassId;
+                
+                // Track the selection
+                selectedFeatures.push({
+                  type: 'subclass',
+                  subclassId: selection.subclassId,
+                  selectedAt: new Date(),
+                  grantedByEffectId: featureId
+                });
+              }
+              break;
+              
             case 'pick_feature_from_pool':
               if (selection?.type === 'feature_pool' && selection.selectedFeatureId) {
                 const pickFeatureEffects = feature.effects.filter(e => e.type === 'pick_feature_from_pool') as PickFeatureFromPoolFeatureEffect[];
@@ -312,7 +329,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               const spellSchoolEffects = feature.effects.filter(e => e.type === 'spell_school') as SpellSchoolFeatureEffect[];
               const spellSchoolEffect = spellSchoolEffects[0];
               // Get spells from the school up to current tier access
-              const schoolSpells = contentRepo.getSpellsBySchool(spellSchoolEffect?.spellSchool?.schoolId || '')
+              const schoolSpells = contentRepo.getSpellsBySchool(spellSchoolEffect?.schoolId || '')
                 .filter(spell => spell.tier <= spellTierAccess);
               
               // Add spells that aren't already in abilities
@@ -372,7 +389,8 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
         resources: updatedResources,
         grantedFeatures,
         selectedFeatures,
-        spellTierAccess
+        spellTierAccess,
+        subclassId: updatedSubclassId
       };
       
       // Save the updated character

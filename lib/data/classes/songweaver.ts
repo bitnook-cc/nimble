@@ -154,24 +154,17 @@ const songweaverFeatures: ClassFeature[] = [
         id: 'wind-spellcasting-1',
         type: 'spell_school_choice',
         numberOfChoices: 1,
-      }
-    ]
-    },
-  {
-    id: 'vicious-mockery',
-    level: 1,
-    name: 'Vicious Mockery',
-    description: '(Wind cantrip) Action: Range: 12. Damage: 1d4+INT psychic (ignoring armor). On hit: the target is Taunted during their next turn. High Levels: +2 damage every 5 levels.',
-    effects: [
+      },
       {
         id: 'vicious-mockery-0',
         type: 'ability',
         ability: {
           id: 'vicious-mockery',
           name: 'Vicious Mockery',
-          description: 'Deal psychic damage and taunt the target.',
-          type: 'action',
-          frequency: 'at_will',
+          description: 'Action: Range: 12. Damage: 1d4+INT psychic (ignoring armor). On hit: the target is Taunted during their next turn. High Levels: +2 damage every 5 levels.',
+          type: 'spell',
+          school: 'wind',
+          tier: 0,
           actionCost: 1,
           roll: {
             dice: { count: 1, sides: 4 },
@@ -180,7 +173,7 @@ const songweaverFeatures: ClassFeature[] = [
         }
       }
     ]
-  },
+    },
   {
     id: 'songweavers-inspiration',
     level: 1,
@@ -196,7 +189,7 @@ const songweaverFeatures: ClassFeature[] = [
           description: 'Allow an ally to reroll a single die for an attack or save.',
           type: 'action',
           frequency: 'per_safe_rest',
-          maxUses: { type: 'fixed', value: 2 }
+          maxUses: { type: 'formula', expression: '2 * WIL' }
         }
       }
     ]

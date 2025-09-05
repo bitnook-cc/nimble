@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Character } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
-import { PickFeatureFromPoolFeatureEffect, FeatureEffect } from "@/lib/types/feature-effects";
+import { PickFeatureFromPoolFeatureEffect, FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/types/feature-effects";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -80,10 +80,10 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
       }
       break;
     case 'spell_school':
-      if ('spellSchool' in effect) {
+      if ('schoolId' in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
-            <div className="font-medium">Spell School: {effect.spellSchool.name}</div>
+            <div className="font-medium">Spell School: {effect.schoolId}</div>
           </div>
         );
       }

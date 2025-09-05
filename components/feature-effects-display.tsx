@@ -15,7 +15,7 @@ import {
   CircleDot,
   Award
 } from 'lucide-react';
-import { FeatureEffect } from '@/lib/types/feature-effects';
+import { FeatureEffect, SpellSchoolFeatureEffect } from '@/lib/types/feature-effects';
 
 interface FeatureEffectsDisplayProps {
   effects: FeatureEffect[];
@@ -82,7 +82,8 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return effect.proficiencies.map(p => p.name).join(', ');
     
     case 'spell_school':
-      return `Unlocks ${effect.spellSchool.name}`;
+      const spellSchoolEffect = effect as SpellSchoolFeatureEffect;
+      return `Unlocks spell school: ${spellSchoolEffect.schoolId}`;
     
     case 'spell_school_choice':
       const numChoices = effect.numberOfChoices || 1;

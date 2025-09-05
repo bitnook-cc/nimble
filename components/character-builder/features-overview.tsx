@@ -30,7 +30,8 @@ export type FeatureSelectionType =
   | { type: 'attribute_boost'; attribute: AttributeName }
   | { type: 'spell_school_choice'; schoolId: string }
   | { type: 'utility_spells'; spellIds: string[] }
-  | { type: 'feature_pool'; selectedFeatureId: string };
+  | { type: 'feature_pool'; selectedFeatureId: string }
+  | { type: 'subclass_choice'; subclassId: string };
 
 interface FeaturesOverviewProps {
   classId: string;

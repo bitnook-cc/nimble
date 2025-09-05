@@ -391,11 +391,7 @@ const shadowmancerFeatures: ClassFeature[] = [
       {
         id: 'shadowmastery-1-0',
         type: 'spell_school',
-        spellSchool: {
-          schoolId: 'shadow',
-          name: 'Shadow Magic',
-          description: 'Dark magic that manipulates shadow and necrotic energy.'
-        }
+        schoolId: 'shadow'
       }
     ]
   },

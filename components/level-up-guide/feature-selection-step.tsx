@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Character, AttributeName } from '@/lib/types/character';
 import { ClassFeature } from '@/lib/types/class';
-import { AttributeBoostFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpellsFeatureEffect, PickFeatureFromPoolFeatureEffect } from '@/lib/types/feature-effects';
+import { AttributeBoostFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpellsFeatureEffect, PickFeatureFromPoolFeatureEffect, SubclassChoiceFeatureEffect } from '@/lib/types/feature-effects';
 import { getContentRepository, getClassService } from '@/lib/services/service-factory';
 import { SpellAbility } from '@/lib/types/abilities';
 import { FeatureSelectionType } from '@/components/character-builder/features-overview';
@@ -111,6 +111,13 @@ export function FeatureSelectionStep({
     onFeatureSelectionsChange({
       ...featureSelections,
       [featureId]: { type: 'feature_pool', selectedFeatureId }
+    });
+  };
+
+  const handleSubclassSelection = (featureId: string, subclassId: string) => {
+    onFeatureSelectionsChange({
+      ...featureSelections,
+      [featureId]: { type: 'subclass_choice', subclassId }
     });
   };
 
@@ -267,6 +274,51 @@ export function FeatureSelectionStep({
                       <Label htmlFor={`${featureId}-${poolFeature.id}`} className="cursor-pointer">
                         <div className="font-medium text-sm">{poolFeature.name}</div>
                         <div className="text-xs text-muted-foreground">{poolFeature.description}</div>
+                      </Label>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+        );
+      }
+
+      case 'subclass_choice': {
+        const subclassChoiceEffects = feature.effects.filter(e => e.type === 'subclass_choice') as SubclassChoiceFeatureEffect[];
+        if (subclassChoiceEffects.length === 0) {
+          break; // Fall through to default rendering
+        }
+        
+        const selection = featureSelections[featureId];
+        const selectedSubclass = selection?.type === 'subclass_choice' ? selection.subclassId : undefined;
+        
+        // Get available subclasses for this class
+        const availableSubclasses = contentRepo.getSubclassesForClass(character.classId);
+        
+        if (availableSubclasses.length === 0) {
+          break; // No subclasses available
+        }
+        
+        return (
+          <Card key={featureId} className="mb-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{feature.name}</CardTitle>
+              <CardDescription className="text-sm">{feature.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Label className="text-sm mb-2 block">Choose your subclass:</Label>
+              <RadioGroup 
+                value={selectedSubclass || ''} 
+                onValueChange={(value) => handleSubclassSelection(featureId, value)}
+              >
+                <ScrollArea className="h-48 border rounded-md p-3">
+                  {availableSubclasses.map(subclass => (
+                    <div key={subclass.id} className="flex items-start space-x-2 mb-3">
+                      <RadioGroupItem value={subclass.id} id={`${featureId}-${subclass.id}`} />
+                      <Label htmlFor={`${featureId}-${subclass.id}`} className="cursor-pointer">
+                        <div className="font-medium text-sm">{subclass.name}</div>
+                        <div className="text-xs text-muted-foreground">{subclass.description}</div>
                       </Label>
                     </div>
                   ))}
