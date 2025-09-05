@@ -144,7 +144,18 @@ const songweaverFeatures: ClassFeature[] = [
     level: 1,
     name: 'Wind Spellcasting and...',
     description: 'You know cantrips from the Wind school and 1 other school of your choice. You also know the cantrip Vicious Mockery.',
-    effects: [] // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: 'wind-spellcasting-0',
+        type: 'spell_school',
+        schoolId: 'wind'
+      },
+      {
+        id: 'wind-spellcasting-1',
+        type: 'spell_school_choice',
+        numberOfChoices: 1,
+      }
+    ]
     },
   {
     id: 'vicious-mockery',

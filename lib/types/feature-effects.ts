@@ -72,7 +72,7 @@ export interface ProficiencyFeatureEffect extends BaseFeatureEffect {
 // Spell school effect - grants access to a specific school of magic
 export interface SpellSchoolFeatureEffect extends BaseFeatureEffect {
   type: 'spell_school';
-  spellSchool: SpellSchool;
+  schoolId: string; // ID of the school to grant access to
 }
 
 // Spell school choice effect - allows player to choose a spell school
