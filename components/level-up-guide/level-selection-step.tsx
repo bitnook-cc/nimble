@@ -1,12 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Plus, Minus } from 'lucide-react';
-import { Character } from '@/lib/types/character';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Minus, Plus } from "lucide-react";
+
+import React from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+import { Character } from "@/lib/types/character";
 
 interface LevelSelectionStepProps {
   character: Character;
@@ -14,10 +17,10 @@ interface LevelSelectionStepProps {
   onLevelsChange: (levels: number) => void;
 }
 
-export function LevelSelectionStep({ 
-  character, 
-  levelsToGain, 
-  onLevelsChange 
+export function LevelSelectionStep({
+  character,
+  levelsToGain,
+  onLevelsChange,
 }: LevelSelectionStepProps) {
   const maxLevel = 20; // Standard D&D max level
   const availableLevels = maxLevel - character.level;
@@ -81,9 +84,7 @@ export function LevelSelectionStep({
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
-                <span className="text-sm text-muted-foreground ml-2">
-                  (Max: {availableLevels})
-                </span>
+                <span className="text-sm text-muted-foreground ml-2">(Max: {availableLevels})</span>
               </div>
             </div>
 
@@ -97,8 +98,13 @@ export function LevelSelectionStep({
             <div className="pt-4 border-t">
               <p className="text-sm font-medium mb-2">What you&apos;ll gain:</p>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <p>• {levelsToGain} additional hit {levelsToGain === 1 ? 'die' : 'dice'} to roll for HP</p>
-                <p>• {levelsToGain} skill {levelsToGain === 1 ? 'point' : 'points'} to allocate</p>
+                <p>
+                  • {levelsToGain} additional hit {levelsToGain === 1 ? "die" : "dice"} to roll for
+                  HP
+                </p>
+                <p>
+                  • {levelsToGain} skill {levelsToGain === 1 ? "point" : "points"} to allocate
+                </p>
                 <p>• Increased maximum hit points</p>
                 <p>• Possible new class features</p>
                 <p>• Possible ability score improvements</p>

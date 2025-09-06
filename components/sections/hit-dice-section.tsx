@@ -1,35 +1,39 @@
 "use client";
 
+import { ChevronDown, ChevronRight, Dices, Heart, Shield } from "lucide-react";
+
 import { useState } from "react";
+
+import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { Character, HitDice, HitDieSize } from "@/lib/types/character";
+
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Character, HitDice, HitDieSize } from "@/lib/types/character";
-import { ChevronDown, ChevronRight, Heart, Dices, Shield } from "lucide-react";
-import { getCharacterService } from "@/lib/services/service-factory";
-import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 
 export function HitDiceSection() {
   // Get everything we need from service hooks
-  const { character, performSafeRest, performCatchBreath, performMakeCamp, updateCharacter } = useCharacterService();
+  const { character, performSafeRest, performCatchBreath, performMakeCamp, updateCharacter } =
+    useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     level: character?.level || 1,
     hitDieSize: character?._hitDice.size || 6,
     currentHitDice: character?._hitDice.current || 1,
   });
-  
+
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
-  
+
   const isOpen = uiState.collapsibleSections.hitDice;
-  const onToggle = (isOpen: boolean) => updateCollapsibleState('hitDice', isOpen);
+  const onToggle = (isOpen: boolean) => updateCollapsibleState("hitDice", isOpen);
 
   const handleSave = () => {
     const updatedCharacter = {
@@ -55,7 +59,7 @@ export function HitDiceSection() {
   };
 
   const handleLevelChange = (newLevel: number) => {
-    setEditValues(prev => ({
+    setEditValues((prev) => ({
       ...prev,
       level: newLevel,
       currentHitDice: Math.min(prev.currentHitDice, newLevel), // Don't exceed new max
@@ -81,7 +85,9 @@ export function HitDiceSection() {
                 </div>
                 <div className="text-lg font-bold flex items-center gap-2">
                   <Dices className="w-4 h-4" />
-                  <span>{character._hitDice.current}/{character._hitDice.max}</span>
+                  <span>
+                    {character._hitDice.current}/{character._hitDice.max}
+                  </span>
                   <span className="text-sm text-muted-foreground">d{character._hitDice.size}</span>
                 </div>
                 {isOpen ? (
@@ -109,15 +115,17 @@ export function HitDiceSection() {
                       onChange={(e) => handleLevelChange(parseInt(e.target.value) || 1)}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="hit-die-size">Hit Die Size</Label>
                     <Select
                       value={editValues.hitDieSize.toString()}
-                      onValueChange={(value) => setEditValues(prev => ({ 
-                        ...prev, 
-                        hitDieSize: parseInt(value) as HitDieSize 
-                      }))}
+                      onValueChange={(value) =>
+                        setEditValues((prev) => ({
+                          ...prev,
+                          hitDieSize: parseInt(value) as HitDieSize,
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -131,7 +139,7 @@ export function HitDiceSection() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="current-hit-dice">Current Hit Dice</Label>
                     <Input
@@ -140,17 +148,24 @@ export function HitDiceSection() {
                       min="0"
                       max={editValues.level}
                       value={editValues.currentHitDice}
-                      onChange={(e) => setEditValues(prev => ({ 
-                        ...prev, 
-                        currentHitDice: Math.max(0, Math.min(parseInt(e.target.value) || 0, editValues.level))
-                      }))}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({
+                          ...prev,
+                          currentHitDice: Math.max(
+                            0,
+                            Math.min(parseInt(e.target.value) || 0, editValues.level),
+                          ),
+                        }))
+                      }
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button onClick={handleSave}>Save Changes</Button>
-                  <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+                  <Button variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -160,28 +175,30 @@ export function HitDiceSection() {
                     <div className="text-2xl font-bold">{character.level}</div>
                     <div className="text-sm text-muted-foreground">Level</div>
                   </div>
-                  
+
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">d{character._hitDice.size}</div>
                     <div className="text-sm text-muted-foreground">Hit Die</div>
                   </div>
-                  
+
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">{character._hitDice.current}</div>
                     <div className="text-sm text-muted-foreground">Available</div>
                   </div>
-                  
+
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">{character._hitDice.max}</div>
                     <div className="text-sm text-muted-foreground">Maximum</div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="text-center text-sm font-medium text-muted-foreground">
-                    Field Rest Options (d{character._hitDice.size} + STR {character._attributes.strength >= 0 ? '+' : ''}{character._attributes.strength})
+                    Field Rest Options (d{character._hitDice.size} + STR{" "}
+                    {character._attributes.strength >= 0 ? "+" : ""}
+                    {character._attributes.strength})
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <Button
                       variant="default"
@@ -193,7 +210,7 @@ export function HitDiceSection() {
                       Catch Breath
                       <div className="text-xs ml-2">(Roll + STR)</div>
                     </Button>
-                    
+
                     <Button
                       variant="secondary"
                       onClick={performMakeCamp}
@@ -205,13 +222,13 @@ export function HitDiceSection() {
                       <div className="text-xs ml-2">({character._hitDice.size} + STR)</div>
                     </Button>
                   </div>
-                  
+
                   {!canRollHitDie && (
                     <div className="text-center text-sm text-muted-foreground">
                       No hit dice available for field rest
                     </div>
                   )}
-                  
+
                   <div className="border-t pt-3">
                     <div className="text-center text-sm font-medium text-muted-foreground mb-2">
                       Safe Rest
@@ -227,7 +244,7 @@ export function HitDiceSection() {
                       <div className="text-xs ml-2">(Full Recovery)</div>
                     </Button>
                   </div>
-                  
+
                   <Button variant="outline" onClick={() => setIsEditing(true)} className="w-full">
                     Edit Level & Hit Dice
                   </Button>

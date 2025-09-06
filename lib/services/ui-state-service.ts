@@ -1,4 +1,4 @@
-export type TabType = 'combat' | 'skills' | 'character' | 'equipment' | 'spells' | 'log';
+export type TabType = "combat" | "skills" | "character" | "equipment" | "spells" | "log";
 
 export interface UIState {
   collapsibleSections: {
@@ -19,7 +19,7 @@ export interface UIState {
 }
 
 export class UIStateService {
-  private readonly storageKey = 'nimble-navigator-ui-state';
+  private readonly storageKey = "nimble-navigator-ui-state";
   private _uiState: UIState | null = null;
   private uiStateListeners: ((uiState: UIState) => void)[] = [];
 
@@ -34,16 +34,16 @@ export class UIStateService {
     if (this._uiState) {
       listener(this._uiState);
     }
-    
+
     // Return unsubscribe function
     return () => {
-      this.uiStateListeners = this.uiStateListeners.filter(l => l !== listener);
+      this.uiStateListeners = this.uiStateListeners.filter((l) => l !== listener);
     };
   }
 
   private notifyListeners(): void {
     if (this._uiState) {
-      this.uiStateListeners.forEach(listener => listener(this._uiState!));
+      this.uiStateListeners.forEach((listener) => listener(this._uiState!));
     }
   }
 
@@ -63,7 +63,7 @@ export class UIStateService {
         this._uiState = this.getDefaultUIState();
       }
     }
-    
+
     return this._uiState!; // We know it's not null at this point
   }
 
@@ -73,7 +73,10 @@ export class UIStateService {
     this.notifyListeners();
   }
 
-  async updateCollapsibleState(section: keyof UIState['collapsibleSections'], isOpen: boolean): Promise<void> {
+  async updateCollapsibleState(
+    section: keyof UIState["collapsibleSections"],
+    isOpen: boolean,
+  ): Promise<void> {
     const currentState = await this.getUIState();
     const newState = {
       ...currentState,
@@ -106,7 +109,7 @@ export class UIStateService {
   private migrateUIState(stored: any): UIState {
     // Handle migration from old mana-based UI state
     const sections = stored.collapsibleSections || {};
-    
+
     return {
       collapsibleSections: {
         classInfo: sections.classInfo ?? true,
@@ -122,7 +125,7 @@ export class UIStateService {
         inventory: sections.inventory ?? true,
       },
       advantageLevel: stored.advantageLevel ?? 0,
-      activeTab: stored.activeTab ?? 'combat',
+      activeTab: stored.activeTab ?? "combat",
     };
   }
 
@@ -142,7 +145,7 @@ export class UIStateService {
         inventory: true,
       },
       advantageLevel: 0,
-      activeTab: 'combat',
+      activeTab: "combat",
     };
   }
 }

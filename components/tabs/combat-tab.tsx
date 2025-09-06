@@ -1,8 +1,8 @@
 "use client";
 
+import { ActionsSection } from "../sections/actions-section";
 import { CombatSummary } from "../sections/combat-summary";
 import { SavingThrowsSection } from "../sections/saving-throws-section";
-import { ActionsSection } from "../sections/actions-section";
 
 export function CombatTab() {
   return (

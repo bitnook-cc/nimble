@@ -1,8 +1,8 @@
-import { AttributeName } from './character';
-import { DiceExpression } from './dice';
-import { FlexibleValue } from './flexible-value';
+import { AttributeName } from "./character";
+import { DiceExpression } from "./dice";
+import { FlexibleValue } from "./flexible-value";
 
-export type AbilityFrequency = 'per_turn' | 'per_encounter' | 'per_safe_rest' | 'at_will';
+export type AbilityFrequency = "per_turn" | "per_encounter" | "per_safe_rest" | "at_will";
 
 // Type alias for backward compatibility and semantic clarity
 export type AbilityUses = FlexibleValue;
@@ -14,13 +14,13 @@ export interface AbilityRoll {
 }
 
 export interface FixedResourceCost {
-  type: 'fixed';
+  type: "fixed";
   resourceId: string;
   amount: number;
 }
 
 export interface VariableResourceCost {
-  type: 'variable';
+  type: "variable";
   resourceId: string;
   minAmount: number;
   maxAmount: number;
@@ -35,11 +35,11 @@ export interface BaseAbility {
 }
 
 export interface FreeformAbility extends BaseAbility {
-  type: 'freeform';
+  type: "freeform";
 }
 
 export interface ActionAbility extends BaseAbility {
-  type: 'action';
+  type: "action";
   frequency: AbilityFrequency;
   maxUses?: AbilityUses; // Optional for at-will abilities
   currentUses?: number; // Optional for at-will abilities
@@ -49,7 +49,7 @@ export interface ActionAbility extends BaseAbility {
 }
 
 export interface SpellAbility extends BaseAbility {
-  type: 'spell';
+  type: "spell";
   school: string; // Which spell school this belongs to (e.g., 'fire', 'radiant')
   tier: number; // Spell tier from 1 to 9
   roll?: AbilityRoll; // Optional roll information

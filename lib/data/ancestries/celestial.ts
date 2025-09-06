@@ -1,58 +1,128 @@
-import { AncestryDefinition } from '../../types/ancestry';
+import { AncestryDefinition } from "../../types/ancestry";
 
 export const celestial: AncestryDefinition = {
-  id: 'celestial',
-  name: 'Celestial',
-  description: 'Descendants of divine beings, Celestials carry an aura of nobility and grace. Their innate connection to the higher planes allows them to resist the effects of misfortune, standing strong where others may falter.',
-  size: 'medium',
-  rarity: 'exotic',
+  id: "celestial",
+  name: "Celestial",
+  description:
+    "Descendants of divine beings, Celestials carry an aura of nobility and grace. Their innate connection to the higher planes allows them to resist the effects of misfortune, standing strong where others may falter.",
+  size: "medium",
+  rarity: "exotic",
   features: [
     {
-      id: 'celestial-highborn',
-      name: 'Highborn',
-      description: "Your disadvantaged save is Neutral instead. You know Celestial if your INT isn't negative.",
-      effects: [] // Passive feature - no mechanical effects to process
-    }
+      id: "celestial-highborn",
+      name: "Highborn",
+      description:
+        "Your disadvantaged save is Neutral instead. You know Celestial if your INT isn't negative.",
+      effects: [], // Passive feature - no mechanical effects to process
+    },
   ],
   nameConfig: {
     male: {
       syllables: {
-        prefixes: ['aur', 'cel', 'lum', 'ray', 'ser', 'uri', 'gab', 'mich', 'raph', 'az', 'el', 'joph', 'raguel', 'rem'],
-        middle: ['ae', 'ai', 'iel', 'ael', 'ial', 'uel', 'ith', 'oth', 'ien'],
-        suffixes: ['el', 'iel', 'ael', 'ial', 'uel', 'ith', 'oth', 'ien', 'on', 'an']
+        prefixes: [
+          "aur",
+          "cel",
+          "lum",
+          "ray",
+          "ser",
+          "uri",
+          "gab",
+          "mich",
+          "raph",
+          "az",
+          "el",
+          "joph",
+          "raguel",
+          "rem",
+        ],
+        middle: ["ae", "ai", "iel", "ael", "ial", "uel", "ith", "oth", "ien"],
+        suffixes: ["el", "iel", "ael", "ial", "uel", "ith", "oth", "ien", "on", "an"],
       },
-      patterns: ['P', 'PM', 'PS', 'PMS'],
+      patterns: ["P", "PM", "PS", "PMS"],
       constraints: {
         minLength: 4,
         maxLength: 14,
-        syllableCount: { min: 1, max: 3 }
-      }
+        syllableCount: { min: 1, max: 3 },
+      },
     },
     female: {
       syllables: {
-        prefixes: ['aur', 'cel', 'lum', 'ray', 'ser', 'gab', 'sar', 'mir', 'raph', 'az', 'el', 'joph', 'zel'],
-        middle: ['ae', 'ai', 'iel', 'ael', 'ial', 'iel', 'ith', 'oth', 'ien', 'a', 'e', 'i'],
-        suffixes: ['a', 'ah', 'iel', 'ael', 'ial', 'iel', 'ith', 'wen', 'ien', 'on', 'an', 'ela', 'ina']
+        prefixes: [
+          "aur",
+          "cel",
+          "lum",
+          "ray",
+          "ser",
+          "gab",
+          "sar",
+          "mir",
+          "raph",
+          "az",
+          "el",
+          "joph",
+          "zel",
+        ],
+        middle: ["ae", "ai", "iel", "ael", "ial", "iel", "ith", "oth", "ien", "a", "e", "i"],
+        suffixes: [
+          "a",
+          "ah",
+          "iel",
+          "ael",
+          "ial",
+          "iel",
+          "ith",
+          "wen",
+          "ien",
+          "on",
+          "an",
+          "ela",
+          "ina",
+        ],
       },
-      patterns: ['P', 'PM', 'PS', 'PMS'],
+      patterns: ["P", "PM", "PS", "PMS"],
       constraints: {
         minLength: 4,
         maxLength: 14,
-        syllableCount: { min: 1, max: 3 }
-      }
+        syllableCount: { min: 1, max: 3 },
+      },
     },
     surnames: {
       syllables: {
-        prefixes: ['bright', 'divine', 'golden', 'light', 'pure', 'radiant', 'sacred', 'silver', 'star', 'sun', 'dawn', 'heaven'],
-        middle: ['wing', 'song', 'heart', 'soul', 'voice', 'light', 'fire'],
-        suffixes: ['wing', 'song', 'heart', 'soul', 'voice', 'light', 'fire', 'born', 'touched', 'blessed', 'sworn']
+        prefixes: [
+          "bright",
+          "divine",
+          "golden",
+          "light",
+          "pure",
+          "radiant",
+          "sacred",
+          "silver",
+          "star",
+          "sun",
+          "dawn",
+          "heaven",
+        ],
+        middle: ["wing", "song", "heart", "soul", "voice", "light", "fire"],
+        suffixes: [
+          "wing",
+          "song",
+          "heart",
+          "soul",
+          "voice",
+          "light",
+          "fire",
+          "born",
+          "touched",
+          "blessed",
+          "sworn",
+        ],
       },
-      patterns: ['P', 'PS', 'PM'],
+      patterns: ["P", "PS", "PM"],
       constraints: {
         minLength: 5,
         maxLength: 16,
-        syllableCount: { min: 1, max: 2 }
-      }
-    }
-  }
+        syllableCount: { min: 1, max: 2 },
+      },
+    },
+  },
 };

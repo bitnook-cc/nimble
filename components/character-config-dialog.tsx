@@ -1,19 +1,41 @@
 "use client";
 
+import { Plus, Trash2 } from "lucide-react";
+
 import { useState } from "react";
-import { Character, CharacterConfiguration } from "@/lib/types/character";
-import { ResourceInstance, ResourceDefinition, ResourceResetCondition, ResourceResetType, createResourceInstance } from "@/lib/types/resources";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { Character, CharacterConfiguration } from "@/lib/types/character";
 import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
-import { RESOURCE_COLOR_SCHEMES, RESOURCE_ICONS, getIconById, getColorSchemeById, getDefaultColorSchemeForIcon } from "@/lib/utils/resource-config";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  ResourceDefinition,
+  ResourceInstance,
+  ResourceResetCondition,
+  ResourceResetType,
+  createResourceInstance,
+} from "@/lib/types/resources";
+import {
+  RESOURCE_COLOR_SCHEMES,
+  RESOURCE_ICONS,
+  getColorSchemeById,
+  getDefaultColorSchemeForIcon,
+  getIconById,
+} from "@/lib/utils/resource-config";
+
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { Trash2, Plus } from "lucide-react";
 
 interface CharacterConfigDialogProps {
   onClose: () => void;
@@ -21,7 +43,7 @@ interface CharacterConfigDialogProps {
 
 export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   const { character, updateCharacter } = useCharacterService();
-  
+
   const [newResource, setNewResource] = useState<Partial<ResourceDefinition> | null>(null);
   const [isCreatingResource, setIsCreatingResource] = useState(false);
   const [editingResource, setEditingResource] = useState<string | null>(null);
@@ -39,18 +61,17 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     onClose();
   };
 
-
   const updateMaxWounds = async (value: string) => {
     const numValue = parseInt(value) || 1;
     const maxWounds = Math.max(1, numValue);
-    
+
     const updatedCharacter = {
       ...character,
       wounds: {
         ...character.wounds,
         max: maxWounds,
-        current: Math.min(character.wounds.current, maxWounds)
-      }
+        current: Math.min(character.wounds.current, maxWounds),
+      },
     };
     await updateCharacter(updatedCharacter);
   };
@@ -58,14 +79,14 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   const updateMaxHP = async (value: string) => {
     const numValue = parseInt(value) || 1;
     const maxHP = Math.max(1, numValue);
-    
+
     const updatedCharacter = {
       ...character,
       hitPoints: {
         ...character.hitPoints,
         max: maxHP,
-        current: Math.min(character.hitPoints.current, maxHP)
-      }
+        current: Math.min(character.hitPoints.current, maxHP),
+      },
     };
     await updateCharacter(updatedCharacter);
   };
@@ -73,13 +94,13 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   const updateMaxInventorySize = async (value: string) => {
     const numValue = parseInt(value) || 1;
     const maxInventorySize = Math.max(1, numValue);
-    
+
     const updatedCharacter = {
       ...character,
       config: {
         ...character.config,
-        maxInventorySize
-      }
+        maxInventorySize,
+      },
     };
     await updateCharacter(updatedCharacter);
   };
@@ -87,38 +108,38 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   const updateInitiativeModifier = async (value: string) => {
     const numValue = parseInt(value) || 0;
     const modifier = Math.max(-10, Math.min(10, numValue));
-    
+
     const updatedCharacter = {
       ...character,
       initiative: {
         ...character._initiative,
-        modifier
-      }
+        modifier,
+      },
     };
     await updateCharacter(updatedCharacter);
   };
 
   // Resource Management Functions
   const deleteResource = async (resourceId: string) => {
-    const updatedResources = character.resources.filter(r => r.definition.id !== resourceId);
+    const updatedResources = character.resources.filter((r) => r.definition.id !== resourceId);
     const updatedCharacter = {
       ...character,
-      resources: updatedResources
+      resources: updatedResources,
     };
     await updateCharacter(updatedCharacter);
   };
 
   const startCreatingResource = () => {
     setNewResource({
-      id: '',
-      name: '',
-      description: '',
-      colorScheme: 'blue-magic',
-      icon: 'sparkles',
-      resetCondition: 'safe_rest',
-      resetType: 'to_max',
-      minValue: { type: 'fixed', value: 0 },
-      maxValue: { type: 'fixed', value: 10 },
+      id: "",
+      name: "",
+      description: "",
+      colorScheme: "blue-magic",
+      icon: "sparkles",
+      resetCondition: "safe_rest",
+      resetType: "to_max",
+      minValue: { type: "fixed", value: 0 },
+      maxValue: { type: "fixed", value: 10 },
     });
     setIsCreatingResource(true);
   };
@@ -132,22 +153,22 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   };
 
   const updateResource = async (resourceId: string, field: string, value: any) => {
-    const updatedResources = character.resources.map(resource => {
+    const updatedResources = character.resources.map((resource) => {
       if (resource.definition.id !== resourceId) return resource;
-      
-      if (field === 'current' || field === 'sortOrder') {
+
+      if (field === "current" || field === "sortOrder") {
         return { ...resource, [field]: value };
       } else {
-        return { 
-          ...resource, 
-          definition: { ...resource.definition, [field]: value }
+        return {
+          ...resource,
+          definition: { ...resource.definition, [field]: value },
         };
       }
     });
-    
+
     const updatedCharacter = {
       ...character,
-      resources: updatedResources
+      resources: updatedResources,
     };
     await updateCharacter(updatedCharacter);
   };
@@ -163,54 +184,51 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     }
 
     // Check for duplicate IDs
-    if (character.resources.some(r => r.definition.id === newResource.id)) {
+    if (character.resources.some((r) => r.definition.id === newResource.id)) {
       return; // ID already exists
     }
 
     const definition: ResourceDefinition = {
       id: newResource.id,
       name: newResource.name,
-      description: newResource.description || '',
-      colorScheme: newResource.colorScheme || 'blue-magic',
+      description: newResource.description || "",
+      colorScheme: newResource.colorScheme || "blue-magic",
       icon: newResource.icon,
-      resetCondition: newResource.resetCondition || 'safe_rest',
-      resetType: newResource.resetType || 'to_max',
+      resetCondition: newResource.resetCondition || "safe_rest",
+      resetType: newResource.resetType || "to_max",
       resetValue: newResource.resetValue,
-      minValue: newResource.minValue || { type: 'fixed', value: 0 },
-      maxValue: newResource.maxValue || { type: 'fixed', value: 10 },
+      minValue: newResource.minValue || { type: "fixed", value: 0 },
+      maxValue: newResource.maxValue || { type: "fixed", value: 10 },
     };
 
     const resourceInstance = createResourceInstance(
       definition,
       getFlexibleValue(definition.maxValue, character),
-      character.resources.length + 1
+      character.resources.length + 1,
     );
 
     const updatedCharacter = {
       ...character,
-      resources: [...character.resources, resourceInstance]
+      resources: [...character.resources, resourceInstance],
     };
     await updateCharacter(updatedCharacter);
-    
+
     setNewResource(null);
     setIsCreatingResource(false);
   };
 
   const updateNewResource = (field: keyof ResourceDefinition, value: any) => {
-    setNewResource(prev => prev ? { ...prev, [field]: value } : null);
+    setNewResource((prev) => (prev ? { ...prev, [field]: value } : null));
   };
-
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Character Configuration</DialogTitle>
-          <DialogDescription>
-            Configure advanced settings for {character.name}.
-          </DialogDescription>
+          <DialogDescription>Configure advanced settings for {character.name}.</DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6 py-4 overflow-y-auto flex-1">
           {/* Wounds Configuration */}
           <div className="space-y-2">
@@ -270,7 +288,9 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Additional modifier for initiative rolls (added to Dexterity). Current total: {character._attributes.dexterity + character._initiative.modifier >= 0 ? '+' : ''}{character._attributes.dexterity + character._initiative.modifier}.
+                Additional modifier for initiative rolls (added to Dexterity). Current total:{" "}
+                {character._attributes.dexterity + character._initiative.modifier >= 0 ? "+" : ""}
+                {character._attributes.dexterity + character._initiative.modifier}.
               </p>
             </div>
           </div>
@@ -291,7 +311,9 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Base inventory slots (before strength bonus). Final size = {character.config.maxInventorySize} + {character._attributes.strength} (strength) = {character.config.maxInventorySize + character._attributes.strength}.
+                Base inventory slots (before strength bonus). Final size ={" "}
+                {character.config.maxInventorySize} + {character._attributes.strength} (strength) ={" "}
+                {character.config.maxInventorySize + character._attributes.strength}.
               </p>
             </div>
           </div>
@@ -301,8 +323,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Resources</CardTitle>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={startCreatingResource}
                   disabled={isCreatingResource}
@@ -322,9 +344,9 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 <div className="space-y-3">
                   {character.resources.map((resource) => {
                     const isEditing = editingResource === resource.definition.id;
-                    const iconOption = getIconById(resource.definition.icon || '');
+                    const iconOption = getIconById(resource.definition.icon || "");
                     const colorScheme = getColorSchemeById(resource.definition.colorScheme);
-                    
+
                     return (
                       <div key={resource.definition.id} className="p-3 border rounded-lg">
                         {isEditing ? (
@@ -335,7 +357,9 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Name</Label>
                                 <Input
                                   value={resource.definition.name}
-                                  onChange={(e) => updateResource(resource.definition.id, 'name', e.target.value)}
+                                  onChange={(e) =>
+                                    updateResource(resource.definition.id, "name", e.target.value)
+                                  }
                                   className="text-sm"
                                 />
                               </div>
@@ -348,12 +372,18 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 />
                               </div>
                             </div>
-                            
+
                             <div className="space-y-1">
                               <Label className="text-xs">Description</Label>
                               <Textarea
-                                value={resource.definition.description || ''}
-                                onChange={(e) => updateResource(resource.definition.id, 'description', e.target.value)}
+                                value={resource.definition.description || ""}
+                                onChange={(e) =>
+                                  updateResource(
+                                    resource.definition.id,
+                                    "description",
+                                    e.target.value,
+                                  )
+                                }
                                 rows={2}
                                 className="text-sm resize-none"
                               />
@@ -362,18 +392,20 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                             <div className="grid grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <Label className="text-xs">Color Scheme</Label>
-                                <Select 
-                                  value={resource.definition.colorScheme} 
-                                  onValueChange={(value) => updateResource(resource.definition.id, 'colorScheme', value)}
+                                <Select
+                                  value={resource.definition.colorScheme}
+                                  onValueChange={(value) =>
+                                    updateResource(resource.definition.id, "colorScheme", value)
+                                  }
                                 >
                                   <SelectTrigger className="text-sm">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {RESOURCE_COLOR_SCHEMES.map(scheme => (
+                                    {RESOURCE_COLOR_SCHEMES.map((scheme) => (
                                       <SelectItem key={scheme.id} value={scheme.id}>
                                         <div className="flex items-center gap-2">
-                                          <div 
+                                          <div
                                             className="w-3 h-3 rounded"
                                             style={{ backgroundColor: scheme.colors.full }}
                                           />
@@ -386,26 +418,31 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Icon</Label>
-                                <Select 
-                                  value={resource.definition.icon || ''} 
-                                  onValueChange={(value) => updateResource(resource.definition.id, 'icon', value)}
+                                <Select
+                                  value={resource.definition.icon || ""}
+                                  onValueChange={(value) =>
+                                    updateResource(resource.definition.id, "icon", value)
+                                  }
                                 >
                                   <SelectTrigger className="text-sm">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {Object.entries(
-                                      RESOURCE_ICONS.reduce((acc, icon) => {
-                                        if (!acc[icon.category]) acc[icon.category] = [];
-                                        acc[icon.category].push(icon);
-                                        return acc;
-                                      }, {} as Record<string, typeof RESOURCE_ICONS>)
+                                      RESOURCE_ICONS.reduce(
+                                        (acc, icon) => {
+                                          if (!acc[icon.category]) acc[icon.category] = [];
+                                          acc[icon.category].push(icon);
+                                          return acc;
+                                        },
+                                        {} as Record<string, typeof RESOURCE_ICONS>,
+                                      ),
                                     ).map(([category, icons]) => (
                                       <div key={category}>
                                         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize">
                                           {category}
                                         </div>
-                                        {icons.map(icon => (
+                                        {icons.map((icon) => (
                                           <SelectItem key={icon.id} value={icon.id}>
                                             <div className="flex items-center gap-2">
                                               <span>{icon.icon}</span>
@@ -423,9 +460,11 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                             <div className="grid grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <Label className="text-xs">Reset Condition</Label>
-                                <Select 
-                                  value={resource.definition.resetCondition} 
-                                  onValueChange={(value: ResourceResetCondition) => updateResource(resource.definition.id, 'resetCondition', value)}
+                                <Select
+                                  value={resource.definition.resetCondition}
+                                  onValueChange={(value: ResourceResetCondition) =>
+                                    updateResource(resource.definition.id, "resetCondition", value)
+                                  }
                                 >
                                   <SelectTrigger className="text-sm">
                                     <SelectValue />
@@ -441,9 +480,11 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Reset Type</Label>
-                                <Select 
-                                  value={resource.definition.resetType} 
-                                  onValueChange={(value: ResourceResetType) => updateResource(resource.definition.id, 'resetType', value)}
+                                <Select
+                                  value={resource.definition.resetType}
+                                  onValueChange={(value: ResourceResetType) =>
+                                    updateResource(resource.definition.id, "resetType", value)
+                                  }
                                 >
                                   <SelectTrigger className="text-sm">
                                     <SelectValue />
@@ -462,8 +503,17 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Min</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.minValue.type === 'fixed' ? resource.definition.minValue.value : 0}
-                                  onChange={(e) => updateResource(resource.definition.id, 'minValue', { type: 'fixed', value: parseInt(e.target.value) || 0 })}
+                                  value={
+                                    resource.definition.minValue.type === "fixed"
+                                      ? resource.definition.minValue.value
+                                      : 0
+                                  }
+                                  onChange={(e) =>
+                                    updateResource(resource.definition.id, "minValue", {
+                                      type: "fixed",
+                                      value: parseInt(e.target.value) || 0,
+                                    })
+                                  }
                                   className="text-sm"
                                 />
                               </div>
@@ -471,8 +521,17 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Max</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.maxValue.type === 'fixed' ? resource.definition.maxValue.value : 10}
-                                  onChange={(e) => updateResource(resource.definition.id, 'maxValue', { type: 'fixed', value: parseInt(e.target.value) || 10 })}
+                                  value={
+                                    resource.definition.maxValue.type === "fixed"
+                                      ? resource.definition.maxValue.value
+                                      : 10
+                                  }
+                                  onChange={(e) =>
+                                    updateResource(resource.definition.id, "maxValue", {
+                                      type: "fixed",
+                                      value: parseInt(e.target.value) || 10,
+                                    })
+                                  }
                                   className="text-sm"
                                 />
                               </div>
@@ -481,7 +540,13 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Input
                                   type="number"
                                   value={resource.current}
-                                  onChange={(e) => updateResource(resource.definition.id, 'current', parseInt(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    updateResource(
+                                      resource.definition.id,
+                                      "current",
+                                      parseInt(e.target.value) || 0,
+                                    )
+                                  }
                                   className="text-sm"
                                 />
                               </div>
@@ -489,10 +554,22 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                 <Label className="text-xs">Default</Label>
                                 <Input
                                   type="number"
-                                  value={resource.definition.resetValue?.type === 'fixed' ? resource.definition.resetValue.value : ''}
-                                  onChange={(e) => updateResource(resource.definition.id, 'resetValue', e.target.value ? { type: 'fixed', value: parseInt(e.target.value) } : undefined)}
+                                  value={
+                                    resource.definition.resetValue?.type === "fixed"
+                                      ? resource.definition.resetValue.value
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    updateResource(
+                                      resource.definition.id,
+                                      "resetValue",
+                                      e.target.value
+                                        ? { type: "fixed", value: parseInt(e.target.value) }
+                                        : undefined,
+                                    )
+                                  }
                                   className="text-sm"
-                                  disabled={resource.definition.resetType !== 'to_default'}
+                                  disabled={resource.definition.resetType !== "to_default"}
                                 />
                               </div>
                             </div>
@@ -501,7 +578,11 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                               <Button size="sm" onClick={stopEditingResource}>
                                 Done Editing
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => deleteResource(resource.definition.id)}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => deleteResource(resource.definition.id)}
+                              >
                                 <Trash2 className="h-4 w-4 mr-1" />
                                 Delete
                               </Button>
@@ -512,18 +593,20 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-lg">{iconOption?.icon || '💎'}</span>
+                                <span className="text-lg">{iconOption?.icon || "💎"}</span>
                                 <span className="font-medium">{resource.definition.name}</span>
-                                <div 
+                                <div
                                   className="text-xs px-2 py-1 rounded text-white"
-                                  style={{ backgroundColor: colorScheme?.colors.full || '#6b7280' }}
+                                  style={{ backgroundColor: colorScheme?.colors.full || "#6b7280" }}
                                 >
-                                  {colorScheme?.name || 'Default'}
+                                  {colorScheme?.name || "Default"}
                                 </div>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                ID: {resource.definition.id} | {resource.current}/{getFlexibleValue(resource.definition.maxValue, character)} | 
-                                Reset: {resource.definition.resetCondition} → {resource.definition.resetType}
+                                ID: {resource.definition.id} | {resource.current}/
+                                {getFlexibleValue(resource.definition.maxValue, character)} | Reset:{" "}
+                                {resource.definition.resetCondition} →{" "}
+                                {resource.definition.resetType}
                               </div>
                               {resource.definition.description && (
                                 <div className="text-xs text-muted-foreground mt-1">
@@ -565,34 +648,40 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label htmlFor="resource-id" className="text-xs">ID*</Label>
+                        <Label htmlFor="resource-id" className="text-xs">
+                          ID*
+                        </Label>
                         <Input
                           id="resource-id"
                           placeholder="mana"
-                          value={newResource.id || ''}
-                          onChange={(e) => updateNewResource('id', e.target.value)}
+                          value={newResource.id || ""}
+                          onChange={(e) => updateNewResource("id", e.target.value)}
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="resource-name" className="text-xs">Name*</Label>
+                        <Label htmlFor="resource-name" className="text-xs">
+                          Name*
+                        </Label>
                         <Input
                           id="resource-name"
                           placeholder="Mana"
-                          value={newResource.name || ''}
-                          onChange={(e) => updateNewResource('name', e.target.value)}
+                          value={newResource.name || ""}
+                          onChange={(e) => updateNewResource("name", e.target.value)}
                           className="text-sm"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <Label htmlFor="resource-description" className="text-xs">Description</Label>
+                      <Label htmlFor="resource-description" className="text-xs">
+                        Description
+                      </Label>
                       <Textarea
                         id="resource-description"
                         placeholder="Optional description..."
-                        value={newResource.description || ''}
-                        onChange={(e) => updateNewResource('description', e.target.value)}
+                        value={newResource.description || ""}
+                        onChange={(e) => updateNewResource("description", e.target.value)}
                         rows={2}
                         className="text-sm resize-none"
                       />
@@ -600,19 +689,21 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label htmlFor="resource-color-scheme" className="text-xs">Color Scheme</Label>
-                        <Select 
-                          value={newResource.colorScheme || 'blue-magic'} 
-                          onValueChange={(value) => updateNewResource('colorScheme', value)}
+                        <Label htmlFor="resource-color-scheme" className="text-xs">
+                          Color Scheme
+                        </Label>
+                        <Select
+                          value={newResource.colorScheme || "blue-magic"}
+                          onValueChange={(value) => updateNewResource("colorScheme", value)}
                         >
                           <SelectTrigger className="text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {RESOURCE_COLOR_SCHEMES.map(scheme => (
+                            {RESOURCE_COLOR_SCHEMES.map((scheme) => (
                               <SelectItem key={scheme.id} value={scheme.id}>
                                 <div className="flex items-center gap-2">
-                                  <div 
+                                  <div
                                     className="w-3 h-3 rounded"
                                     style={{ backgroundColor: scheme.colors.full }}
                                   />
@@ -624,15 +715,20 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="resource-icon" className="text-xs">Icon</Label>
-                        <Select 
-                          value={newResource.icon || 'sparkles'} 
+                        <Label htmlFor="resource-icon" className="text-xs">
+                          Icon
+                        </Label>
+                        <Select
+                          value={newResource.icon || "sparkles"}
                           onValueChange={(value) => {
-                            updateNewResource('icon', value);
+                            updateNewResource("icon", value);
                             // Auto-suggest color scheme based on icon category
-                            if (!newResource.colorScheme || newResource.colorScheme === 'blue-magic') {
+                            if (
+                              !newResource.colorScheme ||
+                              newResource.colorScheme === "blue-magic"
+                            ) {
                               const suggestedScheme = getDefaultColorSchemeForIcon(value);
-                              updateNewResource('colorScheme', suggestedScheme);
+                              updateNewResource("colorScheme", suggestedScheme);
                             }
                           }}
                         >
@@ -641,17 +737,20 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                           </SelectTrigger>
                           <SelectContent>
                             {Object.entries(
-                              RESOURCE_ICONS.reduce((acc, icon) => {
-                                if (!acc[icon.category]) acc[icon.category] = [];
-                                acc[icon.category].push(icon);
-                                return acc;
-                              }, {} as Record<string, typeof RESOURCE_ICONS>)
+                              RESOURCE_ICONS.reduce(
+                                (acc, icon) => {
+                                  if (!acc[icon.category]) acc[icon.category] = [];
+                                  acc[icon.category].push(icon);
+                                  return acc;
+                                },
+                                {} as Record<string, typeof RESOURCE_ICONS>,
+                              ),
                             ).map(([category, icons]) => (
                               <div key={category}>
                                 <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize">
                                   {category}
                                 </div>
-                                {icons.map(icon => (
+                                {icons.map((icon) => (
                                   <SelectItem key={icon.id} value={icon.id}>
                                     <div className="flex items-center gap-2">
                                       <span>{icon.icon}</span>
@@ -668,10 +767,14 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label htmlFor="resource-reset-condition" className="text-xs">Reset Condition</Label>
-                        <Select 
-                          value={newResource.resetCondition || 'safe_rest'} 
-                          onValueChange={(value: ResourceResetCondition) => updateNewResource('resetCondition', value)}
+                        <Label htmlFor="resource-reset-condition" className="text-xs">
+                          Reset Condition
+                        </Label>
+                        <Select
+                          value={newResource.resetCondition || "safe_rest"}
+                          onValueChange={(value: ResourceResetCondition) =>
+                            updateNewResource("resetCondition", value)
+                          }
                         >
                           <SelectTrigger className="text-sm">
                             <SelectValue />
@@ -686,10 +789,14 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="resource-reset-type" className="text-xs">Reset Type</Label>
-                        <Select 
-                          value={newResource.resetType || 'to_max'} 
-                          onValueChange={(value: ResourceResetType) => updateNewResource('resetType', value)}
+                        <Label htmlFor="resource-reset-type" className="text-xs">
+                          Reset Type
+                        </Label>
+                        <Select
+                          value={newResource.resetType || "to_max"}
+                          onValueChange={(value: ResourceResetType) =>
+                            updateNewResource("resetType", value)
+                          }
                         >
                           <SelectTrigger className="text-sm">
                             <SelectValue />
@@ -705,43 +812,78 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
 
                     <div className="grid grid-cols-3 gap-2">
                       <div className="space-y-1">
-                        <Label htmlFor="resource-min" className="text-xs">Min</Label>
+                        <Label htmlFor="resource-min" className="text-xs">
+                          Min
+                        </Label>
                         <Input
                           id="resource-min"
                           type="number"
-                          value={newResource.minValue?.type === 'fixed' ? newResource.minValue.value : 0}
-                          onChange={(e) => updateNewResource('minValue', { type: 'fixed', value: parseInt(e.target.value) || 0 })}
+                          value={
+                            newResource.minValue?.type === "fixed" ? newResource.minValue.value : 0
+                          }
+                          onChange={(e) =>
+                            updateNewResource("minValue", {
+                              type: "fixed",
+                              value: parseInt(e.target.value) || 0,
+                            })
+                          }
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="resource-max" className="text-xs">Max</Label>
+                        <Label htmlFor="resource-max" className="text-xs">
+                          Max
+                        </Label>
                         <Input
                           id="resource-max"
                           type="number"
-                          value={newResource.maxValue?.type === 'fixed' ? newResource.maxValue.value : 10}
-                          onChange={(e) => updateNewResource('maxValue', { type: 'fixed', value: parseInt(e.target.value) || 10 })}
+                          value={
+                            newResource.maxValue?.type === "fixed" ? newResource.maxValue.value : 10
+                          }
+                          onChange={(e) =>
+                            updateNewResource("maxValue", {
+                              type: "fixed",
+                              value: parseInt(e.target.value) || 10,
+                            })
+                          }
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="resource-default" className="text-xs">Default</Label>
+                        <Label htmlFor="resource-default" className="text-xs">
+                          Default
+                        </Label>
                         <Input
                           id="resource-default"
                           type="number"
-                          value={newResource.resetValue?.type === 'fixed' ? newResource.resetValue.value : ''}
-                          onChange={(e) => updateNewResource('resetValue', e.target.value ? { type: 'fixed', value: parseInt(e.target.value) } : undefined)}
+                          value={
+                            newResource.resetValue?.type === "fixed"
+                              ? newResource.resetValue.value
+                              : ""
+                          }
+                          onChange={(e) =>
+                            updateNewResource(
+                              "resetValue",
+                              e.target.value
+                                ? { type: "fixed", value: parseInt(e.target.value) }
+                                : undefined,
+                            )
+                          }
                           className="text-sm"
-                          disabled={newResource.resetType !== 'to_default'}
+                          disabled={newResource.resetType !== "to_default"}
                         />
                       </div>
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         onClick={saveNewResource}
-                        disabled={!newResource.id || !newResource.name || character.resources.some(r => r.definition.id === newResource.id)}
+                        disabled={
+                          !newResource.id ||
+                          !newResource.name ||
+                          character.resources.some((r) => r.definition.id === newResource.id)
+                        }
                       >
                         Save Resource
                       </Button>
@@ -752,9 +894,10 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                     {(!newResource.id || !newResource.name) && (
                       <p className="text-xs text-destructive">ID and Name are required</p>
                     )}
-                    {newResource.id && character.resources.some(r => r.definition.id === newResource.id) && (
-                      <p className="text-xs text-destructive">Resource ID already exists</p>
-                    )}
+                    {newResource.id &&
+                      character.resources.some((r) => r.definition.id === newResource.id) && (
+                        <p className="text-xs text-destructive">Resource ID already exists</p>
+                      )}
                   </CardContent>
                 </Card>
               )}
@@ -762,11 +905,8 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
           </Card>
         </div>
 
-
         <DialogFooter>
-          <Button onClick={handleClose}>
-            Close
-          </Button>
+          <Button onClick={handleClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

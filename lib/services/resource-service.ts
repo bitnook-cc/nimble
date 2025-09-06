@@ -1,11 +1,7 @@
-import { Character } from '../types/character';
-import { 
-  ResourceInstance,
-  ResourceResetCondition,
-  ResourceDefinition
-} from '../types/resources';
-import { ResourceUsageEntry } from '../types/log-entries';
-import { getValue as getFlexibleValue } from '../types/flexible-value';
+import { Character } from "../types/character";
+import { getValue as getFlexibleValue } from "../types/flexible-value";
+import { ResourceUsageEntry } from "../types/log-entries";
+import { ResourceDefinition, ResourceInstance, ResourceResetCondition } from "../types/resources";
 
 /**
  * Resource Service
@@ -13,12 +9,11 @@ import { getValue as getFlexibleValue } from '../types/flexible-value';
  * Resources are now stored directly on the character with their complete definition.
  */
 export class ResourceService {
-
   /**
    * Get a character's resource by ID
    */
   getResourceInstance(character: Character, resourceId: string): ResourceInstance | null {
-    return character.resources.find(r => r.definition.id === resourceId) || null;
+    return character.resources.find((r) => r.definition.id === resourceId) || null;
   }
 
   /**
@@ -55,10 +50,10 @@ export class ResourceService {
    * Initializes current value based on the resource's reset type
    */
   createResourceInstanceForCharacter(
-    definition: ResourceDefinition, 
+    definition: ResourceDefinition,
     character: Character,
-    current?: number, 
-    sortOrder?: number
+    current?: number,
+    sortOrder?: number,
   ): ResourceInstance {
     if (current !== undefined) {
       return {
@@ -71,15 +66,16 @@ export class ResourceService {
     // Initialize based on reset type
     let initialValue: number;
     switch (definition.resetType) {
-      case 'to_max':
+      case "to_max":
         initialValue = this.calculateMaxValue(definition, character);
         break;
-      case 'to_zero':
+      case "to_zero":
         initialValue = this.calculateMinValue(definition, character);
         break;
-      case 'to_default':
-        initialValue = this.calculateResetValue(definition, character) || 
-                      this.calculateMaxValue(definition, character); // Default to max if no resetValue specified
+      case "to_default":
+        initialValue =
+          this.calculateResetValue(definition, character) ||
+          this.calculateMaxValue(definition, character); // Default to max if no resetValue specified
         break;
       default:
         initialValue = this.calculateMaxValue(definition, character);
@@ -111,7 +107,7 @@ export class ResourceService {
    * Remove a resource from a character
    */
   removeResourceFromCharacter(character: Character, resourceId: string): boolean {
-    const index = character.resources.findIndex(r => r.definition.id === resourceId);
+    const index = character.resources.findIndex((r) => r.definition.id === resourceId);
     if (index === -1) {
       return false;
     }
@@ -123,8 +119,17 @@ export class ResourceService {
   /**
    * Spend resource points
    */
-  spendResource(character: Character, resourceId: string, amount: number): { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance } | null {
-    const resourceInstance = character.resources.find(r => r.definition.id === resourceId);
+  spendResource(
+    character: Character,
+    resourceId: string,
+    amount: number,
+  ): {
+    resourceId: string;
+    amount: number;
+    type: "spend" | "restore";
+    resource: ResourceInstance;
+  } | null {
+    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
     if (!resourceInstance) {
       return null;
     }
@@ -136,7 +141,7 @@ export class ResourceService {
     return {
       resourceId,
       amount: actualAmount,
-      type: 'spend',
+      type: "spend",
       resource: resourceInstance,
     };
   }
@@ -144,8 +149,17 @@ export class ResourceService {
   /**
    * Restore resource points
    */
-  restoreResource(character: Character, resourceId: string, amount: number): { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance } | null {
-    const resourceInstance = character.resources.find(r => r.definition.id === resourceId);
+  restoreResource(
+    character: Character,
+    resourceId: string,
+    amount: number,
+  ): {
+    resourceId: string;
+    amount: number;
+    type: "spend" | "restore";
+    resource: ResourceInstance;
+  } | null {
+    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
     if (!resourceInstance) {
       return null;
     }
@@ -157,7 +171,7 @@ export class ResourceService {
     return {
       resourceId,
       amount: actualAmount,
-      type: 'restore',
+      type: "restore",
       resource: resourceInstance,
     };
   }
@@ -166,7 +180,7 @@ export class ResourceService {
    * Set resource to a specific value
    */
   setResource(character: Character, resourceId: string, value: number): boolean {
-    const resourceInstance = character.resources.find(r => r.definition.id === resourceId);
+    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
     if (!resourceInstance) {
       return false;
     }
@@ -180,8 +194,21 @@ export class ResourceService {
   /**
    * Reset resources based on condition
    */
-  resetResourcesByCondition(character: Character, condition: ResourceResetCondition): { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance }[] {
-    const entries: { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance }[] = [];
+  resetResourcesByCondition(
+    character: Character,
+    condition: ResourceResetCondition,
+  ): {
+    resourceId: string;
+    amount: number;
+    type: "spend" | "restore";
+    resource: ResourceInstance;
+  }[] {
+    const entries: {
+      resourceId: string;
+      amount: number;
+      type: "spend" | "restore";
+      resource: ResourceInstance;
+    }[] = [];
 
     for (const resourceInstance of character.resources) {
       if (resourceInstance.definition.resetCondition !== condition) continue;
@@ -189,15 +216,16 @@ export class ResourceService {
       let newValue: number;
 
       switch (resourceInstance.definition.resetType) {
-        case 'to_max':
+        case "to_max":
           newValue = this.calculateMaxValue(resourceInstance.definition, character);
           break;
-        case 'to_zero':
+        case "to_zero":
           newValue = this.calculateMinValue(resourceInstance.definition, character);
           break;
-        case 'to_default':
-          newValue = this.calculateResetValue(resourceInstance.definition, character) || 
-                     this.calculateMaxValue(resourceInstance.definition, character); // Default to max if no resetValue specified
+        case "to_default":
+          newValue =
+            this.calculateResetValue(resourceInstance.definition, character) ||
+            this.calculateMaxValue(resourceInstance.definition, character); // Default to max if no resetValue specified
           break;
         default:
           continue;
@@ -205,10 +233,10 @@ export class ResourceService {
 
       if (resourceInstance.current !== newValue) {
         const amount = Math.abs(newValue - resourceInstance.current);
-        const type = newValue > resourceInstance.current ? 'restore' : 'spend';
-        
+        const type = newValue > resourceInstance.current ? "restore" : "spend";
+
         resourceInstance.current = newValue;
-        
+
         entries.push({
           resourceId: resourceInstance.definition.id,
           amount,
@@ -225,39 +253,47 @@ export class ResourceService {
    * Reset resources on safe rest
    */
   resetResourcesOnSafeRest(character: Character) {
-    return this.resetResourcesByCondition(character, 'safe_rest');
+    return this.resetResourcesByCondition(character, "safe_rest");
   }
 
   /**
    * Reset resources on encounter end
    */
   resetResourcesOnEncounterEnd(character: Character) {
-    return this.resetResourcesByCondition(character, 'encounter_end');
+    return this.resetResourcesByCondition(character, "encounter_end");
   }
 
   /**
    * Reset resources on turn end
    */
   resetResourcesOnTurnEnd(character: Character) {
-    return this.resetResourcesByCondition(character, 'turn_end');
+    return this.resetResourcesByCondition(character, "turn_end");
   }
 
   /**
    * Create a log entry for resource usage
    */
-  createResourceLogEntry(entry: { resourceId: string; amount: number; type: 'spend' | 'restore'; resource: ResourceInstance }, character: Character): ResourceUsageEntry {
+  createResourceLogEntry(
+    entry: {
+      resourceId: string;
+      amount: number;
+      type: "spend" | "restore";
+      resource: ResourceInstance;
+    },
+    character: Character,
+  ): ResourceUsageEntry {
     const maxValue = this.calculateMaxValue(entry.resource.definition, character);
     return {
       id: `${Date.now()}-${Math.random()}`,
       timestamp: new Date(),
-      type: 'resource',
+      type: "resource",
       resourceId: entry.resourceId,
       resourceName: entry.resource.definition.name,
       amount: entry.amount,
-      action: entry.type === 'spend' ? 'spent' : 'restored',
+      action: entry.type === "spend" ? "spent" : "restored",
       currentAmount: entry.resource.current,
       maxAmount: maxValue,
-      description: `${entry.type === 'spend' ? 'Spent' : 'Restored'} ${entry.amount} ${entry.resource.definition.name}`,
+      description: `${entry.type === "spend" ? "Spent" : "Restored"} ${entry.amount} ${entry.resource.definition.name}`,
     };
   }
 }

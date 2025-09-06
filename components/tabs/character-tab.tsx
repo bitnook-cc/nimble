@@ -1,11 +1,11 @@
 "use client";
 
-import { AttributesSection } from "../sections/attributes-section";
-import { HitDiceSection } from "../sections/hit-dice-section";
 import { AbilitySection } from "../sections/ability-section";
-import { ResourceSection } from "../sections/resource-section";
+import { AttributesSection } from "../sections/attributes-section";
 import { ClassFeaturesSection } from "../sections/class-features-section";
+import { HitDiceSection } from "../sections/hit-dice-section";
 import { PoolSelectionsSection } from "../sections/pool-selections-section";
+import { ResourceSection } from "../sections/resource-section";
 import { SubclassSelectionsSection } from "../sections/subclass-selections-section";
 
 export function CharacterTab() {

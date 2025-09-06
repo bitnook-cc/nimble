@@ -1,13 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Character } from '@/lib/types/character';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
-import { gameConfig } from '@/lib/config/game-config';
-import { SkillsList } from '@/components/shared/skills-list';
+import { RotateCcw } from "lucide-react";
+
+import React, { useEffect, useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { SkillsList } from "@/components/shared/skills-list";
+
+import { gameConfig } from "@/lib/config/game-config";
+import { Character } from "@/lib/types/character";
 
 interface SkillsStepProps {
   character: Character;
@@ -16,25 +20,25 @@ interface SkillsStepProps {
   onSkillAllocationsChange: (allocations: Record<string, number>) => void;
 }
 
-export function SkillsStep({ 
-  character, 
+export function SkillsStep({
+  character,
   levelsToGain,
   skillAllocations,
-  onSkillAllocationsChange 
+  onSkillAllocationsChange,
 }: SkillsStepProps) {
   const [newAllocations, setNewAllocations] = useState<Record<string, number>>({});
-  
+
   // Initialize with zeros for new allocations
   useEffect(() => {
     const initialAllocations: Record<string, number> = {};
-    gameConfig.skills.forEach(skill => {
+    gameConfig.skills.forEach((skill) => {
       initialAllocations[skill.name] = 0;
     });
     setNewAllocations(initialAllocations);
   }, []);
 
   const skillPointsToAllocate = levelsToGain; // 1 skill point per level
-  
+
   const getTotalAllocatedPoints = () => {
     return Object.values(newAllocations).reduce((sum, points) => sum + points, 0);
   };
@@ -60,7 +64,7 @@ export function SkillsStep({
   // Create combined allocations for display (current + new)
   const getCombinedAllocations = () => {
     const combined: Record<string, number> = {};
-    gameConfig.skills.forEach(skill => {
+    gameConfig.skills.forEach((skill) => {
       const current = getCurrentSkillValue(skill.name);
       const newPoints = newAllocations[skill.name] || 0;
       combined[skill.name] = current + newPoints;
@@ -71,16 +75,16 @@ export function SkillsStep({
   const handleSkillChange = (skillName: string, newTotalValue: number) => {
     const currentValue = getCurrentSkillValue(skillName);
     const newPointsToAdd = newTotalValue - currentValue;
-    
+
     // Make sure we don't exceed max skill value
     if (newTotalValue > gameConfig.character.skillModifierRange.max) return;
-    
+
     // Calculate if we have enough points
     const currentNewPoints = newAllocations[skillName] || 0;
     const pointDiff = newPointsToAdd - currentNewPoints;
-    
+
     if (pointDiff > 0 && getRemainingPoints() < pointDiff) return;
-    
+
     const updated = { ...newAllocations, [skillName]: newPointsToAdd };
     setNewAllocations(updated);
     onSkillAllocationsChange(updated);
@@ -88,7 +92,7 @@ export function SkillsStep({
 
   const resetAllocations = () => {
     const reset: Record<string, number> = {};
-    gameConfig.skills.forEach(skill => {
+    gameConfig.skills.forEach((skill) => {
       reset[skill.name] = 0;
     });
     setNewAllocations(reset);
@@ -100,7 +104,8 @@ export function SkillsStep({
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Allocate Skill Points</h3>
         <p className="text-sm text-muted-foreground">
-          You gain 1 skill point per level ({levelsToGain} {levelsToGain === 1 ? 'point' : 'points'} total)
+          You gain 1 skill point per level ({levelsToGain} {levelsToGain === 1 ? "point" : "points"}{" "}
+          total)
         </p>
       </div>
 
@@ -108,9 +113,7 @@ export function SkillsStep({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <CardTitle className="text-base">
-                Points Available: 
-              </CardTitle>
+              <CardTitle className="text-base">Points Available:</CardTitle>
               <Badge variant={getRemainingPoints() === 0 ? "default" : "secondary"}>
                 {getRemainingPoints()} / {skillPointsToAllocate}
               </Badge>
@@ -146,12 +149,12 @@ export function SkillsStep({
           <CardContent className="pt-4">
             <p className="text-sm font-medium mb-2">New Skill Points:</p>
             <div className="space-y-1">
-              {gameConfig.skills.map(skill => {
+              {gameConfig.skills.map((skill) => {
                 const newPoints = newAllocations[skill.name];
                 if (newPoints > 0) {
                   return (
                     <div key={skill.name} className="text-sm text-muted-foreground">
-                      • {skill.label}: +{newPoints} {newPoints === 1 ? 'point' : 'points'}
+                      • {skill.label}: +{newPoints} {newPoints === 1 ? "point" : "points"}
                     </div>
                   );
                 }

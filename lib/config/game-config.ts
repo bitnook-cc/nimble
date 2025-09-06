@@ -1,7 +1,7 @@
 export interface SkillDefinition {
   name: string;
   label: string;
-  attribute: 'strength' | 'dexterity' | 'intelligence' | 'will';
+  attribute: "strength" | "dexterity" | "intelligence" | "will";
 }
 
 export interface GameConfig {
@@ -59,16 +59,16 @@ export const gameConfig: GameConfig = {
     defaultSpeed: 6,
   },
   skills: [
-    { name: 'arcana', label: 'Arcana', attribute: 'intelligence' },
-    { name: 'examination', label: 'Examination', attribute: 'intelligence' },
-    { name: 'finesse', label: 'Finesse', attribute: 'dexterity' },
-    { name: 'influence', label: 'Influence', attribute: 'will' },
-    { name: 'insight', label: 'Insight', attribute: 'will' },
-    { name: 'might', label: 'Might', attribute: 'strength' },
-    { name: 'lore', label: 'Lore', attribute: 'intelligence' },
-    { name: 'naturecraft', label: 'Naturecraft', attribute: 'will' },
-    { name: 'perception', label: 'Perception', attribute: 'will' },
-    { name: 'stealth', label: 'Stealth', attribute: 'dexterity' },
+    { name: "arcana", label: "Arcana", attribute: "intelligence" },
+    { name: "examination", label: "Examination", attribute: "intelligence" },
+    { name: "finesse", label: "Finesse", attribute: "dexterity" },
+    { name: "influence", label: "Influence", attribute: "will" },
+    { name: "insight", label: "Insight", attribute: "will" },
+    { name: "might", label: "Might", attribute: "strength" },
+    { name: "lore", label: "Lore", attribute: "intelligence" },
+    { name: "naturecraft", label: "Naturecraft", attribute: "will" },
+    { name: "perception", label: "Perception", attribute: "will" },
+    { name: "stealth", label: "Stealth", attribute: "dexterity" },
   ],
   storage: {
     maxRollHistory: 100,
@@ -77,8 +77,8 @@ export const gameConfig: GameConfig = {
     maxWeaponSize: 2,
   },
   defaults: {
-    classId: 'cheat',
-    ancestryId: 'goblin',
-    backgroundId: 'former-con-artist',
+    classId: "cheat",
+    ancestryId: "goblin",
+    backgroundId: "former-con-artist",
   },
 };

@@ -1,40 +1,46 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { getEquippedArmor, getEquippedMainArmor, getEquippedSupplementaryArmor } from "@/lib/utils/equipment";
-import { Shield, ChevronDown, ChevronRight, Shirt } from "lucide-react";
+import { ChevronDown, ChevronRight, Shield, Shirt } from "lucide-react";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { StatBonus } from "@/lib/types/stat-bonus";
+import {
+  getEquippedArmor,
+  getEquippedMainArmor,
+  getEquippedSupplementaryArmor,
+} from "@/lib/utils/equipment";
+
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function ArmorSection() {
   // Get everything we need from service hooks
   const { character, getAttributes, getArmorValue } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-  
+
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
-  
+
   const isOpen = uiState.collapsibleSections.armor;
-  const onToggle = (isOpen: boolean) => updateCollapsibleState('armor', isOpen);
+  const onToggle = (isOpen: boolean) => updateCollapsibleState("armor", isOpen);
   const equippedArmor = getEquippedArmor(character.inventory.items);
   const mainArmor = getEquippedMainArmor(character.inventory.items);
-  
+
   // Use computed attributes and armor value from character service
   const attributes = getAttributes();
   const dexterityBonus = attributes.dexterity;
   const totalArmorValue = getArmorValue();
-  
+
   // Calculate dexterity bonus with cap information
   const mainArmorMaxDex = mainArmor?.maxDexBonus;
   const isDexterityCapped = mainArmorMaxDex !== undefined && dexterityBonus > mainArmorMaxDex;
   const effectiveDexBonus = isDexterityCapped ? mainArmorMaxDex : dexterityBonus;
-  
+
   // Calculate total armor from equipped items
   const totalEquippedArmor = equippedArmor.reduce((total, armor) => total + (armor.armor || 0), 0);
-  
+
   // Calculate feature bonuses (total armor value - dex bonus - equipped armor = feature bonuses)
   const featureBonuses = totalArmorValue - effectiveDexBonus - totalEquippedArmor;
 
@@ -62,8 +68,10 @@ export function ArmorSection() {
         <CollapsibleContent>
           <CardContent>
             <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground mb-3">Armor Calculation Breakdown</div>
-              
+              <div className="text-sm font-medium text-muted-foreground mb-3">
+                Armor Calculation Breakdown
+              </div>
+
               {/* Calculation Table */}
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
@@ -89,7 +97,9 @@ export function ArmorSection() {
                       <td className="p-3 text-right">
                         {isDexterityCapped ? (
                           <div>
-                            <span className="line-through text-muted-foreground">+{dexterityBonus}</span>
+                            <span className="line-through text-muted-foreground">
+                              +{dexterityBonus}
+                            </span>
                             <span className="ml-2 font-medium">+{effectiveDexBonus}</span>
                           </div>
                         ) : (
@@ -99,7 +109,7 @@ export function ArmorSection() {
                     </tr>
 
                     {/* Equipped Armor Items */}
-                    {equippedArmor.map(armor => (
+                    {equippedArmor.map((armor) => (
                       <tr key={armor.id} className="border-b">
                         <td className="p-3">
                           <div className="flex items-center gap-2">
@@ -117,13 +127,11 @@ export function ArmorSection() {
                           </div>
                           {armor.properties && armor.properties.length > 0 && (
                             <div className="text-xs text-muted-foreground mt-1">
-                              {armor.properties.join(', ')}
+                              {armor.properties.join(", ")}
                             </div>
                           )}
                         </td>
-                        <td className="p-3 text-right font-medium">
-                          +{armor.armor || 0}
-                        </td>
+                        <td className="p-3 text-right font-medium">+{armor.armor || 0}</td>
                       </tr>
                     ))}
 
@@ -139,7 +147,8 @@ export function ArmorSection() {
                           </div>
                         </td>
                         <td className="p-3 text-right font-medium">
-                          {featureBonuses >= 0 ? '+' : ''}{featureBonuses}
+                          {featureBonuses >= 0 ? "+" : ""}
+                          {featureBonuses}
                         </td>
                       </tr>
                     )}
@@ -168,7 +177,8 @@ export function ArmorSection() {
               {/* Additional Info */}
               {isDexterityCapped && (
                 <div className="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200">
-                  <strong>Dexterity Cap:</strong> Your Dexterity bonus is limited by your main armor&apos;s maximum Dex bonus of {mainArmorMaxDex}.
+                  <strong>Dexterity Cap:</strong> Your Dexterity bonus is limited by your main
+                  armor&apos;s maximum Dex bonus of {mainArmorMaxDex}.
                 </div>
               )}
             </div>

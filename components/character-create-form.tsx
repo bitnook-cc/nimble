@@ -1,19 +1,19 @@
 "use client";
 
+import { Plus, Wand2 } from "lucide-react";
+
 import { useState } from "react";
+
+import { gameConfig } from "@/lib/config/game-config";
+import { useToastService } from "@/lib/hooks/use-toast-service";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
+
+import { CharacterBuilder } from "./character-builder";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Plus, Wand2 } from "lucide-react";
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { CharacterBuilder } from "./character-builder";
-import { 
-  getCharacterCreation, 
-  getCharacterService
-} from "@/lib/services/service-factory";
-import { useToastService } from "@/lib/hooks/use-toast-service";
-import { gameConfig } from "@/lib/config/game-config";
 
 interface CharacterCreateFormProps {
   onComplete?: () => void; // Called when character is successfully created
@@ -22,11 +22,11 @@ interface CharacterCreateFormProps {
   autoFocus?: boolean;
 }
 
-export function CharacterCreateForm({ 
-  onComplete, 
+export function CharacterCreateForm({
+  onComplete,
   onCancel,
   showAsCard = true,
-  autoFocus = true
+  autoFocus = true,
 }: CharacterCreateFormProps) {
   const [selectedClass, setSelectedClass] = useState(gameConfig.defaults.classId);
   const [showBuilder, setShowBuilder] = useState(false);
@@ -43,22 +43,22 @@ export function CharacterCreateForm({
     try {
       const characterCreation = getCharacterCreation();
       const characterService = getCharacterService();
-      
+
       // Create character with random ancestry/background and generated name
       const newCharacter = await characterCreation.quickCreateCharacter({
         classId: selectedClass,
-        level: 1
+        level: 1,
         // No name, ancestryId, or backgroundId provided - will be randomly generated
       });
-      
+
       // Load the new character (this will automatically update settings)
       await characterService.loadCharacter(newCharacter.id);
-      
+
       showSuccess("Character created", `${newCharacter.name} has been created successfully!`);
-      
+
       // Reset form
       setSelectedClass(gameConfig.defaults.classId);
-      
+
       // Notify parent that creation is complete
       onComplete?.();
     } catch (error) {
@@ -83,11 +83,7 @@ export function CharacterCreateForm({
     <div className="space-y-4">
       {/* Character Builder Option */}
       <div className="text-center">
-        <Button 
-          onClick={() => setShowBuilder(true)}
-          className="w-full mb-4"
-          variant="default"
-        >
+        <Button onClick={() => setShowBuilder(true)} className="w-full mb-4" variant="default">
           <Wand2 className="w-4 h-4 mr-2" />
           Character Builder
         </Button>
@@ -103,14 +99,14 @@ export function CharacterCreateForm({
 
       <div className="space-y-2">
         <Label htmlFor="character-class">Class</Label>
-        <select 
+        <select
           id="character-class"
-          value={selectedClass} 
+          value={selectedClass}
           onChange={(e) => setSelectedClass(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               handleCreateCharacter();
-            } else if (e.key === 'Escape') {
+            } else if (e.key === "Escape") {
               handleCancel();
             }
           }}
@@ -125,20 +121,12 @@ export function CharacterCreateForm({
         </select>
       </div>
       <div className="flex gap-2">
-        <Button 
-          onClick={handleCreateCharacter}
-          disabled={isCreating}
-          size="sm"
-        >
+        <Button onClick={handleCreateCharacter} disabled={isCreating} size="sm">
           <Plus className="w-4 h-4 mr-2" />
           {isCreating ? "Creating..." : "Quick Create"}
         </Button>
         {onCancel && (
-          <Button 
-            variant="outline" 
-            onClick={handleCancel}
-            size="sm"
-          >
+          <Button variant="outline" onClick={handleCancel} size="sm">
             Cancel
           </Button>
         )}
@@ -150,11 +138,9 @@ export function CharacterCreateForm({
     return (
       <>
         <Card className="border-dashed">
-          <CardContent className="pt-4">
-            {formContent}
-          </CardContent>
+          <CardContent className="pt-4">{formContent}</CardContent>
         </Card>
-        
+
         {/* Character Builder Modal */}
         <CharacterBuilder
           isOpen={showBuilder}
@@ -168,7 +154,7 @@ export function CharacterCreateForm({
   return (
     <>
       {formContent}
-      
+
       {/* Character Builder Modal */}
       <CharacterBuilder
         isOpen={showBuilder}

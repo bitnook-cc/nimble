@@ -1,19 +1,27 @@
-import { Item, ItemType, WeaponItem, ArmorItem, FreeformItem, ConsumableItem, AmmunitionItem } from './inventory';
+import {
+  AmmunitionItem,
+  ArmorItem,
+  ConsumableItem,
+  FreeformItem,
+  Item,
+  ItemType,
+  WeaponItem,
+} from "./inventory";
 
 // Repository item wrapper that uses the existing item structure
 export interface RepositoryItem {
-  item: Omit<Item, 'equipped'>; // Repository items aren't equipped initially
-  category: 'mundane' | 'magical';
-  rarity?: 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary';
+  item: Omit<Item, "equipped">; // Repository items aren't equipped initially
+  category: "mundane" | "magical";
+  rarity?: "common" | "uncommon" | "rare" | "very-rare" | "legendary";
 }
 
 // Specific repository item types
 export interface RepositoryWeaponItem extends RepositoryItem {
-  item: Omit<WeaponItem, 'equipped'>;
+  item: Omit<WeaponItem, "equipped">;
 }
 
 export interface RepositoryArmorItem extends RepositoryItem {
-  item: Omit<ArmorItem, 'equipped'>;
+  item: Omit<ArmorItem, "equipped">;
 }
 
 export interface RepositoryFreeformItem extends RepositoryItem {
@@ -45,7 +53,7 @@ export interface CustomItemContent {
 // Filter options for item browsing
 export interface ItemFilter {
   type?: ItemType;
-  category?: 'mundane' | 'magical';
-  rarity?: 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary';
+  category?: "mundane" | "magical";
+  rarity?: "common" | "uncommon" | "rare" | "very-rare" | "legendary";
   name?: string;
 }

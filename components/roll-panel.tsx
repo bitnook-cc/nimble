@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "./ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuTrigger 
-} from "./ui/dropdown-menu";
-import { DiceType } from "@/lib/types/dice";
-import { diceService } from "@/lib/services/dice-service";
-import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { Dices, X } from "lucide-react";
+
+import { useState } from "react";
+
+import { useActivityLog } from "@/lib/hooks/use-activity-log";
+import { diceService } from "@/lib/services/dice-service";
+import { DiceType } from "@/lib/types/dice";
+
+import { Button } from "./ui/button";
 import { DiceIcon } from "./ui/dice-icons";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 interface DiceInPool {
   id: string;
@@ -27,13 +26,13 @@ export function RollPanel() {
   const addDiceToPool = (type: DiceType) => {
     const newDie: DiceInPool = {
       id: crypto.randomUUID(),
-      type
+      type,
     };
-    setDicePool(prev => [...prev, newDie]);
+    setDicePool((prev) => [...prev, newDie]);
   };
 
   const removeDiceFromPool = (id: string) => {
-    setDicePool(prev => prev.filter(die => die.id !== id));
+    setDicePool((prev) => prev.filter((die) => die.id !== id));
   };
 
   const clearPool = () => {
@@ -55,18 +54,21 @@ export function RollPanel() {
     }
 
     // Create description showing dice types
-    const diceTypeCounts = dicePool.reduce((acc, die) => {
-      acc[die.type] = (acc[die.type] || 0) + 1;
-      return acc;
-    }, {} as Record<DiceType, number>);
-    
+    const diceTypeCounts = dicePool.reduce(
+      (acc, die) => {
+        acc[die.type] = (acc[die.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<DiceType, number>,
+    );
+
     const diceDescription = Object.entries(diceTypeCounts)
       .map(([type, count]) => `${count}d${type}`)
-      .join(' + ');
+      .join(" + ");
 
     addLogEntry({
       id: crypto.randomUUID(),
-      type: 'roll',
+      type: "roll",
       timestamp: new Date(),
       description: `Custom roll: ${diceDescription}`,
       dice: allDice,
@@ -92,10 +94,10 @@ export function RollPanel() {
       <DropdownMenuContent align="start" className="w-64 p-3">
         <div className="space-y-3">
           <div className="text-sm font-medium">Custom Dice Roll</div>
-          
+
           {/* Dice Type Buttons */}
           <div className="grid grid-cols-3 gap-1">
-            {diceTypes.map(type => (
+            {diceTypes.map((type) => (
               <Button
                 key={type}
                 variant="outline"
@@ -103,8 +105,7 @@ export function RollPanel() {
                 className="h-9 text-xs flex items-center gap-1 px-2"
                 onClick={() => addDiceToPool(type)}
               >
-                <DiceIcon type={type} className="w-3 h-3" />
-                d{type}
+                <DiceIcon type={type} className="w-3 h-3" />d{type}
               </Button>
             ))}
           </div>
@@ -114,17 +115,12 @@ export function RollPanel() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">Pool:</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs"
-                  onClick={clearPool}
-                >
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearPool}>
                   Clear
                 </Button>
               </div>
               <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                {dicePool.map(die => (
+                {dicePool.map((die) => (
                   <div
                     key={die.id}
                     className="flex items-center gap-1 bg-slate-50 border rounded px-1 py-0.5"
@@ -144,12 +140,7 @@ export function RollPanel() {
           )}
 
           {/* Roll Button */}
-          <Button 
-            onClick={rollDice} 
-            disabled={dicePool.length === 0}
-            className="w-full"
-            size="sm"
-          >
+          <Button onClick={rollDice} disabled={dicePool.length === 0} className="w-full" size="sm">
             Roll ({dicePool.length} dice)
           </Button>
         </div>

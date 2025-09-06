@@ -1,11 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ClassFeature } from '@/lib/types/class';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { FeatureEffect } from '@/lib/types/feature-effects';
-import { FeatureEffectsDisplay } from './feature-effects-display';
+import React from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+
+import { ClassFeature } from "@/lib/types/class";
+import { FeatureEffect } from "@/lib/types/feature-effects";
+
+import { FeatureEffectsDisplay } from "./feature-effects-display";
 
 interface FeatureDisplayProps {
   feature: ClassFeature;
@@ -14,7 +17,12 @@ interface FeatureDisplayProps {
   className?: string;
 }
 
-export function FeatureDisplay({ feature, onSelectEffect, selectedEffectIds = [], className = '' }: FeatureDisplayProps) {
+export function FeatureDisplay({
+  feature,
+  onSelectEffect,
+  selectedEffectIds = [],
+  className = "",
+}: FeatureDisplayProps) {
   return (
     <Card className={className}>
       <CardContent className="p-4">
@@ -34,7 +42,7 @@ export function FeatureDisplay({ feature, onSelectEffect, selectedEffectIds = []
 
           {/* Feature Effects - using the shared component */}
           <div className="pt-2 border-t">
-            <FeatureEffectsDisplay 
+            <FeatureEffectsDisplay
               effects={feature.effects}
               onSelectEffect={onSelectEffect}
               selectedEffectIds={selectedEffectIds}

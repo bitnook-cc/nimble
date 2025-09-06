@@ -1,9 +1,9 @@
-import { ItemRepository } from '../../types/item-repository';
-import { MUNDANE_WEAPONS, MAGICAL_WEAPONS } from './weapons';
-import { MUNDANE_ARMOR, MAGICAL_ARMOR } from './armor';
-import { MUNDANE_CONSUMABLES, MAGICAL_CONSUMABLES } from './consumables';
-import { MUNDANE_AMMUNITION, MAGICAL_AMMUNITION } from './ammunition';
-import { MUNDANE_FREEFORM, MAGICAL_FREEFORM } from './freeform';
+import { ItemRepository } from "../../types/item-repository";
+import { MAGICAL_AMMUNITION, MUNDANE_AMMUNITION } from "./ammunition";
+import { MAGICAL_ARMOR, MUNDANE_ARMOR } from "./armor";
+import { MAGICAL_CONSUMABLES, MUNDANE_CONSUMABLES } from "./consumables";
+import { MAGICAL_FREEFORM, MUNDANE_FREEFORM } from "./freeform";
+import { MAGICAL_WEAPONS, MUNDANE_WEAPONS } from "./weapons";
 
 export const ITEM_REPOSITORY: ItemRepository = {
   weapons: [...MUNDANE_WEAPONS, ...MAGICAL_WEAPONS],
@@ -13,8 +13,8 @@ export const ITEM_REPOSITORY: ItemRepository = {
   ammunition: [...MUNDANE_AMMUNITION, ...MAGICAL_AMMUNITION],
 };
 
-export * from './weapons';
-export * from './armor';
-export * from './consumables';
-export * from './ammunition';
-export * from './freeform';
+export * from "./weapons";
+export * from "./armor";
+export * from "./consumables";
+export * from "./ammunition";
+export * from "./freeform";

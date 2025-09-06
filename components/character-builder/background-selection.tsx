@@ -1,8 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
 import { BackgroundDefinition } from "@/lib/types/background";
+
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface BackgroundSelectionProps {
   availableBackgrounds: BackgroundDefinition[];
@@ -19,7 +20,9 @@ export function BackgroundSelection({
     <div className="space-y-4">
       <div className="text-center">
         <h2 className="text-xl font-bold mb-1">Character Background</h2>
-        <p className="text-sm text-muted-foreground">Choose your character&apos;s background and cultural origins</p>
+        <p className="text-sm text-muted-foreground">
+          Choose your character&apos;s background and cultural origins
+        </p>
       </div>
 
       {/* Background Selection */}
@@ -27,10 +30,10 @@ export function BackgroundSelection({
         <h3 className="text-base font-semibold mb-2">Background</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {availableBackgrounds.map((background: BackgroundDefinition) => (
-            <Card 
+            <Card
               key={background.id}
               className={`cursor-pointer transition-all ${
-                selectedBackgroundId === background.id ? 'ring-2 ring-primary' : 'hover:shadow-md'
+                selectedBackgroundId === background.id ? "ring-2 ring-primary" : "hover:shadow-md"
               }`}
               onClick={() => onBackgroundSelect(background.id)}
             >

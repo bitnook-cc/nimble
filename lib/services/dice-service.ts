@@ -1,7 +1,7 @@
-import { DiceType, DiceExpression } from '../types/dice';
-import { SingleDie } from '../types/log-entries';
-import { gameConfig } from '../config/game-config';
-import { parseDiceExpression } from '../utils/dice-parser';
+import { gameConfig } from "../config/game-config";
+import { DiceExpression, DiceType } from "../types/dice";
+import { SingleDie } from "../types/log-entries";
+import { parseDiceExpression } from "../utils/dice-parser";
 
 export interface DiceRollResult {
   dice: SingleDie[];
@@ -12,7 +12,6 @@ export interface DiceRollResult {
 }
 
 export class DiceService {
-  
   rollSingleDie(sides: DiceType): number {
     return Math.floor(Math.random() * sides) + 1;
   }
@@ -28,13 +27,16 @@ export class DiceService {
     return dice;
   }
 
-  applyAdvantageDisadvantage(dice: SingleDie[], advantageLevel: number): { finalDice: SingleDie[], droppedDice: SingleDie[] } {
+  applyAdvantageDisadvantage(
+    dice: SingleDie[],
+    advantageLevel: number,
+  ): { finalDice: SingleDie[]; droppedDice: SingleDie[] } {
     if (advantageLevel === 0) {
       return { finalDice: dice, droppedDice: [] };
     }
 
     const sortedDice = [...dice].sort((a, b) => a.result - b.result);
-    
+
     if (advantageLevel > 0) {
       // Advantage: drop lowest dice
       const numToDrop = Math.min(advantageLevel, dice.length - 1);
@@ -50,11 +52,15 @@ export class DiceService {
     }
   }
 
-  rollDiceWithCriticals(count: number, sides: DiceType, advantageLevel: number = 0): { dice: SingleDie[], droppedDice: SingleDie[], criticalHits: number } {
+  rollDiceWithCriticals(
+    count: number,
+    sides: DiceType,
+    advantageLevel: number = 0,
+  ): { dice: SingleDie[]; droppedDice: SingleDie[]; criticalHits: number } {
     // Calculate total dice to roll (base count + advantage/disadvantage dice)
     const totalDiceToRoll = count + Math.abs(advantageLevel);
     const initialDice: SingleDie[] = [];
-    
+
     // Roll initial dice (including advantage/disadvantage extra dice)
     for (let i = 0; i < totalDiceToRoll; i++) {
       initialDice.push({
@@ -62,16 +68,16 @@ export class DiceService {
         result: this.rollSingleDie(sides),
       });
     }
-    
+
     // Apply advantage/disadvantage to get final dice and dropped dice
     const { finalDice, droppedDice } = this.applyAdvantageDisadvantage(initialDice, advantageLevel);
-    
+
     // Check if the first die (primary damage die) rolled its maximum for critical hits
     let criticalHits = 0;
     if (finalDice.length > 0 && finalDice[0].result === sides) {
       finalDice[0].isCritical = true;
       criticalHits++;
-      
+
       // Keep rolling additional dice while they also roll maximum (no advantage/disadvantage on critical dice)
       let consecutiveCrits = 0;
       while (consecutiveCrits < gameConfig.dice.maxCriticalHitsInRow) {
@@ -80,7 +86,7 @@ export class DiceService {
           result: this.rollSingleDie(sides),
         };
         finalDice.push(additionalDie);
-        
+
         // Check if this additional die also rolled maximum (another crit)
         if (additionalDie.result === sides) {
           additionalDie.isCritical = true;
@@ -92,15 +98,19 @@ export class DiceService {
         }
       }
     }
-    
+
     return { dice: finalDice, droppedDice, criticalHits };
   }
 
-  rollBasicDice(count: number, sides: DiceType, advantageLevel: number = 0): { dice: SingleDie[], droppedDice: SingleDie[] } {
+  rollBasicDice(
+    count: number,
+    sides: DiceType,
+    advantageLevel: number = 0,
+  ): { dice: SingleDie[]; droppedDice: SingleDie[] } {
     // Calculate total dice to roll (base count + advantage/disadvantage dice)
     const totalDiceToRoll = count + Math.abs(advantageLevel);
     const initialDice: SingleDie[] = [];
-    
+
     // Roll initial dice (including advantage/disadvantage extra dice)
     for (let i = 0; i < totalDiceToRoll; i++) {
       initialDice.push({
@@ -108,10 +118,10 @@ export class DiceService {
         result: this.rollSingleDie(sides),
       });
     }
-    
+
     // Apply advantage/disadvantage to get final dice and dropped dice
     const { finalDice, droppedDice } = this.applyAdvantageDisadvantage(initialDice, advantageLevel);
-    
+
     return { dice: finalDice, droppedDice };
   }
 
@@ -122,7 +132,7 @@ export class DiceService {
     const { dice, droppedDice } = this.rollBasicDice(1, 20, advantageLevel);
     const diceTotal = dice.reduce((sum, die) => sum + die.result, 0);
     const total = diceTotal + modifier;
-    
+
     return {
       dice,
       droppedDice,
@@ -141,13 +151,17 @@ export class DiceService {
       throw new Error(`Invalid dice expression: ${diceExpression}`);
     }
 
-    const { dice, droppedDice, criticalHits } = this.rollDiceWithCriticals(parsed.count, parsed.sides, advantageLevel);
+    const { dice, droppedDice, criticalHits } = this.rollDiceWithCriticals(
+      parsed.count,
+      parsed.sides,
+      advantageLevel,
+    );
     const diceTotal = dice.reduce((sum, die) => sum + die.result, 0);
     const total = diceTotal + modifier;
-    
+
     // Check for miss - only if first die is 1 (and using miss rule) - check AFTER advantage/disadvantage
     const isMiss = gameConfig.combat.missOnFirstDieOne && dice.length > 0 && dice[0].result === 1;
-    
+
     return {
       dice,
       droppedDice,

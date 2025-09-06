@@ -1,9 +1,10 @@
 "use client";
 
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { CreateItemData } from "@/lib/types/inventory";
+
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface ItemFormFieldsProps {
   item: CreateItemData;
@@ -12,7 +13,7 @@ interface ItemFormFieldsProps {
 }
 
 export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFieldsProps) {
-  const getId = (field: string) => idPrefix ? `${idPrefix}-${field}` : field;
+  const getId = (field: string) => (idPrefix ? `${idPrefix}-${field}` : field);
 
   return (
     <>
@@ -36,7 +37,7 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
           placeholder="Item description"
         />
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor={getId("item-size")}>Size</Label>
@@ -51,8 +52,8 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
         </div>
         <div>
           <Label htmlFor={getId("item-type")}>Type</Label>
-          <Select 
-            value={item.type} 
+          <Select
+            value={item.type}
             onValueChange={(value) => onItemChange({ ...item, type: value as any })}
           >
             <SelectTrigger>
@@ -69,12 +70,12 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
         </div>
       </div>
 
-      {item.type === 'weapon' && (
+      {item.type === "weapon" && (
         <>
           <div>
             <Label htmlFor={getId("weapon-attribute")}>Attribute</Label>
-            <Select 
-              value={item.attribute || ""} 
+            <Select
+              value={item.attribute || ""}
               onValueChange={(value) => onItemChange({ ...item, attribute: value as any })}
             >
               <SelectTrigger>
@@ -100,7 +101,7 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
         </>
       )}
 
-      {item.type === 'armor' && (
+      {item.type === "armor" && (
         <>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -109,7 +110,9 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
                 id={getId("armor-value")}
                 type="number"
                 value={item.armor || ""}
-                onChange={(e) => onItemChange({ ...item, armor: parseInt(e.target.value) || undefined })}
+                onChange={(e) =>
+                  onItemChange({ ...item, armor: parseInt(e.target.value) || undefined })
+                }
                 placeholder="Armor value"
               />
             </div>
@@ -119,7 +122,12 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
                 id={getId("max-dex-bonus")}
                 type="number"
                 value={item.maxDexBonus ?? ""}
-                onChange={(e) => onItemChange({ ...item, maxDexBonus: e.target.value === "" ? undefined : parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  onItemChange({
+                    ...item,
+                    maxDexBonus: e.target.value === "" ? undefined : parseInt(e.target.value) || 0,
+                  })
+                }
                 placeholder="No limit"
               />
             </div>
@@ -139,7 +147,7 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
         </>
       )}
 
-      {(item.type === 'consumable' || item.type === 'ammunition') && (
+      {(item.type === "consumable" || item.type === "ammunition") && (
         <>
           <div>
             <Label htmlFor={getId("item-count")}>Count</Label>

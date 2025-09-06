@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Beaker, Package, Plus, Search, Shield, Shirt, Sword, Target, Trash2 } from "lucide-react";
+
+import { useCallback, useEffect, useState } from "react";
+
+import { getContentRepository, getItemService } from "@/lib/services/service-factory";
+import { Item } from "@/lib/types/inventory";
+
+import { ItemBrowser } from "../item-browser";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ItemBrowser } from "../item-browser";
-import { getItemService, getContentRepository } from "@/lib/services/service-factory";
-import { Package, Search, Plus, Trash2, Sword, Shield, Shirt, Beaker, Target } from "lucide-react";
-import { Item } from "@/lib/types/inventory";
-import { Badge } from "../ui/badge";
 
 interface EquipmentSelectionProps {
   classId: string;
@@ -15,21 +18,23 @@ interface EquipmentSelectionProps {
   onEquipmentReady: (equipment: string[]) => void;
 }
 
-export function EquipmentSelection({ 
+export function EquipmentSelection({
   classId,
   selectedEquipment,
-  onEquipmentReady 
+  onEquipmentReady,
 }: EquipmentSelectionProps) {
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const itemService = getItemService();
   const contentRepository = getContentRepository();
-  
+
   // Convert selectedEquipment repository IDs to display items
-  const equipment = selectedEquipment.map(repositoryId => {
-    return itemService.createInventoryItem(repositoryId);
-  }).filter(item => item !== null) as Item[];
+  const equipment = selectedEquipment
+    .map((repositoryId) => {
+      return itemService.createInventoryItem(repositoryId);
+    })
+    .filter((item) => item !== null) as Item[];
 
   const loadStartingEquipment = useCallback(() => {
     // Get starting equipment for the class
@@ -49,7 +54,7 @@ export function EquipmentSelection({
       setIsInitialized(true);
     }
   }, [classId, isInitialized, loadStartingEquipment]);
-  
+
   // Sync with selectedEquipment changes
   useEffect(() => {
     // This effect ensures the component re-renders when selectedEquipment changes
@@ -64,7 +69,7 @@ export function EquipmentSelection({
 
   const handleRemoveItem = (itemId: string) => {
     // Find the item in the equipment array to get its index
-    const itemIndex = equipment.findIndex(item => item.id === itemId);
+    const itemIndex = equipment.findIndex((item) => item.id === itemId);
     if (itemIndex >= 0) {
       // Remove the corresponding repository ID from selectedEquipment
       const newSelectedEquipment = selectedEquipment.filter((_, index) => index !== itemIndex);
@@ -74,25 +79,30 @@ export function EquipmentSelection({
 
   const getItemIcon = (item: Item) => {
     switch (item.type) {
-      case 'weapon': return <Sword className="w-4 h-4" />;
-      case 'armor': return item.isMainArmor ? <Shield className="w-4 h-4" /> : <Shirt className="w-4 h-4" />;
-      case 'consumable': return <Beaker className="w-4 h-4" />;
-      case 'ammunition': return <Target className="w-4 h-4" />;
-      default: return <Package className="w-4 h-4" />;
+      case "weapon":
+        return <Sword className="w-4 h-4" />;
+      case "armor":
+        return item.isMainArmor ? <Shield className="w-4 h-4" /> : <Shirt className="w-4 h-4" />;
+      case "consumable":
+        return <Beaker className="w-4 h-4" />;
+      case "ammunition":
+        return <Target className="w-4 h-4" />;
+      default:
+        return <Package className="w-4 h-4" />;
     }
   };
 
   const getItemDescription = (item: Item) => {
     switch (item.type) {
-      case 'weapon':
-        return item.damage ? `Damage: ${item.damage}` : '';
-      case 'armor':
-        return item.armor ? `AC: ${item.armor}` : '';
-      case 'consumable':
-      case 'ammunition':
+      case "weapon":
+        return item.damage ? `Damage: ${item.damage}` : "";
+      case "armor":
+        return item.armor ? `AC: ${item.armor}` : "";
+      case "consumable":
+      case "ammunition":
         return `Count: ${item.count}`;
       default:
-        return item.description || '';
+        return item.description || "";
     }
   };
 
@@ -101,15 +111,9 @@ export function EquipmentSelection({
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-lg font-semibold">Select Starting Equipment</h3>
-          <p className="text-sm text-muted-foreground">
-            Choose your starting gear and equipment
-          </p>
+          <p className="text-sm text-muted-foreground">Choose your starting gear and equipment</p>
         </div>
-        <Button
-          onClick={() => setIsItemBrowserOpen(true)}
-          variant="outline"
-          size="sm"
-        >
+        <Button onClick={() => setIsItemBrowserOpen(true)} variant="outline" size="sm">
           <Search className="w-4 h-4 mr-2" />
           Browse Items
         </Button>
@@ -120,7 +124,7 @@ export function EquipmentSelection({
           <CardTitle className="text-base flex items-center justify-between">
             <span>Starting Equipment</span>
             <Badge variant="outline">
-              {equipment.length} {equipment.length === 1 ? 'item' : 'items'}
+              {equipment.length} {equipment.length === 1 ? "item" : "items"}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -155,11 +159,7 @@ export function EquipmentSelection({
                       </div>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => handleRemoveItem(item.id)}
-                    variant="ghost"
-                    size="sm"
-                  >
+                  <Button onClick={() => handleRemoveItem(item.id)} variant="ghost" size="sm">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

@@ -1,7 +1,8 @@
-import { ITEM_REPOSITORY } from '../data/items';
-import { RepositoryItem, ItemFilter } from '../types/item-repository';
-import { Item, ItemType } from '../types/inventory';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+
+import { ITEM_REPOSITORY } from "../data/items";
+import { Item, ItemType } from "../types/inventory";
+import { ItemFilter, RepositoryItem } from "../types/item-repository";
 
 export class ItemService {
   private static instance: ItemService;
@@ -33,15 +34,15 @@ export class ItemService {
    */
   public getItemsByType(type: ItemType): RepositoryItem[] {
     switch (type) {
-      case 'weapon':
+      case "weapon":
         return ITEM_REPOSITORY.weapons;
-      case 'armor':
+      case "armor":
         return ITEM_REPOSITORY.armor;
-      case 'freeform':
+      case "freeform":
         return ITEM_REPOSITORY.freeform;
-      case 'consumable':
+      case "consumable":
         return ITEM_REPOSITORY.consumables;
-      case 'ammunition':
+      case "ammunition":
         return ITEM_REPOSITORY.ammunition;
       default:
         return [];
@@ -55,22 +56,23 @@ export class ItemService {
     let items = this.getAllItems();
 
     if (filter.type) {
-      items = items.filter(item => item.item.type === filter.type);
+      items = items.filter((item) => item.item.type === filter.type);
     }
 
     if (filter.category) {
-      items = items.filter(item => item.category === filter.category);
+      items = items.filter((item) => item.category === filter.category);
     }
 
     if (filter.rarity) {
-      items = items.filter(item => item.rarity === filter.rarity);
+      items = items.filter((item) => item.rarity === filter.rarity);
     }
 
     if (filter.name) {
       const searchTerm = filter.name.toLowerCase();
-      items = items.filter(item => 
-        item.item.name.toLowerCase().includes(searchTerm) ||
-        (item.item.description && item.item.description.toLowerCase().includes(searchTerm))
+      items = items.filter(
+        (item) =>
+          item.item.name.toLowerCase().includes(searchTerm) ||
+          (item.item.description && item.item.description.toLowerCase().includes(searchTerm)),
       );
     }
 
@@ -81,7 +83,7 @@ export class ItemService {
    * Find a specific item by its repository ID
    */
   public findItemById(repositoryId: string): RepositoryItem | undefined {
-    return this.getAllItems().find(item => item.item.id === repositoryId);
+    return this.getAllItems().find((item) => item.item.id === repositoryId);
   }
 
   /**
@@ -100,7 +102,7 @@ export class ItemService {
     // Create the inventory item with the unique ID
     const inventoryItem: Item = {
       ...repositoryItem.item,
-      id: uniqueId
+      id: uniqueId,
     } as Item;
 
     return inventoryItem;
@@ -112,23 +114,26 @@ export class ItemService {
   public getItemsByCategory(): { mundane: RepositoryItem[]; magical: RepositoryItem[] } {
     const allItems = this.getAllItems();
     return {
-      mundane: allItems.filter(item => item.category === 'mundane'),
-      magical: allItems.filter(item => item.category === 'magical')
+      mundane: allItems.filter((item) => item.category === "mundane"),
+      magical: allItems.filter((item) => item.category === "magical"),
     };
   }
 
   /**
    * Get items grouped by type and category
    */
-  public getItemsGrouped(): Record<ItemType, { mundane: RepositoryItem[]; magical: RepositoryItem[] }> {
-    const types: ItemType[] = ['weapon', 'armor', 'freeform', 'consumable', 'ammunition'];
+  public getItemsGrouped(): Record<
+    ItemType,
+    { mundane: RepositoryItem[]; magical: RepositoryItem[] }
+  > {
+    const types: ItemType[] = ["weapon", "armor", "freeform", "consumable", "ammunition"];
     const result = {} as Record<ItemType, { mundane: RepositoryItem[]; magical: RepositoryItem[] }>;
 
-    types.forEach(type => {
+    types.forEach((type) => {
       const typeItems = this.getItemsByType(type);
       result[type] = {
-        mundane: typeItems.filter(item => item.category === 'mundane'),
-        magical: typeItems.filter(item => item.category === 'magical')
+        mundane: typeItems.filter((item) => item.category === "mundane"),
+        magical: typeItems.filter((item) => item.category === "magical"),
       };
     });
 
@@ -138,28 +143,28 @@ export class ItemService {
   /**
    * Get item statistics
    */
-  public getItemStats(): { 
-    total: number; 
-    byType: Record<ItemType, number>; 
-    byCategory: Record<'mundane' | 'magical', number>;
+  public getItemStats(): {
+    total: number;
+    byType: Record<ItemType, number>;
+    byCategory: Record<"mundane" | "magical", number>;
   } {
     const allItems = this.getAllItems();
-    const types: ItemType[] = ['weapon', 'armor', 'freeform', 'consumable', 'ammunition'];
-    
+    const types: ItemType[] = ["weapon", "armor", "freeform", "consumable", "ammunition"];
+
     const byType = {} as Record<ItemType, number>;
-    types.forEach(type => {
+    types.forEach((type) => {
       byType[type] = this.getItemsByType(type).length;
     });
 
     const byCategory = {
-      mundane: allItems.filter(item => item.category === 'mundane').length,
-      magical: allItems.filter(item => item.category === 'magical').length
+      mundane: allItems.filter((item) => item.category === "mundane").length,
+      magical: allItems.filter((item) => item.category === "magical").length,
     };
 
     return {
       total: allItems.length,
       byType,
-      byCategory
+      byCategory,
     };
   }
 }

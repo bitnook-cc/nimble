@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Character } from '@/lib/types/character';
-import { AppSettings } from '@/lib/services/settings-service';
-import { 
-  getCharacterStorage, 
-  getCharacterService, 
-  getCharacterCreation, 
-  getSettingsService 
-} from '@/lib/services/service-factory';
-import { useToastService } from './use-toast-service';
-import { useCharacterService } from './use-character-service';
+import { useEffect, useState } from "react";
+
+import {
+  getCharacterCreation,
+  getCharacterService,
+  getCharacterStorage,
+  getSettingsService,
+} from "@/lib/services/service-factory";
+import { AppSettings } from "@/lib/services/settings-service";
+import { Character } from "@/lib/types/character";
+
+import { useCharacterService } from "./use-character-service";
+import { useToastService } from "./use-toast-service";
 
 export interface UseCharacterManagementReturn {
   characters: Character[];
@@ -30,7 +32,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
   const characterStorage = getCharacterStorage();
   const characterCreation = getCharacterCreation();
   const settingsService = getSettingsService();
-  
+
   // Get toast notifications and character service
   const { showError } = useToastService();
   const { subscribeToEvent } = useCharacterService();
@@ -55,18 +57,20 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
           // Load active character through CharacterService
           const characterService = getCharacterService();
           let activeCharacter = null;
-          
+
           // Only try to load if we have an active character ID
           if (loadedSettings.activeCharacterId) {
-            activeCharacter = await characterService.loadCharacter(loadedSettings.activeCharacterId);
+            activeCharacter = await characterService.loadCharacter(
+              loadedSettings.activeCharacterId,
+            );
           }
-          
+
           if (!activeCharacter) {
             // Use the first available character instead
             try {
               const firstCharacter = characterList[0];
               activeCharacter = await characterService.loadCharacter(firstCharacter.id);
-              
+
               if (!activeCharacter) {
                 throw new Error("Failed to load first available character");
               }
@@ -79,9 +83,14 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
         }
       } catch (error) {
         console.error("Failed to load data:", error);
-        showError("Failed to load application", "Unable to load character data. Please try again or create a new character.");
+        showError(
+          "Failed to load application",
+          "Unable to load character data. Please try again or create a new character.",
+        );
         setShowCharacterSelection(true);
-        setLoadError("Failed to load application data. Please try selecting or creating a character.");
+        setLoadError(
+          "Failed to load application data. Please try selecting or creating a character.",
+        );
       } finally {
         setIsLoaded(true);
       }
@@ -93,40 +102,40 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
 
   // Subscribe to character events to update app state
   useEffect(() => {
-    const unsubscribeCreated = subscribeToEvent('created', async (event) => {
+    const unsubscribeCreated = subscribeToEvent("created", async (event) => {
       // Refresh character list and update settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);
-      
+
       const newSettings = await settingsService.getSettings();
       setSettings(newSettings);
-      
+
       // Hide character selection if it was showing
       setShowCharacterSelection(false);
       setLoadError(null);
     });
 
-    const unsubscribeSwitched = subscribeToEvent('switched', async (event) => {
+    const unsubscribeSwitched = subscribeToEvent("switched", async (event) => {
       // Refresh character list (for last played timestamps) and update settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);
-      
+
       const newSettings = await settingsService.getSettings();
       setSettings(newSettings);
-      
+
       // Hide character selection if it was showing
       setShowCharacterSelection(false);
       setLoadError(null);
     });
 
-    const unsubscribeDeleted = subscribeToEvent('deleted', async (event) => {
+    const unsubscribeDeleted = subscribeToEvent("deleted", async (event) => {
       // Refresh character list and settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);
-      
+
       const newSettings = await settingsService.getSettings();
       setSettings(newSettings);
-      
+
       // Show character selection if no characters left or if the deleted character was the active one
       if (updatedCharacters.length === 0) {
         setShowCharacterSelection(true);
@@ -144,9 +153,6 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       unsubscribeDeleted();
     };
   }, [subscribeToEvent, characterStorage, settingsService, settings.activeCharacterId]);
-
-
-
 
   const handleSettingsChange = async (newSettings: AppSettings) => {
     setSettings(newSettings);

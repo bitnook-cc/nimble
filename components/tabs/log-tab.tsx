@@ -1,7 +1,8 @@
 "use client";
 
-import { ActivityLog } from "../activity-log";
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
+
+import { ActivityLog } from "../activity-log";
 
 export function LogTab() {
   const { logEntries, handleClearRolls } = useActivityLog();

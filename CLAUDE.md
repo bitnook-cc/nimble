@@ -79,12 +79,7 @@ interface ResourceDefinition {
   description?: string;
   colorScheme: string; // Predefined color scheme (blue-magic, red-fury, etc.)
   icon?: string; // Icon identifier (sparkles, fire, etc.)
-  resetCondition:
-    | "safe_rest"
-    | "encounter_end"
-    | "turn_end"
-    | "never"
-    | "manual";
+  resetCondition: "safe_rest" | "encounter_end" | "turn_end" | "never" | "manual";
   resetType: "to_max" | "to_zero" | "to_default";
   resetValue?: number;
   minValue: number;
@@ -162,7 +157,6 @@ app/page.tsx (main orchestrator)
 #### Core Functionality
 
 1. **Character Management**
-
    - Editable name and attributes (-2 to 10 range)
    - Class and subclass system with automatic feature progression
    - Ancestry system with size categories, stat boosts, proficiencies and resistances
@@ -173,7 +167,6 @@ app/page.tsx (main orchestrator)
    - Hit points with current/max/temporary tracking and dying status
 
 2. **Combat & Health System**
-
    - Hit points with temporary HP (D&D 5e rules)
    - Temporary HP absorbs damage first, doesn't stack
    - Wounds system for tracking serious injuries
@@ -182,13 +175,11 @@ app/page.tsx (main orchestrator)
    - Dying indicator when at 0 HP
 
 3. **Initiative System**
-
    - Dexterity-based with skill modifier
    - d20 + dexterity + modifier rolling
    - Collapsible section with persistent state
 
 4. **Attribute & Saving Throws**
-
    - Four core attributes (Strength, Dexterity, Intelligence, Will)
    - **Key Attribute Highlighting**: Class key attributes shown with bold, underlined text and ring borders
    - **Compact Design**: Icon-only roll/save buttons with hover tooltips
@@ -198,21 +189,18 @@ app/page.tsx (main orchestrator)
    - **Smart Layout**: Responsive grid with tighter spacing for mobile-friendly design
 
 5. **Skills System**
-
    - 10 predefined skills with attribute associations
    - Base attribute + skill modifier calculation
    - Editable skill-specific bonuses (0-20 range)
    - Individual skill rolling with breakdown
 
 6. **Action Tracker & Encounter System**
-
    - Combat action tracking with current/base/bonus actions
    - Initiative rolls that set action count for encounters
    - End turn/encounter functionality with ability resets
    - Encounter state management affecting UI and abilities
 
 7. **Equipment System**
-
    - Equipment flags for weapons and armor
    - Size-based weapon limits (configurable, default: 2)
    - Equip/unequip toggles with validation
@@ -220,7 +208,6 @@ app/page.tsx (main orchestrator)
    - Only equipped weapons appear in actions
 
 8. **Armor System**
-
    - Main armor vs supplementary armor distinction
    - Only one main armor can be equipped at a time
    - Automatic replacement when equipping new main armor
@@ -228,7 +215,6 @@ app/page.tsx (main orchestrator)
    - Visual indicators for armor types and effective bonuses
 
 9. **Generic Resource System**
-
    - Configurable resources (mana, fury, focus, ki, divine power, etc.)
    - 8 predefined color schemes with dynamic percentage-based gradients
    - 25+ categorized icons (magic, energy, physical, special)
@@ -244,7 +230,6 @@ app/page.tsx (main orchestrator)
    - **Examples**: Wizard "Spell Slots", Fighter "Battlefield Fury", Rogue "Focus", Cleric "Divine Blessing"
 
 10. **Ability System**
-
     - Freeform abilities (text-only descriptions)
     - Action abilities with frequency-based usage (per-turn, per-encounter, at-will)
     - Integrated roll mechanics with dice, modifiers, and attribute bonuses
@@ -252,7 +237,6 @@ app/page.tsx (main orchestrator)
     - Visual usage tracking and roll descriptions
 
 11. **Spell System**
-
     - **Tier-Based Access (1-9)**: Progressive spell unlocking as characters level up
     - **School-Based Organization**: Spells grouped by magical schools (fire, radiant, frost, nature, shadow, arcane)
     - **Class Integration**: Automatic spell school access through class features (Wizard gets Fire Magic, Cleric gets Radiant Magic)
@@ -266,7 +250,6 @@ app/page.tsx (main orchestrator)
     - **Visual Spell Status**: Clear indicators for unlocked vs locked spells with tier requirements
 
 12. **Dice Rolling & Combat**
-
     - **Attack Rolls**: Exploding crits, miss on natural 1
     - **Checks/Saves**: Standard d20 + modifier (no crits/misses)
     - **Ability Rolls**: Custom dice with modifiers and attribute bonuses
@@ -275,7 +258,6 @@ app/page.tsx (main orchestrator)
     - Activity log with comprehensive action tracking
 
 13. **Inventory Management**
-
     - Five item types: weapons, armor, freeform, consumables, ammunition
     - Size-based capacity system with visual indicators (10 + Strength attribute)
     - Automatic inventory size adjustment when Strength changes
@@ -283,7 +265,6 @@ app/page.tsx (main orchestrator)
     - Equipment state tracking and validation
 
 14. **App Modes & Character Management**
-
     - Basic mode: simplified interface (HP, actions, saves, attributes, skills)
     - Full mode: complete character sheet with inventory and abilities
     - Multiple character support with switching and creation
@@ -291,7 +272,6 @@ app/page.tsx (main orchestrator)
     - Character selector with creation and deletion
 
 15. **Class and Subclass System**
-
     - Four core classes: Fighter, Wizard, Cleric, Rogue
     - Subclass selection at appropriate levels with automatic feature grants
     - Level-based feature progression with validation
@@ -299,7 +279,6 @@ app/page.tsx (main orchestrator)
     - Feature tracking with unique identifiers and grant history
 
 16. **Custom Content Management**
-
     - Unified content management panel for all custom content types
     - JSON file upload with schema validation and error reporting
     - Support for classes, subclasses, ancestries, backgrounds, abilities, and spells

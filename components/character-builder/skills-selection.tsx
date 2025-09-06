@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { RotateCcw } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import { gameConfig } from "@/lib/config/game-config";
+
+import { SkillsList } from "../shared/skills-list";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { RotateCcw } from "lucide-react";
-import { gameConfig } from "@/lib/config/game-config";
-import { SkillsList } from "../shared/skills-list";
 
 interface SkillsSelectionProps {
   skillAllocations: Record<string, number>;
@@ -19,20 +22,20 @@ interface SkillsSelectionProps {
   };
 }
 
-export function SkillsSelection({ 
-  skillAllocations, 
+export function SkillsSelection({
+  skillAllocations,
   onSkillsChange,
-  attributes 
+  attributes,
 }: SkillsSelectionProps) {
   const [localAllocations, setLocalAllocations] = useState<Record<string, number>>({});
-  
+
   const maxSkillPoints = gameConfig.character.initialSkillPoints;
-  
+
   // Initialize skill allocations
   useEffect(() => {
     // Initialize with existing allocations or zeros
     const initialAllocations: Record<string, number> = {};
-    gameConfig.skills.forEach(skill => {
+    gameConfig.skills.forEach((skill) => {
       initialAllocations[skill.name] = skillAllocations[skill.name] || 0;
     });
     setLocalAllocations(initialAllocations);
@@ -49,7 +52,7 @@ export function SkillsSelection({
   const handleSkillChange = (skillName: string, newValue: number) => {
     const newAllocations = {
       ...localAllocations,
-      [skillName]: newValue
+      [skillName]: newValue,
     };
     setLocalAllocations(newAllocations);
     onSkillsChange(newAllocations);
@@ -57,7 +60,7 @@ export function SkillsSelection({
 
   const handleResetSkills = () => {
     const resetAllocations: Record<string, number> = {};
-    gameConfig.skills.forEach(skill => {
+    gameConfig.skills.forEach((skill) => {
       resetAllocations[skill.name] = 0;
     });
     setLocalAllocations(resetAllocations);
@@ -68,11 +71,11 @@ export function SkillsSelection({
     const resetAllocations: Record<string, number> = {};
     const pointsPerSkill = Math.floor(maxSkillPoints / gameConfig.skills.length);
     const remainder = maxSkillPoints % gameConfig.skills.length;
-    
+
     gameConfig.skills.forEach((skill, index) => {
       resetAllocations[skill.name] = pointsPerSkill + (index < remainder ? 1 : 0);
     });
-    
+
     setLocalAllocations(resetAllocations);
     onSkillsChange(resetAllocations);
   };
@@ -87,18 +90,10 @@ export function SkillsSelection({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleQuickDistribute} 
-            variant="outline" 
-            size="sm"
-          >
+          <Button onClick={handleQuickDistribute} variant="outline" size="sm">
             Distribute Evenly
           </Button>
-          <Button 
-            onClick={handleResetSkills} 
-            variant="outline" 
-            size="sm"
-          >
+          <Button onClick={handleResetSkills} variant="outline" size="sm">
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>

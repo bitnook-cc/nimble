@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Character } from '@/lib/types/character';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw } from "lucide-react";
+
+import React from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+import { Character } from "@/lib/types/character";
 
 interface LevelUpData {
   levelsToGain: number;
@@ -30,12 +33,12 @@ interface HitPointsStepProps {
   onReroll: () => void;
 }
 
-export function HitPointsStep({ 
-  character, 
+export function HitPointsStep({
+  character,
   levelUpData,
   hitDieSize,
   onHpChange,
-  onReroll
+  onReroll,
 }: HitPointsStepProps) {
   return (
     <div className="space-y-6">
@@ -68,27 +71,23 @@ export function HitPointsStep({
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium">Hit Die Rolls (with advantage):</p>
-              <Button
-                onClick={onReroll}
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 text-xs"
-              >
+              <Button onClick={onReroll} variant="outline" size="sm" className="h-7 px-2 text-xs">
                 <RotateCcw className="w-3 h-3 mr-1" />
                 Reroll
               </Button>
             </div>
             <div className="space-y-2">
               {levelUpData.hpRolls.map((roll, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 bg-muted/50 rounded"
+                >
                   <span className="text-sm font-medium">Level {roll.level}:</span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">
                       Rolled: {roll.roll1} & {roll.roll2}
                     </span>
-                    <Badge variant="default">
-                      Result: {roll.result}
-                    </Badge>
+                    <Badge variant="default">Result: {roll.result}</Badge>
                   </div>
                 </div>
               ))}
@@ -103,7 +102,9 @@ export function HitPointsStep({
             <div className="flex items-center justify-between">
               <span className="font-medium">Hit Dice:</span>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span>{character._hitDice.current}/{character._hitDice.max}</span>
+                <span>
+                  {character._hitDice.current}/{character._hitDice.max}
+                </span>
                 <span>→</span>
                 <span className="text-foreground font-medium">
                   {levelUpData.newHitDice.current}/{levelUpData.newHitDice.max}

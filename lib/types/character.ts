@@ -1,4 +1,12 @@
-export type AttributeName = 'strength' | 'dexterity' | 'intelligence' | 'will';
+import { Ability } from "./abilities";
+import { AncestryTrait } from "./ancestry";
+import { BackgroundTrait } from "./background";
+import { ArmorProficiency, ClassFeature, WeaponProficiency } from "./class";
+import { FeatureEffectGrant } from "./feature-effects";
+import { Inventory } from "./inventory";
+import { ResourceInstance } from "./resources";
+
+export type AttributeName = "strength" | "dexterity" | "intelligence" | "will";
 
 export interface Attributes {
   strength: number;
@@ -7,7 +15,7 @@ export interface Attributes {
   will: number;
 }
 
-export type SaveAdvantageType = 'advantage' | 'disadvantage' | 'normal';
+export type SaveAdvantageType = "advantage" | "disadvantage" | "normal";
 
 export type SaveAdvantageMap = Partial<Record<AttributeName, SaveAdvantageType>>;
 
@@ -17,14 +25,6 @@ export interface Skill {
   modifier: number;
 }
 
-import { Inventory } from './inventory';
-import { Ability } from './abilities';
-import { ArmorProficiency, WeaponProficiency, ClassFeature } from './class';
-import { ResourceInstance } from './resources';
-import { AncestryTrait } from './ancestry';
-import { BackgroundTrait } from './background';
-import { FeatureEffectGrant } from './feature-effects';
-
 // Base interface for all feature selections (now tracks by effect ID)
 export interface BaseSelectedFeature {
   grantedByEffectId: string; // ID of the effect that granted this selection
@@ -33,7 +33,7 @@ export interface BaseSelectedFeature {
 
 // Feature pool selection
 export interface SelectedPoolFeature extends BaseSelectedFeature {
-  type: 'pool_feature';
+  type: "pool_feature";
   poolId: string; // ID of the pool the feature was selected from
   featureId: string; // Unique ID of the selected feature within the pool
   feature: ClassFeature; // The actual feature that was selected
@@ -41,35 +41,35 @@ export interface SelectedPoolFeature extends BaseSelectedFeature {
 
 // Spell school selection
 export interface SelectedSpellSchool extends BaseSelectedFeature {
-  type: 'spell_school';
+  type: "spell_school";
   schoolId: string; // ID of the selected spell school
 }
 
 // Attribute boost selection
 export interface SelectedAttributeBoost extends BaseSelectedFeature {
-  type: 'attribute_boost';
+  type: "attribute_boost";
   attribute: AttributeName; // Which attribute was boosted
   amount: number; // How much the boost was
 }
 
 // Utility spell selection
 export interface SelectedUtilitySpells extends BaseSelectedFeature {
-  type: 'utility_spells';
+  type: "utility_spells";
   spellIds: string[]; // IDs of the selected utility spells
   fromSchools: string[]; // Which schools these spells came from
 }
 
 // Subclass selection
 export interface SelectedSubclass extends BaseSelectedFeature {
-  type: 'subclass';
+  type: "subclass";
   subclassId: string; // ID of the selected subclass
 }
 
 // Union type for all selected features
-export type SelectedFeature = 
-  | SelectedPoolFeature 
-  | SelectedSpellSchool 
-  | SelectedAttributeBoost 
+export type SelectedFeature =
+  | SelectedPoolFeature
+  | SelectedSpellSchool
+  | SelectedAttributeBoost
   | SelectedUtilitySpells
   | SelectedSubclass;
 

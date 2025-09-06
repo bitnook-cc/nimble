@@ -1,8 +1,13 @@
-import { Character } from '../types/character';
-import { AncestryDefinition, AncestryFeature, AncestryFeatureGrant, AncestryTrait } from '../types/ancestry';
-import { ResourceInstance, createResourceInstance } from '../types/resources';
-import { IAncestryService, ICharacterService, ICharacterStorage } from './interfaces';
-import { ContentRepositoryService } from './content-repository-service';
+import {
+  AncestryDefinition,
+  AncestryFeature,
+  AncestryFeatureGrant,
+  AncestryTrait,
+} from "../types/ancestry";
+import { Character } from "../types/character";
+import { ResourceInstance, createResourceInstance } from "../types/resources";
+import { ContentRepositoryService } from "./content-repository-service";
+import { IAncestryService, ICharacterService, ICharacterStorage } from "./interfaces";
 
 /**
  * Ancestry Service with Dependency Injection
@@ -13,7 +18,7 @@ export class AncestryService implements IAncestryService {
 
   constructor(
     private characterService: ICharacterService,
-    private characterStorage: ICharacterStorage
+    private characterStorage: ICharacterStorage,
   ) {
     this.contentRepository = ContentRepositoryService.getInstance();
   }
@@ -31,7 +36,7 @@ export class AncestryService implements IAncestryService {
   getExpectedFeaturesForCharacter(character: Character): AncestryFeature[] {
     const ancestry = this.getCharacterAncestry(character);
     if (!ancestry) return [];
-    
+
     return ancestry.features;
   }
 
@@ -41,9 +46,9 @@ export class AncestryService implements IAncestryService {
   getMissingFeatures(character: Character): AncestryFeature[] {
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
     const grantedFeatureIds = new Set(character.ancestry.grantedFeatures);
-    
-    return expectedFeatures.filter((_, index) => 
-      !grantedFeatureIds.has(`${character.ancestry.ancestryId}-feature-${index}`)
+
+    return expectedFeatures.filter(
+      (_, index) => !grantedFeatureIds.has(`${character.ancestry.ancestryId}-feature-${index}`),
     );
   }
 
@@ -55,13 +60,13 @@ export class AncestryService implements IAncestryService {
     if (!character) return;
 
     const missingFeatures = this.getMissingFeatures(character);
-    
+
     for (let i = 0; i < missingFeatures.length; i++) {
       const feature = missingFeatures[i];
       const featureId = `${character.ancestry.ancestryId}-feature-${character.ancestry.grantedFeatures.length + i}`;
-      
+
       await this.applyAncestryFeature(character, feature, featureId);
-      
+
       // Track that this feature was granted
       character.ancestry.grantedFeatures.push(featureId);
     }
@@ -73,7 +78,11 @@ export class AncestryService implements IAncestryService {
   /**
    * Apply a specific ancestry feature to a character
    */
-  private async applyAncestryFeature(character: Character, feature: AncestryFeature, featureId: string): Promise<void> {
+  private async applyAncestryFeature(
+    character: Character,
+    feature: AncestryFeature,
+    featureId: string,
+  ): Promise<void> {
     // Process each effect in the feature
     for (const effect of feature.effects) {
       await this.applyFeatureEffect(character, effect);
@@ -85,27 +94,26 @@ export class AncestryService implements IAncestryService {
    */
   private async applyFeatureEffect(character: Character, effect: any): Promise<void> {
     switch (effect.type) {
-      case 'ability':
+      case "ability":
         if (effect.ability) {
           character.abilities.push(effect.ability);
         }
         break;
-      case 'attribute_boost':
+      case "attribute_boost":
         // Attribute boosts require user selection, handled separately
         // The selection process happens in the UI and is stored as SelectedAttributeBoost
         break;
-      case 'proficiency':
+      case "proficiency":
         // Handle proficiency effects if needed
         // For now, these are mostly informational
         break;
-      case 'passive_feature':
-      case 'resistance':
+      case "passive_feature":
+      case "resistance":
       default:
         // These features are informational and don't require mechanical changes
         break;
     }
   }
-
 
   /**
    * Create ancestry trait for character creation
@@ -113,7 +121,7 @@ export class AncestryService implements IAncestryService {
   createAncestryTrait(ancestryId: string): AncestryTrait {
     return {
       ancestryId,
-      grantedFeatures: []
+      grantedFeatures: [],
     };
   }
 

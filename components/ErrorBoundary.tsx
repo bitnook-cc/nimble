@@ -1,9 +1,11 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from "lucide-react";
+
+import React, { Component, ErrorInfo, ReactNode } from "react";
+
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface Props {
   children: ReactNode;
@@ -27,8 +29,8 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+
     this.setState({
       error,
       errorInfo,
@@ -64,8 +66,8 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-muted-foreground">
                 An unexpected error occurred in the application. This has been logged for review.
               </p>
-              
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+
+              {process.env.NODE_ENV === "development" && this.state.error && (
                 <details className="mt-4">
                   <summary className="cursor-pointer text-sm font-medium mb-2">
                     Error Details (Development)

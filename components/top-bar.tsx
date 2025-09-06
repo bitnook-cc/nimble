@@ -1,12 +1,14 @@
 "use client";
 
-import { Button } from "./ui/button";
-import { ChevronUp, ChevronDown, Equal, Menu } from "lucide-react";
+import { ChevronDown, ChevronUp, Equal, Menu } from "lucide-react";
+
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { RollPanel } from "./roll-panel";
-import { AppMenu } from "./app-menu";
 import { AppSettings } from "@/lib/services/settings-service";
 import { Character } from "@/lib/types/character";
+
+import { AppMenu } from "./app-menu";
+import { RollPanel } from "./roll-panel";
+import { Button } from "./ui/button";
 
 interface TopBarProps {
   settings: AppSettings;
@@ -52,19 +54,12 @@ function CompactAdvantageToggle() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-sm font-medium ${getDisplayColor()}`}>
-        {getDisplayText()}
-      </span>
+      <span className={`text-sm font-medium ${getDisplayColor()}`}>{getDisplayText()}</span>
       <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={decrementAdvantage}
-          className="h-7 w-7 p-0"
-        >
+        <Button variant="ghost" size="sm" onClick={decrementAdvantage} className="h-7 w-7 p-0">
           <ChevronDown className="h-3 w-3" />
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -74,13 +69,8 @@ function CompactAdvantageToggle() {
         >
           <Equal className="h-3 w-3" />
         </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={incrementAdvantage}
-          className="h-7 w-7 p-0"
-        >
+
+        <Button variant="ghost" size="sm" onClick={incrementAdvantage} className="h-7 w-7 p-0">
           <ChevronUp className="h-3 w-3" />
         </Button>
       </div>
@@ -88,17 +78,13 @@ function CompactAdvantageToggle() {
   );
 }
 
-export function TopBar({ 
-  settings, 
-  characters,
-  onSettingsChange
-}: TopBarProps) {
+export function TopBar({ settings, characters, onSettingsChange }: TopBarProps) {
   return (
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         {/* Left side - Menu */}
         <div className="flex items-center">
-          <AppMenu 
+          <AppMenu
             settings={settings}
             characters={characters}
             onSettingsChange={onSettingsChange}

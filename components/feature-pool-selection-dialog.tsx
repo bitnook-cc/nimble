@@ -1,15 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { Character } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/types/class";
-import { PickFeatureFromPoolFeatureEffect, FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/types/feature-effects";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Character } from "@/lib/types/character";
+import { ClassFeature } from "@/lib/types/class";
+import {
+  FeatureEffect,
+  PickFeatureFromPoolFeatureEffect,
+  SpellSchoolFeatureEffect,
+} from "@/lib/types/feature-effects";
+
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 interface FeaturePoolSelectionDialogProps {
   pickFeature: PickFeatureFromPoolFeatureEffect;
@@ -19,59 +32,61 @@ interface FeaturePoolSelectionDialogProps {
 // Helper function to render individual effects
 function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
   switch (effect.type) {
-    case 'ability':
-      if ('ability' in effect) {
+    case "ability":
+      if ("ability" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
-            <div className="font-medium">Ability: {effect.ability.name || 'Unnamed'}</div>
+            <div className="font-medium">Ability: {effect.ability.name || "Unnamed"}</div>
             <div>Type: {effect.ability.type}</div>
-            {effect.ability.type === 'action' && effect.ability.frequency && (
-              <div>Frequency: {effect.ability.frequency.replace('_', ' ')}</div>
+            {effect.ability.type === "action" && effect.ability.frequency && (
+              <div>Frequency: {effect.ability.frequency.replace("_", " ")}</div>
             )}
           </div>
         );
       }
       break;
-    case 'stat_bonus':
-      if ('statBonus' in effect) {
+    case "stat_bonus":
+      if ("statBonus" in effect) {
         const bonuses: string[] = [];
         if (effect.statBonus.attributes) {
           Object.entries(effect.statBonus.attributes).forEach(([attr, value]) => {
             if (value) {
-              bonuses.push(`${attr} +${typeof value === 'object' ? value.base || 0 : value}`);
+              bonuses.push(`${attr} +${typeof value === "object" ? value.base || 0 : value}`);
             }
           });
         }
         if (bonuses.length > 0) {
           return (
             <div key={index} className="text-xs text-muted-foreground">
-              <div className="font-medium">Stat Bonuses: {bonuses.join(', ')}</div>
+              <div className="font-medium">Stat Bonuses: {bonuses.join(", ")}</div>
             </div>
           );
         }
       }
       break;
-    case 'attribute_boost':
-      if ('allowedAttributes' in effect) {
+    case "attribute_boost":
+      if ("allowedAttributes" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
             <div className="font-medium">Attribute Boost: +{effect.amount}</div>
-            <div>Choose from: {effect.allowedAttributes.join(', ')}</div>
+            <div>Choose from: {effect.allowedAttributes.join(", ")}</div>
           </div>
         );
       }
       break;
-    case 'proficiency':
-      if ('proficiencies' in effect) {
+    case "proficiency":
+      if ("proficiencies" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
-            <div className="font-medium">Proficiencies: {effect.proficiencies.map(prof => prof.name).join(', ')}</div>
+            <div className="font-medium">
+              Proficiencies: {effect.proficiencies.map((prof) => prof.name).join(", ")}
+            </div>
           </div>
         );
       }
       break;
-    case 'resource':
-      if ('resourceDefinition' in effect) {
+    case "resource":
+      if ("resourceDefinition" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
             <div className="font-medium">Grants Resource: {effect.resourceDefinition.name}</div>
@@ -79,8 +94,8 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
         );
       }
       break;
-    case 'spell_school':
-      if ('schoolId' in effect) {
+    case "spell_school":
+      if ("schoolId" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
             <div className="font-medium">Spell School: {effect.schoolId}</div>
@@ -88,26 +103,30 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
         );
       }
       break;
-    case 'spell_school_choice':
-      if ('availableSchools' in effect) {
+    case "spell_school_choice":
+      if ("availableSchools" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
-            <div className="font-medium">Spell School Choice: {effect.availableSchools?.join(', ') || 'Any'}</div>
+            <div className="font-medium">
+              Spell School Choice: {effect.availableSchools?.join(", ") || "Any"}
+            </div>
           </div>
         );
       }
       break;
-    case 'pick_feature_from_pool':
-      if ('poolId' in effect) {
+    case "pick_feature_from_pool":
+      if ("poolId" in effect) {
         return (
           <div key={index} className="text-xs text-muted-foreground">
             <div className="font-medium">Feature Choice: {effect.poolId}</div>
-            <div>Choose {effect.choicesAllowed} feature{effect.choicesAllowed !== 1 ? 's' : ''}</div>
+            <div>
+              Choose {effect.choicesAllowed} feature{effect.choicesAllowed !== 1 ? "s" : ""}
+            </div>
           </div>
         );
       }
       break;
-    case 'subclass_choice':
+    case "subclass_choice":
       return (
         <div key={index} className="text-xs text-muted-foreground">
           <div className="font-medium">Subclass Choice Available</div>
@@ -123,7 +142,10 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
   return null;
 }
 
-export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePoolSelectionDialogProps) {
+export function FeaturePoolSelectionDialog({
+  pickFeature,
+  onClose,
+}: FeaturePoolSelectionDialogProps) {
   const { character } = useCharacterService();
   const [selectedFeature, setSelectedFeature] = useState<ClassFeature | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -161,10 +183,15 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
     setIsSelecting(true);
     try {
       // Use the effect ID instead of generating a feature ID
-      await classService.selectPoolFeature(character, pickFeature.poolId, selectedFeature, pickFeature.id);
+      await classService.selectPoolFeature(
+        character,
+        pickFeature.poolId,
+        selectedFeature,
+        pickFeature.id,
+      );
       onClose();
     } catch (error) {
-      console.error('Failed to select pool feature:', error);
+      console.error("Failed to select pool feature:", error);
     } finally {
       setIsSelecting(false);
     }
@@ -178,9 +205,7 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
           <DialogDescription>
             {pool.description}
             <br />
-            <span className="font-medium">
-              Remaining selections: {remaining}
-            </span>
+            <span className="font-medium">Remaining selections: {remaining}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -192,12 +217,12 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
               </div>
             ) : (
               availableFeatures.map((feature: ClassFeature, index: number) => (
-                <Card 
+                <Card
                   key={index}
                   className={`cursor-pointer transition-colors ${
-                    selectedFeature === feature 
-                      ? 'ring-2 ring-primary bg-accent' 
-                      : 'hover:bg-accent/50'
+                    selectedFeature === feature
+                      ? "ring-2 ring-primary bg-accent"
+                      : "hover:bg-accent/50"
                   }`}
                   onClick={() => setSelectedFeature(feature)}
                 >
@@ -207,10 +232,8 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {feature.description}
-                    </p>
-                    
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+
                     {feature.effects.length > 0 && (
                       <div className="mt-2 space-y-1">
                         {feature.effects.map((effect, index) => renderEffect(effect, index))}
@@ -227,11 +250,11 @@ export function FeaturePoolSelectionDialog({ pickFeature, onClose }: FeaturePool
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleSelectFeature}
             disabled={!selectedFeature || isSelecting || remaining <= 0}
           >
-            {isSelecting ? 'Selecting...' : 'Select Feature'}
+            {isSelecting ? "Selecting..." : "Select Feature"}
           </Button>
         </DialogFooter>
       </DialogContent>

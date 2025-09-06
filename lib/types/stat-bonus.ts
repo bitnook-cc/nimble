@@ -1,5 +1,5 @@
-import { FlexibleValue } from './flexible-value';
-import { AttributeName } from './character';
+import { AttributeName } from "./character";
+import { FlexibleValue } from "./flexible-value";
 
 /**
  * Stat bonus system for passive features
@@ -16,17 +16,17 @@ export interface AttributeBonuses {
 export interface StatBonus {
   // Core attributes
   attributes?: AttributeBonuses;
-  
+
   // Skills (by skill name)
   skillBonuses?: Record<string, FlexibleValue>;
-  
+
   // Combat and health stats
   hitDiceBonus?: FlexibleValue;
   maxWoundsBonus?: FlexibleValue;
   armorBonus?: FlexibleValue;
   initiativeBonus?: FlexibleValue;
   speedBonus?: FlexibleValue;
-  
+
   // Resource bonuses (by resource definition id)
   resourceMaxBonuses?: Record<string, FlexibleValue>;
   resourceMinBonuses?: Record<string, FlexibleValue>;

@@ -1,5 +1,13 @@
-import { HitDieSize, AttributeName, SaveAdvantageMap } from './character';
-import { FeatureEffect, AttributeBoostFeatureEffect, SpellSchoolFeatureEffect, SpellSchoolChoiceFeatureEffect, UtilitySpellsFeatureEffect, SpellTierAccessFeatureEffect, PickFeatureFromPoolFeatureEffect } from './feature-effects';
+import { AttributeName, HitDieSize, SaveAdvantageMap } from "./character";
+import {
+  AttributeBoostFeatureEffect,
+  FeatureEffect,
+  PickFeatureFromPoolFeatureEffect,
+  SpellSchoolChoiceFeatureEffect,
+  SpellSchoolFeatureEffect,
+  SpellTierAccessFeatureEffect,
+  UtilitySpellsFeatureEffect,
+} from "./feature-effects";
 
 // Feature pool - a collection of features that players can choose from
 export interface FeaturePool {
@@ -18,18 +26,18 @@ export interface ClassFeature {
   effects: FeatureEffect[]; // Array of effects this feature provides
 }
 
-export type ArmorProficiency = 
-  | { type: 'cloth' }
-  | { type: 'leather' } 
-  | { type: 'mail' }
-  | { type: 'plate' }
-  | { type: 'shields' }
-  | { type: 'freeform'; name: string };
+export type ArmorProficiency =
+  | { type: "cloth" }
+  | { type: "leather" }
+  | { type: "mail" }
+  | { type: "plate" }
+  | { type: "shields" }
+  | { type: "freeform"; name: string };
 
-export type WeaponProficiency = 
-  | { type: 'strength_weapons' }
-  | { type: 'dexterity_weapons' }
-  | { type: 'freeform'; name: string };
+export type WeaponProficiency =
+  | { type: "strength_weapons" }
+  | { type: "dexterity_weapons" }
+  | { type: "freeform"; name: string };
 
 export interface SubclassDefinition {
   id: string; // Unique identifier for the subclass
@@ -65,5 +73,5 @@ export interface ClassFeatureGrant {
 
 // Helper to check if a feature has a specific effect type
 export function hasEffectType(feature: ClassFeature, effectType: string): boolean {
-  return feature.effects.some(effect => effect.type === effectType);
+  return feature.effects.some((effect) => effect.type === effectType);
 }

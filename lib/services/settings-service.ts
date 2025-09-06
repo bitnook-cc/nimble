@@ -3,14 +3,14 @@ export interface AppSettings {
 }
 
 export class SettingsService {
-  private readonly storageKey = 'nimble-navigator-settings';
+  private readonly storageKey = "nimble-navigator-settings";
 
   async getSettings(): Promise<AppSettings> {
     const stored = localStorage.getItem(this.storageKey);
     if (!stored) {
       return this.getDefaultSettings();
     }
-    
+
     try {
       return JSON.parse(stored);
     } catch {
@@ -21,7 +21,6 @@ export class SettingsService {
   async saveSettings(settings: AppSettings): Promise<void> {
     localStorage.setItem(this.storageKey, JSON.stringify(settings));
   }
-
 
   async updateActiveCharacter(characterId?: string): Promise<void> {
     const settings = await this.getSettings();

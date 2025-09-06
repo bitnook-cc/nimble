@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { LogEntry } from '@/lib/types/log-entries';
-import { getActivityLog } from '@/lib/services/service-factory';
+import { useEffect, useMemo, useState } from "react";
+
+import { getActivityLog } from "@/lib/services/service-factory";
+import { LogEntry } from "@/lib/types/log-entries";
 
 export interface UseActivityLogReturn {
   logEntries: LogEntry[];
@@ -10,7 +11,7 @@ export interface UseActivityLogReturn {
 
 export function useActivityLog(): UseActivityLogReturn {
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
-  
+
   // Get service from factory (memoized)
   const activityLogService = useMemo(() => getActivityLog(), []);
 
@@ -37,7 +38,7 @@ export function useActivityLog(): UseActivityLogReturn {
       // Persist to storage
       await activityLogService.addLogEntry(entry);
       // Update local state
-      setLogEntries(prevEntries => [entry, ...prevEntries.slice(0, 99)]); // Keep only 100 entries
+      setLogEntries((prevEntries) => [entry, ...prevEntries.slice(0, 99)]); // Keep only 100 entries
     } catch (error) {
       console.error("Failed to add log entry:", error);
     }

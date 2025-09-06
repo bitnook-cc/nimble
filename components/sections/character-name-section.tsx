@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import { Settings, TrendingUp } from "lucide-react";
+
+import { useState } from "react";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+
 import { LevelUpGuide } from "../level-up-guide";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface CharacterNameSectionProps {
   name: string;
@@ -14,20 +17,26 @@ interface CharacterNameSectionProps {
   onOpenConfig: () => void;
 }
 
-export function CharacterNameSection({ name, onNameChange, onOpenConfig }: CharacterNameSectionProps) {
+export function CharacterNameSection({
+  name,
+  onNameChange,
+  onOpenConfig,
+}: CharacterNameSectionProps) {
   const { character } = useCharacterService();
   const [showLevelUpGuide, setShowLevelUpGuide] = useState(false);
-  
+
   if (!character) return null;
-  
+
   const contentRepository = ContentRepositoryService.getInstance();
   const classDefinition = contentRepository.getClassDefinition(character.classId);
   const className = classDefinition?.name || character.classId;
-  
+
   const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
   const ancestryName = ancestryDefinition?.name || character.ancestry.ancestryId;
-  
-  const backgroundDefinition = contentRepository.getBackgroundDefinition(character.background.backgroundId);
+
+  const backgroundDefinition = contentRepository.getBackgroundDefinition(
+    character.background.backgroundId,
+  );
   const backgroundName = backgroundDefinition?.name || character.background.backgroundId;
 
   const handleLevelUp = () => {
@@ -67,7 +76,7 @@ export function CharacterNameSection({ name, onNameChange, onOpenConfig }: Chara
             <Settings className="h-4 w-4" />
           </Button>
         </div>
-        
+
         {/* Ancestry, Background, Class, Level */}
         <div className="text-center text-lg text-muted-foreground">
           {ancestryName} • {backgroundName} • {className} • Level {character.level}
@@ -76,10 +85,7 @@ export function CharacterNameSection({ name, onNameChange, onOpenConfig }: Chara
 
       {/* Level Up Guide Dialog */}
       {showLevelUpGuide && (
-        <LevelUpGuide
-          open={showLevelUpGuide}
-          onOpenChange={setShowLevelUpGuide}
-        />
+        <LevelUpGuide open={showLevelUpGuide} onOpenChange={setShowLevelUpGuide} />
       )}
     </>
   );

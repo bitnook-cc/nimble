@@ -1,4 +1,4 @@
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastType = "success" | "error" | "warning" | "info";
 
 export interface Toast {
   id: string;
@@ -21,26 +21,26 @@ export class ToastService {
   subscribeToToasts(listener: (toasts: Toast[]) => void): () => void {
     this.toastListeners.push(listener);
     listener(this._toasts);
-    
+
     // Return unsubscribe function
     return () => {
-      this.toastListeners = this.toastListeners.filter(l => l !== listener);
+      this.toastListeners = this.toastListeners.filter((l) => l !== listener);
     };
   }
 
   private notifyListeners(): void {
-    this.toastListeners.forEach(listener => listener(this._toasts));
+    this.toastListeners.forEach((listener) => listener(this._toasts));
   }
 
   removeToast(id: string): void {
-    this._toasts = this._toasts.filter(toast => toast.id !== id);
+    this._toasts = this._toasts.filter((toast) => toast.id !== id);
     this.notifyListeners();
   }
 
-  addToast(toast: Omit<Toast, 'id'>): void {
+  addToast(toast: Omit<Toast, "id">): void {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast = { ...toast, id };
-    
+
     this._toasts = [...this._toasts, newToast];
     this.notifyListeners();
 
@@ -54,19 +54,19 @@ export class ToastService {
   }
 
   showError(title: string, description?: string): void {
-    this.addToast({ type: 'error', title, description });
+    this.addToast({ type: "error", title, description });
   }
 
   showSuccess(title: string, description?: string): void {
-    this.addToast({ type: 'success', title, description });
+    this.addToast({ type: "success", title, description });
   }
 
   showWarning(title: string, description?: string): void {
-    this.addToast({ type: 'warning', title, description });
+    this.addToast({ type: "warning", title, description });
   }
 
   showInfo(title: string, description?: string): void {
-    this.addToast({ type: 'info', title, description });
+    this.addToast({ type: "info", title, description });
   }
 
   clearAllToasts(): void {

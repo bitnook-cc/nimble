@@ -1,11 +1,14 @@
-import { Character, CreateCharacterData } from '../types/character';
-import { ICharacterRepository, LocalStorageCharacterRepository } from '../storage/character-repository';
-import { createCharacterSchema, characterSchema } from '../schemas/character';
-import { mergeWithDefaultCharacter } from '../utils/character-defaults';
+import { characterSchema, createCharacterSchema } from "../schemas/character";
+import {
+  ICharacterRepository,
+  LocalStorageCharacterRepository,
+} from "../storage/character-repository";
+import { Character, CreateCharacterData } from "../types/character";
+import { mergeWithDefaultCharacter } from "../utils/character-defaults";
 
 export class CharacterStorageService {
-  private readonly characterListStorageKey = 'nimble-navigator-character-list';
-  
+  private readonly characterListStorageKey = "nimble-navigator-character-list";
+
   constructor(private repository: ICharacterRepository = new LocalStorageCharacterRepository()) {}
 
   async createCharacter(data: CreateCharacterData, id?: string): Promise<Character> {
@@ -16,7 +19,7 @@ export class CharacterStorageService {
   async getCharacter(id: string): Promise<Character | null> {
     const character = await this.repository.load(id);
     if (!character) return null;
-    
+
     return this.validateOrRecoverCharacter(character, id);
   }
 
@@ -24,17 +27,20 @@ export class CharacterStorageService {
     try {
       const characters = await this.repository.list();
       const validCharacters: Character[] = [];
-      
+
       for (const char of characters) {
-        const validatedChar = await this.validateOrRecoverCharacter(char, char.id || `recovered-${Date.now()}`);
+        const validatedChar = await this.validateOrRecoverCharacter(
+          char,
+          char.id || `recovered-${Date.now()}`,
+        );
         if (validatedChar) {
           validCharacters.push(validatedChar);
         }
       }
-      
+
       return validCharacters;
     } catch (error) {
-      console.error('Failed to load character list:', error);
+      console.error("Failed to load character list:", error);
       return [];
     }
   }
@@ -66,22 +72,28 @@ export class CharacterStorageService {
     try {
       return characterSchema.parse(character);
     } catch (error) {
-      console.warn(`Character ${id} failed validation, attempting recovery by merging with defaults:`, error);
-      
+      console.warn(
+        `Character ${id} failed validation, attempting recovery by merging with defaults:`,
+        error,
+      );
+
       try {
         // Attempt to recover by merging with default character template
         const recoveredCharacter = mergeWithDefaultCharacter(character, id);
-        
+
         // Validate the recovered character
         const validatedCharacter = characterSchema.parse(recoveredCharacter);
-        
+
         // Save the recovered character back to storage
         await this.repository.save(validatedCharacter);
-        
+
         console.info(`Successfully recovered character ${id} by merging with defaults`);
         return validatedCharacter;
       } catch (recoveryError) {
-        console.error(`Failed to recover character ${id} even after merging with defaults:`, recoveryError);
+        console.error(
+          `Failed to recover character ${id} even after merging with defaults:`,
+          recoveryError,
+        );
         return null;
       }
     }

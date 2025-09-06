@@ -1,28 +1,28 @@
-import { SpellAbility } from '../../types/abilities';
-import { fireSchoolSpells } from './fire';
-import { iceSchoolSpells } from './ice';
-import { lightningSchoolSpells } from './lightning';
-import { windSchoolSpells } from './wind';
-import { radiantSchoolSpells } from './radiant';
-import { necroticSchoolSpells } from './necrotic';
-import { utilitySpellsBySchool } from './utility-spells';
+import { SpellAbility } from "../../types/abilities";
+import { fireSchoolSpells } from "./fire";
+import { iceSchoolSpells } from "./ice";
+import { lightningSchoolSpells } from "./lightning";
+import { necroticSchoolSpells } from "./necrotic";
+import { radiantSchoolSpells } from "./radiant";
+import { utilitySpellsBySchool } from "./utility-spells";
+import { windSchoolSpells } from "./wind";
 
 /**
  * Get spells from a specific school
  */
 export function getSpellsBySchool(schoolId: string): SpellAbility[] {
   switch (schoolId) {
-    case 'fire':
+    case "fire":
       return fireSchoolSpells;
-    case 'ice':
+    case "ice":
       return iceSchoolSpells;
-    case 'lightning':
+    case "lightning":
       return lightningSchoolSpells;
-    case 'wind':
+    case "wind":
       return windSchoolSpells;
-    case 'radiant':
+    case "radiant":
       return radiantSchoolSpells;
-    case 'necrotic':
+    case "necrotic":
       return necroticSchoolSpells;
     default:
       return [];
@@ -41,12 +41,12 @@ export function getUtilitySpellsBySchool(schoolId: string): SpellAbility[] {
  */
 export function getAllSpellSchools(): { id: string; name: string; spells: SpellAbility[] }[] {
   return [
-    { id: 'fire', name: 'Fire Spells', spells: fireSchoolSpells },
-    { id: 'ice', name: 'Ice Spells', spells: iceSchoolSpells },
-    { id: 'lightning', name: 'Lightning Spells', spells: lightningSchoolSpells },
-    { id: 'wind', name: 'Wind Spells', spells: windSchoolSpells },
-    { id: 'radiant', name: 'Radiant Spells', spells: radiantSchoolSpells },
-    { id: 'necrotic', name: 'Necrotic Spells', spells: necroticSchoolSpells }
+    { id: "fire", name: "Fire Spells", spells: fireSchoolSpells },
+    { id: "ice", name: "Ice Spells", spells: iceSchoolSpells },
+    { id: "lightning", name: "Lightning Spells", spells: lightningSchoolSpells },
+    { id: "wind", name: "Wind Spells", spells: windSchoolSpells },
+    { id: "radiant", name: "Radiant Spells", spells: radiantSchoolSpells },
+    { id: "necrotic", name: "Necrotic Spells", spells: necroticSchoolSpells },
   ];
 }
 
@@ -58,5 +58,5 @@ export {
   windSchoolSpells,
   radiantSchoolSpells,
   necroticSchoolSpells,
-  utilitySpellsBySchool
+  utilitySpellsBySchool,
 };

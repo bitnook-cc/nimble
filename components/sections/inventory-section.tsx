@@ -1,33 +1,39 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { Inventory as InventoryType } from "@/lib/types/inventory";
-import { Inventory } from "../inventory";
 import { ChevronDown, ChevronRight } from "lucide-react";
+
+import { useCallback } from "react";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { useCallback } from "react";
+import { Inventory as InventoryType } from "@/lib/types/inventory";
+
+import { Inventory } from "../inventory";
+import { Button } from "../ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function InventorySection() {
   // Get everything we need from service hooks
   const { character, updateCharacter } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-  
-  const onUpdateInventory = useCallback(async (inventory: InventoryType) => {
-    if (!character) return;
-    const updated = {
-      ...character,
-      inventory,
-    };
-    await updateCharacter(updated);
-  }, [character, updateCharacter]);
-  
+
+  const onUpdateInventory = useCallback(
+    async (inventory: InventoryType) => {
+      if (!character) return;
+      const updated = {
+        ...character,
+        inventory,
+      };
+      await updateCharacter(updated);
+    },
+    [character, updateCharacter],
+  );
+
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
-  
+
   const isOpen = uiState.collapsibleSections.inventory;
-  const onToggle = (isOpen: boolean) => updateCollapsibleState('inventory', isOpen);
+  const onToggle = (isOpen: boolean) => updateCollapsibleState("inventory", isOpen);
   const inventory = character.inventory;
   const characterDexterity = character._attributes.dexterity;
   return (
@@ -40,7 +46,11 @@ export function InventorySection() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="mt-4">
-          <Inventory inventory={inventory} characterDexterity={characterDexterity} onUpdateInventory={onUpdateInventory} />
+          <Inventory
+            inventory={inventory}
+            characterDexterity={characterDexterity}
+            onUpdateInventory={onUpdateInventory}
+          />
         </div>
       </CollapsibleContent>
     </Collapsible>

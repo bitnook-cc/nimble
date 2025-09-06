@@ -1,4 +1,4 @@
-import { Character, CreateCharacterData } from '../types/character';
+import { Character, CreateCharacterData } from "../types/character";
 
 export interface ICharacterRepository {
   save(character: Character): Promise<void>;
@@ -9,32 +9,32 @@ export interface ICharacterRepository {
 }
 
 export class LocalStorageCharacterRepository implements ICharacterRepository {
-  private readonly storageKey = 'nimble-navigator-characters';
+  private readonly storageKey = "nimble-navigator-characters";
 
   async save(character: Character): Promise<void> {
     const characters = await this.list();
-    const index = characters.findIndex(c => c.id === character.id);
-    
+    const index = characters.findIndex((c) => c.id === character.id);
+
     character.updatedAt = new Date();
-    
+
     if (index >= 0) {
       characters[index] = character;
     } else {
       characters.push(character);
     }
-    
+
     localStorage.setItem(this.storageKey, JSON.stringify(characters));
   }
 
   async load(id: string): Promise<Character | null> {
     const characters = await this.list();
-    return characters.find(c => c.id === id) || null;
+    return characters.find((c) => c.id === id) || null;
   }
 
   async list(): Promise<Character[]> {
     const stored = localStorage.getItem(this.storageKey);
     if (!stored) return [];
-    
+
     try {
       const parsed = JSON.parse(stored);
       return parsed.map((char: any) => ({
@@ -49,7 +49,7 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
 
   async delete(id: string): Promise<void> {
     const characters = await this.list();
-    const filtered = characters.filter(c => c.id !== id);
+    const filtered = characters.filter((c) => c.id !== id);
     localStorage.setItem(this.storageKey, JSON.stringify(filtered));
   }
 
@@ -61,7 +61,7 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    
+
     await this.save(character);
     return character;
   }

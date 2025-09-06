@@ -1,14 +1,17 @@
 "use client";
 
+import { AlertTriangle, Clock, Plus, Trash2, User } from "lucide-react";
+
 import { useState } from "react";
+
+import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { Character } from "@/lib/types/character";
+
+import { CharacterCreateForm } from "./character-create-form";
+import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Character } from "@/lib/types/character";
-import { Plus, Trash2, User, Clock, AlertTriangle } from "lucide-react";
-import { CharacterCreateForm } from "./character-create-form";
-import { useCharacterService } from "@/lib/hooks/use-character-service";
 
 interface CharacterSelectorProps {
   isOpen?: boolean;
@@ -19,13 +22,13 @@ interface CharacterSelectorProps {
   fullScreen?: boolean; // New prop to render as full screen instead of dialog
 }
 
-export function CharacterSelector({ 
-  isOpen = true, 
-  onClose, 
+export function CharacterSelector({
+  isOpen = true,
+  onClose,
   characters,
   activeCharacterId,
   errorMessage,
-  fullScreen = false
+  fullScreen = false,
 }: CharacterSelectorProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { switchCharacter, deleteCharacter } = useCharacterService();
@@ -39,19 +42,20 @@ export function CharacterSelector({
   };
 
   const handleDeleteCharacter = (characterId: string) => {
-    const character = characters.find(c => c.id === characterId);
+    const character = characters.find((c) => c.id === characterId);
     if (!character) return;
-    
+
     const isLastCharacter = characters.length === 1;
     const isActiveCharacter = character.id === activeCharacterId;
-    
+
     let confirmMessage = `Are you sure you want to delete "${character.name}"?`;
     if (isLastCharacter) {
-      confirmMessage += "\n\nThis is your last character. You'll need to create a new one after deletion.";
+      confirmMessage +=
+        "\n\nThis is your last character. You'll need to create a new one after deletion.";
     } else if (isActiveCharacter) {
       confirmMessage += "\n\nThis is your currently active character.";
     }
-    
+
     if (confirm(confirmMessage)) {
       deleteCharacter(characterId);
     }
@@ -71,8 +75,8 @@ export function CharacterSelector({
     return date.toLocaleDateString();
   };
 
-  const sortedCharacters = [...characters].sort((a, b) => 
-    b.updatedAt.getTime() - a.updatedAt.getTime()
+  const sortedCharacters = [...characters].sort(
+    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
   );
 
   const content = (
@@ -80,92 +84,86 @@ export function CharacterSelector({
       {errorMessage && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {errorMessage}
-          </AlertDescription>
+          <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       )}
-          {/* Create New Character Section */}
-          {!showCreateForm ? (
-            <Button 
-              variant="outline" 
-              onClick={() => setShowCreateForm(true)}
-              className="w-full"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create New Character
-            </Button>
-          ) : (
-            <CharacterCreateForm
-              onComplete={handleCreateCharacter}
-              onCancel={handleCancelCreate}
-              showAsCard={true}
-              autoFocus={true}
-            />
-          )}
+      {/* Create New Character Section */}
+      {!showCreateForm ? (
+        <Button variant="outline" onClick={() => setShowCreateForm(true)} className="w-full">
+          <Plus className="w-4 h-4 mr-2" />
+          Create New Character
+        </Button>
+      ) : (
+        <CharacterCreateForm
+          onComplete={handleCreateCharacter}
+          onCancel={handleCancelCreate}
+          showAsCard={true}
+          autoFocus={true}
+        />
+      )}
 
-          {/* Character List */}
-          <div className="space-y-2">
-            {sortedCharacters.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No characters found. Create your first character above!
-              </div>
-            ) : (
-              sortedCharacters.map((character) => (
-                <Card 
-                  key={character.id}
-                  className={`cursor-pointer transition-colors ${
-                    character.id === activeCharacterId 
-                      ? 'ring-2 ring-primary bg-primary/5' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                  onClick={() => {
-                    if (character.id !== activeCharacterId) {
-                      switchCharacter(character.id);
-                      onClose?.();
-                    }
-                  }}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="shrink-0">
-                          <User className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-medium truncate">
-                            {character.name}
-                            {character.id === activeCharacterId && (
-                              <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                                Active
-                              </span>
-                            )}
-                          </h3>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {formatLastPlayed(character.updatedAt)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCharacter(character.id);
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+      {/* Character List */}
+      <div className="space-y-2">
+        {sortedCharacters.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No characters found. Create your first character above!
+          </div>
+        ) : (
+          sortedCharacters.map((character) => (
+            <Card
+              key={character.id}
+              className={`cursor-pointer transition-colors ${
+                character.id === activeCharacterId
+                  ? "ring-2 ring-primary bg-primary/5"
+                  : "hover:bg-muted/50"
+              }`}
+              onClick={() => {
+                if (character.id !== activeCharacterId) {
+                  switchCharacter(character.id);
+                  onClose?.();
+                }
+              }}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="shrink-0">
+                      <User className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium truncate">
+                        {character.name}
+                        {character.id === activeCharacterId && (
+                          <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                            Active
+                          </span>
+                        )}
+                      </h3>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {formatLastPlayed(character.updatedAt)}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+                  </div>
+                  <div className="shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCharacter(character.id);
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 
@@ -181,12 +179,13 @@ export function CharacterSelector({
             {content}
           </div>
         </div>
-        
+
         {/* Disclaimer Footer */}
         <footer className="border-t bg-muted/30 py-3 px-4">
           <div className="container mx-auto">
             <p className="text-xs text-muted-foreground text-center">
-              Nimble Navigator is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+              Nimble Navigator is an independent product published under the Nimble 3rd Party
+              Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
             </p>
           </div>
         </footer>

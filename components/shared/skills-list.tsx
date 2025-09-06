@@ -1,10 +1,12 @@
 "use client";
 
+import { Minus, Plus, Star } from "lucide-react";
+
+import { gameConfig } from "@/lib/config/game-config";
+
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Minus, Plus, Star } from "lucide-react";
-import { gameConfig } from "@/lib/config/game-config";
 
 interface SkillsListProps {
   skillAllocations: Record<string, number>;
@@ -14,15 +16,15 @@ interface SkillsListProps {
   readOnly?: boolean;
 }
 
-export function SkillsList({ 
-  skillAllocations, 
+export function SkillsList({
+  skillAllocations,
   attributeValues,
   onSkillChange,
   availablePoints,
-  readOnly = false
+  readOnly = false,
 }: SkillsListProps) {
   const maxPerSkill = gameConfig.character.skillModifierRange.max;
-  
+
   const getAttributeModifier = (attributeName: string) => {
     return attributeValues[attributeName] || 0;
   };
@@ -49,7 +51,7 @@ export function SkillsList({
   const handleSkillChange = (skillName: string, change: number) => {
     const currentPoints = skillAllocations[skillName] || 0;
     const newPoints = Math.max(0, Math.min(maxPerSkill, currentPoints + change));
-    
+
     if (change > 0 && !canIncreaseSkill(skillName)) return;
     if (change < 0 && !canDecreaseSkill(skillName)) return;
 
@@ -66,7 +68,7 @@ export function SkillsList({
         const attributeModifier = getAttributeModifier(skill.attribute);
         const skillPoints = skillAllocations[skill.name] || 0;
         const totalModifier = getTotalSkillModifier(skill.name, skill.attribute);
-        
+
         return (
           <Card key={skill.name} className="h-fit">
             <CardContent className="p-3">
@@ -74,7 +76,8 @@ export function SkillsList({
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium truncate">{skill.label}</div>
                   <div className="text-xs text-muted-foreground capitalize">
-                    {formatModifier(attributeModifier)} {skill.attribute.slice(0, 3).toUpperCase()} + {skillPoints}
+                    {formatModifier(attributeModifier)} {skill.attribute.slice(0, 3).toUpperCase()}{" "}
+                    + {skillPoints}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 ml-2 shrink-0">
@@ -83,9 +86,7 @@ export function SkillsList({
                     {Array.from({ length: skillPoints }, (_, i) => (
                       <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
                     ))}
-                    {skillPoints === 0 && (
-                      <div className="w-2.5 h-2.5" />
-                    )}
+                    {skillPoints === 0 && <div className="w-2.5 h-2.5" />}
                   </div>
                   <Button
                     variant="outline"

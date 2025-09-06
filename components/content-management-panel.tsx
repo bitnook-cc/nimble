@@ -1,31 +1,63 @@
 "use client";
 
+import {
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  Database,
+  ExternalLink,
+  FileText,
+  Package,
+  Shield,
+  Sparkles,
+  Upload,
+  Users,
+  Wand2,
+  Zap,
+} from "lucide-react";
+import { z } from "zod";
+
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { Database, Upload, ChevronDown, ChevronRight, FileText, Wand2, Shield, Zap, Sparkles, BookOpen, Users, Package, Copy, ExternalLink } from "lucide-react";
-import { ContentRepositoryService, ContentUploadResult } from "@/lib/services/content-repository-service";
-import { getSchemaDocumentation, getAllSchemaDocumentation } from "@/lib/utils/schema-documentation";
-import { ExampleGenerator } from "@/lib/utils/example-generator";
-import { 
-  CustomContentType, 
-  getAllContentTypes,
-  getContentTypeMetadata
-} from "@/lib/types/custom-content";
-import { SpellAbility, ActionAbility } from "@/lib/types/abilities";
-import { ClassDefinition, SubclassDefinition } from "@/lib/types/class";
+
 import { SpellSchoolDefinitionSchema } from "@/lib/schemas/class";
+import {
+  ContentRepositoryService,
+  ContentUploadResult,
+} from "@/lib/services/content-repository-service";
+import { ActionAbility, SpellAbility } from "@/lib/types/abilities";
 import { AncestryDefinition } from "@/lib/types/ancestry";
 import { BackgroundDefinition } from "@/lib/types/background";
+import { ClassDefinition, SubclassDefinition } from "@/lib/types/class";
+import {
+  CustomContentType,
+  getAllContentTypes,
+  getContentTypeMetadata,
+} from "@/lib/types/custom-content";
 import { RepositoryItem } from "@/lib/types/item-repository";
-import { z } from 'zod';
+import { ExampleGenerator } from "@/lib/utils/example-generator";
+import {
+  getAllSchemaDocumentation,
+  getSchemaDocumentation,
+} from "@/lib/utils/schema-documentation";
+
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Label } from "./ui/label";
 
 type SpellSchoolDefinition = z.infer<typeof SpellSchoolDefinitionSchema>;
-type ContentItem = ClassDefinition | SubclassDefinition | SpellSchoolDefinition | AncestryDefinition | BackgroundDefinition | ActionAbility | SpellAbility | RepositoryItem;
+type ContentItem =
+  | ClassDefinition
+  | SubclassDefinition
+  | SpellSchoolDefinition
+  | AncestryDefinition
+  | BackgroundDefinition
+  | ActionAbility
+  | SpellAbility
+  | RepositoryItem;
 
 interface ContentManagementPanelProps {
   isOpen: boolean;
@@ -35,13 +67,20 @@ interface ContentManagementPanelProps {
 export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPanelProps) {
   const [uploadMessage, setUploadMessage] = useState<string>("");
   const [uploadError, setUploadError] = useState<string>("");
-  const [expandedSections, setExpandedSections] = useState<Partial<Record<CustomContentType, boolean>>>({});
-  const [showSchemaHelp, setShowSchemaHelp] = useState<Partial<Record<CustomContentType, boolean>>>({});
-  
+  const [expandedSections, setExpandedSections] = useState<
+    Partial<Record<CustomContentType, boolean>>
+  >({});
+  const [showSchemaHelp, setShowSchemaHelp] = useState<Partial<Record<CustomContentType, boolean>>>(
+    {},
+  );
+
   const contentRepository = ContentRepositoryService.getInstance();
   const customContentStats = contentRepository.getCustomContentStats();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, contentType: CustomContentType) => {
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    contentType: CustomContentType,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -80,7 +119,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
             result = contentRepository.uploadItems(content);
             break;
           default:
-            result = { success: false, message: 'Unknown content type' };
+            result = { success: false, message: "Unknown content type" };
         }
 
         if (result.success) {
@@ -96,23 +135,23 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
       }
     };
     reader.readAsText(file);
-    
+
     // Clear the input so the same file can be uploaded again
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const toggleSection = (section: CustomContentType) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
   const toggleSchemaHelp = (contentType: CustomContentType) => {
     if (contentType) {
-      setShowSchemaHelp(prev => ({
+      setShowSchemaHelp((prev) => ({
         ...prev,
-        [contentType]: !prev[contentType]
+        [contentType]: !prev[contentType],
       }));
     }
   };
@@ -143,43 +182,49 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
   const getIconForType = (iconName: string) => {
     const iconProps = { className: "h-4 w-4" };
     switch (iconName) {
-      case 'Shield': return <Shield {...iconProps} />;
-      case 'Zap': return <Zap {...iconProps} />;
-      case 'Sparkles': return <Sparkles {...iconProps} />;
-      case 'Users': return <Users {...iconProps} />;
-      case 'FileText': return <FileText {...iconProps} />;
-      case 'Wand2': return <Wand2 {...iconProps} />;
-      case 'BookOpen': return <BookOpen {...iconProps} />;
-      case 'Package': return <Package {...iconProps} />;
-      default: return <FileText {...iconProps} />;
+      case "Shield":
+        return <Shield {...iconProps} />;
+      case "Zap":
+        return <Zap {...iconProps} />;
+      case "Sparkles":
+        return <Sparkles {...iconProps} />;
+      case "Users":
+        return <Users {...iconProps} />;
+      case "FileText":
+        return <FileText {...iconProps} />;
+      case "Wand2":
+        return <Wand2 {...iconProps} />;
+      case "BookOpen":
+        return <BookOpen {...iconProps} />;
+      case "Package":
+        return <Package {...iconProps} />;
+      default:
+        return <FileText {...iconProps} />;
     }
   };
-  
+
   const getAllSpells = () => {
     // Get all spells from all schools plus loose custom spells
     const allSchools = contentRepository.getAllSpellSchools();
-    const schoolSpells = allSchools.flatMap(school => 
-      contentRepository.getSpellsBySchool(school.id)
+    const schoolSpells = allSchools.flatMap((school) =>
+      contentRepository.getSpellsBySchool(school.id),
     );
-    
+
     // Remove duplicates by ID
-    const uniqueSpells = schoolSpells.filter((spell, index, arr) => 
-      arr.findIndex(s => s.id === spell.id) === index
+    const uniqueSpells = schoolSpells.filter(
+      (spell, index, arr) => arr.findIndex((s) => s.id === spell.id) === index,
     );
-    
+
     return uniqueSpells;
   };
 
-  const renderContentSection = (
-    contentType: CustomContentType,
-    count: number,
-  ) => {
+  const renderContentSection = (contentType: CustomContentType, count: number) => {
     const metadata = getContentTypeMetadata(contentType);
     const items = getContentForType(contentType);
     const icon = getIconForType(metadata.icon);
-    
+
     const isExpanded = expandedSections[contentType];
-    
+
     return (
       <Card>
         <Collapsible open={isExpanded} onOpenChange={() => toggleSection(contentType)}>
@@ -189,24 +234,36 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                 <div className="flex items-center gap-2">
                   {icon}
                   {metadata.title}
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className={`text-white ${
-                      contentType === CustomContentType.CLASS_DEFINITION ? 'bg-blue-600' :
-                      contentType === CustomContentType.SUBCLASS_DEFINITION ? 'bg-green-600' :
-                      contentType === CustomContentType.SPELL_SCHOOL_DEFINITION ? 'bg-purple-600' :
-                      contentType === CustomContentType.ANCESTRY_DEFINITION ? 'bg-teal-600' :
-                      contentType === CustomContentType.BACKGROUND_DEFINITION ? 'bg-indigo-600' :
-                      contentType === CustomContentType.ACTION_ABILITY ? 'bg-orange-600' :
-                      contentType === CustomContentType.SPELL_ABILITY ? 'bg-red-600' :
-                      contentType === CustomContentType.ITEM_REPOSITORY ? 'bg-yellow-600' :
-                      'bg-gray-600'
+                      contentType === CustomContentType.CLASS_DEFINITION
+                        ? "bg-blue-600"
+                        : contentType === CustomContentType.SUBCLASS_DEFINITION
+                          ? "bg-green-600"
+                          : contentType === CustomContentType.SPELL_SCHOOL_DEFINITION
+                            ? "bg-purple-600"
+                            : contentType === CustomContentType.ANCESTRY_DEFINITION
+                              ? "bg-teal-600"
+                              : contentType === CustomContentType.BACKGROUND_DEFINITION
+                                ? "bg-indigo-600"
+                                : contentType === CustomContentType.ACTION_ABILITY
+                                  ? "bg-orange-600"
+                                  : contentType === CustomContentType.SPELL_ABILITY
+                                    ? "bg-red-600"
+                                    : contentType === CustomContentType.ITEM_REPOSITORY
+                                      ? "bg-yellow-600"
+                                      : "bg-gray-600"
                     }`}
                   >
                     {count}
                   </Badge>
                 </div>
-                {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </CardTitle>
             </CardHeader>
           </CollapsibleTrigger>
@@ -226,7 +283,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                     Schema
                   </Button>
                 </div>
-                
+
                 {(() => {
                   if (contentType && showSchemaHelp[contentType]) {
                     try {
@@ -240,32 +297,34 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                             {schema.title || metadata.title} Format
                           </div>
                           {schema.description && (
-                            <div className="text-blue-800 mb-2">
-                              {schema.description}
-                            </div>
+                            <div className="text-blue-800 mb-2">{schema.description}</div>
                           )}
-                          
+
                           <details className="mt-2">
-                            <summary className="font-medium text-blue-900 cursor-pointer">Example JSON</summary>
+                            <summary className="font-medium text-blue-900 cursor-pointer">
+                              Example JSON
+                            </summary>
                             <div className="relative">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="absolute top-1 right-1 h-6 w-6 p-0"
                                 onClick={() => {
-                                  navigator.clipboard.writeText(exampleJson || '');
+                                  navigator.clipboard.writeText(exampleJson || "");
                                 }}
                               >
                                 <Copy className="h-3 w-3" />
                               </Button>
                               <pre className="mt-1 p-2 pr-10 bg-green-100 rounded overflow-x-auto text-xs">
-                                {exampleJson || 'Failed to generate example'}
+                                {exampleJson || "Failed to generate example"}
                               </pre>
                             </div>
                           </details>
-                          
+
                           <details className="mt-2">
-                            <summary className="font-medium text-blue-900 cursor-pointer">JSON Schema</summary>
+                            <summary className="font-medium text-blue-900 cursor-pointer">
+                              JSON Schema
+                            </summary>
                             <div className="relative">
                               <Button
                                 variant="ghost"
@@ -282,7 +341,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               </pre>
                             </div>
                           </details>
-                          
+
                           <div className="mt-2 flex items-center gap-1">
                             <a
                               href="https://json-editor.github.io/json-editor/"
@@ -302,7 +361,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                   }
                   return null;
                 })()}
-                
+
                 <div className="relative">
                   <input
                     type="file"
@@ -322,124 +381,162 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Current {metadata.title}</Label>
                   <div className="space-y-1 max-h-48 overflow-y-auto">
-                    {contentType === CustomContentType.ITEM_REPOSITORY ? (
-                      // Group items by category and type
-                      Object.entries(
-                        (items as any[]).reduce((groups: Record<string, any[]>, item) => {
-                          const key = `${item.category}-${item.item.type}`;
-                          const label = `${item.category} ${item.item.type}s`;
-                          if (!groups[label]) groups[label] = [];
-                          groups[label].push(item);
-                          return groups;
-                        }, {})
-                      ).map(([groupLabel, items]) => (
-                        <div key={groupLabel} className="border rounded p-2">
-                          <div className="font-medium text-sm text-yellow-600 mb-1">
-                            {groupLabel} ({items.length} items)
-                          </div>
-                          <div className="space-y-1 ml-2">
-                            {items.map((repoItem: any) => (
-                              <div key={repoItem.item.id} className="flex items-center justify-between text-xs">
-                                <div>
-                                  <span className="font-medium">{repoItem.item.name}</span>
-                                  {repoItem.rarity && <span className="text-muted-foreground ml-1">({repoItem.rarity})</span>}
-                                  {repoItem.item.damage && <span className="text-muted-foreground ml-1">{repoItem.item.damage}</span>}
-                                  {repoItem.item.armor && <span className="text-muted-foreground ml-1">AC {repoItem.item.armor}</span>}
-                                </div>
-                                <div className="text-muted-foreground">{repoItem.item.id}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))
-                    ) : contentType === CustomContentType.SPELL_ABILITY ? (
-                      // Group spells by school
-                      Object.entries(
-                        (items as SpellAbility[]).reduce((groups: Record<string, SpellAbility[]>, spell) => {
-                          const school = spell.school || 'Unknown';
-                          if (!groups[school]) groups[school] = [];
-                          groups[school].push(spell);
-                          return groups;
-                        }, {})
-                      ).map(([school, spells]) => (
-                        <div key={school} className="border rounded p-2">
-                          <div className="font-medium text-sm text-purple-600 mb-1">
-                            {school} ({spells.length} spells)
-                          </div>
-                          <div className="space-y-1 ml-2">
-                            {spells.map((spell) => (
-                              <div key={spell.id} className="flex items-center justify-between text-xs">
-                                <div>
-                                  <span className="font-medium">{spell.name}</span>
-                                  {spell.tier && <span className="text-muted-foreground ml-1">(Tier {spell.tier})</span>}
-                                </div>
-                                <div className="text-muted-foreground">{spell.id}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      // Regular item display for non-spells
-                      items.map((item, index) => {
-                        // Handle repository items differently
-                        if ('item' in item) {
-                          const repositoryItem = item as RepositoryItem;
-                          return (
-                            <div key={repositoryItem.item.id || index} className="flex items-center justify-between p-2 border rounded">
-                              <div>
-                                <div className="font-medium text-sm">{repositoryItem.item.name}</div>
-                                {repositoryItem.item.description && (
-                                  <div className="text-xs text-muted-foreground truncate max-w-md">
-                                    {repositoryItem.item.description}
+                    {contentType === CustomContentType.ITEM_REPOSITORY
+                      ? // Group items by category and type
+                        Object.entries(
+                          (items as any[]).reduce((groups: Record<string, any[]>, item) => {
+                            const key = `${item.category}-${item.item.type}`;
+                            const label = `${item.category} ${item.item.type}s`;
+                            if (!groups[label]) groups[label] = [];
+                            groups[label].push(item);
+                            return groups;
+                          }, {}),
+                        ).map(([groupLabel, items]) => (
+                          <div key={groupLabel} className="border rounded p-2">
+                            <div className="font-medium text-sm text-yellow-600 mb-1">
+                              {groupLabel} ({items.length} items)
+                            </div>
+                            <div className="space-y-1 ml-2">
+                              {items.map((repoItem: any) => (
+                                <div
+                                  key={repoItem.item.id}
+                                  className="flex items-center justify-between text-xs"
+                                >
+                                  <div>
+                                    <span className="font-medium">{repoItem.item.name}</span>
+                                    {repoItem.rarity && (
+                                      <span className="text-muted-foreground ml-1">
+                                        ({repoItem.rarity})
+                                      </span>
+                                    )}
+                                    {repoItem.item.damage && (
+                                      <span className="text-muted-foreground ml-1">
+                                        {repoItem.item.damage}
+                                      </span>
+                                    )}
+                                    {repoItem.item.armor && (
+                                      <span className="text-muted-foreground ml-1">
+                                        AC {repoItem.item.armor}
+                                      </span>
+                                    )}
                                   </div>
-                                )}
-                                <div className="text-xs text-muted-foreground">
-                                  {repositoryItem.category} {repositoryItem.item.type}
-                                  {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
+                                  <div className="text-muted-foreground">{repoItem.item.id}</div>
                                 </div>
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {repositoryItem.item.id}
-                              </div>
-                            </div>
-                          );
-                        }
-                        
-                        // Handle other content types
-                        const regularItem = item as Exclude<ContentItem, RepositoryItem>;
-                        return (
-                          <div key={regularItem.id || index} className="flex items-center justify-between p-2 border rounded">
-                            <div>
-                              <div className="font-medium text-sm">{regularItem.name}</div>
-                              {regularItem.description && (
-                                <div className="text-xs text-muted-foreground truncate max-w-md">
-                                  {regularItem.description}
-                                </div>
-                              )}
-                              {'spells' in regularItem && regularItem.spells && (
-                                <div className="text-xs text-muted-foreground">
-                                  {regularItem.spells.length} spells
-                                </div>
-                              )}
-                              {'size' in regularItem && (regularItem as AncestryDefinition).size && (
-                                <div className="text-xs text-muted-foreground">
-                                  Size: {(regularItem as AncestryDefinition).size}
-                                </div>
-                              )}
-                              {'features' in regularItem && (regularItem as AncestryDefinition | BackgroundDefinition).features && (
-                                <div className="text-xs text-muted-foreground">
-                                  {(regularItem as AncestryDefinition | BackgroundDefinition).features.length} features
-                                </div>
-                              )}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {regularItem.id}
+                              ))}
                             </div>
                           </div>
-                        );
-                      })
-                    )}
+                        ))
+                      : contentType === CustomContentType.SPELL_ABILITY
+                        ? // Group spells by school
+                          Object.entries(
+                            (items as SpellAbility[]).reduce(
+                              (groups: Record<string, SpellAbility[]>, spell) => {
+                                const school = spell.school || "Unknown";
+                                if (!groups[school]) groups[school] = [];
+                                groups[school].push(spell);
+                                return groups;
+                              },
+                              {},
+                            ),
+                          ).map(([school, spells]) => (
+                            <div key={school} className="border rounded p-2">
+                              <div className="font-medium text-sm text-purple-600 mb-1">
+                                {school} ({spells.length} spells)
+                              </div>
+                              <div className="space-y-1 ml-2">
+                                {spells.map((spell) => (
+                                  <div
+                                    key={spell.id}
+                                    className="flex items-center justify-between text-xs"
+                                  >
+                                    <div>
+                                      <span className="font-medium">{spell.name}</span>
+                                      {spell.tier && (
+                                        <span className="text-muted-foreground ml-1">
+                                          (Tier {spell.tier})
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-muted-foreground">{spell.id}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))
+                        : // Regular item display for non-spells
+                          items.map((item, index) => {
+                            // Handle repository items differently
+                            if ("item" in item) {
+                              const repositoryItem = item as RepositoryItem;
+                              return (
+                                <div
+                                  key={repositoryItem.item.id || index}
+                                  className="flex items-center justify-between p-2 border rounded"
+                                >
+                                  <div>
+                                    <div className="font-medium text-sm">
+                                      {repositoryItem.item.name}
+                                    </div>
+                                    {repositoryItem.item.description && (
+                                      <div className="text-xs text-muted-foreground truncate max-w-md">
+                                        {repositoryItem.item.description}
+                                      </div>
+                                    )}
+                                    <div className="text-xs text-muted-foreground">
+                                      {repositoryItem.category} {repositoryItem.item.type}
+                                      {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {repositoryItem.item.id}
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            // Handle other content types
+                            const regularItem = item as Exclude<ContentItem, RepositoryItem>;
+                            return (
+                              <div
+                                key={regularItem.id || index}
+                                className="flex items-center justify-between p-2 border rounded"
+                              >
+                                <div>
+                                  <div className="font-medium text-sm">{regularItem.name}</div>
+                                  {regularItem.description && (
+                                    <div className="text-xs text-muted-foreground truncate max-w-md">
+                                      {regularItem.description}
+                                    </div>
+                                  )}
+                                  {"spells" in regularItem && regularItem.spells && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {regularItem.spells.length} spells
+                                    </div>
+                                  )}
+                                  {"size" in regularItem &&
+                                    (regularItem as AncestryDefinition).size && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Size: {(regularItem as AncestryDefinition).size}
+                                      </div>
+                                    )}
+                                  {"features" in regularItem &&
+                                    (regularItem as AncestryDefinition | BackgroundDefinition)
+                                      .features && (
+                                      <div className="text-xs text-muted-foreground">
+                                        {
+                                          (regularItem as AncestryDefinition | BackgroundDefinition)
+                                            .features.length
+                                        }{" "}
+                                        features
+                                      </div>
+                                    )}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {regularItem.id}
+                                </div>
+                              </div>
+                            );
+                          })}
                   </div>
                 </div>
               ) : (
@@ -479,22 +576,19 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
 
           {/* Content Sections */}
           <div className="space-y-4">
-            {getAllContentTypes().map(contentType => {
+            {getAllContentTypes().map((contentType) => {
               const count = customContentStats[contentType] || 0;
-              return (
-                <div key={contentType}>
-                  {renderContentSection(contentType, count)}
-                </div>
-              );
+              return <div key={contentType}>{renderContentSection(contentType, count)}</div>;
             })}
-
           </div>
 
           {/* Help Section */}
           <Card className="bg-muted/30">
             <CardContent className="pt-6">
               <div className="text-sm text-muted-foreground space-y-2">
-                <p><strong>Upload Instructions:</strong></p>
+                <p>
+                  <strong>Upload Instructions:</strong>
+                </p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   <li>Select JSON files containing properly formatted content definitions</li>
                   <li>Content will be validated before storage</li>

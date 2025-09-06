@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { SubclassDefinition } from "@/lib/types/class";
-import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { SubclassDefinition } from "@/lib/types/class";
+import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
+
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 interface SubclassSelectionDialogProps {
   subclassChoice: SubclassChoiceFeatureEffect;
@@ -36,7 +45,7 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
       await classService.selectSubclass(character, selectedSubclass.id, grantedByEffectId);
       onClose();
     } catch (error) {
-      console.error('Failed to select subclass:', error);
+      console.error("Failed to select subclass:", error);
     } finally {
       setIsSelecting(false);
     }
@@ -51,7 +60,8 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
             Choose your class specialization
             <br />
             <span className="font-medium">
-              This choice will define your character&apos;s specialization and grant unique features.
+              This choice will define your character&apos;s specialization and grant unique
+              features.
             </span>
           </DialogDescription>
         </DialogHeader>
@@ -64,33 +74,36 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
               </div>
             ) : (
               availableSubclasses.map((subclass: SubclassDefinition, index: number) => (
-                <Card 
+                <Card
                   key={index}
                   className={`cursor-pointer transition-colors ${
-                    selectedSubclass === subclass 
-                      ? 'ring-2 ring-primary bg-accent' 
-                      : 'hover:bg-accent/50'
+                    selectedSubclass === subclass
+                      ? "ring-2 ring-primary bg-accent"
+                      : "hover:bg-accent/50"
                   }`}
                   onClick={() => setSelectedSubclass(subclass)}
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{subclass.name}</CardTitle>
-                      <Badge className="bg-purple-100 text-purple-800">
-                        Subclass
-                      </Badge>
+                      <Badge className="bg-purple-100 text-purple-800">Subclass</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {subclass.description}
-                    </p>
-                    
+                    <p className="text-sm text-muted-foreground">{subclass.description}</p>
+
                     {subclass.features && subclass.features.length > 0 && (
                       <div className="mt-2 text-xs text-muted-foreground">
-                        <div>Grants {subclass.features.length} unique feature{subclass.features.length !== 1 ? 's' : ''}</div>
+                        <div>
+                          Grants {subclass.features.length} unique feature
+                          {subclass.features.length !== 1 ? "s" : ""}
+                        </div>
                         <div className="mt-1">
-                          Features at levels: {subclass.features.map(f => f.level).sort().join(', ')}
+                          Features at levels:{" "}
+                          {subclass.features
+                            .map((f) => f.level)
+                            .sort()
+                            .join(", ")}
                         </div>
                       </div>
                     )}
@@ -105,11 +118,8 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSelectSubclass}
-            disabled={!selectedSubclass || isSelecting}
-          >
-            {isSelecting ? 'Selecting...' : 'Select Subclass'}
+          <Button onClick={handleSelectSubclass} disabled={!selectedSubclass || isSelecting}>
+            {isSelecting ? "Selecting..." : "Select Subclass"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,22 +1,28 @@
-import { Character, Attributes, SelectedFeature } from '../types/character';
-import { ICharacterCreation, ICharacterStorage, ICharacterService, IAncestryService, IBackgroundService } from './interfaces';
-import { ContentRepositoryService } from './content-repository-service';
-import { ItemService } from './item-service';
-import { gameConfig } from '../config/game-config';
-import { 
-  createDefaultCharacterConfiguration, 
-  createDefaultHitPoints, 
-  createDefaultHitDice, 
+import { gameConfig } from "../config/game-config";
+import { genericNames } from "../config/name-config";
+import { Attributes, Character, SelectedFeature } from "../types/character";
+import { Item } from "../types/inventory";
+import {
+  createDefaultActionTracker,
+  createDefaultCharacterConfiguration,
+  createDefaultHitDice,
+  createDefaultHitPoints,
+  createDefaultInitiative,
+  createDefaultInventory,
   createDefaultProficiencies,
   createDefaultSkills,
-  createDefaultInventory,
-  createDefaultInitiative,
-  createDefaultActionTracker,
   createDefaultWounds,
-} from '../utils/character-defaults';
-import { Item } from '../types/inventory';
-import { NameGenerator } from '../utils/name-generator';
-import { genericNames } from '../config/name-config';
+} from "../utils/character-defaults";
+import { NameGenerator } from "../utils/name-generator";
+import { ContentRepositoryService } from "./content-repository-service";
+import {
+  IAncestryService,
+  IBackgroundService,
+  ICharacterCreation,
+  ICharacterService,
+  ICharacterStorage,
+} from "./interfaces";
+import { ItemService } from "./item-service";
 
 export interface QuickCreateOptions {
   name?: string; // Optional - will be generated if not provided
@@ -50,7 +56,7 @@ export class CharacterCreationService implements ICharacterCreation {
     private characterStorage: ICharacterStorage,
     private characterService: ICharacterService,
     private ancestryService: IAncestryService,
-    private backgroundService: IBackgroundService
+    private backgroundService: IBackgroundService,
   ) {
     this.contentRepository = ContentRepositoryService.getInstance();
     this.itemService = ItemService.getInstance();
@@ -74,7 +80,7 @@ export class CharacterCreationService implements ICharacterCreation {
     if (!ancestryId) {
       const availableAncestries = this.ancestryService.getAvailableAncestries();
       if (availableAncestries.length === 0) {
-        throw new Error('No ancestries available');
+        throw new Error("No ancestries available");
       }
       ancestryId = availableAncestries[Math.floor(Math.random() * availableAncestries.length)].id;
     }
@@ -84,9 +90,10 @@ export class CharacterCreationService implements ICharacterCreation {
     if (!backgroundId) {
       const availableBackgrounds = this.backgroundService.getAvailableBackgrounds();
       if (availableBackgrounds.length === 0) {
-        throw new Error('No backgrounds available');
+        throw new Error("No backgrounds available");
       }
-      backgroundId = availableBackgrounds[Math.floor(Math.random() * availableBackgrounds.length)].id;
+      backgroundId =
+        availableBackgrounds[Math.floor(Math.random() * availableBackgrounds.length)].id;
     }
 
     // Validate selected ancestry and background exist
@@ -117,10 +124,10 @@ export class CharacterCreationService implements ICharacterCreation {
       // Generate sample attributes based on class key attributes
       const [primary, secondary] = classDefinition.keyAttributes;
       attributes = {
-        strength: primary === 'strength' || secondary === 'strength' ? 3 : 1,
-        dexterity: primary === 'dexterity' || secondary === 'dexterity' ? 3 : 1,
-        intelligence: primary === 'intelligence' || secondary === 'intelligence' ? 3 : 1,
-        will: primary === 'will' || secondary === 'will' ? 3 : 1,
+        strength: primary === "strength" || secondary === "strength" ? 3 : 1,
+        dexterity: primary === "dexterity" || secondary === "dexterity" ? 3 : 1,
+        intelligence: primary === "intelligence" || secondary === "intelligence" ? 3 : 1,
+        will: primary === "will" || secondary === "will" ? 3 : 1,
       };
     }
 
@@ -133,7 +140,7 @@ export class CharacterCreationService implements ICharacterCreation {
       attributes,
       skillAllocations: {}, // Use defaults
       selectedFeatures: [], // No custom feature selections for quick create
-      selectedEquipment: classDefinition.startingEquipment || [] // Use class default equipment
+      selectedEquipment: classDefinition.startingEquipment || [], // Use class default equipment
     });
   }
 
@@ -149,7 +156,7 @@ export class CharacterCreationService implements ICharacterCreation {
       attributes,
       skillAllocations,
       selectedFeatures,
-      selectedEquipment
+      selectedEquipment,
     } = options;
 
     // Validate class, ancestry, and background exist
@@ -185,7 +192,7 @@ export class CharacterCreationService implements ICharacterCreation {
       if (skill) {
         skills[skillName] = {
           ...skill,
-          modifier: points
+          modifier: points,
         };
       }
     });
@@ -193,55 +200,59 @@ export class CharacterCreationService implements ICharacterCreation {
     // Create inventory with selected equipment
     const inventory = createDefaultInventory(attributes.strength);
     if (selectedEquipment.length > 0) {
-      const items: Item[] = selectedEquipment.map(itemId => {
-        return this.itemService.createInventoryItem(itemId);
-      }).filter(item => item !== null) as Item[];
-      
+      const items: Item[] = selectedEquipment
+        .map((itemId) => {
+          return this.itemService.createInventoryItem(itemId);
+        })
+        .filter((item) => item !== null) as Item[];
+
       inventory.items = items;
     }
 
     // Create the character with all data
     const characterId = `character-${Date.now()}`;
-    const character = await this.characterStorage.createCharacter({
-      name,
-      ancestry,
-      background,
-      level: 1,
-      classId,
-      grantedFeatures: [], // Will be populated by syncCharacterFeatures
-      grantedEffects: [], // Will be populated by feature services
-      selectedFeatures,
-      spellTierAccess: 0, // Will be updated by class features
-      proficiencies,
-      _attributes: attributes,
-      saveAdvantages: { ...classDefinition.saveAdvantages },
-      hitPoints,
-      _hitDice: hitDice,
-      wounds: createDefaultWounds(config.maxWounds),
-      resources: [],
-      config,
-      _initiative: createDefaultInitiative(),
-      speed: gameConfig.character.defaultSpeed,
-      actionTracker: createDefaultActionTracker(),
-      inEncounter: false,
-      _skills: skills,
-      inventory,
-      abilities: []
-    }, characterId);
+    const character = await this.characterStorage.createCharacter(
+      {
+        name,
+        ancestry,
+        background,
+        level: 1,
+        classId,
+        grantedFeatures: [], // Will be populated by syncCharacterFeatures
+        grantedEffects: [], // Will be populated by feature services
+        selectedFeatures,
+        spellTierAccess: 0, // Will be updated by class features
+        proficiencies,
+        _attributes: attributes,
+        saveAdvantages: { ...classDefinition.saveAdvantages },
+        hitPoints,
+        _hitDice: hitDice,
+        wounds: createDefaultWounds(config.maxWounds),
+        resources: [],
+        config,
+        _initiative: createDefaultInitiative(),
+        speed: gameConfig.character.defaultSpeed,
+        actionTracker: createDefaultActionTracker(),
+        inEncounter: false,
+        _skills: skills,
+        inventory,
+        abilities: [],
+      },
+      characterId,
+    );
 
     // Load the character into the service to apply features
     await this.characterService.loadCharacter(character.id);
 
     // Apply ancestry features
     await this.ancestryService.grantAncestryFeatures(character.id);
-    
+
     // Apply background features
     await this.backgroundService.grantBackgroundFeatures(character.id);
 
     // Return the updated character
     return this.characterService.getCurrentCharacter() || character;
   }
-
 
   /**
    * Applies starting equipment to a character based on their class
@@ -253,24 +264,26 @@ export class CharacterCreationService implements ICharacterCreation {
     }
 
     // Convert repository item IDs to inventory items
-    const equipmentItems = equipmentIds.map(repositoryId => {
-      const inventoryItem = this.itemService.createInventoryItem(repositoryId);
-      if (!inventoryItem) {
-        console.warn(`Failed to create inventory item for repository ID: ${repositoryId}`);
-        return null;
-      }
-      return inventoryItem;
-    }).filter(item => item !== null);
+    const equipmentItems = equipmentIds
+      .map((repositoryId) => {
+        const inventoryItem = this.itemService.createInventoryItem(repositoryId);
+        if (!inventoryItem) {
+          console.warn(`Failed to create inventory item for repository ID: ${repositoryId}`);
+          return null;
+        }
+        return inventoryItem;
+      })
+      .filter((item) => item !== null);
 
     // Add items to character's inventory
     const updatedInventory = {
       ...character.inventory,
-      items: [...character.inventory.items, ...equipmentItems]
+      items: [...character.inventory.items, ...equipmentItems],
     };
 
     const updatedCharacter = {
       ...character,
-      inventory: updatedInventory
+      inventory: updatedInventory,
     };
 
     await this.characterStorage.updateCharacter(updatedCharacter);
@@ -283,5 +296,4 @@ export class CharacterCreationService implements ICharacterCreation {
     const classDefinition = this.contentRepository.getClassDefinition(classId);
     return classDefinition?.startingEquipment || [];
   }
-
 }

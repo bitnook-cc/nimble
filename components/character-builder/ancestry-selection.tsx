@@ -1,13 +1,15 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
 import { Sparkles } from "lucide-react";
+
+import { genericNames } from "@/lib/config/name-config";
 import { AncestryDefinition } from "@/lib/types/ancestry";
 import { NameGenerator } from "@/lib/utils/name-generator";
-import { genericNames } from "@/lib/config/name-config";
+
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
 
 interface AncestrySelectionProps {
   availableAncestries: AncestryDefinition[];
@@ -26,15 +28,15 @@ export function AncestrySelection({
 }: AncestrySelectionProps) {
   const handleSuggestName = () => {
     if (selectedAncestryId) {
-      const ancestry = availableAncestries.find(a => a.id === selectedAncestryId);
+      const ancestry = availableAncestries.find((a) => a.id === selectedAncestryId);
       const config = ancestry?.nameConfig || genericNames;
-      
+
       try {
-        const randomGender = Math.random() > 0.5 ? 'male' : 'female';
+        const randomGender = Math.random() > 0.5 ? "male" : "female";
         const randomName = NameGenerator.generateFullName(config, randomGender);
         onNameChange(randomName);
       } catch (error) {
-        console.error('Failed to generate name:', error);
+        console.error("Failed to generate name:", error);
       }
     }
   };
@@ -43,7 +45,9 @@ export function AncestrySelection({
     <div className="space-y-4">
       <div className="text-center">
         <h2 className="text-xl font-bold mb-1">Character Ancestry</h2>
-        <p className="text-sm text-muted-foreground">Choose your character&apos;s ancestry and name</p>
+        <p className="text-sm text-muted-foreground">
+          Choose your character&apos;s ancestry and name
+        </p>
       </div>
 
       {/* Character Name - Sticky */}
@@ -62,8 +66,8 @@ export function AncestrySelection({
                   className="text-sm"
                 />
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleSuggestName}
                 disabled={!selectedAncestryId}
                 size="sm"
@@ -74,7 +78,8 @@ export function AncestrySelection({
             </div>
             {selectedAncestryId && (
               <p className="text-xs text-muted-foreground mt-2">
-                Click &quot;Suggest&quot; for {availableAncestries.find(a => a.id === selectedAncestryId)?.name} names
+                Click &quot;Suggest&quot; for{" "}
+                {availableAncestries.find((a) => a.id === selectedAncestryId)?.name} names
               </p>
             )}
           </CardContent>
@@ -86,10 +91,10 @@ export function AncestrySelection({
         <h3 className="text-base font-semibold mb-2">Ancestry</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {availableAncestries.map((ancestry: AncestryDefinition) => (
-            <Card 
+            <Card
               key={ancestry.id}
               className={`cursor-pointer transition-all ${
-                selectedAncestryId === ancestry.id ? 'ring-2 ring-primary' : 'hover:shadow-md'
+                selectedAncestryId === ancestry.id ? "ring-2 ring-primary" : "hover:shadow-md"
               }`}
               onClick={() => onAncestrySelect(ancestry.id)}
             >

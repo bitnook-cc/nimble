@@ -1,33 +1,36 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { 
-  Package, 
-  Search, 
-  Plus, 
-  ChevronDown, 
-  ChevronRight,
-  Sword,
-  Shield,
-  Zap,
+import {
   Apple,
-  Target,
+  ChevronDown,
+  ChevronRight,
+  Coins,
   FileText,
+  Package,
+  Plus,
+  Search,
+  Shield,
   Star,
-  Coins
+  Sword,
+  Target,
+  Zap,
 } from "lucide-react";
+
+import { useMemo, useState } from "react";
+
 import { getItemService } from "@/lib/services/service-factory";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { RepositoryItem, ItemFilter } from "@/lib/types/item-repository";
 import { ItemType } from "@/lib/types/inventory";
+import { ItemFilter, RepositoryItem } from "@/lib/types/item-repository";
+
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 // Coin icons using Lucide (same as currency section)
 const GoldCoin = ({ className }: { className?: string }) => (
@@ -49,18 +52,20 @@ interface ItemBrowserProps {
   onItemAdd?: (repositoryId: string) => void;
 }
 
-export function ItemBrowser({ 
-  isOpen, 
-  onClose, 
-  multiSelect = false, 
-  selectedItems = [], 
+export function ItemBrowser({
+  isOpen,
+  onClose,
+  multiSelect = false,
+  selectedItems = [],
   onItemsChange,
-  onItemAdd 
+  onItemAdd,
 }: ItemBrowserProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<ItemType | "all">("all");
   const [selectedCategory, setSelectedCategory] = useState<"all" | "mundane" | "magical">("all");
-  const [selectedRarity, setSelectedRarity] = useState<"all" | "common" | "uncommon" | "rare" | "very-rare" | "legendary">("all");
+  const [selectedRarity, setSelectedRarity] = useState<
+    "all" | "common" | "uncommon" | "rare" | "very-rare" | "legendary"
+  >("all");
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [addedMessage, setAddedMessage] = useState("");
 
@@ -70,7 +75,7 @@ export function ItemBrowser({
   // Filter items based on current filters
   const filteredItems = useMemo(() => {
     const filter: ItemFilter = {};
-    
+
     if (selectedType !== "all") filter.type = selectedType;
     if (selectedCategory !== "all") filter.category = selectedCategory;
     if (selectedRarity !== "all") filter.rarity = selectedRarity;
@@ -82,8 +87,8 @@ export function ItemBrowser({
   // Group items by type and category
   const groupedItems = useMemo(() => {
     const groups: Record<string, RepositoryItem[]> = {};
-    
-    filteredItems.forEach(item => {
+
+    filteredItems.forEach((item) => {
       const key = `${item.item.type}-${item.category}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
@@ -97,7 +102,7 @@ export function ItemBrowser({
       // Multi-select mode: toggle item in selection
       const isSelected = selectedItems.includes(repositoryId);
       if (isSelected) {
-        onItemsChange(selectedItems.filter(id => id !== repositoryId));
+        onItemsChange(selectedItems.filter((id) => id !== repositoryId));
       } else {
         onItemsChange([...selectedItems, repositoryId]);
       }
@@ -129,42 +134,54 @@ export function ItemBrowser({
   };
 
   const toggleGroup = (groupKey: string) => {
-    setExpandedGroups(prev => ({
+    setExpandedGroups((prev) => ({
       ...prev,
-      [groupKey]: !prev[groupKey]
+      [groupKey]: !prev[groupKey],
     }));
   };
 
   const getTypeIcon = (type: ItemType) => {
     const iconProps = { className: "h-4 w-4" };
     switch (type) {
-      case 'weapon': return <Sword {...iconProps} />;
-      case 'armor': return <Shield {...iconProps} />;
-      case 'consumable': return <Apple {...iconProps} />;
-      case 'ammunition': return <Target {...iconProps} />;
-      case 'freeform': return <FileText {...iconProps} />;
-      default: return <Package {...iconProps} />;
+      case "weapon":
+        return <Sword {...iconProps} />;
+      case "armor":
+        return <Shield {...iconProps} />;
+      case "consumable":
+        return <Apple {...iconProps} />;
+      case "ammunition":
+        return <Target {...iconProps} />;
+      case "freeform":
+        return <FileText {...iconProps} />;
+      default:
+        return <Package {...iconProps} />;
     }
   };
 
   const getRarityColor = (rarity?: string) => {
     switch (rarity) {
-      case 'common': return 'text-gray-600';
-      case 'uncommon': return 'text-green-600';
-      case 'rare': return 'text-blue-600';
-      case 'very-rare': return 'text-purple-600';
-      case 'legendary': return 'text-orange-600';
-      default: return 'text-gray-500';
+      case "common":
+        return "text-gray-600";
+      case "uncommon":
+        return "text-green-600";
+      case "rare":
+        return "text-blue-600";
+      case "very-rare":
+        return "text-purple-600";
+      case "legendary":
+        return "text-orange-600";
+      default:
+        return "text-gray-500";
     }
   };
 
   const getCategoryColor = (category: string) => {
-    return category === 'magical' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800';
+    return category === "magical" ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800";
   };
 
   const formatGroupName = (groupKey: string) => {
-    const [type, category] = groupKey.split('-');
-    const typeTitle = type.charAt(0).toUpperCase() + type.slice(1) + 's';
+    const [type, category] = groupKey.split("-");
+    const typeTitle = type.charAt(0).toUpperCase() + type.slice(1) + "s";
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
     return `${categoryTitle} ${typeTitle}`;
   };
@@ -190,7 +207,9 @@ export function ItemBrowser({
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="search" className="text-sm font-medium">Search</Label>
+              <Label htmlFor="search" className="text-sm font-medium">
+                Search
+              </Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -205,7 +224,10 @@ export function ItemBrowser({
 
             <div>
               <Label className="text-sm font-medium">Type</Label>
-              <Select value={selectedType} onValueChange={(value) => setSelectedType(value as ItemType | "all")}>
+              <Select
+                value={selectedType}
+                onValueChange={(value) => setSelectedType(value as ItemType | "all")}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -222,7 +244,12 @@ export function ItemBrowser({
 
             <div>
               <Label className="text-sm font-medium">Category</Label>
-              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as "all" | "mundane" | "magical")}>
+              <Select
+                value={selectedCategory}
+                onValueChange={(value) =>
+                  setSelectedCategory(value as "all" | "mundane" | "magical")
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -236,7 +263,10 @@ export function ItemBrowser({
 
             <div>
               <Label className="text-sm font-medium">Rarity</Label>
-              <Select value={selectedRarity} onValueChange={(value) => setSelectedRarity(value as typeof selectedRarity)}>
+              <Select
+                value={selectedRarity}
+                onValueChange={(value) => setSelectedRarity(value as typeof selectedRarity)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -263,7 +293,7 @@ export function ItemBrowser({
               Object.entries(groupedItems).map(([groupKey, items]) => {
                 const isExpanded = expandedGroups[groupKey] ?? true;
                 const groupName = formatGroupName(groupKey);
-                
+
                 return (
                   <Card key={groupKey}>
                     <Collapsible open={isExpanded} onOpenChange={() => toggleGroup(groupKey)}>
@@ -275,7 +305,11 @@ export function ItemBrowser({
                               {groupName}
                               <Badge variant="secondary">{items.length}</Badge>
                             </div>
-                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
                           </CardTitle>
                         </CardHeader>
                       </CollapsibleTrigger>
@@ -290,26 +324,30 @@ export function ItemBrowser({
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="font-medium">{repositoryItem.item.name}</span>
-                                    <Badge 
-                                      variant="outline" 
+                                    <Badge
+                                      variant="outline"
                                       className={getCategoryColor(repositoryItem.category)}
                                     >
                                       {repositoryItem.category}
                                     </Badge>
                                     {repositoryItem.rarity && (
-                                      <div className={`flex items-center gap-1 ${getRarityColor(repositoryItem.rarity)}`}>
+                                      <div
+                                        className={`flex items-center gap-1 ${getRarityColor(repositoryItem.rarity)}`}
+                                      >
                                         <Star className="h-3 w-3" />
-                                        <span className="text-xs font-medium">{repositoryItem.rarity}</span>
+                                        <span className="text-xs font-medium">
+                                          {repositoryItem.rarity}
+                                        </span>
                                       </div>
                                     )}
                                   </div>
-                                  
+
                                   {repositoryItem.item.description && (
                                     <p className="text-sm text-muted-foreground mb-2">
                                       {repositoryItem.item.description}
                                     </p>
                                   )}
-                                  
+
                                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                     <span>Size: {repositoryItem.item.size}</span>
                                     {repositoryItem.item.cost && (
@@ -329,24 +367,38 @@ export function ItemBrowser({
                                         )}
                                       </div>
                                     )}
-                                    {repositoryItem.item.type === 'weapon' && (repositoryItem.item as any).damage && (
-                                      <span>Damage: {(repositoryItem.item as any).damage}</span>
-                                    )}
-                                    {repositoryItem.item.type === 'armor' && (repositoryItem.item as any).armor && (
-                                      <span>AC: {(repositoryItem.item as any).armor}</span>
-                                    )}
-                                    {(repositoryItem.item.type === 'consumable' || repositoryItem.item.type === 'ammunition') && (repositoryItem.item as any).count && (
-                                      <span>Count: {(repositoryItem.item as any).count}</span>
-                                    )}
-                                    {(repositoryItem.item.type === 'weapon' || repositoryItem.item.type === 'armor') && (repositoryItem.item as any).properties && (repositoryItem.item as any).properties.length > 0 && (
-                                      <span>Properties: {(repositoryItem.item as any).properties.join(', ')}</span>
-                                    )}
+                                    {repositoryItem.item.type === "weapon" &&
+                                      (repositoryItem.item as any).damage && (
+                                        <span>Damage: {(repositoryItem.item as any).damage}</span>
+                                      )}
+                                    {repositoryItem.item.type === "armor" &&
+                                      (repositoryItem.item as any).armor && (
+                                        <span>AC: {(repositoryItem.item as any).armor}</span>
+                                      )}
+                                    {(repositoryItem.item.type === "consumable" ||
+                                      repositoryItem.item.type === "ammunition") &&
+                                      (repositoryItem.item as any).count && (
+                                        <span>Count: {(repositoryItem.item as any).count}</span>
+                                      )}
+                                    {(repositoryItem.item.type === "weapon" ||
+                                      repositoryItem.item.type === "armor") &&
+                                      (repositoryItem.item as any).properties &&
+                                      (repositoryItem.item as any).properties.length > 0 && (
+                                        <span>
+                                          Properties:{" "}
+                                          {(repositoryItem.item as any).properties.join(", ")}
+                                        </span>
+                                      )}
                                   </div>
                                 </div>
-                                
+
                                 <Button
                                   size="sm"
-                                  variant={multiSelect && selectedItems.includes(repositoryItem.item.id) ? "default" : "outline"}
+                                  variant={
+                                    multiSelect && selectedItems.includes(repositoryItem.item.id)
+                                      ? "default"
+                                      : "outline"
+                                  }
                                   onClick={() => handleAddItem(repositoryItem.item.id)}
                                   className="ml-4"
                                 >
@@ -383,7 +435,8 @@ export function ItemBrowser({
 
           {/* Footer Summary */}
           <div className="border-t pt-4 text-sm text-muted-foreground">
-            Showing {filteredItems.length} items • Repository contains {itemService.getAllItems().length} total items
+            Showing {filteredItems.length} items • Repository contains{" "}
+            {itemService.getAllItems().length} total items
             {multiSelect && selectedItems.length > 0 && (
               <span className="ml-2 text-primary font-medium">
                 • {selectedItems.length} selected

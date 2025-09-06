@@ -1,10 +1,11 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Coins, ChevronRight, ChevronLeft, ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Coins } from "lucide-react";
+
 import { useCharacterService } from "../../lib/hooks/use-character-service";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
 
 // Coin icons using Lucide
 const GoldCoin = ({ className }: { className?: string }) => (
@@ -108,7 +109,7 @@ export function CurrencySection() {
             onChange={(e) => handleGoldChange(e.target.value)}
             className="w-20 text-center h-8"
           />
-          
+
           {/* Gold to Silver Conversion */}
           <Button
             variant="outline"
@@ -121,7 +122,7 @@ export function CurrencySection() {
             <GoldCoin className="h-4 w-4" />
             <ArrowRight className="h-4 w-4" />
           </Button>
-          
+
           {/* Silver to Gold Conversion */}
           <Button
             variant="outline"
@@ -134,7 +135,7 @@ export function CurrencySection() {
             <ArrowLeft className="h-4 w-4" />
             <SilverCoin className="h-4 w-4" />
           </Button>
-          
+
           {/* Silver Section */}
           <Input
             type="number"
@@ -147,9 +148,7 @@ export function CurrencySection() {
         </div>
 
         {/* Exchange Rate Info */}
-        <div className="text-xs text-muted-foreground text-center">
-          1 Gold = 10 Silver
-        </div>
+        <div className="text-xs text-muted-foreground text-center">1 Gold = 10 Silver</div>
       </CardContent>
     </Card>
   );

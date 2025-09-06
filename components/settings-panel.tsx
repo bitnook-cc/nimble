@@ -1,10 +1,11 @@
 "use client";
 
+import { AppSettings } from "@/lib/services/settings-service";
+
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { AppSettings } from "@/lib/services/settings-service";
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -13,13 +14,7 @@ interface SettingsPanelProps {
   onSettingsChange: (settings: AppSettings) => void;
 }
 
-export function SettingsPanel({ 
-  isOpen, 
-  onClose, 
-  settings, 
-  onSettingsChange 
-}: SettingsPanelProps) {
-
+export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: SettingsPanelProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">

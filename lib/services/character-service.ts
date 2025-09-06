@@ -1,26 +1,46 @@
-import { Character, ActionTracker, CharacterConfiguration, Attributes, Skills, Skill } from '../types/character';
-import { Ability, ActionAbility, SpellAbility } from '../types/abilities';
-import { DiceType } from '../types/dice';
-import { Item } from '../types/inventory';
-import { ICharacterService, ICharacterStorage, IActivityLog, IAbilityService, IClassService, IAncestryService, IBackgroundService } from './interfaces';
-import { resourceService } from './resource-service';
-import { getDiceService, getSettingsService, getClassService, getAncestryService, getBackgroundService } from './service-factory';
-import { StatBonus } from '../types/stat-bonus';
-import { getValue } from '../types/flexible-value';
+import { Ability, ActionAbility, SpellAbility } from "../types/abilities";
+import {
+  ActionTracker,
+  Attributes,
+  Character,
+  CharacterConfiguration,
+  Skill,
+  Skills,
+} from "../types/character";
+import { DiceType } from "../types/dice";
+import { getValue } from "../types/flexible-value";
+import { Item } from "../types/inventory";
+import { StatBonus } from "../types/stat-bonus";
+import { abilityService } from "./ability-service";
+import { activityLogService } from "./activity-log-service";
+// Import for backward compatibility singleton
+import { characterStorageService } from "./character-storage-service";
+import {
+  IAbilityService,
+  IActivityLog,
+  IAncestryService,
+  IBackgroundService,
+  ICharacterService,
+  ICharacterStorage,
+  IClassService,
+} from "./interfaces";
+import { resourceService } from "./resource-service";
+import {
+  getAncestryService,
+  getBackgroundService,
+  getClassService,
+  getDiceService,
+  getSettingsService,
+} from "./service-factory";
 
 // Character event types
-export type CharacterEventType = 'created' | 'switched' | 'deleted' | 'updated';
+export type CharacterEventType = "created" | "switched" | "deleted" | "updated";
 
 export interface CharacterEvent {
   type: CharacterEventType;
   characterId: string;
   character?: Character;
 }
-
-// Import for backward compatibility singleton
-import { characterStorageService } from './character-storage-service';
-import { activityLogService } from './activity-log-service';
-import { abilityService } from './ability-service';
 
 /**
  * Character Service with Dependency Injection
@@ -33,7 +53,7 @@ export class CharacterService implements ICharacterService {
   constructor(
     private storageService: ICharacterStorage,
     private logService: IActivityLog,
-    private abilityService: IAbilityService
+    private abilityService: IAbilityService,
   ) {}
 
   // Public getter for character
@@ -58,7 +78,7 @@ export class CharacterService implements ICharacterService {
     const classFeatures = classService.getAllGrantedFeatures(this._character);
     for (const feature of classFeatures) {
       for (const effect of feature.effects) {
-        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
           bonuses.push((effect as any).statBonus);
         }
       }
@@ -68,7 +88,7 @@ export class CharacterService implements ICharacterService {
     const ancestryFeatures = ancestryService.getAllGrantedFeatures(this._character);
     for (const feature of ancestryFeatures) {
       for (const effect of feature.effects) {
-        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
           bonuses.push((effect as any).statBonus);
         }
       }
@@ -78,16 +98,16 @@ export class CharacterService implements ICharacterService {
     const backgroundFeatures = backgroundService.getAllGrantedFeatures(this._character);
     for (const feature of backgroundFeatures) {
       for (const effect of feature.effects) {
-        if (effect.type === 'stat_bonus' && (effect as any).statBonus) {
+        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
           bonuses.push((effect as any).statBonus);
         }
       }
     }
 
     // Get equipped item stat bonuses
-    const equippedItems = this._character.inventory.items.filter(item => 
-      (item.type === 'weapon' && item.equipped) || 
-      (item.type === 'armor' && item.equipped)
+    const equippedItems = this._character.inventory.items.filter(
+      (item) =>
+        (item.type === "weapon" && item.equipped) || (item.type === "armor" && item.equipped),
     );
     for (const item of equippedItems) {
       if (item.statBonus) {
@@ -102,16 +122,16 @@ export class CharacterService implements ICharacterService {
    * Get computed attributes with bonuses applied
    */
   getAttributes(): Attributes {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseAttributes = this._character._attributes;
     const bonuses = this.getAllStatBonuses();
-    
+
     const result: Attributes = {
       strength: baseAttributes.strength,
       dexterity: baseAttributes.dexterity,
       intelligence: baseAttributes.intelligence,
-      will: baseAttributes.will
+      will: baseAttributes.will,
     };
 
     // Apply stat bonuses
@@ -139,7 +159,7 @@ export class CharacterService implements ICharacterService {
    * Get computed skills with bonuses applied
    */
   getSkills(): Skills {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseSkills = this._character._skills;
     const bonuses = this.getAllStatBonuses();
@@ -176,11 +196,11 @@ export class CharacterService implements ICharacterService {
    * Get computed initiative with bonuses applied
    */
   getInitiative(): Skill {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseInitiative = this._character._initiative;
     const bonuses = this.getAllStatBonuses();
-    
+
     let result: Skill = { ...baseInitiative };
 
     // Apply initiative bonuses
@@ -197,11 +217,11 @@ export class CharacterService implements ICharacterService {
    * Get computed hit dice with bonuses applied
    */
   getHitDice() {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseHitDice = this._character._hitDice;
     const bonuses = this.getAllStatBonuses();
-    
+
     let result = { ...baseHitDice };
 
     // Apply hit dice bonuses
@@ -218,11 +238,11 @@ export class CharacterService implements ICharacterService {
    * Get computed max wounds with bonuses applied
    */
   getMaxWounds(): number {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseMaxWounds = this._character.config.maxWounds;
     const bonuses = this.getAllStatBonuses();
-    
+
     let result = baseMaxWounds;
 
     // Apply max wounds bonuses
@@ -239,26 +259,30 @@ export class CharacterService implements ICharacterService {
    * Get computed armor value with bonuses applied
    */
   getArmorValue(): number {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const attributes = this.getAttributes();
     const bonuses = this.getAllStatBonuses();
-    
+
     // Start with base dexterity
     let armorValue = attributes.dexterity;
 
     // Add armor bonuses from equipped armor items
-    const equippedArmor = this._character.inventory.items.filter(item => 
-      item.type === 'armor' && item.equipped
+    const equippedArmor = this._character.inventory.items.filter(
+      (item) => item.type === "armor" && item.equipped,
     );
 
     for (const armor of equippedArmor) {
-      if (armor.type === 'armor' && armor.armor) {
+      if (armor.type === "armor" && armor.armor) {
         armorValue += armor.armor;
-        
+
         // Apply max dex bonus restriction if this is main armor
-        if (armor.isMainArmor && armor.maxDexBonus !== undefined && attributes.dexterity > armor.maxDexBonus) {
-           armorValue = armorValue - (attributes.dexterity - armor.maxDexBonus);
+        if (
+          armor.isMainArmor &&
+          armor.maxDexBonus !== undefined &&
+          attributes.dexterity > armor.maxDexBonus
+        ) {
+          armorValue = armorValue - (attributes.dexterity - armor.maxDexBonus);
         }
       }
     }
@@ -277,14 +301,14 @@ export class CharacterService implements ICharacterService {
    * Get computed resource max value with bonuses applied
    */
   getResourceMaxValue(resourceId: string): number {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
-    const resource = this._character.resources.find(r => r.definition.id === resourceId);
+    const resource = this._character.resources.find((r) => r.definition.id === resourceId);
     if (!resource) return 0;
 
     const baseMax = getValue(resource.definition.maxValue, this._character);
     const bonuses = this.getAllStatBonuses();
-    
+
     let result = baseMax;
 
     // Apply resource max bonuses
@@ -301,14 +325,14 @@ export class CharacterService implements ICharacterService {
    * Get computed resource min value with bonuses applied
    */
   getResourceMinValue(resourceId: string): number {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
-    const resource = this._character.resources.find(r => r.definition.id === resourceId);
+    const resource = this._character.resources.find((r) => r.definition.id === resourceId);
     if (!resource) return 0;
 
     const baseMin = getValue(resource.definition.minValue, this._character);
     const bonuses = this.getAllStatBonuses();
-    
+
     let result = baseMin;
 
     // Apply resource min bonuses
@@ -325,11 +349,11 @@ export class CharacterService implements ICharacterService {
    * Get computed speed with bonuses applied
    */
   getSpeed(): number {
-    if (!this._character) throw new Error('No character loaded');
+    if (!this._character) throw new Error("No character loaded");
 
     const baseSpeed = this._character.speed;
     const bonuses = this.getAllStatBonuses();
-    
+
     let result = baseSpeed;
 
     // Apply speed bonuses
@@ -342,9 +366,11 @@ export class CharacterService implements ICharacterService {
     return Math.max(0, result); // Minimum 0 speed
   }
 
-
   // Event Management
-  subscribeToEvent(eventType: CharacterEventType, listener: (event: CharacterEvent) => void): () => void {
+  subscribeToEvent(
+    eventType: CharacterEventType,
+    listener: (event: CharacterEvent) => void,
+  ): () => void {
     if (!this.eventListeners.has(eventType)) {
       this.eventListeners.set(eventType, []);
     }
@@ -365,7 +391,7 @@ export class CharacterService implements ICharacterService {
   private emitEvent(event: CharacterEvent): void {
     const listeners = this.eventListeners.get(event.type);
     if (listeners) {
-      listeners.forEach(listener => listener(event));
+      listeners.forEach((listener) => listener(event));
     }
   }
 
@@ -379,23 +405,23 @@ export class CharacterService implements ICharacterService {
       if (this._character) {
         await this.storageService.updateLastPlayed(this._character.id);
         this.emitEvent({
-          type: 'switched',
+          type: "switched",
           characterId,
-          character
+          character,
         });
       }
-      
+
       this._character = character;
-      
+
       // Update settings with new active character
       const settingsService = getSettingsService();
       const settings = await settingsService.getSettings();
       const newSettings = { ...settings, activeCharacterId: characterId };
       await settingsService.saveSettings(newSettings);
-      
+
       // Sync any missing features
       await this.syncCharacterFeatures();
-      
+
       this.notifyCharacterChanged();
     }
     return character;
@@ -405,9 +431,9 @@ export class CharacterService implements ICharacterService {
     if (this.character) {
       // Emit update event
       this.emitEvent({
-        type: 'updated',
+        type: "updated",
         characterId: this.character.id,
-        character: this.character
+        character: this.character,
       });
     }
   }
@@ -449,31 +475,31 @@ export class CharacterService implements ICharacterService {
   /**
    * Apply damage to the character, handling temporary HP and wound logic
    */
-  async applyDamage(amount: number, targetType?: 'hp' | 'temp_hp'): Promise<void> {
+  async applyDamage(amount: number, targetType?: "hp" | "temp_hp"): Promise<void> {
     if (!this._character) return;
 
     let remainingDamage = amount;
     let newTemporary = this._character.hitPoints.temporary;
     let newCurrent = this._character.hitPoints.current;
-    let actualTargetType: 'hp' | 'temp_hp' = 'hp';
+    let actualTargetType: "hp" | "temp_hp" = "hp";
 
     // Temp HP absorbs damage first (unless specifically targeting regular HP)
-    if (targetType !== 'hp' && this._character.hitPoints.temporary > 0) {
+    if (targetType !== "hp" && this._character.hitPoints.temporary > 0) {
       if (remainingDamage >= this._character.hitPoints.temporary) {
         remainingDamage -= this._character.hitPoints.temporary;
         newTemporary = 0;
-        actualTargetType = remainingDamage > 0 ? 'hp' : 'temp_hp';
+        actualTargetType = remainingDamage > 0 ? "hp" : "temp_hp";
       } else {
         newTemporary = this._character.hitPoints.temporary - remainingDamage;
         remainingDamage = 0;
-        actualTargetType = 'temp_hp';
+        actualTargetType = "temp_hp";
       }
     }
 
     // Apply remaining damage to regular HP
     if (remainingDamage > 0) {
       newCurrent = Math.max(0, this._character.hitPoints.current - remainingDamage);
-      actualTargetType = 'hp';
+      actualTargetType = "hp";
     }
 
     // Check if character should gain a wound (dropped to 0 HP from above 0)
@@ -487,12 +513,13 @@ export class CharacterService implements ICharacterService {
         current: newCurrent,
         temporary: newTemporary,
       },
-      wounds: shouldGainWound && this._character.wounds.current < this._character.wounds.max
-        ? {
-            ...this._character.wounds,
-            current: this._character.wounds.current + 1,
-          }
-        : this._character.wounds,
+      wounds:
+        shouldGainWound && this._character.wounds.current < this._character.wounds.max
+          ? {
+              ...this._character.wounds,
+              current: this._character.wounds.current + 1,
+            }
+          : this._character.wounds,
     };
 
     // Save and notify
@@ -500,9 +527,7 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
 
     // Log the damage
-    await this.logService.addLogEntry(
-      this.logService.createDamageEntry(amount, actualTargetType)
-    );
+    await this.logService.addLogEntry(this.logService.createDamageEntry(amount, actualTargetType));
   }
 
   /**
@@ -512,8 +537,8 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     const newCurrent = Math.min(
-      this._character.hitPoints.max, 
-      this._character.hitPoints.current + amount
+      this._character.hitPoints.max,
+      this._character.hitPoints.current + amount,
     );
 
     this._character = {
@@ -528,9 +553,7 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
 
     // Log the healing
-    await this.logService.addLogEntry(
-      this.logService.createHealingEntry(amount)
-    );
+    await this.logService.addLogEntry(this.logService.createHealingEntry(amount));
   }
 
   /**
@@ -539,10 +562,9 @@ export class CharacterService implements ICharacterService {
   async applyTemporaryHP(amount: number): Promise<void> {
     if (!this._character) return;
 
-    const previousTempHp = this._character.hitPoints.temporary > 0 
-      ? this._character.hitPoints.temporary 
-      : undefined;
-    
+    const previousTempHp =
+      this._character.hitPoints.temporary > 0 ? this._character.hitPoints.temporary : undefined;
+
     // Temp HP doesn't stack - take the higher value
     const newTemporary = Math.max(this._character.hitPoints.temporary, amount);
 
@@ -558,9 +580,7 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
 
     // Log the temp HP gain
-    await this.logService.addLogEntry(
-      this.logService.createTempHPEntry(amount, previousTempHp)
-    );
+    await this.logService.addLogEntry(this.logService.createTempHPEntry(amount, previousTempHp));
   }
 
   /**
@@ -630,7 +650,6 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
   }
 
-
   /**
    * Perform safe rest - restore HP, hit dice, remove wound, reset abilities and resources
    */
@@ -638,21 +657,34 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset all abilities (safe rest resets everything)
-    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn', this._character);
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_encounter', this._character);
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_safe_rest', this._character);
+    let resetAbilities = this.abilityService.resetAbilities(
+      this._character.abilities,
+      "per_turn",
+      this._character,
+    );
+    resetAbilities = this.abilityService.resetAbilities(
+      resetAbilities,
+      "per_encounter",
+      this._character,
+    );
+    resetAbilities = this.abilityService.resetAbilities(
+      resetAbilities,
+      "per_safe_rest",
+      this._character,
+    );
 
     // Reset resources that reset on safe rest
-    const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'safe_rest');
+    const resourceEntries = resourceService.resetResourcesByCondition(this._character, "safe_rest");
 
     // Calculate what was restored for logging
     const healingAmount = this._character.hitPoints.max - this._character.hitPoints.current;
     const hitDiceRestored = this._character._hitDice.max - this._character._hitDice.current;
     const woundsRemoved = this._character.wounds.current > 0 ? 1 : 0;
-    const abilitiesReset = this._character.abilities.filter(ability => 
-      ability.type === 'action' && 
-      ability.frequency !== 'at_will' && 
-      ability.currentUses !== ability.maxUses
+    const abilitiesReset = this._character.abilities.filter(
+      (ability) =>
+        ability.type === "action" &&
+        ability.frequency !== "at_will" &&
+        ability.currentUses !== ability.maxUses,
     ).length;
 
     // Update character with full restoration
@@ -689,8 +721,8 @@ export class CharacterService implements ICharacterService {
         healingAmount,
         hitDiceRestored,
         woundsRemoved,
-        abilitiesReset
-      )
+        abilitiesReset,
+      ),
     );
 
     // Log resource resets
@@ -708,9 +740,7 @@ export class CharacterService implements ICharacterService {
 
     // Can't rest without hit dice
     if (this._character._hitDice.current <= 0) {
-      await this.logService.addLogEntry(
-        this.logService.createCatchBreathEntry(0, 0, 0)
-      );
+      await this.logService.addLogEntry(this.logService.createCatchBreathEntry(0, 0, 0));
       return;
     }
 
@@ -718,7 +748,7 @@ export class CharacterService implements ICharacterService {
     const diceService = getDiceService();
     const hitDieSize = this._character._hitDice.size;
     const strengthMod = this.getAttributes().strength;
-    
+
     const rollResult = diceService.rollBasicDice(1, hitDieSize as DiceType, 0); // No advantage/disadvantage
     const dieRoll = rollResult.dice[0].result;
     const totalHealing = Math.max(1, dieRoll + strengthMod); // Minimum 1 HP
@@ -752,9 +782,7 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
 
     // Log the catch breath with roll details
-    await this.logService.addLogEntry(
-      this.logService.createCatchBreathEntry(1, actualHealing, 0)
-    );
+    await this.logService.addLogEntry(this.logService.createCatchBreathEntry(1, actualHealing, 0));
 
     // Also log the dice roll for transparency using proper dice service result
     await this.logService.addLogEntry(
@@ -764,8 +792,8 @@ export class CharacterService implements ICharacterService {
         strengthMod,
         totalHealing,
         `Catch Breath (d${hitDieSize} + ${strengthMod} STR = ${totalHealing} healing)`,
-        `d${hitDieSize}${strengthMod !== 0 ? (strengthMod >= 0 ? '+' : '') + strengthMod : ''}`
-      )
+        `d${hitDieSize}${strengthMod !== 0 ? (strengthMod >= 0 ? "+" : "") + strengthMod : ""}`,
+      ),
     );
   }
 
@@ -814,9 +842,7 @@ export class CharacterService implements ICharacterService {
     this.notifyCharacterChanged();
 
     // Log the make camp (no hit dice restored, no abilities reset)
-    await this.logService.addLogEntry(
-      this.logService.createMakeCampEntry(actualHealing, 0, 0)
-    );
+    await this.logService.addLogEntry(this.logService.createMakeCampEntry(actualHealing, 0, 0));
   }
 
   /**
@@ -826,11 +852,22 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset both per-encounter and per-turn abilities when encounter ends
-    let resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_encounter', this._character);
-    resetAbilities = this.abilityService.resetAbilities(resetAbilities, 'per_turn', this._character);
+    let resetAbilities = this.abilityService.resetAbilities(
+      this._character.abilities,
+      "per_encounter",
+      this._character,
+    );
+    resetAbilities = this.abilityService.resetAbilities(
+      resetAbilities,
+      "per_turn",
+      this._character,
+    );
 
     // Reset resources that reset on encounter end
-    const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'encounter_end');
+    const resourceEntries = resourceService.resetResourcesByCondition(
+      this._character,
+      "encounter_end",
+    );
 
     this._character = {
       ...this._character,
@@ -838,9 +875,9 @@ export class CharacterService implements ICharacterService {
       actionTracker: {
         ...this._character.actionTracker,
         current: this._character.actionTracker.base,
-        bonus: 0
+        bonus: 0,
       },
-      abilities: resetAbilities
+      abilities: resetAbilities,
     };
 
     await this.saveCharacter();
@@ -892,19 +929,23 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return;
 
     // Reset per-turn abilities
-    const resetAbilities = this.abilityService.resetAbilities(this._character.abilities, 'per_turn', this._character);
-    
+    const resetAbilities = this.abilityService.resetAbilities(
+      this._character.abilities,
+      "per_turn",
+      this._character,
+    );
+
     // Reset resources that reset on turn end
-    const resourceEntries = resourceService.resetResourcesByCondition(this._character, 'turn_end');
-    
+    const resourceEntries = resourceService.resetResourcesByCondition(this._character, "turn_end");
+
     this._character = {
       ...this._character,
       actionTracker: {
         ...this._character.actionTracker,
         current: this._character.actionTracker.base,
-        bonus: 0
+        bonus: 0,
       },
-      abilities: resetAbilities
+      abilities: resetAbilities,
     };
 
     await this.saveCharacter();
@@ -920,12 +961,19 @@ export class CharacterService implements ICharacterService {
   /**
    * Perform weapon attack with automatic action deduction
    */
-  async performAttack(weaponName: string, damage: string, attributeModifier: number, advantageLevel: number): Promise<void> {
+  async performAttack(
+    weaponName: string,
+    damage: string,
+    attributeModifier: number,
+    advantageLevel: number,
+  ): Promise<void> {
     if (!this._character) return;
 
     // Check if we have enough actions for weapon attacks (always cost 1 action)
     if (this._character.inEncounter && this._character.actionTracker.current < 1) {
-      console.error("Not enough actions to attack (need 1, have " + this._character.actionTracker.current + ")");
+      console.error(
+        "Not enough actions to attack (need 1, have " + this._character.actionTracker.current + ")",
+      );
       return;
     }
 
@@ -933,9 +981,9 @@ export class CharacterService implements ICharacterService {
       // Roll the attack using dice service
       const diceService = getDiceService();
       const rollResult = diceService.rollAttack(damage, attributeModifier, advantageLevel);
-      
+
       // Log the attack
-      const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? '+' : '') + attributeModifier : ''}`;
+      const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? "+" : "") + attributeModifier : ""}`;
       const logEntry = this.logService.createDiceRollEntry(
         rollResult.dice,
         rollResult.droppedDice,
@@ -945,7 +993,7 @@ export class CharacterService implements ICharacterService {
         rollExpression,
         advantageLevel,
         rollResult.isMiss,
-        rollResult.criticalHits
+        rollResult.criticalHits,
       );
       await this.logService.addLogEntry(logEntry);
 
@@ -955,10 +1003,10 @@ export class CharacterService implements ICharacterService {
           ...this._character,
           actionTracker: {
             ...this._character.actionTracker,
-            current: this._character.actionTracker.current - 1
-          }
+            current: this._character.actionTracker.current - 1,
+          },
         };
-        
+
         await this.saveCharacter();
         this.notifyCharacterChanged();
       }
@@ -975,17 +1023,23 @@ export class CharacterService implements ICharacterService {
 
     try {
       const result = this.abilityService.useAbility(
-        this._character.abilities, 
-        abilityId, 
-        this._character.actionTracker.current, 
+        this._character.abilities,
+        abilityId,
+        this._character.actionTracker.current,
         this._character.inEncounter,
         this._character.resources,
-        variableResourceAmount
+        variableResourceAmount,
       );
-      
+
       if (!result.success || !result.usedAbility) {
-        if (result.actionsRequired && this._character.inEncounter && this._character.actionTracker.current < result.actionsRequired) {
-          console.error(`Failed to use ability: not enough actions (need ${result.actionsRequired}, have ${this._character.actionTracker.current})`);
+        if (
+          result.actionsRequired &&
+          this._character.inEncounter &&
+          this._character.actionTracker.current < result.actionsRequired
+        ) {
+          console.error(
+            `Failed to use ability: not enough actions (need ${result.actionsRequired}, have ${this._character.actionTracker.current})`,
+          );
         } else if (result.insufficientResource) {
           console.error(`Failed to use ability: insufficient ${result.insufficientResource}`);
         } else {
@@ -996,62 +1050,70 @@ export class CharacterService implements ICharacterService {
 
       // Update character with new abilities state and deduct actions if needed
       const actionsToDeduct = result.actionsRequired || 0;
-      const updatedActionTracker = this._character.inEncounter && actionsToDeduct > 0 ? {
-        ...this._character.actionTracker,
-        current: this._character.actionTracker.current - actionsToDeduct
-      } : this._character.actionTracker;
+      const updatedActionTracker =
+        this._character.inEncounter && actionsToDeduct > 0
+          ? {
+              ...this._character.actionTracker,
+              current: this._character.actionTracker.current - actionsToDeduct,
+            }
+          : this._character.actionTracker;
 
       // Update resources if the ability consumed any
       let updatedResources = this._character.resources;
       if (result.resourceCost) {
-        updatedResources = this._character.resources.map(resource => {
+        updatedResources = this._character.resources.map((resource) => {
           if (resource.definition.id === result.resourceCost!.resourceId) {
             return {
               ...resource,
-              current: resource.current - result.resourceCost!.amount
+              current: resource.current - result.resourceCost!.amount,
             };
           }
           return resource;
         });
       }
 
-      this._character = { 
-        ...this._character, 
+      this._character = {
+        ...this._character,
         abilities: result.updatedAbilities,
         actionTracker: updatedActionTracker,
-        resources: updatedResources
+        resources: updatedResources,
       };
 
       await this.saveCharacter();
       this.notifyCharacterChanged();
 
       // Log the ability usage - create different entries for spells vs actions
-      if (result.usedAbility.type === 'spell') {
+      if (result.usedAbility.type === "spell") {
         const spellAbility = result.usedAbility as SpellAbility;
-        const resourceCostInfo = result.resourceCost ? {
-          resourceId: result.resourceCost.resourceId,
-          resourceName: this._character.resources.find(r => r.definition.id === result.resourceCost!.resourceId)?.definition.name || result.resourceCost.resourceId,
-          amount: result.resourceCost.amount
-        } : undefined;
-        
+        const resourceCostInfo = result.resourceCost
+          ? {
+              resourceId: result.resourceCost.resourceId,
+              resourceName:
+                this._character.resources.find(
+                  (r) => r.definition.id === result.resourceCost!.resourceId,
+                )?.definition.name || result.resourceCost.resourceId,
+              amount: result.resourceCost.amount,
+            }
+          : undefined;
+
         const spellLogEntry = this.logService.createSpellCastEntry(
           spellAbility.name,
           spellAbility.school,
           spellAbility.tier,
           result.actionsRequired || 0,
-          resourceCostInfo
+          resourceCostInfo,
         );
         await this.logService.addLogEntry(spellLogEntry);
       } else {
         const actionAbility = result.usedAbility as ActionAbility;
-        const maxUses = actionAbility.maxUses 
+        const maxUses = actionAbility.maxUses
           ? this.abilityService.calculateMaxUses(actionAbility, this._character!)
           : 0;
         const logEntry = this.logService.createAbilityUsageEntry(
           actionAbility.name,
           actionAbility.frequency,
           actionAbility.currentUses || 0,
-          maxUses
+          maxUses,
         );
         await this.logService.addLogEntry(logEntry);
       }
@@ -1059,13 +1121,16 @@ export class CharacterService implements ICharacterService {
       // Handle ability roll if it has one
       if (result.usedAbility.roll) {
         const roll = result.usedAbility.roll;
-        const totalModifier = this.abilityService.calculateAbilityRollModifier(roll, this._character);
-        
+        const totalModifier = this.abilityService.calculateAbilityRollModifier(
+          roll,
+          this._character,
+        );
+
         // Use the dice service to perform the roll
         const diceService = getDiceService();
         const diceString = `${roll.dice.count}d${roll.dice.sides}`;
         const rollResult = diceService.rollAttack(diceString, totalModifier, 0);
-        const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? '+' : '') + totalModifier : ''}`;
+        const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? "+" : "") + totalModifier : ""}`;
         const rollLogEntry = this.logService.createDiceRollEntry(
           rollResult.dice,
           rollResult.droppedDice,
@@ -1073,7 +1138,7 @@ export class CharacterService implements ICharacterService {
           rollResult.total,
           `${result.usedAbility.name} ability roll`,
           rollExpression,
-          0 // No advantage for ability rolls by default
+          0, // No advantage for ability rolls by default
         );
         await this.logService.addLogEntry(rollLogEntry);
       }
@@ -1110,7 +1175,7 @@ export class CharacterService implements ICharacterService {
     if (updates._attributes || updates.level) {
       const recalculatedAbilities = this.abilityService.recalculateAbilityUses(
         updatedCharacter.abilities,
-        updatedCharacter
+        updatedCharacter,
       );
       updatedCharacter = {
         ...updatedCharacter,
@@ -1180,34 +1245,34 @@ export class CharacterService implements ICharacterService {
 
   async deleteCharacterById(characterId: string): Promise<void> {
     await this.storageService.deleteCharacter(characterId);
-    
+
     // If we deleted the current character, clear it
     if (this._character?.id === characterId) {
       this._character = null;
     }
-    
+
     // Check if any characters remain
     const remainingCharacters = await this.storageService.getAllCharacters();
-    
+
     // If no characters remain, clear the active character from settings
     if (remainingCharacters.length === 0) {
       const settingsService = getSettingsService();
       await settingsService.clearActiveCharacter();
     }
-    
+
     // Emit delete event
     this.emitEvent({
-      type: 'deleted',
-      characterId
+      type: "deleted",
+      characterId,
     });
   }
 
   notifyCharacterCreated(character: Character): void {
     // Emit create event (character creation happens in creation service)
     this.emitEvent({
-      type: 'created',
+      type: "created",
       characterId: character.id,
-      character
+      character,
     });
   }
 }
@@ -1217,5 +1282,5 @@ export class CharacterService implements ICharacterService {
 export const characterService = new CharacterService(
   characterStorageService,
   activityLogService,
-  abilityService
+  abilityService,
 );

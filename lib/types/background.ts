@@ -1,4 +1,4 @@
-import { FeatureEffect } from './feature-effects';
+import { FeatureEffect } from "./feature-effects";
 
 // Background feature - now contains multiple effects
 export interface BackgroundFeature {

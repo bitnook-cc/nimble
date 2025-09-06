@@ -1,13 +1,21 @@
-import { Character, ActionTracker, CharacterConfiguration, Attributes, Skills, Skill, HitDice } from '../types/character';
-import { Ability, ActionAbility, SpellAbility, AbilityRoll } from '../types/abilities';
-import { LogEntry, SingleDie } from '../types/log-entries';
-import { Item } from '../types/inventory';
-import { ClassFeatureGrant, ClassFeature, FeaturePool } from '../types/class';
-import { ResourceInstance } from '../types/resources';
-import { AncestryDefinition, AncestryFeature, AncestryTrait } from '../types/ancestry';
-import { BackgroundDefinition, BackgroundFeature, BackgroundTrait } from '../types/background';
-import { CharacterEventType, CharacterEvent } from './character-service';
-import { PickFeatureFromPoolFeatureEffect } from '../types/feature-effects';
+import { Ability, AbilityRoll, ActionAbility, SpellAbility } from "../types/abilities";
+import { AncestryDefinition, AncestryFeature, AncestryTrait } from "../types/ancestry";
+import { BackgroundDefinition, BackgroundFeature, BackgroundTrait } from "../types/background";
+import {
+  ActionTracker,
+  Attributes,
+  Character,
+  CharacterConfiguration,
+  HitDice,
+  Skill,
+  Skills,
+} from "../types/character";
+import { ClassFeature, ClassFeatureGrant, FeaturePool } from "../types/class";
+import { PickFeatureFromPoolFeatureEffect } from "../types/feature-effects";
+import { Item } from "../types/inventory";
+import { LogEntry, SingleDie } from "../types/log-entries";
+import { ResourceInstance } from "../types/resources";
+import { CharacterEvent, CharacterEventType } from "./character-service";
 
 /**
  * Character Storage Interface
@@ -39,18 +47,48 @@ export interface IActivityLog {
     rollExpression: string,
     advantageLevel?: number,
     isMiss?: boolean,
-    criticalHits?: number
+    criticalHits?: number,
   ): LogEntry;
   createHealingEntry(amount: number): LogEntry;
-  createDamageEntry(amount: number, targetType: 'hp' | 'temp_hp'): LogEntry;
+  createDamageEntry(amount: number, targetType: "hp" | "temp_hp"): LogEntry;
   createTempHPEntry(amount: number, previousAmount?: number): LogEntry;
-  createResourceEntry(resourceId: string, amount: number, type: 'spent' | 'restored', currentAmount: number, maxAmount: number): LogEntry;
-  createAbilityUsageEntry(abilityName: string, frequency: string, currentUses: number, maxUses: number): LogEntry;
+  createResourceEntry(
+    resourceId: string,
+    amount: number,
+    type: "spent" | "restored",
+    currentAmount: number,
+    maxAmount: number,
+  ): LogEntry;
+  createAbilityUsageEntry(
+    abilityName: string,
+    frequency: string,
+    currentUses: number,
+    maxUses: number,
+  ): LogEntry;
   createInitiativeEntry(rollTotal: number, actionsGranted: number): LogEntry;
-  createSafeRestEntry(healingAmount: number, hitDiceRestored: number, woundsRemoved: number, abilitiesReset: number): LogEntry;
-  createCatchBreathEntry(hitDiceSpent: number, healingAmount: number, abilitiesReset: number): LogEntry;
-  createMakeCampEntry(healingAmount: number, hitDiceRestored: number, abilitiesReset: number): LogEntry;
-  createSpellCastEntry(spellName: string, school: string, tier: number, actionCost: number, resourceCost?: { resourceId: string; resourceName: string; amount: number }): LogEntry;
+  createSafeRestEntry(
+    healingAmount: number,
+    hitDiceRestored: number,
+    woundsRemoved: number,
+    abilitiesReset: number,
+  ): LogEntry;
+  createCatchBreathEntry(
+    hitDiceSpent: number,
+    healingAmount: number,
+    abilitiesReset: number,
+  ): LogEntry;
+  createMakeCampEntry(
+    healingAmount: number,
+    hitDiceRestored: number,
+    abilitiesReset: number,
+  ): LogEntry;
+  createSpellCastEntry(
+    spellName: string,
+    school: string,
+    tier: number,
+    actionCost: number,
+    resourceCost?: { resourceId: string; resourceName: string; amount: number },
+  ): LogEntry;
 }
 
 /**
@@ -58,8 +96,26 @@ export interface IActivityLog {
  * Handles ability management and usage
  */
 export interface IAbilityService {
-  resetAbilities(abilities: Ability[], frequency: 'per_turn' | 'per_encounter' | 'per_safe_rest', character: Character): Ability[];
-  useAbility(abilities: Ability[], abilityId: string, availableActions?: number, inEncounter?: boolean, availableResources?: ResourceInstance[], variableResourceAmount?: number): { success: boolean; updatedAbilities: Ability[]; usedAbility: ActionAbility | SpellAbility | null; actionsRequired?: number; resourceCost?: { resourceId: string; amount: number }; insufficientResource?: string };
+  resetAbilities(
+    abilities: Ability[],
+    frequency: "per_turn" | "per_encounter" | "per_safe_rest",
+    character: Character,
+  ): Ability[];
+  useAbility(
+    abilities: Ability[],
+    abilityId: string,
+    availableActions?: number,
+    inEncounter?: boolean,
+    availableResources?: ResourceInstance[],
+    variableResourceAmount?: number,
+  ): {
+    success: boolean;
+    updatedAbilities: Ability[];
+    usedAbility: ActionAbility | SpellAbility | null;
+    actionsRequired?: number;
+    resourceCost?: { resourceId: string; amount: number };
+    insufficientResource?: string;
+  };
   calculateAbilityRollModifier(roll: AbilityRoll, character: Character): number;
   recalculateAbilityUses(abilities: Ability[], character: Character): Ability[];
   calculateMaxUses(ability: ActionAbility, character: Character): number;
@@ -71,11 +127,14 @@ export interface IAbilityService {
  */
 export interface ICharacterService {
   character: Character | null;
-  subscribeToEvent(eventType: CharacterEventType, listener: (event: CharacterEvent) => void): () => void;
+  subscribeToEvent(
+    eventType: CharacterEventType,
+    listener: (event: CharacterEvent) => void,
+  ): () => void;
   getCurrentCharacter(): Character | null;
   loadCharacter(characterId: string): Promise<Character | null>;
   updateCharacter(character: Character): Promise<void>;
-  applyDamage(amount: number, targetType?: 'hp' | 'temp_hp'): Promise<void>;
+  applyDamage(amount: number, targetType?: "hp" | "temp_hp"): Promise<void>;
   applyHealing(amount: number): Promise<void>;
   applyTemporaryHP(amount: number): Promise<void>;
   updateHitPoints(current: number, max: number, temporary: number): Promise<void>;
@@ -88,14 +147,19 @@ export interface ICharacterService {
   performMakeCamp(): Promise<void>;
   endEncounter(): Promise<void>;
   endTurn(): Promise<void>;
-  performAttack(weaponName: string, damage: string, attributeModifier: number, advantageLevel: number): Promise<void>;
+  performAttack(
+    weaponName: string,
+    damage: string,
+    attributeModifier: number,
+    advantageLevel: number,
+  ): Promise<void>;
   performUseAbility(abilityId: string, variableResourceAmount?: number): Promise<void>;
   updateCharacterFields(updates: Partial<Character>): Promise<void>;
   updateCharacterConfiguration(config: CharacterConfiguration): Promise<void>;
   deleteCharacterById(characterId: string): Promise<void>;
   notifyCharacterCreated(character: Character): void;
   addItemToInventory(item: Item): Promise<void>;
-  
+
   // Dynamic stat calculation methods
   getAttributes(): Attributes;
   getSkills(): Skills;
@@ -118,17 +182,38 @@ export interface IClassService {
   getMissingFeatures(character: Character): ClassFeature[];
   syncCharacterFeatures(): Promise<ClassFeatureGrant[]>;
   levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]>;
-  selectSubclass(character: Character, subclassId: string, grantedByFeatureId: string): Promise<Character>;
+  selectSubclass(
+    character: Character,
+    subclassId: string,
+    grantedByFeatureId: string,
+  ): Promise<Character>;
   canChooseSubclass(character: Character): boolean;
-  getAvailableSubclassChoices(character: Character): import('../types/feature-effects').SubclassChoiceFeatureEffect[];
-  getAvailableSubclassesForCharacter(character: Character): import('../types/class').SubclassDefinition[];
+  getAvailableSubclassChoices(
+    character: Character,
+  ): import("../types/feature-effects").SubclassChoiceFeatureEffect[];
+  getAvailableSubclassesForCharacter(
+    character: Character,
+  ): import("../types/class").SubclassDefinition[];
   hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
   getAvailablePoolFeatures(character: Character, poolId: string): ClassFeature[];
   getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[];
-  selectPoolFeature(character: Character, poolId: string, selectedFeature: ClassFeature, grantedByFeatureId: string): Promise<Character>;
-  getRemainingPoolSelections(character: Character, pickFeatureFromPoolFeature: PickFeatureFromPoolFeatureEffect): number;
-  generateFeatureId(classId: string, level: number, featureName: string, subclassId?: string): string;
+  selectPoolFeature(
+    character: Character,
+    poolId: string,
+    selectedFeature: ClassFeature,
+    grantedByFeatureId: string,
+  ): Promise<Character>;
+  getRemainingPoolSelections(
+    character: Character,
+    pickFeatureFromPoolFeature: PickFeatureFromPoolFeatureEffect,
+  ): number;
+  generateFeatureId(
+    classId: string,
+    level: number,
+    featureName: string,
+    subclassId?: string,
+  ): string;
   getAllGrantedFeatures(character: Character): ClassFeature[];
 }
 

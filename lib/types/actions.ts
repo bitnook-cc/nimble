@@ -1,8 +1,8 @@
-import { AttributeName } from './character';
-import { WeaponItem } from './inventory';
-import { ActionAbility } from './abilities';
+import { ActionAbility } from "./abilities";
+import { AttributeName } from "./character";
+import { WeaponItem } from "./inventory";
 
-export type ActionType = 'weapon' | 'ability';
+export type ActionType = "weapon" | "ability";
 
 export interface BaseAction {
   id: string;
@@ -11,7 +11,7 @@ export interface BaseAction {
 }
 
 export interface WeaponAction extends BaseAction {
-  type: 'weapon';
+  type: "weapon";
   weapon: WeaponItem;
   damage: string;
   attribute?: AttributeName;
@@ -19,12 +19,12 @@ export interface WeaponAction extends BaseAction {
 }
 
 export interface AbilityAction extends BaseAction {
-  type: 'ability';
+  type: "ability";
   ability: ActionAbility;
   description: string;
   usesRemaining: number;
   maxUses: number;
-  frequency: 'per_turn' | 'per_encounter';
+  frequency: "per_turn" | "per_encounter";
 }
 
 export type Action = WeaponAction | AbilityAction;

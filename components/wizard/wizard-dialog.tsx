@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import React, { useEffect, useRef } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+import { cn } from "@/lib/utils";
 
 interface WizardStep {
   id: string;
@@ -46,7 +49,7 @@ export function WizardDialog({
   previousButtonText,
   className,
   contentClassName,
-  completedSteps = []
+  completedSteps = [],
 }: WizardDialogProps) {
   const handleNext = () => {
     if (onNext) {
@@ -69,7 +72,9 @@ export function WizardDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0", className)}>
+      <DialogContent
+        className={cn("max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0", className)}
+      >
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="flex items-center gap-2">
             {titleIcon}
@@ -85,9 +90,7 @@ export function WizardDialog({
         />
 
         {/* Step Content */}
-        <div className={cn("flex-1 overflow-y-auto", contentClassName)}>
-          {children}
-        </div>
+        <div className={cn("flex-1 overflow-y-auto", contentClassName)}>{children}</div>
 
         {/* Navigation Buttons */}
         <WizardNavigation
@@ -109,7 +112,7 @@ export function WizardDialog({
 export function WizardStepIndicator({
   steps,
   currentStep,
-  completedSteps = []
+  completedSteps = [],
 }: {
   steps: WizardStep[];
   currentStep: number;
@@ -123,17 +126,17 @@ export function WizardStepIndicator({
     if (activeStepRef.current && containerRef.current) {
       const container = containerRef.current;
       const activeStep = activeStepRef.current;
-      
+
       const containerWidth = container.clientWidth;
       const activeStepLeft = activeStep.offsetLeft;
       const activeStepWidth = activeStep.clientWidth;
-      
+
       // Calculate the scroll position to center the active step
-      const scrollLeft = activeStepLeft - (containerWidth / 2) + (activeStepWidth / 2);
-      
+      const scrollLeft = activeStepLeft - containerWidth / 2 + activeStepWidth / 2;
+
       container.scrollTo({
         left: scrollLeft,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   }, [currentStep]);
@@ -143,25 +146,29 @@ export function WizardStepIndicator({
       <div ref={containerRef} className="overflow-x-auto scrollbar-hide">
         <div className="flex items-center justify-center min-w-max px-4 sm:px-0">
           {steps.map((step, index) => (
-            <div 
-              key={step.id} 
+            <div
+              key={step.id}
               ref={index === currentStep ? activeStepRef : null}
               className="flex items-center shrink-0"
             >
-              <div className={cn(
-                "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium",
-                index === currentStep 
-                  ? 'bg-primary text-primary-foreground'
-                  : completedSteps.includes(index)
-                  ? 'bg-green-500 text-white'
-                  : 'bg-muted text-muted-foreground'
-              )}>
+              <div
+                className={cn(
+                  "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium",
+                  index === currentStep
+                    ? "bg-primary text-primary-foreground"
+                    : completedSteps.includes(index)
+                      ? "bg-green-500 text-white"
+                      : "bg-muted text-muted-foreground",
+                )}
+              >
                 {index + 1}
               </div>
-              <span className={cn(
-                "ml-1 sm:ml-2 text-xs sm:text-sm whitespace-nowrap",
-                index === currentStep ? 'font-medium' : 'text-muted-foreground'
-              )}>
+              <span
+                className={cn(
+                  "ml-1 sm:ml-2 text-xs sm:text-sm whitespace-nowrap",
+                  index === currentStep ? "font-medium" : "text-muted-foreground",
+                )}
+              >
                 {step.label}
               </span>
               {index < steps.length - 1 && (
@@ -184,7 +191,7 @@ export function WizardNavigation({
   currentStep,
   totalSteps,
   nextButtonText,
-  previousButtonText
+  previousButtonText,
 }: {
   onPrevious: () => void;
   onNext: () => void;
@@ -198,20 +205,13 @@ export function WizardNavigation({
 }) {
   return (
     <div className="flex items-center justify-between p-6 border-t">
-      <Button
-        variant="outline"
-        onClick={onPrevious}
-        disabled={isFirstStep}
-      >
+      <Button variant="outline" onClick={onPrevious} disabled={isFirstStep}>
         <ChevronLeft className="h-4 w-4 mr-1" />
-        {previousButtonText || 'Previous'}
+        {previousButtonText || "Previous"}
       </Button>
 
-      <Button
-        onClick={onNext}
-        disabled={!canProceed}
-      >
-        {nextButtonText || (isLastStep ? 'Complete' : 'Next')}
+      <Button onClick={onNext} disabled={!canProceed}>
+        {nextButtonText || (isLastStep ? "Complete" : "Next")}
         <ChevronRight className="h-4 w-4 ml-1" />
       </Button>
     </div>

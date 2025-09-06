@@ -42,19 +42,19 @@ export class ServiceContainer {
 
 // Service keys for type safety
 export const SERVICE_KEYS = {
-  CHARACTER_STORAGE: 'characterStorage',
-  ACTIVITY_LOG: 'activityLog',
-  ABILITY_SERVICE: 'abilityService',
-  CHARACTER_SERVICE: 'characterService',
-  CLASS_SERVICE: 'classService',
-  ANCESTRY_SERVICE: 'ancestryService',
-  BACKGROUND_SERVICE: 'backgroundService',
-  CHARACTER_CREATION: 'characterCreation',
-  DICE_SERVICE: 'diceService',
-  SETTINGS_SERVICE: 'settingsService',
+  CHARACTER_STORAGE: "characterStorage",
+  ACTIVITY_LOG: "activityLog",
+  ABILITY_SERVICE: "abilityService",
+  CHARACTER_SERVICE: "characterService",
+  CLASS_SERVICE: "classService",
+  ANCESTRY_SERVICE: "ancestryService",
+  BACKGROUND_SERVICE: "backgroundService",
+  CHARACTER_CREATION: "characterCreation",
+  DICE_SERVICE: "diceService",
+  SETTINGS_SERVICE: "settingsService",
 } as const;
 
-export type ServiceKey = typeof SERVICE_KEYS[keyof typeof SERVICE_KEYS];
+export type ServiceKey = (typeof SERVICE_KEYS)[keyof typeof SERVICE_KEYS];
 
 // Create and export a global container instance
 export const serviceContainer = new ServiceContainer();

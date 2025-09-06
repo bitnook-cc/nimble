@@ -1,8 +1,8 @@
-import { AttributeName } from './character';
-import { StatBonus } from './stat-bonus';
-import { Currency } from './currency';
+import { AttributeName } from "./character";
+import { Currency } from "./currency";
+import { StatBonus } from "./stat-bonus";
 
-export type ItemType = 'weapon' | 'armor' | 'freeform' | 'consumable' | 'ammunition';
+export type ItemType = "weapon" | "armor" | "freeform" | "consumable" | "ammunition";
 
 export interface BaseItem {
   id: string;
@@ -15,17 +15,17 @@ export interface BaseItem {
 }
 
 export interface WeaponItem extends BaseItem {
-  type: 'weapon';
+  type: "weapon";
   equipped?: boolean;
   attribute?: AttributeName;
   damage?: string;
-  damageType?: 'Slashing' | 'Piercing' | 'Bludgeoning';
+  damageType?: "Slashing" | "Piercing" | "Bludgeoning";
   vicious?: boolean;
   properties?: string[];
 }
 
 export interface ArmorItem extends BaseItem {
-  type: 'armor';
+  type: "armor";
   equipped?: boolean;
   armor?: number;
   maxDexBonus?: number; // Maximum dexterity bonus this armor allows
@@ -34,16 +34,16 @@ export interface ArmorItem extends BaseItem {
 }
 
 export interface FreeformItem extends BaseItem {
-  type: 'freeform';
+  type: "freeform";
 }
 
 export interface ConsumableItem extends BaseItem {
-  type: 'consumable';
+  type: "consumable";
   count: number;
 }
 
 export interface AmmunitionItem extends BaseItem {
-  type: 'ammunition';
+  type: "ammunition";
   count: number;
 }
 
@@ -62,7 +62,7 @@ export interface CreateItemData {
   equipped?: boolean;
   attribute?: AttributeName;
   damage?: string;
-  damageType?: 'Slashing' | 'Piercing' | 'Bludgeoning';
+  damageType?: "Slashing" | "Piercing" | "Bludgeoning";
   vicious?: boolean;
   armor?: number;
   maxDexBonus?: number;

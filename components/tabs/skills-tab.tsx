@@ -1,42 +1,47 @@
 "use client";
 
 import { useCallback } from "react";
-import { SkillsList } from "../shared/skills-list";
-import { SkillName } from "@/lib/types/character";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { SkillName } from "@/lib/types/character";
+
+import { SkillsList } from "../shared/skills-list";
 
 export function SkillsTab() {
   const { character, updateCharacter, getSkills, getAttributes } = useCharacterService();
-  
-  const onSkillChange = useCallback(async (skillName: string, newValue: number) => {
-    if (!character) return;
-    
-    const currentValue = character._skills[skillName as SkillName].modifier;
-    
-    if (newValue !== currentValue) {
-      const updated = {
-        ...character,
-        _skills: {
-          ...character._skills,
-          [skillName]: {
-            ...character._skills[skillName as SkillName],
-            modifier: newValue,
+
+  const onSkillChange = useCallback(
+    async (skillName: string, newValue: number) => {
+      if (!character) return;
+
+      const currentValue = character._skills[skillName as SkillName].modifier;
+
+      if (newValue !== currentValue) {
+        const updated = {
+          ...character,
+          _skills: {
+            ...character._skills,
+            [skillName]: {
+              ...character._skills[skillName as SkillName],
+              modifier: newValue,
+            },
           },
-        },
-      };
-      await updateCharacter(updated);
-    }
-  }, [character, updateCharacter]);
-  
+        };
+        await updateCharacter(updated);
+      }
+    },
+    [character, updateCharacter],
+  );
+
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
-  
+
   // Get computed attributes for the skills list
   const computedAttributes = getAttributes();
-  
+
   // Convert character skills to the format expected by SkillsList
   const skillAllocations: Record<string, number> = {};
-  Object.keys(character._skills).forEach(skillName => {
+  Object.keys(character._skills).forEach((skillName) => {
     skillAllocations[skillName] = character._skills[skillName as SkillName].modifier;
   });
 

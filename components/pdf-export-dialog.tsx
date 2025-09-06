@@ -1,15 +1,17 @@
 "use client";
 
+import { Download, FileText } from "lucide-react";
+
 import { useState } from "react";
+
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
-import { FileText, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 export interface PDFExportOptions {
-  template: 'full-page' | 'half-page';
+  template: "full-page" | "half-page";
   editable: boolean;
 }
 
@@ -20,13 +22,13 @@ interface PDFExportDialogProps {
   isExporting?: boolean;
 }
 
-export function PDFExportDialog({ 
-  isOpen, 
-  onClose, 
-  onExport, 
-  isExporting = false 
+export function PDFExportDialog({
+  isOpen,
+  onClose,
+  onExport,
+  isExporting = false,
 }: PDFExportDialogProps) {
-  const [template, setTemplate] = useState<'full-page' | 'half-page'>('full-page');
+  const [template, setTemplate] = useState<"full-page" | "half-page">("full-page");
   const [editable, setEditable] = useState(true);
 
   const handleExport = () => {
@@ -42,14 +44,14 @@ export function PDFExportDialog({
             Export Character Sheet
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Template Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Page Size</Label>
-            <RadioGroup 
-              value={template} 
-              onValueChange={(value) => setTemplate(value as 'full-page' | 'half-page')}
+            <RadioGroup
+              value={template}
+              onValueChange={(value) => setTemplate(value as "full-page" | "half-page")}
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">
@@ -73,7 +75,7 @@ export function PDFExportDialog({
           <div className="space-y-3">
             <Label className="text-sm font-medium">Form Options</Label>
             <div className="flex items-center space-x-2">
-              <Checkbox 
+              <Checkbox
                 id="editable"
                 checked={editable}
                 onCheckedChange={(checked) => setEditable(checked as boolean)}
@@ -94,7 +96,7 @@ export function PDFExportDialog({
           </Button>
           <Button onClick={handleExport} disabled={isExporting}>
             <Download className="h-4 w-4 mr-2" />
-            {isExporting ? 'Exporting...' : 'Export PDF'}
+            {isExporting ? "Exporting..." : "Export PDF"}
           </Button>
         </DialogFooter>
       </DialogContent>

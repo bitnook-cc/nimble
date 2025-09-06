@@ -1,12 +1,15 @@
 "use client";
 
+import { ChevronDown, ChevronRight } from "lucide-react";
+
 import { useState } from "react";
+
+import { ClassDefinition } from "@/lib/types/class";
+
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { ChevronRight, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { ClassDefinition } from "@/lib/types/class";
 
 interface ClassSelectionProps {
   availableClasses: ClassDefinition[];
@@ -14,7 +17,11 @@ interface ClassSelectionProps {
   onClassSelect: (classId: string) => void;
 }
 
-export function ClassSelection({ availableClasses, selectedClassId, onClassSelect }: ClassSelectionProps) {
+export function ClassSelection({
+  availableClasses,
+  selectedClassId,
+  onClassSelect,
+}: ClassSelectionProps) {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   const toggleCardExpansion = (id: string, event: React.MouseEvent) => {
@@ -36,19 +43,23 @@ export function ClassSelection({ availableClasses, selectedClassId, onClassSelec
     <div className="space-y-3">
       <div className="text-center">
         <h2 className="text-xl font-bold mb-1">Choose Your Class</h2>
-        <p className="text-sm text-muted-foreground">Select the class that defines your character&apos;s role and abilities</p>
+        <p className="text-sm text-muted-foreground">
+          Select the class that defines your character&apos;s role and abilities
+        </p>
       </div>
-      
+
       <div className="space-y-2">
         {availableClasses.map((cls: ClassDefinition) => (
-          <Card 
+          <Card
             key={cls.id}
             className={`cursor-pointer transition-all ${
-              selectedClassId === cls.id ? 'ring-2 ring-primary bg-primary/5' : 'hover:shadow-md hover:bg-muted/50'
+              selectedClassId === cls.id
+                ? "ring-2 ring-primary bg-primary/5"
+                : "hover:shadow-md hover:bg-muted/50"
             }`}
             onClick={() => handleCardClick(cls.id)}
           >
-            <Collapsible 
+            <Collapsible
               open={expandedCards.has(cls.id)}
               onOpenChange={(open) => toggleCardExpansion(cls.id, {} as React.MouseEvent)}
             >
@@ -64,16 +75,17 @@ export function ClassSelection({ availableClasses, selectedClassId, onClassSelec
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <CollapsibleTrigger asChild>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         className="w-8 h-8 p-0"
                         onClick={(e) => toggleCardExpansion(cls.id, e)}
                       >
-                        {expandedCards.has(cls.id) ? 
-                          <ChevronDown className="w-3 h-3" /> : 
+                        {expandedCards.has(cls.id) ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
                           <ChevronRight className="w-3 h-3" />
-                        }
+                        )}
                       </Button>
                     </CollapsibleTrigger>
                   </div>
@@ -84,16 +96,26 @@ export function ClassSelection({ availableClasses, selectedClassId, onClassSelec
                   <div className="border-t pt-2">
                     <h4 className="text-sm font-medium mb-1">Key Attributes</h4>
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {cls.keyAttributes.map(attr => (
-                        <Badge key={attr} variant="secondary" className="capitalize text-xs px-1 py-0">
+                      {cls.keyAttributes.map((attr) => (
+                        <Badge
+                          key={attr}
+                          variant="secondary"
+                          className="capitalize text-xs px-1 py-0"
+                        >
                           {attr}
                         </Badge>
                       ))}
                     </div>
                     <h4 className="text-sm font-medium mb-1">Starting Proficiencies</h4>
                     <p className="text-xs text-muted-foreground break-words">
-                      Armor: {cls.armorProficiencies?.map(p => p.type === 'freeform' ? p.name : p.type).join(', ') || 'None'} • 
-                      Weapons: {cls.weaponProficiencies?.map(p => p.type === 'freeform' ? p.name : p.type.replace('_', ' ')).join(', ') || 'None'}
+                      Armor:{" "}
+                      {cls.armorProficiencies
+                        ?.map((p) => (p.type === "freeform" ? p.name : p.type))
+                        .join(", ") || "None"}{" "}
+                      • Weapons:{" "}
+                      {cls.weaponProficiencies
+                        ?.map((p) => (p.type === "freeform" ? p.name : p.type.replace("_", " ")))
+                        .join(", ") || "None"}
                     </p>
                   </div>
                 </CardContent>

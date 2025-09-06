@@ -1,8 +1,8 @@
-import { NameConfig } from '../utils/name-generator';
-import { FeatureEffect } from './feature-effects';
+import { NameConfig } from "../utils/name-generator";
+import { FeatureEffect } from "./feature-effects";
 
 // Size categories for different ancestries
-export type SizeCategory = 'tiny' | 'small' | 'medium' | 'large' | 'huge' | 'gargantuan';
+export type SizeCategory = "tiny" | "small" | "medium" | "large" | "huge" | "gargantuan";
 
 // Ancestry feature - now contains multiple effects
 export interface AncestryFeature {
@@ -12,7 +12,7 @@ export interface AncestryFeature {
   effects: FeatureEffect[]; // Array of effects this feature provides
 }
 
-export type AncestryRarity = 'common' | 'exotic';
+export type AncestryRarity = "common" | "exotic";
 
 export interface AncestryDefinition {
   id: string; // Unique identifier for the ancestry

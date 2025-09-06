@@ -1,23 +1,34 @@
-import { Character, AttributeName, HitDice, Wounds, CharacterConfiguration, Proficiencies, HitDieSize } from '../types/character';
-import { Inventory, ArmorItem, WeaponItem, ConsumableItem } from '../types/inventory';
-import { Ability } from '../types/abilities';
-import { ClassDefinition } from '../types/class';
-import { ResourceInstance, ResourceDefinition, createResourceInstance } from '../types/resources';
-import { Currency } from '../types/currency';
-import { gameConfig } from '../config/game-config';
+import { gameConfig } from "../config/game-config";
+import { Ability } from "../types/abilities";
+import {
+  AttributeName,
+  Character,
+  CharacterConfiguration,
+  HitDice,
+  HitDieSize,
+  Proficiencies,
+  Wounds,
+} from "../types/character";
+import { ClassDefinition } from "../types/class";
+import { Currency } from "../types/currency";
+import { ArmorItem, ConsumableItem, Inventory, WeaponItem } from "../types/inventory";
+import { ResourceDefinition, ResourceInstance, createResourceInstance } from "../types/resources";
 
 export const createDefaultSkills = () => {
   const defaultSkills: Record<string, any> = {};
-  
-  gameConfig.skills.forEach(skill => {
+
+  gameConfig.skills.forEach((skill) => {
     defaultSkills[skill.name] = {
       name: skill.label,
       associatedAttribute: skill.attribute as AttributeName,
-      modifier: 0
+      modifier: 0,
     };
   });
-  
-  return defaultSkills as Record<string, { name: string; associatedAttribute: AttributeName; modifier: number }>;
+
+  return defaultSkills as Record<
+    string,
+    { name: string; associatedAttribute: AttributeName; modifier: number }
+  >;
 };
 
 export const createDefaultCurrency = (): Currency => {
@@ -45,8 +56,8 @@ export const createDefaultHitPoints = (startingHP: number = 10) => {
 
 export const createDefaultInitiative = () => {
   return {
-    name: 'Initiative',
-    associatedAttribute: 'dexterity' as AttributeName,
+    name: "Initiative",
+    associatedAttribute: "dexterity" as AttributeName,
     modifier: 0,
   };
 };
@@ -89,21 +100,20 @@ export const createDefaultProficiencies = (classDefinition?: ClassDefinition): P
   };
 };
 
-
 /**
  * Creates a complete default character template for merging with invalid characters
  * This provides fallback values for all required character fields
  */
 export const createDefaultCharacterTemplate = (): Partial<Character> => {
-  const defaultAttributes = { 
+  const defaultAttributes = {
     strength: gameConfig.character.attributeRange.min + 2, // Start at 0 (min is -2)
     dexterity: gameConfig.character.attributeRange.min + 2,
     intelligence: gameConfig.character.attributeRange.min + 2,
-    will: gameConfig.character.attributeRange.min + 2
+    will: gameConfig.character.attributeRange.min + 2,
   };
-  
+
   return {
-    name: 'Unnamed Character',
+    name: "Unnamed Character",
     level: 1,
     grantedFeatures: [],
     selectedFeatures: [],
@@ -112,10 +122,10 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     proficiencies: createDefaultProficiencies(),
     _attributes: defaultAttributes,
     saveAdvantages: {
-      strength: 'normal',
-      dexterity: 'normal',
-      intelligence: 'normal',
-      will: 'normal',
+      strength: "normal",
+      dexterity: "normal",
+      intelligence: "normal",
+      will: "normal",
     },
     hitPoints: createDefaultHitPoints(10),
     _hitDice: createDefaultHitDice(1, 8),
@@ -140,17 +150,21 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
  */
 function deepMerge(target: any, source: any): any {
   const result = { ...target };
-  
+
   for (const key in source) {
     if (source[key] != null) {
-      if (typeof source[key] === 'object' && !Array.isArray(source[key]) && !(source[key] instanceof Date)) {
+      if (
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key]) &&
+        !(source[key] instanceof Date)
+      ) {
         result[key] = deepMerge(target[key] || {}, source[key]);
       } else {
         result[key] = source[key];
       }
     }
   }
-  
+
   return result;
 }
 
@@ -158,17 +172,20 @@ function deepMerge(target: any, source: any): any {
  * Merges partial character data with default template to create a valid character
  * This is used for graceful recovery from validation errors or missing fields
  */
-export const mergeWithDefaultCharacter = (partialCharacter: any, characterId: string): Character => {
+export const mergeWithDefaultCharacter = (
+  partialCharacter: any,
+  characterId: string,
+): Character => {
   const defaultTemplate = createDefaultCharacterTemplate();
-  
+
   // Merge the partial character data with defaults
   const mergedCharacter = deepMerge(defaultTemplate, partialCharacter);
-  
+
   // Ensure the character has the correct ID
   mergedCharacter.id = characterId;
-  
+
   // Update timestamps to indicate this was recovered
   mergedCharacter.updatedAt = new Date();
-  
+
   return mergedCharacter as Character;
 };
