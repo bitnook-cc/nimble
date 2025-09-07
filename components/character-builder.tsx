@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
-import { Character, SelectedFeature } from "@/lib/types/character";
+import { Character, EffectSelection } from "@/lib/types/character";
 
 import { AncestrySelection } from "./character-builder/ancestry-selection";
 import { AttributeSelection } from "./character-builder/attribute-selection";
@@ -20,9 +20,9 @@ import { WizardDialog } from "./wizard/wizard-dialog";
 // Helper function to apply feature selections to a character
 async function applyFeatureSelections(
   featureSelections: Record<string, FeatureSelectionType>,
-): Promise<SelectedFeature[]> {
-  const selectedFeatures: SelectedFeature[] = [];
-  const now = new Date();
+): Promise<EffectSelection[]> {
+  const selectedFeatures: EffectSelection[] = [];
+  const contentRepository = ContentRepositoryService.getInstance();
 
   // Process each selection
   for (const [featureId, selection] of Object.entries(featureSelections)) {
@@ -32,7 +32,6 @@ async function applyFeatureSelections(
           type: "attribute_boost",
           attribute: selection.attribute,
           amount: 1, // Default amount, could be extracted from feature definition
-          selectedAt: now,
           grantedByEffectId: featureId,
         });
         break;
@@ -41,7 +40,6 @@ async function applyFeatureSelections(
         selectedFeatures.push({
           type: "spell_school",
           schoolId: selection.schoolId,
-          selectedAt: now,
           grantedByEffectId: featureId,
         });
         break;
@@ -52,21 +50,25 @@ async function applyFeatureSelections(
             type: "utility_spells",
             spellIds: selection.spellIds,
             fromSchools: [], // Would need to determine from feature definition
-            selectedAt: now,
             grantedByEffectId: featureId,
           });
         }
         break;
 
       case "feature_pool":
-        // Need to get the actual feature from the pool
-        // This would require looking up the feature definition
+        // For pool features, we need to extract the pool ID from the effect ID
+        // The effect ID format is typically: "class-{classId}-level-{level}-{index}"
+        // We need to find the actual pool feature to get the poolId
+        // For now, we'll use a placeholder approach
+        // In a real implementation, we'd need to look up the effect to get the poolId
+        const poolId = selection.poolId || "";
+        const feature = selection.feature || ({} as any);
+        
         selectedFeatures.push({
           type: "pool_feature",
-          poolId: "", // Would need to extract from feature definition
+          poolId,
           featureId: selection.selectedFeatureId,
-          feature: {} as any, // Would need to get actual feature
-          selectedAt: now,
+          feature,
           grantedByEffectId: featureId,
         });
         break;
@@ -208,8 +210,8 @@ export function CharacterBuilder({
     if (!builderState.classId || !builderState.ancestryId || !builderState.backgroundId) return;
 
     try {
-      // Prepare selected features from feature selections
-      const selectedFeatures = await applyFeatureSelections(builderState.featureSelections);
+      // Prepare effect selections from feature selections
+      const effectSelections = await applyFeatureSelections(builderState.featureSelections);
 
       // Create the complete character at the end
       const character = await characterCreationService.createCompleteCharacter({
@@ -219,7 +221,7 @@ export function CharacterBuilder({
         backgroundId: builderState.backgroundId,
         attributes: builderState.attributes,
         skillAllocations: builderState.skillAllocations,
-        selectedFeatures,
+        effectSelections,
         selectedEquipment: builderState.selectedEquipment,
       });
 

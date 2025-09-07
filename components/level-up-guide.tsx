@@ -9,11 +9,12 @@ import { WizardDialog } from "@/components/wizard/wizard-dialog";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { resourceService } from "@/lib/services/resource-service";
 import {
+  getCharacterService,
   getClassService,
   getContentRepository,
   getDiceService,
 } from "@/lib/services/service-factory";
-import { AttributeName, SelectedFeature } from "@/lib/types/character";
+import { AttributeName, EffectSelection } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 import {
   AbilityFeatureEffect,
@@ -183,12 +184,12 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
       // Prepare feature-related updates
       let updatedAttributes = { ...character._attributes };
-      let updatedAbilities = [...character.abilities];
-      let updatedResources = [...character.resources];
-      let grantedFeatures = [...character.grantedFeatures];
-      let selectedFeatures: SelectedFeature[] = [...(character.selectedFeatures || [])];
-      let spellTierAccess = character.spellTierAccess;
-      let updatedSubclassId = character.subclassId;
+      let updatedAbilities = [...character._abilities];
+      let updatedResourceDefinitions = [...(character._resourceDefinitions || [])];
+      let updatedResourceValues = new Map(character._resourceValues || new Map());
+      let effectSelections: EffectSelection[] = [...(character.effectSelections || [])];
+      let spellTierAccess = character._spellTierAccess;
+      const characterService = getCharacterService();
 
       // Process feature selections
       const classService = getClassService();
@@ -221,10 +222,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             feature.name,
           );
 
-          // Add to granted features
-          if (!grantedFeatures.includes(featureId)) {
-            grantedFeatures.push(featureId);
-          }
+          // Features are now dynamically calculated, no need to track granted features
 
           // Apply feature based on type and selections
           const selection = levelUpData.featureSelections[featureId];
@@ -243,11 +241,10 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   updatedAttributes[selection.attribute] + boostAmount,
                 );
                 // Track the selection
-                selectedFeatures.push({
+                effectSelections.push({
                   type: "attribute_boost",
                   attribute: selection.attribute,
                   amount: boostAmount,
-                  selectedAt: new Date(),
                   grantedByEffectId: featureId,
                 });
               }
@@ -273,10 +270,9 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   updatedAbilities.push(...newSpells);
 
                   // Track the selection
-                  selectedFeatures.push({
+                  effectSelections.push({
                     type: "spell_school",
                     schoolId: selection.schoolId,
-                    selectedAt: new Date(),
                     grantedByEffectId: featureId,
                   });
                 }
@@ -312,11 +308,10 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
                 // Track the selection
                 if (addedSpellIds.length > 0) {
-                  selectedFeatures.push({
+                  effectSelections.push({
                     type: "utility_spells",
                     spellIds: addedSpellIds,
                     fromSchools: utilitySpellsEffect?.schools || [],
-                    selectedAt: new Date(),
                     grantedByEffectId: featureId,
                   });
                 }
@@ -325,14 +320,10 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
             case "subclass_choice":
               if (selection?.type === "subclass_choice" && selection.subclassId) {
-                // Apply the subclass selection
-                updatedSubclassId = selection.subclassId;
-
                 // Track the selection
-                selectedFeatures.push({
+                effectSelections.push({
                   type: "subclass",
                   subclassId: selection.subclassId,
-                  selectedAt: new Date(),
                   grantedByEffectId: featureId,
                 });
               }
@@ -369,12 +360,11 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                     }
 
                     // Track the selection
-                    selectedFeatures.push({
+                    effectSelections.push({
                       type: "pool_feature",
                       poolId: pickFeatureEffect?.poolId || "",
                       featureId: selection.selectedFeatureId,
                       feature: selectedFeature,
-                      selectedAt: new Date(),
                       grantedByEffectId: featureId,
                     });
                   }
@@ -415,17 +405,22 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               const resourceEffect = resourceEffects[0];
               if (
                 resourceEffect?.resourceDefinition &&
-                !updatedResources.some(
-                  (r) => r.definition.id === resourceEffect.resourceDefinition.id,
+                !updatedResourceDefinitions.some(
+                  (r) => r.id === resourceEffect.resourceDefinition.id,
                 )
               ) {
-                const resourceInstance = resourceService.createResourceInstanceForCharacter(
-                  resourceEffect.resourceDefinition,
-                  character, // Pass character for formula evaluation
-                  undefined, // No explicit current value - let it initialize based on reset type
-                  updatedResources.length,
-                );
-                updatedResources.push(resourceInstance);
+                updatedResourceDefinitions.push(resourceEffect.resourceDefinition);
+                // Initialize the resource value if it doesn't exist
+                if (!updatedResourceValues.has(resourceEffect.resourceDefinition.id)) {
+                  const initialValue = resourceService.calculateInitialValue(
+                    resourceEffect.resourceDefinition,
+                    character,
+                  );
+                  updatedResourceValues.set(
+                    resourceEffect.resourceDefinition.id,
+                    resourceService.createNumericalValue(initialValue),
+                  );
+                }
               }
               break;
 
@@ -459,21 +454,19 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           current: levelUpData.newHitDice.current,
           max: levelUpData.newHitDice.max,
         },
-        skills: updatedSkills,
-        attributes: updatedAttributes,
-        abilities: updatedAbilities,
-        resources: updatedResources,
-        grantedFeatures,
-        selectedFeatures,
-        spellTierAccess,
-        subclassId: updatedSubclassId,
+        _skills: updatedSkills,
+        _attributes: updatedAttributes,
+        _abilities: updatedAbilities,
+        _resourceDefinitions: updatedResourceDefinitions,
+        _resourceValues: updatedResourceValues,
+        effectSelections,
+        _spellTierAccess: spellTierAccess,
       };
 
       // Save the updated character
       await updateCharacter(updatedCharacter);
 
-      // Sync any remaining features
-      await classService.syncCharacterFeatures();
+      // Features are now dynamically calculated, no sync needed
 
       // Close the dialog
       onOpenChange(false);

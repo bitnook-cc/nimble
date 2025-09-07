@@ -21,10 +21,8 @@ import { Separator } from "@/components/ui/separator";
 import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { SpellAbility } from "@/lib/types/abilities";
-import { AncestryFeature } from "@/lib/types/ancestry";
-import { BackgroundFeature } from "@/lib/types/background";
-import { AttributeName } from "@/lib/types/character";
+import { SpellAbilityDefinition } from "@/lib/types/abilities";
+import { AttributeName, CharacterFeature } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 import { hasEffectType } from "@/lib/types/class";
 import {
@@ -40,7 +38,7 @@ export type FeatureSelectionType =
   | { type: "attribute_boost"; attribute: AttributeName }
   | { type: "spell_school_choice"; schoolId: string }
   | { type: "utility_spells"; spellIds: string[] }
-  | { type: "feature_pool"; selectedFeatureId: string }
+  | { type: "feature_pool"; selectedFeatureId: string; poolId?: string; feature?: any }
   | { type: "subclass_choice"; subclassId: string };
 
 interface FeaturesOverviewProps {
@@ -53,8 +51,8 @@ interface FeaturesOverviewProps {
 
 interface CategorizedFeatures {
   class: ClassFeature[];
-  ancestry: AncestryFeature[];
-  background: BackgroundFeature[];
+  ancestry: CharacterFeature[];
+  background: CharacterFeature[];
 }
 
 export function FeaturesOverview({
@@ -131,16 +129,16 @@ export function FeaturesOverview({
 
     // Check for interactive effects that need user selection
     const attributeBoostEffects = feature.effects.filter(
-      (e) => e.type === "attribute_boost",
+      (e: FeatureEffect) => e.type === "attribute_boost",
     ) as AttributeBoostFeatureEffect[];
     const spellSchoolChoiceEffects = feature.effects.filter(
-      (e) => e.type === "spell_school_choice",
+      (e: FeatureEffect) => e.type === "spell_school_choice",
     ) as SpellSchoolChoiceFeatureEffect[];
     const utilitySpellsEffects = feature.effects.filter(
-      (e) => e.type === "utility_spells",
+      (e: FeatureEffect) => e.type === "utility_spells",
     ) as UtilitySpellsFeatureEffect[];
     const pickFeatureEffects = feature.effects.filter(
-      (e) => e.type === "pick_feature_from_pool",
+      (e: FeatureEffect) => e.type === "pick_feature_from_pool",
     ) as PickFeatureFromPoolFeatureEffect[];
 
     const hasInteractiveEffects =
@@ -234,7 +232,7 @@ export function FeaturesOverview({
       const selectedSpells = selection?.type === "utility_spells" ? selection.spellIds : [];
 
       // Get utility spells from the specified schools
-      const utilitySpells: SpellAbility[] = [];
+      const utilitySpells: SpellAbilityDefinition[] = [];
       utilitySpellsEffect?.schools?.forEach((schoolId) => {
         const spells = contentRepo.getSpellsBySchool(schoolId).filter((spell) => spell.tier === 0); // Utility spells are tier 0
         utilitySpells.push(...spells);
@@ -335,12 +333,12 @@ export function FeaturesOverview({
     );
   };
 
-  const renderAncestryFeature = (feature: AncestryFeature) => {
+  const renderAncestryFeature = (feature: CharacterFeature) => {
     const featureId = generateFeatureId(ancestryId, feature);
 
     // Handle attribute boost effects from ancestry
     const attributeBoostEffects = feature.effects.filter(
-      (e) => e.type === "attribute_boost",
+      (e: FeatureEffect) => e.type === "attribute_boost",
     ) as AttributeBoostFeatureEffect[];
     if (attributeBoostEffects.length > 0) {
       const attributeBoostEffect = attributeBoostEffects[0]; // Handle first one for now
@@ -393,7 +391,7 @@ export function FeaturesOverview({
     );
   };
 
-  const renderBackgroundFeature = (feature: BackgroundFeature) => {
+  const renderBackgroundFeature = (feature: CharacterFeature) => {
     const featureId = generateFeatureId(backgroundId, feature);
 
     // Background features are typically passive - show with their effects
