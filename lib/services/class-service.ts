@@ -1,12 +1,12 @@
 // Removed direct subclass imports - now using ContentRepositoryService
-import { SpellAbility } from "../types/abilities";
+import { SpellAbilityDefinition } from "../types/abilities";
 import {
+  AttributeBoostEffectSelection,
   AttributeName,
   Character,
-  SelectedAttributeBoost,
-  SelectedFeature,
-  SelectedPoolFeature,
-  SelectedSubclass,
+  EffectSelection,
+  PoolFeatureEffectSelection,
+  SubclassEffectSelection,
 } from "../types/character";
 import {
   ClassDefinition,
@@ -21,12 +21,8 @@ import {
   SpellSchoolFeatureEffect,
   SubclassChoiceFeatureEffect,
 } from "../types/feature-effects";
-import { ResourceInstance } from "../types/resources";
-import { abilityService } from "./ability-service";
 import { ContentRepositoryService } from "./content-repository-service";
-import { FeatureEffectService } from "./feature-effect-service";
 import { ICharacterService, IClassService } from "./interfaces";
-import { resourceService } from "./resource-service";
 
 /**
  * Class Service with Dependency Injection
@@ -34,15 +30,9 @@ import { resourceService } from "./resource-service";
  */
 export class ClassService implements IClassService {
   private contentRepository: ContentRepositoryService;
-  private featureEffectService: FeatureEffectService;
 
   constructor(private characterService: ICharacterService) {
     this.contentRepository = ContentRepositoryService.getInstance();
-    this.featureEffectService = new FeatureEffectService(
-      characterService,
-      resourceService,
-      abilityService,
-    );
   }
 
   /**
@@ -56,8 +46,9 @@ export class ClassService implements IClassService {
    * Get the subclass definition for a character
    */
   getCharacterSubclass(character: Character): SubclassDefinition | null {
-    if (!character.subclassId) return null;
-    return this.contentRepository.getSubclassDefinition(character.subclassId);
+    const subclassId = this.characterService.getSubclassId();
+    if (!subclassId) return null;
+    return this.contentRepository.getSubclassDefinition(subclassId);
   }
 
   /**
@@ -70,40 +61,16 @@ export class ClassService implements IClassService {
     );
 
     // Add subclass features if character has a subclass
-    if (character.subclassId) {
+    const subclassId = this.characterService.getSubclassId();
+    if (subclassId) {
       const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(
-        character.subclassId,
+        subclassId,
         character.level,
       );
       return [...classFeatures, ...subclassFeatures];
     }
 
     return classFeatures;
-  }
-
-  /**
-   * Get features that are missing for a character (should have but don't)
-   * Now checks for missing effects rather than missing features
-   */
-  getMissingFeatures(character: Character): ClassFeature[] {
-    const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const grantedEffectsByFeature = new Map<string, Set<string>>();
-
-    // Build map of granted effects by parent feature ID
-    for (const grant of character.grantedEffects) {
-      if (!grantedEffectsByFeature.has(grant.parentFeatureId)) {
-        grantedEffectsByFeature.set(grant.parentFeatureId, new Set());
-      }
-      grantedEffectsByFeature.get(grant.parentFeatureId)!.add(grant.effectId);
-    }
-
-    return expectedFeatures.filter((feature) => {
-      // Check if all effects from this feature have been granted
-      const grantedEffectsForFeature = grantedEffectsByFeature.get(feature.id) || new Set();
-
-      // A feature is missing if any of its effects haven't been granted
-      return feature.effects.some((effect) => !grantedEffectsForFeature.has(effect.id));
-    });
   }
 
   /**
@@ -152,12 +119,18 @@ export class ClassService implements IClassService {
       throw new Error(`Class not found: ${character.classId}`);
     }
 
-    // Grant features for each level from current+1 to target level
+    // Collect features for each level from current+1 to target level
     for (let level = character.level + 1; level <= targetLevel; level++) {
       const levelFeatures = this.getFeaturesForLevel(character.classId, level);
 
       for (const feature of levelFeatures) {
-        const featureGrant = await this.grantFeature(character, feature, level);
+        const featureGrant: ClassFeatureGrant = {
+          featureId: this.generateFeatureId(character.classId, level, feature.name),
+          classId: character.classId,
+          level: level,
+          feature: feature,
+          grantedAt: new Date(),
+        };
         newFeatures.push(featureGrant);
       }
     }
@@ -167,7 +140,7 @@ export class ClassService implements IClassService {
       ...character,
       level: targetLevel,
       // Update hit dice to match new level
-      hitDice: {
+      _hitDice: {
         ...character._hitDice,
         size: classDef.hitDieSize,
         max: targetLevel,
@@ -180,91 +153,6 @@ export class ClassService implements IClassService {
 
     await this.characterService.updateCharacter(updatedCharacter);
     return newFeatures;
-  }
-
-  /**
-   * Grant a specific feature to a character using effect-level tracking
-   */
-  async grantFeature(
-    character: Character,
-    feature: ClassFeature,
-    level: number,
-  ): Promise<ClassFeatureGrant> {
-    // Determine source type and ID
-    const sourceType =
-      character.subclassId && this.isSubclassFeature(feature) ? "subclass" : "class";
-    const sourceId = sourceType === "subclass" ? character.subclassId! : character.classId;
-
-    // Apply the feature effects using the shared effect service
-    const updatedCharacter = await this.featureEffectService.applyEffects(
-      character,
-      feature.effects,
-      feature.id,
-      sourceType,
-      sourceId,
-      level,
-    );
-
-    await this.characterService.updateCharacter(updatedCharacter);
-
-    // Create the feature grant record for backwards compatibility
-    const featureGrant: ClassFeatureGrant = {
-      featureId: feature.id, // Use actual feature ID instead of generated one
-      classId: sourceId,
-      level,
-      feature,
-      grantedAt: new Date(),
-    };
-
-    return featureGrant;
-  }
-
-  /**
-   * Synchronize character spells based on their spell school access and tier access
-   * Now works with effect-based system
-   */
-  private syncCharacterSpells(character: Character): Character {
-    // Find all spell school effects the character has been granted
-    const spellSchoolEffects = character.grantedEffects
-      .filter((grant) => grant.effect.type === "spell_school")
-      .map((grant) => grant.effect as SpellSchoolFeatureEffect);
-
-    // Get all spells the character should have access to
-    const eligibleSpells: SpellAbility[] = [];
-
-    for (const schoolEffect of spellSchoolEffects) {
-      const schoolSpells = this.contentRepository.getSpellsBySchool(
-        schoolEffect.spellSchool.schoolId,
-      );
-
-      // Filter by character's spell tier access
-      const accessibleSpells = schoolSpells.filter(
-        (spell) => spell.tier <= character.spellTierAccess,
-      );
-      eligibleSpells.push(...accessibleSpells);
-    }
-
-    // Get current spell abilities
-    const currentSpells = character.abilities.filter(
-      (ability) => ability.type === "spell",
-    ) as SpellAbility[];
-    const currentSpellIds = new Set(currentSpells.map((spell) => spell.id));
-
-    // Find missing spells
-    const missingSpells = eligibleSpells.filter((spell) => !currentSpellIds.has(spell.id));
-
-    // Add missing spells to character's abilities
-    if (missingSpells.length > 0) {
-      const nonSpellAbilities = character.abilities.filter((ability) => ability.type !== "spell");
-      const allAbilities = [...nonSpellAbilities, ...currentSpells, ...missingSpells];
-
-      return {
-        ...character,
-        abilities: allAbilities,
-      };
-    }
-
-    return character;
   }
 
   /**
@@ -286,16 +174,16 @@ export class ClassService implements IClassService {
     }
 
     // Check if character has the appropriate subclass choice effect
-    const hasSubclassChoiceEffect = character.grantedEffects.some(
-      (grant) => grant.effect.type === "subclass_choice",
+    const hasSubclassChoiceEffect = this.characterService.getAllActiveEffects().some(
+      (effect) => effect.type === "subclass_choice" && effect.id === grantedByEffectId,
     );
 
     if (!hasSubclassChoiceEffect) {
-      throw new Error(`Character does not have a subclass choice effect at their current level`);
+      throw new Error(`Character does not have a subclass choice effect with id ${grantedByEffectId}`);
     }
 
     // Check if already have a subclass selection for this effect
-    const existingSubclassSelection = character.selectedFeatures?.find(
+    const existingSubclassSelection = character.effectSelections?.find(
       (f) => f.type === "subclass" && f.grantedByEffectId === grantedByEffectId,
     );
     if (existingSubclassSelection) {
@@ -303,24 +191,19 @@ export class ClassService implements IClassService {
     }
 
     // Create the selected subclass record
-    const selectedSubclass: SelectedSubclass = {
+    const selectedSubclass: SubclassEffectSelection = {
       type: "subclass",
       subclassId,
-      selectedAt: new Date(),
       grantedByEffectId,
     };
 
     // Update character with selected subclass
     const updatedCharacter = {
       ...character,
-      subclassId: subclassId,
-      selectedFeatures: [...(character.selectedFeatures || []), selectedSubclass],
+      effectSelections: [...(character.effectSelections || []), selectedSubclass],
     };
 
     await this.characterService.updateCharacter(updatedCharacter);
-
-    // Sync any missing subclass features
-    await this.syncCharacterFeatures();
 
     return this.characterService.getCurrentCharacter()!;
   }
@@ -329,14 +212,13 @@ export class ClassService implements IClassService {
    * Get available subclass choice effects for a character at their current level
    */
   getAvailableSubclassChoices(character: Character): SubclassChoiceFeatureEffect[] {
-    // Find all subclass choice effects the character has been granted
-    const subclassChoiceEffects = character.grantedEffects
-      .filter((grant) => grant.effect.type === "subclass_choice")
-      .map((grant) => grant.effect as SubclassChoiceFeatureEffect);
+    // Find all subclass choice effects from active features
+    const subclassChoiceEffects = this.characterService.getAllActiveEffects()
+      .filter((effect): effect is SubclassChoiceFeatureEffect => effect.type === "subclass_choice");
 
     // Filter out subclass choices that have already been made
     return subclassChoiceEffects.filter((effect) => {
-      const hasSelection = character.selectedFeatures?.some(
+      const hasSelection = character.effectSelections?.some(
         (f) => f.type === "subclass" && f.grantedByEffectId === effect.id,
       );
       return !hasSelection;
@@ -368,14 +250,13 @@ export class ClassService implements IClassService {
    * Get available attribute boost choices for a character
    */
   getAvailableAttributeBoostChoices(character: Character): AttributeBoostFeatureEffect[] {
-    // Find all attribute boost effects the character has been granted
-    const attributeBoostEffects = character.grantedEffects
-      .filter((grant) => grant.effect.type === "attribute_boost")
-      .map((grant) => grant.effect as AttributeBoostFeatureEffect);
+    // Find all attribute boost effects from active features
+    const attributeBoostEffects = this.characterService.getAllActiveEffects()
+      .filter((effect): effect is AttributeBoostFeatureEffect => effect.type === "attribute_boost");
 
     // Filter out attribute boosts that have already been made
     return attributeBoostEffects.filter((effect) => {
-      const hasSelection = character.selectedFeatures?.some(
+      const hasSelection = character.effectSelections?.some(
         (f) => f.type === "attribute_boost" && f.grantedByEffectId === effect.id,
       );
       return !hasSelection;
@@ -391,8 +272,8 @@ export class ClassService implements IClassService {
     attribute: AttributeName,
     amount: number,
   ): Promise<Character> {
-    const effect = character.grantedEffects.find((grant) => grant.effect.id === effectId)
-      ?.effect as AttributeBoostFeatureEffect;
+    const effect = this.characterService.getAllActiveEffects()
+      .find((e) => e.id === effectId) as AttributeBoostFeatureEffect;
     if (!effect || effect.type !== "attribute_boost") {
       throw new Error(`Attribute boost effect ${effectId} not found`);
     }
@@ -402,22 +283,17 @@ export class ClassService implements IClassService {
     }
 
     // Create the selection record
-    const selection: SelectedAttributeBoost = {
+    const selection: AttributeBoostEffectSelection = {
       type: "attribute_boost",
       grantedByEffectId: effectId,
       attribute,
       amount,
-      selectedAt: new Date(),
     };
 
-    // Add the selection and apply the attribute boost
+    // Add the selection (attributes will be calculated dynamically)
     const updatedCharacter = {
       ...character,
-      selectedFeatures: [...character.selectedFeatures, selection],
-      _attributes: {
-        ...character._attributes,
-        [attribute]: character._attributes[attribute] + amount,
-      },
+      effectSelections: [...character.effectSelections, selection],
     };
 
     // Save to storage
@@ -430,53 +306,6 @@ export class ClassService implements IClassService {
    */
   hasAttributeBoostSelectionAvailable(character: Character): boolean {
     return this.getAvailableAttributeBoostChoices(character).length > 0;
-  }
-
-  /**
-   * Check if character needs to catch up on missing features
-   */
-  async syncCharacterFeatures(): Promise<ClassFeatureGrant[]> {
-    let character = this.characterService.character;
-    if (!character) {
-      throw new Error("No character loaded");
-    }
-
-    const missingFeatures = this.getMissingFeatures(character);
-    const grantedFeatures: ClassFeatureGrant[] = [];
-
-    for (const feature of missingFeatures) {
-      const featureGrant = await this.grantFeature(character, feature, feature.level);
-      grantedFeatures.push(featureGrant);
-
-      // Get the updated character after granting the feature
-      character = this.characterService.getCurrentCharacter();
-      if (!character) {
-        throw new Error("Character became null after granting feature");
-      }
-    }
-
-    return grantedFeatures;
-  }
-
-  /**
-   * Apply the effects of a feature to a character using the shared effect service
-   */
-  private async applyFeatureEffects(
-    character: Character,
-    feature: ClassFeature,
-  ): Promise<Character> {
-    const sourceType =
-      character.subclassId && this.isSubclassFeature(feature) ? "subclass" : "class";
-    const sourceId = sourceType === "subclass" ? character.subclassId! : character.classId;
-
-    return await this.featureEffectService.applyEffects(
-      character,
-      feature.effects,
-      feature.id,
-      sourceType,
-      sourceId,
-      feature.level,
-    );
   }
 
   /**
@@ -493,20 +322,6 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Grant a pick feature from pool feature - this just records that the choice is available
-   */
-  private async grantPickFeatureFromPoolFeature(
-    character: Character,
-    feature: ClassFeature,
-    effect: PickFeatureFromPoolFeatureEffect,
-  ): Promise<Character> {
-    // For pick feature from pool features, we don't automatically grant anything
-    // The feature simply unlocks the ability to make choices from the specified pool
-    // The actual selection happens through UI interaction
-    return character;
-  }
-
-  /**
    * Get feature pool by ID
    */
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined {
@@ -515,24 +330,29 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Get available pool features that can be selected by a character.
+   * Get available pool features that can be selected.
    *
    * This returns the actual ClassFeature objects from a specific pool that haven't been selected yet.
    * Used when displaying what features a player can choose from within a specific pool.
    *
-   * @param character - The character making the selection
+   * @param classId - The class ID to get the pool from
    * @param poolId - The ID of the specific feature pool to get features from
+   * @param effectSelections - The current effect selections to check against
    * @returns Array of ClassFeature objects that haven't been selected yet from this pool
    */
-  getAvailablePoolFeatures(character: Character, poolId: string): ClassFeature[] {
-    const pool = this.getFeaturePool(character.classId, poolId);
+  getAvailablePoolFeatures(
+    classId: string,
+    poolId: string,
+    effectSelections: EffectSelection[] = [],
+  ): ClassFeature[] {
+    const pool = this.getFeaturePool(classId, poolId);
     if (!pool) {
       return [];
     }
 
     // Filter out features that have already been selected
-    const selectedPoolFeatures = (character.selectedFeatures || []).filter(
-      (f): f is SelectedPoolFeature => f.type === "pool_feature",
+    const selectedPoolFeatures = effectSelections.filter(
+      (f): f is PoolFeatureEffectSelection => f.type === "pool_feature",
     );
 
     const selectedFeatureIds = new Set(
@@ -585,7 +405,11 @@ export class ClassService implements IClassService {
     grantedByFeatureId: string,
   ): Promise<Character> {
     // Check if the feature is available for selection
-    const availableFeatures = this.getAvailablePoolFeatures(character, poolId);
+    const availableFeatures = this.getAvailablePoolFeatures(
+      character.classId,
+      poolId,
+      character.effectSelections,
+    );
 
     if (!availableFeatures.some((f) => f.id === selectedFeature.id)) {
       throw new Error(
@@ -594,23 +418,22 @@ export class ClassService implements IClassService {
     }
 
     // Create the selected pool feature record
-    const selectedPoolFeature: SelectedPoolFeature = {
+    const selectedPoolFeature: PoolFeatureEffectSelection = {
       type: "pool_feature",
       poolId,
       featureId: selectedFeature.id,
       feature: selectedFeature,
-      selectedAt: new Date(),
       grantedByEffectId: grantedByFeatureId,
     };
 
-    // Add to character's selected features
+    // Add to character's effect selections
     const updatedCharacter = {
       ...character,
-      selectedFeatures: [...(character.selectedFeatures || []), selectedPoolFeature],
+      effectSelections: [...(character.effectSelections || []), selectedPoolFeature],
     };
 
-    // Apply the feature effects
-    let finalCharacter = await this.applyFeatureEffects(updatedCharacter, selectedFeature);
+    // Update character (effects will be applied dynamically)
+    let finalCharacter = updatedCharacter;
 
     await this.characterService.updateCharacter(finalCharacter);
     return finalCharacter;
@@ -647,8 +470,8 @@ export class ClassService implements IClassService {
   ): number {
     const grantedByEffectId = pickFeatureFromPoolEffect.id;
 
-    const selectedPoolFeatures = (character.selectedFeatures || []).filter(
-      (f): f is SelectedPoolFeature => f.type === "pool_feature",
+    const selectedPoolFeatures = (character.effectSelections || []).filter(
+      (f): f is PoolFeatureEffectSelection => f.type === "pool_feature",
     );
 
     const currentSelections = selectedPoolFeatures.filter(
@@ -656,17 +479,5 @@ export class ClassService implements IClassService {
     ).length;
 
     return Math.max(0, pickFeatureFromPoolEffect.choicesAllowed - currentSelections);
-  }
-
-  /**
-   * Get all granted features for the given character
-   */
-  getAllGrantedFeatures(character: Character): ClassFeature[] {
-    const grantedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const selectedFeatures = (character.selectedFeatures || [])
-      .filter((f: SelectedFeature) => f.type === "pool_feature")
-      .map((f: SelectedFeature) => (f as SelectedPoolFeature).feature);
-
-    return [...grantedFeatures, ...selectedFeatures];
   }
 }

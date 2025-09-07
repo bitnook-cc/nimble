@@ -29,7 +29,10 @@ export function createFormulaValue(expression: string): FormulaValue {
 /**
  * Get the computed value from a FlexibleValue
  */
-export function getValue(flexibleValue: FlexibleValue, character?: Character): number {
+export function calculateFlexibleValue(
+  flexibleValue: FlexibleValue,
+  character?: Character,
+): number {
   if (flexibleValue.type === "fixed") {
     return flexibleValue.value;
   } else {

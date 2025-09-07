@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { Ability } from "../types/abilities";
+import { AbilityDefinition } from "../types/abilities";
 import {
   AttributeName,
   Character,
@@ -115,11 +115,11 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
   return {
     name: "Unnamed Character",
     level: 1,
-    grantedFeatures: [],
-    selectedFeatures: [],
-    grantedEffects: [],
-    spellTierAccess: 0,
-    proficiencies: createDefaultProficiencies(),
+    effectSelections: [],
+    _spellTierAccess: 0,
+    _resourceDefinitions: [],
+    _resourceValues: new Map(),
+    _proficiencies: createDefaultProficiencies(),
     _attributes: defaultAttributes,
     saveAdvantages: {
       strength: "normal",
@@ -130,7 +130,6 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     hitPoints: createDefaultHitPoints(10),
     _hitDice: createDefaultHitDice(1, 8),
     wounds: createDefaultWounds(6),
-    resources: [],
     config: createDefaultCharacterConfiguration(),
     _initiative: createDefaultInitiative(),
     speed: gameConfig.character.defaultSpeed,
@@ -138,7 +137,8 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     inEncounter: false,
     _skills: createDefaultSkills(),
     inventory: createDefaultInventory(0),
-    abilities: [],
+    _abilities: [],
+    _abilityUses: new Map(),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

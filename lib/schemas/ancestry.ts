@@ -59,12 +59,10 @@ const NameGeneratorConfigSchema = z
           .meta({ title: "Suffixes", description: "Syllable suffixes for name generation" }),
       })
       .meta({ title: "Syllables", description: "Syllable collections for name generation" }),
-    patterns: z
-      .array(z.string().min(1))
-      .meta({
-        title: "Patterns",
-        description: "Name generation patterns (P=prefix, M=middle, S=suffix)",
-      }),
+    patterns: z.array(z.string().min(1)).meta({
+      title: "Patterns",
+      description: "Name generation patterns (P=prefix, M=middle, S=suffix)",
+    }),
     constraints: z
       .object({
         minLength: z
@@ -142,18 +140,6 @@ export const AncestryDefinitionSchema = z
     title: "Ancestry Definition",
     description: "Character ancestry definition with features and traits",
   });
-
-export const AncestryTraitSchema = z
-  .object({
-    ancestryId: z
-      .string()
-      .min(1)
-      .meta({ title: "Ancestry ID", description: "ID of the character's ancestry" }),
-    grantedFeatures: z
-      .array(z.string())
-      .meta({ title: "Granted Features", description: "IDs of ancestry features already granted" }),
-  })
-  .meta({ title: "Ancestry Trait", description: "Character ancestry reference" });
 
 // Export individual schemas for specific use cases
 export {

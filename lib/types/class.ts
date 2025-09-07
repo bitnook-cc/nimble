@@ -1,13 +1,4 @@
-import { AttributeName, HitDieSize, SaveAdvantageMap } from "./character";
-import {
-  AttributeBoostFeatureEffect,
-  FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  SpellSchoolFeatureEffect,
-  SpellTierAccessFeatureEffect,
-  UtilitySpellsFeatureEffect,
-} from "./feature-effects";
+import { AttributeName, CharacterFeature, HitDieSize, SaveAdvantageMap } from "./character";
 
 // Feature pool - a collection of features that players can choose from
 export interface FeaturePool {
@@ -18,12 +9,8 @@ export interface FeaturePool {
 }
 
 // Class feature - now contains multiple effects
-export interface ClassFeature {
-  id: string; // Unique identifier for the feature
+export interface ClassFeature extends CharacterFeature {
   level: number;
-  name: string;
-  description: string;
-  effects: FeatureEffect[]; // Array of effects this feature provides
 }
 
 export type ArmorProficiency =

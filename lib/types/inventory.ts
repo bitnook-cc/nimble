@@ -1,5 +1,6 @@
-import { AttributeName } from "./character";
+import { AttributeName, CharacterFeature } from "./character";
 import { Currency } from "./currency";
+import { FeatureEffect } from "./feature-effects";
 import { StatBonus } from "./stat-bonus";
 
 export type ItemType = "weapon" | "armor" | "freeform" | "consumable" | "ammunition";
@@ -14,9 +15,13 @@ export interface BaseItem {
   statBonus?: StatBonus; // Optional stat bonuses provided by this item
 }
 
-export interface WeaponItem extends BaseItem {
-  type: "weapon";
+export interface EquippableItem extends BaseItem {
   equipped?: boolean;
+  features?: CharacterFeature[];
+}
+
+export interface WeaponItem extends EquippableItem {
+  type: "weapon";
   attribute?: AttributeName;
   damage?: string;
   damageType?: "Slashing" | "Piercing" | "Bludgeoning";
@@ -24,9 +29,8 @@ export interface WeaponItem extends BaseItem {
   properties?: string[];
 }
 
-export interface ArmorItem extends BaseItem {
+export interface ArmorItem extends EquippableItem {
   type: "armor";
-  equipped?: boolean;
   armor?: number;
   maxDexBonus?: number; // Maximum dexterity bonus this armor allows
   isMainArmor?: boolean; // True for primary armor pieces (plate mail, chain mail, etc.), false for supplements (helmets, shields)

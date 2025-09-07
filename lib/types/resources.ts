@@ -9,6 +9,15 @@
  */
 import { FlexibleValue, createFixedValue } from "./flexible-value";
 
+// Resource value types - extensible to support different value structures
+export type ResourceValue = NumericalResourceValue;
+// Future types could include: BooleanResourceValue, ChoiceResourceValue, etc.
+
+export interface NumericalResourceValue {
+  type: "numerical";
+  value: number;
+}
+
 export type ResourceResetCondition =
   | "safe_rest" // Reset on safe rest (mana, spell slots)
   | "encounter_end" // Reset on encounter end (fury, rage)

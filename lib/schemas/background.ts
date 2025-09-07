@@ -40,20 +40,5 @@ export const BackgroundDefinitionSchema = z
     description: "Character background definition with features and traits",
   });
 
-export const BackgroundTraitSchema = z
-  .object({
-    backgroundId: z
-      .string()
-      .min(1)
-      .meta({ title: "Background ID", description: "ID of the character's background" }),
-    grantedFeatures: z
-      .array(z.string())
-      .meta({
-        title: "Granted Features",
-        description: "IDs of background features already granted",
-      }),
-  })
-  .meta({ title: "Background Trait", description: "Character background reference" });
-
 // Export individual schemas for specific use cases
 export {};

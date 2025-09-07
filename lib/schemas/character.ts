@@ -1,12 +1,11 @@
 import { z } from "zod";
 
 import { gameConfig } from "../config/game-config";
-import { AncestryTraitSchema } from "./ancestry";
-import { BackgroundTraitSchema } from "./background";
 import { ClassFeatureSchema } from "./class";
 import { currencySchema } from "./currency";
 import { FeatureEffectGrantSchema } from "./feature-effects";
 import { flexibleValueSchema } from "./flexible-value";
+import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
@@ -120,59 +119,14 @@ export const woundsSchema = z.object({
   max: z.int().min(1),
 });
 
-export const resourceDefinitionSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().optional(),
-  colorScheme: z.enum([
-    "blue-magic",
-    "red-fury",
-    "green-nature",
-    "purple-arcane",
-    "orange-ki",
-    "yellow-divine",
-    "teal-focus",
-    "gray-stamina",
-  ]),
-  icon: z
-    .enum([
-      "sparkles",
-      "crystal",
-      "wand",
-      "orb",
-      "star",
-      "comet",
-      "fire",
-      "lightning",
-      "zap",
-      "battery",
-      "sun",
-      "flame",
-      "muscle",
-      "heart",
-      "droplet",
-      "shield",
-      "sword",
-      "eye",
-      "brain",
-      "leaf",
-      "snowflake",
-      "potion",
-      "hourglass",
-    ])
-    .optional(),
-  resetCondition: z.enum(["safe_rest", "encounter_end", "turn_end", "never", "manual"]),
-  resetType: z.enum(["to_max", "to_zero", "to_default"]),
-  resetValue: flexibleValueSchema.optional(),
-  minValue: flexibleValueSchema,
-  maxValue: flexibleValueSchema,
+
+// Resource value schemas for the new model
+const numericalResourceValueSchema = z.object({
+  type: z.literal("numerical"),
+  value: z.number(),
 });
 
-export const resourceInstanceSchema = z.object({
-  definition: resourceDefinitionSchema,
-  current: z.int().min(0),
-  sortOrder: z.int().min(0),
-});
+const resourceValueSchema = numericalResourceValueSchema; // Extensible for future types
 
 export const characterConfigurationSchema = z.object({
   maxWounds: z.int().min(1),
@@ -289,109 +243,78 @@ export const proficienciesSchema = z.object({
   weapons: z.array(weaponProficiencySchema),
 });
 
-// Base schema for all selected features
-const baseSelectedFeatureSchema = z.object({
+// Base schema for all effect selections
+const baseEffectSelectionSchema = z.object({
   grantedByEffectId: z.string().min(1),
-  selectedAt: z.coerce.date(),
 });
 
-// Individual feature selection schemas
-const selectedPoolFeatureSchema = baseSelectedFeatureSchema.extend({
+// Individual effect selection schemas
+const poolFeatureEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("pool_feature"),
   poolId: z.string().min(1),
   featureId: z.string().min(1),
   feature: ClassFeatureSchema,
 });
 
-const selectedSpellSchoolSchema = baseSelectedFeatureSchema.extend({
+const spellSchoolEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("spell_school"),
   schoolId: z.string().min(1),
 });
 
-const selectedAttributeBoostSchema = baseSelectedFeatureSchema.extend({
+const attributeBoostEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("attribute_boost"),
   attribute: attributeNameSchema,
   amount: z.number().int().positive(),
 });
 
-const selectedUtilitySpellsSchema = baseSelectedFeatureSchema.extend({
+const utilitySpellsEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("utility_spells"),
   spellIds: z.array(z.string().min(1)),
   fromSchools: z.array(z.string().min(1)),
 });
 
-const selectedSubclassSchema = baseSelectedFeatureSchema.extend({
+const subclassEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("subclass"),
   subclassId: z.string().min(1),
 });
 
-// Union of all selected feature types
-const selectedFeatureSchema = z.discriminatedUnion("type", [
-  selectedPoolFeatureSchema,
-  selectedSpellSchoolSchema,
-  selectedAttributeBoostSchema,
-  selectedUtilitySpellsSchema,
-  selectedSubclassSchema,
+// Union of all effect selection types
+const effectSelectionSchema = z.discriminatedUnion("type", [
+  poolFeatureEffectSelectionSchema,
+  spellSchoolEffectSelectionSchema,
+  attributeBoostEffectSelectionSchema,
+  utilitySpellsEffectSelectionSchema,
+  subclassEffectSelectionSchema,
 ]);
-
-export const createCharacterSchema = z.object({
-  name: z.string().min(1).max(50),
-  ancestry: AncestryTraitSchema,
-  background: BackgroundTraitSchema,
-  level: z.int().min(1).max(20),
-  classId: z.string().min(1),
-  subclassId: z.string().optional(),
-  grantedFeatures: z.array(z.string()),
-  selectedFeatures: z.array(selectedFeatureSchema),
-  grantedEffects: z.array(FeatureEffectGrantSchema),
-  spellTierAccess: z.int().min(0).max(9),
-  proficiencies: proficienciesSchema,
-  _attributes: attributeSchema,
-  saveAdvantages: saveAdvantageMapSchema,
-  hitPoints: hitPointsSchema,
-  _hitDice: hitDiceSchema,
-  wounds: woundsSchema,
-  resources: z.array(resourceInstanceSchema),
-  config: characterConfigurationSchema,
-  _initiative: skillSchema,
-  speed: z.number().min(0),
-  actionTracker: actionTrackerSchema,
-  inEncounter: z.boolean(),
-  _skills: z.record(z.string(), skillSchema),
-  inventory: inventorySchema,
-  abilities: z.array(abilitySchema),
-});
 
 export const characterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(50),
-  ancestry: AncestryTraitSchema,
-  background: BackgroundTraitSchema,
+  ancestryId: z.string().min(1),
+  backgroundId: z.string().min(1),
   level: z.int().min(1).max(20),
   classId: z.string().min(1),
-  subclassId: z.string().optional(),
-  grantedFeatures: z.array(z.string()),
-  selectedFeatures: z.array(selectedFeatureSchema),
-  grantedEffects: z.array(FeatureEffectGrantSchema).default([]),
-  spellTierAccess: z.int().min(0).max(9),
-  proficiencies: proficienciesSchema,
+  effectSelections: z.array(effectSelectionSchema),
+  _spellTierAccess: z.int().min(0).max(9),
+  _proficiencies: proficienciesSchema,
   _attributes: attributeSchema,
+  _initiative: skillSchema,
+  _skills: z.record(z.string(), skillSchema),
+  _abilities: z.array(abilitySchema),
+  _abilityUses: z.map(z.string(), z.number()),
+  _hitDice: hitDiceSchema,
   saveAdvantages: saveAdvantageMapSchema,
   hitPoints: hitPointsSchema,
-  _hitDice: hitDiceSchema,
   wounds: woundsSchema,
-  resources: z.array(resourceInstanceSchema),
+  _resourceDefinitions: z.array(resourceDefinitionSchema),
+  _resourceValues: z.map(z.string(), resourceValueSchema),
   config: characterConfigurationSchema,
-  _initiative: skillSchema,
   speed: z.number().min(0),
   actionTracker: actionTrackerSchema,
   inEncounter: z.boolean(),
-  _skills: z.record(z.string(), skillSchema),
   inventory: inventorySchema,
-  abilities: z.array(abilitySchema),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export type ValidatedCharacter = z.infer<typeof characterSchema>;
-export type ValidatedCreateCharacterData = z.infer<typeof createCharacterSchema>;

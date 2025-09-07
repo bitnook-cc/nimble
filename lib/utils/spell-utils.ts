@@ -1,13 +1,15 @@
-import { ResourceCost, SpellAbility } from "@/lib/types/abilities";
-import { Character } from "@/lib/types/character";
+import { ResourceCost, SpellAbilityDefinition } from "@/lib/types/abilities";
+import { ResourceInstance } from "@/lib/types/resources";
 
 /**
  * Check if a character has enough resources to cast a spell
+ * @param resources - The character's current resources (from CharacterService.getResources())
+ * @param spell - The spell to check
  */
-export function hasEnoughResourcesForSpell(character: Character, spell: SpellAbility): boolean {
+export function hasEnoughResourcesForSpell(resources: ResourceInstance[], spell: SpellAbilityDefinition): boolean {
   if (!spell.resourceCost) return true;
 
-  const resource = character.resources.find(
+  const resource = resources.find(
     (r) => r.definition.id === spell.resourceCost!.resourceId,
   );
 
@@ -22,14 +24,16 @@ export function hasEnoughResourcesForSpell(character: Character, spell: SpellAbi
 
 /**
  * Get a message describing why a spell can't be cast due to insufficient resources
+ * @param resources - The character's current resources (from CharacterService.getResources())
+ * @param spell - The spell to check
  */
 export function getInsufficientResourceMessage(
-  character: Character,
-  spell: SpellAbility,
+  resources: ResourceInstance[],
+  spell: SpellAbilityDefinition,
 ): string | null {
   if (!spell.resourceCost) return null;
 
-  const resource = character.resources.find(
+  const resource = resources.find(
     (r) => r.definition.id === spell.resourceCost!.resourceId,
   );
 

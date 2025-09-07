@@ -1,4 +1,4 @@
-import { characterSchema, createCharacterSchema } from "../schemas/character";
+import { characterSchema } from "../schemas/character";
 import {
   ICharacterRepository,
   LocalStorageCharacterRepository,
@@ -11,8 +11,8 @@ export class CharacterStorageService {
 
   constructor(private repository: ICharacterRepository = new LocalStorageCharacterRepository()) {}
 
-  async createCharacter(data: CreateCharacterData, id?: string): Promise<Character> {
-    const validated = createCharacterSchema.parse(data);
+  async createCharacter(character: Character, id?: string): Promise<Character> {
+    const validated = characterSchema.parse(character);
     return this.repository.create(validated, id);
   }
 

@@ -9,7 +9,7 @@ import {
   SpellSchoolDefinitionSchema,
   SubclassDefinitionSchema,
 } from "../schemas/class";
-import { ActionAbility, SpellAbility } from "../types/abilities";
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
 import { AncestryDefinition } from "../types/ancestry";
 import { BackgroundDefinition } from "../types/background";
 import { ClassDefinition, SubclassDefinition } from "../types/class";
@@ -57,7 +57,7 @@ export class ContentValidationService {
 
   static validateActionAbility(data: unknown): {
     valid: boolean;
-    data?: ActionAbility;
+    data?: ActionAbilityDefinition;
     errors?: string[];
   } {
     try {
@@ -76,7 +76,7 @@ export class ContentValidationService {
 
   static validateSpellAbility(data: unknown): {
     valid: boolean;
-    data?: SpellAbility;
+    data?: SpellAbilityDefinition;
     errors?: string[];
   } {
     try {

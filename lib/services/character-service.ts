@@ -1,20 +1,35 @@
-import { Ability, ActionAbility, SpellAbility } from "../types/abilities";
+import {
+  AbilityDefinition,
+  ActionAbilityDefinition,
+  SpellAbilityDefinition,
+} from "../types/abilities";
 import {
   ActionTracker,
+  AttributeBoostEffectSelection,
   Attributes,
   Character,
   CharacterConfiguration,
+  CharacterFeature,
+  EffectSelection,
+  PoolFeatureEffectSelection,
   Skill,
   Skills,
+  SpellSchoolEffectSelection,
+  SubclassEffectSelection,
+  UtilitySpellsEffectSelection,
 } from "../types/character";
+import { ClassFeature } from "../types/class";
 import { DiceType } from "../types/dice";
-import { getValue } from "../types/flexible-value";
-import { Item } from "../types/inventory";
+import { FeatureEffect, StatBonusFeatureEffect } from "../types/feature-effects";
+import { calculateFlexibleValue } from "../types/flexible-value";
+import { ArmorItem, EquippableItem, Item, WeaponItem } from "../types/inventory";
+import { ResourceDefinition, ResourceInstance, ResourceValue } from "../types/resources";
 import { StatBonus } from "../types/stat-bonus";
 import { abilityService } from "./ability-service";
 import { activityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
 import { characterStorageService } from "./character-storage-service";
+import { ContentRepositoryService } from "./content-repository-service";
 import {
   IAbilityService,
   IActivityLog,
@@ -61,6 +76,41 @@ export class CharacterService implements ICharacterService {
     return this._character;
   }
 
+  getAllActiveFeatures(): CharacterFeature[] {
+    if (!this._character) return [];
+
+    const classService = getClassService();
+    const ancestryService = getAncestryService();
+    const backgroundService = getBackgroundService();
+
+    const features: CharacterFeature[] = [];
+
+    const classFeatures = classService.getExpectedFeaturesForCharacter(this._character);
+    for (const feature of classFeatures) {
+      features.push(feature);
+    }
+
+    const ancestryFeatures = ancestryService.getExpectedFeaturesForCharacter(this._character);
+    for (const feature of ancestryFeatures) {
+      features.push(feature);
+    }
+
+    const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(this._character);
+    for (const feature of backgroundFeatures) {
+      features.push(feature);
+    }
+
+    const selectedFeatures = this.getSelectedPoolFeatures();
+
+    const itemFeatures = this.getEquippedItems().flatMap((item) => item.features || []);
+
+    return [...features, ...selectedFeatures, ...itemFeatures];
+  }
+
+  getAllActiveEffects(): FeatureEffect[] {
+    return this.getAllActiveFeatures().flatMap((f) => f.effects);
+  }
+
   // Dynamic stat calculation methods
 
   /**
@@ -69,53 +119,475 @@ export class CharacterService implements ICharacterService {
   private getAllStatBonuses(): StatBonus[] {
     if (!this._character) return [];
 
-    const bonuses: StatBonus[] = [];
-    const classService = getClassService();
-    const ancestryService = getAncestryService();
-    const backgroundService = getBackgroundService();
-
-    // Get class feature stat bonuses
-    const classFeatures = classService.getAllGrantedFeatures(this._character);
-    for (const feature of classFeatures) {
-      for (const effect of feature.effects) {
-        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
-          bonuses.push((effect as any).statBonus);
+    return this.getAllActiveEffects()
+      .map((effect) => {
+        if (effect.type === "stat_bonus") {
+          return (effect as StatBonusFeatureEffect).statBonus;
         }
-      }
-    }
+        return null;
+      })
+      .filter((bonus): bonus is StatBonus => bonus !== null);
+  }
 
-    // Get ancestry feature stat bonuses
-    const ancestryFeatures = ancestryService.getAllGrantedFeatures(this._character);
-    for (const feature of ancestryFeatures) {
-      for (const effect of feature.effects) {
-        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
-          bonuses.push((effect as any).statBonus);
-        }
-      }
-    }
+  /**
+   * Get all equipped weapons from the character's inventory
+   */
+  private getEquippedWeapons(): WeaponItem[] {
+    if (!this._character) return [];
 
-    // Get background feature stat bonuses
-    const backgroundFeatures = backgroundService.getAllGrantedFeatures(this._character);
-    for (const feature of backgroundFeatures) {
-      for (const effect of feature.effects) {
-        if (effect.type === "stat_bonus" && (effect as any).statBonus) {
-          bonuses.push((effect as any).statBonus);
-        }
-      }
-    }
-
-    // Get equipped item stat bonuses
-    const equippedItems = this._character.inventory.items.filter(
-      (item) =>
-        (item.type === "weapon" && item.equipped) || (item.type === "armor" && item.equipped),
+    return this._character.inventory.items.filter(
+      (item): item is WeaponItem => item.type === "weapon" && item.equipped === true,
     );
-    for (const item of equippedItems) {
-      if (item.statBonus) {
-        bonuses.push(item.statBonus);
-      }
+  }
+
+  /**
+   * Get all equipped armor from the character's inventory
+   */
+  private getEquippedArmor(): ArmorItem[] {
+    if (!this._character) return [];
+
+    return this._character.inventory.items.filter(
+      (item): item is ArmorItem => item.type === "armor" && item.equipped === true,
+    );
+  }
+
+  /**
+   * Get all equipped items (weapons and armor) from the character's inventory
+   */
+  private getEquippedItems(): EquippableItem[] {
+    if (!this._character) return [];
+
+    return this._character.inventory.items.filter(
+      (item) => (item.type === "weapon" || item.type === "armor") && item.equipped === true,
+    );
+  }
+
+  /**
+   * Log ability usage to the activity log
+   */
+  private async logAbilityUsage(
+    ability: AbilityDefinition,
+    actionsUsed: number,
+    resourceAmount: number,
+  ): Promise<void> {
+    if (!this._character) return;
+
+    if (ability.type !== "action" && ability.type !== "spell") return;
+
+    // Log the ability usage - create different entries for spells vs actions
+    if (ability.type === "spell") {
+      const resourceCostInfo = ability.resourceCost
+        ? {
+            resourceId: ability.resourceCost.resourceId,
+            resourceName:
+              this.getResourceDefinitions().find(
+                (r) => r.id === ability.resourceCost!.resourceId,
+              )?.name || ability.resourceCost.resourceId,
+            amount: resourceAmount,
+          }
+        : undefined;
+
+      const spellLogEntry = this.logService.createSpellCastEntry(
+        ability.name,
+        ability.school,
+        ability.tier,
+        actionsUsed,
+        resourceCostInfo,
+      );
+      await this.logService.addLogEntry(spellLogEntry);
+    } else if (ability.type === "action") {
+      const currentUses = this._character._abilityUses.get(ability.id) || 0;
+      const maxUses = ability.maxUses
+        ? this.abilityService.calculateMaxUses(ability, this._character)
+        : 0;
+      const logEntry = this.logService.createAbilityUsageEntry(
+        ability.name,
+        ability.frequency,
+        currentUses,
+        maxUses,
+      );
+      await this.logService.addLogEntry(logEntry);
     }
 
-    return bonuses;
+    // Handle ability roll if it has one
+    if (ability.roll) {
+      const roll = ability.roll;
+      const totalModifier = this.abilityService.calculateAbilityRollModifier(roll, this._character);
+
+      // Use the dice service to perform the roll
+      const diceService = getDiceService();
+      const diceString = `${roll.dice.count}d${roll.dice.sides}`;
+      const rollResult = diceService.rollAttack(diceString, totalModifier, 0);
+      const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? "+" : "") + totalModifier : ""}`;
+      const rollLogEntry = this.logService.createDiceRollEntry(
+        rollResult.dice,
+        rollResult.droppedDice,
+        totalModifier,
+        rollResult.total,
+        `${ability.name} ability roll`,
+        rollExpression,
+        0, // No advantage for ability rolls by default
+      );
+      await this.logService.addLogEntry(rollLogEntry);
+    }
+  }
+
+  /**
+   * Get all spell schools available to the character
+   * Includes both directly granted schools and selected schools
+   */
+  getSpellSchools(): string[] {
+    if (!this._character) return [];
+    
+    const schools = new Set<string>();
+    
+    // Get schools from direct spell_school effects
+    const schoolEffects = this.getAllActiveEffects()
+      .filter((effect) => effect.type === "spell_school");
+    
+    for (const effect of schoolEffects) {
+      const schoolEffect = effect as any;
+      if (schoolEffect.schoolId) {
+        schools.add(schoolEffect.schoolId);
+      }
+    }
+    
+    // Get schools from spell_school selections
+    const selectedSchools = this.getSelectedSpellSchoolIds();
+    for (const schoolId of selectedSchools) {
+      schools.add(schoolId);
+    }
+    
+    return Array.from(schools);
+  }
+
+  /**
+   * Get all spells available from the character's spell schools
+   */
+  private getSpellsFromSchools(): AbilityDefinition[] {
+    const schools = this.getSpellSchools();
+    const maxTier = this.getSpellTierAccess();
+    
+    if (schools.length === 0 || maxTier === 0) return [];
+    
+    const contentRepository = ContentRepositoryService.getInstance();
+    const allSpells: AbilityDefinition[] = [];
+    
+    for (const schoolId of schools) {
+      const spells = contentRepository.getSpellsBySchool(schoolId);
+      if (spells) {
+        // Filter spells by tier access
+        const accessibleSpells = spells.filter(
+          (spell: any) => spell.tier <= maxTier
+        );
+        allSpells.push(...accessibleSpells);
+      }
+    }
+    
+    return allSpells;
+  }
+
+  /**
+   * Get all abilities including spells from all sources
+   */
+  getAbilities(): AbilityDefinition[] {
+    if (!this._character) return [];
+    
+    const abilities: AbilityDefinition[] = [];
+    
+    // 1. Get abilities from effects (non-spell abilities)
+    const effectAbilities = this.getAllActiveEffects()
+      .filter((effect) => effect.type === "ability")
+      .map((effect) => (effect as any).ability)
+      .filter((ability: any) => ability && ability.type !== "spell");
+    
+    abilities.push(...effectAbilities);
+    
+    // 2. Get base abilities from character (includes directly granted spells)
+    abilities.push(...(this._character._abilities || []));
+    
+    // 3. Get spells from spell schools
+    const schoolSpells = this.getSpellsFromSchools();
+    abilities.push(...schoolSpells);
+    
+    // 4. Get selected utility spells
+    const utilitySpellIds = this.getSelectedUtilitySpellIds();
+    const contentRepository = ContentRepositoryService.getInstance();
+    
+    for (const spellId of utilitySpellIds) {
+      // Utility spells would need to be looked up by ID
+      // This would require ContentRepository to have a getSpellById method
+      // For now, we'll need to search through all schools
+      const allSchools = contentRepository.getAllSpellSchools();
+      for (const school of allSchools) {
+        const spells = contentRepository.getSpellsBySchool(school.id);
+        const spell = spells?.find((s: any) => s.id === spellId);
+        if (spell) {
+          abilities.push(spell);
+          break;
+        }
+      }
+    }
+    
+    // Remove duplicates (in case same spell comes from multiple sources)
+    const uniqueAbilities = new Map<string, AbilityDefinition>();
+    for (const ability of abilities) {
+      if (ability.id && !uniqueAbilities.has(ability.id)) {
+        uniqueAbilities.set(ability.id, ability);
+      }
+    }
+    
+    return Array.from(uniqueAbilities.values());
+  }
+
+  /**
+   * Get the maximum spell tier access based on effects
+   */
+  getSpellTierAccess(): number {
+    if (!this._character) return 0;
+    
+    // Start with base spell tier access
+    let maxTier = this._character._spellTierAccess || 0;
+    
+    // Check for spell tier access effects
+    const tierEffects = this.getAllActiveEffects()
+      .filter((effect) => effect.type === "spell_tier_access");
+    
+    for (const effect of tierEffects) {
+      const tierEffect = effect as any;
+      if (tierEffect.maxTier > maxTier) {
+        maxTier = tierEffect.maxTier;
+      }
+    }
+    
+    return maxTier;
+  }
+
+  /**
+   * Get the character's ancestry definition
+   */
+  getAncestry() {
+    if (!this._character) return null;
+    const ancestryService = getAncestryService();
+    return ancestryService.getCharacterAncestry(this._character);
+  }
+
+  /**
+   * Get the character's background definition
+   */
+  getBackground() {
+    if (!this._character) return null;
+    const backgroundService = getBackgroundService();
+    return backgroundService.getCharacterBackground(this._character);
+  }
+
+  /**
+   * Get all proficiencies including those from effects
+   */
+  getProficiencies() {
+    if (!this._character) return { armor: [], weapons: [] };
+    
+    // Start with base proficiencies
+    const proficiencies = {
+      armor: [...this._character._proficiencies.armor],
+      weapons: [...this._character._proficiencies.weapons]
+    };
+    
+    // Add proficiencies from effects
+    const profEffects = this.getAllActiveEffects()
+      .filter((effect) => effect.type === "proficiency");
+    
+    // Would need to implement merging logic for proficiency effects
+    // For now, just return base proficiencies
+    return proficiencies;
+  }
+
+  /**
+   * Get all features that were selected from pools
+   */
+  getSelectedFeatures() {
+    return this.getSelectedPoolFeatures();
+  }
+
+  /**
+   * Get all resource definitions available to the character
+   * Includes both directly granted resources and resources from effects
+   */
+  getResourceDefinitions(): ResourceDefinition[] {
+    if (!this._character) return [];
+    
+    const resources = new Map<string, ResourceDefinition>();
+    
+    // 1. Add base resource definitions from character
+    for (const resource of this._character._resourceDefinitions || []) {
+      resources.set(resource.id, resource);
+    }
+    
+    // 2. Add resources from effects
+    const resourceEffects = this.getAllActiveEffects()
+      .filter((effect) => effect.type === "resource");
+    
+    for (const effect of resourceEffects) {
+      if (effect.resourceDefinition) {
+        // Effects override base resources if they have the same ID
+        resources.set(effect.resourceDefinition.id, effect.resourceDefinition);
+      }
+    }
+    
+    return Array.from(resources.values());
+  }
+
+  /**
+   * Get all resources as ResourceInstance objects with current values
+   * This creates ResourceInstance objects on the fly based on definitions and stored values
+   */
+  getResources(): ResourceInstance[] {
+    if (!this._character) return [];
+    
+    const definitions = this.getResourceDefinitions();
+    const instances: ResourceInstance[] = [];
+    
+    for (let i = 0; i < definitions.length; i++) {
+      const definition = definitions[i];
+      // Use getResourceValue to get the current value with proper fallback logic
+      const currentValue = this.getResourceValue(definition.id);
+      
+      instances.push({
+        definition,
+        current: currentValue,
+        sortOrder: i + 1
+      });
+    }
+    
+    return instances;
+  }
+
+  /**
+   * Get the current value of a specific resource
+   * Falls back to the resource's reset value if no value is stored
+   */
+  getResourceValue(resourceId: string): number {
+    if (!this._character) return 0;
+    
+    // Check if we have a stored value
+    const storedValue = this._character._resourceValues?.get(resourceId);
+    if (storedValue !== undefined) {
+      return resourceService.getNumericalValue(storedValue);
+    }
+    
+    // No stored value - get the default from the resource definition
+    const definition = this.getResourceDefinitions().find(d => d.id === resourceId);
+    if (!definition) return 0;
+    
+    // Get the initial value for this resource
+    return resourceService.calculateInitialValue(definition, this._character);
+  }
+
+  /**
+   * Set the current value of a specific resource
+   */
+  async setResourceValue(resourceId: string, value: number): Promise<void> {
+    if (!this._character) return;
+    
+    // Get the resource definition
+    const definitions = this.getResourceDefinitions();
+    const definition = definitions.find(d => d.id === resourceId);
+    
+    if (!definition) {
+      console.warn(`Resource ${resourceId} not found on character`);
+      return;
+    }
+    
+    // Use ResourceService to update the value
+    this._character._resourceValues = resourceService.updateResourceValue(
+      resourceId,
+      value,
+      definition,
+      this._character._resourceValues || new Map(),
+      this._character
+    );
+    
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Get the selected subclass ID from effect selections
+   */
+  getSubclassId(): string | null {
+    if (!this._character) return null;
+    
+    const subclassSelection = this._character.effectSelections.find(
+      (selection): selection is SubclassEffectSelection => selection.type === "subclass"
+    );
+    
+    return subclassSelection?.subclassId || null;
+  }
+
+  /**
+   * Get all selected pool features (actual ClassFeature objects) from effect selections
+   */
+  private getSelectedPoolFeatures(): ClassFeature[] {
+    if (!this._character) return [];
+    
+    const poolSelections = this._character.effectSelections.filter(
+      (selection): selection is PoolFeatureEffectSelection => selection.type === "pool_feature"
+    );
+    
+    return poolSelections.map(selection => selection.feature);
+  }
+
+  /**
+   * Get all selected spell school IDs from effect selections
+   */
+  getSelectedSpellSchoolIds(): string[] {
+    if (!this._character) return [];
+    
+    const spellSchoolSelections = this._character.effectSelections.filter(
+      (selection): selection is SpellSchoolEffectSelection => selection.type === "spell_school"
+    );
+    
+    return spellSchoolSelections.map(selection => selection.schoolId);
+  }
+
+  /**
+   * Get the sum of all selected attribute boosts as a single Attributes object
+   */
+  getSelectedAttributeBoostsTotal(): Attributes {
+    if (!this._character) {
+      return { strength: 0, dexterity: 0, intelligence: 0, will: 0 };
+    }
+    
+    const attributeBoosts = this._character.effectSelections.filter(
+      (selection): selection is AttributeBoostEffectSelection => selection.type === "attribute_boost"
+    );
+    
+    const result: Attributes = {
+      strength: 0,
+      dexterity: 0,
+      intelligence: 0,
+      will: 0
+    };
+    
+    for (const boost of attributeBoosts) {
+      result[boost.attribute] += boost.amount;
+    }
+    
+    return result;
+  }
+
+  /**
+   * Get all selected utility spell IDs from effect selections
+   */
+  getSelectedUtilitySpellIds(): string[] {
+    if (!this._character) return [];
+    
+    const utilitySpellSelections = this._character.effectSelections.filter(
+      (selection): selection is UtilitySpellsEffectSelection => selection.type === "utility_spells"
+    );
+    
+    // Flatten all spell IDs from all utility spell selections
+    return utilitySpellSelections.flatMap(selection => selection.spellIds);
   }
 
   /**
@@ -127,27 +599,32 @@ export class CharacterService implements ICharacterService {
     const baseAttributes = this._character._attributes;
     const bonuses = this.getAllStatBonuses();
 
+    const selectedBoosts = this.getSelectedAttributeBoostsTotal();
+
     const result: Attributes = {
-      strength: baseAttributes.strength,
-      dexterity: baseAttributes.dexterity,
-      intelligence: baseAttributes.intelligence,
-      will: baseAttributes.will,
+      strength: baseAttributes.strength + selectedBoosts.strength,
+      dexterity: baseAttributes.dexterity + selectedBoosts.dexterity,
+      intelligence: baseAttributes.intelligence + selectedBoosts.intelligence,
+      will: baseAttributes.will + selectedBoosts.will,
     };
 
     // Apply stat bonuses
     for (const bonus of bonuses) {
       if (bonus.attributes) {
         if (bonus.attributes.strength) {
-          result.strength += getValue(bonus.attributes.strength, this._character);
+          result.strength += calculateFlexibleValue(bonus.attributes.strength, this._character);
         }
         if (bonus.attributes.dexterity) {
-          result.dexterity += getValue(bonus.attributes.dexterity, this._character);
+          result.dexterity += calculateFlexibleValue(bonus.attributes.dexterity, this._character);
         }
         if (bonus.attributes.intelligence) {
-          result.intelligence += getValue(bonus.attributes.intelligence, this._character);
+          result.intelligence += calculateFlexibleValue(
+            bonus.attributes.intelligence,
+            this._character,
+          );
         }
         if (bonus.attributes.will) {
-          result.will += getValue(bonus.attributes.will, this._character);
+          result.will += calculateFlexibleValue(bonus.attributes.will, this._character);
         }
       }
     }
@@ -175,7 +652,7 @@ export class CharacterService implements ICharacterService {
       if (bonus.skillBonuses) {
         for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
           if (result[skillName]) {
-            result[skillName].modifier += getValue(skillBonus, this._character);
+            result[skillName].modifier += calculateFlexibleValue(skillBonus, this._character);
           }
         }
       }
@@ -206,7 +683,7 @@ export class CharacterService implements ICharacterService {
     // Apply initiative bonuses
     for (const bonus of bonuses) {
       if (bonus.initiativeBonus) {
-        result.modifier += getValue(bonus.initiativeBonus, this._character);
+        result.modifier += calculateFlexibleValue(bonus.initiativeBonus, this._character);
       }
     }
 
@@ -227,7 +704,7 @@ export class CharacterService implements ICharacterService {
     // Apply hit dice bonuses
     for (const bonus of bonuses) {
       if (bonus.hitDiceBonus) {
-        result.max += getValue(bonus.hitDiceBonus, this._character);
+        result.max += calculateFlexibleValue(bonus.hitDiceBonus, this._character);
       }
     }
 
@@ -248,7 +725,7 @@ export class CharacterService implements ICharacterService {
     // Apply max wounds bonuses
     for (const bonus of bonuses) {
       if (bonus.maxWoundsBonus) {
-        result += getValue(bonus.maxWoundsBonus, this._character);
+        result += calculateFlexibleValue(bonus.maxWoundsBonus, this._character);
       }
     }
 
@@ -268,12 +745,10 @@ export class CharacterService implements ICharacterService {
     let armorValue = attributes.dexterity;
 
     // Add armor bonuses from equipped armor items
-    const equippedArmor = this._character.inventory.items.filter(
-      (item) => item.type === "armor" && item.equipped,
-    );
+    const equippedArmor = this.getEquippedArmor();
 
     for (const armor of equippedArmor) {
-      if (armor.type === "armor" && armor.armor) {
+      if (armor.armor) {
         armorValue += armor.armor;
 
         // Apply max dex bonus restriction if this is main armor
@@ -290,7 +765,7 @@ export class CharacterService implements ICharacterService {
     // Apply additional armor bonuses from features
     for (const bonus of bonuses) {
       if (bonus.armorBonus) {
-        armorValue += getValue(bonus.armorBonus, this._character);
+        armorValue += calculateFlexibleValue(bonus.armorBonus, this._character);
       }
     }
 
@@ -303,10 +778,10 @@ export class CharacterService implements ICharacterService {
   getResourceMaxValue(resourceId: string): number {
     if (!this._character) throw new Error("No character loaded");
 
-    const resource = this._character.resources.find((r) => r.definition.id === resourceId);
+    const resource = this.getResourceDefinitions().find((r) => r.id === resourceId);
     if (!resource) return 0;
 
-    const baseMax = getValue(resource.definition.maxValue, this._character);
+    const baseMax = calculateFlexibleValue(resource.maxValue, this._character);
     const bonuses = this.getAllStatBonuses();
 
     let result = baseMax;
@@ -314,7 +789,7 @@ export class CharacterService implements ICharacterService {
     // Apply resource max bonuses
     for (const bonus of bonuses) {
       if (bonus.resourceMaxBonuses && bonus.resourceMaxBonuses[resourceId]) {
-        result += getValue(bonus.resourceMaxBonuses[resourceId], this._character);
+        result += calculateFlexibleValue(bonus.resourceMaxBonuses[resourceId], this._character);
       }
     }
 
@@ -327,10 +802,10 @@ export class CharacterService implements ICharacterService {
   getResourceMinValue(resourceId: string): number {
     if (!this._character) throw new Error("No character loaded");
 
-    const resource = this._character.resources.find((r) => r.definition.id === resourceId);
+    const resource = this.getResourceDefinitions().find((r) => r.id === resourceId);
     if (!resource) return 0;
 
-    const baseMin = getValue(resource.definition.minValue, this._character);
+    const baseMin = calculateFlexibleValue(resource.minValue, this._character);
     const bonuses = this.getAllStatBonuses();
 
     let result = baseMin;
@@ -338,7 +813,7 @@ export class CharacterService implements ICharacterService {
     // Apply resource min bonuses
     for (const bonus of bonuses) {
       if (bonus.resourceMinBonuses && bonus.resourceMinBonuses[resourceId]) {
-        result += getValue(bonus.resourceMinBonuses[resourceId], this._character);
+        result += calculateFlexibleValue(bonus.resourceMinBonuses[resourceId], this._character);
       }
     }
 
@@ -359,7 +834,7 @@ export class CharacterService implements ICharacterService {
     // Apply speed bonuses
     for (const bonus of bonuses) {
       if (bonus.speedBonus) {
-        result += getValue(bonus.speedBonus, this._character);
+        result += calculateFlexibleValue(bonus.speedBonus, this._character);
       }
     }
 
@@ -419,9 +894,6 @@ export class CharacterService implements ICharacterService {
       const newSettings = { ...settings, activeCharacterId: characterId };
       await settingsService.saveSettings(newSettings);
 
-      // Sync any missing features
-      await this.syncCharacterFeatures();
-
       this.notifyCharacterChanged();
     }
     return character;
@@ -435,32 +907,6 @@ export class CharacterService implements ICharacterService {
         characterId: this.character.id,
         character: this.character,
       });
-    }
-  }
-
-  /**
-   * Sync all character features (class, ancestry, background)
-   */
-  private async syncCharacterFeatures(): Promise<void> {
-    if (!this._character) return;
-
-    const classService = getClassService();
-    const ancestryService = getAncestryService();
-    const backgroundService = getBackgroundService();
-
-    // Sync class features
-    await classService.syncCharacterFeatures();
-
-    // Sync ancestry features
-    await ancestryService.grantAncestryFeatures(this._character.id);
-
-    // Sync background features
-    await backgroundService.grantBackgroundFeatures(this._character.id);
-
-    // Reload character to get updated features
-    const updatedCharacter = await this.storageService.getCharacter(this._character.id);
-    if (updatedCharacter) {
-      this._character = updatedCharacter;
     }
   }
 
@@ -638,12 +1084,12 @@ export class CharacterService implements ICharacterService {
   /**
    * Update abilities
    */
-  async updateAbilities(abilities: Ability[]): Promise<void> {
+  async updateAbilities(abilities: AbilityDefinition[]): Promise<void> {
     if (!this._character) return;
 
     this._character = {
       ...this._character,
-      abilities,
+      _abilities: abilities,
     };
 
     await this.saveCharacter();
@@ -656,36 +1102,28 @@ export class CharacterService implements ICharacterService {
   async performSafeRest(): Promise<void> {
     if (!this._character) return;
 
+    const abilities = this.getAbilities();
+
     // Reset all abilities (safe rest resets everything)
-    let resetAbilities = this.abilityService.resetAbilities(
-      this._character.abilities,
-      "per_turn",
-      this._character,
-    );
-    resetAbilities = this.abilityService.resetAbilities(
-      resetAbilities,
-      "per_encounter",
-      this._character,
-    );
-    resetAbilities = this.abilityService.resetAbilities(
-      resetAbilities,
-      "per_safe_rest",
-      this._character,
-    );
+    const resetAbilities = new Map([
+      ...this.abilityService.resetAbilities(abilities, "per_turn", this._character),
+      ...this.abilityService.resetAbilities(abilities, "per_encounter", this._character),
+      ...this.abilityService.resetAbilities(abilities, "per_safe_rest", this._character),
+    ]);
 
     // Reset resources that reset on safe rest
-    const resourceEntries = resourceService.resetResourcesByCondition(this._character, "safe_rest");
+    const resourceDefinitions = this.getResourceDefinitions();
+    const newResourceValues = resourceService.resetResourcesByCondition(
+      resourceDefinitions,
+      this._character._resourceValues || new Map(),
+      this._character,
+      "safe_rest"
+    );
 
     // Calculate what was restored for logging
     const healingAmount = this._character.hitPoints.max - this._character.hitPoints.current;
     const hitDiceRestored = this._character._hitDice.max - this._character._hitDice.current;
     const woundsRemoved = this._character.wounds.current > 0 ? 1 : 0;
-    const abilitiesReset = this._character.abilities.filter(
-      (ability) =>
-        ability.type === "action" &&
-        ability.frequency !== "at_will" &&
-        ability.currentUses !== ability.maxUses,
-    ).length;
 
     // Update character with full restoration
     this._character = {
@@ -703,7 +1141,8 @@ export class CharacterService implements ICharacterService {
         ...this._character.wounds,
         current: Math.max(0, this._character.wounds.current - 1), // Remove one wound
       },
-      abilities: resetAbilities,
+      _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
+      _resourceValues: newResourceValues,
       inEncounter: false, // Safe rest ends any encounter
       actionTracker: {
         ...this._character.actionTracker,
@@ -721,15 +1160,9 @@ export class CharacterService implements ICharacterService {
         healingAmount,
         hitDiceRestored,
         woundsRemoved,
-        abilitiesReset,
+        resetAbilities.size,
       ),
     );
-
-    // Log resource resets
-    for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
-      await this.logService.addLogEntry(logEntry);
-    }
   }
 
   /**
@@ -851,22 +1284,21 @@ export class CharacterService implements ICharacterService {
   async endEncounter(): Promise<void> {
     if (!this._character) return;
 
+    const abilities = this.getAbilities();
+
     // Reset both per-encounter and per-turn abilities when encounter ends
-    let resetAbilities = this.abilityService.resetAbilities(
-      this._character.abilities,
-      "per_encounter",
-      this._character,
-    );
-    resetAbilities = this.abilityService.resetAbilities(
-      resetAbilities,
-      "per_turn",
-      this._character,
-    );
+    const resetAbilities = new Map([
+      ...this.abilityService.resetAbilities(abilities, "per_turn", this._character),
+      ...this.abilityService.resetAbilities(abilities, "per_encounter", this._character),
+    ]);
 
     // Reset resources that reset on encounter end
-    const resourceEntries = resourceService.resetResourcesByCondition(
+    const resourceDefinitions = this.getResourceDefinitions();
+    const newResourceValues = resourceService.resetResourcesByCondition(
+      resourceDefinitions,
+      this._character._resourceValues || new Map(),
       this._character,
-      "encounter_end",
+      "encounter_end"
     );
 
     this._character = {
@@ -877,17 +1309,12 @@ export class CharacterService implements ICharacterService {
         current: this._character.actionTracker.base,
         bonus: 0,
       },
-      abilities: resetAbilities,
+      _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
+      _resourceValues: newResourceValues,
     };
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
-
-    // Log resource resets
-    for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
-      await this.logService.addLogEntry(logEntry);
-    }
   }
 
   /**
@@ -930,13 +1357,19 @@ export class CharacterService implements ICharacterService {
 
     // Reset per-turn abilities
     const resetAbilities = this.abilityService.resetAbilities(
-      this._character.abilities,
+      this.getAbilities(),
       "per_turn",
       this._character,
     );
 
     // Reset resources that reset on turn end
-    const resourceEntries = resourceService.resetResourcesByCondition(this._character, "turn_end");
+    const resourceDefinitions = this.getResourceDefinitions();
+    const newResourceValues = resourceService.resetResourcesByCondition(
+      resourceDefinitions,
+      this._character._resourceValues || new Map(),
+      this._character,
+      "turn_end"
+    );
 
     this._character = {
       ...this._character,
@@ -945,17 +1378,12 @@ export class CharacterService implements ICharacterService {
         current: this._character.actionTracker.base,
         bonus: 0,
       },
-      abilities: resetAbilities,
+      _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
+      _resourceValues: newResourceValues,
     };
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
-
-    // Log resource resets
-    for (const entry of resourceEntries) {
-      const logEntry = resourceService.createResourceLogEntry(entry, this._character!);
-      await this.logService.addLogEntry(logEntry);
-    }
   }
 
   /**
@@ -1021,35 +1449,26 @@ export class CharacterService implements ICharacterService {
   async performUseAbility(abilityId: string, variableResourceAmount?: number): Promise<void> {
     if (!this._character) return;
 
+    const ability = this.getAbilities().find((a) => a.id === abilityId);
+
+    if (!ability || (ability.type !== "action" && ability.type !== "spell")) {
+      console.error(`Ability ${abilityId} not found or not usable`);
+      return;
+    }
+
     try {
-      const result = this.abilityService.useAbility(
-        this._character.abilities,
-        abilityId,
-        this._character.actionTracker.current,
-        this._character.inEncounter,
-        this._character.resources,
+      const canUseAbility = this.abilityService.checkCanUseAbility(
+        ability,
+        this._character,
         variableResourceAmount,
       );
 
-      if (!result.success || !result.usedAbility) {
-        if (
-          result.actionsRequired &&
-          this._character.inEncounter &&
-          this._character.actionTracker.current < result.actionsRequired
-        ) {
-          console.error(
-            `Failed to use ability: not enough actions (need ${result.actionsRequired}, have ${this._character.actionTracker.current})`,
-          );
-        } else if (result.insufficientResource) {
-          console.error(`Failed to use ability: insufficient ${result.insufficientResource}`);
-        } else {
-          console.error("Failed to use ability: ability not found or no uses remaining");
-        }
+      if (!canUseAbility) {
         return;
       }
 
       // Update character with new abilities state and deduct actions if needed
-      const actionsToDeduct = result.actionsRequired || 0;
+      const actionsToDeduct = ability.actionCost || 0;
       const updatedActionTracker =
         this._character.inEncounter && actionsToDeduct > 0
           ? {
@@ -1059,89 +1478,28 @@ export class CharacterService implements ICharacterService {
           : this._character.actionTracker;
 
       // Update resources if the ability consumed any
-      let updatedResources = this._character.resources;
-      if (result.resourceCost) {
-        updatedResources = this._character.resources.map((resource) => {
-          if (resource.definition.id === result.resourceCost!.resourceId) {
-            return {
-              ...resource,
-              current: resource.current - result.resourceCost!.amount,
-            };
-          }
-          return resource;
-        });
+      const resourceAmountUsed = abilityService.getResourceCostAmount(
+        ability,
+        variableResourceAmount,
+      );
+      if (resourceAmountUsed > 0 && ability.resourceCost) {
+        const currentValue = this.getResourceValue(ability.resourceCost.resourceId);
+        await this.setResourceValue(ability.resourceCost.resourceId, currentValue - resourceAmountUsed);
       }
+
+      const currentUses = this._character._abilityUses.get(ability.id) || 0;
 
       this._character = {
         ...this._character,
-        abilities: result.updatedAbilities,
         actionTracker: updatedActionTracker,
-        resources: updatedResources,
+        _abilityUses: new Map([...this._character._abilityUses, [ability.id, currentUses + 1]]),
       };
 
       await this.saveCharacter();
       this.notifyCharacterChanged();
 
-      // Log the ability usage - create different entries for spells vs actions
-      if (result.usedAbility.type === "spell") {
-        const spellAbility = result.usedAbility as SpellAbility;
-        const resourceCostInfo = result.resourceCost
-          ? {
-              resourceId: result.resourceCost.resourceId,
-              resourceName:
-                this._character.resources.find(
-                  (r) => r.definition.id === result.resourceCost!.resourceId,
-                )?.definition.name || result.resourceCost.resourceId,
-              amount: result.resourceCost.amount,
-            }
-          : undefined;
-
-        const spellLogEntry = this.logService.createSpellCastEntry(
-          spellAbility.name,
-          spellAbility.school,
-          spellAbility.tier,
-          result.actionsRequired || 0,
-          resourceCostInfo,
-        );
-        await this.logService.addLogEntry(spellLogEntry);
-      } else {
-        const actionAbility = result.usedAbility as ActionAbility;
-        const maxUses = actionAbility.maxUses
-          ? this.abilityService.calculateMaxUses(actionAbility, this._character!)
-          : 0;
-        const logEntry = this.logService.createAbilityUsageEntry(
-          actionAbility.name,
-          actionAbility.frequency,
-          actionAbility.currentUses || 0,
-          maxUses,
-        );
-        await this.logService.addLogEntry(logEntry);
-      }
-
-      // Handle ability roll if it has one
-      if (result.usedAbility.roll) {
-        const roll = result.usedAbility.roll;
-        const totalModifier = this.abilityService.calculateAbilityRollModifier(
-          roll,
-          this._character,
-        );
-
-        // Use the dice service to perform the roll
-        const diceService = getDiceService();
-        const diceString = `${roll.dice.count}d${roll.dice.sides}`;
-        const rollResult = diceService.rollAttack(diceString, totalModifier, 0);
-        const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? "+" : "") + totalModifier : ""}`;
-        const rollLogEntry = this.logService.createDiceRollEntry(
-          rollResult.dice,
-          rollResult.droppedDice,
-          totalModifier,
-          rollResult.total,
-          `${result.usedAbility.name} ability roll`,
-          rollExpression,
-          0, // No advantage for ability rolls by default
-        );
-        await this.logService.addLogEntry(rollLogEntry);
-      }
+      // Log the ability usage
+      await this.logAbilityUsage(ability, actionsToDeduct, resourceAmountUsed);
     } catch (error) {
       console.error("Failed to use ability:", error);
     }
@@ -1168,18 +1526,6 @@ export class CharacterService implements ICharacterService {
           ...updatedCharacter.inventory,
           maxSize: 10 + newStrength,
         },
-      };
-    }
-
-    // If attributes or level changed, recalculate formula-based ability uses
-    if (updates._attributes || updates.level) {
-      const recalculatedAbilities = this.abilityService.recalculateAbilityUses(
-        updatedCharacter.abilities,
-        updatedCharacter,
-      );
-      updatedCharacter = {
-        ...updatedCharacter,
-        abilities: recalculatedAbilities,
       };
     }
 

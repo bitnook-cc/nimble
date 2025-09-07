@@ -3,7 +3,7 @@ import { PDFDocument, PDFForm } from "pdf-lib";
 import { Character, SaveAdvantageMap, SaveAdvantageType } from "../types/character";
 import { ContentRepositoryService } from "./content-repository-service";
 import { ICharacterService } from "./interfaces";
-import { getAncestryService, getBackgroundService, getClassService } from "./service-factory";
+import { getAncestryService, getBackgroundService, getCharacterService, getClassService } from "./service-factory";
 
 export interface PDFExportOptions {
   template: "full-page" | "half-page";
@@ -68,12 +68,13 @@ export class PDFExportService {
       // Get character data
       const contentRepository = ContentRepositoryService.getInstance();
       const characterClass = contentRepository.getClassDefinition(character.classId);
-      const subclass = character.subclassId
-        ? contentRepository.getSubclassDefinition(character.subclassId)
+      const subclassId = characterService.getSubclassId();
+      const subclass = subclassId
+        ? contentRepository.getSubclassDefinition(subclassId)
         : null;
-      const ancestry = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
+      const ancestry = contentRepository.getAncestryDefinition(character.ancestryId);
       const background = contentRepository.getBackgroundDefinition(
-        character.background.backgroundId,
+        character.backgroundId,
       );
       const attributes = characterService.getAttributes();
       const skills = characterService.getSkills();
@@ -87,7 +88,7 @@ export class PDFExportService {
       this.setTextField(form, "Character Name", character.name);
 
       // Ancestry, Class, Level - using combined field
-      const ancestryClassLevel = `${ancestry?.name || character.ancestry.ancestryId}, ${characterClass?.name || character.classId}, Level ${character.level}`;
+      const ancestryClassLevel = `${ancestry?.name || character.ancestryId}, ${characterClass?.name || character.classId}, Level ${character.level}`;
       this.setTextField(form, "Ancestry, Class, Level", ancestryClassLevel);
 
       // Character Features - populate the body columns
@@ -236,12 +237,13 @@ export class PDFExportService {
     const classService = getClassService();
     const ancestryService = getAncestryService();
     const backgroundService = getBackgroundService();
+    const characterService = getCharacterService();
 
     const allFeatures: string[] = [];
 
     // Get class features
     try {
-      const classFeatures = classService.getAllGrantedFeatures(character);
+      const classFeatures = classService.getExpectedFeaturesForCharacter(character);
       classFeatures.forEach((feature) => {
         allFeatures.push(`${feature.name}: ${feature.description || "Class feature"}`);
       });
@@ -251,7 +253,7 @@ export class PDFExportService {
 
     // Get ancestry features
     try {
-      const ancestryFeatures = ancestryService.getAllGrantedFeatures(character);
+      const ancestryFeatures = ancestryService.getExpectedFeaturesForCharacter(character);
       ancestryFeatures.forEach((feature) => {
         allFeatures.push(`${feature.name}: ${feature.description || "Ancestry feature"}`);
       });
@@ -261,7 +263,7 @@ export class PDFExportService {
 
     // Get background features
     try {
-      const backgroundFeatures = backgroundService.getAllGrantedFeatures(character);
+      const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(character);
       backgroundFeatures.forEach((feature) => {
         allFeatures.push(`${feature.name}: ${feature.description || "Background feature"}`);
       });
@@ -270,7 +272,7 @@ export class PDFExportService {
     }
 
     // Add character abilities (non-spell abilities)
-    character.abilities.forEach((ability) => {
+    characterService.getAbilities().forEach((ability) => {
       if (ability.type === "action" || ability.type === "freeform") {
         allFeatures.push(`${ability.name}: ${ability.description || "Character ability"}`);
       }

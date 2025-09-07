@@ -122,7 +122,7 @@ const ProficiencyFeatureEffectSchema = BaseFeatureEffectSchema.extend({
 
 const SpellSchoolFeatureEffectSchema = BaseFeatureEffectSchema.extend({
   type: z.literal("spell_school"),
-  spellSchool: SpellSchoolSchema,
+  schoolId: z.string().min(1),
 });
 
 const SpellSchoolChoiceFeatureEffectSchema = BaseFeatureEffectSchema.extend({

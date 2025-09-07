@@ -1,300 +1,215 @@
 import { Character } from "../types/character";
-import { getValue as getFlexibleValue } from "../types/flexible-value";
-import { ResourceUsageEntry } from "../types/log-entries";
-import { ResourceDefinition, ResourceInstance, ResourceResetCondition } from "../types/resources";
+import { calculateFlexibleValue } from "../types/flexible-value";
+import { 
+  ResourceDefinition, 
+  ResourceResetCondition,
+  ResourceValue,
+  NumericalResourceValue 
+} from "../types/resources";
 
 /**
- * Resource Service
- * Manages character resources (mana, fury, focus, etc.)
- * Resources are now stored directly on the character with their complete definition.
+ * Resource Service - Handles resource calculations and manipulations
+ * Works with the new dynamic resource model where definitions and values are separate
+ * Returns new maps instead of mutating existing ones
  */
 export class ResourceService {
-  /**
-   * Get a character's resource by ID
-   */
-  getResourceInstance(character: Character, resourceId: string): ResourceInstance | null {
-    return character.resources.find((r) => r.definition.id === resourceId) || null;
-  }
-
-  /**
-   * Get all resources for a character
-   */
-  getActiveResources(character: Character): ResourceInstance[] {
-    return character.resources;
-  }
-
   /**
    * Calculate the actual minimum value for a resource definition
    */
   calculateMinValue(definition: ResourceDefinition, character: Character): number {
-    return getFlexibleValue(definition.minValue, character);
+    return calculateFlexibleValue(definition.minValue, character);
   }
 
   /**
    * Calculate the actual maximum value for a resource definition
    */
   calculateMaxValue(definition: ResourceDefinition, character: Character): number {
-    return getFlexibleValue(definition.maxValue, character);
+    return calculateFlexibleValue(definition.maxValue, character);
   }
 
   /**
    * Calculate the actual reset value for a resource definition (if applicable)
    */
-  calculateResetValue(definition: ResourceDefinition, character: Character): number | undefined {
+  private calculateResetValue(definition: ResourceDefinition, character: Character): number | undefined {
     if (!definition.resetValue) return undefined;
-    return getFlexibleValue(definition.resetValue, character);
+    return calculateFlexibleValue(definition.resetValue, character);
   }
 
   /**
-   * Create a resource instance with calculated values based on character
-   * Initializes current value based on the resource's reset type
+   * Calculate the initial value for a resource based on its reset type
    */
-  createResourceInstanceForCharacter(
-    definition: ResourceDefinition,
-    character: Character,
-    current?: number,
-    sortOrder?: number,
-  ): ResourceInstance {
-    if (current !== undefined) {
-      return {
-        definition,
-        current,
-        sortOrder: sortOrder ?? 1,
-      };
-    }
-
-    // Initialize based on reset type
-    let initialValue: number;
+  calculateInitialValue(definition: ResourceDefinition, character: Character): number {
     switch (definition.resetType) {
       case "to_max":
-        initialValue = this.calculateMaxValue(definition, character);
-        break;
+        return this.calculateMaxValue(definition, character);
       case "to_zero":
-        initialValue = this.calculateMinValue(definition, character);
-        break;
+        return this.calculateMinValue(definition, character);
       case "to_default":
-        initialValue =
-          this.calculateResetValue(definition, character) ||
-          this.calculateMaxValue(definition, character); // Default to max if no resetValue specified
-        break;
+        return this.calculateResetValue(definition, character) ?? 
+               this.calculateMaxValue(definition, character);
       default:
-        initialValue = this.calculateMaxValue(definition, character);
-        break;
+        return this.calculateMaxValue(definition, character);
     }
+  }
 
+  /**
+   * Calculate the reset value for a resource based on its reset type
+   */
+  calculateResetTargetValue(definition: ResourceDefinition, character: Character): number {
+    switch (definition.resetType) {
+      case "to_max":
+        return this.calculateMaxValue(definition, character);
+      case "to_zero":
+        return this.calculateMinValue(definition, character);
+      case "to_default":
+        return this.calculateResetValue(definition, character) ?? 
+               this.calculateMaxValue(definition, character);
+      default:
+        return this.calculateMaxValue(definition, character);
+    }
+  }
+
+  /**
+   * Create a numerical resource value
+   */
+  createNumericalValue(value: number): NumericalResourceValue {
     return {
-      definition,
-      current: initialValue,
-      sortOrder: sortOrder ?? 1,
+      type: "numerical",
+      value
     };
   }
 
   /**
-   * Add a resource to a character
+   * Get the numerical value from a ResourceValue
+   * Returns 0 if the value is not numerical or undefined
    */
-  addResourceToCharacter(character: Character, resource: ResourceInstance): ResourceInstance {
-    // Check if character already has this resource
-    const existing = this.getResourceInstance(character, resource.definition.id);
-    if (existing) {
-      return existing;
+  getNumericalValue(resourceValue: ResourceValue | undefined): number {
+    if (!resourceValue) return 0;
+    if (resourceValue.type === "numerical") {
+      return resourceValue.value;
     }
-
-    character.resources.push(resource);
-    return resource;
+    return 0;
   }
 
   /**
-   * Remove a resource from a character
+   * Set a resource value with min/max clamping
+   * Returns a new ResourceValue object
    */
-  removeResourceFromCharacter(character: Character, resourceId: string): boolean {
-    const index = character.resources.findIndex((r) => r.definition.id === resourceId);
-    if (index === -1) {
-      return false;
-    }
-
-    character.resources.splice(index, 1);
-    return true;
-  }
-
-  /**
-   * Spend resource points
-   */
-  spendResource(
+  setResourceValue(
+    definition: ResourceDefinition,
     character: Character,
-    resourceId: string,
-    amount: number,
-  ): {
-    resourceId: string;
-    amount: number;
-    type: "spend" | "restore";
-    resource: ResourceInstance;
-  } | null {
-    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
-    if (!resourceInstance) {
-      return null;
-    }
-
-    const minValue = this.calculateMinValue(resourceInstance.definition, character);
-    const actualAmount = Math.min(amount, resourceInstance.current);
-    resourceInstance.current = Math.max(minValue, resourceInstance.current - actualAmount);
-
-    return {
-      resourceId,
-      amount: actualAmount,
-      type: "spend",
-      resource: resourceInstance,
-    };
+    newValue: number
+  ): ResourceValue {
+    const minValue = this.calculateMinValue(definition, character);
+    const maxValue = this.calculateMaxValue(definition, character);
+    const clampedValue = Math.max(minValue, Math.min(maxValue, newValue));
+    
+    return this.createNumericalValue(clampedValue);
   }
 
   /**
-   * Restore resource points
-   */
-  restoreResource(
-    character: Character,
-    resourceId: string,
-    amount: number,
-  ): {
-    resourceId: string;
-    amount: number;
-    type: "spend" | "restore";
-    resource: ResourceInstance;
-  } | null {
-    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
-    if (!resourceInstance) {
-      return null;
-    }
-
-    const maxValue = this.calculateMaxValue(resourceInstance.definition, character);
-    const actualAmount = Math.min(amount, maxValue - resourceInstance.current);
-    resourceInstance.current = Math.min(maxValue, resourceInstance.current + actualAmount);
-
-    return {
-      resourceId,
-      amount: actualAmount,
-      type: "restore",
-      resource: resourceInstance,
-    };
-  }
-
-  /**
-   * Set resource to a specific value
-   */
-  setResource(character: Character, resourceId: string, value: number): boolean {
-    const resourceInstance = character.resources.find((r) => r.definition.id === resourceId);
-    if (!resourceInstance) {
-      return false;
-    }
-
-    const minValue = this.calculateMinValue(resourceInstance.definition, character);
-    const maxValue = this.calculateMaxValue(resourceInstance.definition, character);
-    resourceInstance.current = Math.max(minValue, Math.min(value, maxValue));
-    return true;
-  }
-
-  /**
-   * Reset resources based on condition
+   * Reset resources based on a condition
+   * Returns a new Map with updated values
    */
   resetResourcesByCondition(
+    resourceDefinitions: ResourceDefinition[],
+    currentValues: Map<string, ResourceValue>,
     character: Character,
-    condition: ResourceResetCondition,
-  ): {
-    resourceId: string;
-    amount: number;
-    type: "spend" | "restore";
-    resource: ResourceInstance;
-  }[] {
-    const entries: {
-      resourceId: string;
-      amount: number;
-      type: "spend" | "restore";
-      resource: ResourceInstance;
-    }[] = [];
-
-    for (const resourceInstance of character.resources) {
-      if (resourceInstance.definition.resetCondition !== condition) continue;
-
-      let newValue: number;
-
-      switch (resourceInstance.definition.resetType) {
-        case "to_max":
-          newValue = this.calculateMaxValue(resourceInstance.definition, character);
-          break;
-        case "to_zero":
-          newValue = this.calculateMinValue(resourceInstance.definition, character);
-          break;
-        case "to_default":
-          newValue =
-            this.calculateResetValue(resourceInstance.definition, character) ||
-            this.calculateMaxValue(resourceInstance.definition, character); // Default to max if no resetValue specified
-          break;
-        default:
-          continue;
-      }
-
-      if (resourceInstance.current !== newValue) {
-        const amount = Math.abs(newValue - resourceInstance.current);
-        const type = newValue > resourceInstance.current ? "restore" : "spend";
-
-        resourceInstance.current = newValue;
-
-        entries.push({
-          resourceId: resourceInstance.definition.id,
-          amount,
-          type,
-          resource: resourceInstance,
-        });
+    condition: ResourceResetCondition
+  ): Map<string, ResourceValue> {
+    const newValues = new Map(currentValues);
+    
+    for (const definition of resourceDefinitions) {
+      if (definition.resetCondition === condition) {
+        const targetValue = this.calculateResetTargetValue(definition, character);
+        newValues.set(definition.id, this.createNumericalValue(targetValue));
       }
     }
-
-    return entries;
+    
+    return newValues;
   }
 
   /**
-   * Reset resources on safe rest
+   * Reset all resources to their initial values
+   * Returns a new Map with all resources at initial values
    */
-  resetResourcesOnSafeRest(character: Character) {
-    return this.resetResourcesByCondition(character, "safe_rest");
+  resetAllResources(
+    resourceDefinitions: ResourceDefinition[],
+    character: Character
+  ): Map<string, ResourceValue> {
+    const newValues = new Map<string, ResourceValue>();
+    
+    for (const definition of resourceDefinitions) {
+      const initialValue = this.calculateInitialValue(definition, character);
+      newValues.set(definition.id, this.createNumericalValue(initialValue));
+    }
+    
+    return newValues;
   }
 
   /**
-   * Reset resources on encounter end
+   * Spend resource (subtract amount)
+   * Returns a new Map with the updated value
    */
-  resetResourcesOnEncounterEnd(character: Character) {
-    return this.resetResourcesByCondition(character, "encounter_end");
+  spendResource(
+    resourceId: string,
+    amount: number,
+    definition: ResourceDefinition,
+    currentValues: Map<string, ResourceValue>,
+    character: Character
+  ): Map<string, ResourceValue> {
+    const newValues = new Map(currentValues);
+    const currentValue = this.getNumericalValue(currentValues.get(resourceId));
+    const newValue = currentValue - amount;
+    
+    newValues.set(
+      resourceId, 
+      this.setResourceValue(definition, character, newValue)
+    );
+    
+    return newValues;
   }
 
   /**
-   * Reset resources on turn end
+   * Restore resource (add amount)
+   * Returns a new Map with the updated value
    */
-  resetResourcesOnTurnEnd(character: Character) {
-    return this.resetResourcesByCondition(character, "turn_end");
+  restoreResource(
+    resourceId: string,
+    amount: number,
+    definition: ResourceDefinition,
+    currentValues: Map<string, ResourceValue>,
+    character: Character
+  ): Map<string, ResourceValue> {
+    const newValues = new Map(currentValues);
+    const currentValue = this.getNumericalValue(currentValues.get(resourceId));
+    const newValue = currentValue + amount;
+    
+    newValues.set(
+      resourceId,
+      this.setResourceValue(definition, character, newValue)
+    );
+    
+    return newValues;
   }
 
   /**
-   * Create a log entry for resource usage
+   * Update a single resource value
+   * Returns a new Map with the updated value
    */
-  createResourceLogEntry(
-    entry: {
-      resourceId: string;
-      amount: number;
-      type: "spend" | "restore";
-      resource: ResourceInstance;
-    },
-    character: Character,
-  ): ResourceUsageEntry {
-    const maxValue = this.calculateMaxValue(entry.resource.definition, character);
-    return {
-      id: `${Date.now()}-${Math.random()}`,
-      timestamp: new Date(),
-      type: "resource",
-      resourceId: entry.resourceId,
-      resourceName: entry.resource.definition.name,
-      amount: entry.amount,
-      action: entry.type === "spend" ? "spent" : "restored",
-      currentAmount: entry.resource.current,
-      maxAmount: maxValue,
-      description: `${entry.type === "spend" ? "Spent" : "Restored"} ${entry.amount} ${entry.resource.definition.name}`,
-    };
+  updateResourceValue(
+    resourceId: string,
+    value: number,
+    definition: ResourceDefinition,
+    currentValues: Map<string, ResourceValue>,
+    character: Character
+  ): Map<string, ResourceValue> {
+    const newValues = new Map(currentValues);
+    newValues.set(
+      resourceId,
+      this.setResourceValue(definition, character, value)
+    );
+    return newValues;
   }
 }
 

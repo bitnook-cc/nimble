@@ -15,7 +15,7 @@ import {
   windSchoolSpells,
 } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
-import { ActionAbility, SpellAbility } from "../types/abilities";
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
 import { AncestryDefinition } from "../types/ancestry";
 import { BackgroundDefinition } from "../types/background";
 import { ClassDefinition, SubclassDefinition } from "../types/class";
@@ -47,8 +47,8 @@ export interface SpellSchoolWithSpells {
   id: string;
   name: string;
   description: string;
-  spells: SpellAbility[];
-  utilitySpells: SpellAbility[]; // Utility spells that must be learned separately
+  spells: SpellAbilityDefinition[];
+  utilitySpells: SpellAbilityDefinition[]; // Utility spells that must be learned separately
 }
 
 export class ContentRepositoryService {
@@ -646,7 +646,7 @@ export class ContentRepositoryService {
     return allSchools.find((school) => school.id === schoolId) || null;
   }
 
-  public getSpellsBySchool(schoolId: string): SpellAbility[] {
+  public getSpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
     const school = this.getSpellSchool(schoolId);
     if (!school) return [];
 
@@ -657,7 +657,7 @@ export class ContentRepositoryService {
     return [...school.spells, ...customSpells];
   }
 
-  public getUtilitySpellsForSchool(schoolId: string): SpellAbility[] {
+  public getUtilitySpellsForSchool(schoolId: string): SpellAbilityDefinition[] {
     const school = this.getSpellSchool(schoolId);
     if (!school) return [];
 
@@ -752,12 +752,12 @@ export class ContentRepositoryService {
   }
 
   // Ability Management (for non-spell abilities)
-  public getAllActionAbilities(): ActionAbility[] {
+  public getAllActionAbilities(): ActionAbilityDefinition[] {
     const customAbilities = this.getCustomAbilities();
     return [...customAbilities];
   }
 
-  public getActionAbility(abilityId: string): ActionAbility | null {
+  public getActionAbility(abilityId: string): ActionAbilityDefinition | null {
     const allAbilities = this.getAllActionAbilities();
     return allAbilities.find((ability) => ability.id === abilityId) || null;
   }
@@ -767,7 +767,7 @@ export class ContentRepositoryService {
       const data = JSON.parse(abilitiesJson);
       const abilities = Array.isArray(data) ? data : [data];
 
-      const validAbilities: ActionAbility[] = [];
+      const validAbilities: ActionAbilityDefinition[] = [];
       const errors: string[] = [];
 
       abilities.forEach((ability, index) => {
@@ -815,7 +815,7 @@ export class ContentRepositoryService {
     }
   }
 
-  private getCustomAbilities(): ActionAbility[] {
+  private getCustomAbilities(): ActionAbilityDefinition[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.customAbilities);
       if (!stored) return [];
@@ -824,7 +824,7 @@ export class ContentRepositoryService {
       if (!Array.isArray(parsed)) return [];
 
       // Validate each ability and filter out invalid ones
-      const validAbilities: ActionAbility[] = [];
+      const validAbilities: ActionAbilityDefinition[] = [];
       parsed.forEach((item, index) => {
         const validation = ContentValidationService.validateActionAbility(item);
         if (validation.valid && validation.data) {
@@ -850,7 +850,7 @@ export class ContentRepositoryService {
   }
 
   // Spell Management (separate from abilities)
-  public getAllSpells(): SpellAbility[] {
+  public getAllSpells(): SpellAbilityDefinition[] {
     const builtInSpells = [
       ...fireSchoolSpells,
       ...iceSchoolSpells,
@@ -863,7 +863,7 @@ export class ContentRepositoryService {
     return [...builtInSpells, ...customSpells];
   }
 
-  public getSpell(spellId: string): SpellAbility | null {
+  public getSpell(spellId: string): SpellAbilityDefinition | null {
     const allSpells = this.getAllSpells();
     return allSpells.find((spell) => spell.id === spellId) || null;
   }
@@ -873,7 +873,7 @@ export class ContentRepositoryService {
       const data = JSON.parse(spellsJson);
       const spells = Array.isArray(data) ? data : [data];
 
-      const validSpells: SpellAbility[] = [];
+      const validSpells: SpellAbilityDefinition[] = [];
       const errors: string[] = [];
 
       spells.forEach((spell, index) => {
@@ -921,7 +921,7 @@ export class ContentRepositoryService {
     }
   }
 
-  private getCustomSpells(): SpellAbility[] {
+  private getCustomSpells(): SpellAbilityDefinition[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.customSpells);
       if (!stored) return [];
@@ -930,7 +930,7 @@ export class ContentRepositoryService {
       if (!Array.isArray(parsed)) return [];
 
       // Validate each spell and filter out invalid ones
-      const validSpells: SpellAbility[] = [];
+      const validSpells: SpellAbilityDefinition[] = [];
       parsed.forEach((item, index) => {
         const validation = ContentValidationService.validateSpellAbility(item);
         if (validation.valid && validation.data) {

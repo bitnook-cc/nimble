@@ -1,10 +1,10 @@
 import {
-  Ability,
+  AbilityDefinition,
   AbilityRoll,
-  AbilityUses,
-  ActionAbility,
+  ActionAbilityDefinition,
   ResourceCost,
-  SpellAbility,
+  SpellAbilityDefinition,
+  UsableAbilityDefinition,
 } from "../types/abilities";
 import { Character } from "../types/character";
 import { ResourceInstance } from "../types/resources";
@@ -14,7 +14,7 @@ export class AbilityService {
   /**
    * Calculate the actual max uses for an ability based on its maxUses definition
    */
-  calculateMaxUses(ability: ActionAbility, character: Character): number {
+  calculateMaxUses(ability: ActionAbilityDefinition, character: Character): number {
     if (!ability.maxUses) return 0;
 
     if (ability.maxUses.type === "fixed") {
@@ -27,81 +27,38 @@ export class AbilityService {
   /**
    * Use an ability and return the updated abilities array
    */
-  useAbility(
-    abilities: Ability[],
-    abilityId: string,
-    availableActions?: number,
-    inEncounter?: boolean,
-    availableResources?: ResourceInstance[],
+  checkCanUseAbility(
+    ability: ActionAbilityDefinition | SpellAbilityDefinition,
+    character: Character,
     variableResourceAmount?: number,
-  ): {
-    updatedAbilities: Ability[];
-    usedAbility: ActionAbility | SpellAbility | null;
-    success: boolean;
-    actionsRequired?: number;
-    resourceCost?: { resourceId: string; amount: number };
-    insufficientResource?: string;
-  } {
-    const ability = abilities.find((a) => a.id === abilityId);
-
-    if (!ability || (ability.type !== "action" && ability.type !== "spell")) {
-      return { updatedAbilities: abilities, usedAbility: null, success: false };
-    }
-
+  ): boolean {
     const actionCost = ability.actionCost || 0;
 
     // Check if we have enough actions during encounters
-    if (inEncounter && actionCost > 0 && (availableActions || 0) < actionCost) {
-      return {
-        updatedAbilities: abilities,
-        usedAbility: null,
-        success: false,
-        actionsRequired: actionCost,
-      };
-    }
-
-    // Check resource requirements
-    if (ability.resourceCost && availableResources) {
-      const resourceCost = ability.resourceCost;
-      const targetResource = availableResources.find(
-        (r) => r.definition.id === resourceCost.resourceId,
+    if (
+      character.inEncounter &&
+      actionCost > 0 &&
+      (character.actionTracker.current || 0) < actionCost
+    ) {
+      console.error(
+        `Cannot use ability: not enough actions (need ${actionCost}, have ${character.actionTracker.current})`,
       );
-
-      if (!targetResource) {
-        return {
-          updatedAbilities: abilities,
-          usedAbility: null,
-          success: false,
-          insufficientResource: resourceCost.resourceId,
-        };
-      }
-
-      let requiredAmount: number;
-      if (resourceCost.type === "fixed") {
-        requiredAmount = resourceCost.amount;
-      } else {
-        // Variable cost - use provided amount or default to minimum
-        requiredAmount = variableResourceAmount || resourceCost.minAmount;
-
-        // Validate variable amount is within bounds
-        if (requiredAmount < resourceCost.minAmount || requiredAmount > resourceCost.maxAmount) {
-          return {
-            updatedAbilities: abilities,
-            usedAbility: null,
-            success: false,
-            insufficientResource: `Invalid amount: ${requiredAmount} (must be ${resourceCost.minAmount}-${resourceCost.maxAmount})`,
-          };
-        }
-      }
-
-      // Check if we have enough of the resource
-      if (targetResource.current < requiredAmount) {
-        return {
-          updatedAbilities: abilities,
-          usedAbility: null,
-          success: false,
-          insufficientResource: targetResource.definition.name,
-        };
+      return false;
+    }
+    // Check resource requirements
+    // Note: Resource checking is simplified here - the actual resource availability
+    // should be checked by the caller using CharacterService.getResources()
+    // This just validates the variable amount is within bounds
+    if (ability.resourceCost && ability.resourceCost.type === "variable") {
+      const resourceCost = ability.resourceCost;
+      const requiredAmount = variableResourceAmount || resourceCost.minAmount;
+      
+      // Validate variable amount is within bounds
+      if (requiredAmount < resourceCost.minAmount || requiredAmount > resourceCost.maxAmount) {
+        console.error(
+          `Cannot use ability: invalid resource amount (need ${requiredAmount}, min ${resourceCost.minAmount}, max ${resourceCost.maxAmount})`,
+        );
+        return false;
       }
     }
 
@@ -122,103 +79,78 @@ export class AbilityService {
 
     // Spells are always available (like at-will abilities)
     if (ability.type === "spell") {
-      return {
-        updatedAbilities: abilities,
-        usedAbility: ability,
-        success: true,
-        actionsRequired: actionCost,
-        resourceCost: resourceCostInfo,
-      };
+      return true;
     }
 
     // At-will action abilities can be used if action cost is satisfied
     if (ability.type === "action" && ability.frequency === "at_will") {
-      return {
-        updatedAbilities: abilities,
-        usedAbility: ability,
-        success: true,
-        actionsRequired: actionCost,
-        resourceCost: resourceCostInfo,
-      };
+      return true;
     }
+
+    const currentUses = character._abilityUses.get(ability.id) || 0;
+    const maxUses = this.calculateMaxUses(ability, character);
 
     // For limited-use action abilities, check uses remaining
-    if (ability.type === "action" && (!ability.currentUses || ability.currentUses <= 0)) {
-      return { updatedAbilities: abilities, usedAbility: null, success: false };
+    if (ability.type === "action" && (!currentUses || currentUses >= maxUses)) {
+      console.error(`Cannot use ability: no uses remaining (used ${currentUses}, max ${maxUses})`);
+      return false;
     }
 
-    // Update uses for limited-use action abilities
-    const updatedAbilities: Ability[] = abilities.map((a) =>
-      a.id === abilityId && a.type === "action"
-        ? { ...a, currentUses: (a.currentUses || 1) - 1 }
-        : a,
-    );
+    return true;
+  }
 
-    const usedAbility =
-      ability.type === "action"
-        ? { ...ability, currentUses: (ability.currentUses || 1) - 1 }
-        : ability;
+  getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number {
+    if (!ability.resourceCost) return 0;
 
-    return {
-      updatedAbilities,
-      usedAbility,
-      success: true,
-      actionsRequired: actionCost,
-      resourceCost: resourceCostInfo,
-    };
+    if (ability.resourceCost.type === "fixed") {
+      return ability.resourceCost.amount;
+    } else {
+      // Variable cost - use provided amount or default to minimum
+      return variableResourceAmount || ability.resourceCost.minAmount;
+    }
   }
 
   /**
    * Reset abilities based on frequency
    */
   resetAbilities(
-    abilities: Ability[],
+    abilities: AbilityDefinition[],
     frequency: "per_turn" | "per_encounter" | "per_safe_rest",
     character: Character,
-  ): Ability[] {
-    return abilities.map((ability) => {
-      if (ability.type === "action" && ability.frequency === frequency && ability.maxUses) {
-        const calculatedMaxUses = this.calculateMaxUses(ability, character);
-        return { ...ability, currentUses: calculatedMaxUses };
-      }
-      return ability;
-    });
-  }
+  ): Map<string, number> {
+    const resetMap = new Map(
+      abilities
+        .filter(
+          (ability) =>
+            ability.type === "action" && ability.frequency === frequency && ability.maxUses,
+        )
+        .map((ability) => [ability.id, 0]),
+    );
 
-  /**
-   * Recalculate current uses for all formula-based abilities
-   * This should be called when character attributes or level change
-   */
-  recalculateAbilityUses(abilities: Ability[], character: Character): Ability[] {
-    return abilities.map((ability) => {
-      if (ability.type === "action" && ability.maxUses?.type === "formula") {
-        const newMaxUses = this.calculateMaxUses(ability, character);
-        // Don't exceed the new maximum, but don't reduce current uses below the new max either
-        const currentUses = Math.min(ability.currentUses || 0, newMaxUses);
-        return { ...ability, currentUses };
-      }
-      return ability;
-    });
+    return new Map([...character._abilityUses, ...resetMap]);
   }
 
   /**
    * Add a new ability to the abilities collection
    */
-  addAbility(abilities: Ability[], newAbility: Ability): Ability[] {
+  addAbility(abilities: AbilityDefinition[], newAbility: AbilityDefinition): AbilityDefinition[] {
     return [...abilities, newAbility];
   }
 
   /**
    * Remove an ability from the abilities collection
    */
-  removeAbility(abilities: Ability[], abilityId: string): Ability[] {
+  removeAbility(abilities: AbilityDefinition[], abilityId: string): AbilityDefinition[] {
     return abilities.filter((ability) => ability.id !== abilityId);
   }
 
   /**
    * Update an existing ability
    */
-  updateAbility(abilities: Ability[], updatedAbility: Ability): Ability[] {
+  updateAbility(
+    abilities: AbilityDefinition[],
+    updatedAbility: AbilityDefinition,
+  ): AbilityDefinition[] {
     return abilities.map((ability) =>
       ability.id === updatedAbility.id ? updatedAbility : ability,
     );
@@ -227,23 +159,29 @@ export class AbilityService {
   /**
    * Get all action abilities (filtered from freeform)
    */
-  getActionAbilities(abilities: Ability[]): ActionAbility[] {
-    return abilities.filter((ability): ability is ActionAbility => ability.type === "action");
+  getActionAbilities(abilities: AbilityDefinition[]): ActionAbilityDefinition[] {
+    return abilities.filter(
+      (ability): ability is ActionAbilityDefinition => ability.type === "action",
+    );
   }
 
   /**
    * Get all spell abilities
    */
-  getSpellAbilities(abilities: Ability[]): SpellAbility[] {
-    return abilities.filter((ability): ability is SpellAbility => ability.type === "spell");
+  getSpellAbilities(abilities: AbilityDefinition[]): SpellAbilityDefinition[] {
+    return abilities.filter(
+      (ability): ability is SpellAbilityDefinition => ability.type === "spell",
+    );
   }
 
   /**
    * Get all usable abilities (action and spell types)
    */
-  getUsableAbilities(abilities: Ability[]): (ActionAbility | SpellAbility)[] {
+  getUsableAbilities(
+    abilities: AbilityDefinition[],
+  ): (ActionAbilityDefinition | SpellAbilityDefinition)[] {
     return abilities.filter(
-      (ability): ability is ActionAbility | SpellAbility =>
+      (ability): ability is ActionAbilityDefinition | SpellAbilityDefinition =>
         ability.type === "action" || ability.type === "spell",
     );
   }

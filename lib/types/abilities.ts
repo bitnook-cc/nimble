@@ -4,9 +4,6 @@ import { FlexibleValue } from "./flexible-value";
 
 export type AbilityFrequency = "per_turn" | "per_encounter" | "per_safe_rest" | "at_will";
 
-// Type alias for backward compatibility and semantic clarity
-export type AbilityUses = FlexibleValue;
-
 export interface AbilityRoll {
   dice: DiceExpression;
   modifier?: number; // fixed modifier, e.g., +2
@@ -28,33 +25,36 @@ export interface VariableResourceCost {
 
 export type ResourceCost = FixedResourceCost | VariableResourceCost;
 
-export interface BaseAbility {
+export interface BaseAbilityDefinition {
   id: string;
   name: string;
   description: string;
 }
 
-export interface FreeformAbility extends BaseAbility {
-  type: "freeform";
-}
-
-export interface ActionAbility extends BaseAbility {
-  type: "action";
-  frequency: AbilityFrequency;
-  maxUses?: AbilityUses; // Optional for at-will abilities
-  currentUses?: number; // Optional for at-will abilities
-  roll?: AbilityRoll; // Optional roll information
+export interface UsableAbilityDefinition extends BaseAbilityDefinition {
   actionCost?: number; // Optional action cost (0 = free action, 1 = action, etc.)
   resourceCost?: ResourceCost; // Optional resource cost
 }
 
-export interface SpellAbility extends BaseAbility {
+export interface FreeformAbilityDefinition extends BaseAbilityDefinition {
+  type: "freeform";
+}
+
+export interface ActionAbilityDefinition extends UsableAbilityDefinition {
+  type: "action";
+  frequency: AbilityFrequency;
+  maxUses?: FlexibleValue; // Optional for at-will abilities
+  roll?: AbilityRoll; // Optional roll information
+}
+
+export interface SpellAbilityDefinition extends UsableAbilityDefinition {
   type: "spell";
   school: string; // Which spell school this belongs to (e.g., 'fire', 'radiant')
   tier: number; // Spell tier from 1 to 9
   roll?: AbilityRoll; // Optional roll information
-  actionCost?: number; // Optional action cost (0 = free action, 1 = action, etc.)
-  resourceCost?: ResourceCost; // Optional resource cost
 }
 
-export type Ability = FreeformAbility | ActionAbility | SpellAbility;
+export type AbilityDefinition =
+  | FreeformAbilityDefinition
+  | ActionAbilityDefinition
+  | SpellAbilityDefinition;

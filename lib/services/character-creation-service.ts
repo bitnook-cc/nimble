@@ -1,6 +1,6 @@
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
-import { Attributes, Character, SelectedFeature } from "../types/character";
+import { Attributes, Character, EffectSelection } from "../types/character";
 import { Item } from "../types/inventory";
 import {
   createDefaultActionTracker,
@@ -40,7 +40,7 @@ export interface CreateCompleteCharacterOptions {
   classId: string;
   attributes: Attributes;
   skillAllocations: Record<string, number>;
-  selectedFeatures: SelectedFeature[];
+  effectSelections: EffectSelection[];
   selectedEquipment: string[];
 }
 
@@ -121,14 +121,30 @@ export class CharacterCreationService implements ICharacterCreation {
     // Set attributes based on class or use provided ones
     let attributes = options.attributes;
     if (!attributes) {
-      // Generate sample attributes based on class key attributes
+      // Use the standard array: 2, 2, 0, -1
+      // Assign both key attributes a 2, randomly assign -1 and 0 to the others
       const [primary, secondary] = classDefinition.keyAttributes;
+      
+      // Start with all zeros
       attributes = {
-        strength: primary === "strength" || secondary === "strength" ? 3 : 1,
-        dexterity: primary === "dexterity" || secondary === "dexterity" ? 3 : 1,
-        intelligence: primary === "intelligence" || secondary === "intelligence" ? 3 : 1,
-        will: primary === "will" || secondary === "will" ? 3 : 1,
+        strength: 0,
+        dexterity: 0,
+        intelligence: 0,
+        will: 0,
       };
+      
+      // Assign 2 to both key attributes
+      attributes[primary] = 2;
+      attributes[secondary] = 2;
+      
+      // Get the non-key attributes
+      const allAttributes: (keyof typeof attributes)[] = ["strength", "dexterity", "intelligence", "will"];
+      const nonKeyAttributes = allAttributes.filter(attr => attr !== primary && attr !== secondary);
+      
+      // Randomly assign -1 and 0 to the non-key attributes
+      const shuffled = [...nonKeyAttributes].sort(() => Math.random() - 0.5);
+      attributes[shuffled[0]] = -1;
+      attributes[shuffled[1]] = 0;
     }
 
     // Use createCompleteCharacter with generated/selected values
@@ -139,7 +155,7 @@ export class CharacterCreationService implements ICharacterCreation {
       classId,
       attributes,
       skillAllocations: {}, // Use defaults
-      selectedFeatures: [], // No custom feature selections for quick create
+      effectSelections: [], // No custom feature selections for quick create
       selectedEquipment: classDefinition.startingEquipment || [], // Use class default equipment
     });
   }
@@ -155,7 +171,7 @@ export class CharacterCreationService implements ICharacterCreation {
       classId,
       attributes,
       skillAllocations,
-      selectedFeatures,
+      effectSelections,
       selectedEquipment,
     } = options;
 
@@ -174,10 +190,6 @@ export class CharacterCreationService implements ICharacterCreation {
     if (!backgroundDefinition) {
       throw new Error(`Background not found: ${backgroundId}`);
     }
-
-    // Create ancestry and background traits
-    const ancestry = this.ancestryService.createAncestryTrait(ancestryId);
-    const background = this.backgroundService.createBackgroundTrait(backgroundId);
 
     // Create base character configuration
     const config = createDefaultCharacterConfiguration();
@@ -211,44 +223,38 @@ export class CharacterCreationService implements ICharacterCreation {
 
     // Create the character with all data
     const characterId = `character-${Date.now()}`;
-    const character = await this.characterStorage.createCharacter(
-      {
-        name,
-        ancestry,
-        background,
-        level: 1,
-        classId,
-        grantedFeatures: [], // Will be populated by syncCharacterFeatures
-        grantedEffects: [], // Will be populated by feature services
-        selectedFeatures,
-        spellTierAccess: 0, // Will be updated by class features
-        proficiencies,
-        _attributes: attributes,
-        saveAdvantages: { ...classDefinition.saveAdvantages },
-        hitPoints,
-        _hitDice: hitDice,
-        wounds: createDefaultWounds(config.maxWounds),
-        resources: [],
-        config,
-        _initiative: createDefaultInitiative(),
-        speed: gameConfig.character.defaultSpeed,
-        actionTracker: createDefaultActionTracker(),
-        inEncounter: false,
-        _skills: skills,
-        inventory,
-        abilities: [],
-      },
-      characterId,
-    );
+    const character = await this.characterStorage.createCharacter({
+      id: characterId,
+      name,
+      ancestryId,
+      backgroundId,
+      level: 1,
+      classId,
+      _spellTierAccess: 0,
+      _proficiencies: proficiencies,
+      _attributes: attributes,
+      _initiative: createDefaultInitiative(),
+      _skills: skills,
+      _abilities: [],
+      _abilityUses: new Map(),
+      _hitDice: hitDice,
+      saveAdvantages: { ...classDefinition.saveAdvantages },
+      hitPoints,
+      wounds: createDefaultWounds(config.maxWounds),
+      _resourceDefinitions: [],
+      _resourceValues: new Map(),
+      config,
+      speed: gameConfig.character.defaultSpeed,
+      actionTracker: createDefaultActionTracker(),
+      inEncounter: false,
+      inventory,
+      effectSelections,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     // Load the character into the service to apply features
     await this.characterService.loadCharacter(character.id);
-
-    // Apply ancestry features
-    await this.ancestryService.grantAncestryFeatures(character.id);
-
-    // Apply background features
-    await this.backgroundService.grantBackgroundFeatures(character.id);
 
     // Return the updated character
     return this.characterService.getCurrentCharacter() || character;

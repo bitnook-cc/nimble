@@ -68,22 +68,14 @@ const ResourceCostSchema = z
       resourceId: z
         .string()
         .meta({ title: "Resource ID", description: "ID of the resource to consume" }),
-      minAmount: z
-        .int()
-        .int()
-        .min(0)
-        .meta({
-          title: "Minimum Amount",
-          description: "Minimum amount of resource to consume (integer)",
-        }),
-      maxAmount: z
-        .int()
-        .int()
-        .min(0)
-        .meta({
-          title: "Maximum Amount",
-          description: "Maximum amount of resource to consume (integer)",
-        }),
+      minAmount: z.int().int().min(0).meta({
+        title: "Minimum Amount",
+        description: "Minimum amount of resource to consume (integer)",
+      }),
+      maxAmount: z.int().int().min(0).meta({
+        title: "Maximum Amount",
+        description: "Maximum amount of resource to consume (integer)",
+      }),
     }),
   ])
   .meta({ title: "Resource Cost", description: "Resource cost for using this ability" });
@@ -137,16 +129,10 @@ const ActionAbilitySchema = z
       title: "Roll",
       description: "Dice roll configuration for the ability",
     }),
-    actionCost: z
-      .number()
-      .int()
-      .min(0)
-      .max(5)
-      .optional()
-      .meta({
-        title: "Action Cost",
-        description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
-      }),
+    actionCost: z.number().int().min(0).max(5).optional().meta({
+      title: "Action Cost",
+      description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
+    }),
     resourceCost: ResourceCostSchema.optional().meta({
       title: "Resource Cost",
       description: "Resource cost to use the ability",
@@ -179,16 +165,10 @@ const SpellAbilitySchema = z
       title: "Roll",
       description: "Dice roll configuration for the spell",
     }),
-    actionCost: z
-      .number()
-      .int()
-      .min(0)
-      .max(5)
-      .optional()
-      .meta({
-        title: "Action Cost",
-        description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
-      }),
+    actionCost: z.number().int().min(0).max(5).optional().meta({
+      title: "Action Cost",
+      description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
+    }),
     resourceCost: ResourceCostSchema.optional().meta({
       title: "Resource Cost",
       description: "Resource cost to cast the spell",
@@ -265,25 +245,20 @@ export const ClassDefinitionSchema = z
           .enum(["advantage", "disadvantage", "normal"])
           .optional()
           .meta({ title: "Dexterity Saves", description: "Saving throw modifier for dexterity" }),
-        intelligence: z
-          .enum(["advantage", "disadvantage", "normal"])
-          .optional()
-          .meta({
-            title: "Intelligence Saves",
-            description: "Saving throw modifier for intelligence",
-          }),
+        intelligence: z.enum(["advantage", "disadvantage", "normal"]).optional().meta({
+          title: "Intelligence Saves",
+          description: "Saving throw modifier for intelligence",
+        }),
         will: z
           .enum(["advantage", "disadvantage", "normal"])
           .optional()
           .meta({ title: "Will Saves", description: "Saving throw modifier for will" }),
       })
       .meta({ title: "Save Advantages", description: "Saving throw advantages/disadvantages" }),
-    startingEquipment: z
-      .array(z.string())
-      .meta({
-        title: "Starting Equipment",
-        description: "Array of repository item IDs for starting equipment",
-      }),
+    startingEquipment: z.array(z.string()).meta({
+      title: "Starting Equipment",
+      description: "Array of repository item IDs for starting equipment",
+    }),
     features: z
       .array(ClassFeatureSchema)
       .meta({ title: "Features", description: "Array of class features by level" }),
@@ -358,14 +333,10 @@ export const SpellSchoolDefinitionSchema = z
     spells: z
       .array(SpellAbilitySchema)
       .meta({ title: "Spells", description: "Array of spells in this school" }),
-    utilitySpells: z
-      .array(SpellAbilitySchema)
-      .optional()
-      .default([])
-      .meta({
-        title: "Utility Spells",
-        description: "Array of utility spells that must be learned separately",
-      }),
+    utilitySpells: z.array(SpellAbilitySchema).optional().default([]).meta({
+      title: "Utility Spells",
+      description: "Array of utility spells that must be learned separately",
+    }),
   })
   .meta({
     title: "Spell School Definition",

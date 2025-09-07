@@ -1,4 +1,4 @@
-import { Ability } from "./abilities";
+import { AbilityDefinition } from "./abilities";
 import { AttributeName } from "./character";
 import { ResourceDefinition } from "./resources";
 import { StatBonus } from "./stat-bonus";
@@ -16,6 +16,8 @@ export type FeatureEffectType =
   | "subclass_choice"
   | "pick_feature_from_pool"
   | "resistance";
+
+export type EffectSource = "feature" | "item";
 
 // Shared types used across multiple effect types
 export interface ProficiencyGrant {
@@ -41,12 +43,13 @@ export interface Resistance {
 // Base interface for all feature effects
 interface BaseFeatureEffect {
   id: string; // Unique identifier generated as ${parentFeatureId}-${effectIndex}
+  type: string;
 }
 
 // Ability effect - grants a new ability to the character
 export interface AbilityFeatureEffect extends BaseFeatureEffect {
   type: "ability";
-  ability: Ability; // The actual ability definition
+  ability: AbilityDefinition; // The actual ability definition
 }
 
 // Attribute boost effect - permanent attribute increases that require user selection
@@ -132,12 +135,7 @@ export type FeatureEffect =
   | PickFeatureFromPoolFeatureEffect
   | ResistanceFeatureEffect;
 
-// Helper types for tracking effect grants
-export interface FeatureEffectGrant {
-  effectId: string; // Unique ID for this effect grant
-  parentFeatureId: string; // ID of the feature that contains this effect
-  sourceType: "class" | "subclass" | "ancestry" | "background"; // What type of content granted this effect
-  sourceId: string; // ID of the class/ancestry/background that granted this effect
-  level?: number; // Level at which this effect was granted (for class/subclass effects)
+export interface ActiveEffect {
+  sourceId: string;
   effect: FeatureEffect;
 }

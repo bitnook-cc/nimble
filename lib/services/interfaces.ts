@@ -1,11 +1,19 @@
-import { Ability, AbilityRoll, ActionAbility, SpellAbility } from "../types/abilities";
-import { AncestryDefinition, AncestryFeature, AncestryTrait } from "../types/ancestry";
-import { BackgroundDefinition, BackgroundFeature, BackgroundTrait } from "../types/background";
+import {
+  AbilityDefinition,
+  AbilityRoll,
+  ActionAbilityDefinition,
+  SpellAbilityDefinition,
+  UsableAbilityDefinition,
+} from "../types/abilities";
+import { AncestryDefinition } from "../types/ancestry";
+import { BackgroundDefinition } from "../types/background";
 import {
   ActionTracker,
   Attributes,
   Character,
   CharacterConfiguration,
+  CharacterFeature,
+  EffectSelection,
   HitDice,
   Skill,
   Skills,
@@ -14,7 +22,8 @@ import { ClassFeature, ClassFeatureGrant, FeaturePool } from "../types/class";
 import { PickFeatureFromPoolFeatureEffect } from "../types/feature-effects";
 import { Item } from "../types/inventory";
 import { LogEntry, SingleDie } from "../types/log-entries";
-import { ResourceInstance } from "../types/resources";
+import { ResourceDefinition, ResourceInstance } from "../types/resources";
+import { CreateCompleteCharacterOptions } from "./character-creation-service";
 import { CharacterEvent, CharacterEventType } from "./character-service";
 
 /**
@@ -24,7 +33,7 @@ import { CharacterEvent, CharacterEventType } from "./character-service";
 export interface ICharacterStorage {
   getCharacter(id: string): Promise<Character | null>;
   getAllCharacters(): Promise<Character[]>;
-  createCharacter(characterData: Partial<Character>, id?: string): Promise<Character>;
+  createCharacter(character: Character): Promise<Character>;
   updateCharacter(character: Character): Promise<void>;
   deleteCharacter(id: string): Promise<void>;
   updateLastPlayed(id: string): Promise<void>;
@@ -97,28 +106,18 @@ export interface IActivityLog {
  */
 export interface IAbilityService {
   resetAbilities(
-    abilities: Ability[],
+    abilities: AbilityDefinition[],
     frequency: "per_turn" | "per_encounter" | "per_safe_rest",
     character: Character,
-  ): Ability[];
-  useAbility(
-    abilities: Ability[],
-    abilityId: string,
-    availableActions?: number,
-    inEncounter?: boolean,
-    availableResources?: ResourceInstance[],
+  ): Map<string, number>;
+  checkCanUseAbility(
+    ability: ActionAbilityDefinition | SpellAbilityDefinition,
+    character: Character,
     variableResourceAmount?: number,
-  ): {
-    success: boolean;
-    updatedAbilities: Ability[];
-    usedAbility: ActionAbility | SpellAbility | null;
-    actionsRequired?: number;
-    resourceCost?: { resourceId: string; amount: number };
-    insufficientResource?: string;
-  };
+  ): boolean;
+  getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number;
   calculateAbilityRollModifier(roll: AbilityRoll, character: Character): number;
-  recalculateAbilityUses(abilities: Ability[], character: Character): Ability[];
-  calculateMaxUses(ability: ActionAbility, character: Character): number;
+  calculateMaxUses(ability: ActionAbilityDefinition, character: Character): number;
 }
 
 /**
@@ -134,13 +133,18 @@ export interface ICharacterService {
   getCurrentCharacter(): Character | null;
   loadCharacter(characterId: string): Promise<Character | null>;
   updateCharacter(character: Character): Promise<void>;
+  getAllActiveFeatures(): CharacterFeature[];
+  getAllActiveEffects(): import("../types/feature-effects").FeatureEffect[];
+  getAbilities(): AbilityDefinition[];
+  getSpellSchools(): string[];
+  getSubclassId(): string | null;
   applyDamage(amount: number, targetType?: "hp" | "temp_hp"): Promise<void>;
   applyHealing(amount: number): Promise<void>;
   applyTemporaryHP(amount: number): Promise<void>;
   updateHitPoints(current: number, max: number, temporary: number): Promise<void>;
   updateWounds(current: number, max: number): Promise<void>;
   updateActionTracker(actionTracker: ActionTracker): Promise<void>;
-  updateAbilities(abilities: Ability[]): Promise<void>;
+  updateAbilities(abilities: AbilityDefinition[]): Promise<void>;
   startEncounter(initiativeRoll: number): Promise<void>;
   performSafeRest(): Promise<void>;
   performCatchBreath(): Promise<void>;
@@ -168,6 +172,10 @@ export interface ICharacterService {
   getHitDice(): HitDice;
   getMaxWounds(): number;
   getArmorValue(): number;
+  getResourceDefinitions(): ResourceDefinition[];
+  getResources(): ResourceInstance[];
+  getResourceValue(resourceId: string): number;
+  setResourceValue(resourceId: string, value: number): Promise<void>;
   getResourceMaxValue(resourceId: string): number;
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;
@@ -179,8 +187,6 @@ export interface ICharacterService {
  */
 export interface IClassService {
   getExpectedFeaturesForCharacter(character: Character): ClassFeature[];
-  getMissingFeatures(character: Character): ClassFeature[];
-  syncCharacterFeatures(): Promise<ClassFeatureGrant[]>;
   levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]>;
   selectSubclass(
     character: Character,
@@ -196,7 +202,11 @@ export interface IClassService {
   ): import("../types/class").SubclassDefinition[];
   hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
-  getAvailablePoolFeatures(character: Character, poolId: string): ClassFeature[];
+  getAvailablePoolFeatures(
+    classId: string,
+    poolId: string,
+    effectSelections?: EffectSelection[],
+  ): ClassFeature[];
   getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[];
   selectPoolFeature(
     character: Character,
@@ -214,7 +224,6 @@ export interface IClassService {
     featureName: string,
     subclassId?: string,
   ): string;
-  getAllGrantedFeatures(character: Character): ClassFeature[];
 }
 
 /**
@@ -223,14 +232,10 @@ export interface IClassService {
  */
 export interface IAncestryService {
   getCharacterAncestry(character: Character): AncestryDefinition | null;
-  getExpectedFeaturesForCharacter(character: Character): AncestryFeature[];
-  getMissingFeatures(character: Character): AncestryFeature[];
-  grantAncestryFeatures(characterId: string): Promise<void>;
-  createAncestryTrait(ancestryId: string): AncestryTrait;
+  getExpectedFeaturesForCharacter(character: Character): CharacterFeature[];
   getAvailableAncestries(): AncestryDefinition[];
   addCustomAncestry(ancestry: AncestryDefinition): Promise<void>;
   removeCustomAncestry(ancestryId: string): Promise<void>;
-  getAllGrantedFeatures(character: Character): AncestryFeature[];
 }
 
 /**
@@ -239,15 +244,11 @@ export interface IAncestryService {
  */
 export interface IBackgroundService {
   getCharacterBackground(character: Character): BackgroundDefinition | null;
-  getExpectedFeaturesForCharacter(character: Character): BackgroundFeature[];
-  getMissingFeatures(character: Character): BackgroundFeature[];
-  grantBackgroundFeatures(characterId: string): Promise<void>;
-  createBackgroundTrait(backgroundId: string): BackgroundTrait;
+  getExpectedFeaturesForCharacter(character: Character): CharacterFeature[];
   getAvailableBackgrounds(): BackgroundDefinition[];
   addCustomBackground(background: BackgroundDefinition): Promise<void>;
   removeCustomBackground(backgroundId: string): Promise<void>;
   validateBackgroundDefinition(background: Partial<BackgroundDefinition>): boolean;
-  getAllGrantedFeatures(character: Character): BackgroundFeature[];
 }
 
 /**
@@ -256,7 +257,7 @@ export interface IBackgroundService {
  */
 export interface ICharacterCreation {
   quickCreateCharacter(options: QuickCreateOptions): Promise<Character>;
-  createCompleteCharacter(options: any): Promise<Character>; // Using any temporarily to avoid circular dependency
+  createCompleteCharacter(options: CreateCompleteCharacterOptions): Promise<Character>; // Using any temporarily to avoid circular dependency
   applyStartingEquipment(characterId: string, equipmentIds: string[]): Promise<void>;
   getClassStartingEquipment(classId: string): string[];
 }
