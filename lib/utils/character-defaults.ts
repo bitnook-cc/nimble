@@ -1,5 +1,4 @@
 import { gameConfig } from "../config/game-config";
-import { AbilityDefinition } from "../schemas/abilities";
 import {
   AttributeName,
   Character,
@@ -8,10 +7,10 @@ import {
   HitDieSize,
   Proficiencies,
   Wounds,
-} from "../types/character";
+} from "../schemas/character";
 import { ClassDefinition } from "../schemas/class";
 import { Currency } from "../schemas/currency";
-import { ArmorItem, ConsumableItem, Inventory, WeaponItem } from "../types/inventory";
+import { Inventory } from "../schemas/inventory";
 
 export const createDefaultSkills = () => {
   const defaultSkills: Record<string, any> = {};

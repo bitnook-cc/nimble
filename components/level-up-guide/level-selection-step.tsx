@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 interface LevelSelectionStepProps {
   character: Character;

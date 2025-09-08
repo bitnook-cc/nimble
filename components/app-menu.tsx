@@ -7,7 +7,7 @@ import { useState } from "react";
 import { pdfExportService } from "@/lib/services/pdf-export-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { AppSettings } from "@/lib/services/settings-service";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 import { CharacterCreateForm } from "./character-create-form";
 import { CharacterSelector } from "./character-selector";

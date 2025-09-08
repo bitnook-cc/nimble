@@ -1,4 +1,5 @@
-import { ClassFeature, SubclassDefinition } from "../../schemas/class";
+import { SubclassDefinition } from "../../schemas/class";
+import { ClassFeature } from "@/lib/schemas/features";
 
 const skyAndStormFeatures: ClassFeature[] = [
   // Level 3

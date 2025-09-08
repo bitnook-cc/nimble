@@ -7,7 +7,7 @@ import {
   getSettingsService,
 } from "@/lib/services/service-factory";
 import { AppSettings } from "@/lib/services/settings-service";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 import { useCharacterService } from "./use-character-service";
 import { useToastService } from "./use-toast-service";

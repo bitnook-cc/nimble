@@ -1,4 +1,4 @@
-import { AttributeName, Character } from "../types/character";
+import { AttributeName, Character } from "../schemas/character";
 import { FlexibleValue } from "../schemas/flexible-value";
 
 export class FormulaEvaluatorService {

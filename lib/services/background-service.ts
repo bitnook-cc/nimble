@@ -1,5 +1,6 @@
 import { BackgroundDefinition } from "../schemas/background";
-import { Character, CharacterFeature } from "../types/character";
+import { Character } from "../schemas/character";
+import { CharacterFeature } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
 import { IBackgroundService } from "./interfaces";
 

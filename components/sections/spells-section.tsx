@@ -9,7 +9,7 @@ import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   formatActionCost,

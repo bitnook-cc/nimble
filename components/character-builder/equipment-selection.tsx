@@ -5,7 +5,7 @@ import { Beaker, Package, Plus, Search, Shield, Shirt, Sword, Target, Trash2 } f
 import { useCallback, useEffect, useState } from "react";
 
 import { getContentRepository, getItemService } from "@/lib/services/service-factory";
-import { Item } from "@/lib/types/inventory";
+import { Item } from "@/lib/schemas/inventory";
 
 import { ItemBrowser } from "../item-browser";
 import { Badge } from "../ui/badge";

@@ -5,7 +5,7 @@ import { AlertTriangle, Clock, Plus, Trash2, User } from "lucide-react";
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 import { CharacterCreateForm } from "./character-create-form";
 import { Alert, AlertDescription } from "./ui/alert";

@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SkillsList } from "@/components/shared/skills-list";
 
 import { gameConfig } from "@/lib/config/game-config";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 interface SkillsStepProps {
   character: Character;

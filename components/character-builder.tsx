@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
-import { Character, EffectSelection } from "@/lib/types/character";
+import { EffectSelection } from "@/lib/schemas/character";
 
 import { AncestrySelection } from "./character-builder/ancestry-selection";
 import { AttributeSelection } from "./character-builder/attribute-selection";

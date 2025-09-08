@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 import { gameConfig } from "../config/game-config";
-import { flexibleValueSchema } from "./flexible-value";
+import { AbilityDefinition, AbilityDefinitionSchema } from "./abilities";
 import { ClassFeatureSchema } from "./features";
-import { inventorySchema } from "./inventory";
-import { resourceDefinitionSchema } from "./resources";
+import { flexibleValueSchema } from "./flexible-value";
+import { inventorySchema, Inventory } from "./inventory";
+import { resourceDefinitionSchema, ResourceDefinition, ResourceValue } from "./resources";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 
@@ -87,95 +88,6 @@ export const characterConfigurationSchema = z.object({
   maxInventorySize: z.int().min(1),
 });
 
-const diceExpressionSchema = z.object({
-  count: z.int().min(1),
-  sides: z.union([
-    z.literal(4),
-    z.literal(6),
-    z.literal(8),
-    z.literal(10),
-    z.literal(12),
-    z.literal(20),
-    z.literal(100),
-  ]),
-});
-
-const abilityRollSchema = z.object({
-  dice: diceExpressionSchema,
-  modifier: z.int().optional(),
-  attribute: attributeNameSchema.optional(),
-});
-
-const fixedResourceCostSchema = z.object({
-  type: z.literal("fixed"),
-  resourceId: z.string().min(1),
-  amount: z.int().min(1),
-});
-
-const variableResourceCostSchema = z
-  .object({
-    type: z.literal("variable"),
-    resourceId: z.string().min(1),
-    minAmount: z.int().min(1),
-    maxAmount: z.int().min(1),
-  })
-  .refine((data) => data.maxAmount >= data.minAmount, {
-    message: "maxAmount must be greater than or equal to minAmount",
-    path: ["maxAmount"],
-  });
-
-const resourceCostSchema = z.discriminatedUnion("type", [
-  fixedResourceCostSchema,
-  variableResourceCostSchema,
-]);
-
-export const abilitySchema = z.discriminatedUnion("type", [
-  z.object({
-    id: z.string(),
-    name: z.string().min(1),
-    description: z.string(),
-    type: z.literal("freeform"),
-  }),
-  z
-    .object({
-      id: z.string(),
-      name: z.string().min(1),
-      description: z.string(),
-      type: z.literal("action"),
-      frequency: z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]),
-      maxUses: abilityUsesSchema.optional(),
-      roll: abilityRollSchema.optional(),
-      actionCost: z.int().min(0).optional(),
-      resourceCost: resourceCostSchema.optional(),
-    })
-    .refine(
-      (data) => {
-        // Non-at_will abilities must have maxUses defined
-        if (data.frequency !== "at_will" && data.maxUses === undefined) {
-          return false;
-        }
-        return true;
-      },
-      {
-        message: "Abilities with frequency other than 'at_will' must specify maxUses",
-        path: ["maxUses"],
-      },
-    ),
-  z.object({
-    id: z.string(),
-    name: z.string().min(1),
-    description: z.string(),
-    type: z.literal("spell"),
-    school: z.string().min(1),
-    tier: z.int().min(1).max(9),
-    category: z.enum(["combat", "utility"]),
-    roll: abilityRollSchema.optional(),
-    actionCost: z.int().min(0).optional(),
-    resourceCost: resourceCostSchema.optional(),
-  }),
-]);
-
-export const abilitiesSchema = z.array(abilitySchema);
 
 const armorProficiencySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("cloth") }),
@@ -266,7 +178,7 @@ export const characterSchema = z.object({
   _attributes: attributeSchema,
   _initiative: skillSchema,
   _skills: z.record(z.string(), skillSchema),
-  _abilities: z.array(abilitySchema),
+  _abilities: z.array(AbilityDefinitionSchema),
   _abilityUses: abilityUsesMapSchema,
   _hitDice: hitDiceSchema,
   saveAdvantages: saveAdvantageMapSchema,
@@ -292,3 +204,53 @@ export type SaveAdvantageMap = z.infer<typeof saveAdvantageMapSchema>;
 export type Attributes = z.infer<typeof attributeSchema>;
 export type Skill = z.infer<typeof skillSchema>;
 export type HitDieSize = 4 | 6 | 8 | 10 | 12;
+export type HitPoints = z.infer<typeof hitPointsSchema>;
+export type ActionTracker = z.infer<typeof actionTrackerSchema>;
+export type HitDice = z.infer<typeof hitDiceSchema>;
+export type Wounds = z.infer<typeof woundsSchema>;
+export type CharacterConfiguration = z.infer<typeof characterConfigurationSchema>;
+export type Proficiencies = z.infer<typeof proficienciesSchema>;
+
+// Effect selection types
+export type BaseEffectSelection = z.infer<typeof baseEffectSelectionSchema>;
+export type PoolFeatureEffectSelection = z.infer<typeof poolFeatureEffectSelectionSchema>;
+export type SpellSchoolEffectSelection = z.infer<typeof spellSchoolEffectSelectionSchema>;
+export type AttributeBoostEffectSelection = z.infer<typeof attributeBoostEffectSelectionSchema>;
+export type UtilitySpellsEffectSelection = z.infer<typeof utilitySpellsEffectSelectionSchema>;
+export type SubclassEffectSelection = z.infer<typeof subclassEffectSelectionSchema>;
+export type EffectSelection = z.infer<typeof effectSelectionSchema>;
+
+// Character type
+export type Character = z.infer<typeof characterSchema>;
+export type Skills = Record<string, Skill>;
+export type SkillName = keyof Skills;
+
+// CreateCharacterData - used for character creation
+// This is an interface rather than inferred type because it's a subset/variant of Character
+export interface CreateCharacterData {
+  name: string;
+  ancestryId: string;
+  backgroundId: string;
+  level: number;
+  classId: string;
+  subclassId?: string;
+  effectSelections: EffectSelection[];
+  _spellTierAccess: number;
+  _proficiencies: Proficiencies;
+  _attributes: Attributes;
+  _initiative: Skill;
+  _skills: Skills;
+  _abilities: AbilityDefinition[];
+  _abilityUses: Map<string, number>;
+  _hitDice: HitDice;
+  saveAdvantages: SaveAdvantageMap;
+  hitPoints: HitPoints;
+  wounds: Wounds;
+  _resourceDefinitions: ResourceDefinition[];
+  _resourceValues: Map<string, ResourceValue>;
+  config: CharacterConfiguration;
+  speed: number;
+  actionTracker: ActionTracker;
+  inEncounter: boolean;
+  inventory: Inventory;
+}

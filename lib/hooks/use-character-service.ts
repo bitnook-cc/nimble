@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { getCharacterService } from "../services/service-factory";
-import { Character } from "../types/character";
+import { Character } from "../schemas/character";
 import { useToastService } from "./use-toast-service";
 
 /**
@@ -128,5 +128,7 @@ export function useCharacterService() {
     getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
     getSpeed: characterService.getSpeed.bind(characterService),
     getSpellSchools: characterService.getSpellSchools.bind(characterService),
+    getAbilities: characterService.getAbilities.bind(characterService),
+    getResources: characterService.getResources.bind(characterService),
   };
 }

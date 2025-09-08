@@ -6,7 +6,7 @@ import {
   Item,
   ItemType,
   WeaponItem,
-} from "./inventory";
+} from "@/lib/schemas/inventory";
 
 // Repository item wrapper that uses the existing item structure
 export interface RepositoryItem {

@@ -1,4 +1,4 @@
-import { Character } from "../types/character";
+import { Character } from "../schemas/character";
 import { calculateFlexibleValue } from "../types/flexible-value";
 import { 
   ResourceDefinition, 

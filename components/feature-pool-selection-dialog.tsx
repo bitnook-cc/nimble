@@ -4,15 +4,12 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { Character } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/schemas/class";
 import {
+  ClassFeature,
   FeatureEffect,
   PickFeatureFromPoolFeatureEffect,
-  SpellSchoolFeatureEffect,
 } from "@/lib/schemas/features";
 
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {

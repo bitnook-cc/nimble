@@ -3,7 +3,7 @@
  * Used for ability max uses, resource min/max values, and other dynamic calculations
  */
 import { formulaEvaluatorService } from "../services/formula-evaluator-service";
-import type { Character } from "./character";
+import type { Character } from "../schemas/character";
 import type { FlexibleValue } from "../schemas/flexible-value";
 
 /**

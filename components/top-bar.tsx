@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Equal, Menu } from "lucide-react";
 
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { AppSettings } from "@/lib/services/settings-service";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 import { AppMenu } from "./app-menu";
 import { RollPanel } from "./roll-panel";

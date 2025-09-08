@@ -1,5 +1,5 @@
-import { ActionAbilityDefinition } from "../../schemas/abilities";
-import { ClassDefinition, ClassFeature } from "../../schemas/class";
+import { ClassDefinition } from "../../schemas/class";
+import { ClassFeature } from "@/lib/schemas/features"
 
 // Savage Arsenal abilities - Feature Pool
 const savageArsenalFeatures: ClassFeature[] = [

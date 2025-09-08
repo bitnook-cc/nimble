@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Character } from "@/lib/types/character";
+import { Character } from "@/lib/schemas/character";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";

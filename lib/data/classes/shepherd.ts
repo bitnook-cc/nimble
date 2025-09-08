@@ -1,4 +1,5 @@
-import { ClassDefinition, ClassFeature, FeaturePool } from "../../schemas/class";
+import { ClassDefinition } from "../../schemas/class";
+import { ClassFeature } from "@/lib/schemas/features"
 
 // Sacred Graces - Feature Pool
 const sacredGraces: ClassFeature[] = [

@@ -20,7 +20,7 @@ import { useMemo, useState } from "react";
 
 import { getItemService } from "@/lib/services/service-factory";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { ItemType } from "@/lib/types/inventory";
+import { ItemType } from "@/lib/schemas/inventory";
 import { ItemFilter, RepositoryItem } from "@/lib/types/item-repository";
 
 import { Badge } from "./ui/badge";

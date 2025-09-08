@@ -20,13 +20,10 @@ import { abilityService } from "@/lib/services/ability-service";
 import {
   AbilityDefinition,
   AbilityFrequency,
-  AbilityRoll,
   ActionAbilityDefinition,
-  FreeformAbilityDefinition,
-  ResourceCost,
 } from "@/lib/schemas/abilities";
-import { AttributeName } from "@/lib/types/character";
-import { FlexibleValue } from "@/lib/types/flexible-value";
+import { AttributeName } from "@/lib/schemas/character";
+import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { parseDiceExpression } from "@/lib/utils/dice-parser";
 
 import { Badge } from "../ui/badge";

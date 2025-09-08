@@ -12,7 +12,6 @@ import { getCharacterCreation, getCharacterService } from "@/lib/services/servic
 import { CharacterBuilder } from "./character-builder";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
 interface CharacterCreateFormProps {

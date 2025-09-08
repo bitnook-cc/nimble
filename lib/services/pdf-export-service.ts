@@ -1,6 +1,6 @@
 import { PDFDocument, PDFForm } from "pdf-lib";
 
-import { Character, SaveAdvantageMap, SaveAdvantageType } from "../types/character";
+import { Character, SaveAdvantageMap, SaveAdvantageType } from "../schemas/character";
 import { ContentRepositoryService } from "./content-repository-service";
 import { ICharacterService } from "./interfaces";
 import { getAncestryService, getBackgroundService, getCharacterService, getClassService } from "./service-factory";

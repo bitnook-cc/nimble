@@ -4,8 +4,7 @@ import { Sword, Zap } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { abilityService } from "@/lib/services/ability-service";
-import { getCharacterService } from "@/lib/services/service-factory";
-import { AbilityDefinition, AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
+import { AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
 // Action types defined inline since actions.ts doesn't exist
 type Action = WeaponAction | AbilityAction;
 interface WeaponAction {
@@ -16,8 +15,8 @@ interface AbilityAction {
   type: "ability";
   ability: ActionAbilityDefinition;
 }
-import { AttributeName, Character } from "@/lib/types/character";
-import { WeaponItem } from "@/lib/types/inventory";
+import { AttributeName, Character } from "@/lib/schemas/character";
+import { WeaponItem } from "@/lib/schemas/inventory";
 import { getEquippedWeapons } from "@/lib/utils/equipment";
 
 import { Badge } from "./ui/badge";
@@ -36,9 +35,8 @@ interface ActionsProps {
 }
 
 export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
-  const { performAttack, performUseAbility } = useCharacterService();
-  const characterService = getCharacterService();
-  const abilities = characterService.getAbilities();
+  const { performAttack, performUseAbility, getAbilities, getResources } = useCharacterService();
+  const abilities = getAbilities();
   const weapons = getEquippedWeapons(character.inventory.items);
   const actionAbilities = abilities.filter(
     (ability): ability is ActionAbilityDefinition => ability.type === "action",
@@ -220,7 +218,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
               const getResourceInfo = () => {
                 if (!ability.resourceCost) return { canAfford: true, resourceName: null };
 
-                const resources = characterService.getResources();
+                const resources = getResources();
                 const resource = resources.find(
                   (r) => r.definition.id === ability.resourceCost!.resourceId,
                 );

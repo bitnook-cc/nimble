@@ -1,7 +1,7 @@
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
-import { Attributes, Character, EffectSelection } from "../types/character";
-import { Item } from "../types/inventory";
+import { Attributes, Character, EffectSelection } from "../schemas/character";
+import { Item } from "../schemas/inventory";
 import {
   createDefaultActionTracker,
   createDefaultCharacterConfiguration,

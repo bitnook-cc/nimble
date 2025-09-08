@@ -1,7 +1,5 @@
 import {
   AbilityDefinition,
-  ActionAbilityDefinition,
-  SpellAbilityDefinition,
 } from "../schemas/abilities";
 import {
   ActionTracker,
@@ -9,20 +7,17 @@ import {
   Attributes,
   Character,
   CharacterConfiguration,
-  CharacterFeature,
-  EffectSelection,
   PoolFeatureEffectSelection,
   Skill,
   Skills,
   SpellSchoolEffectSelection,
   SubclassEffectSelection,
   UtilitySpellsEffectSelection,
-} from "../types/character";
-import { ClassFeature } from "../schemas/class";
+} from "../schemas/character";
 import { DiceType } from "../schemas/dice";
-import { FeatureEffect, StatBonusFeatureEffect } from "../schemas/features";
+import { CharacterFeature, ClassFeature, FeatureEffect, StatBonusFeatureEffect } from "../schemas/features";
 import { calculateFlexibleValue } from "../types/flexible-value";
-import { ArmorItem, EquippableItem, Item, WeaponItem } from "../types/inventory";
+import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance, ResourceValue } from "../schemas/resources";
 import { StatBonus } from "../schemas/stat-bonus";
 import { abilityService } from "./ability-service";

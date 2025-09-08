@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { ClassFeature } from "@/lib/schemas/class";
 import { PickFeatureFromPoolFeatureEffect } from "@/lib/schemas/features";
 
 import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";

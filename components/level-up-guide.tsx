@@ -14,14 +14,13 @@ import {
   getContentRepository,
   getDiceService,
 } from "@/lib/services/service-factory";
-import { AttributeName, EffectSelection } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/schemas/class";
+import { AttributeName, EffectSelection } from "@/lib/schemas/character";
 import {
+  ClassFeature,
   AbilityFeatureEffect,
   AttributeBoostFeatureEffect,
   PickFeatureFromPoolFeatureEffect,
   ResourceFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
   SpellSchoolFeatureEffect,
   SpellTierAccessFeatureEffect,
   UtilitySpellsFeatureEffect,

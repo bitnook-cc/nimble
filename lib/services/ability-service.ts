@@ -5,7 +5,7 @@ import {
   SpellAbilityDefinition,
   UsableAbilityDefinition,
 } from "../schemas/abilities";
-import { Character } from "../types/character";
+import { Character } from "../schemas/character";
 import { formulaEvaluatorService } from "./formula-evaluator-service";
 
 export class AbilityService {

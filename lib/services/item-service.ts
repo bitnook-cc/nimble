@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { ITEM_REPOSITORY } from "../data/items";
-import { Item, ItemType } from "../types/inventory";
+import { Item, ItemType } from "../schemas/inventory";
 import { ItemFilter, RepositoryItem } from "../types/item-repository";
 
 export class ItemService {

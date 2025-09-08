@@ -182,7 +182,6 @@ export const SpellSchoolDefinitionSchema = z
 // Export inferred types
 export type ArmorProficiency = z.infer<typeof ArmorProficiencySchema>;
 export type WeaponProficiency = z.infer<typeof WeaponProficiencySchema>;
-export type ClassFeature = z.infer<typeof ClassFeatureSchema>;
 export type FeaturePool = z.infer<typeof FeaturePoolSchema>;
 export type ClassDefinition = z.infer<typeof ClassDefinitionSchema>;
 export type SubclassDefinition = z.infer<typeof SubclassDefinitionSchema>;

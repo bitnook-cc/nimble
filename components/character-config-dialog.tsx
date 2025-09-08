@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { Character, CharacterConfiguration } from "@/lib/types/character";
+import { Character, CharacterConfiguration } from "@/lib/schemas/character";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   ResourceDefinition,

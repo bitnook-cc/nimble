@@ -4,7 +4,7 @@ import { RotateCcw } from "lucide-react";
 
 import { useState } from "react";
 
-import { AttributeName } from "@/lib/types/character";
+import { AttributeName } from "@/lib/schemas/character";
 
 import { gameConfig } from "../../lib/config/game-config";
 import { Button } from "../ui/button";

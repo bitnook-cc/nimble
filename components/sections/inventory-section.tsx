@@ -6,7 +6,7 @@ import { useCallback } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Inventory as InventoryType } from "@/lib/types/inventory";
+import { Inventory as InventoryType } from "@/lib/schemas/inventory";
 
 import { Inventory } from "../inventory";
 import { Button } from "../ui/button";

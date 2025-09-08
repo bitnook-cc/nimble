@@ -9,15 +9,13 @@ import { getCharacterService, getAncestryService, getBackgroundService } from "@
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { Character } from "@/lib/types/character";
-import { PoolFeatureEffectSelection } from "@/lib/types/character";
-import { CharacterFeature } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/schemas/class";
+import { PoolFeatureEffectSelection } from "@/lib/schemas/character";
+import { ClassFeature, CharacterFeature } from "@/lib/schemas/features";
 
 import { FeatureEffectsDisplay } from "../feature-effects-display";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 type ClassFeatureWithSource = {

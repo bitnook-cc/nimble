@@ -12,19 +12,18 @@ import {
   Attributes,
   Character,
   CharacterConfiguration,
-  CharacterFeature,
   EffectSelection,
   HitDice,
   Skill,
   Skills,
-} from "../types/character";
-import { ClassFeature, FeaturePool } from "../schemas/class";
-import { PickFeatureFromPoolFeatureEffect } from "../schemas/features";
-import { Item } from "../types/inventory";
+} from "../schemas/character";
+import { FeaturePool } from "../schemas/class";
+import { ClassFeature, CharacterFeature, PickFeatureFromPoolFeatureEffect } from "../schemas/features";
+import { Item } from "../schemas/inventory";
 import { LogEntry, SingleDie } from "../types/log-entries";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
-import { CreateCompleteCharacterOptions } from "./character-creation-service";
-import { CharacterEvent, CharacterEventType } from "./character-service";
+import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
+import { CharacterEvent, CharacterEventType } from "../services/character-service";
 
 /**
  * Character Storage Interface

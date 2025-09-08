@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { SkillName } from "@/lib/types/character";
+import { SkillName } from "@/lib/schemas/character";
 
 import { SkillsList } from "../shared/skills-list";
 

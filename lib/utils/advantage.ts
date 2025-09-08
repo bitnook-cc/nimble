@@ -1,4 +1,4 @@
-import { SaveAdvantageType } from "../types/character";
+import { SaveAdvantageType } from "../schemas/character";
 
 /**
  * Helper function to combine global advantage level with permanent save advantage

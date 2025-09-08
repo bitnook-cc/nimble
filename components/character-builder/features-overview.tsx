@@ -22,9 +22,10 @@ import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { AttributeName, CharacterFeature } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/schemas/class";
+import { AttributeName } from "@/lib/schemas/character";
 import {
+  CharacterFeature,
+  ClassFeature,
   AttributeBoostFeatureEffect,
   FeatureEffect,
 } from "@/lib/schemas/features";

@@ -1,4 +1,4 @@
-import { Character, CreateCharacterData } from "../types/character";
+import { Character, CreateCharacterData } from "../schemas/character";
 import { NumericalResourceValue } from "../schemas/resources";
 
 export interface ICharacterRepository {

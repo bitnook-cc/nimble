@@ -81,43 +81,6 @@ export const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
 })
   .meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
-// Keep the old ActionAbilitySchema for class features with currentUses
-export const ClassActionAbilitySchema = z
-  .object({
-    id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the ability" }),
-    name: z.string().min(1).meta({ title: "Name", description: "Display name of the ability" }),
-    description: z
-      .string()
-      .min(1)
-      .meta({ title: "Description", description: "Detailed description of what the ability does" }),
-    type: z
-      .literal("action")
-      .meta({ title: "Type", description: 'Must be "action" for action abilities' }),
-    frequency: z
-      .enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"])
-      .meta({ title: "Frequency", description: "How often the ability can be used" }),
-    maxUses: flexibleValueSchema.optional(),
-    currentUses: z
-      .number()
-      .int()
-      .min(0)
-      .optional()
-      .meta({ title: "Current Uses", description: "Current remaining uses (integer)" }),
-    roll: AbilityRollSchema.optional().meta({
-      title: "Roll",
-      description: "Dice roll configuration for the ability",
-    }),
-    actionCost: z.number().int().min(0).max(5).optional().meta({
-      title: "Action Cost",
-      description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
-    }),
-    resourceCost: ResourceCostSchema.optional().meta({
-      title: "Resource Cost",
-      description: "Resource cost to use the ability",
-    }),
-  })
-  .meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
-
 // Spell ability schema
 export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
   type: z.literal("spell"),
@@ -136,7 +99,7 @@ export const AbilityDefinitionSchema = z.discriminatedUnion("type", [
 ]);
 
 // Legacy schema for class features (includes currentUses)
-export const AbilitySchema = z.discriminatedUnion("type", [ClassActionAbilitySchema, SpellAbilitySchema]);
+export const AbilitySchema = z.discriminatedUnion("type", [ActionAbilitySchema, SpellAbilitySchema]);
 
 // Export inferred types
 export type AbilityRoll = z.infer<typeof AbilityRollSchema>;
