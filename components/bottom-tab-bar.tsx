@@ -5,6 +5,7 @@ import { Package, ScrollText, Sparkles, Sword, Target, User } from "lucide-react
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { TabType } from "@/lib/services/ui-state-service";
 
 import { Button } from "./ui/button";
@@ -38,7 +39,9 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
     if (tab.id === "spells") {
       if (!character) return false;
       // Show spells tab if character has any spell abilities (even tier 0)
-      const hasSpells = character.abilities.some((ability) => ability.type === "spell");
+      const characterService = getCharacterService();
+  const abilities = characterService.getAbilities();
+  const hasSpells = abilities.some((ability) => ability.type === "spell");
       return hasSpells;
     }
     return true;

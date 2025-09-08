@@ -1,4 +1,4 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 import { fireSchoolSpells } from "./fire";
 import { iceSchoolSpells } from "./ice";
 import { lightningSchoolSpells } from "./lightning";
@@ -10,7 +10,7 @@ import { windSchoolSpells } from "./wind";
 /**
  * Get spells from a specific school
  */
-export function getSpellsBySchool(schoolId: string): SpellAbility[] {
+export function getSpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
   switch (schoolId) {
     case "fire":
       return fireSchoolSpells;
@@ -32,14 +32,14 @@ export function getSpellsBySchool(schoolId: string): SpellAbility[] {
 /**
  * Get utility spells from a specific school
  */
-export function getUtilitySpellsBySchool(schoolId: string): SpellAbility[] {
+export function getUtilitySpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
   return utilitySpellsBySchool[schoolId] || [];
 }
 
 /**
  * Get all available spell schools
  */
-export function getAllSpellSchools(): { id: string; name: string; spells: SpellAbility[] }[] {
+export function getAllSpellSchools(): { id: string; name: string; spells: SpellAbilityDefinition[] }[] {
   return [
     { id: "fire", name: "Fire Spells", spells: fireSchoolSpells },
     { id: "ice", name: "Ice Spells", spells: iceSchoolSpells },

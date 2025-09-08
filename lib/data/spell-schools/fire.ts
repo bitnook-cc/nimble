@@ -1,6 +1,6 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
-export const fireSchoolSpells: SpellAbility[] = [
+export const fireSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "flame-dart",

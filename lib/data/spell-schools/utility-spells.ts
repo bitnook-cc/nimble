@@ -1,7 +1,7 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
 // ICE UTILITY SPELLS
-export const iceUtilitySpells: SpellAbility[] = [
+export const iceUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "ice-disk",
     name: "Ice Disk",
@@ -32,7 +32,7 @@ export const iceUtilitySpells: SpellAbility[] = [
 ];
 
 // LIGHTNING UTILITY SPELLS
-export const lightningUtilitySpells: SpellAbility[] = [
+export const lightningUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "spark-buddy",
     name: "Spark Buddy",
@@ -62,7 +62,7 @@ export const lightningUtilitySpells: SpellAbility[] = [
 ];
 
 // RADIANT UTILITY SPELLS
-export const radiantUtilitySpells: SpellAbility[] = [
+export const radiantUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "light",
     name: "Light",
@@ -93,7 +93,7 @@ export const radiantUtilitySpells: SpellAbility[] = [
 ];
 
 // FIRE UTILITY SPELLS
-export const fireUtilitySpells: SpellAbility[] = [
+export const fireUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "firebrand",
     name: "Firebrand",
@@ -122,7 +122,7 @@ export const fireUtilitySpells: SpellAbility[] = [
 ];
 
 // WIND UTILITY SPELLS
-export const windUtilitySpells: SpellAbility[] = [
+export const windUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "wind-whisper",
     name: "Wind Whisper",
@@ -153,7 +153,7 @@ export const windUtilitySpells: SpellAbility[] = [
 ];
 
 // NECROTIC UTILITY SPELLS
-export const necroticUtilitySpells: SpellAbility[] = [
+export const necroticUtilitySpells: SpellAbilityDefinition[] = [
   {
     id: "gravecraft",
     name: "Gravecraft",
@@ -184,7 +184,7 @@ export const necroticUtilitySpells: SpellAbility[] = [
 ];
 
 // Export all utility spells by school
-export const utilitySpellsBySchool: Record<string, SpellAbility[]> = {
+export const utilitySpellsBySchool: Record<string, SpellAbilityDefinition[]> = {
   ice: iceUtilitySpells,
   lightning: lightningUtilitySpells,
   radiant: radiantUtilitySpells,

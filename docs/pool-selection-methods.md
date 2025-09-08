@@ -63,4 +63,4 @@ Flow:
 - **PickFeatureFromPoolFeature**: A feature that grants the ability to select from a pool
 - **FeaturePool**: A collection of features that can be selected from
 - **ClassFeature**: The actual features within a pool
-- **SelectedPoolFeature**: Record of a feature that was selected from a pool
+- **PoolFeatureEffectSelection**: Record of a feature that was selected from a pool

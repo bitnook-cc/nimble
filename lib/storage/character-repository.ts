@@ -1,4 +1,5 @@
 import { Character, CreateCharacterData } from "../types/character";
+import { NumericalResourceValue } from "../types/resources";
 
 export interface ICharacterRepository {
   save(character: Character): Promise<void>;
@@ -17,10 +18,21 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
 
     character.updatedAt = new Date();
 
+    // Convert Maps to objects for serialization
+    const serializable = {
+      ...character,
+      _abilityUses: character._abilityUses instanceof Map 
+        ? Object.fromEntries(character._abilityUses) 
+        : character._abilityUses,
+      _resourceValues: character._resourceValues instanceof Map 
+        ? Object.fromEntries(character._resourceValues) 
+        : character._resourceValues,
+    };
+
     if (index >= 0) {
-      characters[index] = character;
+      characters[index] = serializable as any;
     } else {
-      characters.push(character);
+      characters.push(serializable as any);
     }
 
     localStorage.setItem(this.storageKey, JSON.stringify(characters));
@@ -41,6 +53,22 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
         ...char,
         createdAt: new Date(char.createdAt),
         updatedAt: new Date(char.updatedAt),
+        // Convert objects back to Maps
+        _abilityUses: new Map(Object.entries(char._abilityUses || {})),
+        _resourceValues: new Map(
+          Object.entries(char._resourceValues || {}).map(([key, value]) => {
+            // Ensure the value has the correct structure
+            if (typeof value === 'object' && value !== null && 'type' in value) {
+              return [key, value];
+            }
+            // Handle legacy numeric values
+            if (typeof value === 'number') {
+              return [key, { type: 'numerical' as const, value }];
+            }
+            // Default fallback
+            return [key, { type: 'numerical' as const, value: 0 }];
+          })
+        ),
       }));
     } catch {
       return [];
@@ -57,6 +85,23 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
     const character: Character = {
       id: id || crypto.randomUUID(),
       ...data,
+      // Ensure Maps are properly initialized
+      _abilityUses: data._abilityUses instanceof Map 
+        ? data._abilityUses 
+        : new Map(Object.entries(data._abilityUses || {})),
+      _resourceValues: data._resourceValues instanceof Map 
+        ? data._resourceValues 
+        : new Map<string, NumericalResourceValue>(
+            Object.entries(data._resourceValues || {}).map(([key, value]) => {
+              if (typeof value === 'object' && value !== null && 'type' in value) {
+                return [key, value as NumericalResourceValue];
+              }
+              if (typeof value === 'number') {
+                return [key, { type: 'numerical' as const, value }];
+              }
+              return [key, { type: 'numerical' as const, value: 0 }];
+            })
+          ),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

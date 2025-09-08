@@ -14,18 +14,19 @@ import {
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { abilityService } from "@/lib/services/ability-service";
 import {
-  Ability,
+  AbilityDefinition,
   AbilityFrequency,
   AbilityRoll,
-  AbilityUses,
-  ActionAbility,
-  FreeformAbility,
+  ActionAbilityDefinition,
+  FreeformAbilityDefinition,
   ResourceCost,
 } from "@/lib/types/abilities";
 import { AttributeName } from "@/lib/types/character";
+import { FlexibleValue } from "@/lib/types/flexible-value";
 import { parseDiceExpression } from "@/lib/utils/dice-parser";
 
 import { Badge } from "../ui/badge";
@@ -42,7 +43,7 @@ interface NewAbilityForm {
   description: string;
   type: "freeform" | "action";
   frequency: AbilityFrequency;
-  maxUses?: AbilityUses;
+  maxUses?: FlexibleValue;
   maxUsesType?: "fixed" | "formula"; // For form UI
   maxUsesValue?: number; // For fixed type
   maxUsesExpression?: string; // For formula type
@@ -87,7 +88,9 @@ export function AbilitySection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("abilities", isOpen);
 
   // Filter out spell abilities - they have their own spells tab
-  const abilities = character.abilities.filter((ability) => ability.type !== "spell");
+  const characterService = getCharacterService();
+  const allAbilities = characterService.getAbilities();
+  const abilities = allAbilities.filter((ability) => ability.type !== "spell");
 
   const handleUseAbility = async (abilityId: string, variableAmount?: number) => {
     if (!character) return;
@@ -98,7 +101,7 @@ export function AbilitySection() {
   const addAbility = () => {
     if (!newAbility.name.trim()) return;
 
-    const ability: Ability =
+    const ability: AbilityDefinition =
       newAbility.type === "freeform"
         ? {
             id: `ability-${Date.now()}`,
@@ -121,25 +124,6 @@ export function AbilitySection() {
                           type: "formula" as const,
                           expression: newAbility.maxUsesExpression || "DEX + WIL",
                         },
-                  currentUses:
-                    newAbility.maxUsesType === "fixed"
-                      ? newAbility.maxUsesValue || 1
-                      : character
-                        ? abilityService.calculateMaxUses(
-                            {
-                              id: "",
-                              name: "",
-                              description: "",
-                              type: "action",
-                              frequency: newAbility.frequency,
-                              maxUses: {
-                                type: "formula",
-                                expression: newAbility.maxUsesExpression || "DEX + WIL",
-                              },
-                            } as ActionAbility,
-                            character,
-                          )
-                        : 1,
                 }
               : {}),
             ...(newAbility.actionCost ? { actionCost: newAbility.actionCost } : {}),
@@ -207,7 +191,7 @@ export function AbilitySection() {
     return <Badge className={colors[frequency]}>{labels[frequency]}</Badge>;
   };
 
-  const renderAbility = (ability: Ability) => {
+  const renderAbility = (ability: AbilityDefinition) => {
     if (ability.type === "freeform") {
       return (
         <Card key={ability.id} className="mb-2">
@@ -235,14 +219,17 @@ export function AbilitySection() {
       );
     }
 
-    const actionAbility = ability as ActionAbility;
-    const isUsed = actionAbility.frequency !== "at_will" && actionAbility.currentUses === 0;
+    const actionAbility = ability as ActionAbilityDefinition;
+    const currentUses = character._abilityUses.get(actionAbility.id) || 0;
+    const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility, character) : 0;
+    const isUsed = actionAbility.frequency !== "at_will" && actionAbility.maxUses && currentUses >= maxUses;
 
     // Check if ability has resource requirements and if we have enough resources
     const getResourceInfo = () => {
       if (!actionAbility.resourceCost) return { canAfford: true, resourceName: null };
 
-      const resource = character.resources.find(
+      const resources = characterService.getResources();
+      const resource = resources.find(
         (r) => r.definition.id === actionAbility.resourceCost!.resourceId,
       );
       if (!resource)
@@ -274,8 +261,8 @@ export function AbilitySection() {
                 {getFrequencyBadge(actionAbility.frequency)}
                 {actionAbility.frequency !== "at_will" && actionAbility.maxUses && character && (
                   <Badge variant="secondary">
-                    {actionAbility.currentUses}/
-                    {actionAbility.maxUses.type === "fixed"
+                    {currentUses}/
+                    {actionAbility.maxUses?.type === "fixed"
                       ? actionAbility.maxUses.value
                       : abilityService.calculateMaxUses(actionAbility, character)}{" "}
                     uses
@@ -581,7 +568,7 @@ export function AbilitySection() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">No resource cost</SelectItem>
-                                {character.resources.map((resource) => (
+                                {characterService.getResources().map((resource) => (
                                   <SelectItem
                                     key={resource.definition.id}
                                     value={resource.definition.id}

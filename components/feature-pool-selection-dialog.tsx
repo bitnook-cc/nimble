@@ -156,7 +156,11 @@ export function FeaturePoolSelectionDialog({
 
   const classService = getClassService();
   const pool = classService.getFeaturePool(character.classId, pickFeature.poolId);
-  const availableFeatures = classService.getAvailablePoolFeatures(character, pickFeature.poolId);
+  const availableFeatures = classService.getAvailablePoolFeatures(
+    character.classId,
+    pickFeature.poolId,
+    character.effectSelections,
+  );
   const remaining = classService.getRemainingPoolSelections(character, pickFeature);
 
   if (!pool) {

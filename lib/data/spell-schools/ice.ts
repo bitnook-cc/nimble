@@ -1,6 +1,6 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
-export const iceSchoolSpells: SpellAbility[] = [
+export const iceSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "ice-lance",

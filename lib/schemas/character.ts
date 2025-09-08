@@ -190,7 +190,6 @@ export const abilitySchema = z.discriminatedUnion("type", [
       type: z.literal("action"),
       frequency: z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]),
       maxUses: abilityUsesSchema.optional(),
-      currentUses: z.int().min(0).optional(),
       roll: abilityRollSchema.optional(),
       actionCost: z.int().min(0).optional(),
       resourceCost: resourceCostSchema.optional(),
@@ -287,6 +286,18 @@ const effectSelectionSchema = z.discriminatedUnion("type", [
   subclassEffectSelectionSchema,
 ]);
 
+// Helper schemas for Map transformations
+// These handle both Map objects and plain objects (from JSON)
+const abilityUsesMapSchema = z.union([
+  z.map(z.string(), z.number()),
+  z.record(z.string(), z.number()).transform((obj) => new Map(Object.entries(obj))),
+]);
+
+const resourceValuesMapSchema = z.union([
+  z.map(z.string(), resourceValueSchema),
+  z.record(z.string(), resourceValueSchema).transform((obj) => new Map(Object.entries(obj))),
+]);
+
 export const characterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(50),
@@ -301,13 +312,13 @@ export const characterSchema = z.object({
   _initiative: skillSchema,
   _skills: z.record(z.string(), skillSchema),
   _abilities: z.array(abilitySchema),
-  _abilityUses: z.map(z.string(), z.number()),
+  _abilityUses: abilityUsesMapSchema,
   _hitDice: hitDiceSchema,
   saveAdvantages: saveAdvantageMapSchema,
   hitPoints: hitPointsSchema,
   wounds: woundsSchema,
   _resourceDefinitions: z.array(resourceDefinitionSchema),
-  _resourceValues: z.map(z.string(), resourceValueSchema),
+  _resourceValues: resourceValuesMapSchema,
   config: characterConfigurationSchema,
   speed: z.number().min(0),
   actionTracker: actionTrackerSchema,

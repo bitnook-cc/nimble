@@ -1,6 +1,6 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
-export const necroticSchoolSpells: SpellAbility[] = [
+export const necroticSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "entice",

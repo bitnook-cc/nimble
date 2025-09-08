@@ -28,7 +28,6 @@ export function ActionTrackerSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("actionTracker", isOpen);
 
   const actionTracker = character.actionTracker;
-  const abilities = character.abilities;
   const totalActions = actionTracker.base + actionTracker.bonus;
 
   const useAction = () => {

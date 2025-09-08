@@ -4,8 +4,18 @@ import { Sword, Zap } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { abilityService } from "@/lib/services/ability-service";
-import { Ability, AbilityFrequency, ActionAbility } from "@/lib/types/abilities";
-import { AbilityAction, Action, WeaponAction } from "@/lib/types/actions";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { AbilityDefinition, AbilityFrequency, ActionAbilityDefinition } from "@/lib/types/abilities";
+// Action types defined inline since actions.ts doesn't exist
+type Action = WeaponAction | AbilityAction;
+interface WeaponAction {
+  type: "weapon";
+  weapon: WeaponItem;
+}
+interface AbilityAction {
+  type: "ability";
+  ability: ActionAbilityDefinition;
+}
 import { AttributeName, Character } from "@/lib/types/character";
 import { WeaponItem } from "@/lib/types/inventory";
 import { getEquippedWeapons } from "@/lib/utils/equipment";
@@ -27,9 +37,11 @@ interface ActionsProps {
 
 export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
   const { performAttack, performUseAbility } = useCharacterService();
+  const characterService = getCharacterService();
+  const abilities = characterService.getAbilities();
   const weapons = getEquippedWeapons(character.inventory.items);
-  const actionAbilities = character.abilities.filter(
-    (ability): ability is ActionAbility => ability.type === "action",
+  const actionAbilities = abilities.filter(
+    (ability): ability is ActionAbilityDefinition => ability.type === "action",
   );
 
   const getAttributeModifier = (attributeName?: AttributeName): number => {
@@ -52,12 +64,16 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
     await performAttack(weapon.name, weapon.damage, attributeModifier, advantageLevel);
   };
 
-  const handleUseAbility = async (ability: ActionAbility) => {
+  const handleUseAbility = async (ability: ActionAbilityDefinition) => {
     // For at-will abilities, allow usage regardless of currentUses
     // For other abilities, check if they have remaining uses
+    const currentUses = character._abilityUses.get(ability.id) || 0;
+    const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability, character) : 0;
+    
     if (
       ability.frequency !== "at_will" &&
-      (ability.currentUses === undefined || ability.currentUses <= 0)
+      ability.maxUses &&
+      currentUses >= maxUses
     ) {
       return;
     }
@@ -188,9 +204,12 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {actionAbilities.map((ability) => {
+              const currentUses = character._abilityUses.get(ability.id) || 0;
+              const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability, character) : 0;
               const isUsed =
                 ability.frequency !== "at_will" &&
-                (ability.currentUses === undefined || ability.currentUses === 0);
+                ability.maxUses &&
+                currentUses >= maxUses;
               const actionCost = ability.actionCost || 0;
               const insufficientActions =
                 character.inEncounter &&
@@ -201,7 +220,8 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
               const getResourceInfo = () => {
                 if (!ability.resourceCost) return { canAfford: true, resourceName: null };
 
-                const resource = character.resources.find(
+                const resources = characterService.getResources();
+                const resource = resources.find(
                   (r) => r.definition.id === ability.resourceCost!.resourceId,
                 );
                 if (!resource)
@@ -244,10 +264,8 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                         {getFrequencyBadge(ability.frequency)}
                         {ability.frequency !== "at_will" && ability.maxUses && character && (
                           <Badge variant="secondary">
-                            {ability.currentUses}/
-                            {ability.maxUses.type === "fixed"
-                              ? ability.maxUses.value
-                              : abilityService.calculateMaxUses(ability, character)}{" "}
+                            {currentUses}/
+                            {maxUses}{" "}
                             uses
                           </Badge>
                         )}

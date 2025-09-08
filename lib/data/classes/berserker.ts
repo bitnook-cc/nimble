@@ -1,4 +1,4 @@
-import { ActionAbility } from "../../types/abilities";
+import { ActionAbilityDefinition } from "../../types/abilities";
 import { ClassDefinition, ClassFeature } from "../../types/class";
 
 // Savage Arsenal abilities - Feature Pool

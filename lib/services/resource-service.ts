@@ -109,6 +109,7 @@ export class ResourceService {
 
   /**
    * Reset resources based on a condition
+   * Also resets resources with "smaller" conditions (safe_rest > encounter_end > turn_end)
    * Returns a new Map with updated values
    */
   resetResourcesByCondition(
@@ -119,8 +120,20 @@ export class ResourceService {
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     
+    // Define the hierarchy of reset conditions
+    const conditionHierarchy: ResourceResetCondition[] = ["turn_end", "encounter_end", "safe_rest"];
+    const conditionIndex = conditionHierarchy.indexOf(condition);
+    
     for (const definition of resourceDefinitions) {
-      if (definition.resetCondition === condition) {
+      // Reset if the resource's condition matches or is "smaller" (earlier in hierarchy)
+      const resourceConditionIndex = conditionHierarchy.indexOf(definition.resetCondition);
+      
+      // Reset if:
+      // 1. Exact match
+      // 2. Resource condition is earlier in hierarchy (smaller scope)
+      // 3. Skip if condition is "never" or "manual"
+      if (definition.resetCondition === condition || 
+          (conditionIndex >= 0 && resourceConditionIndex >= 0 && resourceConditionIndex <= conditionIndex)) {
         const targetValue = this.calculateResetTargetValue(definition, character);
         newValues.set(definition.id, this.createNumericalValue(targetValue));
       }

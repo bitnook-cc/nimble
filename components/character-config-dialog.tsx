@@ -5,14 +5,16 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { Character, CharacterConfiguration } from "@/lib/types/character";
-import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
+import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   ResourceDefinition,
   ResourceInstance,
   ResourceResetCondition,
   ResourceResetType,
   createResourceInstance,
+  NumericalResourceValue,
 } from "@/lib/types/resources";
 import {
   RESOURCE_COLOR_SCHEMES,
@@ -120,11 +122,18 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   };
 
   // Resource Management Functions
+  const characterService = getCharacterService();
+  const resources = character ? characterService.getResources() : [];
+  
   const deleteResource = async (resourceId: string) => {
-    const updatedResources = character.resources.filter((r) => r.definition.id !== resourceId);
+    const updatedDefinitions = character._resourceDefinitions.filter((r) => r.id !== resourceId);
+    const updatedValues = new Map(character._resourceValues);
+    updatedValues.delete(resourceId);
+    
     const updatedCharacter = {
       ...character,
-      resources: updatedResources,
+      _resourceDefinitions: updatedDefinitions,
+      _resourceValues: updatedValues,
     };
     await updateCharacter(updatedCharacter);
   };
@@ -153,7 +162,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   };
 
   const updateResource = async (resourceId: string, field: string, value: any) => {
-    const updatedResources = character.resources.map((resource) => {
+    const updatedResources = resources.map((resource) => {
       if (resource.definition.id !== resourceId) return resource;
 
       if (field === "current" || field === "sortOrder") {
@@ -184,7 +193,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     }
 
     // Check for duplicate IDs
-    if (character.resources.some((r) => r.definition.id === newResource.id)) {
+    if (character._resourceDefinitions.some((r) => r.id === newResource.id)) {
       return; // ID already exists
     }
 
@@ -204,12 +213,13 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     const resourceInstance = createResourceInstance(
       definition,
       getFlexibleValue(definition.maxValue, character),
-      character.resources.length + 1,
+      character._resourceDefinitions.length + 1,
     );
 
     const updatedCharacter = {
       ...character,
-      resources: [...character.resources, resourceInstance],
+      _resourceDefinitions: [...character._resourceDefinitions, definition],
+      _resourceValues: new Map([...character._resourceValues, [definition.id, { type: "numerical" as const, value: getFlexibleValue(definition.maxValue, character) } as NumericalResourceValue]]),
     };
     await updateCharacter(updatedCharacter);
 
@@ -336,13 +346,13 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Existing Resources */}
-              {character.resources.length === 0 ? (
+              {resources.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No resources configured. Add a resource to get started.
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {character.resources.map((resource) => {
+                  {resources.map((resource) => {
                     const isEditing = editingResource === resource.definition.id;
                     const iconOption = getIconById(resource.definition.icon || "");
                     const colorScheme = getColorSchemeById(resource.definition.colorScheme);
@@ -882,7 +892,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                         disabled={
                           !newResource.id ||
                           !newResource.name ||
-                          character.resources.some((r) => r.definition.id === newResource.id)
+                          character._resourceDefinitions.some((r) => r.id === newResource.id)
                         }
                       >
                         Save Resource
@@ -895,7 +905,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                       <p className="text-xs text-destructive">ID and Name are required</p>
                     )}
                     {newResource.id &&
-                      character.resources.some((r) => r.definition.id === newResource.id) && (
+                      character._resourceDefinitions.some((r) => r.id === newResource.id) && (
                         <p className="text-xs text-destructive">Resource ID already exists</p>
                       )}
                   </CardContent>

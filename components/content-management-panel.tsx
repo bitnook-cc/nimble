@@ -25,7 +25,7 @@ import {
   ContentRepositoryService,
   ContentUploadResult,
 } from "@/lib/services/content-repository-service";
-import { ActionAbility, SpellAbility } from "@/lib/types/abilities";
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "@/lib/types/abilities";
 import { AncestryDefinition } from "@/lib/types/ancestry";
 import { BackgroundDefinition } from "@/lib/types/background";
 import { ClassDefinition, SubclassDefinition } from "@/lib/types/class";
@@ -55,8 +55,8 @@ type ContentItem =
   | SpellSchoolDefinition
   | AncestryDefinition
   | BackgroundDefinition
-  | ActionAbility
-  | SpellAbility
+  | ActionAbilityDefinition
+  | SpellAbilityDefinition
   | RepositoryItem;
 
 interface ContentManagementPanelProps {
@@ -429,8 +429,8 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                       : contentType === CustomContentType.SPELL_ABILITY
                         ? // Group spells by school
                           Object.entries(
-                            (items as SpellAbility[]).reduce(
-                              (groups: Record<string, SpellAbility[]>, spell) => {
+                            (items as SpellAbilityDefinition[]).reduce(
+                              (groups: Record<string, SpellAbilityDefinition[]>, spell) => {
                                 const school = spell.school || "Unknown";
                                 if (!groups[school]) groups[school] = [];
                                 groups[school].push(spell);

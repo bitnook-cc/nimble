@@ -5,13 +5,13 @@ import { ChevronDown, ChevronRight, Lock, Sparkles, Unlock } from "lucide-react"
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getCharacterService, getAncestryService, getBackgroundService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { AncestryFeature } from "@/lib/types/ancestry";
-import { BackgroundFeature } from "@/lib/types/background";
 import { Character } from "@/lib/types/character";
-import { SelectedPoolFeature } from "@/lib/types/character";
+import { PoolFeatureEffectSelection } from "@/lib/types/character";
+import { CharacterFeature } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 
 import { FeatureEffectsDisplay } from "../feature-effects-display";
@@ -27,12 +27,12 @@ type ClassFeatureWithSource = {
 
 type AncestryFeatureWithSource = {
   source: "ancestry";
-  feature: AncestryFeature;
+  feature: CharacterFeature;
 };
 
 type BackgroundFeatureWithSource = {
   source: "background";
-  feature: BackgroundFeature;
+  feature: CharacterFeature;
 };
 
 type FeatureWithSource =
@@ -48,6 +48,9 @@ export function ClassFeaturesSection() {
 
   const contentRepository = ContentRepositoryService.getInstance();
   const classService = getClassService();
+  const characterService = getCharacterService();
+  const ancestryService = getAncestryService();
+  const backgroundService = getBackgroundService();
 
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
@@ -55,8 +58,9 @@ export function ClassFeaturesSection() {
   const isOpen = uiState.collapsibleSections.classFeatures;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("classFeatures", isOpen);
   const classDefinition = contentRepository.getClassDefinition(character.classId);
-  const subclassDefinition = character.subclassId
-    ? contentRepository.getSubclassDefinition(character.subclassId)
+  const subclassId = characterService.getSubclassId();
+  const subclassDefinition = subclassId
+    ? contentRepository.getSubclassDefinition(subclassId)
     : null;
 
   if (!classDefinition) {
@@ -68,23 +72,21 @@ export function ClassFeaturesSection() {
     character.classId,
     character.level,
   );
-  const subclassFeatures = character.subclassId
-    ? contentRepository.getAllSubclassFeaturesUpToLevel(character.subclassId, character.level)
+  const subclassFeatures = subclassId
+    ? contentRepository.getAllSubclassFeaturesUpToLevel(subclassId, character.level)
     : [];
 
   // Get pool feature selections (these come from class features)
-  const poolSelections = character.selectedFeatures.filter(
-    (sf): sf is SelectedPoolFeature => sf.type === "pool_feature",
+  const poolSelections = (character.effectSelections || []).filter(
+    (sf): sf is PoolFeatureEffectSelection => sf.type === "pool_feature",
   );
 
   // Get ancestry and background features
-  const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
-  const backgroundDefinition = contentRepository.getBackgroundDefinition(
-    character.background.backgroundId,
-  );
+  const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestryId);
+  const backgroundDefinition = contentRepository.getBackgroundDefinition(character.backgroundId);
 
-  const ancestryFeatures = ancestryDefinition?.features || [];
-  const backgroundFeatures = backgroundDefinition?.features || [];
+  const ancestryFeatures = ancestryService.getExpectedFeaturesForCharacter(character);
+  const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(character);
 
   // Combine all features with their sources
   const allFeatures: FeatureWithSource[] = [
@@ -169,7 +171,7 @@ export function ClassFeaturesSection() {
   };
 
   const isSpellUnlocked = (tier: number): boolean => {
-    return tier <= character.spellTierAccess;
+    return tier <= character._spellTierAccess;
   };
 
   const renderFeature = (featureWithSource: FeatureWithSource, index: number) => {

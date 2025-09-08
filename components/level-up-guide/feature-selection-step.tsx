@@ -19,7 +19,7 @@ import { FeatureSelectionType } from "@/components/character-builder/features-ov
 import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 
 import { getClassService, getContentRepository } from "@/lib/services/service-factory";
-import { SpellAbility } from "@/lib/types/abilities";
+import { SpellAbilityDefinition } from "@/lib/types/abilities";
 import { AttributeName, Character } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 import {
@@ -237,7 +237,7 @@ export function FeatureSelectionStep({
         const selectedSpells = selection?.type === "utility_spells" ? selection.spellIds : [];
 
         // Get utility spells from the specified schools
-        const utilitySpells: SpellAbility[] = [];
+        const utilitySpells: SpellAbilityDefinition[] = [];
         utilitySpellsEffect?.schools?.forEach((schoolId: any) => {
           const spells = contentRepo
             .getSpellsBySchool(schoolId)

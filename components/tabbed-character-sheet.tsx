@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 
 import { BottomTabBar } from "./bottom-tab-bar";
 import { CharacterTab } from "./tabs/character-tab";
@@ -20,10 +21,11 @@ export function TabbedCharacterSheet() {
 
   // Check if spells tab should be accessible
   // Tier 0 access is allowed as long as the character has spell schools unlocked
+  const characterService = getCharacterService();
   const hasSpellAccess =
     character &&
-    character.spellTierAccess >= 0 &&
-    character.abilities.some((ability) => ability.type === "spell");
+    character._spellTierAccess >= 0 &&
+    characterService.getAbilities().some((ability) => ability.type === "spell");
 
   // Auto-switch away from spells tab if character loses spell access
   useEffect(() => {

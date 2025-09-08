@@ -1,6 +1,6 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
-export const radiantSchoolSpells: SpellAbility[] = [
+export const radiantSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "rebuke",

@@ -1,6 +1,6 @@
-import { SpellAbility } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../types/abilities";
 
-export const windSchoolSpells: SpellAbility[] = [
+export const windSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "razor-wind",

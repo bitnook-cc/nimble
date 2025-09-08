@@ -7,9 +7,10 @@ import { useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { SpellAbility } from "@/lib/types/abilities";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { SpellAbilityDefinition } from "@/lib/types/abilities";
 import { Character } from "@/lib/types/character";
-import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
+import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   formatActionCost,
   formatResourceCost,
@@ -34,12 +35,15 @@ export function SpellsSection() {
   if (!character) return null;
 
   // Get all spell abilities from character
-  const spellAbilities = character.abilities.filter(
-    (ability) => ability.type === "spell",
-  ) as SpellAbility[];
+  const characterService = getCharacterService();
+  const allAbilities = characterService.getAbilities();
+  const spellAbilities = allAbilities.filter(
+    (ability) => ability.type === "spell"
+  ) as SpellAbilityDefinition[];
 
   // Find mana resource (if any)
-  const manaResource = character.resources.find(
+  const resources = characterService.getResources();
+  const manaResource = resources.find(
     (resource) =>
       resource.definition.id.toLowerCase() === "mana" ||
       resource.definition.name.toLowerCase().includes("mana"),
@@ -60,14 +64,14 @@ export function SpellsSection() {
 
   // Get all locked spells by school
   const getLockedSpellsBySchool = () => {
-    const lockedSpellsBySchool: Record<string, SpellAbility[]> = {};
+    const lockedSpellsBySchool: Record<string, SpellAbilityDefinition[]> = {};
 
     spellSchoolEffects.forEach((effect) => {
       if (effect.type === "spell_school" && effect.spellSchool) {
         const schoolId = effect.spellSchool.schoolId;
         const allSpells = contentRepository.getSpellsBySchool(schoolId);
         // Include tier 0 spells when checking what's available vs locked
-        const lockedSpells = allSpells.filter((spell) => spell.tier > character.spellTierAccess);
+        const lockedSpells = allSpells.filter((spell) => spell.tier > character._spellTierAccess);
 
         if (lockedSpells.length > 0) {
           lockedSpellsBySchool[schoolId] = lockedSpells;
@@ -107,7 +111,7 @@ export function SpellsSection() {
       acc[spell.school].push(spell);
       return acc;
     },
-    {} as Record<string, SpellAbility[]>,
+    {} as Record<string, SpellAbilityDefinition[]>,
   );
 
   // Sort spells within each school by tier, then by name
@@ -148,7 +152,7 @@ export function SpellsSection() {
     return school.charAt(0).toUpperCase() + school.slice(1) + " Magic";
   };
 
-  const handleSpellCast = async (spell: SpellAbility) => {
+  const handleSpellCast = async (spell: SpellAbilityDefinition) => {
     await performUseAbility(spell.id);
   };
 
@@ -159,7 +163,7 @@ export function SpellsSection() {
           <Sparkles className="w-5 h-5 text-purple-500" />
           Spells
           <Badge variant="secondary" className="ml-2">
-            Tier {character.spellTierAccess} Access
+            Tier {character._spellTierAccess} Access
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -217,8 +221,8 @@ export function SpellsSection() {
               <CollapsibleContent>
                 <div className="space-y-3 pt-2">
                   {spells.map((spell) => {
-                    const canCast = hasEnoughResourcesForSpell(character, spell);
-                    const insufficientMessage = getInsufficientResourceMessage(character, spell);
+                    const canCast = hasEnoughResourcesForSpell(resources, spell);
+                    const insufficientMessage = getInsufficientResourceMessage(resources, spell);
 
                     return (
                       <div key={spell.id} className="border rounded-lg p-4 space-y-3">

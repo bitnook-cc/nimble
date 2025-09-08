@@ -129,17 +129,17 @@ export function FeaturesOverview({
 
     // Check for interactive effects that need user selection
     const attributeBoostEffects = feature.effects.filter(
-      (e: FeatureEffect) => e.type === "attribute_boost",
-    ) as AttributeBoostFeatureEffect[];
+      (e) => e.type === "attribute_boost",
+    );
     const spellSchoolChoiceEffects = feature.effects.filter(
-      (e: FeatureEffect) => e.type === "spell_school_choice",
-    ) as SpellSchoolChoiceFeatureEffect[];
+      (e) => e.type === "spell_school_choice",
+    );
     const utilitySpellsEffects = feature.effects.filter(
-      (e: FeatureEffect) => e.type === "utility_spells",
-    ) as UtilitySpellsFeatureEffect[];
+      (e) => e.type === "utility_spells",
+    );
     const pickFeatureEffects = feature.effects.filter(
-      (e: FeatureEffect) => e.type === "pick_feature_from_pool",
-    ) as PickFeatureFromPoolFeatureEffect[];
+      (e) => e.type === "pick_feature_from_pool",
+    );
 
     const hasInteractiveEffects =
       attributeBoostEffects.length > 0 ||

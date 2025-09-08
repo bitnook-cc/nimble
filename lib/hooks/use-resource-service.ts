@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
-import { resourceService } from "../services/resource-service";
+import { getCharacterService } from "../services/service-factory";
+import { ResourceDefinition, ResourceInstance } from "../types/resources";
 import { useActivityLog } from "./use-activity-log";
 import { useCharacterService } from "./use-character-service";
 
@@ -9,125 +10,127 @@ import { useCharacterService } from "./use-character-service";
  * Eliminates the need for React Context by using services directly.
  */
 export function useResourceService() {
-  const { character, updateCharacter } = useCharacterService();
+  const { character } = useCharacterService();
   const { addLogEntry } = useActivityLog();
+  const characterService = getCharacterService();
 
   const spendResource = useCallback(
     async (resourceId: string, amount: number) => {
       if (!character) return;
 
-      const usage = resourceService.spendResource(character, resourceId, amount);
-      if (usage) {
-        await updateCharacter({ ...character });
+      const currentValue = characterService.getResourceValue(resourceId);
+      const newValue = Math.max(0, currentValue - amount);
+      await characterService.setResourceValue(resourceId, newValue);
 
-        // Log the resource usage
-        const logEntry = resourceService.createResourceLogEntry(usage, character);
+      // Log the resource usage
+      const resource = characterService.getResourceDefinitions().find(r => r.id === resourceId);
+      if (resource) {
+        const maxValue = characterService.getResourceMaxValue(resourceId);
+        const logEntry = {
+          id: `log-${Date.now()}`,
+          type: "resource" as const,
+          timestamp: new Date(),
+          description: `Spent ${amount} ${resource.name}`,
+          resourceId: resourceId,
+          resourceName: resource.name,
+          amount: amount,
+          action: "spent" as const,
+          currentAmount: newValue,
+          maxAmount: maxValue,
+        };
         await addLogEntry(logEntry);
       }
     },
-    [character, updateCharacter, addLogEntry],
+    [character, characterService, addLogEntry],
   );
 
   const restoreResource = useCallback(
     async (resourceId: string, amount: number) => {
       if (!character) return;
 
-      const usage = resourceService.restoreResource(character, resourceId, amount);
-      if (usage) {
-        await updateCharacter({ ...character });
+      const currentValue = characterService.getResourceValue(resourceId);
+      const maxValue = characterService.getResourceMaxValue(resourceId);
+      const newValue = Math.min(maxValue, currentValue + amount);
+      await characterService.setResourceValue(resourceId, newValue);
 
-        // Log the resource usage
-        const logEntry = resourceService.createResourceLogEntry(usage, character);
+      // Log the resource usage
+      const resource = characterService.getResourceDefinitions().find(r => r.id === resourceId);
+      if (resource) {
+        const logEntry = {
+          id: `log-${Date.now()}`,
+          type: "resource" as const,
+          timestamp: new Date(),
+          description: `Restored ${amount} ${resource.name}`,
+          resourceId: resourceId,
+          resourceName: resource.name,
+          amount: amount,
+          action: "restored" as const,
+          currentAmount: newValue,
+          maxAmount: maxValue,
+        };
         await addLogEntry(logEntry);
       }
     },
-    [character, updateCharacter, addLogEntry],
+    [character, characterService, addLogEntry],
   );
 
   const setResource = useCallback(
     async (resourceId: string, value: number) => {
       if (!character) return;
-
-      const success = resourceService.setResource(character, resourceId, value);
-      if (success) {
-        await updateCharacter({ ...character });
-      }
+      await characterService.setResourceValue(resourceId, value);
     },
-    [character, updateCharacter],
+    [character, characterService],
   );
 
+  // These methods are no longer needed with the new dynamic system
+  // Resources are managed through the character service
   const addResourceToCharacter = useCallback(
-    async (resource: import("../types/resources").ResourceInstance) => {
-      if (!character) return;
-
-      resourceService.addResourceToCharacter(character, resource);
-      await updateCharacter({ ...character });
+    async (resource: ResourceInstance) => {
+      // Resources are now added through effects, not directly
+      console.warn("addResourceToCharacter is deprecated - resources are managed through effects");
     },
-    [character, updateCharacter],
+    [],
   );
 
   const removeResourceFromCharacter = useCallback(
     async (resourceId: string) => {
-      if (!character) return;
-
-      const success = resourceService.removeResourceFromCharacter(character, resourceId);
-      if (success) {
-        await updateCharacter({ ...character });
-      }
+      // Resources are now removed through effects, not directly
+      console.warn("removeResourceFromCharacter is deprecated - resources are managed through effects");
     },
-    [character, updateCharacter],
+    [],
   );
 
+  // Reset methods are handled by the character service
   const resetResourcesOnSafeRest = useCallback(async () => {
-    if (!character) return;
-
-    const entries = resourceService.resetResourcesOnSafeRest(character);
-    if (entries.length > 0) {
-      await updateCharacter({ ...character });
-
-      // Log all resource resets
-      for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry, character);
-        await addLogEntry(logEntry);
-      }
+    // This is now handled in performSafeRest
+    if (character) {
+      await characterService.performSafeRest();
     }
-  }, [character, updateCharacter, addLogEntry]);
+  }, [character, characterService]);
 
   const resetResourcesOnEncounterEnd = useCallback(async () => {
-    if (!character) return;
-
-    const entries = resourceService.resetResourcesOnEncounterEnd(character);
-    if (entries.length > 0) {
-      await updateCharacter({ ...character });
-
-      // Log all resource resets
-      for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry, character);
-        await addLogEntry(logEntry);
-      }
+    // This is now handled in endEncounter
+    if (character) {
+      await characterService.endEncounter();
     }
-  }, [character, updateCharacter, addLogEntry]);
+  }, [character, characterService]);
 
   const resetResourcesOnTurnEnd = useCallback(async () => {
-    if (!character) return;
-
-    const entries = resourceService.resetResourcesOnTurnEnd(character);
-    if (entries.length > 0) {
-      await updateCharacter({ ...character });
-
-      // Log all resource resets
-      for (const entry of entries) {
-        const logEntry = resourceService.createResourceLogEntry(entry, character);
-        await addLogEntry(logEntry);
-      }
+    // This is now handled in endTurn
+    if (character) {
+      await characterService.endTurn();
     }
-  }, [character, updateCharacter, addLogEntry]);
+  }, [character, characterService]);
+
+  // Get resources from character service
+  const resources = character ? characterService.getResources() : [];
+  const activeResources = resources.filter(r => r.current !== 0 || r.definition.resetCondition !== "never");
 
   return {
     // State
     character,
-    resources: character?.resources || [],
-    activeResources: character ? resourceService.getActiveResources(character) : [],
+    resources,
+    activeResources,
 
     // Resource management
     spendResource,
@@ -142,7 +145,7 @@ export function useResourceService() {
     resetResourcesOnTurnEnd,
 
     // Utility functions
-    getResourceInstance: (resourceId: string) =>
-      character ? resourceService.getResourceInstance(character, resourceId) : null,
+    getResourceInstance: (resourceId: string): ResourceInstance | undefined =>
+      resources.find(r => r.definition.id === resourceId),
   };
 }

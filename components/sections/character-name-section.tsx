@@ -31,13 +31,13 @@ export function CharacterNameSection({
   const classDefinition = contentRepository.getClassDefinition(character.classId);
   const className = classDefinition?.name || character.classId;
 
-  const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestry.ancestryId);
-  const ancestryName = ancestryDefinition?.name || character.ancestry.ancestryId;
+  const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestryId);
+  const ancestryName = ancestryDefinition?.name || character.ancestryId;
 
   const backgroundDefinition = contentRepository.getBackgroundDefinition(
-    character.background.backgroundId,
+    character.backgroundId,
   );
-  const backgroundName = backgroundDefinition?.name || character.background.backgroundId;
+  const backgroundName = backgroundDefinition?.name || character.backgroundId;
 
   const handleLevelUp = () => {
     if (!character || character.level >= 20) return;

@@ -22,7 +22,8 @@ import { useEffect, useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { getValue as getFlexibleValue } from "@/lib/types/flexible-value";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
@@ -530,9 +531,13 @@ function ActionTracker() {
 // Resource Tracker Subcomponent
 function ResourceTracker() {
   const { character } = useCharacterService();
+  const characterService = getCharacterService();
 
   // All hooks called first, then safety check
-  if (!character || character.resources.length === 0) return null;
+  if (!character) return null;
+  
+  const resources = characterService.getResources();
+  if (resources.length === 0) return null;
 
   const createPieChart = (current: number, max: number, color: string) => {
     const percentage = max > 0 ? current / max : 0;
@@ -579,7 +584,7 @@ function ResourceTracker() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {character.resources.map((resource) => {
+          {resources.map((resource) => {
             const maxValue = getFlexibleValue(resource.definition.maxValue, character);
             const percentage = maxValue > 0 ? (resource.current / maxValue) * 100 : 0;
             const color = getResourceColor(resource.definition.colorScheme, percentage);
