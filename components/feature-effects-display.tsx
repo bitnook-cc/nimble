@@ -102,13 +102,80 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return `+${effect.amount} to ${attrs}`;
 
     case "stat_bonus":
+      const bonuses: string[] = [];
+      
+      // Helper to format flexible values
+      const formatValue = (val: any): string | null => {
+        if (!val) return null;
+        if (typeof val === 'number') {
+          if (val === 0) return null;
+          return `${val > 0 ? '+' : ''}${val}`;
+        }
+        if (val.type === 'fixed') {
+          if (val.value === 0) return null;
+          return `${val.value > 0 ? '+' : ''}${val.value}`;
+        }
+        if (val.type === 'formula') {
+          return val.expression;
+        }
+        return null;
+      };
+      
+      // Attributes
       if (effect.statBonus.attributes) {
-        const bonuses = Object.entries(effect.statBonus.attributes)
-          .map(([attr, val]) => `+${val} ${attr.toUpperCase()}`)
-          .join(", ");
-        return bonuses;
+        Object.entries(effect.statBonus.attributes).forEach(([attr, val]) => {
+          const formatted = formatValue(val);
+          if (formatted) {
+            bonuses.push(`${formatted} ${attr.toUpperCase()}`);
+          }
+        });
       }
-      return "Stat bonus";
+      
+      // Skills
+      if (effect.statBonus.skillBonuses) {
+        Object.entries(effect.statBonus.skillBonuses).forEach(([skill, val]) => {
+          const formatted = formatValue(val);
+          if (formatted) {
+            bonuses.push(`${formatted} ${skill}`);
+          }
+        });
+      }
+      
+      // Combat stats
+      if (effect.statBonus.initiativeBonus) {
+        const formatted = formatValue(effect.statBonus.initiativeBonus);
+        if (formatted) bonuses.push(`${formatted} Initiative`);
+      }
+      if (effect.statBonus.speedBonus) {
+        const formatted = formatValue(effect.statBonus.speedBonus);
+        if (formatted) bonuses.push(`${formatted} Speed`);
+      }
+      if (effect.statBonus.armorBonus) {
+        const formatted = formatValue(effect.statBonus.armorBonus);
+        if (formatted) bonuses.push(`${formatted} Armor`);
+      }
+      if (effect.statBonus.maxWoundsBonus) {
+        const formatted = formatValue(effect.statBonus.maxWoundsBonus);
+        if (formatted) bonuses.push(`${formatted} Wounds`);
+      }
+      if (effect.statBonus.hitDiceBonus) {
+        const formatted = formatValue(effect.statBonus.hitDiceBonus);
+        if (formatted) bonuses.push(`${formatted} Hit Dice`);
+      }
+      
+      // Resources
+      if (effect.statBonus.resourceMaxBonuses) {
+        Object.entries(effect.statBonus.resourceMaxBonuses).forEach(([resourceId, val]) => {
+          const formatted = formatValue(val);
+          if (formatted) {
+            // Try to get resource name
+            const resourceName = resourceId.charAt(0).toUpperCase() + resourceId.slice(1);
+            bonuses.push(`${formatted} ${resourceName}`);
+          }
+        });
+      }
+      
+      return bonuses.length > 0 ? bonuses.join(", ") : "Stat bonus";
 
     case "proficiency":
       return effect.proficiencies.map((p) => p.name).join(", ");

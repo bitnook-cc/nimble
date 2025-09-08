@@ -21,7 +21,8 @@ import {
   SubclassChoiceFeatureEffect,
   SpellSchoolChoiceFeatureEffect,
   AttributeBoostFeatureEffect,
-  UtilitySpellsFeatureEffect
+  UtilitySpellsFeatureEffect,
+  SpellSchoolFeatureEffect
 } from "@/lib/schemas/features";
 import { 
   Character, 
@@ -259,14 +260,55 @@ export function FeatureList({
                   <SelectValue placeholder="Select a spell school" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contentRepository.getAllSpellSchools().map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      <div className="flex items-center gap-2">
-                        <span className={school.color}>{school.icon}</span>
-                        {school.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {(() => {
+                    // Get already selected spell schools from selections
+                    const selectedSchoolIds = new Set(
+                      existingSelections
+                        .filter(s => s.type === "spell_school")
+                        .map(s => s.schoolId)
+                    );
+                    
+                    // If we have a character, also get their existing spell schools
+                    if (character) {
+                      // Add schools from character's effect selections
+                      character.effectSelections
+                        .filter(s => s.type === "spell_school")
+                        .forEach(s => selectedSchoolIds.add(s.schoolId));
+                    }
+                    
+                    // Also check for direct spell_school effects in current features (non-selectable)
+                    const directSchoolIds = new Set<string>(
+                      features.flatMap(f => 
+                        f.effects
+                          .filter((e): e is SpellSchoolFeatureEffect => e.type === "spell_school")
+                          .map(e => e.schoolId)
+                      )
+                    );
+                    
+                    // Filter out already available schools
+                    const availableSchools = contentRepository.getAllSpellSchools()
+                      .filter(school => 
+                        !selectedSchoolIds.has(school.id) && 
+                        !directSchoolIds.has(school.id)
+                      );
+                    
+                    if (availableSchools.length === 0) {
+                      return (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          All spell schools are already available
+                        </div>
+                      );
+                    }
+                    
+                    return availableSchools.map((school) => (
+                      <SelectItem key={school.id} value={school.id}>
+                        <div className="flex items-center gap-2">
+                          <span className={school.color}>{school.icon}</span>
+                          {school.name}
+                        </div>
+                      </SelectItem>
+                    ));
+                  })()}
                 </SelectContent>
               </Select>
             </div>
