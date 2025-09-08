@@ -15,7 +15,7 @@ import {
   UtilitySpellsFeatureEffect,
   FeatureEffect
 } from "@/lib/schemas/features";
-import { AttributeName } from "@/lib/schemas/character";
+import { AttributeName, PoolFeatureEffectSelection } from "@/lib/schemas/character";
 
 import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
 import { SubclassSelectionDialog } from "../subclass-selection-dialog";
@@ -292,6 +292,9 @@ export function EffectSelectionsSection() {
         <FeaturePoolSelectionDialog
           pickFeature={selectedPoolFeature}
           onClose={() => setSelectedPoolFeature(null)}
+          existingSelections={character.effectSelections.filter(
+            s => s.type === "pool_feature"
+          ) as PoolFeatureEffectSelection[]}
         />
       )}
 

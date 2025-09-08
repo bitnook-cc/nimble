@@ -21,6 +21,7 @@ import {
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
+import { getIconById } from "@/lib/utils/icon-utils";
 
 import { Button } from "./ui/button";
 
@@ -188,17 +189,30 @@ export function EffectSelectionDisplay({
                 <span className="text-sm">{selection.feature.name}</span>
               </div>
             ))}
-            {remaining > 0 && (
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => onOpenDialog(effect)}
-                className="gap-1 h-7"
-              >
-                <Plus className="w-3 h-3" />
-                Add More ({remaining} remaining)
-              </Button>
-            )}
+            <div className="flex gap-2 mt-1">
+              {remaining > 0 && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => onOpenDialog(effect)}
+                  className="gap-1 h-7"
+                >
+                  <Plus className="w-3 h-3" />
+                  Add More ({remaining} remaining)
+                </Button>
+              )}
+              {poolSelections.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onOpenDialog(effect)}
+                  className="h-7 px-2"
+                >
+                  <Edit2 className="w-3 h-3 mr-1" />
+                  Change
+                </Button>
+              )}
+            </div>
           </div>
         );
       }
@@ -216,16 +230,29 @@ export function EffectSelectionDisplay({
 
         return (
           <div className="space-y-1">
-            {schoolSelections.map((selection, idx) => {
-              const school = contentRepository.getAllSpellSchools().find(s => s.id === selection.schoolId);
-              return (
-                <div key={idx} className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-600" />
-                  {school && <span className={school.color}>{school.icon}</span>}
-                  <span className="text-sm">{school?.name || selection.schoolId}</span>
-                </div>
-              );
-            })}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                {schoolSelections.map((selection, idx) => {
+                  const school = contentRepository.getAllSpellSchools().find(s => s.id === selection.schoolId);
+                  const SchoolIcon = school ? getIconById(school.icon) : null;
+                  return (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      {SchoolIcon && <SchoolIcon className={`w-4 h-4 ${school?.color}`} />}
+                      <span className="text-sm">{school?.name || selection.schoolId}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onOpenDialog(effect)}
+                className="h-6 px-2"
+              >
+                <Edit2 className="w-3 h-3" />
+              </Button>
+            </div>
             {remaining > 0 && (
               <Button 
                 size="sm" 

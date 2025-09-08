@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { PickFeatureFromPoolFeatureEffect } from "@/lib/schemas/features";
+import { PoolFeatureEffectSelection } from "@/lib/schemas/character";
 
 import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
 import { Badge } from "../ui/badge";
@@ -87,6 +88,9 @@ export function PoolSelectionsSection() {
         <FeaturePoolSelectionDialog
           pickFeature={selectedPickFeature}
           onClose={handleCloseSelection}
+          existingSelections={character.effectSelections.filter(
+            s => s.type === "pool_feature"
+          ) as PoolFeatureEffectSelection[]}
         />
       )}
     </>
