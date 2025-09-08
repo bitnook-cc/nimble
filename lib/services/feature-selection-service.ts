@@ -106,7 +106,7 @@ export class FeatureSelectionService {
   /**
    * Get remaining pool selections for a specific effect
    */
-  private getRemainingPoolSelections(
+  getRemainingPoolSelections(
     character: Character, 
     effect: PickFeatureFromPoolFeatureEffect, 
   ): number {
@@ -119,7 +119,7 @@ export class FeatureSelectionService {
   /**
    * Get remaining spell school selections for a specific effect
    */
-  private getRemainingSpellSchoolSelections(
+  getRemainingSpellSchoolSelections(
     character: Character,
     effect: SpellSchoolChoiceFeatureEffect, 
   ): number {
@@ -133,7 +133,7 @@ export class FeatureSelectionService {
   /**
    * Get remaining attribute boost selections for a specific effect
    */
-  private getRemainingAttributeBoosts(
+  getRemainingAttributeBoosts(
     character: Character,
     effect: AttributeBoostFeatureEffect, 
   ): number {

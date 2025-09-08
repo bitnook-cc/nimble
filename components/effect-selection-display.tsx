@@ -78,7 +78,7 @@ export function EffectSelectionDisplay({
 
         case "pick_feature_from_pool":
           const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-          const remaining = featureSelectionService['getRemainingPoolSelections'](
+          const remaining = featureSelectionService.getRemainingPoolSelections(
             character, 
             poolEffect, 
           );
@@ -99,7 +99,7 @@ export function EffectSelectionDisplay({
 
         case "spell_school_choice":
           const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-          const schoolsRemaining = featureSelectionService['getRemainingSpellSchoolSelections'](
+          const schoolsRemaining = featureSelectionService.getRemainingSpellSchoolSelections(
             character,
             spellEffect,
           );
@@ -177,7 +177,7 @@ export function EffectSelectionDisplay({
         ) as PoolFeatureEffectSelection[];
         
         const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-        const remaining = featureSelectionService['getRemainingPoolSelections'](
+        const remaining = featureSelectionService.getRemainingPoolSelections(
           character, 
           poolEffect, 
         );
@@ -211,7 +211,7 @@ export function EffectSelectionDisplay({
         ) as SpellSchoolEffectSelection[];
         
         const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-        const remaining = featureSelectionService['getRemainingSpellSchoolSelections'](
+        const remaining = featureSelectionService.getRemainingSpellSchoolSelections(
           character,
           spellEffect,
         );
