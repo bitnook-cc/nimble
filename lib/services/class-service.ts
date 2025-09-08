@@ -11,7 +11,6 @@ import {
 import {
   ClassDefinition,
   ClassFeature,
-  ClassFeatureGrant,
   FeaturePool,
   SubclassDefinition,
 } from "../types/class";
@@ -98,61 +97,6 @@ export class ClassService implements IClassService {
    */
   generateSubclassFeatureId(subclassId: string, level: number, featureName: string): string {
     return this.generateFeatureId("", level, featureName, subclassId);
-  }
-
-  /**
-   * Level up a character and grant new features
-   */
-  async levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]> {
-    const character = this.characterService.character;
-    if (!character) {
-      throw new Error("No character loaded");
-    }
-
-    if (targetLevel <= character.level) {
-      throw new Error("Target level must be higher than current level");
-    }
-
-    const newFeatures: ClassFeatureGrant[] = [];
-    const classDef = this.getCharacterClass(character);
-    if (!classDef) {
-      throw new Error(`Class not found: ${character.classId}`);
-    }
-
-    // Collect features for each level from current+1 to target level
-    for (let level = character.level + 1; level <= targetLevel; level++) {
-      const levelFeatures = this.getFeaturesForLevel(character.classId, level);
-
-      for (const feature of levelFeatures) {
-        const featureGrant: ClassFeatureGrant = {
-          featureId: this.generateFeatureId(character.classId, level, feature.name),
-          classId: character.classId,
-          level: level,
-          feature: feature,
-          grantedAt: new Date(),
-        };
-        newFeatures.push(featureGrant);
-      }
-    }
-
-    // Update character level
-    const updatedCharacter = {
-      ...character,
-      level: targetLevel,
-      // Update hit dice to match new level
-      _hitDice: {
-        ...character._hitDice,
-        size: classDef.hitDieSize,
-        max: targetLevel,
-        current: Math.min(
-          character._hitDice.current + (targetLevel - character.level),
-          targetLevel,
-        ),
-      },
-    };
-
-    await this.characterService.updateCharacter(updatedCharacter);
-    return newFeatures;
   }
 
   /**

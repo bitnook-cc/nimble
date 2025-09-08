@@ -18,7 +18,7 @@ import {
   Skill,
   Skills,
 } from "../types/character";
-import { ClassFeature, ClassFeatureGrant, FeaturePool } from "../types/class";
+import { ClassFeature, FeaturePool } from "../types/class";
 import { PickFeatureFromPoolFeatureEffect } from "../types/feature-effects";
 import { Item } from "../types/inventory";
 import { LogEntry, SingleDie } from "../types/log-entries";
@@ -187,7 +187,6 @@ export interface ICharacterService {
  */
 export interface IClassService {
   getExpectedFeaturesForCharacter(character: Character): ClassFeature[];
-  levelUpCharacter(targetLevel: number): Promise<ClassFeatureGrant[]>;
   selectSubclass(
     character: Character,
     subclassId: string,

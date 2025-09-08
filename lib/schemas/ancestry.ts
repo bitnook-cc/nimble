@@ -149,3 +149,12 @@ export {
   NameConfigSchema,
   NameGeneratorConfigSchema,
 };
+
+// Export inferred types
+export type SizeCategory = z.infer<typeof SizeCategorySchema>;
+export type AncestryRarity = z.infer<typeof AncestryRaritySchema>;
+export type Resistance = z.infer<typeof ResistanceSchema>;
+export type AncestryFeature = z.infer<typeof AncestryFeatureSchema>;
+export type NamePatterns = z.infer<typeof NameGeneratorConfigSchema>;
+export type NameConfig = z.infer<typeof NameConfigSchema>;
+export type AncestryDefinition = z.infer<typeof AncestryDefinitionSchema>;

@@ -649,7 +649,7 @@ export class CharacterService implements ICharacterService {
     for (const bonus of bonuses) {
       if (bonus.skillBonuses) {
         for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
-          if (result[skillName]) {
+          if (result[skillName] && skillBonus) {
             result[skillName].modifier += calculateFlexibleValue(skillBonus, this._character);
           }
         }

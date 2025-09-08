@@ -42,3 +42,7 @@ export const BackgroundDefinitionSchema = z
 
 // Export individual schemas for specific use cases
 export {};
+
+// Export inferred types
+export type BackgroundFeature = z.infer<typeof BackgroundFeatureSchema>;
+export type BackgroundDefinition = z.infer<typeof BackgroundDefinitionSchema>;

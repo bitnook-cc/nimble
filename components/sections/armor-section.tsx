@@ -4,8 +4,6 @@ import { ChevronDown, ChevronRight, Shield, Shirt } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { getCharacterService } from "@/lib/services/service-factory";
-import { StatBonus } from "@/lib/types/stat-bonus";
 import {
   getEquippedArmor,
   getEquippedMainArmor,

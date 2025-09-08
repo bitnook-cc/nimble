@@ -12,7 +12,6 @@ import {
 import { ClassDefinition } from "../types/class";
 import { Currency } from "../types/currency";
 import { ArmorItem, ConsumableItem, Inventory, WeaponItem } from "../types/inventory";
-import { ResourceDefinition, ResourceInstance, createResourceInstance } from "../types/resources";
 
 export const createDefaultSkills = () => {
   const defaultSkills: Record<string, any> = {};

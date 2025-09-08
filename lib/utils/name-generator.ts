@@ -1,23 +1,6 @@
-export interface NamePatterns {
-  syllables: {
-    prefixes: string[];
-    middle: string[];
-    suffixes: string[];
-  };
-  patterns: string[];
-  constraints: {
-    minLength: number;
-    maxLength: number;
-    syllableCount: { min: number; max: number };
-  };
-}
+import type { NameConfig, NamePatterns } from "../types/ancestry";
 
-export interface NameConfig {
-  male?: NamePatterns;
-  female?: NamePatterns;
-  surnames?: NamePatterns;
-  unisex?: NamePatterns;
-}
+export type { NameConfig, NamePatterns };
 
 export class NameGenerator {
   private static getRandomElement<T>(array: T[]): T {

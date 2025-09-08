@@ -27,20 +27,6 @@ export type {
   ResourceInstance,
 };
 
-// Helper function to create a ResourceInstance from a ResourceDefinition
-// Note: For formula-based max values, you'll need to use ResourceService.calculateMaxValue with a character
-export function createResourceInstance(
-  definition: ResourceDefinition,
-  current?: number,
-  sortOrder?: number,
-): ResourceInstance {
-  return {
-    definition,
-    current: current ?? (definition.maxValue.type === "fixed" ? definition.maxValue.value : 0),
-    sortOrder: sortOrder ?? 1,
-  };
-}
-
 // Default resource definitions for character creation
 export const DEFAULT_RESOURCE_DEFINITIONS: ResourceDefinition[] = [
   {

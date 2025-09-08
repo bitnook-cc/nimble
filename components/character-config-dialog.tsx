@@ -10,10 +10,8 @@ import { Character, CharacterConfiguration } from "@/lib/types/character";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   ResourceDefinition,
-  ResourceInstance,
   ResourceResetCondition,
   ResourceResetType,
-  createResourceInstance,
   NumericalResourceValue,
 } from "@/lib/types/resources";
 import {
@@ -209,12 +207,6 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
       minValue: newResource.minValue || { type: "fixed", value: 0 },
       maxValue: newResource.maxValue || { type: "fixed", value: 10 },
     };
-
-    const resourceInstance = createResourceInstance(
-      definition,
-      getFlexibleValue(definition.maxValue, character),
-      character._resourceDefinitions.length + 1,
-    );
 
     const updatedCharacter = {
       ...character,

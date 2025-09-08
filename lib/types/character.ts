@@ -2,7 +2,7 @@ import { AbilityDefinition } from "./abilities";
 import { ArmorProficiency, ClassFeature, WeaponProficiency } from "./class";
 import { FeatureEffect } from "./feature-effects";
 import { Inventory } from "./inventory";
-import { ResourceDefinition, ResourceInstance, ResourceValue } from "./resources";
+import { ResourceDefinition, ResourceValue } from "./resources";
 
 // Import types from schemas
 import type { 
