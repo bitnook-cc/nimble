@@ -143,7 +143,7 @@ export function FeaturePoolSelectionDialog({
   pickFeature,
   onClose,
 }: FeaturePoolSelectionDialogProps) {
-  const { character } = useCharacterService();
+  const { character, selectPoolFeature } = useCharacterService();
   const [selectedFeature, setSelectedFeature] = useState<ClassFeature | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
 
@@ -184,8 +184,7 @@ export function FeaturePoolSelectionDialog({
     setIsSelecting(true);
     try {
       // Use the effect ID instead of generating a feature ID
-      await classService.selectPoolFeature(
-        character,
+      await selectPoolFeature(
         pickFeature.poolId,
         selectedFeature,
         pickFeature.id,

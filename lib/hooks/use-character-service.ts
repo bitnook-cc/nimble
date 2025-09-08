@@ -131,5 +131,14 @@ export function useCharacterService() {
     getAbilities: characterService.getAbilities.bind(characterService),
     getResources: characterService.getResources.bind(characterService),
     getAvailableEffectSelections: characterService.getAvailableEffectSelections.bind(characterService),
+    
+    // Effect selection methods
+    selectSubclass: characterService.selectSubclass.bind(characterService),
+    selectPoolFeature: characterService.selectPoolFeature.bind(characterService),
+    clearPoolFeatureSelections: characterService.clearPoolFeatureSelections.bind(characterService),
+    selectSpellSchool: characterService.selectSpellSchool.bind(characterService),
+    clearSpellSchoolSelections: characterService.clearSpellSchoolSelections.bind(characterService),
+    selectAttributeBoost: characterService.selectAttributeBoost.bind(characterService),
+    selectUtilitySpells: characterService.selectUtilitySpells.bind(characterService),
   };
 }

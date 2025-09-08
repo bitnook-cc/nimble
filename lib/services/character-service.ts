@@ -4,9 +4,11 @@ import {
 import {
   ActionTracker,
   AttributeBoostEffectSelection,
+  AttributeName,
   Attributes,
   Character,
   CharacterConfiguration,
+  EffectSelection,
   PoolFeatureEffectSelection,
   Skill,
   Skills,
@@ -20,15 +22,10 @@ import {
   ClassFeature, 
   FeatureEffect, 
   StatBonusFeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SubclassChoiceFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  AttributeBoostFeatureEffect,
-  UtilitySpellsFeatureEffect
 } from "../schemas/features";
 import { calculateFlexibleValue } from "../types/flexible-value";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
-import { ResourceDefinition, ResourceInstance, ResourceValue } from "../schemas/resources";
+import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { StatBonus } from "../schemas/stat-bonus";
 import { abilityService } from "./ability-service";
 import { activityLogService } from "./activity-log-service";
@@ -1577,6 +1574,169 @@ export class CharacterService implements ICharacterService {
     // Delegate to the feature selection service
     const allEffects = this.getAllActiveEffects();
     return featureSelectionService.getAvailableEffectSelections(this._character, allEffects);
+  }
+
+  /**
+   * Make or update a subclass selection
+   */
+  async selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    // Remove any existing subclass selection
+    const updatedSelections: EffectSelection[] = this._character.effectSelections.filter(
+      s => s.type !== "subclass"
+    );
+
+    // Add new selection
+    updatedSelections.push({
+      type: "subclass" as const,
+      grantedByEffectId,
+      subclassId
+    });
+
+    this._character = {
+      ...this._character,
+      effectSelections: updatedSelections
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Add a pool feature selection
+   */
+  async selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      effectSelections: [
+        ...this._character.effectSelections,
+        {
+          type: "pool_feature",
+          grantedByEffectId,
+          poolId,
+          featureId: feature.id,
+          feature
+        }
+      ]
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Clear pool feature selections for a specific effect
+   */
+  async clearPoolFeatureSelections(grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      effectSelections: this._character.effectSelections.filter(
+        s => !(s.type === "pool_feature" && s.grantedByEffectId === grantedByEffectId)
+      )
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Add a spell school selection
+   */
+  async selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      effectSelections: [
+        ...this._character.effectSelections,
+        {
+          type: "spell_school",
+          grantedByEffectId,
+          schoolId
+        }
+      ]
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Clear spell school selections for a specific effect
+   */
+  async clearSpellSchoolSelections(grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      effectSelections: this._character.effectSelections.filter(
+        s => !(s.type === "spell_school" && s.grantedByEffectId === grantedByEffectId)
+      )
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Make or update an attribute boost selection
+   */
+  async selectAttributeBoost(attribute: AttributeName, amount: number, grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    // Remove any existing boost from this effect
+    const updatedSelections = this._character.effectSelections.filter(
+      s => !(s.type === "attribute_boost" && s.grantedByEffectId === grantedByEffectId)
+    );
+
+    // Add new selection
+    updatedSelections.push({
+      type: "attribute_boost",
+      grantedByEffectId,
+      attribute,
+      amount
+    });
+
+    this._character = {
+      ...this._character,
+      effectSelections: updatedSelections
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Make or update utility spell selections
+   */
+  async selectUtilitySpells(spellIds: string[], fromSchools: string[], grantedByEffectId: string): Promise<void> {
+    if (!this._character) return;
+
+    // Remove any existing selection from this effect
+    const updatedSelections = this._character.effectSelections.filter(
+      s => !(s.type === "utility_spells" && s.grantedByEffectId === grantedByEffectId)
+    );
+
+    // Add new selection
+    updatedSelections.push({
+      type: "utility_spells",
+      grantedByEffectId,
+      spellIds,
+      fromSchools
+    });
+
+    this._character = {
+      ...this._character,
+      effectSelections: updatedSelections
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
   }
 
 

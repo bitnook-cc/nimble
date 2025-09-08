@@ -9,6 +9,7 @@ import { AncestryDefinition } from "../schemas/ancestry";
 import { BackgroundDefinition } from "../schemas/background";
 import {
   ActionTracker,
+  AttributeName,
   Attributes,
   Character,
   CharacterConfiguration,
@@ -180,6 +181,15 @@ export interface ICharacterService {
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;
   getAvailableEffectSelections(): any; // Return type defined in feature-selection-service
+  
+  // Selection methods
+  selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void>;
+  selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void>;
+  clearPoolFeatureSelections(grantedByEffectId: string): Promise<void>;
+  selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void>;
+  clearSpellSchoolSelections(grantedByEffectId: string): Promise<void>;
+  selectAttributeBoost(attribute: AttributeName, amount: number, grantedByEffectId: string): Promise<void>;
+  selectUtilitySpells(spellIds: string[], fromSchools: string[], grantedByEffectId: string): Promise<void>;
 }
 
 /**

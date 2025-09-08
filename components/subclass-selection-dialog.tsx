@@ -25,7 +25,7 @@ interface SubclassSelectionDialogProps {
 }
 
 export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSelectionDialogProps) {
-  const { character } = useCharacterService();
+  const { character, selectSubclass } = useCharacterService();
   const [selectedSubclass, setSelectedSubclass] = useState<SubclassDefinition | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
 
@@ -42,7 +42,7 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
     setIsSelecting(true);
     try {
       const grantedByEffectId = subclassChoice.id;
-      await classService.selectSubclass(character, selectedSubclass.id, grantedByEffectId);
+      await selectSubclass(selectedSubclass.id, grantedByEffectId);
       onClose();
     } catch (error) {
       console.error("Failed to select subclass:", error);

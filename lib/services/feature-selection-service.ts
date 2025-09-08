@@ -1,10 +1,5 @@
 import {
   Character,
-  AttributeBoostEffectSelection,
-  PoolFeatureEffectSelection,
-  SpellSchoolEffectSelection,
-  SubclassEffectSelection,
-  UtilitySpellsEffectSelection,
 } from "../schemas/character";
 import { 
   FeatureEffect,
@@ -18,11 +13,11 @@ import { ContentRepositoryService } from "./content-repository-service";
 import { getCharacterService } from "./service-factory";
 
 export interface AvailableEffectSelections {
-  poolSelections: Array<{ effect: PickFeatureFromPoolFeatureEffect; effectId: string }>;
-  subclassChoices: Array<{ effect: SubclassChoiceFeatureEffect; effectId: string }>;
-  spellSchoolSelections: Array<{ effect: SpellSchoolChoiceFeatureEffect; effectId: string }>;
-  attributeBoosts: Array<{ effect: AttributeBoostFeatureEffect; effectId: string }>;
-  utilitySpellSelections: Array<{ effect: UtilitySpellsFeatureEffect; effectId: string }>;
+  poolSelections: PickFeatureFromPoolFeatureEffect[];
+  subclassChoices: SubclassChoiceFeatureEffect[];
+  spellSchoolSelections: SpellSchoolChoiceFeatureEffect[];
+  attributeBoosts: AttributeBoostFeatureEffect[];
+  utilitySpellSelections: UtilitySpellsFeatureEffect[];
 }
 
 /**
@@ -55,15 +50,12 @@ export class FeatureSelectionService {
     };
 
     for (const effect of allEffects) {
-      // Create unique effect ID for tracking selections
-      const effectId = effect.id || `effect-${Math.random().toString(36).substr(2, 9)}`;
-      
       switch (effect.type) {
         case "pick_feature_from_pool": {
           const pickEffect = effect as PickFeatureFromPoolFeatureEffect;
-          const remaining = this.getRemainingPoolSelections(character, pickEffect, effectId);
+          const remaining = this.getRemainingPoolSelections(character, pickEffect);
           if (remaining > 0) {
-            result.poolSelections.push({ effect: pickEffect, effectId });
+            result.poolSelections.push(pickEffect);
           }
           break;
         }
@@ -72,25 +64,25 @@ export class FeatureSelectionService {
           // Check if subclass not already selected
           const characterService = getCharacterService();
           if (!characterService.getSubclassId()) {
-            result.subclassChoices.push({ effect: effect as SubclassChoiceFeatureEffect, effectId });
+            result.subclassChoices.push(effect as SubclassChoiceFeatureEffect);
           }
           break;
         }
         
         case "spell_school_choice": {
-          const pickEffect = effect as SpellSchoolChoiceFeatureEffect;
-          const remaining = this.getRemainingSpellSchoolSelections(character, pickEffect, effectId);
+          const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
+          const remaining = this.getRemainingSpellSchoolSelections(character, spellEffect);
           if (remaining > 0) {
-            result.spellSchoolSelections.push({ effect: pickEffect, effectId });
+            result.spellSchoolSelections.push(spellEffect);
           }
           break;
         }
         
         case "attribute_boost": {
           const boostEffect = effect as AttributeBoostFeatureEffect;
-          const remaining = this.getRemainingAttributeBoosts(character, boostEffect, effectId);
+          const remaining = this.getRemainingAttributeBoosts(character, boostEffect);
           if (remaining > 0) {
-            result.attributeBoosts.push({ effect: boostEffect, effectId });
+            result.attributeBoosts.push(boostEffect);
           }
           break;
         }
@@ -98,10 +90,10 @@ export class FeatureSelectionService {
         case "utility_spells": {
           const pickEffect = effect as UtilitySpellsFeatureEffect;
           const hasSelection = character.effectSelections.some(
-            s => s.type === "utility_spells" && s.grantedByEffectId === effectId
+            s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
           );
           if (!hasSelection) {
-            result.utilitySpellSelections.push({ effect: pickEffect, effectId });
+            result.utilitySpellSelections.push(pickEffect);
           }
           break;
         }
@@ -117,10 +109,9 @@ export class FeatureSelectionService {
   private getRemainingPoolSelections(
     character: Character, 
     effect: PickFeatureFromPoolFeatureEffect, 
-    effectId: string
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "pool_feature" && s.grantedByEffectId === effectId
+      s => s.type === "pool_feature" && s.grantedByEffectId === effect.id
     );
     return Math.max(0, effect.choicesAllowed - selections.length);
   }
@@ -131,10 +122,9 @@ export class FeatureSelectionService {
   private getRemainingSpellSchoolSelections(
     character: Character,
     effect: SpellSchoolChoiceFeatureEffect, 
-    effectId: string
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "spell_school" && s.grantedByEffectId === effectId
+      s => s.type === "spell_school" && s.grantedByEffectId === effect.id
     );
     const numberOfChoices = effect.numberOfChoices || 1;
     return Math.max(0, numberOfChoices - selections.length);
@@ -146,10 +136,9 @@ export class FeatureSelectionService {
   private getRemainingAttributeBoosts(
     character: Character,
     effect: AttributeBoostFeatureEffect, 
-    effectId: string
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "attribute_boost" && s.grantedByEffectId === effectId
+      s => s.type === "attribute_boost" && s.grantedByEffectId === effect.id
     );
     // Attribute boosts are single selection (one attribute gets the boost)
     return Math.max(0, 1 - selections.length);

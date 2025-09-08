@@ -28,18 +28,22 @@ import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 import { Checkbox } from "../ui/checkbox";
 
-interface PendingSelection {
-  effect: FeatureEffect;
-  effectId: string;
-}
 
 export function EffectSelectionsSection() {
-  const { character, updateCharacter, getAvailableEffectSelections } = useCharacterService();
+  const { 
+    character, 
+    getAvailableEffectSelections,
+    selectSubclass,
+    selectPoolFeature,
+    selectSpellSchool,
+    selectAttributeBoost,
+    selectUtilitySpells
+  } = useCharacterService();
   const [selectedPoolFeature, setSelectedPoolFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
   const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
-  const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<PendingSelection | null>(null);
-  const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<PendingSelection | null>(null);
-  const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<PendingSelection | null>(null);
+  const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<SpellSchoolChoiceFeatureEffect | null>(null);
+  const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<AttributeBoostFeatureEffect | null>(null);
+  const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<UtilitySpellsFeatureEffect | null>(null);
   const [utilitySpellSelection, setUtilitySpellSelection] = useState<string[]>([]);
 
   if (!character) return null;
@@ -73,64 +77,26 @@ export function EffectSelectionsSection() {
   const handleSelectSpellSchool = async (schoolId: string) => {
     if (!selectedSpellSchoolChoice) return;
 
-    const updatedCharacter = {
-      ...character,
-      effectSelections: [
-        ...character.effectSelections,
-        {
-          type: "spell_school" as const,
-          grantedByEffectId: selectedSpellSchoolChoice.effectId,
-          schoolId
-        }
-      ]
-    };
-
-    await updateCharacter(updatedCharacter);
+    await selectSpellSchool(schoolId, selectedSpellSchoolChoice.id!);
     setSelectedSpellSchoolChoice(null);
   };
 
   const handleSelectAttributeBoost = async (attribute: AttributeName, amount: number) => {
     if (!selectedAttributeBoost) return;
 
-    const updatedCharacter = {
-      ...character,
-      effectSelections: [
-        ...character.effectSelections,
-        {
-          type: "attribute_boost" as const,
-          grantedByEffectId: selectedAttributeBoost.effectId,
-          attribute,
-          amount
-        }
-      ]
-    };
-
-    await updateCharacter(updatedCharacter);
+    await selectAttributeBoost(attribute, amount, selectedAttributeBoost.id!);
     setSelectedAttributeBoost(null);
   };
 
   const handleSelectUtilitySpells = async () => {
     if (!selectedUtilitySpells) return;
-    const effect = selectedUtilitySpells.effect as UtilitySpellsFeatureEffect;
     
-    if (!featureSelectionService.validateUtilitySpellSelection(effect, utilitySpellSelection, character)) {
+    if (!featureSelectionService.validateUtilitySpellSelection(selectedUtilitySpells, utilitySpellSelection, character)) {
       return; // Invalid selection
     }
 
-    const updatedCharacter = {
-      ...character,
-      effectSelections: [
-        ...character.effectSelections,
-        {
-          type: "utility_spells" as const,
-          grantedByEffectId: selectedUtilitySpells.effectId,
-          spellIds: utilitySpellSelection,
-          fromSchools: featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character)
-        }
-      ]
-    };
-
-    await updateCharacter(updatedCharacter);
+    const fromSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+    await selectUtilitySpells(utilitySpellSelection, fromSchools, selectedUtilitySpells.id!);
     setSelectedUtilitySpells(null);
     setUtilitySpellSelection([]);
   };
@@ -171,9 +137,9 @@ export function EffectSelectionsSection() {
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Subclass Selections */}
-          {availableSubclassChoices.map((subclassChoice: any, index: number) => (
+          {availableSubclassChoices.map((effect: SubclassChoiceFeatureEffect, index: number) => (
             <div
-              key={`subclass-${index}`}
+              key={effect.id || `subclass-${index}`}
               className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("subclass")}`}
             >
               <div className="flex items-center gap-3 flex-1">
@@ -187,7 +153,7 @@ export function EffectSelectionsSection() {
               </div>
               <Button 
                 size="sm" 
-                onClick={() => setSelectedSubclassChoice(subclassChoice)}
+                onClick={() => setSelectedSubclassChoice(effect)}
               >
                 Choose Subclass
               </Button>
@@ -195,16 +161,15 @@ export function EffectSelectionsSection() {
           ))}
 
           {/* Pool Feature Selections */}
-          {availablePoolSelections.map((selection: any, index: number) => {
-            const pickEffect = selection.effect;
-            const pool = classService.getFeaturePool(character.classId, pickEffect.poolId);
-            const remaining = pickEffect.choicesAllowed - character.effectSelections.filter(
-              s => s.type === "pool_feature" && s.grantedByEffectId === selection.effectId
+          {availablePoolSelections.map((effect: PickFeatureFromPoolFeatureEffect, index: number) => {
+            const pool = classService.getFeaturePool(character.classId, effect.poolId);
+            const remaining = effect.choicesAllowed - character.effectSelections.filter(
+              s => s.type === "pool_feature" && s.grantedByEffectId === effect.id
             ).length;
 
             return (
               <div
-                key={`pool-${index}`}
+                key={effect.id || `pool-${index}`}
                 className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("pool_feature")}`}
               >
                 <div className="flex items-center gap-3 flex-1">
@@ -212,7 +177,7 @@ export function EffectSelectionsSection() {
                   <div>
                     <div className="font-medium">Feature Pool Selection</div>
                     <div className="text-sm text-muted-foreground">
-                      Choose from {pool?.name || pickEffect.poolId}
+                      Choose from {pool?.name || effect.poolId}
                     </div>
                     {pool && (
                       <div className="text-xs text-muted-foreground mt-1">
@@ -223,7 +188,7 @@ export function EffectSelectionsSection() {
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => setSelectedPoolFeature(pickEffect)}
+                  onClick={() => setSelectedPoolFeature(effect)}
                   disabled={remaining <= 0}
                 >
                   Select Feature
@@ -233,12 +198,11 @@ export function EffectSelectionsSection() {
           })}
 
           {/* Spell School Selections */}
-          {availableSpellSchoolSelections.map((selection: any, index: number) => {
-            const effect = selection.effect as SpellSchoolChoiceFeatureEffect;
+          {availableSpellSchoolSelections.map((effect: SpellSchoolChoiceFeatureEffect, index: number) => {
             const numberOfChoices = effect.numberOfChoices || 1;
             return (
               <div
-                key={`spell-school-${index}`}
+                key={effect.id || `spell-school-${index}`}
                 className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("spell_school")}`}
               >
                 <div className="flex items-center gap-3 flex-1">
@@ -252,7 +216,7 @@ export function EffectSelectionsSection() {
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => setSelectedSpellSchoolChoice({ effect: selection.effect, effectId: selection.effectId })}
+                  onClick={() => setSelectedSpellSchoolChoice(effect)}
                 >
                   Choose School
                 </Button>
@@ -261,11 +225,10 @@ export function EffectSelectionsSection() {
           })}
 
           {/* Attribute Boost Selections */}
-          {availableAttributeBoosts.map((selection: any, index: number) => {
-            const effect = selection.effect as AttributeBoostFeatureEffect;
+          {availableAttributeBoosts.map((effect: AttributeBoostFeatureEffect, index: number) => {
             return (
               <div
-                key={`attribute-${index}`}
+                key={effect.id || `attribute-${index}`}
                 className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("attribute_boost")}`}
               >
                 <div className="flex items-center gap-3 flex-1">
@@ -280,7 +243,7 @@ export function EffectSelectionsSection() {
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => setSelectedAttributeBoost({ effect: selection.effect, effectId: selection.effectId })}
+                  onClick={() => setSelectedAttributeBoost(effect)}
                 >
                   Choose Boost
                 </Button>
@@ -289,13 +252,12 @@ export function EffectSelectionsSection() {
           })}
 
           {/* Utility Spell Selections */}
-          {availableUtilitySpellSelections.map((selection: any, index: number) => {
-            const effect = selection.effect as UtilitySpellsFeatureEffect;
+          {availableUtilitySpellSelections.map((effect: UtilitySpellsFeatureEffect, index: number) => {
             const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character);
             const spellCount = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
             return (
               <div
-                key={`utility-${index}`}
+                key={effect.id || `utility-${index}`}
                 className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("utility_spells")}`}
               >
                 <div className="flex items-center gap-3 flex-1">
@@ -312,7 +274,7 @@ export function EffectSelectionsSection() {
                 <Button 
                   size="sm" 
                   onClick={() => {
-                    setSelectedUtilitySpells({ effect: selection.effect, effectId: selection.effectId });
+                    setSelectedUtilitySpells(effect);
                     setUtilitySpellSelection([]);
                   }}
                 >
@@ -383,19 +345,18 @@ export function EffectSelectionsSection() {
             </DialogHeader>
             <div className="space-y-4">
               {(() => {
-                const effect = selectedAttributeBoost.effect as AttributeBoostFeatureEffect;
-                const availableAttributes = effect.allowedAttributes;
+                const availableAttributes = selectedAttributeBoost.allowedAttributes;
                 return (
                   <div className="grid grid-cols-2 gap-3">
                     {availableAttributes.map((attr) => (
                       <Button
                         key={attr}
                         variant="outline"
-                        onClick={() => handleSelectAttributeBoost(attr as AttributeName, effect.amount)}
+                        onClick={() => handleSelectAttributeBoost(attr as AttributeName, selectedAttributeBoost.amount)}
                         className="justify-start"
                       >
                         <Target className="w-4 h-4 mr-2" />
-                        {attr.charAt(0).toUpperCase() + attr.slice(1)} +{effect.amount}
+                        {attr.charAt(0).toUpperCase() + attr.slice(1)} +{selectedAttributeBoost.amount}
                       </Button>
                     ))}
                   </div>
@@ -417,11 +378,10 @@ export function EffectSelectionsSection() {
               <DialogTitle>Choose Utility Spells</DialogTitle>
               <DialogDescription>
                 {(() => {
-                  const effect = selectedUtilitySpells.effect as UtilitySpellsFeatureEffect;
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character);
-                  const spellCount = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
-                  if (effect.selectionMode === "per_school") {
-                    return `Select ${effect.spellsPerSchool || 1} utility spell${(effect.spellsPerSchool || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${spellCount} total).`;
+                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                  const spellCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
+                  if (selectedUtilitySpells.selectionMode === "per_school") {
+                    return `Select ${selectedUtilitySpells.spellsPerSchool || 1} utility spell${(selectedUtilitySpells.spellsPerSchool || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${spellCount} total).`;
                   } else {
                     return `Select ${spellCount} utility spell${spellCount > 1 ? "s" : ""} to learn.`;
                   }
@@ -431,10 +391,9 @@ export function EffectSelectionsSection() {
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-3">
                 {(() => {
-                  const effect = selectedUtilitySpells.effect as UtilitySpellsFeatureEffect;
-                  const availableSpells = featureSelectionService.getAvailableUtilitySpells(effect, character);
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character);
-                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
+                  const availableSpells = featureSelectionService.getAvailableUtilitySpells(selectedUtilitySpells, character);
+                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
 
                   return availableSpells.map((spell) => (
                     <div key={spell.id} className="flex items-start space-x-3 p-3 border rounded-lg">
@@ -472,15 +431,14 @@ export function EffectSelectionsSection() {
               <Button
                 onClick={handleSelectUtilitySpells}
                 disabled={!featureSelectionService.validateUtilitySpellSelection(
-                  selectedUtilitySpells.effect as UtilitySpellsFeatureEffect,
+                  selectedUtilitySpells,
                   utilitySpellSelection,
                   character
                 )}
               >
                 {(() => {
-                  const effect = selectedUtilitySpells.effect as UtilitySpellsFeatureEffect;
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character);
-                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
+                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
                   return `Confirm Selection (${utilitySpellSelection.length}/${expectedCount})`;
                 })()}
               </Button>

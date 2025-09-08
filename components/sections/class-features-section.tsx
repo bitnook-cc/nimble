@@ -9,14 +9,33 @@ import { getCharacterService, getAncestryService, getBackgroundService } from "@
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { PoolFeatureEffectSelection } from "@/lib/schemas/character";
-import { ClassFeature, CharacterFeature } from "@/lib/schemas/features";
+import { PoolFeatureEffectSelection, AttributeName } from "@/lib/schemas/character";
+import { 
+  ClassFeature, 
+  CharacterFeature, 
+  FeatureEffect,
+  PickFeatureFromPoolFeatureEffect,
+  SubclassChoiceFeatureEffect,
+  SpellSchoolChoiceFeatureEffect,
+  AttributeBoostFeatureEffect,
+  UtilitySpellsFeatureEffect
+} from "@/lib/schemas/features";
 
 import { FeatureEffectsDisplay } from "../feature-effects-display";
+import { EffectSelectionDisplay } from "../effect-selection-display";
+import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
+import { SubclassSelectionDialog } from "../subclass-selection-dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Label } from "../ui/label";
+import { ScrollArea } from "../ui/scroll-area";
+import { Checkbox } from "../ui/checkbox";
+import { Target } from "lucide-react";
+import { featureSelectionService } from "@/lib/services/feature-selection-service";
 
 type ClassFeatureWithSource = {
   source: "class" | "subclass";
@@ -38,17 +57,82 @@ type FeatureWithSource =
   | AncestryFeatureWithSource
   | BackgroundFeatureWithSource;
 
+// Removed - using the effects directly now
+
 export function ClassFeaturesSection() {
   // Get everything we need from service hooks
-  const { character } = useCharacterService();
+  const { 
+    character, 
+    selectSubclass,
+    selectPoolFeature,
+    selectSpellSchool,
+    selectAttributeBoost,
+    selectUtilitySpells
+  } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   const [expandedSpellSchools, setExpandedSpellSchools] = useState<Record<string, boolean>>({});
+  
+  // Dialog state for selections
+  const [selectedPoolFeature, setSelectedPoolFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
+  const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
+  const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<SpellSchoolChoiceFeatureEffect | null>(null);
+  const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<AttributeBoostFeatureEffect | null>(null);
+  const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<UtilitySpellsFeatureEffect | null>(null);
+  const [utilitySpellSelection, setUtilitySpellSelection] = useState<string[]>([]);
 
   const contentRepository = ContentRepositoryService.getInstance();
   const classService = getClassService();
   const characterService = getCharacterService();
   const ancestryService = getAncestryService();
   const backgroundService = getBackgroundService();
+
+  // Handler for opening selection dialogs
+  const handleOpenSelectionDialog = (effect: FeatureEffect, effectId: string) => {
+    switch (effect.type) {
+      case "subclass_choice":
+        setSelectedSubclassChoice(effect as SubclassChoiceFeatureEffect);
+        break;
+      case "pick_feature_from_pool":
+        setSelectedPoolFeature(effect as PickFeatureFromPoolFeatureEffect);
+        break;
+      case "spell_school_choice":
+        setSelectedSpellSchoolChoice(effect as SpellSchoolChoiceFeatureEffect);
+        break;
+      case "attribute_boost":
+        setSelectedAttributeBoost(effect as AttributeBoostFeatureEffect);
+        break;
+      case "utility_spells":
+        setSelectedUtilitySpells(effect as UtilitySpellsFeatureEffect);
+        setUtilitySpellSelection([]);
+        break;
+    }
+  };
+
+  // Handler functions for selections (matching effect-selections-section)
+  const handleSelectSpellSchool = async (schoolId: string) => {
+    if (!selectedSpellSchoolChoice) return;
+    await selectSpellSchool(schoolId, selectedSpellSchoolChoice.id!);
+    setSelectedSpellSchoolChoice(null);
+  };
+
+  const handleSelectAttributeBoost = async (attribute: AttributeName, amount: number) => {
+    if (!selectedAttributeBoost) return;
+    await selectAttributeBoost(attribute, amount, selectedAttributeBoost.id!);
+    setSelectedAttributeBoost(null);
+  };
+
+  const handleSelectUtilitySpells = async () => {
+    if (!selectedUtilitySpells) return;
+    
+    if (!character || !featureSelectionService.validateUtilitySpellSelection(selectedUtilitySpells, utilitySpellSelection, character)) {
+      return;
+    }
+
+    const fromSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+    await selectUtilitySpells(utilitySpellSelection, fromSchools, selectedUtilitySpells.id!);
+    setSelectedUtilitySpells(null);
+    setUtilitySpellSelection([]);
+  };
 
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
@@ -198,6 +282,30 @@ export function ClassFeaturesSection() {
         {feature.effects && feature.effects.length > 0 && (
           <div className="pt-2 border-t">
             <FeatureEffectsDisplay effects={feature.effects} />
+            {/* Show selections for effects that need them */}
+            {feature.effects.map((effect, effectIndex) => {
+              const effectId = effect.id || `${feature.id}-${effectIndex}`;
+              const needsSelection = [
+                "subclass_choice",
+                "pick_feature_from_pool",
+                "spell_school_choice",
+                "attribute_boost",
+                "utility_spells"
+              ].includes(effect.type);
+              
+              if (!needsSelection) return null;
+              
+              return (
+                <EffectSelectionDisplay
+                  key={effectId}
+                  effect={effect}
+                  effectId={effectId}
+                  character={character}
+                  onOpenDialog={handleOpenSelectionDialog}
+                  autoOpen={false}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -318,6 +426,7 @@ export function ClassFeaturesSection() {
   };
 
   return (
+    <>
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
         <Button variant="ghost" className="w-full justify-between p-4 h-auto">
@@ -376,5 +485,166 @@ export function ClassFeaturesSection() {
         </Card>
       </CollapsibleContent>
     </Collapsible>
+
+    {/* Selection Dialogs */}
+    {selectedPoolFeature && (
+      <FeaturePoolSelectionDialog
+        pickFeature={selectedPoolFeature}
+        onClose={() => setSelectedPoolFeature(null)}
+      />
+    )}
+
+    {selectedSubclassChoice && (
+      <SubclassSelectionDialog
+        subclassChoice={selectedSubclassChoice}
+        onClose={() => setSelectedSubclassChoice(null)}
+      />
+    )}
+
+    {/* Spell School Selection Dialog */}
+    {selectedSpellSchoolChoice && (
+      <Dialog open={true} onOpenChange={() => setSelectedSpellSchoolChoice(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choose Spell School</DialogTitle>
+            <DialogDescription>
+              Select a spell school to gain access to its spells.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select onValueChange={handleSelectSpellSchool}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a spell school" />
+              </SelectTrigger>
+              <SelectContent>
+                {contentRepository.getAllSpellSchools().map((school) => (
+                  <SelectItem key={school.id} value={school.id}>
+                    <div className="flex items-center gap-2">
+                      <span className={school.color}>{school.icon}</span>
+                      {school.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+
+    {/* Attribute Boost Selection Dialog */}
+    {selectedAttributeBoost && (
+      <Dialog open={true} onOpenChange={() => setSelectedAttributeBoost(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choose Attribute Boost</DialogTitle>
+            <DialogDescription>
+              Select an attribute to receive a permanent boost.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {(() => {
+              const availableAttributes = selectedAttributeBoost.allowedAttributes;
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  {availableAttributes.map((attr) => (
+                    <Button
+                      key={attr}
+                      variant="outline"
+                      onClick={() => handleSelectAttributeBoost(attr as AttributeName, selectedAttributeBoost.amount)}
+                      className="justify-start"
+                    >
+                      <Target className="w-4 h-4 mr-2" />
+                      {attr.charAt(0).toUpperCase() + attr.slice(1)} +{selectedAttributeBoost.amount}
+                    </Button>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+
+    {/* Utility Spells Selection Dialog */}
+    {selectedUtilitySpells && (
+      <Dialog open={true} onOpenChange={() => {
+        setSelectedUtilitySpells(null);
+        setUtilitySpellSelection([]);
+      }}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Choose Utility Spells</DialogTitle>
+            <DialogDescription>
+              {(() => {
+                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                const spellCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
+                if (selectedUtilitySpells.selectionMode === "per_school") {
+                  return `Select ${selectedUtilitySpells.spellsPerSchool || 1} utility spell${(selectedUtilitySpells.spellsPerSchool || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${spellCount} total).`;
+                } else {
+                  return `Select ${spellCount} utility spell${spellCount > 1 ? "s" : ""} to learn.`;
+                }
+              })()}
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-3">
+              {(() => {
+                const availableSpells = featureSelectionService.getAvailableUtilitySpells(selectedUtilitySpells, character);
+                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
+
+                return availableSpells.map((spell) => (
+                  <div key={spell.id} className="flex items-start space-x-3 p-3 border rounded-lg">
+                    <Checkbox
+                      checked={utilitySpellSelection.includes(spell.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          if (utilitySpellSelection.length < expectedCount) {
+                            setUtilitySpellSelection([...utilitySpellSelection, spell.id]);
+                          }
+                        } else {
+                          setUtilitySpellSelection(utilitySpellSelection.filter(id => id !== spell.id));
+                        }
+                      }}
+                      disabled={!utilitySpellSelection.includes(spell.id) && utilitySpellSelection.length >= expectedCount}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">{spell.name}</div>
+                      <div className="text-sm text-muted-foreground">{spell.description}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {spell.school}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              onClick={handleSelectUtilitySpells}
+              disabled={!featureSelectionService.validateUtilitySpellSelection(
+                selectedUtilitySpells,
+                utilitySpellSelection,
+                character
+              )}
+            >
+              {(() => {
+                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
+                const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
+                return `Confirm Selection (${utilitySpellSelection.length}/${expectedCount})`;
+              })()}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 }
