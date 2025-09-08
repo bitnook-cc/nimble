@@ -28,7 +28,7 @@ import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 // Health Bar Subcomponent
@@ -277,6 +277,9 @@ function HPActionDialog({
             {config.icon}
             {config.title}
           </DialogTitle>
+          <DialogDescription>
+            View a detailed summary of your combat abilities, weapons, and defenses.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

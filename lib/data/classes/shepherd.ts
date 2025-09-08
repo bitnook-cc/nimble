@@ -129,7 +129,7 @@ const shepherdFeatures: ClassFeature[] = [
         id: "mana-and-unlock-tier-1-spells-0",
         type: "resource",
         resourceDefinition: {
-          id: "shepherd-mana",
+          id: "mana",
           name: "Mana",
           description: "Divine energy used to cast spells",
           colorScheme: "yellow-divine",
@@ -137,7 +137,7 @@ const shepherdFeatures: ClassFeature[] = [
           resetCondition: "safe_rest",
           resetType: "to_max",
           minValue: { type: "fixed", value: 0 },
-          maxValue: { type: "fixed", value: 20 }, // Will be calculated dynamically based on (WIL × 3) + LVL
+          maxValue: { type: "formula", expression: "(WIL * 3) + LVL" },
         },
       },
       {

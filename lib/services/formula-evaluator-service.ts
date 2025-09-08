@@ -2,20 +2,7 @@ import { AttributeName, Character } from "../schemas/character";
 import { FlexibleValue } from "../schemas/flexible-value";
 
 export class FormulaEvaluatorService {
-  private readonly allowedAttributes: string[] = [
-    "STR",
-    "DEX",
-    "INT",
-    "WIL",
-    "strength",
-    "dexterity",
-    "intelligence",
-    "will",
-  ];
-
-  private readonly allowedKeywords: string[] = ["level"];
-
-  private readonly operatorRegex = /^[+\-*/()0-9\s]+$/;
+  private readonly operatorRegex = /^[+\-*/\(\)0-9\s]+$/;
 
   /**
    * Safely evaluate a formula expression with character context
@@ -98,6 +85,7 @@ export class FormulaEvaluatorService {
 
     // Replace level keyword
     result = result.replace(/\bLEVEL\b/g, character.level.toString());
+    result = result.replace(/\bLVL\b/g, character.level.toString());
 
     return result;
   }

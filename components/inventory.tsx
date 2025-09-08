@@ -40,7 +40,7 @@ import { ItemBrowser } from "./item-browser";
 import { ItemFormFields } from "./item-form-fields";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 interface InventoryProps {
   inventory: InventoryType;
@@ -460,6 +460,9 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Item</DialogTitle>
+                <DialogDescription>
+                  Add a new item to your inventory. Specify its type, properties, and quantity.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <ItemFormFields item={newItem} onItemChange={setNewItem} idPrefix="add" />
@@ -487,6 +490,9 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Edit Item</DialogTitle>
+              <DialogDescription>
+                Modify the properties of an existing item in your inventory.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <ItemFormFields item={editItem} onItemChange={setEditItem} idPrefix="edit" />

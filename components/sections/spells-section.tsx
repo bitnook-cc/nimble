@@ -141,7 +141,7 @@ export function SpellsSection() {
           <Sparkles className="w-5 h-5 text-purple-500" />
           Spells
           <Badge variant="secondary" className="ml-2">
-            Tier {character._spellTierAccess} Access
+            {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`} Access
           </Badge>
         </CardTitle>
       </CardHeader>

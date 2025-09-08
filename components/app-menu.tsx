@@ -15,7 +15,7 @@ import { ContentManagementPanel } from "./content-management-panel";
 import { PDFExportDialog, PDFExportOptions } from "./pdf-export-dialog";
 import { SettingsPanel } from "./settings-panel";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,6 +120,9 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Character</DialogTitle>
+            <DialogDescription>
+              Start your adventure by creating a new character. Choose their ancestry, background, and class.
+            </DialogDescription>
           </DialogHeader>
           <CharacterCreateForm
             onComplete={() => setShowCreateCharacter(false)}

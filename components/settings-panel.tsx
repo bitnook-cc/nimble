@@ -3,7 +3,7 @@
 import { AppSettings } from "@/lib/services/settings-service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
@@ -20,6 +20,9 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>
+            Configure app settings and preferences for your character sheet.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
@@ -43,6 +43,9 @@ export function PDFExportDialog({
             <FileText className="h-5 w-5" />
             Export Character Sheet
           </DialogTitle>
+          <DialogDescription>
+            Configure export options and generate a PDF of your character sheet.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

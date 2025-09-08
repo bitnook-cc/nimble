@@ -45,7 +45,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 
 type SpellSchoolDefinition = z.infer<typeof SpellSchoolDefinitionSchema>;
@@ -559,6 +559,9 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
             <Database className="h-5 w-5" />
             Manage Content
           </DialogTitle>
+          <DialogDescription>
+            Upload and manage custom content for classes, ancestries, backgrounds, abilities, and spells.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4">

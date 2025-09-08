@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { cn } from "@/lib/utils";
 
@@ -80,6 +80,9 @@ export function WizardDialog({
             {titleIcon}
             {title}
           </DialogTitle>
+          <DialogDescription>
+            Follow the step-by-step wizard to create or level up your character.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Step Indicator */}

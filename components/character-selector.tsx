@@ -11,7 +11,7 @@ import { CharacterCreateForm } from "./character-create-form";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface CharacterSelectorProps {
   isOpen?: boolean;
@@ -198,6 +198,9 @@ export function CharacterSelector({
       <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Characters</DialogTitle>
+          <DialogDescription>
+            Select a character to continue playing or create a new one.
+          </DialogDescription>
         </DialogHeader>
         {content}
       </DialogContent>

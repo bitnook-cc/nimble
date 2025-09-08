@@ -66,7 +66,7 @@ const oathswornFeatures: ClassFeature[] = [
         id: "mana-and-radiant-spellcasting-0",
         type: "resource",
         resourceDefinition: {
-          id: "oathsworn-mana",
+          id: "mana",
           name: "Mana",
           description: "Divine energy used to cast spells",
           colorScheme: "yellow-radiant",
@@ -74,7 +74,7 @@ const oathswornFeatures: ClassFeature[] = [
           resetCondition: "safe_rest",
           resetType: "to_max",
           minValue: { type: "fixed", value: 0 },
-          maxValue: { type: "fixed", value: 10 }, // Will be calculated as WIL + LVL
+          maxValue: { type: "formula", expression: "WIL + LVL" },
         },
       },
       {
