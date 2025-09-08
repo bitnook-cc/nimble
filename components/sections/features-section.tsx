@@ -21,6 +21,7 @@ export function FeaturesSection() {
     character, 
     selectSubclass,
     selectPoolFeature,
+    clearPoolFeatureSelections,
     selectSpellSchool,
     clearSpellSchoolSelections,
     selectAttributeBoost,
@@ -87,8 +88,41 @@ export function FeaturesSection() {
     // Find what changed by comparing with current selections
     const currentSelections = character.effectSelections;
     
-    // Find new or updated selections
+    // Group pool features by effect ID for batch processing
+    const poolFeaturesByEffect = new Map<string, EffectSelection[]>();
+    const otherSelections: EffectSelection[] = [];
+    
     for (const selection of selections) {
+      if (selection.type === "pool_feature") {
+        const effectId = selection.grantedByEffectId;
+        if (!poolFeaturesByEffect.has(effectId)) {
+          poolFeaturesByEffect.set(effectId, []);
+        }
+        poolFeaturesByEffect.get(effectId)!.push(selection);
+      } else {
+        otherSelections.push(selection);
+      }
+    }
+    
+    // Handle pool features - replace all for each effect
+    for (const [effectId, poolSelections] of poolFeaturesByEffect) {
+      // Clear existing pool features for this effect
+      await clearPoolFeatureSelections(effectId);
+      
+      // Add all new pool features
+      for (const selection of poolSelections) {
+        if (selection.type === "pool_feature") {
+          await selectPoolFeature(
+            selection.poolId, 
+            selection.feature,
+            selection.grantedByEffectId
+          );
+        }
+      }
+    }
+    
+    // Handle other selections normally
+    for (const selection of otherSelections) {
       const existing = currentSelections.find(s => s.grantedByEffectId === selection.grantedByEffectId);
       
       if (!existing || JSON.stringify(existing) !== JSON.stringify(selection)) {
@@ -96,13 +130,6 @@ export function FeaturesSection() {
         switch (selection.type) {
           case "subclass":
             await selectSubclass(selection.subclassId, selection.grantedByEffectId);
-            break;
-          case "pool_feature":
-            await selectPoolFeature(
-              selection.poolId, 
-              selection.feature,
-              selection.grantedByEffectId
-            );
             break;
           case "spell_school":
             // Clear existing selections first (for edit mode)

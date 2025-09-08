@@ -239,10 +239,9 @@ export function FeaturePoolSelectionDialog({
         }
       } else if (character) {
         // Use service for live updates
-        if (isEditMode) {
-          // Clear existing selections for this effect first
-          await clearPoolFeatureSelections(pickFeature.id);
-        }
+        // Always clear existing selections for this effect first (to handle replacements)
+        await clearPoolFeatureSelections(pickFeature.id);
+        
         // Add new selections
         for (const feature of selectedFeatures) {
           await selectPoolFeature(
