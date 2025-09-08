@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature, FeaturePool } from "../../types/class";
+import { ClassDefinition, ClassFeature, FeaturePool } from "../../schemas/class";
 
 // Shadow Invocations - Lesser Invocations Feature Pool
 const lesserInvocations: ClassFeature[] = [

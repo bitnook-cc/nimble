@@ -5,8 +5,8 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { ClassFeature } from "@/lib/types/class";
-import { FeatureEffect } from "@/lib/types/feature-effects";
+import { ClassFeature } from "@/lib/schemas/class";
+import { FeatureEffect } from "@/lib/schemas/features";
 
 import { FeatureEffectsDisplay } from "./feature-effects-display";
 

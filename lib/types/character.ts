@@ -1,8 +1,8 @@
 import { AbilityDefinition } from "../schemas/abilities";
-import { ArmorProficiency, ClassFeature, WeaponProficiency } from "./class";
-import { FeatureEffect } from "./feature-effects";
+import { ArmorProficiency, ClassFeature, WeaponProficiency } from "../schemas/class";
+import { FeatureEffect } from "../schemas/features";
 import { Inventory } from "./inventory";
-import { ResourceDefinition, ResourceValue } from "./resources";
+import { ResourceDefinition, ResourceValue } from "../schemas/resources";
 
 // Import types from schemas
 import type { 

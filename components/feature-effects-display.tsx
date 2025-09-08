@@ -18,7 +18,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/types/feature-effects";
+import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
 
 interface FeatureEffectsDisplayProps {
   effects: FeatureEffect[];

@@ -13,13 +13,12 @@ import {
   ClassFeature,
   FeaturePool,
   SubclassDefinition,
-} from "../types/class";
+} from "../schemas/class";
 import {
   AttributeBoostFeatureEffect,
   PickFeatureFromPoolFeatureEffect,
-  SpellSchoolFeatureEffect,
   SubclassChoiceFeatureEffect,
-} from "../types/feature-effects";
+} from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
 import { ICharacterService, IClassService } from "./interfaces";
 

@@ -1,4 +1,4 @@
-import { AncestryDefinition } from "../../types/ancestry";
+import { AncestryDefinition } from "../../schemas/ancestry";
 import { NameConfig } from "../../utils/name-generator";
 
 const gnomeNames: NameConfig = {

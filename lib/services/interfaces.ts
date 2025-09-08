@@ -5,8 +5,8 @@ import {
   SpellAbilityDefinition,
   UsableAbilityDefinition,
 } from "../schemas/abilities";
-import { AncestryDefinition } from "../types/ancestry";
-import { BackgroundDefinition } from "../types/background";
+import { AncestryDefinition } from "../schemas/ancestry";
+import { BackgroundDefinition } from "../schemas/background";
 import {
   ActionTracker,
   Attributes,
@@ -18,11 +18,11 @@ import {
   Skill,
   Skills,
 } from "../types/character";
-import { ClassFeature, FeaturePool } from "../types/class";
-import { PickFeatureFromPoolFeatureEffect } from "../types/feature-effects";
+import { ClassFeature, FeaturePool } from "../schemas/class";
+import { PickFeatureFromPoolFeatureEffect } from "../schemas/features";
 import { Item } from "../types/inventory";
 import { LogEntry, SingleDie } from "../types/log-entries";
-import { ResourceDefinition, ResourceInstance } from "../types/resources";
+import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { CreateCompleteCharacterOptions } from "./character-creation-service";
 import { CharacterEvent, CharacterEventType } from "./character-service";
 
@@ -134,7 +134,7 @@ export interface ICharacterService {
   loadCharacter(characterId: string): Promise<Character | null>;
   updateCharacter(character: Character): Promise<void>;
   getAllActiveFeatures(): CharacterFeature[];
-  getAllActiveEffects(): import("../types/feature-effects").FeatureEffect[];
+  getAllActiveEffects(): import("../schemas/features").FeatureEffect[];
   getAbilities(): AbilityDefinition[];
   getSpellSchools(): string[];
   getSubclassId(): string | null;
@@ -195,10 +195,10 @@ export interface IClassService {
   canChooseSubclass(character: Character): boolean;
   getAvailableSubclassChoices(
     character: Character,
-  ): import("../types/feature-effects").SubclassChoiceFeatureEffect[];
+  ): import("../schemas/features").SubclassChoiceFeatureEffect[];
   getAvailableSubclassesForCharacter(
     character: Character,
-  ): import("../types/class").SubclassDefinition[];
+  ): import("../schemas/class").SubclassDefinition[];
   hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
   getAvailablePoolFeatures(

@@ -3,7 +3,7 @@
 import { Sparkles } from "lucide-react";
 
 import { genericNames } from "@/lib/config/name-config";
-import { AncestryDefinition } from "@/lib/types/ancestry";
+import { AncestryDefinition } from "@/lib/schemas/ancestry";
 import { NameGenerator } from "@/lib/utils/name-generator";
 
 import { Badge } from "../ui/badge";

@@ -1,4 +1,4 @@
-import { BackgroundDefinition } from "../../types/background";
+import { BackgroundDefinition } from "../../schemas/background";
 
 export const homeAtSea: BackgroundDefinition = {
   id: "home-at-sea",

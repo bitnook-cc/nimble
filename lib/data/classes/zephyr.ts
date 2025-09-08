@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature, FeaturePool } from "../../types/class";
+import { ClassDefinition, ClassFeature, FeaturePool } from "../../schemas/class";
 
 // Martial Arts Abilities - Feature Pool
 const martialArtsAbilities: ClassFeature[] = [

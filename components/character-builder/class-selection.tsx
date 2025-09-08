@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { useState } from "react";
 
-import { ClassDefinition } from "@/lib/types/class";
+import { ClassDefinition } from "@/lib/schemas/class";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";

@@ -4,19 +4,7 @@
  */
 import { formulaEvaluatorService } from "../services/formula-evaluator-service";
 import type { Character } from "./character";
-import type { FixedValue, FormulaValue, FlexibleValue } from "../schemas/flexible-value";
-
-// Re-export types for backward compatibility
-export type { FixedValue, FormulaValue, FlexibleValue };
-
-// Helper functions for working with FlexibleValue
-export function createFixedValue(value: number): FixedValue {
-  return { type: "fixed", value };
-}
-
-export function createFormulaValue(expression: string): FormulaValue {
-  return { type: "formula", expression };
-}
+import type { FlexibleValue } from "../schemas/flexible-value";
 
 /**
  * Get the computed value from a FlexibleValue
@@ -33,23 +21,4 @@ export function calculateFlexibleValue(
     }
     return formulaEvaluatorService.evaluateFormula(flexibleValue.expression, character);
   }
-}
-
-/**
- * Get the formula representation of a FlexibleValue
- */
-export function getFormula(flexibleValue: FlexibleValue): string {
-  if (flexibleValue.type === "fixed") {
-    return flexibleValue.value.toString();
-  } else {
-    return flexibleValue.expression;
-  }
-}
-
-export function isFixedValue(value: FlexibleValue): value is FixedValue {
-  return value.type === "fixed";
-}
-
-export function isFormulaValue(value: FlexibleValue): value is FormulaValue {
-  return value.type === "formula";
 }

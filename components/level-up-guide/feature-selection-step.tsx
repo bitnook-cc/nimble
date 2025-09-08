@@ -21,14 +21,14 @@ import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 import { getClassService, getContentRepository } from "@/lib/services/service-factory";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { AttributeName, Character } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/schemas/class";
 import {
   AttributeBoostFeatureEffect,
   PickFeatureFromPoolFeatureEffect,
   SpellSchoolChoiceFeatureEffect,
   SubclassChoiceFeatureEffect,
   UtilitySpellsFeatureEffect,
-} from "@/lib/types/feature-effects";
+} from "@/lib/schemas/features";
 
 interface FeatureSelectionStepProps {
   character: Character;

@@ -18,13 +18,13 @@ import {
   SubclassEffectSelection,
   UtilitySpellsEffectSelection,
 } from "../types/character";
-import { ClassFeature } from "../types/class";
-import { DiceType } from "../types/dice";
-import { FeatureEffect, StatBonusFeatureEffect } from "../types/feature-effects";
+import { ClassFeature } from "../schemas/class";
+import { DiceType } from "../schemas/dice";
+import { FeatureEffect, StatBonusFeatureEffect } from "../schemas/features";
 import { calculateFlexibleValue } from "../types/flexible-value";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../types/inventory";
-import { ResourceDefinition, ResourceInstance, ResourceValue } from "../types/resources";
-import { StatBonus } from "../types/stat-bonus";
+import { ResourceDefinition, ResourceInstance, ResourceValue } from "../schemas/resources";
+import { StatBonus } from "../schemas/stat-bonus";
 import { abilityService } from "./ability-service";
 import { activityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
@@ -33,11 +33,8 @@ import { ContentRepositoryService } from "./content-repository-service";
 import {
   IAbilityService,
   IActivityLog,
-  IAncestryService,
-  IBackgroundService,
   ICharacterService,
   ICharacterStorage,
-  IClassService,
 } from "./interfaces";
 import { resourceService } from "./resource-service";
 import {
@@ -102,7 +99,10 @@ export class CharacterService implements ICharacterService {
 
     const selectedFeatures = this.getSelectedPoolFeatures();
 
-    const itemFeatures = this.getEquippedItems().flatMap((item) => item.features || []);
+    // Get features from equipped items
+    const itemFeatures = this.getEquippedItems()
+      .filter((item): item is (WeaponItem | ArmorItem) => item.type === "weapon" || item.type === "armor")
+      .flatMap((item) => item.feature ? [item.feature] : []);
 
     return [...features, ...selectedFeatures, ...itemFeatures];
   }
@@ -158,7 +158,7 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return [];
 
     return this._character.inventory.items.filter(
-      (item) => (item.type === "weapon" || item.type === "armor") && item.equipped === true,
+      (item): item is EquippableItem => (item.type === "weapon" || item.type === "armor") && item.equipped === true,
     );
   }
 

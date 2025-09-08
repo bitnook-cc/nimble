@@ -5,7 +5,7 @@ import {
   ResourceResetCondition,
   ResourceValue,
   NumericalResourceValue 
-} from "../types/resources";
+} from "../schemas/resources";
 
 /**
  * Resource Service - Handles resource calculations and manipulations

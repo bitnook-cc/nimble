@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { SpellAbilitySchema } from "./abilities";
-import { FeatureEffectSchema } from "./feature-effects";
+import { ClassFeatureSchema } from "./features";
 
 // Armor proficiency schemas
 const ArmorProficiencySchema = z.union([
@@ -26,27 +26,6 @@ const WeaponProficiencySchema = z.union([
   }),
 ]);
 
-
-// Class Feature Schema - now uses effects array
-export const ClassFeatureSchema = z
-  .object({
-    id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the feature" }),
-    level: z
-      .number()
-      .int()
-      .min(1)
-      .max(20)
-      .meta({ title: "Level", description: "Level at which this feature is gained" }),
-    name: z.string().min(1).meta({ title: "Name", description: "Display name of the feature" }),
-    description: z
-      .string()
-      .min(1)
-      .meta({ title: "Description", description: "Detailed description of the feature" }),
-    effects: z
-      .array(FeatureEffectSchema)
-      .meta({ title: "Effects", description: "Array of effects this feature provides" }),
-  })
-  .meta({ title: "Class Feature", description: "A feature that provides effects to characters" });
 
 const FeaturePoolSchema = z.object({
   id: z.string().min(1),

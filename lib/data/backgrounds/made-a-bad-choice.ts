@@ -1,4 +1,4 @@
-import { BackgroundDefinition } from "../../types/background";
+import { BackgroundDefinition } from "../../schemas/background";
 
 export const madeABadChoice: BackgroundDefinition = {
   id: "made-a-bad-choice",

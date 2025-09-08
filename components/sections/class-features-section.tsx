@@ -12,7 +12,7 @@ import { getClassService } from "@/lib/services/service-factory";
 import { Character } from "@/lib/types/character";
 import { PoolFeatureEffectSelection } from "@/lib/types/character";
 import { CharacterFeature } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/schemas/class";
 
 import { FeatureEffectsDisplay } from "../feature-effects-display";
 import { Badge } from "../ui/badge";

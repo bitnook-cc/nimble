@@ -1,4 +1,4 @@
-import { DiceExpression, DiceType } from "../types/dice";
+import { DiceExpression, DiceType } from "../schemas/dice";
 
 /**
  * Parses a dice expression string (e.g., "2d6", "d20") into a DiceExpression object

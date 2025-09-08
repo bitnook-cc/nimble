@@ -1,4 +1,4 @@
-import { AncestryDefinition } from "../../types/ancestry";
+import { AncestryDefinition } from "../../schemas/ancestry";
 
 export const dragonborn: AncestryDefinition = {
   id: "dragonborn",

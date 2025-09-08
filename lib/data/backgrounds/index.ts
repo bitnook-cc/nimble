@@ -1,5 +1,5 @@
 // Import all background definitions for the main backgrounds object
-import { BackgroundDefinition } from "../../types/background";
+import { BackgroundDefinition } from "../../schemas/background";
 import { academyDropout } from "./academy-dropout";
 import { accidentalAcrobat } from "./accidental-acrobat";
 import { acrobat } from "./acrobat";

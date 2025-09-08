@@ -1,4 +1,4 @@
-import { DiceType } from "./dice";
+import { DiceType } from "../schemas/dice";
 
 // Base interface for all log entries
 export interface BaseLogEntry {

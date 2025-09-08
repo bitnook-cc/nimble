@@ -2,12 +2,10 @@ import {
   AbilityDefinition,
   AbilityRoll,
   ActionAbilityDefinition,
-  ResourceCost,
   SpellAbilityDefinition,
   UsableAbilityDefinition,
 } from "../schemas/abilities";
 import { Character } from "../types/character";
-import { ResourceInstance } from "../types/resources";
 import { formulaEvaluatorService } from "./formula-evaluator-service";
 
 export class AbilityService {

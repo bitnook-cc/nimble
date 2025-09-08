@@ -15,7 +15,7 @@ import {
   getDiceService,
 } from "@/lib/services/service-factory";
 import { AttributeName, EffectSelection } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/schemas/class";
 import {
   AbilityFeatureEffect,
   AttributeBoostFeatureEffect,
@@ -25,7 +25,7 @@ import {
   SpellSchoolFeatureEffect,
   SpellTierAccessFeatureEffect,
   UtilitySpellsFeatureEffect,
-} from "@/lib/types/feature-effects";
+} from "@/lib/schemas/features";
 
 import {
   FeatureSelectionStep,

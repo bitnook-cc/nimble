@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { diceService } from "@/lib/services/dice-service";
-import { DiceType } from "@/lib/types/dice";
+import { DiceType } from "@/lib/schemas/dice";
 
 import { Button } from "./ui/button";
 import { DiceIcon } from "./ui/dice-icons";

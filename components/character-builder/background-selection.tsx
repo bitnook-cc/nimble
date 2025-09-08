@@ -1,6 +1,6 @@
 "use client";
 
-import { BackgroundDefinition } from "@/lib/types/background";
+import { BackgroundDefinition } from "@/lib/schemas/background";
 
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

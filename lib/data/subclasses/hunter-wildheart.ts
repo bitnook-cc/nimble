@@ -1,4 +1,4 @@
-import { SubclassDefinition } from "../../types/class";
+import { SubclassDefinition } from "../../schemas/class";
 
 export const hunterWildheart: SubclassDefinition = {
   id: "hunter-wildheart",

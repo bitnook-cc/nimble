@@ -19,14 +19,13 @@ import {
 import { useState } from "react";
 
 import {
-  AmmunitionItem,
+  CreateItemData,
+  Item,
+  WeaponItem,
   ArmorItem,
   ConsumableItem,
-  CreateItemData,
+  AmmunitionItem,
   Inventory as InventoryType,
-  Item,
-  ItemType,
-  WeaponItem,
 } from "@/lib/types/inventory";
 import {
   canEquipArmor,

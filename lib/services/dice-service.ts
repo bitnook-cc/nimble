@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { DiceExpression, DiceType } from "../types/dice";
+import { DiceExpression, DiceType } from "../schemas/dice";
 import { SingleDie } from "../types/log-entries";
 import { parseDiceExpression } from "../utils/dice-parser";
 

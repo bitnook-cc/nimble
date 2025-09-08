@@ -1,5 +1,5 @@
 import { ResourceCost, SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { ResourceInstance } from "@/lib/types/resources";
+import { ResourceInstance } from "@/lib/schemas/resources";
 
 /**
  * Check if a character has enough resources to cast a spell

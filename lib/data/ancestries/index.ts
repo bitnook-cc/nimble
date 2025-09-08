@@ -1,6 +1,6 @@
 // Import all ancestry definitions for the main ancestries object
 // Common ancestries
-import { AncestryDefinition } from "../../types/ancestry";
+import { AncestryDefinition } from "../../schemas/ancestry";
 import { birdfolk } from "./birdfolk";
 // Exotic ancestries
 import { bunbun } from "./bunbun";

@@ -26,9 +26,9 @@ import {
   ContentUploadResult,
 } from "@/lib/services/content-repository-service";
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { AncestryDefinition } from "@/lib/types/ancestry";
-import { BackgroundDefinition } from "@/lib/types/background";
-import { ClassDefinition, SubclassDefinition } from "@/lib/types/class";
+import { AncestryDefinition } from "@/lib/schemas/ancestry";
+import { BackgroundDefinition } from "@/lib/schemas/background";
+import { ClassDefinition, SubclassDefinition } from "@/lib/schemas/class";
 import {
   CustomContentType,
   getAllContentTypes,

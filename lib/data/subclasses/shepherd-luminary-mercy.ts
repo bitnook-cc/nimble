@@ -1,4 +1,4 @@
-import { SubclassDefinition } from "../../types/class";
+import { SubclassDefinition } from "../../schemas/class";
 
 export const shepherdLuminaryMercy: SubclassDefinition = {
   id: "shepherd-luminary-mercy",

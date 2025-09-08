@@ -23,15 +23,11 @@ import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { AttributeName, CharacterFeature } from "@/lib/types/character";
-import { ClassFeature } from "@/lib/types/class";
-import { hasEffectType } from "@/lib/types/class";
+import { ClassFeature } from "@/lib/schemas/class";
 import {
   AttributeBoostFeatureEffect,
   FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  UtilitySpellsFeatureEffect,
-} from "@/lib/types/feature-effects";
+} from "@/lib/schemas/features";
 
 // Type for feature selections during character creation
 export type FeatureSelectionType =

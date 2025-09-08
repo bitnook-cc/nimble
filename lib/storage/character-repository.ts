@@ -1,5 +1,5 @@
 import { Character, CreateCharacterData } from "../types/character";
-import { NumericalResourceValue } from "../types/resources";
+import { NumericalResourceValue } from "../schemas/resources";
 
 export interface ICharacterRepository {
   save(character: Character): Promise<void>;

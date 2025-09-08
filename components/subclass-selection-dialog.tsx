@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { SubclassDefinition } from "@/lib/types/class";
-import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
+import { SubclassDefinition } from "@/lib/schemas/class";
+import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";

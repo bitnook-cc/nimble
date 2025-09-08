@@ -1,4 +1,4 @@
-import type { NameConfig, NamePatterns } from "../types/ancestry";
+import type { NameConfig, NamePatterns } from "../schemas/ancestry";
 
 export type { NameConfig, NamePatterns };
 

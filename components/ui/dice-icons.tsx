@@ -1,4 +1,4 @@
-import { DiceType } from "@/lib/types/dice";
+import { DiceType } from "@/lib/schemas/dice";
 
 interface DiceIconProps {
   className?: string;

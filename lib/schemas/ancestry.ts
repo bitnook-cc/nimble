@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { FeatureEffectSchema } from "./feature-effects";
+import { CharacterFeatureSchema } from "./features";
 
 // Size categories for different ancestries
 const SizeCategorySchema = z.enum(["tiny", "small", "medium", "large", "huge", "gargantuan"]);
@@ -24,24 +24,6 @@ const ResistanceSchema = z
       .meta({ title: "Description", description: "Optional description of the resistance" }),
   })
   .meta({ title: "Resistance", description: "Damage or condition resistance" });
-
-// Ancestry Feature Schema - now uses effects array
-export const AncestryFeatureSchema = z
-  .object({
-    id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the feature" }),
-    name: z.string().min(1).meta({ title: "Name", description: "Feature name" }),
-    description: z
-      .string()
-      .min(1)
-      .meta({ title: "Description", description: "Feature description" }),
-    effects: z
-      .array(FeatureEffectSchema)
-      .meta({ title: "Effects", description: "Array of effects this feature provides" }),
-  })
-  .meta({
-    title: "Ancestry Feature",
-    description: "A feature that provides effects to characters from their ancestry",
-  });
 
 // Name generator configuration schemas
 const NameGeneratorConfigSchema = z
@@ -129,7 +111,7 @@ export const AncestryDefinitionSchema = z
       description: "Common or exotic ancestry",
     }),
     features: z
-      .array(AncestryFeatureSchema)
+      .array(CharacterFeatureSchema)
       .meta({ title: "Features", description: "All features provided by this ancestry" }),
     nameConfig: NameConfigSchema.optional().meta({
       title: "Name Config",
@@ -154,7 +136,6 @@ export {
 export type SizeCategory = z.infer<typeof SizeCategorySchema>;
 export type AncestryRarity = z.infer<typeof AncestryRaritySchema>;
 export type Resistance = z.infer<typeof ResistanceSchema>;
-export type AncestryFeature = z.infer<typeof AncestryFeatureSchema>;
 export type NamePatterns = z.infer<typeof NameGeneratorConfigSchema>;
 export type NameConfig = z.infer<typeof NameConfigSchema>;
 export type AncestryDefinition = z.infer<typeof AncestryDefinitionSchema>;

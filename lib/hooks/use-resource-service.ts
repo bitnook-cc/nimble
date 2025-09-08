@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 import { getCharacterService } from "../services/service-factory";
-import { ResourceDefinition, ResourceInstance } from "../types/resources";
+import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { useActivityLog } from "./use-activity-log";
 import { useCharacterService } from "./use-character-service";
 

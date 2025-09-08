@@ -9,8 +9,8 @@ import {
   Proficiencies,
   Wounds,
 } from "../types/character";
-import { ClassDefinition } from "../types/class";
-import { Currency } from "../types/currency";
+import { ClassDefinition } from "../schemas/class";
+import { Currency } from "../schemas/currency";
 import { ArmorItem, ConsumableItem, Inventory, WeaponItem } from "../types/inventory";
 
 export const createDefaultSkills = () => {

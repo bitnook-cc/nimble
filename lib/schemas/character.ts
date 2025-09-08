@@ -1,11 +1,10 @@
 import { z } from "zod";
 
 import { gameConfig } from "../config/game-config";
-import { ClassFeatureSchema } from "./class";
-import { currencySchema } from "./currency";
 import { flexibleValueSchema } from "./flexible-value";
+import { ClassFeatureSchema } from "./features";
+import { inventorySchema } from "./inventory";
 import { resourceDefinitionSchema } from "./resources";
-import { statBonusSchema } from "./stat-bonus";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 
@@ -22,53 +21,6 @@ const saveAdvantageMapSchema = z
 
 // Type alias for backward compatibility and semantic clarity
 const abilityUsesSchema = flexibleValueSchema;
-
-const baseItemSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1),
-  size: z.int().min(0),
-  description: z.string().optional(),
-  cost: currencySchema.optional(),
-});
-
-export const itemSchema = z.discriminatedUnion("type", [
-  baseItemSchema.extend({
-    type: z.literal("weapon"),
-    equipped: z.boolean().optional(),
-    attribute: attributeNameSchema.optional(),
-    damage: z.string().optional(),
-    damageType: z.enum(["Slashing", "Piercing", "Bludgeoning"]).optional(),
-    vicious: z.boolean().optional(),
-    properties: z.array(z.string()).optional(),
-    statBonus: statBonusSchema.optional(),
-  }),
-  baseItemSchema.extend({
-    type: z.literal("armor"),
-    equipped: z.boolean().optional(),
-    armor: z.int().optional(),
-    maxDexBonus: z.int().optional(),
-    isMainArmor: z.boolean().optional(),
-    properties: z.array(z.string()).optional(),
-    statBonus: statBonusSchema.optional(),
-  }),
-  baseItemSchema.extend({
-    type: z.literal("freeform"),
-  }),
-  baseItemSchema.extend({
-    type: z.literal("consumable"),
-    count: z.int().min(1),
-  }),
-  baseItemSchema.extend({
-    type: z.literal("ammunition"),
-    count: z.int().min(1),
-  }),
-]);
-
-export const inventorySchema = z.object({
-  maxSize: z.int().min(0),
-  items: z.array(itemSchema),
-  currency: currencySchema,
-});
 
 export const attributeSchema = z.object({
   strength: z
@@ -332,17 +284,6 @@ export const characterSchema = z.object({
 });
 
 export type ValidatedCharacter = z.infer<typeof characterSchema>;
-
-// Export inferred types for inventory
-export type ItemType = "weapon" | "armor" | "freeform" | "consumable" | "ammunition";
-export type BaseItem = z.infer<typeof baseItemSchema>;
-export type Item = z.infer<typeof itemSchema>;
-export type WeaponItem = Extract<Item, { type: "weapon" }>;
-export type ArmorItem = Extract<Item, { type: "armor" }>;
-export type FreeformItem = Extract<Item, { type: "freeform" }>;
-export type ConsumableItem = Extract<Item, { type: "consumable" }>;
-export type AmmunitionItem = Extract<Item, { type: "ammunition" }>;
-export type Inventory = z.infer<typeof inventorySchema>;
 
 // Export other inferred types
 export type AttributeName = z.infer<typeof attributeNameSchema>;

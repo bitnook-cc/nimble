@@ -59,7 +59,7 @@ export function ResourceSection() {
   };
 
   const getResourceBarColor = (
-    resourceInstance: import("@/lib/types/resources").ResourceInstance,
+    resourceInstance: import("@/lib/schemas/resources").ResourceInstance,
     current: number,
     max: number,
   ) => {
@@ -76,7 +76,7 @@ export function ResourceSection() {
     return { backgroundColor: "#3b82f6" }; // blue-500
   };
 
-  const getResourceIcon = (resourceInstance: import("@/lib/types/resources").ResourceInstance) => {
+  const getResourceIcon = (resourceInstance: import("@/lib/schemas/resources").ResourceInstance) => {
     if (resourceInstance.definition.icon) {
       const iconOption = getIconById(resourceInstance.definition.icon);
       if (iconOption) {

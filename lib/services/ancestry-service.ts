@@ -1,4 +1,4 @@
-import { AncestryDefinition } from "../types/ancestry";
+import { AncestryDefinition } from "../schemas/ancestry";
 import { Character, CharacterFeature } from "../types/character";
 import { ContentRepositoryService } from "./content-repository-service";
 import { IAncestryService, ICharacterService, ICharacterStorage } from "./interfaces";

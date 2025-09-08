@@ -1,4 +1,4 @@
-import { ClassDefinition, ClassFeature } from "../../types/class";
+import { ClassDefinition, ClassFeature } from "../../schemas/class";
 
 // Underhanded Abilities - Feature Pool
 const underhandedAbilitiesFeatures: ClassFeature[] = [

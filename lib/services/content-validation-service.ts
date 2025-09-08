@@ -13,9 +13,9 @@ import {
   SpellSchoolDefinitionSchema,
   SubclassDefinitionSchema,
 } from "../schemas/class";
-import { AncestryDefinition } from "../types/ancestry";
-import { BackgroundDefinition } from "../types/background";
-import { ClassDefinition, SubclassDefinition } from "../types/class";
+import { AncestryDefinition } from "../schemas/ancestry";
+import { BackgroundDefinition } from "../schemas/background";
+import { ClassDefinition, SubclassDefinition } from "../schemas/class";
 import { SpellSchoolWithSpells } from "./content-repository-service";
 
 // Validation functions

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { SubclassChoiceFeatureEffect } from "@/lib/types/feature-effects";
+import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
 
 import { SubclassSelectionDialog } from "../subclass-selection-dialog";
 import { Badge } from "../ui/badge";

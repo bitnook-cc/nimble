@@ -13,7 +13,7 @@ import {
   ResourceResetCondition,
   ResourceResetType,
   NumericalResourceValue,
-} from "@/lib/types/resources";
+} from "@/lib/schemas/resources";
 import {
   RESOURCE_COLOR_SCHEMES,
   RESOURCE_ICONS,

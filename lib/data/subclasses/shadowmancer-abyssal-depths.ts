@@ -1,4 +1,4 @@
-import { SubclassDefinition } from "../../types/class";
+import { SubclassDefinition } from "../../schemas/class";
 
 export const shadowmancerAbyssalDepths: SubclassDefinition = {
   id: "shadowmancer-abyssal-depths",

@@ -3,24 +3,15 @@ import { z } from "zod";
 import { flexibleValueSchema } from "./flexible-value";
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
+import { diceExpressionSchema } from "./dice";
 
-// Import schemas from class.ts for abilities and resources
-const DiceExpressionSchema = z.object({
-  count: z.number().int().min(1).max(20),
-  sides: z.union([
-    z.literal(4),
-    z.literal(6),
-    z.literal(8),
-    z.literal(10),
-    z.literal(12),
-    z.literal(20),
-    z.literal(66),
-    z.literal(100),
-  ]),
-});
+// ========================================
+// Feature Effect Schemas
+// ========================================
+
 
 const AbilityRollSchema = z.object({
-  dice: DiceExpressionSchema,
+  dice: diceExpressionSchema,
   modifier: z.number().int().optional(),
   attribute: z.enum(["strength", "dexterity", "intelligence", "will"]).optional(),
 });
@@ -90,10 +81,6 @@ const ResistanceSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
 });
-
-// Removed ResourceDefinitionSchema - using imported resourceDefinitionSchema instead
-
-// Removed StatBonusSchema - using imported statBonusSchema instead
 
 // Feature Effect Schemas
 const BaseFeatureEffectSchema = z.object({
@@ -194,7 +181,41 @@ export {
   ResistanceFeatureEffectSchema,
 };
 
-// Export inferred types
+// ========================================
+// Character Feature Schemas
+// ========================================
+
+// Base Character Feature Schema - shared by all feature types
+export const CharacterFeatureSchema = z
+  .object({
+    id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the feature" }),
+    name: z.string().min(1).meta({ title: "Name", description: "Display name of the feature" }),
+    description: z
+      .string()
+      .min(1)
+      .meta({ title: "Description", description: "Detailed description of the feature" }),
+    effects: z
+      .array(FeatureEffectSchema)
+      .meta({ title: "Effects", description: "Array of effects this feature provides" }),
+  })
+  .meta({ title: "Character Feature", description: "A feature that provides effects to characters" });
+
+// Class Feature Schema - extends CharacterFeature with level
+export const ClassFeatureSchema = CharacterFeatureSchema.extend({
+  level: z
+    .number()
+    .int()
+    .min(1)
+    .max(20)
+    .meta({ title: "Level", description: "Level at which this feature is gained" }),
+})
+  .meta({ title: "Class Feature", description: "A class feature that provides effects to characters at specific levels" });
+
+// ========================================
+// Export Inferred Types
+// ========================================
+
+// Feature Effect Types
 export type FeatureEffectType = 
   | "ability"
   | "attribute_boost"
@@ -229,3 +250,7 @@ export type PickFeatureFromPoolFeatureEffect = z.infer<typeof PickFeatureFromPoo
 export type ResistanceFeatureEffect = z.infer<typeof ResistanceFeatureEffectSchema>;
 
 export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
+
+// Character Feature Types
+export type CharacterFeature = z.infer<typeof CharacterFeatureSchema>;
+export type ClassFeature = z.infer<typeof ClassFeatureSchema>;

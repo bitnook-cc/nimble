@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { ArmorItem, Item, WeaponItem } from "../types/inventory";
+import { ArmorItem, Item, WeaponItem } from "../schemas/inventory";
 
 export function getEquippedWeapons(items: Item[]): WeaponItem[] {
   return items.filter(
