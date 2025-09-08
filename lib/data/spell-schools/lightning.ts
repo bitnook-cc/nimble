@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const lightningSchoolSpells: SpellAbilityDefinition[] = [
+const lightningSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "zap",
@@ -10,6 +11,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 2, sides: 8 },
@@ -23,6 +25,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 2, sides: 8 },
@@ -38,6 +41,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 1,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 8 },
@@ -58,6 +62,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 2,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -75,6 +80,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 3,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 8 },
@@ -96,6 +102,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 4,
+    category: "combat",
     actionCost: 3,
     resourceCost: {
       type: "fixed",
@@ -113,6 +120,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 5,
+    category: "combat",
     actionCost: 2,
     resourceCost: {
       type: "fixed",
@@ -130,6 +138,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 6,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 2, sides: 8 }, // d88 represented as 2d8 with special interpretation
@@ -150,6 +159,7 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 9,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 2, sides: 8 }, // d88 represented as 2d8
@@ -161,3 +171,49 @@ export const lightningSchoolSpells: SpellAbilityDefinition[] = [
     },
   },
 ];
+
+const lightningUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "spark-buddy",
+    name: "Spark Buddy",
+    type: "spell",
+    school: "lightning",
+    tier: 0,
+    category: "utility",
+    description:
+      "Conjure a tiny (squirrel-sized) electrical helper for up to 1 hour. It can fetch tiny objects (~1 lb / 500 g max), open unlocked doors, illuminate a small area, or deliver a harmless shock. If it takes damage or moves further than 6 spaces away from you, it dissipates into sparks.",
+  },
+  {
+    id: "spark-step",
+    name: "Spark Step",
+    type: "spell",
+    school: "lightning",
+    tier: 0,
+    category: "utility",
+    description:
+      "Mark a ground location near you as a beacon. When you move, you crackle with electrical energy and leave a trail of lightning behind you. While you have a beacon active, you can use a Bonus Action to instantly teleport to your beacon, granting a static shock to everyone adjacent to you (harmless, but annoying). When you cast this spell again, the beacon moves.",
+  },
+  {
+    id: "shocking-stories",
+    name: "Shocking Stories",
+    type: "spell",
+    school: "lightning",
+    tier: 0,
+    category: "utility",
+    description:
+      "Touch a creature or object near you. Instantly be shocked by a vision of one of its most dramatic stories. This may be its greatest accomplishment, its grimmest failure, the moment it was created, the deepest love it's held, and so on.",
+  },
+];
+
+export const lightningSpellSchool: SpellSchoolWithSpells = {
+  id: "lightning",
+  name: "Lightning Spells",
+  description: "Electrical storms and thunder magic that controls lightning and electricity",
+  color: "text-yellow-500",
+  icon: "Zap",
+  spells: lightningSchoolSpells,
+  utilitySpells: lightningUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { lightningSchoolSpells };

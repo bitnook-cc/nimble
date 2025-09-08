@@ -163,6 +163,7 @@ const shepherdFeatures: ClassFeature[] = [
           type: "spell",
           school: "radiant",
           tier: 1,
+          category: "combat",
           actionCost: 1,
           resourceCost: {
             type: "fixed",

@@ -214,6 +214,7 @@ export const abilitySchema = z.discriminatedUnion("type", [
     type: z.literal("spell"),
     school: z.string().min(1),
     tier: z.int().min(1).max(9),
+    category: z.enum(["combat", "utility"]),
     roll: abilityRollSchema.optional(),
     actionCost: z.int().min(0).optional(),
     resourceCost: resourceCostSchema.optional(),

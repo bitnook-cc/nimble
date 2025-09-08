@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const windSchoolSpells: SpellAbilityDefinition[] = [
+const windSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "razor-wind",
@@ -10,6 +11,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 4 },
@@ -23,6 +25,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "combat",
     actionCost: 1,
   },
 
@@ -35,6 +38,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 1,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 4 },
@@ -55,6 +59,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 2,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -72,6 +77,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 3,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -89,6 +95,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 4,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 4, sides: 4 },
@@ -110,6 +117,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 5,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -130,6 +138,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 6,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 3, sides: 4 }, // d44 with advantage represented as 3d4
@@ -150,6 +159,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 7,
+    category: "combat",
     actionCost: 2,
     resourceCost: {
       type: "fixed",
@@ -167,6 +177,7 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 4 },
@@ -174,3 +185,49 @@ export const windSchoolSpells: SpellAbilityDefinition[] = [
     },
   },
 ];
+
+const windUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "storm-warning",
+    name: "Storm Warning",
+    type: "spell",
+    school: "wind",
+    tier: 0,
+    category: "utility",
+    description:
+      "You feel the weather patterns around you for the next 8 hours. If severe weather looms, you gain an impression of the storm's arrival time and intensity.",
+  },
+  {
+    id: "windcraft",
+    name: "Windcraft",
+    type: "spell",
+    school: "wind",
+    tier: 0,
+    category: "utility",
+    description:
+      "Control the wind within 3 spaces of you, creating gusts or silence. Create any smell, sound, or small illusion that could believably be carried by wind. You can also perfectly mimic any voice or sound you've heard.",
+  },
+  {
+    id: "flight",
+    name: "Flight",
+    type: "spell",
+    school: "wind",
+    tier: 0,
+    category: "utility",
+    description:
+      "Grant yourself a flying speed of 2 for up to 10 minutes (requires concentration). Your speed drops to 0 if you are wearing armor or encumbered by heavy objects.",
+  },
+];
+
+export const windSpellSchool: SpellSchoolWithSpells = {
+  id: "wind",
+  name: "Wind Spells",
+  description: "Ancient mastery over wind and storms, controlling the very air itself",
+  color: "text-teal-500",
+  icon: "Wind",
+  spells: windSchoolSpells,
+  utilitySpells: windUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { windSchoolSpells };

@@ -176,6 +176,7 @@ const songweaverFeatures: ClassFeature[] = [
           type: "spell",
           school: "wind",
           tier: 0,
+          category: "combat",
           actionCost: 1,
           roll: {
             dice: { count: 1, sides: 4 },

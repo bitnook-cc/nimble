@@ -59,6 +59,7 @@ const SpellAbilitySchema = z.object({
   type: z.literal("spell"),
   school: z.string().min(1),
   tier: z.number().int().min(0).max(9),
+  category: z.enum(["combat", "utility"]),
   roll: AbilityRollSchema.optional(),
   actionCost: z.number().int().min(0).max(5).optional(),
   resourceCost: ResourceCostSchema.optional(),

@@ -1,62 +1,23 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
-import { fireSchoolSpells } from "./fire";
-import { iceSchoolSpells } from "./ice";
-import { lightningSchoolSpells } from "./lightning";
-import { necroticSchoolSpells } from "./necrotic";
-import { radiantSchoolSpells } from "./radiant";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
+import { fireSpellSchool, fireSchoolSpells } from "./fire";
+import { iceSpellSchool, iceSchoolSpells } from "./ice";
+import { lightningSpellSchool, lightningSchoolSpells } from "./lightning";
+import { necroticSpellSchool, necroticSchoolSpells } from "./necrotic";
+import { radiantSpellSchool, radiantSchoolSpells } from "./radiant";
 import { utilitySpellsBySchool } from "./utility-spells";
-import { windSchoolSpells } from "./wind";
+import { windSpellSchool, windSchoolSpells } from "./wind";
 
 /**
- * Get spells from a specific school
+ * Get all built-in spell schools with full definitions
  */
-export function getSpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
-  switch (schoolId) {
-    case "fire":
-      return fireSchoolSpells;
-    case "ice":
-      return iceSchoolSpells;
-    case "lightning":
-      return lightningSchoolSpells;
-    case "wind":
-      return windSchoolSpells;
-    case "radiant":
-      return radiantSchoolSpells;
-    case "necrotic":
-      return necroticSchoolSpells;
-    default:
-      return [];
-  }
-}
-
-/**
- * Get utility spells from a specific school
- */
-export function getUtilitySpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
-  return utilitySpellsBySchool[schoolId] || [];
-}
-
-/**
- * Get all available spell schools
- */
-export function getAllSpellSchools(): { id: string; name: string; spells: SpellAbilityDefinition[] }[] {
+export function getBuiltInSpellSchools(): SpellSchoolWithSpells[] {
   return [
-    { id: "fire", name: "Fire Spells", spells: fireSchoolSpells },
-    { id: "ice", name: "Ice Spells", spells: iceSchoolSpells },
-    { id: "lightning", name: "Lightning Spells", spells: lightningSchoolSpells },
-    { id: "wind", name: "Wind Spells", spells: windSchoolSpells },
-    { id: "radiant", name: "Radiant Spells", spells: radiantSchoolSpells },
-    { id: "necrotic", name: "Necrotic Spells", spells: necroticSchoolSpells },
+    fireSpellSchool,
+    iceSpellSchool,
+    lightningSpellSchool,
+    windSpellSchool,
+    radiantSpellSchool,
+    necroticSpellSchool,
   ];
 }
-
-// Re-export individual school spells for backward compatibility
-export {
-  fireSchoolSpells,
-  iceSchoolSpells,
-  lightningSchoolSpells,
-  windSchoolSpells,
-  radiantSchoolSpells,
-  necroticSchoolSpells,
-  utilitySpellsBySchool,
-};

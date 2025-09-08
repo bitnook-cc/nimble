@@ -8,6 +8,7 @@ export const iceUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 0,
+    category: "utility",
     description:
       "Conjure a disk of ice that floats just above the ground and follows you. It can carry up to 250 lbs / 115 kg of weight for 1 hour or until you cast this spell again.",
   },
@@ -17,6 +18,7 @@ export const iceUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 0,
+    category: "utility",
     description:
       "Harmlessly freeze, thaw, or move a bath-sized amount of water near you. OR: Conjure a sheet of opaque, mirror-like, or transparent ice the size of a window or small door.",
   },
@@ -26,6 +28,7 @@ export const iceUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 0,
+    category: "utility",
     description:
       "Turn a small patch of water into a reflective icy mirror. Looking though it grants you vision of any desired location near this same body of water for 10 minutes.",
   },
@@ -39,6 +42,7 @@ export const lightningUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 0,
+    category: "utility",
     description:
       "Conjure a tiny (squirrel-sized) electrical helper for up to 1 hour. It can fetch tiny objects (~1 lb / 500 g max), open unlocked doors, illuminate a small area, or deliver a harmless shock. If it takes damage or moves further than 6 spaces away from you, it dissipates into sparks.",
   },
@@ -48,6 +52,7 @@ export const lightningUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 0,
+    category: "utility",
     description: "Teleport to a metal object.",
   },
   {
@@ -56,6 +61,7 @@ export const lightningUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "lightning",
     tier: 0,
+    category: "utility",
     description:
       "A minor magical effect, or temporarily suppress a stronger one (the more powerful an enchantment, the shorter the duration). OR: Your eyes glow and your voice is amplified to a booming, thunder-like volume for 1 minute.",
   },
@@ -69,6 +75,7 @@ export const radiantUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 0,
+    category: "utility",
     description:
       "Cause an item to brightly glow as a torch with radiant light for as long as you hold it.",
   },
@@ -78,6 +85,7 @@ export const radiantUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 0,
+    category: "utility",
     description:
       "Clean stains or repair a small tear/break in a non-magical item, or conjure tiny beautiful things: flowers, butterflies, etc.",
   },
@@ -87,6 +95,7 @@ export const radiantUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 0,
+    category: "utility",
     description:
       "Telepathically communicate simple thoughts or feelings with a friendly creature you can see. OR: Imbue your spoken words with calming magic, granting advantage on any check made to soothe anger or fear in creatures who can hear you.",
   },
@@ -100,6 +109,7 @@ export const fireUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 0,
+    category: "utility",
     description:
       "Touch a surface and secretly mark it with a symbol or brief message. Speaking a chosen command word while nearby reveals it.",
   },
@@ -109,6 +119,7 @@ export const fireUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 0,
+    category: "utility",
     description: "Teleport to a fire source you can see.",
   },
   {
@@ -117,6 +128,7 @@ export const fireUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 0,
+    category: "utility",
     description: "A minor visual illusion. OR: Ignite a small, unheld item within Range 6.",
   },
 ];
@@ -129,6 +141,7 @@ export const windUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "utility",
     description:
       "You whisper a message into the wind and it will be secretly carried to a specified target within 100 miles / 160 km.",
   },
@@ -138,6 +151,7 @@ export const windUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "utility",
     description:
       "Gently move a tiny unheld item within Reach in any direction. OR: Generate an illusory scent.",
   },
@@ -147,6 +161,7 @@ export const windUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "wind",
     tier: 0,
+    category: "utility",
     description:
       "Reaction: When a creature falls, cause them to gently float to the ground, unharmed.",
   },
@@ -160,6 +175,7 @@ export const necroticUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "utility",
     description:
       "Action: Soil a surface with blood, filth, or other disgusting things. OR: Casting time 1 minute: Shape/move a body-sized plot of earth.",
   },
@@ -169,6 +185,7 @@ export const necroticUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "utility",
     description:
       "Change your appearance to look like someone else for 10 minutes. Requires a piece of them.",
   },
@@ -178,6 +195,7 @@ export const necroticUtilitySpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "utility",
     description:
       "Read the surface thoughts of a creature within Reach. Creatures can sense you doing this and may not like it.",
   },

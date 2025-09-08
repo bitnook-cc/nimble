@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const fireSchoolSpells: SpellAbilityDefinition[] = [
+const fireSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "flame-dart",
@@ -10,6 +11,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 10 },
@@ -23,6 +25,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 0,
+    category: "combat",
     actionCost: 1,
   },
 
@@ -35,6 +38,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 1,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 4, sides: 10 },
@@ -55,6 +59,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 2,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -72,6 +77,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 3,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -89,6 +95,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 4,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 2, sides: 20 },
@@ -110,6 +117,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 5,
+    category: "combat",
     actionCost: 2,
     resourceCost: {
       type: "fixed",
@@ -127,6 +135,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 7,
+    category: "combat",
     actionCost: 3,
     resourceCost: {
       type: "fixed",
@@ -144,6 +153,7 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "fire",
     tier: 9,
+    category: "combat",
     actionCost: 5,
     resourceCost: {
       type: "fixed",
@@ -152,3 +162,49 @@ export const fireSchoolSpells: SpellAbilityDefinition[] = [
     },
   },
 ];
+
+const fireUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "burning-light",
+    name: "Burning Light",
+    type: "spell",
+    school: "fire",
+    tier: 0,
+    category: "utility",
+    description:
+      "Ignite an object you can see with a flame the size of a campfire. This does not damage the object. The flame lasts for 1 hour and cannot catch things on fire.",
+  },
+  {
+    id: "flamecraft",
+    name: "Flamecraft",
+    type: "spell",
+    school: "fire",
+    tier: 0,
+    category: "utility",
+    description:
+      "Control any flame up to the size of a campfire within 4 spaces. Move the flame anywhere within Range. Double or halve its intensity. Change its colors. Snuff it out. Or, shape it into any form.",
+  },
+  {
+    id: "ring-of-warmth",
+    name: "Ring of Warmth",
+    type: "spell",
+    school: "fire",
+    tier: 0,
+    category: "utility",
+    description:
+      "Create a 6 × 6 space bubble of warmth that shields you and your allies from cold for 1 hour. OR: Instantly dry one Medium-size or smaller object or creature.",
+  },
+];
+
+export const fireSpellSchool: SpellSchoolWithSpells = {
+  id: "fire",
+  name: "Fire Spells",
+  description: "Destructive flames and burning magic that harnesses the power of fire and heat",
+  color: "text-orange-600",
+  icon: "Flame",
+  spells: fireSchoolSpells,
+  utilitySpells: fireUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { fireSchoolSpells };

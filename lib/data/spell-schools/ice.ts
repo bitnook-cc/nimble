@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const iceSchoolSpells: SpellAbilityDefinition[] = [
+const iceSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "ice-lance",
@@ -10,6 +11,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -23,6 +25,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -38,6 +41,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 1,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -55,6 +59,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 2,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 6 },
@@ -75,6 +80,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 3,
+    category: "combat",
     actionCost: 2,
     resourceCost: {
       type: "fixed",
@@ -92,6 +98,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 4,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 2, sides: 6 },
@@ -112,6 +119,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 5,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 4, sides: 6 },
@@ -133,6 +141,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 8,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 1, sides: 66 },
@@ -153,6 +162,7 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "ice",
     tier: 9,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 1, sides: 66 },
@@ -164,3 +174,49 @@ export const iceSchoolSpells: SpellAbilityDefinition[] = [
     },
   },
 ];
+
+const iceUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "ice-disk",
+    name: "Ice Disk",
+    type: "spell",
+    school: "ice",
+    tier: 0,
+    category: "utility",
+    description:
+      "Conjure a disk of ice that floats just above the ground and follows you. It can carry up to 250 lbs / 115 kg of weight for 1 hour or until you cast this spell again.",
+  },
+  {
+    id: "chillcraft",
+    name: "Chillcraft",
+    type: "spell",
+    school: "ice",
+    tier: 0,
+    category: "utility",
+    description:
+      "Harmlessly freeze, thaw, or move a bath-sized amount of water near you. OR: Conjure a sheet of opaque, mirror-like, or transparent ice the size of a window or small door.",
+  },
+  {
+    id: "wintry-scrying",
+    name: "Wintry Scrying",
+    type: "spell",
+    school: "ice",
+    tier: 0,
+    category: "utility",
+    description:
+      "Turn a small patch of water into a reflective icy mirror. Looking though it grants you vision of any desired location near this same body of water for 10 minutes.",
+  },
+];
+
+export const iceSpellSchool: SpellSchoolWithSpells = {
+  id: "ice",
+  name: "Ice Spells",
+  description: "Ice and cold elemental magic that manipulates temperature and frozen matter",
+  color: "text-blue-500",
+  icon: "Snowflake",
+  spells: iceSchoolSpells,
+  utilitySpells: iceUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { iceSchoolSpells };

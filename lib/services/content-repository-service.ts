@@ -3,11 +3,7 @@ import { backgroundDefinitions as builtInBackgrounds } from "../data/backgrounds
 // Built-in content imports
 import { classDefinitions as builtInClasses } from "../data/classes/index";
 import { ITEM_REPOSITORY } from "../data/items";
-import {
-  getAllSpellSchools as getBuiltInSpellSchools,
-  getSpellsBySchool,
-  getUtilitySpellsBySchool,
-} from "../data/spell-schools/index";
+import { getBuiltInSpellSchools } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
 import { AncestryDefinition } from "../types/ancestry";
@@ -599,77 +595,24 @@ export class ContentRepositoryService {
 
   // Spell School Management
   public getAllSpellSchools(): SpellSchoolWithSpells[] {
-    // Initialize built-in schools on first access
-    this.initializeBuiltInSchools();
-
-    // Return all schools from storage (built-in + custom)
-    return this.getStoredSpellSchools();
-  }
-
-  private initializeBuiltInSchools(): void {
-    const stored = this.getStoredSpellSchools();
-    const builtInSchoolData = getBuiltInSpellSchools();
-
-    // Check if built-in schools are already initialized
-    const hasBuiltInSchools = builtInSchoolData.every((builtInSchool) =>
-      stored.some((school) => school.id === builtInSchool.id),
-    );
-
-    if (!hasBuiltInSchools) {
-      // Create spell schools with spells and proper descriptions
-      const builtInSchools: SpellSchoolWithSpells[] = builtInSchoolData.map((schoolData) => {
-        // Generate a proper description based on the school name
-        const descriptions: Record<string, string> = {
-          "fire": "Destructive flames and burning magic that harnesses the power of fire and heat",
-          "ice": "Ice and cold elemental magic that manipulates temperature and frozen matter", 
-          "lightning": "Electrical storms and thunder magic that controls lightning and electricity",
-          "wind": "Air and storm magic that commands the winds and atmospheric forces",
-          "radiant": "Divine light and healing magic that channels holy radiance and positive energy",
-          "necrotic": "Death and decay magic that manipulates negative energy and undeath",
-        };
-        
-        // Define colors for each school (Tailwind classes)
-        const colors: Record<string, string> = {
-          "fire": "text-orange-600",
-          "ice": "text-blue-500",
-          "lightning": "text-yellow-500",
-          "wind": "text-teal-500",
-          "radiant": "text-amber-400",
-          "necrotic": "text-purple-700",
-        };
-        
-        // Define icons for each school
-        const icons: Record<string, string> = {
-          "fire": "Flame",
-          "ice": "Snowflake",
-          "lightning": "Zap",
-          "wind": "Wind",
-          "radiant": "Sun",
-          "necrotic": "Skull",
-        };
-        
-        return {
-          id: schoolData.id,
-          name: schoolData.name,
-          description: descriptions[schoolData.id] || `Magical arts of ${schoolData.name.toLowerCase()}`,
-          color: colors[schoolData.id] || "text-gray-600",
-          icon: icons[schoolData.id] || "Sparkles",
-          spells: schoolData.spells,
-          utilitySpells: getUtilitySpellsBySchool(schoolData.id),
-        };
-      });
-
-      // Merge with existing schools
-      const updatedSchools = [...stored];
-      builtInSchools.forEach((builtInSchool) => {
-        const existingIndex = updatedSchools.findIndex((school) => school.id === builtInSchool.id);
-        if (existingIndex === -1) {
-          updatedSchools.push(builtInSchool);
-        }
-      });
-
-      localStorage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(updatedSchools));
-    }
+    const builtInSchools = getBuiltInSpellSchools();
+    const customSchools = this.getCustomSpellSchools();
+    
+    // Combine built-in and custom schools
+    // Custom schools can override built-in ones with the same ID
+    const schoolMap = new Map<string, SpellSchoolWithSpells>();
+    
+    // Add built-in schools first
+    builtInSchools.forEach(school => {
+      schoolMap.set(school.id, school);
+    });
+    
+    // Add/override with custom schools
+    customSchools.forEach(school => {
+      schoolMap.set(school.id, school);
+    });
+    
+    return Array.from(schoolMap.values());
   }
 
   public getSpellSchool(schoolId: string): SpellSchoolWithSpells | null {
@@ -719,7 +662,7 @@ export class ContentRepositoryService {
         };
       }
 
-      const existingSchools = this.getStoredSpellSchools();
+      const existingSchools = this.getCustomSpellSchools();
       const updatedSchools = [...existingSchools];
 
       validSchools.forEach((newSchool) => {
@@ -748,7 +691,7 @@ export class ContentRepositoryService {
     }
   }
 
-  private getStoredSpellSchools(): SpellSchoolWithSpells[] {
+  private getCustomSpellSchools(): SpellSchoolWithSpells[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.customSpellSchools);
       if (!stored) return [];
@@ -1109,8 +1052,8 @@ export class ContentRepositoryService {
     // For classes, only count truly custom ones (not built-in)
     const customClasses = this.getCustomClasses();
 
-    // For spell schools, count all since they're managed uniformly
-    const allSpellSchools = this.getAllSpellSchools();
+    // For spell schools, count only custom ones
+    const customSpellSchools = this.getCustomSpellSchools();
 
     // For spells, count only loose custom spells (not part of school definitions)
     const customSpells = this.getCustomSpells();
@@ -1118,7 +1061,7 @@ export class ContentRepositoryService {
     return {
       [CustomContentType.CLASS_DEFINITION]: customClasses.length,
       [CustomContentType.SUBCLASS_DEFINITION]: this.getCustomSubclasses().length,
-      [CustomContentType.SPELL_SCHOOL_DEFINITION]: allSpellSchools.length,
+      [CustomContentType.SPELL_SCHOOL_DEFINITION]: customSpellSchools.length,
       [CustomContentType.ANCESTRY_DEFINITION]: this.getCustomAncestries().length,
       [CustomContentType.BACKGROUND_DEFINITION]: this.getCustomBackgrounds().length,
       [CustomContentType.ACTION_ABILITY]: this.getCustomAbilities().length,

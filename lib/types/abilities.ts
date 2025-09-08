@@ -51,6 +51,7 @@ export interface SpellAbilityDefinition extends UsableAbilityDefinition {
   type: "spell";
   school: string; // Which spell school this belongs to (e.g., 'fire', 'radiant')
   tier: number; // Spell tier from 1 to 9
+  category: "combat" | "utility"; // Whether this is a combat or utility spell
   roll?: AbilityRoll; // Optional roll information
 }
 

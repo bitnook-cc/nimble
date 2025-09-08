@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const radiantSchoolSpells: SpellAbilityDefinition[] = [
+const radiantSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "rebuke",
@@ -10,6 +11,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -23,6 +25,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 0,
+    category: "combat",
     actionCost: 1,
   },
 
@@ -35,6 +38,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 1,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -56,6 +60,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 2,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -73,6 +78,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 3,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -90,6 +96,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 4,
+    category: "combat",
     actionCost: 2,
     // Fixed 30 damage, no roll needed
     resourceCost: {
@@ -108,6 +115,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 5,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 1, sides: 100 },
@@ -128,6 +136,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 6,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -145,6 +154,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 7,
+    category: "combat",
     actionCost: 1,
     resourceCost: {
       type: "fixed",
@@ -162,6 +172,7 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "radiant",
     tier: 1,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 6 },
@@ -174,3 +185,49 @@ export const radiantSchoolSpells: SpellAbilityDefinition[] = [
     },
   },
 ];
+
+const radiantUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "augury",
+    name: "Augury",
+    type: "spell",
+    school: "radiant",
+    tier: 0,
+    category: "utility",
+    description:
+      "You receive an omen from your deity about the results of a specific course of action that you plan to take within the next 30 minutes. The GM offers: Weal (good), Woe (bad), Weal & Woe (both), or Silence (neither). Once you cast this spell, you cannot cast it again for 24 hours.",
+  },
+  {
+    id: "light",
+    name: "Light",
+    type: "spell",
+    school: "radiant",
+    tier: 0,
+    category: "utility",
+    description:
+      "Imbue a target you touch with bright light for 1 hour. The light illuminates a 6×6 space area. If the target is hostile, you must make a successful spell attack against them.",
+  },
+  {
+    id: "purifying-flame",
+    name: "Purifying Flame",
+    type: "spell",
+    school: "radiant",
+    tier: 0,
+    category: "utility",
+    description:
+      "Touch a volume of food and/or water that fits in a 1×1×1 space cube to purify it, removing all poison and disease.",
+  },
+];
+
+export const radiantSpellSchool: SpellSchoolWithSpells = {
+  id: "radiant",
+  name: "Radiant Spells",
+  description: "Divine light and healing magic that channels sacred energy",
+  color: "text-amber-400",
+  icon: "Sun",
+  spells: radiantSchoolSpells,
+  utilitySpells: radiantUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { radiantSchoolSpells };

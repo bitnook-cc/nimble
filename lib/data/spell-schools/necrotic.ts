@@ -1,6 +1,7 @@
 import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
-export const necroticSchoolSpells: SpellAbilityDefinition[] = [
+const necroticSchoolSpells: SpellAbilityDefinition[] = [
   // Tier 0 (Cantrips)
   {
     id: "entice",
@@ -10,6 +11,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 4 },
@@ -23,6 +25,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 12 },
@@ -38,6 +41,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 1,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 12 },
@@ -58,6 +62,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 2,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 12 },
@@ -78,6 +83,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 3,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 4, sides: 12 },
@@ -98,6 +104,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 4,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 5, sides: 12 },
@@ -118,6 +125,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 5,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 20 },
@@ -138,6 +146,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 6,
+    category: "combat",
     actionCost: 2,
     roll: {
       dice: { count: 3, sides: 6 }, // d66 with advantage represented as 3d6
@@ -158,6 +167,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 7,
+    category: "combat",
     actionCost: 3,
     roll: {
       dice: { count: 4, sides: 20 },
@@ -178,6 +188,7 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "combat",
     actionCost: 1,
     roll: {
       dice: { count: 1, sides: 12 },
@@ -192,6 +203,53 @@ export const necroticSchoolSpells: SpellAbilityDefinition[] = [
     type: "spell",
     school: "necrotic",
     tier: 0,
+    category: "combat",
     actionCost: 1,
   },
 ];
+
+const necroticUtilitySpells: SpellAbilityDefinition[] = [
+  {
+    id: "reaper-sight",
+    name: "Reaper Sight",
+    type: "spell",
+    school: "necrotic",
+    tier: 0,
+    category: "utility",
+    description:
+      "For 10 minutes, you can see life force. Living creatures glow with vitality, undead emanate dark energy, and you can see the recently deceased (within 1 day). You can also determine if a creature is near death (less than half HP).",
+  },
+  {
+    id: "whispers-of-the-grave",
+    name: "Whispers of the Grave",
+    type: "spell",
+    school: "necrotic",
+    tier: 0,
+    category: "utility",
+    description:
+      "You may ask a single question to a corpse that has been dead for less than 1 week. The corpse provides a brief, cryptic answer based on what it knew in life. A corpse can only ever answer 1 question.",
+  },
+  {
+    id: "read-the-bones",
+    name: "Read the Bones",
+    type: "spell",
+    school: "necrotic",
+    tier: 0,
+    category: "utility",
+    description:
+      "Read the surface thoughts of a creature within Reach. Creatures can sense you doing this and may not like it.",
+  },
+];
+
+export const necroticSpellSchool: SpellSchoolWithSpells = {
+  id: "necrotic",
+  name: "Necrotic Spells",
+  description: "Dark magic that manipulates death, shadow, and the undead",
+  color: "text-purple-700",
+  icon: "Skull",
+  spells: necroticSchoolSpells,
+  utilitySpells: necroticUtilitySpells,
+};
+
+// Legacy export for backward compatibility
+export { necroticSchoolSpells };

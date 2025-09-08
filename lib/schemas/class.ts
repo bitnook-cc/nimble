@@ -161,6 +161,9 @@ const SpellAbilitySchema = z
       .min(0)
       .max(9)
       .meta({ title: "Tier", description: "Spell tier/level (0-9, integer)" }),
+    category: z
+      .enum(["combat", "utility"])
+      .meta({ title: "Category", description: "Whether this is a combat or utility spell" }),
     roll: AbilityRollSchema.optional().meta({
       title: "Roll",
       description: "Dice roll configuration for the spell",
