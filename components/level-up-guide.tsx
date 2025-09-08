@@ -40,14 +40,6 @@ interface LevelUpGuideProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Type for feature selections during level up
-type FeatureSelectionType =
-  | { type: "attribute_boost"; attribute: AttributeName }
-  | { type: "spell_school_choice"; schoolId: string }
-  | { type: "utility_spells"; spellIds: string[] }
-  | { type: "feature_pool"; selectedFeatureId: string }
-  | { type: "subclass_choice"; subclassId: string };
-
 interface LevelUpData {
   levelsToGain: number;
   hpRolls: Array<{
@@ -60,7 +52,7 @@ interface LevelUpData {
   newMaxHp: number;
   newHitDice: { current: number; max: number };
   skillAllocations: Record<string, number>;
-  featureSelections: Record<string, FeatureSelectionType>; // Selections for interactive features
+  effectSelections: EffectSelection[]; // Selections for interactive features
 }
 
 const STEPS = [
@@ -91,7 +83,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
     newMaxHp: character?.hitPoints.max || 0,
     newHitDice: character ? { ...character._hitDice } : { current: 0, max: 0 },
     skillAllocations: {},
-    featureSelections: {},
+    effectSelections: [],
   });
 
   // Service instances
@@ -215,46 +207,37 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             ),
         );
 
-        // Process each feature
+        // Process each feature's effects directly
         for (const feature of levelFeatures) {
-          const featureId = classService.generateFeatureId(
-            character.classId,
-            targetLevel,
-            feature.name,
-          );
-
           // Features are now dynamically calculated, no need to track granted features
 
-          // Apply feature based on type and selections
-          const selection = levelUpData.featureSelections[featureId];
+          // Process all effects of the feature
+          for (let effectIndex = 0; effectIndex < feature.effects.length; effectIndex++) {
+            const effect = feature.effects[effectIndex];
+            const effectId = effect.id || `${feature.id}-${effectIndex}`;
+            
+            // Find the selection for this effect
+            const selection = levelUpData.effectSelections.find(
+              s => s.grantedByEffectId === effectId
+            );
 
-          const primaryType = getPrimaryFeatureType(feature);
+            const primaryType = effect.type;
           switch (primaryType) {
             case "attribute_boost":
               if (selection?.type === "attribute_boost" && selection.attribute) {
-                const attributeBoostEffects = feature.effects.filter(
-                  (e) => e.type === "attribute_boost",
-                ) as AttributeBoostFeatureEffect[];
-                const attributeBoostEffect = attributeBoostEffects[0];
+                const attributeBoostEffect = effect as AttributeBoostFeatureEffect;
                 const boostAmount = attributeBoostEffect?.amount || 1;
                 updatedAttributes[selection.attribute] = Math.min(
                   10,
                   updatedAttributes[selection.attribute] + boostAmount,
                 );
-                // Track the selection
-                // Generate effect ID if not present
-                const effectId = attributeBoostEffect?.id || `${featureId}-0`;
-                effectSelections.push({
-                  type: "attribute_boost",
-                  attribute: selection.attribute,
-                  amount: boostAmount,
-                  grantedByEffectId: effectId,
-                });
+                // Selection is already tracked in levelUpData.effectSelections
+                effectSelections.push(selection);
               }
               break;
 
             case "spell_school_choice":
-              if (selection?.type === "spell_school_choice" && selection.schoolId) {
+              if (selection?.type === "spell_school" && selection.schoolId) {
                 // Create a spell school feature for the selected school
                 const selectedSchool = contentRepo
                   .getAllSpellSchools()
@@ -272,17 +255,8 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   const newSpells = schoolSpells.filter((spell) => !currentSpellIds.has(spell.id));
                   updatedAbilities.push(...newSpells);
 
-                  // Track the selection
-                  const spellSchoolEffects = feature.effects.filter(
-                    (e) => e.type === "spell_school_choice",
-                  ) as SpellSchoolChoiceFeatureEffect[];
-                  const spellSchoolEffect = spellSchoolEffects[0];
-                  const effectId = spellSchoolEffect?.id || `${featureId}-0`;
-                  effectSelections.push({
-                    type: "spell_school",
-                    schoolId: selection.schoolId,
-                    grantedByEffectId: effectId,
-                  });
+                  // Selection is already tracked in levelUpData.effectSelections
+                  effectSelections.push(selection);
                 }
               }
               break;
@@ -294,10 +268,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 selection.spellIds.length > 0
               ) {
                 // Add selected utility spells
-                const utilitySpellsEffects = feature.effects.filter(
-                  (e) => e.type === "utility_spells",
-                ) as UtilitySpellsFeatureEffect[];
-                const utilitySpellsEffect = utilitySpellsEffects[0];
+                const utilitySpellsEffect = effect as UtilitySpellsFeatureEffect;
                 const addedSpellIds: string[] = [];
 
                 utilitySpellsEffect?.schools?.forEach((schoolId) => {
@@ -314,57 +285,29 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   addedSpellIds.push(...newSpells.map((s) => s.id));
                 });
 
-                // Track the selection
+                // Selection is already tracked in levelUpData.effectSelections
                 if (addedSpellIds.length > 0) {
-                  const effectId = utilitySpellsEffect?.id || `${featureId}-0`;
-                  effectSelections.push({
-                    type: "utility_spells",
-                    spellIds: addedSpellIds,
-                    fromSchools: utilitySpellsEffect?.schools || [],
-                    grantedByEffectId: effectId,
-                  });
+                  effectSelections.push(selection);
                 }
               }
               break;
 
             case "subclass_choice":
-              if (selection?.type === "subclass_choice" && selection.subclassId) {
-                // Track the selection
-                const subclassEffects = feature.effects.filter(
-                  (e) => e.type === "subclass_choice",
-                ) as SubclassChoiceFeatureEffect[];
-                const subclassEffect = subclassEffects[0];
-                const effectId = subclassEffect?.id || `${featureId}-0`;
-                effectSelections.push({
-                  type: "subclass",
-                  subclassId: selection.subclassId,
-                  grantedByEffectId: effectId,
-                });
+              if (selection?.type === "subclass" && selection.subclassId) {
+                // Selection is already tracked in levelUpData.effectSelections
+                effectSelections.push(selection);
               }
               break;
 
             case "pick_feature_from_pool":
-              if (selection?.type === "feature_pool" && selection.selectedFeatureId) {
-                const pickFeatureEffects = feature.effects.filter(
-                  (e) => e.type === "pick_feature_from_pool",
-                ) as PickFeatureFromPoolFeatureEffect[];
-                const pickFeatureEffect = pickFeatureEffects[0];
-                const pool = classService.getFeaturePool(
-                  character.classId,
-                  pickFeatureEffect?.poolId || "",
-                );
-                if (pool) {
-                  const selectedFeature = pool.features.find(
-                    (f) => f.id === selection.selectedFeatureId,
-                  );
-                  if (selectedFeature) {
-                    // Apply the selected feature
-                    const selectedFeatureType = getPrimaryFeatureType(selectedFeature);
-                    if (selectedFeatureType === "ability") {
-                      const abilityEffects = selectedFeature.effects.filter(
-                        (e) => e.type === "ability",
-                      ) as AbilityFeatureEffect[];
-                      const abilityEffect = abilityEffects[0];
+              if (selection?.type === "pool_feature" && selection.featureId) {
+                const pickFeatureEffect = effect as PickFeatureFromPoolFeatureEffect;
+                const selectedFeature = selection.feature;
+                if (selectedFeature) {
+                  // Apply the selected feature's effects
+                  for (const selectedEffect of selectedFeature.effects) {
+                    if (selectedEffect.type === "ability") {
+                      const abilityEffect = selectedEffect as AbilityFeatureEffect;
                       if (
                         abilityEffect?.ability &&
                         !updatedAbilities.some((a) => a.id === abilityEffect.ability.id)
@@ -372,26 +315,15 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                         updatedAbilities.push(abilityEffect.ability);
                       }
                     }
-
-                    // Track the selection
-                    const effectId = pickFeatureEffect?.id || `${featureId}-0`;
-                    effectSelections.push({
-                      type: "pool_feature",
-                      poolId: pickFeatureEffect?.poolId || "",
-                      featureId: selection.selectedFeatureId,
-                      feature: selectedFeature,
-                      grantedByEffectId: effectId,
-                    });
                   }
+                  // Selection is already tracked in levelUpData.effectSelections
+                  effectSelections.push(selection);
                 }
               }
               break;
 
             case "spell_school":
-              const spellSchoolEffects = feature.effects.filter(
-                (e) => e.type === "spell_school",
-              ) as SpellSchoolFeatureEffect[];
-              const spellSchoolEffect = spellSchoolEffects[0];
+              const spellSchoolEffect = effect as SpellSchoolFeatureEffect;
               // Get spells from the school up to current tier access
               const schoolSpells = contentRepo
                 .getSpellsBySchool(spellSchoolEffect?.schoolId || "")
@@ -406,18 +338,12 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               break;
 
             case "spell_tier_access":
-              const tierAccessEffects = feature.effects.filter(
-                (e) => e.type === "spell_tier_access",
-              ) as SpellTierAccessFeatureEffect[];
-              const tierAccessEffect = tierAccessEffects[0];
+              const tierAccessEffect = effect as SpellTierAccessFeatureEffect;
               spellTierAccess = Math.max(spellTierAccess, tierAccessEffect?.maxTier || 0);
               break;
 
             case "resource":
-              const resourceEffects = feature.effects.filter(
-                (e) => e.type === "resource",
-              ) as ResourceFeatureEffect[];
-              const resourceEffect = resourceEffects[0];
+              const resourceEffect = effect as ResourceFeatureEffect;
               if (
                 resourceEffect?.resourceDefinition &&
                 !updatedResourceDefinitions.some(
@@ -440,10 +366,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               break;
 
             case "ability":
-              const abilityEffects = feature.effects.filter(
-                (e) => e.type === "ability",
-              ) as AbilityFeatureEffect[];
-              const abilityEffect = abilityEffects[0];
+              const abilityEffect = effect as AbilityFeatureEffect;
               if (
                 abilityEffect?.ability &&
                 !updatedAbilities.some((a) => a.id === abilityEffect.ability.id)
@@ -451,6 +374,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 updatedAbilities.push(abilityEffect.ability);
               }
               break;
+          }
           }
         }
       }
@@ -531,9 +455,9 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           <FeatureSelectionStep
             character={character}
             levelsToGain={levelUpData.levelsToGain}
-            featureSelections={levelUpData.featureSelections}
-            onFeatureSelectionsChange={(selections) =>
-              setLevelUpData((prev) => ({ ...prev, featureSelections: selections }))
+            effectSelections={levelUpData.effectSelections}
+            onEffectSelectionsChange={(selections) =>
+              setLevelUpData((prev) => ({ ...prev, effectSelections: selections }))
             }
           />
         );

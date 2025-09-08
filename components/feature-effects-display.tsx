@@ -16,19 +16,18 @@ import {
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
-import { Character } from "@/lib/schemas/character";
+import { Character, EffectSelection } from "@/lib/schemas/character";
 import { EffectSelectionDisplay } from "./effect-selection-display";
 
 interface FeatureEffectsDisplayProps {
   effects: FeatureEffect[];
-  onSelectEffect?: (effect: FeatureEffect) => void;
-  selectedEffectIds?: string[];
-  className?: string;
+  existingSelections?: EffectSelection[];
+  onSelectionChange?: (effectId: string, selection: EffectSelection | null) => void;
+  onOpenSelectionDialog?: (effect: FeatureEffect) => void;
   character?: Character;
-  onOpenSelectionDialog?: (effect: FeatureEffect, effectId: string) => void;
+  className?: string;
 }
 
 const getEffectIcon = (effectType: string) => {
@@ -159,11 +158,11 @@ const isSelectableEffect = (effect: FeatureEffect): boolean => {
 
 export function FeatureEffectsDisplay({
   effects,
-  onSelectEffect,
-  selectedEffectIds = [],
-  className = "",
-  character,
+  existingSelections = [],
+  onSelectionChange,
   onOpenSelectionDialog,
+  character,
+  className = "",
 }: FeatureEffectsDisplayProps) {
   if (!effects || effects.length === 0) {
     return (
@@ -182,15 +181,14 @@ export function FeatureEffectsDisplay({
         {effects.map((effect, index) => {
           const effectId = effect.id || `effect-${index}`;
           const isSelectable = isSelectableEffect(effect);
-          const isSelected = selectedEffectIds.includes(effect.id);
           
           // Check if we should show selection UI for this effect
-          const needsSelection = character && onOpenSelectionDialog && isSelectable;
-          const existingSelection = character?.effectSelections.find(
+          const needsSelection = onOpenSelectionDialog && isSelectable;
+          const existingSelection = existingSelections.find(
             s => s.grantedByEffectId === effectId
           );
           
-          // If this is a selectable effect with character context, use EffectSelectionDisplay
+          // If this is a selectable effect with selection handler, use EffectSelectionDisplay
           if (needsSelection) {
             return (
               <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
@@ -206,8 +204,9 @@ export function FeatureEffectsDisplay({
                     <EffectSelectionDisplay
                       effect={effect}
                       effectId={effectId}
-                      character={character}
+                      existingSelection={existingSelection}
                       onOpenDialog={onOpenSelectionDialog}
+                      character={character}
                       autoOpen={false}
                     />
                   ) : (
@@ -217,8 +216,9 @@ export function FeatureEffectsDisplay({
                       <EffectSelectionDisplay
                         effect={effect}
                         effectId={effectId}
-                        character={character}
+                        existingSelection={existingSelection}
                         onOpenDialog={onOpenSelectionDialog}
+                        character={character}
                         autoOpen={false}
                       />
                     </div>
@@ -228,16 +228,11 @@ export function FeatureEffectsDisplay({
             );
           }
 
-          // Original display for non-selectable effects or when no character context
+          // Original display for non-selectable effects
           return (
             <div
-              key={effect.id || index}
-              className={`
-                flex items-center gap-2 p-2 rounded-md border bg-card
-                ${isSelectable && onSelectEffect ? "cursor-pointer hover:bg-accent" : ""}
-                ${isSelected ? "border-primary bg-accent" : "border-border"}
-              `}
-              onClick={() => isSelectable && onSelectEffect && onSelectEffect(effect)}
+              key={effectId}
+              className="flex items-center gap-2 p-2 rounded-md border bg-card"
             >
               <div className="flex items-center gap-2 flex-1">
                 <div className="flex items-center gap-1">
@@ -248,18 +243,6 @@ export function FeatureEffectsDisplay({
                 </div>
                 <span className="text-sm">{formatEffectDescription(effect)}</span>
               </div>
-              {isSelectable && onSelectEffect && (
-                <Button
-                  size="sm"
-                  variant={isSelected ? "default" : "outline"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectEffect(effect);
-                  }}
-                >
-                  {isSelected ? "Selected" : "Select"}
-                </Button>
-              )}
             </div>
           );
         })}

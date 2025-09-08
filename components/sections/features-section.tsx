@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronDown, ChevronRight, Lock, Sparkles, Unlock } from "lucide-react";
-
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
@@ -9,57 +8,15 @@ import { getCharacterService, getAncestryService, getBackgroundService } from "@
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
-import { PoolFeatureEffectSelection, AttributeName } from "@/lib/schemas/character";
-import { 
-  ClassFeature, 
-  CharacterFeature, 
-  FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SubclassChoiceFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  AttributeBoostFeatureEffect,
-  UtilitySpellsFeatureEffect
-} from "@/lib/schemas/features";
+import { PoolFeatureEffectSelection, AttributeName, EffectSelection } from "@/lib/schemas/character";
+import { ClassFeature } from "@/lib/schemas/features";
 
-import { FeatureEffectsDisplay } from "../feature-effects-display";
-import { EffectSelectionDisplay } from "../effect-selection-display";
-import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
-import { SubclassSelectionDialog } from "../subclass-selection-dialog";
-import { Badge } from "../ui/badge";
+import { FeatureList } from "../feature-list";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
-import { Checkbox } from "../ui/checkbox";
-import { Target } from "lucide-react";
-import { featureSelectionService } from "@/lib/services/feature-selection-service";
-
-type ClassFeatureWithSource = {
-  source: "class" | "subclass";
-  feature: ClassFeature;
-};
-
-type AncestryFeatureWithSource = {
-  source: "ancestry";
-  feature: CharacterFeature;
-};
-
-type BackgroundFeatureWithSource = {
-  source: "background";
-  feature: CharacterFeature;
-};
-
-type FeatureWithSource =
-  | ClassFeatureWithSource
-  | AncestryFeatureWithSource
-  | BackgroundFeatureWithSource;
-
-// Removed - using the effects directly now
 
 export function FeaturesSection() {
-  // Get everything we need from service hooks
   const { 
     character, 
     selectSubclass,
@@ -70,14 +27,6 @@ export function FeaturesSection() {
   } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   const [expandedSpellSchools, setExpandedSpellSchools] = useState<Record<string, boolean>>({});
-  
-  // Dialog state for selections
-  const [selectedPoolFeature, setSelectedPoolFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
-  const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
-  const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<SpellSchoolChoiceFeatureEffect | null>(null);
-  const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<AttributeBoostFeatureEffect | null>(null);
-  const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<UtilitySpellsFeatureEffect | null>(null);
-  const [utilitySpellSelection, setUtilitySpellSelection] = useState<string[]>([]);
 
   const contentRepository = ContentRepositoryService.getInstance();
   const classService = getClassService();
@@ -85,55 +34,7 @@ export function FeaturesSection() {
   const ancestryService = getAncestryService();
   const backgroundService = getBackgroundService();
 
-  // Handler for opening selection dialogs
-  const handleOpenSelectionDialog = (effect: FeatureEffect, effectId: string) => {
-    switch (effect.type) {
-      case "subclass_choice":
-        setSelectedSubclassChoice(effect as SubclassChoiceFeatureEffect);
-        break;
-      case "pick_feature_from_pool":
-        setSelectedPoolFeature(effect as PickFeatureFromPoolFeatureEffect);
-        break;
-      case "spell_school_choice":
-        setSelectedSpellSchoolChoice(effect as SpellSchoolChoiceFeatureEffect);
-        break;
-      case "attribute_boost":
-        setSelectedAttributeBoost(effect as AttributeBoostFeatureEffect);
-        break;
-      case "utility_spells":
-        setSelectedUtilitySpells(effect as UtilitySpellsFeatureEffect);
-        setUtilitySpellSelection([]);
-        break;
-    }
-  };
-
-  // Handler functions for selections (matching effect-selections-section)
-  const handleSelectSpellSchool = async (schoolId: string) => {
-    if (!selectedSpellSchoolChoice) return;
-    await selectSpellSchool(schoolId, selectedSpellSchoolChoice.id!);
-    setSelectedSpellSchoolChoice(null);
-  };
-
-  const handleSelectAttributeBoost = async (attribute: AttributeName, amount: number) => {
-    if (!selectedAttributeBoost) return;
-    await selectAttributeBoost(attribute, amount, selectedAttributeBoost.id!);
-    setSelectedAttributeBoost(null);
-  };
-
-  const handleSelectUtilitySpells = async () => {
-    if (!selectedUtilitySpells) return;
-    
-    if (!character || !featureSelectionService.validateUtilitySpellSelection(selectedUtilitySpells, utilitySpellSelection, character)) {
-      return;
-    }
-
-    const fromSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-    await selectUtilitySpells(utilitySpellSelection, fromSchools, selectedUtilitySpells.id!);
-    setSelectedUtilitySpells(null);
-    setUtilitySpellSelection([]);
-  };
-
-  // Early return if no character (shouldn't happen in normal usage)
+  // Early return if no character
   if (!character) return null;
 
   const isOpen = uiState.collapsibleSections.classFeatures;
@@ -148,7 +49,7 @@ export function FeaturesSection() {
     return null;
   }
 
-  // Get all class and subclass features
+  // Get all features
   const classFeatures = contentRepository.getAllClassFeaturesUpToLevel(
     character.classId,
     character.level,
@@ -157,10 +58,16 @@ export function FeaturesSection() {
     ? contentRepository.getAllSubclassFeaturesUpToLevel(subclassId, character.level)
     : [];
 
-  // Get pool feature selections (these come from class features)
+  // Get pool feature selections
   const poolSelections = (character.effectSelections || []).filter(
     (sf): sf is PoolFeatureEffectSelection => sf.type === "pool_feature",
   );
+
+  // Add pool selection features to class features
+  const allClassFeatures = [
+    ...classFeatures,
+    ...poolSelections.map(selection => selection.feature),
+  ];
 
   // Get ancestry and background features
   const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestryId);
@@ -169,243 +76,56 @@ export function FeaturesSection() {
   const ancestryFeatures = ancestryService.getExpectedFeaturesForCharacter(character);
   const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(character);
 
-  // Combine all features with their sources
-  const allFeatures: FeatureWithSource[] = [
-    ...classFeatures.map(
-      (feature): ClassFeatureWithSource => ({
-        source: "class",
-        feature,
-      }),
-    ),
-    ...subclassFeatures.map(
-      (feature): ClassFeatureWithSource => ({
-        source: "subclass",
-        feature,
-      }),
-    ),
-    ...poolSelections.map(
-      (selection): ClassFeatureWithSource => ({
-        source: "class",
-        feature: selection.feature,
-      }),
-    ),
-    ...ancestryFeatures.map(
-      (feature): AncestryFeatureWithSource => ({
-        source: "ancestry",
-        feature,
-      }),
-    ),
-    ...backgroundFeatures.map(
-      (feature): BackgroundFeatureWithSource => ({
-        source: "background",
-        feature,
-      }),
-    ),
-  ];
-
-  // Sort class/subclass features by level
-  const classSubclassFeatures = allFeatures
-    .filter((f) => f.source === "class" || f.source === "subclass")
-    .sort((a, b) => {
-      const levelA = "level" in a.feature ? a.feature.level : 0;
-      const levelB = "level" in b.feature ? b.feature.level : 0;
-      return levelA - levelB;
-    });
-
-  const getSourceDisplayName = (
-    source: "class" | "subclass" | "ancestry" | "background",
-  ): string => {
-    switch (source) {
-      case "class":
-        return classDefinition.name;
-      case "subclass":
-        return subclassDefinition?.name || "Subclass";
-      case "ancestry":
-        return ancestryDefinition?.name || "Ancestry";
-      case "background":
-        return backgroundDefinition?.name || "Background";
-      default:
-        return "Unknown";
+  // Handler for selection changes from FeatureList
+  const handleSelectionsChange = async (selections: EffectSelection[]) => {
+    // Find what changed by comparing with current selections
+    const currentSelections = character.effectSelections;
+    
+    // Find new or updated selections
+    for (const selection of selections) {
+      const existing = currentSelections.find(s => s.grantedByEffectId === selection.grantedByEffectId);
+      
+      if (!existing || JSON.stringify(existing) !== JSON.stringify(selection)) {
+        // This is new or changed, apply it
+        switch (selection.type) {
+          case "subclass":
+            await selectSubclass(selection.subclassId, selection.grantedByEffectId);
+            break;
+          case "pool_feature":
+            await selectPoolFeature(
+              selection.poolId, 
+              selection.feature,
+              selection.grantedByEffectId
+            );
+            break;
+          case "spell_school":
+            await selectSpellSchool(selection.schoolId, selection.grantedByEffectId);
+            break;
+          case "attribute_boost":
+            await selectAttributeBoost(
+              selection.attribute,
+              selection.amount,
+              selection.grantedByEffectId
+            );
+            break;
+          case "utility_spells":
+            await selectUtilitySpells(
+              selection.spellIds,
+              selection.fromSchools,
+              selection.grantedByEffectId
+            );
+            break;
+        }
+      }
     }
   };
 
-  const getSourceBadgeColor = (source: "class" | "subclass" | "ancestry" | "background") => {
-    switch (source) {
-      case "class":
-        return "bg-slate-100 text-slate-800 border-slate-200";
-      case "subclass":
-        return "bg-violet-100 text-violet-800 border-violet-200";
-      case "ancestry":
-        return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      case "background":
-        return "bg-cyan-100 text-cyan-800 border-cyan-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getTierColor = (tier: number) => {
-    if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
-    if (tier <= 3) return "bg-blue-100 text-blue-800 border-blue-200";
-    if (tier <= 6) return "bg-purple-100 text-purple-800 border-purple-200";
-    return "bg-red-100 text-red-800 border-red-200";
-  };
-
-  const isSpellUnlocked = (tier: number): boolean => {
-    return tier <= character._spellTierAccess;
-  };
-
-  const renderFeature = (featureWithSource: FeatureWithSource, index: number) => {
-    const { source, feature } = featureWithSource;
-    const hasLevel = "level" in feature;
-
-    return (
-      <div key={`${source}-${feature.id}-${index}`} className="border rounded-lg p-4 space-y-3">
-        {/* Feature Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-semibold">{feature.name}</h4>
-            {hasLevel && (
-              <Badge variant="outline" className="text-xs">
-                Level {feature.level}
-              </Badge>
-            )}
-            <Badge variant="outline" className={getSourceBadgeColor(source)}>
-              {getSourceDisplayName(source)}
-            </Badge>
-          </div>
-          <p className="text-sm text-muted-foreground">{feature.description}</p>
-        </div>
-
-        {/* Feature Effects */}
-        {feature.effects && feature.effects.length > 0 && (
-          <div className="pt-2 border-t">
-            <FeatureEffectsDisplay 
-              effects={feature.effects} 
-              character={character}
-              onOpenSelectionDialog={handleOpenSelectionDialog}
-            />
-          </div>
-        )}
-
-        {/* Special handling for spell school effects with expandable spell lists */}
-        {feature.effects?.some((e) => e.type === "spell_school") && (
-          <div className="pt-2 border-t">
-            {feature.effects
-              .filter((e) => e.type === "spell_school")
-              .map((effect, effectIndex: number) => {
-                const schoolId = effect.schoolId;
-                const isExpanded = expandedSpellSchools[schoolId] || false;
-                const school = contentRepository.getSpellSchool(schoolId);
-
-                if (!school) {
-                  console.error("No school found for effect", effect);
-                  return null;
-                }
-
-                if (school?.spells.length === 0) {
-                  console.error("No spells found for school", schoolId);
-                  return null;
-                }
-
-                // Group spells by tier
-                const spellsByTier = school.spells.reduce(
-                  (acc, spell) => {
-                    if (!acc[spell.tier]) acc[spell.tier] = [];
-                    acc[spell.tier].push(spell);
-                    return acc;
-                  },
-                  {} as Record<number, typeof school.spells>,
-                );
-
-                return (
-                  <div key={effectIndex} className="space-y-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-between p-2"
-                      onClick={() =>
-                        setExpandedSpellSchools({
-                          ...expandedSpellSchools,
-                          [schoolId]: !isExpanded,
-                        })
-                      }
-                    >
-                      <span className="text-sm font-medium">
-                        View {school.name} Spells
-                      </span>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </Button>
-
-                    {isExpanded && (
-                      <div className="pl-4 space-y-3">
-                        {Object.entries(spellsByTier)
-                          .sort(([a], [b]) => Number(a) - Number(b))
-                          .map(([tier, tierSpells]) => {
-                            const tierNum = Number(tier);
-                            const unlocked = isSpellUnlocked(tierNum);
-
-                            return (
-                              <div key={tier} className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <h5 className="text-sm font-medium">Tier {tier} Spells</h5>
-                                  {unlocked ? (
-                                    <Unlock className="h-3 w-3 text-green-600" />
-                                  ) : (
-                                    <Lock className="h-3 w-3 text-gray-400" />
-                                  )}
-                                  <Badge
-                                    variant="outline"
-                                    className={getTierColor(tierNum) + " text-xs"}
-                                  >
-                                    {unlocked ? "Unlocked" : `Requires Level ${tierNum * 2}`}
-                                  </Badge>
-                                </div>
-                                <div className="grid gap-2">
-                                  {tierSpells.map((spell) => (
-                                    <div
-                                      key={spell.id}
-                                      className={`p-2 rounded-md border text-xs ${
-                                        unlocked
-                                          ? "bg-card border-border"
-                                          : "bg-gray-50 border-gray-200 opacity-60"
-                                      }`}
-                                    >
-                                      <div className="font-medium">{spell.name}</div>
-                                      <div className="text-muted-foreground">
-                                        {spell.description}
-                                      </div>
-                                      {spell.resourceCost && (
-                                        <div className="mt-1 text-blue-600">
-                                          Cost:{" "}
-                                          {spell.resourceCost.type === "fixed"
-                                            ? `${spell.resourceCost.amount} ${spell.resourceCost.resourceId}`
-                                            : `${spell.resourceCost.minAmount}-${spell.resourceCost.maxAmount} ${spell.resourceCost.resourceId}`}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const hasFeatures = allClassFeatures.length > 0 || 
+    subclassFeatures.length > 0 || 
+    ancestryFeatures.length > 0 || 
+    backgroundFeatures.length > 0;
 
   return (
-    <>
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
         <Button variant="ghost" className="w-full justify-between p-4 h-auto">
@@ -419,19 +139,39 @@ export function FeaturesSection() {
       <CollapsibleContent>
         <Card className="w-full">
           <CardContent className="space-y-4 pt-6">
-            {allFeatures.length === 0 ? (
+            {!hasFeatures ? (
               <div className="text-center text-muted-foreground py-8">
                 No features unlocked yet. Level up to gain new abilities!
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Class & Subclass Features */}
-                {classSubclassFeatures.length > 0 && (
+                {/* Class Features */}
+                {allClassFeatures.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-lg font-semibold">Class & Subclass Features</h3>
-                    <div className="space-y-3">
-                      {classSubclassFeatures.map((feature, index) => renderFeature(feature, index))}
-                    </div>
+                    <h3 className="text-lg font-semibold">Class Features</h3>
+                    <FeatureList
+                      features={allClassFeatures}
+                      source="class"
+                      sourceLabel={classDefinition.name}
+                      existingSelections={character.effectSelections}
+                      onSelectionsChange={handleSelectionsChange}
+                      character={character}
+                    />
+                  </div>
+                )}
+
+                {/* Subclass Features */}
+                {subclassFeatures.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold">Subclass Features</h3>
+                    <FeatureList
+                      features={subclassFeatures}
+                      source="subclass"
+                      sourceLabel={subclassDefinition?.name || "Subclass"}
+                      existingSelections={character.effectSelections}
+                      onSelectionsChange={handleSelectionsChange}
+                      character={character}
+                    />
                   </div>
                 )}
 
@@ -439,11 +179,14 @@ export function FeaturesSection() {
                 {ancestryFeatures.length > 0 && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Ancestry Features</h3>
-                    <div className="space-y-3">
-                      {allFeatures
-                        .filter((f) => f.source === "ancestry")
-                        .map((feature, index) => renderFeature(feature, index))}
-                    </div>
+                    <FeatureList
+                      features={ancestryFeatures}
+                      source="ancestry"
+                      sourceLabel={ancestryDefinition?.name || "Ancestry"}
+                      existingSelections={character.effectSelections}
+                      onSelectionsChange={handleSelectionsChange}
+                      character={character}
+                    />
                   </div>
                 )}
 
@@ -451,11 +194,14 @@ export function FeaturesSection() {
                 {backgroundFeatures.length > 0 && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Background Features</h3>
-                    <div className="space-y-3">
-                      {allFeatures
-                        .filter((f) => f.source === "background")
-                        .map((feature, index) => renderFeature(feature, index))}
-                    </div>
+                    <FeatureList
+                      features={backgroundFeatures}
+                      source="background"
+                      sourceLabel={backgroundDefinition?.name || "Background"}
+                      existingSelections={character.effectSelections}
+                      onSelectionsChange={handleSelectionsChange}
+                      character={character}
+                    />
                   </div>
                 )}
               </div>
@@ -464,166 +210,5 @@ export function FeaturesSection() {
         </Card>
       </CollapsibleContent>
     </Collapsible>
-
-    {/* Selection Dialogs */}
-    {selectedPoolFeature && (
-      <FeaturePoolSelectionDialog
-        pickFeature={selectedPoolFeature}
-        onClose={() => setSelectedPoolFeature(null)}
-      />
-    )}
-
-    {selectedSubclassChoice && (
-      <SubclassSelectionDialog
-        subclassChoice={selectedSubclassChoice}
-        onClose={() => setSelectedSubclassChoice(null)}
-      />
-    )}
-
-    {/* Spell School Selection Dialog */}
-    {selectedSpellSchoolChoice && (
-      <Dialog open={true} onOpenChange={() => setSelectedSpellSchoolChoice(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Choose Spell School</DialogTitle>
-            <DialogDescription>
-              Select a spell school to gain access to its spells.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Select onValueChange={handleSelectSpellSchool}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a spell school" />
-              </SelectTrigger>
-              <SelectContent>
-                {contentRepository.getAllSpellSchools().map((school) => (
-                  <SelectItem key={school.id} value={school.id}>
-                    <div className="flex items-center gap-2">
-                      <span className={school.color}>{school.icon}</span>
-                      {school.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )}
-
-    {/* Attribute Boost Selection Dialog */}
-    {selectedAttributeBoost && (
-      <Dialog open={true} onOpenChange={() => setSelectedAttributeBoost(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Choose Attribute Boost</DialogTitle>
-            <DialogDescription>
-              Select an attribute to receive a permanent boost.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {(() => {
-              const availableAttributes = selectedAttributeBoost.allowedAttributes;
-              return (
-                <div className="grid grid-cols-2 gap-3">
-                  {availableAttributes.map((attr) => (
-                    <Button
-                      key={attr}
-                      variant="outline"
-                      onClick={() => handleSelectAttributeBoost(attr as AttributeName, selectedAttributeBoost.amount)}
-                      className="justify-start"
-                    >
-                      <Target className="w-4 h-4 mr-2" />
-                      {attr.charAt(0).toUpperCase() + attr.slice(1)} +{selectedAttributeBoost.amount}
-                    </Button>
-                  ))}
-                </div>
-              );
-            })()}
-          </div>
-        </DialogContent>
-      </Dialog>
-    )}
-
-    {/* Utility Spells Selection Dialog */}
-    {selectedUtilitySpells && (
-      <Dialog open={true} onOpenChange={() => {
-        setSelectedUtilitySpells(null);
-        setUtilitySpellSelection([]);
-      }}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Choose Utility Spells</DialogTitle>
-            <DialogDescription>
-              {(() => {
-                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                const spellCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-                if (selectedUtilitySpells.selectionMode === "per_school") {
-                  return `Select ${selectedUtilitySpells.spellsPerSchool || 1} utility spell${(selectedUtilitySpells.spellsPerSchool || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${spellCount} total).`;
-                } else {
-                  return `Select ${spellCount} utility spell${spellCount > 1 ? "s" : ""} to learn.`;
-                }
-              })()}
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-3">
-              {(() => {
-                const availableSpells = featureSelectionService.getAvailableUtilitySpells(selectedUtilitySpells, character);
-                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-
-                return availableSpells.map((spell) => (
-                  <div key={spell.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-                    <Checkbox
-                      checked={utilitySpellSelection.includes(spell.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          if (utilitySpellSelection.length < expectedCount) {
-                            setUtilitySpellSelection([...utilitySpellSelection, spell.id]);
-                          }
-                        } else {
-                          setUtilitySpellSelection(utilitySpellSelection.filter(id => id !== spell.id));
-                        }
-                      }}
-                      disabled={!utilitySpellSelection.includes(spell.id) && utilitySpellSelection.length >= expectedCount}
-                    />
-                    <div className="flex-1">
-                      <div className="font-medium">{spell.name}</div>
-                      <div className="text-sm text-muted-foreground">{spell.description}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">
-                          {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {spell.school}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
-          </ScrollArea>
-          <DialogFooter>
-            <Button
-              onClick={handleSelectUtilitySpells}
-              disabled={!featureSelectionService.validateUtilitySpellSelection(
-                selectedUtilitySpells,
-                utilitySpellSelection,
-                character
-              )}
-            >
-              {(() => {
-                const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-                return `Confirm Selection (${utilitySpellSelection.length}/${expectedCount})`;
-              })()}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    )}
-    </>
   );
 }

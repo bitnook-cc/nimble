@@ -24,6 +24,7 @@ import {
 interface FeaturePoolSelectionDialogProps {
   pickFeature: PickFeatureFromPoolFeatureEffect;
   onClose: () => void;
+  onSelectFeature?: (poolId: string, feature: ClassFeature) => void;
 }
 
 // Helper function to render individual effects
@@ -142,23 +143,30 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
 export function FeaturePoolSelectionDialog({
   pickFeature,
   onClose,
+  onSelectFeature,
 }: FeaturePoolSelectionDialogProps) {
   const { character, selectPoolFeature } = useCharacterService();
   const [selectedFeature, setSelectedFeature] = useState<ClassFeature | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
 
-  if (!character) {
+  // If callback provided, don't require character
+  if (!character && !onSelectFeature) {
     return null;
   }
 
   const classService = getClassService();
-  const pool = classService.getFeaturePool(character.classId, pickFeature.poolId);
-  const availableFeatures = classService.getAvailablePoolFeatures(
-    character.classId,
-    pickFeature.poolId,
-    character.effectSelections,
-  );
-  const remaining = classService.getRemainingPoolSelections(character, pickFeature);
+  const classId = character?.classId || pickFeature.poolId.split('-')[0]; // Fallback for builder
+  const pool = classService.getFeaturePool(classId, pickFeature.poolId);
+  const availableFeatures = character 
+    ? classService.getAvailablePoolFeatures(
+        character.classId,
+        pickFeature.poolId,
+        character.effectSelections,
+      )
+    : pool?.features || [];
+  const remaining = character 
+    ? classService.getRemainingPoolSelections(character, pickFeature)
+    : pickFeature.choicesAllowed;
 
   if (!pool) {
     return (
@@ -183,12 +191,17 @@ export function FeaturePoolSelectionDialog({
 
     setIsSelecting(true);
     try {
-      // Use the effect ID instead of generating a feature ID
-      await selectPoolFeature(
-        pickFeature.poolId,
-        selectedFeature,
-        pickFeature.id,
-      );
+      if (onSelectFeature) {
+        // Use callback for temp state management
+        onSelectFeature(pickFeature.poolId, selectedFeature);
+      } else if (character) {
+        // Use service for live updates
+        await selectPoolFeature(
+          pickFeature.poolId,
+          selectedFeature,
+          pickFeature.id,
+        );
+      }
       onClose();
     } catch (error) {
       console.error("Failed to select pool feature:", error);

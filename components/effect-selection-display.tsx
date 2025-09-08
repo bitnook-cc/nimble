@@ -11,6 +11,7 @@ import {
 } from "@/lib/schemas/features";
 import { 
   Character,
+  EffectSelection,
   SpellSchoolEffectSelection,
   AttributeBoostEffectSelection,
   UtilitySpellsEffectSelection,
@@ -26,8 +27,9 @@ import { Button } from "./ui/button";
 interface EffectSelectionDisplayProps {
   effect: FeatureEffect;
   effectId: string;
-  character: Character;
-  onOpenDialog: (effect: FeatureEffect, effectId: string) => void;
+  existingSelection?: EffectSelection;
+  onOpenDialog: (effect: FeatureEffect) => void;
+  character?: Character;
   autoOpen?: boolean;
 }
 
@@ -38,24 +40,20 @@ interface EffectSelectionDisplayProps {
 export function EffectSelectionDisplay({ 
   effect, 
   effectId, 
-  character, 
+  existingSelection,
   onOpenDialog,
+  character,
   autoOpen = false 
 }: EffectSelectionDisplayProps) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
-  
-  // Find existing selection for this effect
-  const existingSelection = character.effectSelections.find(
-    s => s.grantedByEffectId === effectId
-  );
 
   // Auto-open dialog for unmade selections
   useEffect(() => {
     if (autoOpen && !existingSelection && !hasAutoOpened) {
       setHasAutoOpened(true);
-      onOpenDialog(effect, effectId);
+      onOpenDialog(effect);
     }
-  }, [autoOpen, existingSelection, hasAutoOpened, effect, effectId, onOpenDialog]);
+  }, [autoOpen, existingSelection, hasAutoOpened, effect, onOpenDialog]);
 
   const contentRepository = ContentRepositoryService.getInstance();
   const classService = getClassService();
@@ -67,8 +65,8 @@ export function EffectSelectionDisplay({
           return (
             <Button 
               size="sm" 
-              variant="outline"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="default"
+              onClick={() => onOpenDialog(effect)}
               className="gap-1"
             >
               <Plus className="w-3 h-3" />
@@ -78,16 +76,16 @@ export function EffectSelectionDisplay({
 
         case "pick_feature_from_pool":
           const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-          const remaining = featureSelectionService.getRemainingPoolSelections(
+          const remaining = character ? featureSelectionService.getRemainingPoolSelections(
             character, 
             poolEffect, 
-          );
+          ) : poolEffect.choicesAllowed;
           if (remaining > 0) {
             return (
               <Button 
                 size="sm" 
-                variant="outline"
-                onClick={() => onOpenDialog(effect, effectId)}
+                variant="default"
+                onClick={() => onOpenDialog(effect)}
                 className="gap-1"
               >
                 <Plus className="w-3 h-3" />
@@ -99,16 +97,16 @@ export function EffectSelectionDisplay({
 
         case "spell_school_choice":
           const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-          const schoolsRemaining = featureSelectionService.getRemainingSpellSchoolSelections(
+          const schoolsRemaining = character ? featureSelectionService.getRemainingSpellSchoolSelections(
             character,
             spellEffect,
-          );
+          ) : (spellEffect.numberOfChoices || 1);
           if (schoolsRemaining > 0) {
             return (
               <Button 
                 size="sm" 
-                variant="outline"
-                onClick={() => onOpenDialog(effect, effectId)}
+                variant="default"
+                onClick={() => onOpenDialog(effect)}
                 className="gap-1"
               >
                 <Plus className="w-3 h-3" />
@@ -122,8 +120,8 @@ export function EffectSelectionDisplay({
           return (
             <Button 
               size="sm" 
-              variant="outline"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="default"
+              onClick={() => onOpenDialog(effect)}
               className="gap-1"
             >
               <Plus className="w-3 h-3" />
@@ -135,8 +133,8 @@ export function EffectSelectionDisplay({
           return (
             <Button 
               size="sm" 
-              variant="outline"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="default"
+              onClick={() => onOpenDialog(effect)}
               className="gap-1"
             >
               <Plus className="w-3 h-3" />
@@ -161,8 +159,8 @@ export function EffectSelectionDisplay({
             <span className="text-sm font-medium">{subclass?.name || subclassSelection.subclassId}</span>
             <Button
               size="sm"
-              variant="ghost"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="outline"
+              onClick={() => onOpenDialog(effect)}
               className="h-6 px-2"
             >
               <Edit2 className="w-3 h-3" />
@@ -172,15 +170,15 @@ export function EffectSelectionDisplay({
       }
 
       case "pool_feature": {
-        const poolSelections = character.effectSelections.filter(
+        const poolSelections = character ? character.effectSelections.filter(
           s => s.type === "pool_feature" && s.grantedByEffectId === effectId
-        ) as PoolFeatureEffectSelection[];
+        ) as PoolFeatureEffectSelection[] : [existingSelection as PoolFeatureEffectSelection];
         
         const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-        const remaining = featureSelectionService.getRemainingPoolSelections(
+        const remaining = character ? featureSelectionService.getRemainingPoolSelections(
           character, 
           poolEffect, 
-        );
+        ) : 0;
 
         return (
           <div className="space-y-1">
@@ -194,7 +192,7 @@ export function EffectSelectionDisplay({
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => onOpenDialog(effect, effectId)}
+                onClick={() => onOpenDialog(effect)}
                 className="gap-1 h-7"
               >
                 <Plus className="w-3 h-3" />
@@ -206,15 +204,15 @@ export function EffectSelectionDisplay({
       }
 
       case "spell_school": {
-        const schoolSelections = character.effectSelections.filter(
+        const schoolSelections = character ? character.effectSelections.filter(
           s => s.type === "spell_school" && s.grantedByEffectId === effectId
-        ) as SpellSchoolEffectSelection[];
+        ) as SpellSchoolEffectSelection[] : [existingSelection as SpellSchoolEffectSelection];
         
         const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-        const remaining = featureSelectionService.getRemainingSpellSchoolSelections(
+        const remaining = character ? featureSelectionService.getRemainingSpellSchoolSelections(
           character,
           spellEffect,
-        );
+        ) : 0;
 
         return (
           <div className="space-y-1">
@@ -232,7 +230,7 @@ export function EffectSelectionDisplay({
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => onOpenDialog(effect, effectId)}
+                onClick={() => onOpenDialog(effect)}
                 className="gap-1 h-7"
               >
                 <Plus className="w-3 h-3" />
@@ -254,8 +252,8 @@ export function EffectSelectionDisplay({
             </span>
             <Button
               size="sm"
-              variant="ghost"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="outline"
+              onClick={() => onOpenDialog(effect)}
               className="h-6 px-2"
             >
               <Edit2 className="w-3 h-3" />
@@ -274,8 +272,8 @@ export function EffectSelectionDisplay({
             </span>
             <Button
               size="sm"
-              variant="ghost"
-              onClick={() => onOpenDialog(effect, effectId)}
+              variant="outline"
+              onClick={() => onOpenDialog(effect)}
               className="h-6 px-2"
             >
               <Edit2 className="w-3 h-3" />

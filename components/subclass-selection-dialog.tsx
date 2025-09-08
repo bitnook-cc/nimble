@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { SubclassDefinition } from "@/lib/schemas/class";
 import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
 
@@ -22,27 +23,43 @@ import {
 interface SubclassSelectionDialogProps {
   subclassChoice: SubclassChoiceFeatureEffect;
   onClose: () => void;
+  onSelectSubclass?: (subclassId: string) => void;
+  classId?: string; // Optional class ID for when character is not available
 }
 
-export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSelectionDialogProps) {
+export function SubclassSelectionDialog({ subclassChoice, onClose, onSelectSubclass, classId }: SubclassSelectionDialogProps) {
   const { character, selectSubclass } = useCharacterService();
   const [selectedSubclass, setSelectedSubclass] = useState<SubclassDefinition | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
 
-  if (!character) {
+  // If callback provided, don't require character
+  if (!character && !onSelectSubclass) {
     return null;
   }
 
   const classService = getClassService();
-  const availableSubclasses = classService.getAvailableSubclassesForCharacter(character);
+  const contentRepository = ContentRepositoryService.getInstance();
+  
+  // Get class ID from either character or prop
+  const effectiveClassId = character?.classId || classId || 'fighter';
+  
+  const availableSubclasses = character 
+    ? classService.getAvailableSubclassesForCharacter(character)
+    : contentRepository.getSubclassesForClass(effectiveClassId);
 
   const handleSelectSubclass = async () => {
     if (!selectedSubclass) return;
 
     setIsSelecting(true);
     try {
-      const grantedByEffectId = subclassChoice.id;
-      await selectSubclass(selectedSubclass.id, grantedByEffectId);
+      if (onSelectSubclass) {
+        // Use callback for temp state management
+        onSelectSubclass(selectedSubclass.id);
+      } else if (character) {
+        // Use service for live updates
+        const grantedByEffectId = subclassChoice.id;
+        await selectSubclass(selectedSubclass.id, grantedByEffectId);
+      }
       onClose();
     } catch (error) {
       console.error("Failed to select subclass:", error);
@@ -55,7 +72,7 @@ export function SubclassSelectionDialog({ subclassChoice, onClose }: SubclassSel
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Choose Your {character.classId} Subclass</DialogTitle>
+          <DialogTitle>Choose Your {character?.classId || 'Class'} Subclass</DialogTitle>
           <DialogDescription>
             Choose your class specialization
             <br />

@@ -13,70 +13,9 @@ import { AttributeSelection } from "./character-builder/attribute-selection";
 import { BackgroundSelection } from "./character-builder/background-selection";
 import { ClassSelection } from "./character-builder/class-selection";
 import { EquipmentSelection } from "./character-builder/equipment-selection";
-import { FeatureSelectionType, FeaturesOverview } from "./character-builder/features-overview";
+import { FeaturesOverview } from "./character-builder/features-overview";
 import { SkillsSelection } from "./character-builder/skills-selection";
 import { WizardDialog } from "./wizard/wizard-dialog";
-
-// Helper function to apply feature selections to a character
-async function applyFeatureSelections(
-  featureSelections: Record<string, FeatureSelectionType>,
-): Promise<EffectSelection[]> {
-  const selectedFeatures: EffectSelection[] = [];
-  const contentRepository = ContentRepositoryService.getInstance();
-
-  // Process each selection
-  for (const [featureId, selection] of Object.entries(featureSelections)) {
-    switch (selection.type) {
-      case "attribute_boost":
-        selectedFeatures.push({
-          type: "attribute_boost",
-          attribute: selection.attribute,
-          amount: 1, // Default amount, could be extracted from feature definition
-          grantedByEffectId: featureId,
-        });
-        break;
-
-      case "spell_school_choice":
-        selectedFeatures.push({
-          type: "spell_school",
-          schoolId: selection.schoolId,
-          grantedByEffectId: featureId,
-        });
-        break;
-
-      case "utility_spells":
-        if (selection.spellIds.length > 0) {
-          selectedFeatures.push({
-            type: "utility_spells",
-            spellIds: selection.spellIds,
-            fromSchools: [], // Would need to determine from feature definition
-            grantedByEffectId: featureId,
-          });
-        }
-        break;
-
-      case "feature_pool":
-        // For pool features, we need to extract the pool ID from the effect ID
-        // The effect ID format is typically: "class-{classId}-level-{level}-{index}"
-        // We need to find the actual pool feature to get the poolId
-        // For now, we'll use a placeholder approach
-        // In a real implementation, we'd need to look up the effect to get the poolId
-        const poolId = selection.poolId || "";
-        const feature = selection.feature || ({} as any);
-        
-        selectedFeatures.push({
-          type: "pool_feature",
-          poolId,
-          featureId: selection.selectedFeatureId,
-          feature,
-          grantedByEffectId: featureId,
-        });
-        break;
-    }
-  }
-
-  return selectedFeatures;
-}
 
 // Character builder state - maintains all character data until final creation
 interface CharacterBuilderState {
@@ -87,7 +26,7 @@ interface CharacterBuilderState {
   name: string;
 
   // Features
-  featureSelections: Record<string, FeatureSelectionType>;
+  effectSelections: EffectSelection[];
 
   // Attributes
   attributes: {
@@ -120,19 +59,17 @@ interface CharacterBuilderProps {
   isOpen: boolean;
   onClose: () => void;
   onCharacterCreated: (characterId: string) => void;
-  editingCharacterId?: string; // For future editing support
 }
 
 export function CharacterBuilder({
   isOpen,
   onClose,
   onCharacterCreated,
-  editingCharacterId,
 }: CharacterBuilderProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [builderState, setBuilderState] = useState<CharacterBuilderState>({
     name: "",
-    featureSelections: {},
+    effectSelections: [],
     attributes: {
       strength: 0,
       dexterity: 0,
@@ -176,8 +113,8 @@ export function CharacterBuilder({
     }));
   };
 
-  const handleFeatureSelectionsChange = (selections: Record<string, FeatureSelectionType>) => {
-    setBuilderState((prev) => ({ ...prev, featureSelections: selections }));
+  const handleFeatureSelectionsChange = (selections: EffectSelection[]) => {
+    setBuilderState((prev) => ({ ...prev, effectSelections: selections }));
   };
 
   const handleAttributesChange = (attributes: typeof builderState.attributes) => {
@@ -210,8 +147,8 @@ export function CharacterBuilder({
     if (!builderState.classId || !builderState.ancestryId || !builderState.backgroundId) return;
 
     try {
-      // Prepare effect selections from feature selections
-      const effectSelections = await applyFeatureSelections(builderState.featureSelections);
+      // Effect selections are already in the correct format
+      const effectSelections = builderState.effectSelections;
 
       // Create the complete character at the end
       const character = await characterCreationService.createCompleteCharacter({
@@ -372,8 +309,8 @@ export function CharacterBuilder({
             classId={builderState.classId}
             ancestryId={builderState.ancestryId}
             backgroundId={builderState.backgroundId}
-            featureSelections={builderState.featureSelections}
-            onFeatureSelectionsChange={handleFeatureSelectionsChange}
+            effectSelections={builderState.effectSelections}
+            onEffectSelectionsChange={handleFeatureSelectionsChange}
           />
         );
       case "attributes":

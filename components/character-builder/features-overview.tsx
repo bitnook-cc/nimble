@@ -1,49 +1,22 @@
 "use client";
 
 import { Book, Mountain, Swords } from "lucide-react";
-
 import React, { useEffect, useState } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-
-import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
+import { FeatureList } from "@/components/feature-list";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { AttributeName } from "@/lib/schemas/character";
-import {
-  CharacterFeature,
-  ClassFeature,
-  AttributeBoostFeatureEffect,
-  FeatureEffect,
-} from "@/lib/schemas/features";
-
-// Type for feature selections during character creation
-export type FeatureSelectionType =
-  | { type: "attribute_boost"; attribute: AttributeName }
-  | { type: "spell_school_choice"; schoolId: string }
-  | { type: "utility_spells"; spellIds: string[] }
-  | { type: "feature_pool"; selectedFeatureId: string; poolId?: string; feature?: any }
-  | { type: "subclass_choice"; subclassId: string };
+import { EffectSelection } from "@/lib/schemas/character";
+import { CharacterFeature, ClassFeature } from "@/lib/schemas/features";
 
 interface FeaturesOverviewProps {
   classId: string;
   ancestryId: string;
   backgroundId: string;
-  featureSelections: Record<string, FeatureSelectionType>;
-  onFeatureSelectionsChange: (selections: Record<string, FeatureSelectionType>) => void;
+  effectSelections: EffectSelection[];
+  onEffectSelectionsChange: (selections: EffectSelection[]) => void;
 }
 
 interface CategorizedFeatures {
@@ -56,8 +29,8 @@ export function FeaturesOverview({
   classId,
   ancestryId,
   backgroundId,
-  featureSelections,
-  onFeatureSelectionsChange,
+  effectSelections,
+  onEffectSelectionsChange,
 }: FeaturesOverviewProps) {
   const [categorizedFeatures, setCategorizedFeatures] = useState<CategorizedFeatures>({
     class: [],
@@ -82,335 +55,15 @@ export function FeaturesOverview({
     setCategorizedFeatures(features);
   }, [classId, ancestryId, backgroundId, contentRepo]);
 
-  const handleStatBoostSelection = (featureId: string, attribute: AttributeName) => {
-    onFeatureSelectionsChange({
-      ...featureSelections,
-      [featureId]: { type: "attribute_boost", attribute },
-    });
-  };
-
-  const handleSpellSchoolSelection = (featureId: string, schoolId: string) => {
-    onFeatureSelectionsChange({
-      ...featureSelections,
-      [featureId]: { type: "spell_school_choice", schoolId },
-    });
-  };
-
-  const handleUtilitySpellSelection = (featureId: string, spellId: string, checked: boolean) => {
-    const current = featureSelections[featureId];
-    const currentSpellIds = current?.type === "utility_spells" ? current.spellIds : [];
-
-    const spellIds = checked
-      ? [...currentSpellIds, spellId]
-      : currentSpellIds.filter((id: string) => id !== spellId);
-
-    onFeatureSelectionsChange({
-      ...featureSelections,
-      [featureId]: { type: "utility_spells", spellIds },
-    });
-  };
-
-  const handleFeaturePoolSelection = (featureId: string, selectedFeatureId: string) => {
-    onFeatureSelectionsChange({
-      ...featureSelections,
-      [featureId]: { type: "feature_pool", selectedFeatureId },
-    });
-  };
-
-  const generateFeatureId = (source: string, feature: any) => {
-    return `${source}-${feature.name.toLowerCase().replace(/\s+/g, "-")}`;
-  };
-
-  const renderClassFeature = (feature: ClassFeature) => {
-    const featureId = generateFeatureId(classId, feature);
-
-    // Check for interactive effects that need user selection
-    const attributeBoostEffects = feature.effects.filter(
-      (e) => e.type === "attribute_boost",
-    );
-    const spellSchoolChoiceEffects = feature.effects.filter(
-      (e) => e.type === "spell_school_choice",
-    );
-    const utilitySpellsEffects = feature.effects.filter(
-      (e) => e.type === "utility_spells",
-    );
-    const pickFeatureEffects = feature.effects.filter(
-      (e) => e.type === "pick_feature_from_pool",
-    );
-
-    const hasInteractiveEffects =
-      attributeBoostEffects.length > 0 ||
-      spellSchoolChoiceEffects.length > 0 ||
-      utilitySpellsEffects.length > 0 ||
-      pickFeatureEffects.length > 0;
-
-    // Handle features with attribute boost effects
-    if (attributeBoostEffects.length > 0) {
-      const attributeBoostEffect = attributeBoostEffects[0]; // For now, handle the first one
-      const selection = featureSelections[featureId];
-      const selectedAttribute =
-        selection?.type === "attribute_boost" ? selection.attribute : undefined;
-
-      return (
-        <Card key={featureId} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <CardDescription className="text-sm">{feature.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label className="text-sm mb-2 block">Choose an attribute to boost:</Label>
-            <RadioGroup
-              value={selectedAttribute || ""}
-              onValueChange={(value) => handleStatBoostSelection(featureId, value as AttributeName)}
-            >
-              {(
-                attributeBoostEffect?.allowedAttributes ||
-                (["strength", "dexterity", "intelligence", "will"] as AttributeName[])
-              ).map((attr) => (
-                <div key={attr} className="flex items-center space-x-2 mb-2">
-                  <RadioGroupItem value={attr} id={`${featureId}-${attr}`} />
-                  <Label htmlFor={`${featureId}-${attr}`} className="capitalize cursor-pointer">
-                    {attr} (+{attributeBoostEffect?.amount || 1})
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Handle features with spell school choice effects
-    if (spellSchoolChoiceEffects.length > 0) {
-      const spellSchoolChoiceEffect = spellSchoolChoiceEffects[0]; // For now, handle the first one
-      const selection = featureSelections[featureId];
-      const selectedSchool =
-        selection?.type === "spell_school_choice" ? selection.schoolId : undefined;
-
-      // Get available schools
-      const availableSchools = spellSchoolChoiceEffect?.availableSchools
-        ? contentRepo
-            .getAllSpellSchools()
-            .filter((s) => spellSchoolChoiceEffect.availableSchools!.includes(s.id))
-        : contentRepo.getAllSpellSchools();
-
-      return (
-        <Card key={featureId} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <CardDescription className="text-sm">{feature.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label className="text-sm mb-2 block">Choose a spell school:</Label>
-            <Select
-              value={selectedSchool || ""}
-              onValueChange={(value) => handleSpellSchoolSelection(featureId, value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a spell school" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableSchools.map((school) => (
-                  <SelectItem key={school.id} value={school.id}>
-                    {school.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Handle features with utility spells effects
-    if (utilitySpellsEffects.length > 0) {
-      const utilitySpellsEffect = utilitySpellsEffects[0]; // For now, handle the first one
-      const selection = featureSelections[featureId];
-      const selectedSpells = selection?.type === "utility_spells" ? selection.spellIds : [];
-
-      // Get utility spells from the specified schools
-      const utilitySpells: SpellAbilityDefinition[] = [];
-      utilitySpellsEffect?.schools?.forEach((schoolId) => {
-        const spells = contentRepo.getSpellsBySchool(schoolId).filter((spell) => spell.tier === 0); // Utility spells are tier 0
-        utilitySpells.push(...spells);
-      });
-
-      if (utilitySpells.length === 0) {
-        return null; // No utility spells available
-      }
-
-      return (
-        <Card key={featureId} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <CardDescription className="text-sm">{feature.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label className="text-sm mb-2 block">Select utility spells:</Label>
-            <ScrollArea className="h-48 border rounded-md p-3">
-              {utilitySpells.map((spell) => (
-                <div key={spell.id} className="flex items-start space-x-2 mb-3">
-                  <Checkbox
-                    id={`${featureId}-${spell.id}`}
-                    checked={selectedSpells.includes(spell.id)}
-                    onCheckedChange={(checked) =>
-                      handleUtilitySpellSelection(featureId, spell.id, checked as boolean)
-                    }
-                  />
-                  <div className="flex-1">
-                    <Label htmlFor={`${featureId}-${spell.id}`} className="cursor-pointer">
-                      <div className="font-medium text-sm">{spell.name}</div>
-                      <div className="text-xs text-muted-foreground">{spell.description}</div>
-                    </Label>
-                  </div>
-                </div>
-              ))}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Handle features with pick feature from pool effects
-    if (pickFeatureEffects.length > 0) {
-      const pickFeatureEffect = pickFeatureEffects[0]; // Handle first one for now
-      const selection = featureSelections[featureId];
-      const selectedFeature =
-        selection?.type === "feature_pool" ? selection.selectedFeatureId : undefined;
-
-      // Get the feature pool
-      const classDefinition = contentRepo.getClassDefinition(classId);
-      const pool = classDefinition?.featurePools?.find((p) => p.id === pickFeatureEffect?.poolId);
-      if (!pool) {
-        return null; // Pool not found
-      }
-
-      return (
-        <Card key={featureId} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <CardDescription className="text-sm">{feature.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label className="text-sm mb-2 block">Choose from {pool.name}:</Label>
-            <RadioGroup
-              value={selectedFeature || ""}
-              onValueChange={(value) => handleFeaturePoolSelection(featureId, value)}
-            >
-              <ScrollArea className="h-48 border rounded-md p-3">
-                {pool.features.map((poolFeature) => (
-                  <div key={poolFeature.id} className="flex items-start space-x-2 mb-3">
-                    <RadioGroupItem value={poolFeature.id} id={`${featureId}-${poolFeature.id}`} />
-                    <Label htmlFor={`${featureId}-${poolFeature.id}`} className="cursor-pointer">
-                      <div className="font-medium text-sm">{poolFeature.name}</div>
-                      <div className="text-xs text-muted-foreground">{poolFeature.description}</div>
-                    </Label>
-                  </div>
-                ))}
-              </ScrollArea>
-            </RadioGroup>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Non-interactive features - just display them with their effects
-    return (
-      <Card key={featureId} className="mb-4 bg-muted/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{feature.name}</CardTitle>
-          <CardDescription className="text-sm">{feature.description}</CardDescription>
-        </CardHeader>
-        {feature.effects.length > 0 && (
-          <CardContent className="pt-0">
-            <FeatureEffectsDisplay effects={feature.effects} />
-          </CardContent>
-        )}
-      </Card>
-    );
-  };
-
-  const renderAncestryFeature = (feature: CharacterFeature) => {
-    const featureId = generateFeatureId(ancestryId, feature);
-
-    // Handle attribute boost effects from ancestry
-    const attributeBoostEffects = feature.effects.filter(
-      (e: FeatureEffect) => e.type === "attribute_boost",
-    ) as AttributeBoostFeatureEffect[];
-    if (attributeBoostEffects.length > 0) {
-      const attributeBoostEffect = attributeBoostEffects[0]; // Handle first one for now
-      const selection = featureSelections[featureId];
-      const selectedAttribute =
-        selection?.type === "attribute_boost" ? selection.attribute : undefined;
-
-      return (
-        <Card key={featureId} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            <CardDescription className="text-sm">{feature.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label className="text-sm mb-2 block">Choose an attribute to boost:</Label>
-            <RadioGroup
-              value={selectedAttribute || ""}
-              onValueChange={(value) => handleStatBoostSelection(featureId, value as AttributeName)}
-            >
-              {(
-                attributeBoostEffect?.allowedAttributes ||
-                (["strength", "dexterity", "intelligence", "will"] as AttributeName[])
-              ).map((attr) => (
-                <div key={attr} className="flex items-center space-x-2 mb-2">
-                  <RadioGroupItem value={attr} id={`${featureId}-${attr}`} />
-                  <Label htmlFor={`${featureId}-${attr}`} className="capitalize cursor-pointer">
-                    {attr} (+{attributeBoostEffect?.amount || 1})
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Non-interactive ancestry features with their effects
-    return (
-      <Card key={featureId} className="mb-4 bg-muted/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{feature.name}</CardTitle>
-          <CardDescription className="text-sm">{feature.description}</CardDescription>
-        </CardHeader>
-        {feature.effects.length > 0 && (
-          <CardContent className="pt-0">
-            <FeatureEffectsDisplay effects={feature.effects} />
-          </CardContent>
-        )}
-      </Card>
-    );
-  };
-
-  const renderBackgroundFeature = (feature: CharacterFeature) => {
-    const featureId = generateFeatureId(backgroundId, feature);
-
-    // Background features are typically passive - show with their effects
-    return (
-      <Card key={featureId} className="mb-4 bg-muted/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{feature.name}</CardTitle>
-          <CardDescription className="text-sm">{feature.description}</CardDescription>
-        </CardHeader>
-        {feature.effects.length > 0 && (
-          <CardContent className="pt-0">
-            <FeatureEffectsDisplay effects={feature.effects} />
-          </CardContent>
-        )}
-      </Card>
-    );
-  };
-
   const hasFeatures =
     categorizedFeatures.class.length > 0 ||
     categorizedFeatures.ancestry.length > 0 ||
     categorizedFeatures.background.length > 0;
+
+  // Get names for display
+  const classDefinition = contentRepo.getClassDefinition(classId);
+  const ancestryDefinition = contentRepo.getAncestryDefinition(ancestryId);
+  const backgroundDefinition = contentRepo.getBackgroundDefinition(backgroundId);
 
   return (
     <div className="space-y-6">
@@ -429,7 +82,13 @@ export function FeaturesOverview({
               <Swords className="h-4 w-4" />
               Class Features
             </h4>
-            {categorizedFeatures.class.map((feature) => renderClassFeature(feature))}
+            <FeatureList
+              features={categorizedFeatures.class}
+              source="class"
+              sourceLabel={classDefinition?.name || "Class"}
+              existingSelections={effectSelections}
+              onSelectionsChange={onEffectSelectionsChange}
+            />
           </div>
         )}
 
@@ -442,7 +101,13 @@ export function FeaturesOverview({
                 <Mountain className="h-4 w-4" />
                 Ancestry Features
               </h4>
-              {categorizedFeatures.ancestry.map((feature) => renderAncestryFeature(feature))}
+              <FeatureList
+                features={categorizedFeatures.ancestry}
+                source="ancestry"
+                sourceLabel={ancestryDefinition?.name || "Ancestry"}
+                existingSelections={effectSelections}
+                onSelectionsChange={onEffectSelectionsChange}
+              />
             </div>
           </>
         )}
@@ -458,7 +123,13 @@ export function FeaturesOverview({
                 <Book className="h-4 w-4" />
                 Background Features
               </h4>
-              {categorizedFeatures.background.map((feature) => renderBackgroundFeature(feature))}
+              <FeatureList
+                features={categorizedFeatures.background}
+                source="background"
+                sourceLabel={backgroundDefinition?.name || "Background"}
+                existingSelections={effectSelections}
+                onSelectionsChange={onEffectSelectionsChange}
+              />
             </div>
           </>
         )}
