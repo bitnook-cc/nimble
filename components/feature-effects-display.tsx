@@ -119,7 +119,9 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return `Choose ${numChoices} spell school${numChoices > 1 ? "s" : ""}`;
 
     case "utility_spells":
-      return `Utility spells from ${effect.schools.join(", ")}`;
+      return effect.schools && effect.schools.length > 0 
+        ? `Utility spells from ${effect.schools.join(", ")}`
+        : `Utility spells from your known schools`;
 
     case "spell_tier_access":
       return `Access to Tier ${effect.maxTier} spells`;

@@ -15,7 +15,17 @@ import {
   UtilitySpellsEffectSelection,
 } from "../schemas/character";
 import { DiceType } from "../schemas/dice";
-import { CharacterFeature, ClassFeature, FeatureEffect, StatBonusFeatureEffect } from "../schemas/features";
+import { 
+  CharacterFeature, 
+  ClassFeature, 
+  FeatureEffect, 
+  StatBonusFeatureEffect,
+  PickFeatureFromPoolFeatureEffect,
+  SubclassChoiceFeatureEffect,
+  SpellSchoolChoiceFeatureEffect,
+  AttributeBoostFeatureEffect,
+  UtilitySpellsFeatureEffect
+} from "../schemas/features";
 import { calculateFlexibleValue } from "../types/flexible-value";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance, ResourceValue } from "../schemas/resources";
@@ -24,6 +34,7 @@ import { abilityService } from "./ability-service";
 import { activityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
 import { characterStorageService } from "./character-storage-service";
+import { featureSelectionService } from "./feature-selection-service";
 import { ContentRepositoryService } from "./content-repository-service";
 import {
   IAbilityService,
@@ -1547,6 +1558,27 @@ export class CharacterService implements ICharacterService {
     await this.saveCharacter();
     this.notifyCharacterChanged();
   }
+
+  /**
+   * Get all available effect selections that need to be made
+   * This includes selections from all sources (class, ancestry, background, etc.)
+   */
+  getAvailableEffectSelections() {
+    if (!this._character) {
+      return {
+        poolSelections: [],
+        subclassChoices: [],
+        spellSchoolSelections: [],
+        attributeBoosts: [],
+        utilitySpellSelections: []
+      };
+    }
+
+    // Delegate to the feature selection service
+    const allEffects = this.getAllActiveEffects();
+    return featureSelectionService.getAvailableEffectSelections(this._character, allEffects);
+  }
+
 
   /**
    * Public method to update the character (used by class service)

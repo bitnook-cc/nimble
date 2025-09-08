@@ -179,6 +179,7 @@ export interface ICharacterService {
   getResourceMaxValue(resourceId: string): number;
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;
+  getAvailableEffectSelections(): any; // Return type defined in feature-selection-service
 }
 
 /**

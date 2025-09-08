@@ -130,5 +130,6 @@ export function useCharacterService() {
     getSpellSchools: characterService.getSpellSchools.bind(characterService),
     getAbilities: characterService.getAbilities.bind(characterService),
     getResources: characterService.getResources.bind(characterService),
+    getAvailableEffectSelections: characterService.getAvailableEffectSelections.bind(characterService),
   };
 }

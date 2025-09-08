@@ -220,6 +220,7 @@ const stormshifterFeatures: ClassFeature[] = [
         id: "stormcaller-0",
         type: "spell_school_choice",
         availableSchools: ["storm-utility"],
+        numberOfChoices: 1,
       },
     ],
   },
