@@ -29,7 +29,6 @@ const baseItemSchema = z.object({
   size: z.int().min(0),
   description: z.string().optional(),
   cost: currencySchema.optional(),
-  statBonus: statBonusSchema.optional(),
 });
 
 export const itemSchema = z.discriminatedUnion("type", [
@@ -41,6 +40,7 @@ export const itemSchema = z.discriminatedUnion("type", [
     damageType: z.enum(["Slashing", "Piercing", "Bludgeoning"]).optional(),
     vicious: z.boolean().optional(),
     properties: z.array(z.string()).optional(),
+    statBonus: statBonusSchema.optional(),
   }),
   baseItemSchema.extend({
     type: z.literal("armor"),
@@ -49,6 +49,7 @@ export const itemSchema = z.discriminatedUnion("type", [
     maxDexBonus: z.int().optional(),
     isMainArmor: z.boolean().optional(),
     properties: z.array(z.string()).optional(),
+    statBonus: statBonusSchema.optional(),
   }),
   baseItemSchema.extend({
     type: z.literal("freeform"),
@@ -345,5 +346,8 @@ export type Inventory = z.infer<typeof inventorySchema>;
 
 // Export other inferred types
 export type AttributeName = z.infer<typeof attributeNameSchema>;
+export type SaveAdvantageType = z.infer<typeof saveAdvantageTypeSchema>;
+export type SaveAdvantageMap = z.infer<typeof saveAdvantageMapSchema>;
 export type Attributes = z.infer<typeof attributeSchema>;
 export type Skill = z.infer<typeof skillSchema>;
+export type HitDieSize = 4 | 6 | 8 | 10 | 12;

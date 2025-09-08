@@ -5,14 +5,24 @@ import { Inventory } from "./inventory";
 import { ResourceDefinition, ResourceInstance, ResourceValue } from "./resources";
 
 // Import types from schemas
-import type { AttributeName, Attributes, Skill } from "../schemas/character";
+import type { 
+  AttributeName, 
+  Attributes, 
+  Skill,
+  SaveAdvantageType,
+  SaveAdvantageMap,
+  HitDieSize
+} from "../schemas/character";
 
 // Re-export for backward compatibility
-export type { AttributeName, Attributes, Skill };
-
-export type SaveAdvantageType = "advantage" | "disadvantage" | "normal";
-
-export type SaveAdvantageMap = Partial<Record<AttributeName, SaveAdvantageType>>;
+export type { 
+  AttributeName, 
+  Attributes, 
+  Skill,
+  SaveAdvantageType,
+  SaveAdvantageMap,
+  HitDieSize
+};
 
 
 export interface CharacterFeature {
@@ -74,8 +84,6 @@ export interface ActionTracker {
   base: number; // Base actions per turn (default 3)
   bonus: number; // Additional permanent actions gained
 }
-
-export type HitDieSize = 4 | 6 | 8 | 10 | 12;
 
 export interface HitDice {
   size: HitDieSize; // Die size (d4, d6, d8, d10, d12)

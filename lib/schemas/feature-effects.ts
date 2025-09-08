@@ -193,3 +193,39 @@ export {
   PickFeatureFromPoolFeatureEffectSchema,
   ResistanceFeatureEffectSchema,
 };
+
+// Export inferred types
+export type FeatureEffectType = 
+  | "ability"
+  | "attribute_boost"
+  | "stat_bonus"
+  | "proficiency"
+  | "spell_school"
+  | "spell_school_choice"
+  | "utility_spells"
+  | "spell_tier_access"
+  | "resource"
+  | "subclass_choice"
+  | "pick_feature_from_pool"
+  | "resistance";
+
+export type EffectSource = "feature" | "item";
+
+export type ProficiencyGrant = z.infer<typeof ProficiencyGrantSchema>;
+export type SpellSchool = z.infer<typeof SpellSchoolSchema>;
+export type Resistance = z.infer<typeof ResistanceSchema>;
+
+export type AbilityFeatureEffect = z.infer<typeof AbilityFeatureEffectSchema>;
+export type AttributeBoostFeatureEffect = z.infer<typeof AttributeBoostFeatureEffectSchema>;
+export type StatBonusFeatureEffect = z.infer<typeof StatBonusFeatureEffectSchema>;
+export type ProficiencyFeatureEffect = z.infer<typeof ProficiencyFeatureEffectSchema>;
+export type SpellSchoolFeatureEffect = z.infer<typeof SpellSchoolFeatureEffectSchema>;
+export type SpellSchoolChoiceFeatureEffect = z.infer<typeof SpellSchoolChoiceFeatureEffectSchema>;
+export type UtilitySpellsFeatureEffect = z.infer<typeof UtilitySpellsFeatureEffectSchema>;
+export type SpellTierAccessFeatureEffect = z.infer<typeof SpellTierAccessFeatureEffectSchema>;
+export type ResourceFeatureEffect = z.infer<typeof ResourceFeatureEffectSchema>;
+export type SubclassChoiceFeatureEffect = z.infer<typeof SubclassChoiceFeatureEffectSchema>;
+export type PickFeatureFromPoolFeatureEffect = z.infer<typeof PickFeatureFromPoolFeatureEffectSchema>;
+export type ResistanceFeatureEffect = z.infer<typeof ResistanceFeatureEffectSchema>;
+
+export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
