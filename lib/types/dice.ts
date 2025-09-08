@@ -1,6 +1,4 @@
-export type DiceType = 4 | 6 | 8 | 10 | 12 | 20 | 66 | 100;
+// Import and re-export types from schemas
+import type { DiceType, DiceExpression } from "../schemas/dice";
 
-export interface DiceExpression {
-  count: number; // number of dice
-  sides: DiceType; // type of dice
-}
+export type { DiceType, DiceExpression };

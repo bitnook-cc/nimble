@@ -51,7 +51,7 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
         if (effect.statBonus.attributes) {
           Object.entries(effect.statBonus.attributes).forEach(([attr, value]) => {
             if (value) {
-              bonuses.push(`${attr} +${typeof value === "object" ? value.base || 0 : value}`);
+              bonuses.push(`${attr} +${value.type === "fixed" ? value.value : value.expression}`);
             }
           });
         }

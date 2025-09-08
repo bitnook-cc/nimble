@@ -2,6 +2,15 @@ import { z } from "zod";
 
 import { flexibleValueSchema } from "./flexible-value";
 
+// Numerical resource value schema
+const numericalResourceValueSchema = z.object({
+  type: z.literal("numerical"),
+  value: z.number(),
+});
+
+// Resource value schema - extensible for future types
+const resourceValueSchema = numericalResourceValueSchema;
+
 // Resource reset condition schema
 const resourceResetConditionSchema = z.enum([
   "safe_rest",
@@ -57,3 +66,11 @@ export const resourceInstanceSchema = z.object({
   current: z.number().int().min(0),
   sortOrder: z.number().int().min(0),
 });
+
+// Export inferred types
+export type NumericalResourceValue = z.infer<typeof numericalResourceValueSchema>;
+export type ResourceValue = z.infer<typeof resourceValueSchema>;
+export type ResourceResetCondition = z.infer<typeof resourceResetConditionSchema>;
+export type ResourceResetType = z.infer<typeof resourceResetTypeSchema>;
+export type ResourceDefinition = z.infer<typeof resourceDefinitionSchema>;
+export type ResourceInstance = z.infer<typeof resourceInstanceSchema>;

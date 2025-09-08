@@ -4,18 +4,10 @@
  */
 import { formulaEvaluatorService } from "../services/formula-evaluator-service";
 import type { Character } from "./character";
+import type { FixedValue, FormulaValue, FlexibleValue } from "../schemas/flexible-value";
 
-export interface FixedValue {
-  type: "fixed";
-  value: number;
-}
-
-export interface FormulaValue {
-  type: "formula";
-  expression: string; // e.g., "DEX + WIL + 1", "STR * 2", "level + 3"
-}
-
-export type FlexibleValue = FixedValue | FormulaValue;
+// Re-export types for backward compatibility
+export type { FixedValue, FormulaValue, FlexibleValue };
 
 // Helper functions for working with FlexibleValue
 export function createFixedValue(value: number): FixedValue {

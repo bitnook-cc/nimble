@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 // Schema with metadata for use in class definitions
-export const fixedValueSchema = z.object({
+const fixedValueSchema = z.object({
   type: z.literal("fixed").meta({ title: "Fixed Value", description: "Fixed numeric value" }),
   value: z.number().int().min(0).meta({ title: "Value", description: "Numeric value (integer)" }),
 });
 
-export const formulaValueSchema = z.object({
+const formulaValueSchema = z.object({
   type: z.literal("formula").meta({ title: "Formula Value", description: "Formula-based value" }),
   expression: z
     .string()
@@ -18,3 +18,8 @@ export const formulaValueSchema = z.object({
 export const flexibleValueSchema = z
   .discriminatedUnion("type", [fixedValueSchema, formulaValueSchema])
   .meta({ title: "Flexible Value", description: "Value that can be fixed or formula-based" });
+
+// Export inferred types
+export type FixedValue = z.infer<typeof fixedValueSchema>;
+export type FormulaValue = z.infer<typeof formulaValueSchema>;
+export type FlexibleValue = z.infer<typeof flexibleValueSchema>;

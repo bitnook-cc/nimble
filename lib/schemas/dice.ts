@@ -1,17 +1,26 @@
 import { z } from "zod";
 
+// Dice type schema
+const diceTypeSchema = z.union([
+  z.literal(4),
+  z.literal(6),
+  z.literal(8),
+  z.literal(10),
+  z.literal(12),
+  z.literal(20),
+  z.literal(66),
+  z.literal(100),
+]);
+
+// Dice expression schema
+const diceExpressionSchema = z.object({
+  count: z.number().int().positive(), // number of dice
+  sides: diceTypeSchema, // type of dice
+});
+
 // Single die schema
 export const singleDieSchema = z.object({
-  type: z.union([
-    z.literal(4),
-    z.literal(6),
-    z.literal(8),
-    z.literal(10),
-    z.literal(12),
-    z.literal(20),
-    z.literal(66),
-    z.literal(100),
-  ]),
+  type: diceTypeSchema,
   result: z.number().positive(),
   isCritical: z.boolean().optional(),
 });
@@ -175,3 +184,7 @@ export const logEntrySchema = z.discriminatedUnion("type", [
 ]);
 
 export type ValidatedLogEntry = z.infer<typeof logEntrySchema>;
+
+// Export inferred types
+export type DiceType = z.infer<typeof diceTypeSchema>;
+export type DiceExpression = z.infer<typeof diceExpressionSchema>;

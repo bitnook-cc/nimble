@@ -31,3 +31,7 @@ export const statBonusSchema = z.object({
 });
 
 export type ValidatedStatBonus = z.infer<typeof statBonusSchema>;
+
+// Export inferred types
+export type AttributeBonuses = z.infer<typeof attributeBonusesSchema>;
+export type StatBonus = z.infer<typeof statBonusSchema>;

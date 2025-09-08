@@ -1,33 +1,9 @@
-import { AttributeName } from "./character";
-import { FlexibleValue } from "./flexible-value";
-
 /**
  * Stat bonus system for passive features
  * Allows features to provide bonuses to various character stats using flexible values
  */
 
-export interface AttributeBonuses {
-  strength?: FlexibleValue;
-  dexterity?: FlexibleValue;
-  intelligence?: FlexibleValue;
-  will?: FlexibleValue;
-}
+// Import and re-export types from schema
+import type { AttributeBonuses, StatBonus } from "../schemas/stat-bonus";
 
-export interface StatBonus {
-  // Core attributes
-  attributes?: AttributeBonuses;
-
-  // Skills (by skill name)
-  skillBonuses?: Record<string, FlexibleValue>;
-
-  // Combat and health stats
-  hitDiceBonus?: FlexibleValue;
-  maxWoundsBonus?: FlexibleValue;
-  armorBonus?: FlexibleValue;
-  initiativeBonus?: FlexibleValue;
-  speedBonus?: FlexibleValue;
-
-  // Resource bonuses (by resource definition id)
-  resourceMaxBonuses?: Record<string, FlexibleValue>;
-  resourceMinBonuses?: Record<string, FlexibleValue>;
-}
+export type { AttributeBonuses, StatBonus };
