@@ -3,7 +3,6 @@ import { z } from "zod";
 import { gameConfig } from "../config/game-config";
 import { ClassFeatureSchema } from "./class";
 import { currencySchema } from "./currency";
-import { FeatureEffectGrantSchema } from "./feature-effects";
 import { flexibleValueSchema } from "./flexible-value";
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
@@ -39,6 +38,8 @@ export const itemSchema = z.discriminatedUnion("type", [
     equipped: z.boolean().optional(),
     attribute: attributeNameSchema.optional(),
     damage: z.string().optional(),
+    damageType: z.enum(["Slashing", "Piercing", "Bludgeoning"]).optional(),
+    vicious: z.boolean().optional(),
     properties: z.array(z.string()).optional(),
   }),
   baseItemSchema.extend({
@@ -330,3 +331,19 @@ export const characterSchema = z.object({
 });
 
 export type ValidatedCharacter = z.infer<typeof characterSchema>;
+
+// Export inferred types for inventory
+export type ItemType = "weapon" | "armor" | "freeform" | "consumable" | "ammunition";
+export type BaseItem = z.infer<typeof baseItemSchema>;
+export type Item = z.infer<typeof itemSchema>;
+export type WeaponItem = Extract<Item, { type: "weapon" }>;
+export type ArmorItem = Extract<Item, { type: "armor" }>;
+export type FreeformItem = Extract<Item, { type: "freeform" }>;
+export type ConsumableItem = Extract<Item, { type: "consumable" }>;
+export type AmmunitionItem = Extract<Item, { type: "ammunition" }>;
+export type Inventory = z.infer<typeof inventorySchema>;
+
+// Export other inferred types
+export type AttributeName = z.infer<typeof attributeNameSchema>;
+export type Attributes = z.infer<typeof attributeSchema>;
+export type Skill = z.infer<typeof skillSchema>;

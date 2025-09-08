@@ -103,8 +103,37 @@ const WeaponProficiencySchema = z.union([
   }),
 ]);
 
-// Ability schemas (for class features)
-const ActionAbilitySchema = z
+// Ability frequency schema
+const AbilityFrequencySchema = z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]);
+
+// Base ability schemas
+const BaseAbilityDefinitionSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().min(1),
+});
+
+const UsableAbilityDefinitionSchema = BaseAbilityDefinitionSchema.extend({
+  actionCost: z.number().int().min(0).max(5).optional(),
+  resourceCost: ResourceCostSchema.optional(),
+});
+
+// Freeform ability schema
+const FreeformAbilitySchema = BaseAbilityDefinitionSchema.extend({
+  type: z.literal("freeform"),
+});
+
+// Action ability schema
+const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
+  type: z.literal("action"),
+  frequency: AbilityFrequencySchema,
+  maxUses: flexibleValueSchema.optional(),
+  roll: AbilityRollSchema.optional(),
+})
+  .meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
+
+// Keep the old ActionAbilitySchema for class features with currentUses
+const ClassActionAbilitySchema = z
   .object({
     id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the ability" }),
     name: z.string().min(1).meta({ title: "Name", description: "Display name of the ability" }),
@@ -140,46 +169,25 @@ const ActionAbilitySchema = z
   })
   .meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
-const SpellAbilitySchema = z
-  .object({
-    id: z.string().min(1).meta({ title: "ID", description: "Unique identifier for the spell" }),
-    name: z.string().min(1).meta({ title: "Name", description: "Display name of the spell" }),
-    description: z
-      .string()
-      .min(1)
-      .meta({ title: "Description", description: "Detailed description of the spell's effects" }),
-    type: z
-      .literal("spell")
-      .meta({ title: "Type", description: 'Must be "spell" for spell abilities' }),
-    school: z
-      .string()
-      .min(1)
-      .meta({ title: "School", description: "ID of the spell school this belongs to" }),
-    tier: z
-      .number()
-      .int()
-      .min(0)
-      .max(9)
-      .meta({ title: "Tier", description: "Spell tier/level (0-9, integer)" }),
-    category: z
-      .enum(["combat", "utility"])
-      .meta({ title: "Category", description: "Whether this is a combat or utility spell" }),
-    roll: AbilityRollSchema.optional().meta({
-      title: "Roll",
-      description: "Dice roll configuration for the spell",
-    }),
-    actionCost: z.number().int().min(0).max(5).optional().meta({
-      title: "Action Cost",
-      description: "Action cost (0=bonus, 1=action, 2=full turn, integer)",
-    }),
-    resourceCost: ResourceCostSchema.optional().meta({
-      title: "Resource Cost",
-      description: "Resource cost to cast the spell",
-    }),
-  })
+// Spell ability schema
+const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
+  type: z.literal("spell"),
+  school: z.string().min(1),
+  tier: z.number().int().min(0).max(9),
+  category: z.enum(["combat", "utility"]),
+  roll: AbilityRollSchema.optional(),
+})
   .meta({ title: "Spell Ability", description: "Spell that characters can cast" });
 
-const AbilitySchema = z.discriminatedUnion("type", [ActionAbilitySchema, SpellAbilitySchema]);
+// Combined ability schema
+const AbilityDefinitionSchema = z.discriminatedUnion("type", [
+  FreeformAbilitySchema,
+  ActionAbilitySchema,
+  SpellAbilitySchema,
+]);
+
+// Legacy schema for class features (includes currentUses)
+const AbilitySchema = z.discriminatedUnion("type", [ClassActionAbilitySchema, SpellAbilitySchema]);
 
 // Class Feature Schema - now uses effects array
 export const ClassFeatureSchema = z
@@ -362,3 +370,18 @@ export {
   AbilityRollSchema,
   ResourceCostSchema,
 };
+
+// Export inferred types
+export type AbilityFrequency = z.infer<typeof AbilityFrequencySchema>;
+export type AbilityRoll = z.infer<typeof AbilityRollSchema>;
+export type ResourceCost = z.infer<typeof ResourceCostSchema>;
+export type FixedResourceCost = Extract<ResourceCost, { type: "fixed" }>;
+export type VariableResourceCost = Extract<ResourceCost, { type: "variable" }>;
+export type BaseAbilityDefinition = z.infer<typeof BaseAbilityDefinitionSchema>;
+export type UsableAbilityDefinition = z.infer<typeof UsableAbilityDefinitionSchema>;
+export type FreeformAbilityDefinition = z.infer<typeof FreeformAbilitySchema>;
+export type ActionAbilityDefinition = z.infer<typeof ActionAbilitySchema>;
+export type SpellAbilityDefinition = z.infer<typeof SpellAbilitySchema>;
+export type AbilityDefinition = z.infer<typeof AbilityDefinitionSchema>;
+export type ArmorProficiency = z.infer<typeof ArmorProficiencySchema>;
+export type WeaponProficiency = z.infer<typeof WeaponProficiencySchema>;

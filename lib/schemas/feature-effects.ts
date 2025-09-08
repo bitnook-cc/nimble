@@ -178,15 +178,6 @@ export const FeatureEffectSchema = z.discriminatedUnion("type", [
   ResistanceFeatureEffectSchema,
 ]);
 
-export const FeatureEffectGrantSchema = z.object({
-  effectId: z.string().min(1),
-  parentFeatureId: z.string().min(1),
-  sourceType: z.enum(["class", "subclass", "ancestry", "background"]),
-  sourceId: z.string().min(1),
-  level: z.number().int().min(1).max(20).optional(),
-  effect: FeatureEffectSchema,
-});
-
 // Export individual effect schemas for validation
 export {
   AbilityFeatureEffectSchema,

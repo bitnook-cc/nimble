@@ -4,24 +4,16 @@ import { FeatureEffect } from "./feature-effects";
 import { Inventory } from "./inventory";
 import { ResourceDefinition, ResourceInstance, ResourceValue } from "./resources";
 
-export type AttributeName = "strength" | "dexterity" | "intelligence" | "will";
+// Import types from schemas
+import type { AttributeName, Attributes, Skill } from "../schemas/character";
 
-export interface Attributes {
-  strength: number;
-  dexterity: number;
-  intelligence: number;
-  will: number;
-}
+// Re-export for backward compatibility
+export type { AttributeName, Attributes, Skill };
 
 export type SaveAdvantageType = "advantage" | "disadvantage" | "normal";
 
 export type SaveAdvantageMap = Partial<Record<AttributeName, SaveAdvantageType>>;
 
-export interface Skill {
-  name: string;
-  associatedAttribute: AttributeName;
-  modifier: number;
-}
 
 export interface CharacterFeature {
   id: string; // Unique identifier for the feature

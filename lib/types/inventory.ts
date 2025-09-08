@@ -1,62 +1,37 @@
-import { AttributeName, CharacterFeature } from "./character";
-import { Currency } from "./currency";
+import { CharacterFeature } from "./character";
 import { FeatureEffect } from "./feature-effects";
-import { StatBonus } from "./stat-bonus";
 
-export type ItemType = "weapon" | "armor" | "freeform" | "consumable" | "ammunition";
+// Import and re-export types from schemas
+import type {
+  ItemType,
+  BaseItem,
+  Item,
+  WeaponItem,
+  ArmorItem,
+  FreeformItem,
+  ConsumableItem,
+  AmmunitionItem,
+  Inventory,
+  AttributeName,
+} from "../schemas/character";
+import type { Currency } from "../schemas/currency";
 
-export interface BaseItem {
-  id: string;
-  name: string;
-  size: number;
-  type: ItemType;
-  description?: string;
-  cost?: Currency; // Optional cost in gold pieces
-  statBonus?: StatBonus; // Optional stat bonuses provided by this item
-}
+export type {
+  ItemType,
+  BaseItem,
+  Item,
+  WeaponItem,
+  ArmorItem,
+  FreeformItem,
+  ConsumableItem,
+  AmmunitionItem,
+  Inventory,
+};
 
+// Keep EquippableItem as a local interface since it's not in schemas
 export interface EquippableItem extends BaseItem {
   equipped?: boolean;
   features?: CharacterFeature[];
-}
-
-export interface WeaponItem extends EquippableItem {
-  type: "weapon";
-  attribute?: AttributeName;
-  damage?: string;
-  damageType?: "Slashing" | "Piercing" | "Bludgeoning";
-  vicious?: boolean;
-  properties?: string[];
-}
-
-export interface ArmorItem extends EquippableItem {
-  type: "armor";
-  armor?: number;
-  maxDexBonus?: number; // Maximum dexterity bonus this armor allows
-  isMainArmor?: boolean; // True for primary armor pieces (plate mail, chain mail, etc.), false for supplements (helmets, shields)
-  properties?: string[];
-}
-
-export interface FreeformItem extends BaseItem {
-  type: "freeform";
-}
-
-export interface ConsumableItem extends BaseItem {
-  type: "consumable";
-  count: number;
-}
-
-export interface AmmunitionItem extends BaseItem {
-  type: "ammunition";
-  count: number;
-}
-
-export type Item = WeaponItem | ArmorItem | FreeformItem | ConsumableItem | AmmunitionItem;
-
-export interface Inventory {
-  maxSize: number;
-  items: Item[];
-  currency: Currency;
 }
 
 export interface CreateItemData {
