@@ -20,7 +20,8 @@ import {
 import { FeaturePool } from "../schemas/class";
 import { ClassFeature, CharacterFeature, PickFeatureFromPoolFeatureEffect } from "../schemas/features";
 import { Item } from "../schemas/inventory";
-import { LogEntry, SingleDie } from "../types/log-entries";
+import { LogEntry } from "../schemas/activity-log";
+import { SingleDie } from "../schemas/dice";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";

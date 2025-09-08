@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { createElement } from "react";
 
 import { gameConfig } from "../config/game-config";
-import { logEntrySchema } from "../schemas/dice";
+import { logEntrySchema } from "../schemas/activity-log";
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
@@ -11,14 +11,13 @@ import {
   DiceRollEntry,
   HealingEntry,
   InitiativeEntry,
-  ItemConsumptionEntry,
   LogEntry,
   MakeCampEntry,
   ResourceUsageEntry,
   SafeRestEntry,
   SpellCastEntry,
   TempHPEntry,
-} from "../types/log-entries";
+} from "../schemas/activity-log";
 
 export class ActivityLogService {
   private readonly storageKey = "nimble-navigator-activity-log";

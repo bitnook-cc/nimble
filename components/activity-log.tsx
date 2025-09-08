@@ -14,7 +14,7 @@ import {
   SafeRestEntry,
   SpellCastEntry,
   TempHPEntry,
-} from "@/lib/types/log-entries";
+} from "@/lib/schemas/activity-log";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";

@@ -213,7 +213,7 @@ export function SpellsSection() {
                             <div className="flex items-center gap-2">
                               <h4 className="font-semibold">{spell.name}</h4>
                               <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                Tier {spell.tier}
+                                {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
                               </Badge>
                             </div>
 
@@ -328,7 +328,7 @@ export function SpellsSection() {
                                         {spell.name}
                                       </h5>
                                       <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                        Tier {spell.tier}
+                                        {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
                                       </Badge>
                                       <Badge
                                         variant="outline"
