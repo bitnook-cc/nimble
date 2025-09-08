@@ -6,7 +6,23 @@ const mageFeatures: ClassFeature[] = [
     level: 1,
     name: "Elemental Spellcasting",
     description: "You know Fire, Ice, and Lightning cantrips.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "elemental-spellcasting-fire",
+        type: "spell_school",
+        schoolId: "fire",
+      },
+      {
+        id: "elemental-spellcasting-ice",
+        type: "spell_school",
+        schoolId: "ice",
+      },
+      {
+        id: "elemental-spellcasting-lightning",
+        type: "spell_school",
+        schoolId: "lightning",
+      },
+    ], // Passive feature - no mechanical effects to process
   },
   {
     id: "mana-and-unlock-tier-1-spells",

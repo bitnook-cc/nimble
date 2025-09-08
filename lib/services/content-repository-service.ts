@@ -3,16 +3,10 @@ import { backgroundDefinitions as builtInBackgrounds } from "../data/backgrounds
 // Built-in content imports
 import { classDefinitions as builtInClasses } from "../data/classes/index";
 import { ITEM_REPOSITORY } from "../data/items";
-import { PREDEFINED_SPELL_SCHOOLS, getSpellSchoolDefinition } from "../data/spell-schools";
 import {
-  fireSchoolSpells,
+  getAllSpellSchools as getBuiltInSpellSchools,
   getSpellsBySchool,
   getUtilitySpellsBySchool,
-  iceSchoolSpells,
-  lightningSchoolSpells,
-  necroticSchoolSpells,
-  radiantSchoolSpells,
-  windSchoolSpells,
 } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
@@ -612,21 +606,34 @@ export class ContentRepositoryService {
 
   private initializeBuiltInSchools(): void {
     const stored = this.getStoredSpellSchools();
+    const builtInSchoolData = getBuiltInSpellSchools();
 
     // Check if built-in schools are already initialized
-    const hasBuiltInSchools = PREDEFINED_SPELL_SCHOOLS.every((predefinedSchool) =>
-      stored.some((school) => school.id === predefinedSchool.schoolId),
+    const hasBuiltInSchools = builtInSchoolData.every((builtInSchool) =>
+      stored.some((school) => school.id === builtInSchool.id),
     );
 
     if (!hasBuiltInSchools) {
-      // Create spell schools with spells from predefined definitions
-      const builtInSchools: SpellSchoolWithSpells[] = PREDEFINED_SPELL_SCHOOLS.map((schoolDef) => ({
-        id: schoolDef.schoolId,
-        name: schoolDef.name,
-        description: schoolDef.description,
-        spells: getSpellsBySchool(schoolDef.schoolId),
-        utilitySpells: getUtilitySpellsBySchool(schoolDef.schoolId),
-      }));
+      // Create spell schools with spells and proper descriptions
+      const builtInSchools: SpellSchoolWithSpells[] = builtInSchoolData.map((schoolData) => {
+        // Generate a proper description based on the school name
+        const descriptions: Record<string, string> = {
+          "fire": "Destructive flames and burning magic that harnesses the power of fire and heat",
+          "ice": "Ice and cold elemental magic that manipulates temperature and frozen matter", 
+          "lightning": "Electrical storms and thunder magic that controls lightning and electricity",
+          "wind": "Air and storm magic that commands the winds and atmospheric forces",
+          "radiant": "Divine light and healing magic that channels holy radiance and positive energy",
+          "necrotic": "Death and decay magic that manipulates negative energy and undeath",
+        };
+        
+        return {
+          id: schoolData.id,
+          name: schoolData.name,
+          description: descriptions[schoolData.id] || `Magical arts of ${schoolData.name.toLowerCase()}`,
+          spells: schoolData.spells,
+          utilitySpells: getUtilitySpellsBySchool(schoolData.id),
+        };
+      });
 
       // Merge with existing schools
       const updatedSchools = [...stored];
@@ -643,6 +650,7 @@ export class ContentRepositoryService {
 
   public getSpellSchool(schoolId: string): SpellSchoolWithSpells | null {
     const allSchools = this.getAllSpellSchools();
+    console.log(allSchools);
     return allSchools.find((school) => school.id === schoolId) || null;
   }
 
@@ -851,14 +859,9 @@ export class ContentRepositoryService {
 
   // Spell Management (separate from abilities)
   public getAllSpells(): SpellAbilityDefinition[] {
-    const builtInSpells = [
-      ...fireSchoolSpells,
-      ...iceSchoolSpells,
-      ...lightningSchoolSpells,
-      ...windSchoolSpells,
-      ...radiantSchoolSpells,
-      ...necroticSchoolSpells,
-    ];
+    // Get all spells from all built-in schools
+    const builtInSchools = getBuiltInSpellSchools();
+    const builtInSpells = builtInSchools.flatMap(school => school.spells);
     const customSpells = this.getCustomSpells();
     return [...builtInSpells, ...customSpells];
   }

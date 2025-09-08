@@ -208,21 +208,29 @@ export function ClassFeaturesSection() {
           <div className="pt-2 border-t">
             {feature.effects
               .filter((e) => e.type === "spell_school")
-              .map((effect: any, effectIndex: number) => {
-                const schoolId = effect.spellSchool.schoolId;
+              .map((effect, effectIndex: number) => {
+                const schoolId = effect.schoolId;
                 const isExpanded = expandedSpellSchools[schoolId] || false;
-                const spells = contentRepository.getSpellsBySchool(schoolId);
+                const school = contentRepository.getSpellSchool(schoolId);
 
-                if (spells.length === 0) return null;
+                if (!school) {
+                  console.error("No school found for effect", effect);
+                  return null;
+                }
+
+                if (school?.spells.length === 0) {
+                  console.error("No spells found for school", schoolId);
+                  return null;
+                }
 
                 // Group spells by tier
-                const spellsByTier = spells.reduce(
+                const spellsByTier = school.spells.reduce(
                   (acc, spell) => {
                     if (!acc[spell.tier]) acc[spell.tier] = [];
                     acc[spell.tier].push(spell);
                     return acc;
                   },
-                  {} as Record<number, typeof spells>,
+                  {} as Record<number, typeof school.spells>,
                 );
 
                 return (
@@ -239,7 +247,7 @@ export function ClassFeaturesSection() {
                       }
                     >
                       <span className="text-sm font-medium">
-                        View {effect.spellSchool.name} Spells
+                        View {school.name} Spells
                       </span>
                       {isExpanded ? (
                         <ChevronDown className="h-4 w-4" />
