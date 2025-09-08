@@ -31,6 +31,7 @@ import {
   Hourglass,
   BookOpen,
   ScrollText,
+  Music,
   type LucideIcon
 } from "lucide-react";
 
@@ -99,6 +100,7 @@ export const AVAILABLE_ICONS: IconDefinition[] = [
   { id: "hourglass", name: "Time", icon: Hourglass, category: "mental" },
   { id: "book", name: "Book", icon: BookOpen, category: "mental" },
   { id: "scroll", name: "Scroll", icon: ScrollText, category: "mental" },
+  { id: "music", name: "Music", icon: Music, category: "mental" },
 ];
 
 /**
