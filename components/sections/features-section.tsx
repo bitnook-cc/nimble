@@ -31,7 +31,6 @@ import { Card, CardContent } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 import { Checkbox } from "../ui/checkbox";
 import { Target } from "lucide-react";

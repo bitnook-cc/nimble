@@ -22,7 +22,9 @@ import {
   PickFeatureFromPoolFeatureEffect,
   ResourceFeatureEffect,
   SpellSchoolFeatureEffect,
+  SpellSchoolChoiceFeatureEffect,
   SpellTierAccessFeatureEffect,
+  SubclassChoiceFeatureEffect,
   UtilitySpellsFeatureEffect,
 } from "@/lib/schemas/features";
 
@@ -240,11 +242,13 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   updatedAttributes[selection.attribute] + boostAmount,
                 );
                 // Track the selection
+                // Generate effect ID if not present
+                const effectId = attributeBoostEffect?.id || `${featureId}-0`;
                 effectSelections.push({
                   type: "attribute_boost",
                   attribute: selection.attribute,
                   amount: boostAmount,
-                  grantedByEffectId: featureId,
+                  grantedByEffectId: effectId,
                 });
               }
               break;
@@ -269,10 +273,15 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   updatedAbilities.push(...newSpells);
 
                   // Track the selection
+                  const spellSchoolEffects = feature.effects.filter(
+                    (e) => e.type === "spell_school_choice",
+                  ) as SpellSchoolChoiceFeatureEffect[];
+                  const spellSchoolEffect = spellSchoolEffects[0];
+                  const effectId = spellSchoolEffect?.id || `${featureId}-0`;
                   effectSelections.push({
                     type: "spell_school",
                     schoolId: selection.schoolId,
-                    grantedByEffectId: featureId,
+                    grantedByEffectId: effectId,
                   });
                 }
               }
@@ -307,11 +316,12 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
                 // Track the selection
                 if (addedSpellIds.length > 0) {
+                  const effectId = utilitySpellsEffect?.id || `${featureId}-0`;
                   effectSelections.push({
                     type: "utility_spells",
                     spellIds: addedSpellIds,
                     fromSchools: utilitySpellsEffect?.schools || [],
-                    grantedByEffectId: featureId,
+                    grantedByEffectId: effectId,
                   });
                 }
               }
@@ -320,10 +330,15 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             case "subclass_choice":
               if (selection?.type === "subclass_choice" && selection.subclassId) {
                 // Track the selection
+                const subclassEffects = feature.effects.filter(
+                  (e) => e.type === "subclass_choice",
+                ) as SubclassChoiceFeatureEffect[];
+                const subclassEffect = subclassEffects[0];
+                const effectId = subclassEffect?.id || `${featureId}-0`;
                 effectSelections.push({
                   type: "subclass",
                   subclassId: selection.subclassId,
-                  grantedByEffectId: featureId,
+                  grantedByEffectId: effectId,
                 });
               }
               break;
@@ -359,12 +374,13 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                     }
 
                     // Track the selection
+                    const effectId = pickFeatureEffect?.id || `${featureId}-0`;
                     effectSelections.push({
                       type: "pool_feature",
                       poolId: pickFeatureEffect?.poolId || "",
                       featureId: selection.selectedFeatureId,
                       feature: selectedFeature,
-                      grantedByEffectId: featureId,
+                      grantedByEffectId: effectId,
                     });
                   }
                 }
