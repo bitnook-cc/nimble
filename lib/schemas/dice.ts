@@ -12,11 +12,21 @@ const diceTypeSchema = z.union([
   z.literal(100),
 ]);
 
-// Dice expression schema
-const diceExpressionSchema = z.object({
-  count: z.number().int().positive(), // number of dice
-  sides: diceTypeSchema, // type of dice
-});
+// Dice expression schema with metadata
+export const diceExpressionSchema = z
+  .object({
+    count: z
+      .int()
+      .min(1)
+      .max(20)
+      .meta({ title: "Dice Count", description: "Number of dice to roll (integer)" }),
+    sides: diceTypeSchema
+      .meta({
+        title: "Dice Type",
+        description: "Type of dice (d4, d6, d8, d10, d12, d20, d66, d100)",
+      }),
+  })
+  .meta({ title: "Dice Expression", description: "Dice expression for rolling" });
 
 // Single die schema
 export const singleDieSchema = z.object({

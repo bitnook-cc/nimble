@@ -5,7 +5,7 @@ import {
   ResourceCost,
   SpellAbilityDefinition,
   UsableAbilityDefinition,
-} from "../types/abilities";
+} from "../schemas/abilities";
 import { Character } from "../types/character";
 import { ResourceInstance } from "../types/resources";
 import { formulaEvaluatorService } from "./formula-evaluator-service";

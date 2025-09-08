@@ -1,4 +1,4 @@
-import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../schemas/abilities";
 
 // ICE UTILITY SPELLS
 export const iceUtilitySpells: SpellAbilityDefinition[] = [

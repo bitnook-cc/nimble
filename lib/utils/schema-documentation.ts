@@ -2,10 +2,9 @@ import { z } from "zod";
 
 import { AncestryDefinitionSchema } from "../schemas/ancestry";
 import { BackgroundDefinitionSchema } from "../schemas/background";
+import { ActionAbilitySchema, SpellAbilitySchema } from "../schemas/abilities";
 import {
-  ActionAbilitySchema,
   ClassDefinitionSchema,
-  SpellAbilitySchema,
   SpellSchoolDefinitionSchema,
   SubclassDefinitionSchema,
 } from "../schemas/class";

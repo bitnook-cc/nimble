@@ -1,4 +1,4 @@
-import { ResourceCost, SpellAbilityDefinition } from "@/lib/types/abilities";
+import { ResourceCost, SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ResourceInstance } from "@/lib/types/resources";
 
 /**

@@ -5,7 +5,7 @@ import { classDefinitions as builtInClasses } from "../data/classes/index";
 import { ITEM_REPOSITORY } from "../data/items";
 import { getBuiltInSpellSchools } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
-import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
 import { AncestryDefinition } from "../types/ancestry";
 import { BackgroundDefinition } from "../types/background";
 import { ClassDefinition, SubclassDefinition } from "../types/class";

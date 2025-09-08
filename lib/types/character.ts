@@ -1,4 +1,4 @@
-import { AbilityDefinition } from "./abilities";
+import { AbilityDefinition } from "../schemas/abilities";
 import { ArmorProficiency, ClassFeature, WeaponProficiency } from "./class";
 import { FeatureEffect } from "./feature-effects";
 import { Inventory } from "./inventory";

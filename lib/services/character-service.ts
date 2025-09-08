@@ -2,7 +2,7 @@ import {
   AbilityDefinition,
   ActionAbilityDefinition,
   SpellAbilityDefinition,
-} from "../types/abilities";
+} from "../schemas/abilities";
 import {
   ActionTracker,
   AttributeBoostEffectSelection,
@@ -246,9 +246,8 @@ export class CharacterService implements ICharacterService {
       .filter((effect) => effect.type === "spell_school");
     
     for (const effect of schoolEffects) {
-      const schoolEffect = effect as any;
-      if (schoolEffect.schoolId) {
-        schools.add(schoolEffect.schoolId);
+      if (effect.schoolId) {
+        schools.add(effect.schoolId);
       }
     }
     

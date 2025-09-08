@@ -21,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { SpellAbilityDefinition } from "@/lib/types/abilities";
+import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { AttributeName, CharacterFeature } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 import { hasEffectType } from "@/lib/types/class";

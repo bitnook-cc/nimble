@@ -8,7 +8,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { SpellAbilityDefinition } from "@/lib/types/abilities";
+import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { Character } from "@/lib/types/character";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {

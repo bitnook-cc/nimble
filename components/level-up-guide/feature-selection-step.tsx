@@ -19,7 +19,7 @@ import { FeatureSelectionType } from "@/components/character-builder/features-ov
 import { FeatureEffectsDisplay } from "@/components/feature-effects-display";
 
 import { getClassService, getContentRepository } from "@/lib/services/service-factory";
-import { SpellAbilityDefinition } from "@/lib/types/abilities";
+import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { AttributeName, Character } from "@/lib/types/character";
 import { ClassFeature } from "@/lib/types/class";
 import {

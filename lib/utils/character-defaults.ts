@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { AbilityDefinition } from "../types/abilities";
+import { AbilityDefinition } from "../schemas/abilities";
 import {
   AttributeName,
   Character,

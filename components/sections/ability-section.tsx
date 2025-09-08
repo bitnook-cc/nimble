@@ -24,7 +24,7 @@ import {
   ActionAbilityDefinition,
   FreeformAbilityDefinition,
   ResourceCost,
-} from "@/lib/types/abilities";
+} from "@/lib/schemas/abilities";
 import { AttributeName } from "@/lib/types/character";
 import { FlexibleValue } from "@/lib/types/flexible-value";
 import { parseDiceExpression } from "@/lib/utils/dice-parser";

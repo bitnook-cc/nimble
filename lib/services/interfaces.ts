@@ -4,7 +4,7 @@ import {
   ActionAbilityDefinition,
   SpellAbilityDefinition,
   UsableAbilityDefinition,
-} from "../types/abilities";
+} from "../schemas/abilities";
 import { AncestryDefinition } from "../types/ancestry";
 import { BackgroundDefinition } from "../types/background";
 import {

@@ -5,7 +5,7 @@ import { Sword, Zap } from "lucide-react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { abilityService } from "@/lib/services/ability-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { AbilityDefinition, AbilityFrequency, ActionAbilityDefinition } from "@/lib/types/abilities";
+import { AbilityDefinition, AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
 // Action types defined inline since actions.ts doesn't exist
 type Action = WeaponAction | AbilityAction;
 interface WeaponAction {

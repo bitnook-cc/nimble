@@ -1,4 +1,4 @@
-import { SpellAbilityDefinition } from "../../types/abilities";
+import { SpellAbilityDefinition } from "../../schemas/abilities";
 import { SpellSchoolWithSpells } from "../../services/content-repository-service";
 
 const radiantSchoolSpells: SpellAbilityDefinition[] = [

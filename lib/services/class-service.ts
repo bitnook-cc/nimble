@@ -1,5 +1,5 @@
 // Removed direct subclass imports - now using ContentRepositoryService
-import { SpellAbilityDefinition } from "../types/abilities";
+import { SpellAbilityDefinition } from "../schemas/abilities";
 import {
   AttributeBoostEffectSelection,
   AttributeName,

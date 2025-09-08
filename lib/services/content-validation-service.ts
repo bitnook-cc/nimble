@@ -3,13 +3,16 @@ import { z } from "zod";
 import { AncestryDefinitionSchema } from "../schemas/ancestry";
 import { BackgroundDefinitionSchema } from "../schemas/background";
 import {
+  ActionAbilityDefinition,
   ActionAbilitySchema,
-  ClassDefinitionSchema,
+  SpellAbilityDefinition,
   SpellAbilitySchema,
+} from "../schemas/abilities";
+import {
+  ClassDefinitionSchema,
   SpellSchoolDefinitionSchema,
   SubclassDefinitionSchema,
 } from "../schemas/class";
-import { ActionAbilityDefinition, SpellAbilityDefinition } from "../types/abilities";
 import { AncestryDefinition } from "../types/ancestry";
 import { BackgroundDefinition } from "../types/background";
 import { ClassDefinition, SubclassDefinition } from "../types/class";
