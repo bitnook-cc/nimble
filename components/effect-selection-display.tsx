@@ -230,7 +230,7 @@ export function EffectSelectionDisplay({
 
         return (
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <div className="space-y-1">
                 {schoolSelections.map((selection, idx) => {
                   const school = contentRepository.getAllSpellSchools().find(s => s.id === selection.schoolId);
