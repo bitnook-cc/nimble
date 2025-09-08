@@ -37,12 +37,14 @@ export function EffectSelectionsSection() {
     selectSubclass,
     selectPoolFeature,
     selectSpellSchool,
+    clearSpellSchoolSelections,
     selectAttributeBoost,
     selectUtilitySpells
   } = useCharacterService();
   const [selectedPoolFeature, setSelectedPoolFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
   const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
   const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<SpellSchoolChoiceFeatureEffect | null>(null);
+  const [isEditingSpellSchool, setIsEditingSpellSchool] = useState(false);
   const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<AttributeBoostFeatureEffect | null>(null);
   const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<UtilitySpellsFeatureEffect | null>(null);
   const [utilitySpellSelection, setUtilitySpellSelection] = useState<string[]>([]);
@@ -78,8 +80,14 @@ export function EffectSelectionsSection() {
   const handleSelectSpellSchool = async (schoolId: string) => {
     if (!selectedSpellSchoolChoice) return;
 
+    // If editing, clear existing selections first
+    if (isEditingSpellSchool) {
+      await clearSpellSchoolSelections(selectedSpellSchoolChoice.id!);
+    }
+
     await selectSpellSchool(schoolId, selectedSpellSchoolChoice.id!);
     setSelectedSpellSchoolChoice(null);
+    setIsEditingSpellSchool(false);
   };
 
   const handleSelectAttributeBoost = async (attribute: AttributeName, amount: number) => {
@@ -217,7 +225,10 @@ export function EffectSelectionsSection() {
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => setSelectedSpellSchoolChoice(effect)}
+                  onClick={() => {
+                    setSelectedSpellSchoolChoice(effect);
+                    setIsEditingSpellSchool(false);
+                  }}
                 >
                   Choose School
                 </Button>
@@ -308,7 +319,10 @@ export function EffectSelectionsSection() {
 
       {/* Spell School Selection Dialog */}
       {selectedSpellSchoolChoice && (
-        <Dialog open={true} onOpenChange={() => setSelectedSpellSchoolChoice(null)}>
+        <Dialog open={true} onOpenChange={() => {
+          setSelectedSpellSchoolChoice(null);
+          setIsEditingSpellSchool(false);
+        }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Choose Spell School</DialogTitle>

@@ -22,6 +22,7 @@ export function FeaturesSection() {
     selectSubclass,
     selectPoolFeature,
     selectSpellSchool,
+    clearSpellSchoolSelections,
     selectAttributeBoost,
     selectUtilitySpells
   } = useCharacterService();
@@ -104,6 +105,8 @@ export function FeaturesSection() {
             );
             break;
           case "spell_school":
+            // Clear existing selections first (for edit mode)
+            await clearSpellSchoolSelections(selection.grantedByEffectId);
             await selectSpellSchool(selection.schoolId, selection.grantedByEffectId);
             break;
           case "attribute_boost":
