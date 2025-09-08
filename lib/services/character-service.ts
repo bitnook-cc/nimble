@@ -267,8 +267,7 @@ export class CharacterService implements ICharacterService {
   private getSpellsFromSchools(): AbilityDefinition[] {
     const schools = this.getSpellSchools();
     const maxTier = this.getSpellTierAccess();
-    
-    if (schools.length === 0 || maxTier === 0) return [];
+    if (schools.length === 0) return [];
     
     const contentRepository = ContentRepositoryService.getInstance();
     const allSpells: AbilityDefinition[] = [];
@@ -283,7 +282,6 @@ export class CharacterService implements ICharacterService {
         allSpells.push(...accessibleSpells);
       }
     }
-    
     return allSpells;
   }
 

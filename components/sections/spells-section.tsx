@@ -50,32 +50,19 @@ export function SpellsSection() {
   );
 
   // Get all spell schools the character has access to
-  const availableFeatures = contentRepository.getAllClassFeaturesUpToLevel(
-    character.classId,
-    character.level,
-  );
-  const spellSchoolEffects: any[] = [];
-
-  // Extract spell school effects from features
-  availableFeatures.forEach((feature) => {
-    const schoolEffects = feature.effects.filter((e) => e.type === "spell_school");
-    spellSchoolEffects.push(...schoolEffects);
-  });
+  const characterSpellSchools = characterService.getSpellSchools();
 
   // Get all locked spells by school
   const getLockedSpellsBySchool = () => {
     const lockedSpellsBySchool: Record<string, SpellAbilityDefinition[]> = {};
 
-    spellSchoolEffects.forEach((effect) => {
-      if (effect.type === "spell_school" && effect.spellSchool) {
-        const schoolId = effect.spellSchool.schoolId;
-        const allSpells = contentRepository.getSpellsBySchool(schoolId);
-        // Include tier 0 spells when checking what's available vs locked
-        const lockedSpells = allSpells.filter((spell) => spell.tier > character._spellTierAccess);
+    characterSpellSchools.forEach((schoolId) => {
+      const allSpells = contentRepository.getSpellsBySchool(schoolId);
+      // Include tier 0 spells when checking what's available vs locked
+      const lockedSpells = allSpells.filter((spell) => spell.tier > character._spellTierAccess);
 
-        if (lockedSpells.length > 0) {
-          lockedSpellsBySchool[schoolId] = lockedSpells;
-        }
+      if (lockedSpells.length > 0) {
+        lockedSpellsBySchool[schoolId] = lockedSpells;
       }
     });
 
@@ -303,10 +290,8 @@ export function SpellsSection() {
               <CollapsibleContent>
                 <div className="space-y-4 pt-2">
                   {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
-                    const schoolEffect = spellSchoolEffects.find(
-                      (e) => e.type === "spell_school" && e.spellSchool?.schoolId === schoolId,
-                    );
-                    const schoolName = schoolEffect?.spellSchool?.name || schoolId;
+                    const school = contentRepository.getSpellSchool(schoolId);
+                    const schoolName = school?.name || schoolId;
                     const isOpen = openLockedSchools[schoolId] ?? false;
 
                     return (

@@ -180,10 +180,10 @@ export class PDFExportService {
           field.setAlignment(1); // 0 = left, 1 = center, 2 = right
         }
       } else {
-        console.log(`Field "${fieldName}" exists but is null`);
+        console.error(`Field "${fieldName}" exists but is null`);
       }
     } catch (error) {
-      console.log(`Could not find field "${fieldName}" (value: ${value})`);
+      console.error(`Could not find field "${fieldName}" (value: ${value})`);
     }
   }
 
@@ -200,10 +200,10 @@ export class PDFExportService {
           field.uncheck();
         }
       } else {
-        console.log(`Checkbox field "${fieldName}" exists but is null`);
+        console.error(`Checkbox field "${fieldName}" exists but is null`);
       }
     } catch (error) {
-      console.log(`Could not find checkbox "${fieldName}"`);
+      console.error(`Could not find checkbox "${fieldName}"`);
     }
   }
 
@@ -248,7 +248,7 @@ export class PDFExportService {
         allFeatures.push(`${feature.name}: ${feature.description || "Class feature"}`);
       });
     } catch (error) {
-      console.log("Could not get class features:", error);
+      console.error("Could not get class features:", error);
     }
 
     // Get ancestry features
@@ -258,7 +258,7 @@ export class PDFExportService {
         allFeatures.push(`${feature.name}: ${feature.description || "Ancestry feature"}`);
       });
     } catch (error) {
-      console.log("Could not get ancestry features:", error);
+      console.error("Could not get ancestry features:", error);
     }
 
     // Get background features
@@ -268,7 +268,7 @@ export class PDFExportService {
         allFeatures.push(`${feature.name}: ${feature.description || "Background feature"}`);
       });
     } catch (error) {
-      console.log("Could not get background features:", error);
+      console.error("Could not get background features:", error);
     }
 
     // Add character abilities (non-spell abilities)

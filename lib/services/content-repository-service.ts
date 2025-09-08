@@ -650,7 +650,6 @@ export class ContentRepositoryService {
 
   public getSpellSchool(schoolId: string): SpellSchoolWithSpells | null {
     const allSchools = this.getAllSpellSchools();
-    console.log(allSchools);
     return allSchools.find((school) => school.id === schoolId) || null;
   }
 

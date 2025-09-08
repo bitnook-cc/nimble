@@ -127,5 +127,6 @@ export function useCharacterService() {
     getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
     getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
     getSpeed: characterService.getSpeed.bind(characterService),
+    getSpellSchools: characterService.getSpellSchools.bind(characterService),
   };
 }
