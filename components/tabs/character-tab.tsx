@@ -2,7 +2,7 @@
 
 import { AbilitySection } from "../sections/ability-section";
 import { AttributesSection } from "../sections/attributes-section";
-import { ClassFeaturesSection } from "../sections/class-features-section";
+import { FeaturesSection } from "../sections/features-section";
 import { EffectSelectionsSection } from "../sections/effect-selections-section";
 import { HitDiceSection } from "../sections/hit-dice-section";
 import { ResourceSection } from "../sections/resource-section";
@@ -16,7 +16,7 @@ export function CharacterTab() {
       <AttributesSection />
       <ResourceSection />
       <AbilitySection />
-      <ClassFeaturesSection />
+      <FeaturesSection />
     </div>
   );
 }

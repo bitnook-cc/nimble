@@ -52,10 +52,9 @@ export class FeatureSelectionService {
     for (const effect of allEffects) {
       switch (effect.type) {
         case "pick_feature_from_pool": {
-          const pickEffect = effect as PickFeatureFromPoolFeatureEffect;
-          const remaining = this.getRemainingPoolSelections(character, pickEffect);
+          const remaining = this.getRemainingPoolSelections(character, effect);
           if (remaining > 0) {
-            result.poolSelections.push(pickEffect);
+            result.poolSelections.push(effect);
           }
           break;
         }
@@ -64,36 +63,33 @@ export class FeatureSelectionService {
           // Check if subclass not already selected
           const characterService = getCharacterService();
           if (!characterService.getSubclassId()) {
-            result.subclassChoices.push(effect as SubclassChoiceFeatureEffect);
+            result.subclassChoices.push(effect);
           }
           break;
         }
         
         case "spell_school_choice": {
-          const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-          const remaining = this.getRemainingSpellSchoolSelections(character, spellEffect);
+          const remaining = this.getRemainingSpellSchoolSelections(character, effect);
           if (remaining > 0) {
-            result.spellSchoolSelections.push(spellEffect);
+            result.spellSchoolSelections.push(effect);
           }
           break;
         }
         
         case "attribute_boost": {
-          const boostEffect = effect as AttributeBoostFeatureEffect;
-          const remaining = this.getRemainingAttributeBoosts(character, boostEffect);
+          const remaining = this.getRemainingAttributeBoosts(character, effect);
           if (remaining > 0) {
-            result.attributeBoosts.push(boostEffect);
+            result.attributeBoosts.push(effect);
           }
           break;
         }
         
         case "utility_spells": {
-          const pickEffect = effect as UtilitySpellsFeatureEffect;
           const hasSelection = character.effectSelections.some(
             s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
           );
           if (!hasSelection) {
-            result.utilitySpellSelections.push(pickEffect);
+            result.utilitySpellSelections.push(effect);
           }
           break;
         }

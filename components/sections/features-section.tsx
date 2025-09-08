@@ -59,7 +59,7 @@ type FeatureWithSource =
 
 // Removed - using the effects directly now
 
-export function ClassFeaturesSection() {
+export function FeaturesSection() {
   // Get everything we need from service hooks
   const { 
     character, 
@@ -432,7 +432,7 @@ export function ClassFeaturesSection() {
         <Button variant="ghost" className="w-full justify-between p-4 h-auto">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-yellow-500" />
-            Class Features
+            Features
           </h2>
           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
