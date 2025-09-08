@@ -19,12 +19,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
+import { Character } from "@/lib/schemas/character";
+import { EffectSelectionDisplay } from "./effect-selection-display";
 
 interface FeatureEffectsDisplayProps {
   effects: FeatureEffect[];
   onSelectEffect?: (effect: FeatureEffect) => void;
   selectedEffectIds?: string[];
   className?: string;
+  character?: Character;
+  onOpenSelectionDialog?: (effect: FeatureEffect, effectId: string) => void;
 }
 
 const getEffectIcon = (effectType: string) => {
@@ -158,6 +162,8 @@ export function FeatureEffectsDisplay({
   onSelectEffect,
   selectedEffectIds = [],
   className = "",
+  character,
+  onOpenSelectionDialog,
 }: FeatureEffectsDisplayProps) {
   if (!effects || effects.length === 0) {
     return (
@@ -174,9 +180,55 @@ export function FeatureEffectsDisplay({
       </div>
       <div className="space-y-2">
         {effects.map((effect, index) => {
+          const effectId = effect.id || `effect-${index}`;
           const isSelectable = isSelectableEffect(effect);
           const isSelected = selectedEffectIds.includes(effect.id);
+          
+          // Check if we should show selection UI for this effect
+          const needsSelection = character && onOpenSelectionDialog && isSelectable;
+          const existingSelection = character?.effectSelections.find(
+            s => s.grantedByEffectId === effectId
+          );
+          
+          // If this is a selectable effect with character context, use EffectSelectionDisplay
+          if (needsSelection) {
+            return (
+              <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
+                <div className="flex items-center gap-1">
+                  {getEffectIcon(effect.type)}
+                  <Badge variant="secondary" className="text-xs">
+                    {getEffectLabel(effect.type)}
+                  </Badge>
+                </div>
+                <div className="flex-1">
+                  {existingSelection ? (
+                    // Show the selection instead of the description
+                    <EffectSelectionDisplay
+                      effect={effect}
+                      effectId={effectId}
+                      character={character}
+                      onOpenDialog={onOpenSelectionDialog}
+                      autoOpen={false}
+                    />
+                  ) : (
+                    // Show the description with a selection button
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{formatEffectDescription(effect)}</span>
+                      <EffectSelectionDisplay
+                        effect={effect}
+                        effectId={effectId}
+                        character={character}
+                        onOpenDialog={onOpenSelectionDialog}
+                        autoOpen={false}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          }
 
+          // Original display for non-selectable effects or when no character context
           return (
             <div
               key={effect.id || index}

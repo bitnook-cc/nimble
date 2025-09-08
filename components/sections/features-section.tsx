@@ -280,31 +280,11 @@ export function FeaturesSection() {
         {/* Feature Effects */}
         {feature.effects && feature.effects.length > 0 && (
           <div className="pt-2 border-t">
-            <FeatureEffectsDisplay effects={feature.effects} />
-            {/* Show selections for effects that need them */}
-            {feature.effects.map((effect, effectIndex) => {
-              const effectId = effect.id || `${feature.id}-${effectIndex}`;
-              const needsSelection = [
-                "subclass_choice",
-                "pick_feature_from_pool",
-                "spell_school_choice",
-                "attribute_boost",
-                "utility_spells"
-              ].includes(effect.type);
-              
-              if (!needsSelection) return null;
-              
-              return (
-                <EffectSelectionDisplay
-                  key={effectId}
-                  effect={effect}
-                  effectId={effectId}
-                  character={character}
-                  onOpenDialog={handleOpenSelectionDialog}
-                  autoOpen={false}
-                />
-              );
-            })}
+            <FeatureEffectsDisplay 
+              effects={feature.effects} 
+              character={character}
+              onOpenSelectionDialog={handleOpenSelectionDialog}
+            />
           </div>
         )}
 
