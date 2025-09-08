@@ -22,7 +22,6 @@ import {
   SpellSchoolChoiceFeatureEffect,
   AttributeBoostFeatureEffect,
   UtilitySpellsFeatureEffect,
-  SpellSchoolFeatureEffect
 } from "@/lib/schemas/features";
 import { 
   Character, 
@@ -32,6 +31,12 @@ import {
 } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
+import { getIconById } from "@/lib/utils/icon-utils";
+
+interface ExistingFeatures {
+  spellSchools: string[];
+  // Additional attributes can be added here later
+}
 
 interface FeatureListProps {
   features: (CharacterFeature | ClassFeature)[];
@@ -40,6 +45,7 @@ interface FeatureListProps {
   existingSelections: EffectSelection[];
   onSelectionsChange: (selections: EffectSelection[]) => void;
   character?: Character;
+  existingFeatures?: ExistingFeatures;
 }
 
 export function FeatureList({
@@ -49,6 +55,7 @@ export function FeatureList({
   existingSelections,
   onSelectionsChange,
   character,
+  existingFeatures = { spellSchools: [] },
 }: FeatureListProps) {
   // Dialog states
   const [selectedPoolFeature, setSelectedPoolFeature] = useState<
@@ -232,6 +239,9 @@ export function FeatureList({
           pickFeature={selectedPoolFeature}
           onSelectFeature={(poolId, feature) => handleSelectPoolFeature(poolId, feature)}
           onClose={() => setSelectedPoolFeature(null)}
+          existingSelections={existingSelections.filter(
+            s => s.type === "pool_feature"
+          ) as PoolFeatureEffectSelection[]}
         />
       )}
 
@@ -261,36 +271,21 @@ export function FeatureList({
                 </SelectTrigger>
                 <SelectContent>
                   {(() => {
-                    // Get already selected spell schools from selections
+                    // Get already selected spell schools from temporary selections
                     const selectedSchoolIds = new Set(
                       existingSelections
                         .filter(s => s.type === "spell_school")
                         .map(s => s.schoolId)
                     );
                     
-                    // If we have a character, also get their existing spell schools
-                    if (character) {
-                      // Add schools from character's effect selections
-                      character.effectSelections
-                        .filter(s => s.type === "spell_school")
-                        .forEach(s => selectedSchoolIds.add(s.schoolId));
-                    }
-                    
-                    // Also check for direct spell_school effects in current features (non-selectable)
-                    const directSchoolIds = new Set<string>(
-                      features.flatMap(f => 
-                        f.effects
-                          .filter((e): e is SpellSchoolFeatureEffect => e.type === "spell_school")
-                          .map(e => e.schoolId)
-                      )
+                    // Add existing spell schools from character (passed via existingFeatures)
+                    existingFeatures.spellSchools.forEach(schoolId => 
+                      selectedSchoolIds.add(schoolId)
                     );
                     
                     // Filter out already available schools
                     const availableSchools = contentRepository.getAllSpellSchools()
-                      .filter(school => 
-                        !selectedSchoolIds.has(school.id) && 
-                        !directSchoolIds.has(school.id)
-                      );
+                      .filter(school => !selectedSchoolIds.has(school.id));
                     
                     if (availableSchools.length === 0) {
                       return (
@@ -300,14 +295,17 @@ export function FeatureList({
                       );
                     }
                     
-                    return availableSchools.map((school) => (
-                      <SelectItem key={school.id} value={school.id}>
-                        <div className="flex items-center gap-2">
-                          <span className={school.color}>{school.icon}</span>
-                          {school.name}
-                        </div>
-                      </SelectItem>
-                    ));
+                    return availableSchools.map((school) => {
+                      const SchoolIcon = getIconById(school.icon);
+                      return (
+                        <SelectItem key={school.id} value={school.id}>
+                          <div className="flex items-center gap-2">
+                            <SchoolIcon className={`w-4 h-4 ${school.color}`} />
+                            {school.name}
+                          </div>
+                        </SelectItem>
+                      );
+                    });
                   })()}
                 </SelectContent>
               </Select>

@@ -12,6 +12,7 @@ import { ClassDefinition, SubclassDefinition } from "../schemas/class";
 import { CustomContentType } from "../types/custom-content";
 import { CustomItemContent, RepositoryItem } from "../types/item-repository";
 import { ContentValidationService } from "./content-validation-service";
+import { type IconId } from "../utils/icon-utils";
 
 // Storage keys for custom content
 const STORAGE_KEYS = {
@@ -38,7 +39,7 @@ export interface SpellSchoolWithSpells {
   name: string;
   description: string;
   color: string; // Tailwind color classes for the school
-  icon: string; // Icon identifier for the school
+  icon: IconId; // Icon identifier for the school
   spells: SpellAbilityDefinition[];
   utilitySpells: SpellAbilityDefinition[]; // Utility spells that must be learned separately
 }

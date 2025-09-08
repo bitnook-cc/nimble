@@ -33,6 +33,11 @@ export function FeaturesSection() {
   const characterService = getCharacterService();
   const ancestryService = getAncestryService();
   const backgroundService = getBackgroundService();
+  
+  // Get existing features from character
+  const existingFeatures = {
+    spellSchools: characterService.getSpellSchools(),
+  };
 
   // Early return if no character
   if (!character) return null;
@@ -156,6 +161,7 @@ export function FeaturesSection() {
                       existingSelections={character.effectSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
+                      existingFeatures={existingFeatures}
                     />
                   </div>
                 )}
@@ -171,6 +177,7 @@ export function FeaturesSection() {
                       existingSelections={character.effectSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
+                      existingFeatures={existingFeatures}
                     />
                   </div>
                 )}
@@ -186,6 +193,7 @@ export function FeaturesSection() {
                       existingSelections={character.effectSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
+                      existingFeatures={existingFeatures}
                     />
                   </div>
                 )}
@@ -201,6 +209,7 @@ export function FeaturesSection() {
                       existingSelections={character.effectSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
+                      existingFeatures={existingFeatures}
                     />
                   </div>
                 )}

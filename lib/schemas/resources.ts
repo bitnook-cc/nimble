@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { flexibleValueSchema } from "./flexible-value";
+import { ICON_IDS } from "../utils/icon-utils";
 
 // Numerical resource value schema
 const numericalResourceValueSchema = z.object({
@@ -36,9 +37,9 @@ export const resourceDefinitionSchema = z.object({
     .min(1)
     .meta({ title: "Color Scheme", description: "Color scheme ID (e.g., blue-magic, red-fury)" }),
   icon: z
-    .string()
+    .enum(ICON_IDS as [string, ...string[]])
     .optional()
-    .meta({ title: "Icon", description: "Icon identifier (e.g., sparkles, fire)" }),
+    .meta({ title: "Icon", description: "Icon identifier (e.g., sparkles, flame, gem)" }),
   resetCondition: resourceResetConditionSchema.meta({
     title: "Reset Condition",
     description: "When this resource resets",

@@ -8,7 +8,8 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useResourceService } from "@/lib/hooks/use-resource-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { resourceService } from "@/lib/services/resource-service";
-import { getIconById, getResourceColor } from "@/lib/utils/resource-config";
+import { getResourceColor } from "@/lib/utils/resource-config";
+import { getIconById } from "@/lib/utils/icon-utils";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -78,12 +79,9 @@ export function ResourceSection() {
 
   const getResourceIcon = (resourceInstance: import("@/lib/schemas/resources").ResourceInstance) => {
     if (resourceInstance.definition.icon) {
-      const iconOption = getIconById(resourceInstance.definition.icon);
-      if (iconOption) {
-        return iconOption.icon;
-      }
+      return getIconById(resourceInstance.definition.icon);
     }
-    return "💎"; // Default icon
+    return Sparkles; // Default icon
   };
 
   return (
@@ -100,7 +98,7 @@ export function ResourceSection() {
       <CollapsibleContent>
         <div className="space-y-4">
           {activeResources.map((resource) => {
-            const resourceIcon = getResourceIcon(resource);
+            const ResourceIcon = getResourceIcon(resource);
             const calculatedMaxValue = resourceService.calculateMaxValue(
               resource.definition,
               character,
@@ -119,7 +117,7 @@ export function ResourceSection() {
               <Card key={resource.definition.id} className="w-full">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
-                    <span className="text-lg">{resourceIcon}</span>
+                    <ResourceIcon className="w-5 h-5" />
                     {resourceName}
                   </CardTitle>
                 </CardHeader>

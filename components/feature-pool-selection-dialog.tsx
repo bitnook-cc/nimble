@@ -9,9 +9,11 @@ import {
   FeatureEffect,
   PickFeatureFromPoolFeatureEffect,
 } from "@/lib/schemas/features";
+import { PoolFeatureEffectSelection } from "@/lib/schemas/character";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +27,7 @@ interface FeaturePoolSelectionDialogProps {
   pickFeature: PickFeatureFromPoolFeatureEffect;
   onClose: () => void;
   onSelectFeature?: (poolId: string, feature: ClassFeature) => void;
+  existingSelections?: PoolFeatureEffectSelection[];
 }
 
 // Helper function to render individual effects
@@ -144,9 +147,10 @@ export function FeaturePoolSelectionDialog({
   pickFeature,
   onClose,
   onSelectFeature,
+  existingSelections = [],
 }: FeaturePoolSelectionDialogProps) {
   const { character, selectPoolFeature } = useCharacterService();
-  const [selectedFeature, setSelectedFeature] = useState<ClassFeature | null>(null);
+  const [selectedFeatures, setSelectedFeatures] = useState<ClassFeature[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
 
   // If callback provided, don't require character
@@ -157,16 +161,21 @@ export function FeaturePoolSelectionDialog({
   const classService = getClassService();
   const classId = character?.classId || pickFeature.poolId.split('-')[0]; // Fallback for builder
   const pool = classService.getFeaturePool(classId, pickFeature.poolId);
-  const availableFeatures = character 
-    ? classService.getAvailablePoolFeatures(
-        character.classId,
-        pickFeature.poolId,
-        character.effectSelections,
-      )
-    : pool?.features || [];
-  const remaining = character 
-    ? classService.getRemainingPoolSelections(character, pickFeature)
-    : pickFeature.choicesAllowed;
+  
+  // Get already selected feature IDs from existing selections
+  const alreadySelectedIds = existingSelections
+    .filter(s => s.poolId === pickFeature.poolId && s.grantedByEffectId === pickFeature.id)
+    .map(s => s.featureId);
+  
+  // Filter out already selected features
+  const allPoolFeatures = pool?.features || [];
+  const availableFeatures = allPoolFeatures.filter(
+    feature => !alreadySelectedIds.includes(feature.id)
+  );
+  
+  // Calculate remaining selections
+  const alreadySelectedCount = alreadySelectedIds.length;
+  const remaining = pickFeature.choicesAllowed - alreadySelectedCount;
 
   if (!pool) {
     return (
@@ -186,28 +195,47 @@ export function FeaturePoolSelectionDialog({
     );
   }
 
-  const handleSelectFeature = async () => {
-    if (!selectedFeature) return;
+  const handleSelectFeatures = async () => {
+    if (selectedFeatures.length === 0) return;
 
     setIsSelecting(true);
     try {
       if (onSelectFeature) {
-        // Use callback for temp state management
-        onSelectFeature(pickFeature.poolId, selectedFeature);
+        // Use callback for temp state management - call for each selected feature
+        for (const feature of selectedFeatures) {
+          onSelectFeature(pickFeature.poolId, feature);
+        }
       } else if (character) {
-        // Use service for live updates
-        await selectPoolFeature(
-          pickFeature.poolId,
-          selectedFeature,
-          pickFeature.id,
-        );
+        // Use service for live updates - call for each selected feature
+        for (const feature of selectedFeatures) {
+          await selectPoolFeature(
+            pickFeature.poolId,
+            feature,
+            pickFeature.id,
+          );
+        }
       }
       onClose();
     } catch (error) {
-      console.error("Failed to select pool feature:", error);
+      console.error("Failed to select pool features:", error);
     } finally {
       setIsSelecting(false);
     }
+  };
+  
+  const toggleFeatureSelection = (feature: ClassFeature) => {
+    setSelectedFeatures(prev => {
+      const isSelected = prev.some(f => f.id === feature.id);
+      if (isSelected) {
+        return prev.filter(f => f.id !== feature.id);
+      } else {
+        // Only add if we haven't reached the limit
+        if (prev.length < remaining) {
+          return [...prev, feature];
+        }
+        return prev;
+      }
+    });
   };
 
   return (
@@ -218,7 +246,16 @@ export function FeaturePoolSelectionDialog({
           <DialogDescription>
             {pool.description}
             <br />
-            <span className="font-medium">Remaining selections: {remaining}</span>
+            <span className="font-medium">
+              {remaining > 0 
+                ? `Select up to ${remaining} feature${remaining !== 1 ? 's' : ''}`
+                : 'All selections have been made'}
+            </span>
+            {alreadySelectedCount > 0 && (
+              <span className="text-muted-foreground ml-2">
+                ({alreadySelectedCount} already selected)
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -229,21 +266,32 @@ export function FeaturePoolSelectionDialog({
                 No features available for selection
               </div>
             ) : (
-              availableFeatures.map((feature: ClassFeature, index: number) => (
-                <Card
-                  key={index}
-                  className={`cursor-pointer transition-colors ${
-                    selectedFeature === feature
-                      ? "ring-2 ring-primary bg-accent"
-                      : "hover:bg-accent/50"
-                  }`}
-                  onClick={() => setSelectedFeature(feature)}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{feature.name}</CardTitle>
-                    </div>
-                  </CardHeader>
+              availableFeatures.map((feature: ClassFeature, index: number) => {
+                const isSelected = selectedFeatures.some(f => f.id === feature.id);
+                const canSelect = selectedFeatures.length < remaining || isSelected;
+                
+                return (
+                  <Card
+                    key={feature.id || index}
+                    className={`cursor-pointer transition-colors ${
+                      isSelected
+                        ? "ring-2 ring-primary bg-accent"
+                        : canSelect
+                          ? "hover:bg-accent/50"
+                          : "opacity-50 cursor-not-allowed"
+                    }`}
+                    onClick={() => canSelect && toggleFeatureSelection(feature)}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{feature.name}</CardTitle>
+                        <Checkbox
+                          checked={isSelected}
+                          disabled={!canSelect}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
 
@@ -253,8 +301,9 @@ export function FeaturePoolSelectionDialog({
                       </div>
                     )}
                   </CardContent>
-                </Card>
-              ))
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
@@ -264,10 +313,14 @@ export function FeaturePoolSelectionDialog({
             Cancel
           </Button>
           <Button
-            onClick={handleSelectFeature}
-            disabled={!selectedFeature || isSelecting || remaining <= 0}
+            onClick={handleSelectFeatures}
+            disabled={selectedFeatures.length === 0 || isSelecting || remaining <= 0}
           >
-            {isSelecting ? "Selecting..." : "Select Feature"}
+            {isSelecting 
+              ? "Selecting..." 
+              : selectedFeatures.length > 1
+                ? `Select ${selectedFeatures.length} Features`
+                : "Select Feature"}
           </Button>
         </DialogFooter>
       </DialogContent>

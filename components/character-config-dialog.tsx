@@ -14,13 +14,13 @@ import {
   ResourceResetType,
   NumericalResourceValue,
 } from "@/lib/schemas/resources";
+import { RESOURCE_COLOR_SCHEMES, getColorSchemeById } from "@/lib/utils/resource-config";
 import {
-  RESOURCE_COLOR_SCHEMES,
-  RESOURCE_ICONS,
-  getColorSchemeById,
-  getDefaultColorSchemeForIcon,
+  AVAILABLE_ICONS,
   getIconById,
-} from "@/lib/utils/resource-config";
+  getDefaultColorSchemeForIcon,
+  type IconCategory,
+} from "@/lib/utils/icon-utils";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -346,7 +346,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                 <div className="space-y-3">
                   {resources.map((resource) => {
                     const isEditing = editingResource === resource.definition.id;
-                    const iconOption = getIconById(resource.definition.icon || "");
+                    const IconComponent = getIconById(resource.definition.icon || "sparkles");
                     const colorScheme = getColorSchemeById(resource.definition.colorScheme);
 
                     return (
@@ -431,27 +431,30 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                                   </SelectTrigger>
                                   <SelectContent>
                                     {Object.entries(
-                                      RESOURCE_ICONS.reduce(
+                                      AVAILABLE_ICONS.reduce(
                                         (acc, icon) => {
                                           if (!acc[icon.category]) acc[icon.category] = [];
                                           acc[icon.category].push(icon);
                                           return acc;
                                         },
-                                        {} as Record<string, typeof RESOURCE_ICONS>,
+                                        {} as Record<IconCategory, typeof AVAILABLE_ICONS>,
                                       ),
                                     ).map(([category, icons]) => (
                                       <div key={category}>
                                         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize">
                                           {category}
                                         </div>
-                                        {icons.map((icon) => (
-                                          <SelectItem key={icon.id} value={icon.id}>
-                                            <div className="flex items-center gap-2">
-                                              <span>{icon.icon}</span>
-                                              {icon.name}
-                                            </div>
-                                          </SelectItem>
-                                        ))}
+                                        {icons.map((icon) => {
+                                          const IconComponent = icon.icon;
+                                          return (
+                                            <SelectItem key={icon.id} value={icon.id}>
+                                              <div className="flex items-center gap-2">
+                                                <IconComponent className="w-4 h-4" />
+                                                {icon.name}
+                                              </div>
+                                            </SelectItem>
+                                          );
+                                        })}
                                       </div>
                                     ))}
                                   </SelectContent>
@@ -595,7 +598,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-lg">{iconOption?.icon || "💎"}</span>
+                                <IconComponent className="w-5 h-5" />
                                 <span className="font-medium">{resource.definition.name}</span>
                                 <div
                                   className="text-xs px-2 py-1 rounded text-white"
@@ -739,27 +742,30 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                           </SelectTrigger>
                           <SelectContent>
                             {Object.entries(
-                              RESOURCE_ICONS.reduce(
+                              AVAILABLE_ICONS.reduce(
                                 (acc, icon) => {
                                   if (!acc[icon.category]) acc[icon.category] = [];
                                   acc[icon.category].push(icon);
                                   return acc;
                                 },
-                                {} as Record<string, typeof RESOURCE_ICONS>,
+                                {} as Record<IconCategory, typeof AVAILABLE_ICONS>,
                               ),
                             ).map(([category, icons]) => (
                               <div key={category}>
                                 <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize">
                                   {category}
                                 </div>
-                                {icons.map((icon) => (
-                                  <SelectItem key={icon.id} value={icon.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span>{icon.icon}</span>
-                                      {icon.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
+                                {icons.map((icon) => {
+                                  const IconComponent = icon.icon;
+                                  return (
+                                    <SelectItem key={icon.id} value={icon.id}>
+                                      <div className="flex items-center gap-2">
+                                        <IconComponent className="w-4 h-4" />
+                                        {icon.name}
+                                      </div>
+                                    </SelectItem>
+                                  );
+                                })}
                               </div>
                             ))}
                           </SelectContent>

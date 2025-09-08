@@ -1,6 +1,7 @@
 /**
  * Resource Configuration Utilities
- * Provides predefined color schemes and icon options for resources
+ * Provides predefined color schemes for resources
+ * Icons are now managed in icon-utils.ts
  */
 
 export interface ResourceColorScheme {
@@ -14,13 +15,6 @@ export interface ResourceColorScheme {
     low: string; // 25-1%
     empty: string; // 0%
   };
-}
-
-export interface ResourceIconOption {
-  id: string;
-  name: string;
-  icon: string;
-  category: "magic" | "energy" | "physical" | "special";
 }
 
 export const RESOURCE_COLOR_SCHEMES: ResourceColorScheme[] = [
@@ -122,45 +116,8 @@ export const RESOURCE_COLOR_SCHEMES: ResourceColorScheme[] = [
   },
 ];
 
-export const RESOURCE_ICONS: ResourceIconOption[] = [
-  // Magic category
-  { id: "sparkles", name: "Sparkles", icon: "✨", category: "magic" },
-  { id: "crystal", name: "Crystal", icon: "💎", category: "magic" },
-  { id: "wand", name: "Magic Wand", icon: "🪄", category: "magic" },
-  { id: "orb", name: "Crystal Ball", icon: "🔮", category: "magic" },
-  { id: "star", name: "Star", icon: "⭐", category: "magic" },
-  { id: "comet", name: "Comet", icon: "☄️", category: "magic" },
-
-  // Energy category
-  { id: "fire", name: "Fire", icon: "🔥", category: "energy" },
-  { id: "lightning", name: "Lightning", icon: "⚡", category: "energy" },
-  { id: "zap", name: "High Voltage", icon: "⚡", category: "energy" },
-  { id: "battery", name: "Battery", icon: "🔋", category: "energy" },
-  { id: "sun", name: "Sun", icon: "☀️", category: "energy" },
-  { id: "flame", name: "Flame", icon: "🔥", category: "energy" },
-
-  // Physical category
-  { id: "muscle", name: "Flexed Biceps", icon: "💪", category: "physical" },
-  { id: "heart", name: "Heart", icon: "❤️", category: "physical" },
-  { id: "droplet", name: "Droplet", icon: "💧", category: "physical" },
-  { id: "shield", name: "Shield", icon: "🛡️", category: "physical" },
-  { id: "sword", name: "Crossed Swords", icon: "⚔️", category: "physical" },
-
-  // Special category
-  { id: "eye", name: "Eye", icon: "👁️", category: "special" },
-  { id: "brain", name: "Brain", icon: "🧠", category: "special" },
-  { id: "leaf", name: "Leaf", icon: "🍃", category: "special" },
-  { id: "snowflake", name: "Snowflake", icon: "❄️", category: "special" },
-  { id: "potion", name: "Potion", icon: "🧪", category: "special" },
-  { id: "hourglass", name: "Hourglass", icon: "⏳", category: "special" },
-];
-
 export const getColorSchemeById = (id: string): ResourceColorScheme | undefined => {
   return RESOURCE_COLOR_SCHEMES.find((scheme) => scheme.id === id);
-};
-
-export const getIconById = (id: string): ResourceIconOption | undefined => {
-  return RESOURCE_ICONS.find((icon) => icon.id === id);
 };
 
 export const getResourceColor = (colorSchemeId: string, percentage: number): string => {
@@ -172,22 +129,4 @@ export const getResourceColor = (colorSchemeId: string, percentage: number): str
   if (percentage <= 50) return scheme.colors.medium;
   if (percentage <= 75) return scheme.colors.high;
   return scheme.colors.full;
-};
-
-export const getDefaultColorSchemeForIcon = (iconId: string): string => {
-  const icon = getIconById(iconId);
-  if (!icon) return "blue-magic";
-
-  switch (icon.category) {
-    case "magic":
-      return "blue-magic";
-    case "energy":
-      return "red-fury";
-    case "physical":
-      return "gray-stamina";
-    case "special":
-      return "purple-arcane";
-    default:
-      return "blue-magic";
-  }
 };

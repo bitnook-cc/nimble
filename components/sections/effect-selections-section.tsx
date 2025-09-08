@@ -4,7 +4,7 @@ import { Plus, Sparkles, Shield, BookOpen, Target, Zap } from "lucide-react";
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getClassService } from "@/lib/services/service-factory";
+import { getClassService, getCharacterService } from "@/lib/services/service-factory";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { 
@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 import { Checkbox } from "../ui/checkbox";
+import { getIconById } from "@/lib/utils/icon-utils";
 
 
 export function EffectSelectionsSection() {
@@ -318,14 +319,35 @@ export function EffectSelectionsSection() {
                   <SelectValue placeholder="Select a spell school" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contentRepository.getAllSpellSchools().map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      <div className="flex items-center gap-2">
-                        <span className={school.color}>{school.icon}</span>
-                        {school.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {(() => {
+                    // Get already available spell schools to filter them out
+                    const characterService = getCharacterService();
+                    const availableSchoolIds = new Set(characterService.getSpellSchools());
+                    
+                    // Filter out already available schools
+                    const availableSchools = contentRepository.getAllSpellSchools()
+                      .filter(school => !availableSchoolIds.has(school.id));
+                    
+                    if (availableSchools.length === 0) {
+                      return (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          All spell schools are already available
+                        </div>
+                      );
+                    }
+                    
+                    return availableSchools.map((school) => {
+                      const SchoolIcon = getIconById(school.icon);
+                      return (
+                        <SelectItem key={school.id} value={school.id}>
+                          <div className="flex items-center gap-2">
+                            <SchoolIcon className={`w-4 h-4 ${school.color}`} />
+                            {school.name}
+                          </div>
+                        </SelectItem>
+                      );
+                    });
+                  })()}
                 </SelectContent>
               </Select>
             </div>

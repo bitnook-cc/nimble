@@ -224,7 +224,7 @@ export const radiantSpellSchool: SpellSchoolWithSpells = {
   name: "Radiant Spells",
   description: "Divine light and healing magic that channels sacred energy",
   color: "text-amber-400",
-  icon: "Sun",
+  icon: "sun",
   spells: radiantSchoolSpells,
   utilitySpells: radiantUtilitySpells,
 };

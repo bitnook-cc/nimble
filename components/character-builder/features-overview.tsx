@@ -64,6 +64,11 @@ export function FeaturesOverview({
   const classDefinition = contentRepo.getClassDefinition(classId);
   const ancestryDefinition = contentRepo.getAncestryDefinition(ancestryId);
   const backgroundDefinition = contentRepo.getBackgroundDefinition(backgroundId);
+  
+  // Empty existing features since we're building from scratch
+  const existingFeatures = {
+    spellSchools: [],
+  };
 
   return (
     <div className="space-y-6">
@@ -88,6 +93,7 @@ export function FeaturesOverview({
               sourceLabel={classDefinition?.name || "Class"}
               existingSelections={effectSelections}
               onSelectionsChange={onEffectSelectionsChange}
+              existingFeatures={existingFeatures}
             />
           </div>
         )}
@@ -107,6 +113,7 @@ export function FeaturesOverview({
                 sourceLabel={ancestryDefinition?.name || "Ancestry"}
                 existingSelections={effectSelections}
                 onSelectionsChange={onEffectSelectionsChange}
+                existingFeatures={existingFeatures}
               />
             </div>
           </>
@@ -129,6 +136,7 @@ export function FeaturesOverview({
                 sourceLabel={backgroundDefinition?.name || "Background"}
                 existingSelections={effectSelections}
                 onSelectionsChange={onEffectSelectionsChange}
+                existingFeatures={existingFeatures}
               />
             </div>
           </>

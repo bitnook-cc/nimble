@@ -72,3 +72,14 @@ export function formatActionCost(actionCost: number | undefined): string {
   if (actionCost === 1) return "Action";
   return `${actionCost} Actions`;
 }
+
+/**
+ * Get tier color classes for spell display
+ */
+export function getSpellTierColor(tier: number): string {
+  if (tier === 0) return "bg-gray-100 text-gray-800 border-gray-200"; // Cantrips
+  if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
+  if (tier <= 3) return "bg-blue-100 text-blue-800 border-blue-200";
+  if (tier <= 6) return "bg-purple-100 text-purple-800 border-purple-200";
+  return "bg-red-100 text-red-800 border-red-200";
+}

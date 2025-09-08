@@ -210,7 +210,7 @@ export const lightningSpellSchool: SpellSchoolWithSpells = {
   name: "Lightning Spells",
   description: "Electrical storms and thunder magic that controls lightning and electricity",
   color: "text-yellow-500",
-  icon: "Zap",
+  icon: "zap",
   spells: lightningSchoolSpells,
   utilitySpells: lightningUtilitySpells,
 };

@@ -224,7 +224,7 @@ export const windSpellSchool: SpellSchoolWithSpells = {
   name: "Wind Spells",
   description: "Ancient mastery over wind and storms, controlling the very air itself",
   color: "text-teal-500",
-  icon: "Wind",
+  icon: "wind",
   spells: windSchoolSpells,
   utilitySpells: windUtilitySpells,
 };

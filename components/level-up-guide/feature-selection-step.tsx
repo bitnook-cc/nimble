@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FeatureList } from "@/components/feature-list";
 
-import { getClassService, getContentRepository } from "@/lib/services/service-factory";
+import { getClassService, getContentRepository, getCharacterService } from "@/lib/services/service-factory";
 import { Character, EffectSelection } from "@/lib/schemas/character";
 import { ClassFeature } from "@/lib/schemas/features";
 
@@ -29,6 +29,12 @@ export function FeatureSelectionStep({
   const [groupedFeatures, setGroupedFeatures] = useState<GroupedFeatures[]>([]);
   const contentRepo = getContentRepository();
   const classService = getClassService();
+  const characterService = getCharacterService();
+  
+  // Get existing features from character
+  const existingFeatures = {
+    spellSchools: characterService.getSpellSchools(),
+  };
 
   useEffect(() => {
     // Get all features for the levels being gained
@@ -109,6 +115,7 @@ export function FeatureSelectionStep({
               existingSelections={allSelections}
               onSelectionsChange={handleSelectionsChange}
               character={character}
+              existingFeatures={existingFeatures}
             />
           </div>
         ))}

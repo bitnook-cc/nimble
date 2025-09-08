@@ -213,7 +213,7 @@ export const iceSpellSchool: SpellSchoolWithSpells = {
   name: "Ice Spells",
   description: "Ice and cold elemental magic that manipulates temperature and frozen matter",
   color: "text-blue-500",
-  icon: "Snowflake",
+  icon: "snowflake",
   spells: iceSchoolSpells,
   utilitySpells: iceUtilitySpells,
 };

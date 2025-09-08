@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
 import { Character, EffectSelection } from "@/lib/schemas/character";
+import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { EffectSelectionDisplay } from "./effect-selection-display";
 
 interface FeatureEffectsDisplayProps {
@@ -105,7 +106,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       const bonuses: string[] = [];
       
       // Helper to format flexible values
-      const formatValue = (val: any): string | null => {
+      const formatValue = (val: number | FlexibleValue | undefined): string | null => {
         if (!val) return null;
         if (typeof val === 'number') {
           if (val === 0) return null;

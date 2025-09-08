@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Zap, Flame, Snowflake, Wind, Sun, Skull } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, Zap } from "lucide-react";
 
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ import {
   getInsufficientResourceMessage,
   hasEnoughResourcesForSpell,
 } from "@/lib/utils/spell-utils";
+import { getIconById } from "@/lib/utils/icon-utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -109,18 +110,6 @@ export function SpellsSection() {
     });
   });
 
-  const getSchoolIcon = (iconName: string) => {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-      Flame,
-      Snowflake,
-      Zap,
-      Wind,
-      Sun,
-      Skull,
-      Sparkles, // Default
-    };
-    return iconMap[iconName] || Sparkles;
-  };
 
   const getTierColor = (tier: number) => {
     if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
@@ -181,7 +170,7 @@ export function SpellsSection() {
           const schoolData = contentRepository.getSpellSchool(school);
           const schoolName = schoolData?.name || school;
           const schoolColor = schoolData?.color || "text-gray-600";
-          const SchoolIcon = schoolData?.icon ? getSchoolIcon(schoolData.icon) : Sparkles;
+          const SchoolIcon = schoolData?.icon ? getIconById(schoolData.icon) : Sparkles;
 
           return (
             <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
@@ -288,7 +277,7 @@ export function SpellsSection() {
                     const school = contentRepository.getSpellSchool(schoolId);
                     const schoolName = school?.name || schoolId;
                     const schoolColor = school?.color || "text-gray-600";
-                    const SchoolIcon = school?.icon ? getSchoolIcon(school.icon) : Sparkles;
+                    const SchoolIcon = school?.icon ? getIconById(school.icon) : Sparkles;
                     const isOpen = openLockedSchools[schoolId] ?? false;
 
                     return (

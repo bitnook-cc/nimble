@@ -201,7 +201,7 @@ export const fireSpellSchool: SpellSchoolWithSpells = {
   name: "Fire Spells",
   description: "Destructive flames and burning magic that harnesses the power of fire and heat",
   color: "text-orange-600",
-  icon: "Flame",
+  icon: "flame",
   spells: fireSchoolSpells,
   utilitySpells: fireUtilitySpells,
 };
