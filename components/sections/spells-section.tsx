@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, Zap, Flame, Snowflake, Wind, Sun, Skull } from "lucide-react";
 
 import { useState } from "react";
 
@@ -109,23 +109,17 @@ export function SpellsSection() {
     });
   });
 
-  const getSchoolColor = (school: string) => {
-    switch (school.toLowerCase()) {
-      case "fire":
-        return "text-red-600";
-      case "radiant":
-        return "text-yellow-600";
-      case "frost":
-        return "text-blue-600";
-      case "nature":
-        return "text-green-600";
-      case "shadow":
-        return "text-purple-600";
-      case "arcane":
-        return "text-indigo-600";
-      default:
-        return "text-gray-600";
-    }
+  const getSchoolIcon = (iconName: string) => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+      Flame,
+      Snowflake,
+      Zap,
+      Wind,
+      Sun,
+      Skull,
+      Sparkles, // Default
+    };
+    return iconMap[iconName] || Sparkles;
   };
 
   const getTierColor = (tier: number) => {
@@ -135,9 +129,6 @@ export function SpellsSection() {
     return "bg-red-100 text-red-800 border-red-200";
   };
 
-  const formatSchoolName = (school: string) => {
-    return school.charAt(0).toUpperCase() + school.slice(1) + " Magic";
-  };
 
   const handleSpellCast = async (spell: SpellAbilityDefinition) => {
     await performUseAbility(spell.id);
@@ -187,16 +178,20 @@ export function SpellsSection() {
           const onToggle = (open: boolean) => {
             setOpenSchools((prev) => ({ ...prev, [school]: open }));
           };
+          const schoolData = contentRepository.getSpellSchool(school);
+          const schoolName = schoolData?.name || school;
+          const schoolColor = schoolData?.color || "text-gray-600";
+          const SchoolIcon = schoolData?.icon ? getSchoolIcon(schoolData.icon) : Sparkles;
 
           return (
             <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" className="w-full justify-between p-4 h-auto">
                   <h3
-                    className={`text-lg font-semibold flex items-center gap-2 ${getSchoolColor(school)}`}
+                    className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}
                   >
-                    <Sparkles className="w-5 h-5" />
-                    {formatSchoolName(school)} ({spells.length})
+                    <SchoolIcon className="w-5 h-5" />
+                    {schoolName} ({spells.length})
                   </h3>
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -292,6 +287,8 @@ export function SpellsSection() {
                   {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
                     const school = contentRepository.getSpellSchool(schoolId);
                     const schoolName = school?.name || schoolId;
+                    const schoolColor = school?.color || "text-gray-600";
+                    const SchoolIcon = school?.icon ? getSchoolIcon(school.icon) : Sparkles;
                     const isOpen = openLockedSchools[schoolId] ?? false;
 
                     return (
@@ -305,10 +302,10 @@ export function SpellsSection() {
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" className="w-full justify-between p-4 h-auto">
                             <h4
-                              className={`font-semibold flex items-center gap-2 ${getSchoolColor(schoolId)}`}
+                              className={`font-semibold flex items-center gap-2 ${schoolColor}`}
                             >
-                              <Sparkles className="w-4 h-4" />
-                              {formatSchoolName(schoolId)} ({spells.length} locked)
+                              <SchoolIcon className="w-4 h-4" />
+                              {schoolName} ({spells.length} locked)
                             </h4>
                             {isOpen ? (
                               <ChevronDown className="h-4 w-4" />

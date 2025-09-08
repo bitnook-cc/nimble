@@ -41,6 +41,8 @@ export interface SpellSchoolWithSpells {
   id: string;
   name: string;
   description: string;
+  color: string; // Tailwind color classes for the school
+  icon: string; // Icon identifier for the school
   spells: SpellAbilityDefinition[];
   utilitySpells: SpellAbilityDefinition[]; // Utility spells that must be learned separately
 }
@@ -626,10 +628,32 @@ export class ContentRepositoryService {
           "necrotic": "Death and decay magic that manipulates negative energy and undeath",
         };
         
+        // Define colors for each school (Tailwind classes)
+        const colors: Record<string, string> = {
+          "fire": "text-orange-600",
+          "ice": "text-blue-500",
+          "lightning": "text-yellow-500",
+          "wind": "text-teal-500",
+          "radiant": "text-amber-400",
+          "necrotic": "text-purple-700",
+        };
+        
+        // Define icons for each school
+        const icons: Record<string, string> = {
+          "fire": "Flame",
+          "ice": "Snowflake",
+          "lightning": "Zap",
+          "wind": "Wind",
+          "radiant": "Sun",
+          "necrotic": "Skull",
+        };
+        
         return {
           id: schoolData.id,
           name: schoolData.name,
           description: descriptions[schoolData.id] || `Magical arts of ${schoolData.name.toLowerCase()}`,
+          color: colors[schoolData.id] || "text-gray-600",
+          icon: icons[schoolData.id] || "Sparkles",
           spells: schoolData.spells,
           utilitySpells: getUtilitySpellsBySchool(schoolData.id),
         };

@@ -330,6 +330,14 @@ export const SpellSchoolDefinitionSchema = z
       .string()
       .min(1)
       .meta({ title: "Description", description: "Description of the school's magical focus" }),
+    color: z
+      .string()
+      .min(1)
+      .meta({ title: "Color", description: "Tailwind color classes for the school" }),
+    icon: z
+      .string()
+      .min(1)
+      .meta({ title: "Icon", description: "Icon identifier for the school" }),
     spells: z
       .array(SpellAbilitySchema)
       .meta({ title: "Spells", description: "Array of spells in this school" }),
