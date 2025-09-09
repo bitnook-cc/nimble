@@ -262,33 +262,34 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               break;
 
             case "utility_spells":
-              if (
-                selection?.type === "utility_spells" &&
-                selection.spellIds &&
-                selection.spellIds.length > 0
-              ) {
+              // Get all utility spell selections for this effect
+              const utilitySelections = levelUpData.effectSelections.filter(
+                s => s.type === "utility_spells" && s.grantedByEffectId === effectId
+              );
+              
+              if (utilitySelections.length > 0) {
                 // Add selected utility spells
                 const utilitySpellsEffect = effect as UtilitySpellsFeatureEffect;
                 const addedSpellIds: string[] = [];
 
-                utilitySpellsEffect?.schools?.forEach((schoolId) => {
-                  const utilitySpells = contentRepo
-                    .getSpellsBySchool(schoolId)
-                    .filter((spell) => spell.tier === 0 && selection.spellIds.includes(spell.id));
-
-                  // Add spells that aren't already in abilities
-                  const currentSpellIds = new Set(
-                    updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                  );
-                  const newSpells = utilitySpells.filter((spell) => !currentSpellIds.has(spell.id));
-                  updatedAbilities.push(...newSpells);
-                  addedSpellIds.push(...newSpells.map((s) => s.id));
+                utilitySelections.forEach((sel) => {
+                  if (sel.type === "utility_spells") {
+                    const spell = contentRepo.getSpellById(sel.spellId);
+                    if (spell && spell.tier === 0) {
+                      // Add spell if not already in abilities
+                      const currentSpellIds = new Set(
+                        updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
+                      );
+                      if (!currentSpellIds.has(spell.id)) {
+                        updatedAbilities.push(spell);
+                        addedSpellIds.push(spell.id);
+                      }
+                    }
+                  }
                 });
 
-                // Selection is already tracked in levelUpData.effectSelections
-                if (addedSpellIds.length > 0) {
-                  effectSelections.push(selection);
-                }
+                // Selections are already tracked in levelUpData.effectSelections
+                // No need to add them again
               }
               break;
 

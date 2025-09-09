@@ -48,11 +48,6 @@ export class ContentRepositoryService {
   private static instance: ContentRepositoryService;
   private featurePoolMap: Map<string, FeaturePool> = new Map();
 
-  constructor() {
-    // Initialize the feature pool map from built-in classes
-    this.initializeFeaturePools();
-  }
-
   public static getInstance(): ContentRepositoryService {
     if (!ContentRepositoryService.instance) {
       ContentRepositoryService.instance = new ContentRepositoryService();
@@ -473,7 +468,7 @@ export class ContentRepositoryService {
   }
 
   private getCustomClasses(): ClassDefinition[] {
-    try {
+    try {     
       const stored = localStorage.getItem(STORAGE_KEYS.customClasses);
       if (!stored) return [];
 
@@ -666,6 +661,27 @@ export class ContentRepositoryService {
 
     // Merge school's defined spells with custom spells
     return [...school.spells, ...customSpells];
+  }
+
+  /**
+   * Get a spell by its ID, searching across all schools
+   * @param spellId The ID of the spell to find
+   * @returns The spell definition or null if not found
+   */
+  public getSpellById(spellId: string): SpellAbilityDefinition | null {
+    // First check custom spells
+    const customSpells = this.getCustomSpells();
+    const customSpell = customSpells.find((spell) => spell.id === spellId);
+    if (customSpell) return customSpell;
+
+    // Then search through all schools
+    const allSchools = this.getAllSpellSchools();
+    for (const school of allSchools) {
+      const spell = school.spells.find((s) => s.id === spellId);
+      if (spell) return spell;
+    }
+
+    return null;
   }
 
   public getUtilitySpellsForSchool(schoolId: string): SpellAbilityDefinition[] {
@@ -1080,10 +1096,16 @@ export class ContentRepositoryService {
 
   // Feature Pool Management
   public getFeaturePool(poolId: string): FeaturePool | null {
+    if (this.featurePoolMap.size === 0) {
+      this.initializeFeaturePools();
+    }
     return this.featurePoolMap.get(poolId) || null;
   }
 
   public getAllFeaturePools(): FeaturePool[] {
+    if (this.featurePoolMap.size === 0) {
+      this.initializeFeaturePools();
+    }
     return Array.from(this.featurePoolMap.values());
   }
 

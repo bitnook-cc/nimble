@@ -16,6 +16,7 @@ import {
   EffectSelection,
   HitDice,
   PoolFeatureEffectSelection,
+  UtilitySpellsEffectSelection,
   Skill,
   Skills,
 } from "../schemas/character";
@@ -185,13 +186,11 @@ export interface ICharacterService {
   
   // Selection methods
   selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void>;
-  selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void>;
   updatePoolSelectionsForEffect(effectId: string, selections: PoolFeatureEffectSelection[]): Promise<void>;
-  clearPoolFeatureSelections(grantedByEffectId: string): Promise<void>;
   selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void>;
   clearSpellSchoolSelections(grantedByEffectId: string): Promise<void>;
   selectAttributeBoost(attribute: AttributeName, amount: number, grantedByEffectId: string): Promise<void>;
-  selectUtilitySpells(spellIds: string[], fromSchools: string[], grantedByEffectId: string): Promise<void>;
+  updateUtilitySelectionsForEffect(effectId: string, newSelections: UtilitySpellsEffectSelection[]): Promise<void>;
 }
 
 /**
@@ -221,22 +220,10 @@ export interface IClassService {
     effectSelections?: EffectSelection[],
   ): ClassFeature[];
   getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[];
-  selectPoolFeature(
-    character: Character,
-    poolId: string,
-    selectedFeature: ClassFeature,
-    grantedByFeatureId: string,
-  ): Promise<Character>;
   getRemainingPoolSelections(
     character: Character,
     pickFeatureFromPoolFeature: PickFeatureFromPoolFeatureEffect,
   ): number;
-  generateFeatureId(
-    classId: string,
-    level: number,
-    featureName: string,
-    subclassId?: string,
-  ): string;
 }
 
 /**

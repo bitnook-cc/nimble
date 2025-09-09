@@ -134,8 +134,8 @@ const attributeBoostEffectSelectionSchema = baseEffectSelectionSchema.extend({
 
 const utilitySpellsEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("utility_spells"),
-  spellIds: z.array(z.string().min(1)),
-  fromSchools: z.array(z.string().min(1)),
+  spellId: z.string().min(1),
+  schoolId: z.string().min(1),
 });
 
 const subclassEffectSelectionSchema = baseEffectSelectionSchema.extend({

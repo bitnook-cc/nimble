@@ -25,33 +25,20 @@ import { ICharacterService, IClassService } from "./interfaces";
  * Manages class features and progression without tight coupling
  */
 export class ClassService implements IClassService {
-  private contentRepository: ContentRepositoryService;
-
-  constructor(private characterService: ICharacterService) {
-    this.contentRepository = ContentRepositoryService.getInstance();
-  }
+  constructor(private characterService: ICharacterService) {}
 
   /**
    * Get the class definition for a character
    */
   getCharacterClass(character: Character): ClassDefinition | null {
-    return this.contentRepository.getClassDefinition(character.classId);
-  }
-
-  /**
-   * Get the subclass definition for a character
-   */
-  getCharacterSubclass(character: Character): SubclassDefinition | null {
-    const subclassId = this.characterService.getSubclassId();
-    if (!subclassId) return null;
-    return this.contentRepository.getSubclassDefinition(subclassId);
+    return ContentRepositoryService.getInstance().getClassDefinition(character.classId);
   }
 
   /**
    * Get all features that should be available to a character at their current level
    */
   getExpectedFeaturesForCharacter(character: Character): ClassFeature[] {
-    const classFeatures = this.contentRepository.getAllClassFeaturesUpToLevel(
+    const classFeatures = ContentRepositoryService.getInstance().getAllClassFeaturesUpToLevel(
       character.classId,
       character.level,
     );
@@ -59,7 +46,7 @@ export class ClassService implements IClassService {
     // Add subclass features if character has a subclass
     const subclassId = this.characterService.getSubclassId();
     if (subclassId) {
-      const subclassFeatures = this.contentRepository.getAllSubclassFeaturesUpToLevel(
+      const subclassFeatures = ContentRepositoryService.getInstance().getAllSubclassFeaturesUpToLevel(
         subclassId,
         character.level,
       );
@@ -73,27 +60,7 @@ export class ClassService implements IClassService {
    * Get features that are granted for a specific level
    */
   getFeaturesForLevel(classId: string, level: number): ClassFeature[] {
-    return this.contentRepository.getClassFeaturesForLevel(classId, level);
-  }
-
-  /**
-   * Generate a unique ID for a class feature grant (DEPRECATED - transitioning to effect-level tracking)
-   */
-  generateFeatureId(
-    classId: string,
-    level: number,
-    featureName: string,
-    subclassId?: string,
-  ): string {
-    const prefix = subclassId || classId;
-    return `${prefix}-${level}-${featureName.toLowerCase().replace(/\s+/g, "-")}`;
-  }
-
-  /**
-   * Generate a feature ID for a subclass feature (DEPRECATED - transitioning to effect-level tracking)
-   */
-  generateSubclassFeatureId(subclassId: string, level: number, featureName: string): string {
-    return this.generateFeatureId("", level, featureName, subclassId);
+    return ContentRepositoryService.getInstance().getClassFeaturesForLevel(classId, level);
   }
 
   /**
@@ -105,7 +72,7 @@ export class ClassService implements IClassService {
     grantedByEffectId: string,
   ): Promise<Character> {
     // Validate that the subclass is available for this character's class
-    const subclassDefinition = this.contentRepository.getSubclassDefinition(subclassId);
+    const subclassDefinition = ContentRepositoryService.getInstance().getSubclassDefinition(subclassId);
     if (!subclassDefinition) {
       throw new Error(`Subclass not found: ${subclassId}`);
     }
@@ -170,7 +137,7 @@ export class ClassService implements IClassService {
    * Get available subclasses for a character's class
    */
   getAvailableSubclassesForCharacter(character: Character): SubclassDefinition[] {
-    return this.contentRepository.getSubclassesForClass(character.classId);
+    return ContentRepositoryService.getInstance().getSubclassesForClass(character.classId);
   }
 
   /**
@@ -250,24 +217,11 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Check if a feature belongs to a subclass
-   */
-  private isSubclassFeature(feature: ClassFeature): boolean {
-    if (!feature.id) return false;
-
-    // Check if this feature exists in any subclass
-    const allSubclasses = this.contentRepository.getAllSubclasses();
-    return allSubclasses.some((subclass: SubclassDefinition) =>
-      subclass.features.some((subFeature: ClassFeature) => subFeature.id === feature.id),
-    );
-  }
-
-  /**
    * Get feature pool by ID
    * @deprecated Use getFeaturePoolById for consistency with new API
    */
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined {
-    const pool = this.contentRepository.getFeaturePool(poolId);
+    const pool = ContentRepositoryService.getInstance().getFeaturePool(poolId);
     return pool || undefined;
   }
 
@@ -275,7 +229,7 @@ export class ClassService implements IClassService {
    * Get feature pool by ID only (new simplified API)
    */
   getFeaturePoolById(poolId: string): FeaturePool | null {
-    return this.contentRepository.getFeaturePool(poolId);
+    return ContentRepositoryService.getInstance().getFeaturePool(poolId);
   }
 
   /**
@@ -294,7 +248,7 @@ export class ClassService implements IClassService {
     poolId: string,
     effectSelections: EffectSelection[] = [],
   ): ClassFeature[] {
-    const pool = this.contentRepository.getFeaturePool(poolId);
+    const pool = ContentRepositoryService.getInstance().getFeaturePool(poolId);
     if (!pool) {
       return [];
     }

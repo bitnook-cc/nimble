@@ -281,7 +281,7 @@ const songweaverFeatures: ClassFeature[] = [
       {
         id: "windbag-0",
         type: "utility_spells",
-        spellsPerSchool: 1,
+        numberOfSpells: 1,
         selectionMode: "per_school",
       }
     ],
@@ -385,7 +385,7 @@ const songweaverFeatures: ClassFeature[] = [
       {
         id: "windbag-2-0",
         type: "utility_spells",
-        spellsPerSchool: 1,
+        numberOfSpells: 1,
         selectionMode: "per_school",
       }
     ],
@@ -556,7 +556,7 @@ const songweaverFeatures: ClassFeature[] = [
       {
         id: "windbag-3-0",
         type: "utility_spells",
-        spellsPerSchool: 1,
+        numberOfSpells: 1,
         selectionMode: "per_school",
       }
     ],

@@ -19,7 +19,6 @@ import {
   SubclassEffectSelection
 } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { getClassService } from "@/lib/services/service-factory";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getIconById } from "@/lib/utils/icon-utils";
 
@@ -28,7 +27,7 @@ import { Button } from "./ui/button";
 interface EffectSelectionDisplayProps {
   effect: FeatureEffect;
   effectId: string;
-  existingSelection?: EffectSelection;
+  existingSelections: EffectSelection[]; // Always pass all selections for this effect
   onOpenDialog: (effect: FeatureEffect) => void;
   character?: Character;
   autoOpen?: boolean;
@@ -41,26 +40,28 @@ interface EffectSelectionDisplayProps {
 export function EffectSelectionDisplay({ 
   effect, 
   effectId, 
-  existingSelection,
+  existingSelections,
   onOpenDialog,
   character,
   autoOpen = false 
 }: EffectSelectionDisplayProps) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  
+  // Check if we have any selections for this effect
+  const hasSelections = existingSelections.length > 0;
 
   // Auto-open dialog for unmade selections
   useEffect(() => {
-    if (autoOpen && !existingSelection && !hasAutoOpened) {
+    if (autoOpen && !hasSelections && !hasAutoOpened) {
       setHasAutoOpened(true);
       onOpenDialog(effect);
     }
-  }, [autoOpen, existingSelection, hasAutoOpened, effect, onOpenDialog]);
+  }, [autoOpen, hasSelections, hasAutoOpened, effect, onOpenDialog]);
 
   const contentRepository = ContentRepositoryService.getInstance();
-  const classService = getClassService();
 
   const renderSelectionContent = () => {
-    if (!existingSelection) {
+    if (!hasSelections) {
       switch (effect.type) {
         case "subclass_choice":
           return (
@@ -148,10 +149,11 @@ export function EffectSelectionDisplay({
       }
     }
 
-    // Display existing selection
-    switch (existingSelection?.type) {
+    // Display existing selections
+    const firstSelection = existingSelections[0];
+    switch (firstSelection?.type) {
       case "subclass": {
-        const subclassSelection = existingSelection as SubclassEffectSelection;
+        const subclassSelection = firstSelection as SubclassEffectSelection;
         const contentRepository = ContentRepositoryService.getInstance();
         const subclass = contentRepository.getSubclassDefinition(subclassSelection.subclassId);
         return (
@@ -171,10 +173,7 @@ export function EffectSelectionDisplay({
       }
 
       case "pool_feature": {
-        const poolSelections = character ? character.effectSelections.filter(
-          s => s.type === "pool_feature" && s.grantedByEffectId === effectId
-        ) as PoolFeatureEffectSelection[] : [existingSelection as PoolFeatureEffectSelection];
-        
+        const poolSelections = existingSelections as PoolFeatureEffectSelection[];
         const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
         const remaining = character ? featureSelectionService.getRemainingPoolSelections(
           character, 
@@ -218,10 +217,7 @@ export function EffectSelectionDisplay({
       }
 
       case "spell_school": {
-        const schoolSelections = character ? character.effectSelections.filter(
-          s => s.type === "spell_school" && s.grantedByEffectId === effectId
-        ) as SpellSchoolEffectSelection[] : [existingSelection as SpellSchoolEffectSelection];
-        
+        const schoolSelections = existingSelections as SpellSchoolEffectSelection[];
         const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
         const remaining = character ? featureSelectionService.getRemainingSpellSchoolSelections(
           character,
@@ -269,8 +265,7 @@ export function EffectSelectionDisplay({
       }
 
       case "attribute_boost": {
-        const boostSelection = existingSelection as AttributeBoostEffectSelection;
-        const boostEffect = effect as AttributeBoostFeatureEffect;
+        const boostSelection = firstSelection as AttributeBoostEffectSelection;
         return (
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-600" />
@@ -290,23 +285,28 @@ export function EffectSelectionDisplay({
       }
 
       case "utility_spells": {
-        const spellsSelection = existingSelection as UtilitySpellsEffectSelection;
-        return (
-          <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm">
-              {spellsSelection.spellIds.length} spell{spellsSelection.spellIds.length !== 1 ? 's' : ''} selected
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onOpenDialog(effect)}
-              className="h-6 px-2"
+        const spellSelections = existingSelections as UtilitySpellsEffectSelection[];
+        const spellCount = spellSelections.length;
+        
+        if (spellCount > 0) {
+          return (
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-600" />
+              <span className="text-sm">
+                {spellCount} spell{spellCount !== 1 ? 's' : ''} selected
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onOpenDialog(effect)}
+                className="h-6 px-2"
             >
               <Edit2 className="w-3 h-3" />
             </Button>
           </div>
-        );
+          );
+        }
+        return null;
       }
 
       default:

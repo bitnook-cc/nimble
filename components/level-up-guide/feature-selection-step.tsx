@@ -27,16 +27,12 @@ export function FeatureSelectionStep({
   onEffectSelectionsChange,
 }: FeatureSelectionStepProps) {
   const [groupedFeatures, setGroupedFeatures] = useState<GroupedFeatures[]>([]);
-  const contentRepo = getContentRepository();
-  const classService = getClassService();
-  const characterService = getCharacterService();
   
-  // Get existing features from character
-  const existingFeatures = {
-    spellSchools: characterService.getSpellSchools(),
-  };
-
   useEffect(() => {
+    if (!character) return;
+    
+    const classService = getClassService();
+    
     // Get all features for the levels being gained
     const featuresPerLevel: GroupedFeatures[] = [];
 
@@ -68,7 +64,19 @@ export function FeatureSelectionStep({
     }
 
     setGroupedFeatures(featuresPerLevel);
-  }, [character, levelsToGain, classService, contentRepo]);
+  }, [character, levelsToGain]);
+
+  // Early return if no character
+  if (!character) return null;
+
+  // Initialize services after character check
+  const contentRepo = getContentRepository();
+  const characterService = getCharacterService();
+  
+  // Get existing features from character
+  const existingFeatures = {
+    spellSchools: characterService.getSpellSchools(),
+  };
 
   // Get class and subclass names for display
   const classDefinition = contentRepo.getClassDefinition(character.classId);

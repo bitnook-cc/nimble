@@ -7,9 +7,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getCharacterService, getAncestryService, getBackgroundService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { getClassService } from "@/lib/services/service-factory";
-import { PoolFeatureEffectSelection, AttributeName, EffectSelection } from "@/lib/schemas/character";
-import { ClassFeature } from "@/lib/schemas/features";
+import { PoolFeatureEffectSelection, AttributeName, EffectSelection, UtilitySpellsEffectSelection } from "@/lib/schemas/character";
 
 import { FeatureList } from "../feature-list";
 import { Button } from "../ui/button";
@@ -20,19 +18,18 @@ export function FeaturesSection() {
   const { 
     character, 
     selectSubclass,
-    selectPoolFeature,
     updatePoolSelectionsForEffect,
-    clearPoolFeatureSelections,
     selectSpellSchool,
     clearSpellSchoolSelections,
     selectAttributeBoost,
-    selectUtilitySpells
+    updateUtilitySelectionsForEffect,
   } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-  const [expandedSpellSchools, setExpandedSpellSchools] = useState<Record<string, boolean>>({});
+
+  // Early return if no character
+  if (!character) return null;
 
   const contentRepository = ContentRepositoryService.getInstance();
-  const classService = getClassService();
   const characterService = getCharacterService();
   const ancestryService = getAncestryService();
   const backgroundService = getBackgroundService();
@@ -41,9 +38,6 @@ export function FeaturesSection() {
   const existingFeatures = {
     spellSchools: characterService.getSpellSchools(),
   };
-
-  // Early return if no character
-  if (!character) return null;
 
   const isOpen = uiState.collapsibleSections.classFeatures;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("classFeatures", isOpen);
@@ -89,8 +83,9 @@ export function FeaturesSection() {
     // Find what changed by comparing with current selections
     const currentSelections = character.effectSelections;
     
-    // Group pool features by effect ID for batch processing
+    // Group pool features and utility spells by effect ID for batch processing
     const poolFeaturesByEffect = new Map<string, PoolFeatureEffectSelection[]>();
+    const utilitySpellsByEffect = new Map<string, UtilitySpellsEffectSelection[]>();
     const otherSelections: EffectSelection[] = [];
     
     for (const selection of selections) {
@@ -100,6 +95,12 @@ export function FeaturesSection() {
           poolFeaturesByEffect.set(effectId, []);
         }
         poolFeaturesByEffect.get(effectId)!.push(selection);
+      } else if (selection.type === "utility_spells") {
+        const effectId = selection.grantedByEffectId;
+        if (!utilitySpellsByEffect.has(effectId)) {
+          utilitySpellsByEffect.set(effectId, []);
+        }
+        utilitySpellsByEffect.get(effectId)!.push(selection);
       } else {
         otherSelections.push(selection);
       }
@@ -109,6 +110,11 @@ export function FeaturesSection() {
     for (const [effectId, poolSelections] of poolFeaturesByEffect) {
       // Use the new batch update API
       await updatePoolSelectionsForEffect(effectId, poolSelections);
+    }
+    
+    // Handle utility spells - replace all for each effect using the new API
+    for (const [effectId, utilitySelections] of utilitySpellsByEffect) {
+      await updateUtilitySelectionsForEffect(effectId, utilitySelections);
     }
     
     // Handle other selections normally
@@ -130,13 +136,6 @@ export function FeaturesSection() {
             await selectAttributeBoost(
               selection.attribute,
               selection.amount,
-              selection.grantedByEffectId
-            );
-            break;
-          case "utility_spells":
-            await selectUtilitySpells(
-              selection.spellIds,
-              selection.fromSchools,
               selection.grantedByEffectId
             );
             break;

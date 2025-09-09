@@ -1,3 +1,4 @@
+import { SpellAbilityDefinition } from "../schemas/abilities";
 import {
   Character,
 } from "../schemas/character";
@@ -85,10 +86,8 @@ export class FeatureSelectionService {
         }
         
         case "utility_spells": {
-          const hasSelection = character.effectSelections.some(
-            s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
-          );
-          if (!hasSelection) {
+          const remaining = this.getRemainingUtilitySpellSelections(character, effect);
+          if (remaining > 0) {
             result.utilitySpellSelections.push(effect);
           }
           break;
@@ -145,12 +144,29 @@ export class FeatureSelectionService {
    */
   getUtilitySpellSelectionCount(effect: UtilitySpellsFeatureEffect, availableSchools: string[]): number {
     if (effect.selectionMode === "per_school") {
-      const spellsPerSchool = effect.spellsPerSchool || 1;
+      const spellsPerSchool = effect.numberOfSpells || 1;
       return availableSchools.length * spellsPerSchool;
     } else {
       // "total" mode
       return effect.totalSpells || 1;
     }
+  }
+
+  /**
+   * Get remaining utility spell selections for a specific effect
+   */
+  getRemainingUtilitySpellSelections(
+    character: Character,
+    effect: UtilitySpellsFeatureEffect
+  ): number {
+    const selections = character.effectSelections.filter(
+      s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
+    );
+    
+    const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
+    const totalRequired = this.getUtilitySpellSelectionCount(effect, availableSchools);
+    
+    return Math.max(0, totalRequired - selections.length);
   }
 
   /**
@@ -204,37 +220,33 @@ export class FeatureSelectionService {
    */
   validateUtilitySpellSelection(
     effect: UtilitySpellsFeatureEffect,
-    selectedSpellIds: string[],
+    selectedSpells: SpellAbilityDefinition[],
     character: Character
   ): boolean {
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     const expectedCount = this.getUtilitySpellSelectionCount(effect, availableSchools);
     
-    if (selectedSpellIds.length !== expectedCount) {
+    if (selectedSpells.length > expectedCount) {
       return false;
     }
     
     // If per_school mode, validate distribution
     if (effect.selectionMode === "per_school") {
-      const spellsPerSchool = effect.spellsPerSchool || 1;
+      const spellsPerSchool = effect.numberOfSpells || 1;
       const contentRepository = ContentRepositoryService.getInstance();
       
       // Count spells per school
       const schoolCounts = new Map<string, number>();
-      for (const spellId of selectedSpellIds) {
-        // Find which school this spell belongs to
-        for (const schoolId of availableSchools) {
-          const spells = contentRepository.getSpellsBySchool(schoolId);
-          if (spells?.some(s => s.id === spellId)) {
-            schoolCounts.set(schoolId, (schoolCounts.get(schoolId) || 0) + 1);
-            break;
-          }
+      for (const spell of selectedSpells) {
+        // Find which school this spell belongs to using the new API
+        if (spell && availableSchools.includes(spell.school)) {
+          schoolCounts.set(spell.school, (schoolCounts.get(spell.school) || 0) + 1);
         }
       }
       
       // Verify each school has the correct count
       for (const schoolId of availableSchools) {
-        if ((schoolCounts.get(schoolId) || 0) !== spellsPerSchool) {
+        if ((schoolCounts.get(schoolId) || 0) > spellsPerSchool) {
           return false;
         }
       }

@@ -8,9 +8,9 @@ import { ContentRepositoryService } from "@/lib/services/content-repository-serv
 import { SubclassDefinition } from "@/lib/schemas/class";
 import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
 
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
+} from "../ui/dialog";
 
 interface SubclassSelectionDialogProps {
   subclassChoice: SubclassChoiceFeatureEffect;

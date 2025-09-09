@@ -585,8 +585,8 @@ export class CharacterService implements ICharacterService {
       (selection): selection is UtilitySpellsEffectSelection => selection.type === "utility_spells"
     );
     
-    // Flatten all spell IDs from all utility spell selections
-    return utilitySpellSelections.flatMap(selection => selection.spellIds);
+    // Get all spell IDs from utility spell selections (one per selection now)
+    return utilitySpellSelections.map(selection => selection.spellId);
   }
 
   /**
@@ -1599,46 +1599,6 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Add a pool feature selection
-   */
-  async selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void> {
-    if (!this._character) return;
-
-    const classService = getClassService();
-
-    const availableFeatures = classService.getAvailablePoolFeatures(
-      this._character.classId,
-      poolId,
-      this._character.effectSelections,
-    );
-
-    if (!availableFeatures.some((f) => f.id === feature.id)) {
-      throw new Error(
-        `Feature "${feature.name}" is not available for selection from pool "${poolId}"`,
-      );
-    }
-
-    // Create the selected pool feature record
-    const selectedPoolFeature: PoolFeatureEffectSelection = {
-      type: "pool_feature",
-      poolId,
-      feature,
-      grantedByEffectId: grantedByEffectId,
-    };
-
-    this._character = {
-      ...this._character,
-      effectSelections: [
-        ...this._character.effectSelections,
-        selectedPoolFeature
-      ]
-    };
-
-    await this.saveCharacter();
-    this.notifyCharacterChanged();
-  }
-
-  /**
    * Clear pool feature selections for a specific effect
    */
   async clearPoolFeatureSelections(grantedByEffectId: string): Promise<void> {
@@ -1748,23 +1708,22 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Make or update utility spell selections
+   * Update all utility spell selections for a specific effect
+   * This replaces all existing selections for the effect with new ones
    */
-  async selectUtilitySpells(spellIds: string[], fromSchools: string[], grantedByEffectId: string): Promise<void> {
+  async updateUtilitySelectionsForEffect(
+    effectId: string,
+    newSelections: UtilitySpellsEffectSelection[]
+  ): Promise<void> {
     if (!this._character) return;
 
-    // Remove any existing selection from this effect
-    const updatedSelections = this._character.effectSelections.filter(
-      s => !(s.type === "utility_spells" && s.grantedByEffectId === grantedByEffectId)
+    // Remove all existing selections for this effect
+    const otherSelections = this._character.effectSelections.filter(
+      s => !(s.type === "utility_spells" && s.grantedByEffectId === effectId)
     );
 
-    // Add new selection
-    updatedSelections.push({
-      type: "utility_spells",
-      grantedByEffectId,
-      spellIds,
-      fromSchools
-    });
+    // Add the new selections
+    const updatedSelections = [...otherSelections, ...newSelections];
 
     this._character = {
       ...this._character,

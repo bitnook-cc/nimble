@@ -10,9 +10,9 @@ import {
 } from "@/lib/schemas/features";
 import { PoolFeatureEffectSelection } from "@/lib/schemas/character";
 
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Checkbox } from "./ui/checkbox";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
+} from "../ui/dialog";
 
 interface FeaturePoolSelectionDialogProps {
   pickPoolFeatureEffect: PickFeatureFromPoolFeatureEffect;
@@ -312,7 +312,7 @@ export function FeaturePoolSelectionDialog({
                         <Checkbox
                           checked={isSelected}
                           disabled={!canSelect}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
                         />
                       </div>
                     </CardHeader>

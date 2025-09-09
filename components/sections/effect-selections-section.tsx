@@ -15,39 +15,36 @@ import {
   UtilitySpellsFeatureEffect,
   FeatureEffect
 } from "@/lib/schemas/features";
-import { AttributeName, PoolFeatureEffectSelection } from "@/lib/schemas/character";
+import { AttributeName, PoolFeatureEffectSelection, UtilitySpellsEffectSelection } from "@/lib/schemas/character";
+import { getIconById } from "@/lib/utils/icon-utils";
 
-import { FeaturePoolSelectionDialog } from "../feature-pool-selection-dialog";
-import { SubclassSelectionDialog } from "../subclass-selection-dialog";
+import { FeaturePoolSelectionDialog } from "../dialogs/feature-pool-selection-dialog";
+import { SubclassSelectionDialog } from "../dialogs/subclass-selection-dialog";
+import { UtilitySpellSelectionDialog } from "../dialogs/utility-spell-selection-dialog";
+import { AttributeBoostSelectionDialog } from "../dialogs/attribute-boost-selection-dialog";
+import { SpellSchoolSelectionDialog } from "../dialogs/spell-school-selection-dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
-import { Label } from "../ui/label";
-import { ScrollArea } from "../ui/scroll-area";
-import { Checkbox } from "../ui/checkbox";
-import { getIconById } from "@/lib/utils/icon-utils";
 
 
 export function EffectSelectionsSection() {
   const { 
     character, 
     getAvailableEffectSelections,
-    selectSubclass,
-    selectPoolFeature,
     selectSpellSchool,
     clearSpellSchoolSelections,
     selectAttributeBoost,
-    selectUtilitySpells
+    updateUtilitySelectionsForEffect
   } = useCharacterService();
   const [selectedPoolFeature, setSelectedPoolFeature] = useState<PickFeatureFromPoolFeatureEffect | null>(null);
   const [selectedSubclassChoice, setSelectedSubclassChoice] = useState<SubclassChoiceFeatureEffect | null>(null);
   const [selectedSpellSchoolChoice, setSelectedSpellSchoolChoice] = useState<SpellSchoolChoiceFeatureEffect | null>(null);
-  const [isEditingSpellSchool, setIsEditingSpellSchool] = useState(false);
+  const [existingSpellSchoolSelections, setExistingSpellSchoolSelections] = useState<string[]>([]);
   const [selectedAttributeBoost, setSelectedAttributeBoost] = useState<AttributeBoostFeatureEffect | null>(null);
+  const [existingAttributeSelection, setExistingAttributeSelection] = useState<AttributeName | undefined>();
   const [selectedUtilitySpells, setSelectedUtilitySpells] = useState<UtilitySpellsFeatureEffect | null>(null);
-  const [utilitySpellSelection, setUtilitySpellSelection] = useState<string[]>([]);
+  const [existingUtilitySpellSelections, setExistingUtilitySpellSelections] = useState<UtilitySpellsEffectSelection[]>([]);
 
   if (!character) return null;
 
@@ -80,14 +77,18 @@ export function EffectSelectionsSection() {
   const handleSelectSpellSchool = async (schoolId: string) => {
     if (!selectedSpellSchoolChoice) return;
 
-    // If editing, clear existing selections first
-    if (isEditingSpellSchool) {
+    // Clear existing selections first (the dialog handles single selection)
+    const existingSelection = character.effectSelections.find(
+      s => s.type === "spell_school" && s.grantedByEffectId === selectedSpellSchoolChoice.id
+    );
+    
+    if (existingSelection && existingSelection.type === "spell_school") {
       await clearSpellSchoolSelections(selectedSpellSchoolChoice.id!);
     }
 
     await selectSpellSchool(schoolId, selectedSpellSchoolChoice.id!);
     setSelectedSpellSchoolChoice(null);
-    setIsEditingSpellSchool(false);
+    setExistingSpellSchoolSelections([]);
   };
 
   const handleSelectAttributeBoost = async (attribute: AttributeName, amount: number) => {
@@ -95,19 +96,17 @@ export function EffectSelectionsSection() {
 
     await selectAttributeBoost(attribute, amount, selectedAttributeBoost.id!);
     setSelectedAttributeBoost(null);
+    setExistingAttributeSelection(undefined);
   };
 
-  const handleSelectUtilitySpells = async () => {
+  const handleSelectUtilitySpells = async (selections: UtilitySpellsEffectSelection[]) => {
     if (!selectedUtilitySpells) return;
     
-    if (!featureSelectionService.validateUtilitySpellSelection(selectedUtilitySpells, utilitySpellSelection, character)) {
-      return; // Invalid selection
-    }
-
-    const fromSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-    await selectUtilitySpells(utilitySpellSelection, fromSchools, selectedUtilitySpells.id!);
+    // Use the new method to update all selections for this effect
+    await updateUtilitySelectionsForEffect(selectedUtilitySpells.id!, selections);
+    
     setSelectedUtilitySpells(null);
-    setUtilitySpellSelection([]);
+    setExistingUtilitySpellSelections([]);
   };
 
   const getSelectionIcon = (type: string) => {
@@ -228,10 +227,15 @@ export function EffectSelectionsSection() {
                   size="sm" 
                   onClick={() => {
                     setSelectedSpellSchoolChoice(effect);
-                    setIsEditingSpellSchool(false);
+                    // Get all existing spell school selections to filter them out
+                    const characterService = getCharacterService();
+                    const existingSchools = characterService.getSpellSchools();
+                    setExistingSpellSchoolSelections(existingSchools);
                   }}
                 >
-                  Choose School
+                  {character.effectSelections.some(
+                    s => s.type === "spell_school" && s.grantedByEffectId === effect.id
+                  ) ? "Edit School" : "Choose School"}
                 </Button>
               </div>
             );
@@ -256,9 +260,22 @@ export function EffectSelectionsSection() {
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => setSelectedAttributeBoost(effect)}
+                  onClick={() => {
+                    setSelectedAttributeBoost(effect);
+                    // Check if there's an existing selection for this effect
+                    const existingSelection = character.effectSelections.find(
+                      s => s.type === "attribute_boost" && s.grantedByEffectId === effect.id
+                    );
+                    if (existingSelection && existingSelection.type === "attribute_boost") {
+                      setExistingAttributeSelection(existingSelection.attribute);
+                    } else {
+                      setExistingAttributeSelection(undefined);
+                    }
+                  }}
                 >
-                  Choose Boost
+                  {character.effectSelections.some(
+                    s => s.type === "attribute_boost" && s.grantedByEffectId === effect.id
+                  ) ? "Edit Boost" : "Choose Boost"}
                 </Button>
               </div>
             );
@@ -267,7 +284,10 @@ export function EffectSelectionsSection() {
           {/* Utility Spell Selections */}
           {availableUtilitySpellSelections.map((effect: UtilitySpellsFeatureEffect, index: number) => {
             const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(effect, character);
-            const spellCount = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
+            const totalRequired = featureSelectionService.getUtilitySpellSelectionCount(effect, availableSchools);
+            const remaining = featureSelectionService.getRemainingUtilitySpellSelections(character, effect);
+            const selected = totalRequired - remaining;
+            
             return (
               <div
                 key={effect.id || `utility-${index}`}
@@ -278,8 +298,12 @@ export function EffectSelectionsSection() {
                   <div>
                     <div className="font-medium">Utility Spells</div>
                     <div className="text-sm text-muted-foreground">
-                      Choose {spellCount} utility spell{spellCount > 1 ? "s" : ""}
-                      {effect.selectionMode === "per_school" && ` (${effect.spellsPerSchool || 1} per school)`}
+                      {selected > 0 ? (
+                        <>Selected {selected}/{totalRequired} spells - {remaining} remaining</>
+                      ) : (
+                        <>Choose {totalRequired} utility spell{totalRequired > 1 ? "s" : ""}</>
+                      )}
+                      {effect.selectionMode === "per_school" && ` (${effect.numberOfSpells || 1} per school)`}
                       {effect.schools && effect.schools.length > 0 && ` from: ${effect.schools.join(", ")}`}
                     </div>
                   </div>
@@ -288,10 +312,14 @@ export function EffectSelectionsSection() {
                   size="sm" 
                   onClick={() => {
                     setSelectedUtilitySpells(effect);
-                    setUtilitySpellSelection([]);
+                    // Check if there are existing selections for this effect
+                    const existingSelections = character.effectSelections.filter(
+                      s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
+                    ) as UtilitySpellsEffectSelection[];
+                    setExistingUtilitySpellSelections(existingSelections);
                   }}
                 >
-                  Choose Spells
+                  {selected > 0 ? "Edit Spells" : "Choose Spells"}
                 </Button>
               </div>
             );
@@ -328,171 +356,58 @@ export function EffectSelectionsSection() {
 
       {/* Spell School Selection Dialog */}
       {selectedSpellSchoolChoice && (
-        <Dialog open={true} onOpenChange={() => {
-          setSelectedSpellSchoolChoice(null);
-          setIsEditingSpellSchool(false);
-        }}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Choose Spell School</DialogTitle>
-              <DialogDescription>
-                Select a spell school to gain access to its spells.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Select onValueChange={handleSelectSpellSchool}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a spell school" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(() => {
-                    // Get already available spell schools to filter them out
-                    const characterService = getCharacterService();
-                    const availableSchoolIds = new Set(characterService.getSpellSchools());
-                    
-                    // Filter out already available schools
-                    const availableSchools = contentRepository.getAllSpellSchools()
-                      .filter(school => !availableSchoolIds.has(school.id));
-                    
-                    if (availableSchools.length === 0) {
-                      return (
-                        <div className="p-2 text-sm text-muted-foreground text-center">
-                          All spell schools are already available
-                        </div>
-                      );
-                    }
-                    
-                    return availableSchools.map((school) => {
-                      const SchoolIcon = getIconById(school.icon);
-                      return (
-                        <SelectItem key={school.id} value={school.id}>
-                          <div className="flex items-center gap-2">
-                            <SchoolIcon className={`w-4 h-4 ${school.color}`} />
-                            {school.name}
-                          </div>
-                        </SelectItem>
-                      );
-                    });
-                  })()}
-                </SelectContent>
-              </Select>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <SpellSchoolSelectionDialog
+          effect={selectedSpellSchoolChoice}
+          character={character}
+          open={!!selectedSpellSchoolChoice}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedSpellSchoolChoice(null);
+              setExistingSpellSchoolSelections([]);
+            }
+          }}
+          onConfirm={handleSelectSpellSchool}
+          existingSelection={(() => {
+            const selection = character.effectSelections.find(
+              s => s.type === "spell_school" && s.grantedByEffectId === selectedSpellSchoolChoice.id
+            );
+            return selection?.type === "spell_school" ? selection.schoolId : undefined;
+          })()}
+          existingSchools={existingSpellSchoolSelections}
+        />
       )}
 
       {/* Attribute Boost Selection Dialog */}
       {selectedAttributeBoost && (
-        <Dialog open={true} onOpenChange={() => setSelectedAttributeBoost(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Choose Attribute Boost</DialogTitle>
-              <DialogDescription>
-                Select an attribute to receive a permanent boost.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {(() => {
-                const availableAttributes = selectedAttributeBoost.allowedAttributes;
-                return (
-                  <div className="grid grid-cols-2 gap-3">
-                    {availableAttributes.map((attr) => (
-                      <Button
-                        key={attr}
-                        variant="outline"
-                        onClick={() => handleSelectAttributeBoost(attr as AttributeName, selectedAttributeBoost.amount)}
-                        className="justify-start"
-                      >
-                        <Target className="w-4 h-4 mr-2" />
-                        {attr.charAt(0).toUpperCase() + attr.slice(1)} +{selectedAttributeBoost.amount}
-                      </Button>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AttributeBoostSelectionDialog
+          effect={selectedAttributeBoost}
+          open={!!selectedAttributeBoost}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedAttributeBoost(null);
+              setExistingAttributeSelection(undefined);
+            }
+          }}
+          onConfirm={handleSelectAttributeBoost}
+          existingSelection={existingAttributeSelection}
+        />
       )}
 
       {/* Utility Spells Selection Dialog */}
       {selectedUtilitySpells && (
-        <Dialog open={true} onOpenChange={() => {
-          setSelectedUtilitySpells(null);
-          setUtilitySpellSelection([]);
-        }}>
-          <DialogContent className="sm:max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Choose Utility Spells</DialogTitle>
-              <DialogDescription>
-                {(() => {
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                  const spellCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-                  if (selectedUtilitySpells.selectionMode === "per_school") {
-                    return `Select ${selectedUtilitySpells.spellsPerSchool || 1} utility spell${(selectedUtilitySpells.spellsPerSchool || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${spellCount} total).`;
-                  } else {
-                    return `Select ${spellCount} utility spell${spellCount > 1 ? "s" : ""} to learn.`;
-                  }
-                })()}
-              </DialogDescription>
-            </DialogHeader>
-            <ScrollArea className="h-[400px] pr-4">
-              <div className="space-y-3">
-                {(() => {
-                  const availableSpells = featureSelectionService.getAvailableUtilitySpells(selectedUtilitySpells, character);
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-
-                  return availableSpells.map((spell) => (
-                    <div key={spell.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-                      <Checkbox
-                        checked={utilitySpellSelection.includes(spell.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            if (utilitySpellSelection.length < expectedCount) {
-                              setUtilitySpellSelection([...utilitySpellSelection, spell.id]);
-                            }
-                          } else {
-                            setUtilitySpellSelection(utilitySpellSelection.filter(id => id !== spell.id));
-                          }
-                        }}
-                        disabled={!utilitySpellSelection.includes(spell.id) && utilitySpellSelection.length >= expectedCount}
-                      />
-                      <div className="flex-1">
-                        <div className="font-medium">{spell.name}</div>
-                        <div className="text-sm text-muted-foreground">{spell.description}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {spell.school}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-            </ScrollArea>
-            <DialogFooter>
-              <Button
-                onClick={handleSelectUtilitySpells}
-                disabled={!featureSelectionService.validateUtilitySpellSelection(
-                  selectedUtilitySpells,
-                  utilitySpellSelection,
-                  character
-                )}
-              >
-                {(() => {
-                  const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(selectedUtilitySpells, character);
-                  const expectedCount = featureSelectionService.getUtilitySpellSelectionCount(selectedUtilitySpells, availableSchools);
-                  return `Confirm Selection (${utilitySpellSelection.length}/${expectedCount})`;
-                })()}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <UtilitySpellSelectionDialog
+          effect={selectedUtilitySpells}
+          character={character}
+          open={!!selectedUtilitySpells}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedUtilitySpells(null);
+              setExistingUtilitySpellSelections([]);
+            }
+          }}
+          onConfirm={handleSelectUtilitySpells}
+          existingSelections={existingUtilitySpellSelections}
+        />
       )}
     </>
   );

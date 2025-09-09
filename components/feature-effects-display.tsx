@@ -25,7 +25,6 @@ import { EffectSelectionDisplay } from "./effect-selection-display";
 interface FeatureEffectsDisplayProps {
   effects: FeatureEffect[];
   existingSelections?: EffectSelection[];
-  onSelectionChange?: (effectId: string, selection: EffectSelection | null) => void;
   onOpenSelectionDialog?: (effect: FeatureEffect) => void;
   character?: Character;
   className?: string;
@@ -227,7 +226,6 @@ const isSelectableEffect = (effect: FeatureEffect): boolean => {
 export function FeatureEffectsDisplay({
   effects,
   existingSelections = [],
-  onSelectionChange,
   onOpenSelectionDialog,
   character,
   className = "",
@@ -252,7 +250,8 @@ export function FeatureEffectsDisplay({
           
           // Check if we should show selection UI for this effect
           const needsSelection = onOpenSelectionDialog && isSelectable;
-          const existingSelection = existingSelections.find(
+          // Get all selections for this effect
+          const effectSelections = existingSelections.filter(
             s => s.grantedByEffectId === effectId
           );
           
@@ -267,12 +266,12 @@ export function FeatureEffectsDisplay({
                   </Badge>
                 </div>
                 <div className="flex-1">
-                  {existingSelection ? (
+                  {effectSelections.length > 0 ? (
                     // Show the selection instead of the description
                     <EffectSelectionDisplay
                       effect={effect}
                       effectId={effectId}
-                      existingSelection={existingSelection}
+                      existingSelections={effectSelections}
                       onOpenDialog={onOpenSelectionDialog}
                       character={character}
                       autoOpen={false}
@@ -284,7 +283,7 @@ export function FeatureEffectsDisplay({
                       <EffectSelectionDisplay
                         effect={effect}
                         effectId={effectId}
-                        existingSelection={existingSelection}
+                        existingSelections={effectSelections}
                         onOpenDialog={onOpenSelectionDialog}
                         character={character}
                         autoOpen={false}

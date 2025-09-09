@@ -6,7 +6,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getClassService } from "@/lib/services/service-factory";
 import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
 
-import { SubclassSelectionDialog } from "../subclass-selection-dialog";
+import { SubclassSelectionDialog } from "../dialogs/subclass-selection-dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

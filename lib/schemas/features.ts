@@ -123,7 +123,7 @@ const UtilitySpellsFeatureEffectSchema = BaseFeatureEffectSchema.extend({
   type: z.literal("utility_spells"),
   schools: z.array(z.string()).optional(), // If empty, use all character's schools
   selectionMode: z.enum(["per_school", "total"]).default("total"),
-  spellsPerSchool: z.number().int().min(1).optional(), // Used when selectionMode is "per_school"
+  numberOfSpells: z.number().int().min(1).optional(), // Used when selectionMode is "per_school"
   totalSpells: z.number().int().min(1).optional(), // Used when selectionMode is "total"
 });
 
