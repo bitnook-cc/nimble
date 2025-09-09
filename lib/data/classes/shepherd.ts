@@ -139,9 +139,9 @@ const shepherdFeatures: ClassFeature[] = [
           type: "action",
           frequency: "per_safe_rest",
           actionCost: 1,
-          maxUses: { type: "formula", expression: "WIL"},
-        }
-      }
+          maxUses: { type: "formula", expression: "WIL" },
+        },
+      },
     ],
   },
   {

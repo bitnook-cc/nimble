@@ -1,7 +1,11 @@
-import { AttributeName } from "../schemas/character";
 import { DiceType } from "../schemas/dice";
+import { 
+  OPERATOR_REGEX,
+  sanitizeExpression,
+  substituteVariablesForDice,
+  safeEvaluate
+} from "../utils/formula-utils";
 import { diceService } from "./dice-service";
-import { getCharacterService } from "./service-factory";
 
 export interface DiceFormulaOptions {
   advantageLevel?: number; // Positive for advantage, negative for disadvantage
@@ -26,8 +30,8 @@ interface ParsedDiceNotation {
 }
 
 export class DiceFormulaService {
-  private readonly operatorRegex = /^[+\-*/\(\)0-9\s]+$/;
   private readonly validDiceTypes = [4, 6, 8, 10, 12, 20, 100];
+  private readonly doubleDigitDiceTypes = [44, 66, 88];
 
   /**
    * Evaluate a dice formula expression
@@ -37,10 +41,10 @@ export class DiceFormulaService {
   evaluateDiceFormula(formula: string, options: DiceFormulaOptions = {}): DiceFormulaResult {
     try {
       // Step 1: Clean and prepare the formula
-      const cleanedFormula = this.sanitizeFormula(formula);
+      const cleanedFormula = sanitizeExpression(formula);
 
       // Step 2: Substitute variables (STR, DEX, etc.)
-      const { substituted, hasVariables } = this.substituteVariables(cleanedFormula);
+      const { substituted, hasVariables } = substituteVariablesForDice(cleanedFormula);
 
       // Step 3: Find and parse dice notation
       const diceNotation = this.findDiceNotation(substituted);
@@ -77,88 +81,6 @@ export class DiceFormulaService {
     }
   }
 
-  /**
-   * Clean and validate the formula
-   */
-  private sanitizeFormula(formula: string): string {
-    // Remove extra whitespace
-    const cleaned = formula.replace(/\s+/g, " ").trim();
-
-    // Check for obviously malicious patterns
-    const dangerousPatterns = [
-      /[a-zA-Z_$][a-zA-Z0-9_$]*\s*\([^)]*\)/, // function calls (except d notation)
-      /\[|\]/, // array access
-      /\{|\}/, // object access
-      /;|:/, // statement separators
-      /=/, // assignment
-      /\.|`/, // property access or template literals
-    ];
-
-    for (const pattern of dangerousPatterns) {
-      // Skip the function pattern check for dice notation
-      if (pattern.source.includes("a-zA-Z_$") && /\bd\d+/i.test(cleaned)) {
-        continue;
-      }
-      if (pattern.test(cleaned)) {
-        throw new Error(`Potentially unsafe pattern detected in formula`);
-      }
-    }
-
-    return cleaned;
-  }
-
-  /**
-   * Substitute attribute variables in the formula
-   */
-  private substituteVariables(formula: string): { substituted: string; hasVariables: boolean } {
-    const characterService = getCharacterService();
-    const character = characterService.getCurrentCharacter();
-
-    if (!character) {
-      return { substituted: formula, hasVariables: false };
-    }
-
-    let result = formula;
-    let hasVariables = false;
-
-    // Get attributes with stat boosts
-    const attributes = characterService.getAttributes();
-
-    // Replace attribute names (case-insensitive)
-    // Special handling for variables before 'd' in dice notation
-    const attributeMap: Record<string, AttributeName> = {
-      STR: "strength",
-      STRENGTH: "strength",
-      DEX: "dexterity",
-      DEXTERITY: "dexterity",
-      INT: "intelligence",
-      INTELLIGENCE: "intelligence",
-      WIL: "will",
-      WILL: "will",
-    };
-
-    // Use case-insensitive replacement with special handling for dice notation
-    for (const [key, attributeName] of Object.entries(attributeMap)) {
-      const value = attributes[attributeName];
-      // Match the attribute name when it's either:
-      // 1. Followed by 'd' (for dice notation like STRd6)
-      // 2. At a word boundary (for regular math like STR + 2)
-      const regex = new RegExp(`\\b${key}(?=d\\d+)|\\b${key}\\b`, "gi");
-      if (regex.test(result)) {
-        hasVariables = true;
-        result = result.replace(regex, value.toString());
-      }
-    }
-
-    // Replace level keyword with same special handling
-    const levelRegex = /\b(LEVEL|LVL)(?=d\d+)|\b(LEVEL|LVL)\b/gi;
-    if (levelRegex.test(result)) {
-      hasVariables = true;
-      result = result.replace(levelRegex, character.level.toString());
-    }
-
-    return { substituted: result, hasVariables };
-  }
 
   /**
    * Find and parse dice notation in the expression
@@ -173,10 +95,11 @@ export class DiceFormulaService {
     const count = match[1] ? parseInt(match[1]) : 1;
     const sides = parseInt(match[2]);
 
-    // Validate dice type
-    if (!this.validDiceTypes.includes(sides)) {
+    // Validate dice type (including double-digit dice)
+    const isDoubleDigit = this.doubleDigitDiceTypes.includes(sides);
+    if (!this.validDiceTypes.includes(sides) && !isDoubleDigit) {
       throw new Error(
-        `Invalid dice type: d${sides}. Valid types are: ${this.validDiceTypes.join(", ")}`,
+        `Invalid dice type: d${sides}. Valid types are: ${[...this.validDiceTypes, ...this.doubleDigitDiceTypes].join(", ")}`,
       );
     }
 
@@ -200,14 +123,23 @@ export class DiceFormulaService {
     keptSum: number;
     isCritical: boolean;
     isFumble: boolean;
+    isDoubleDigit?: boolean;
   } {
+    // Check if this is a double-digit die
+    const isDoubleDigit = this.doubleDigitDiceTypes.includes(notation.sides as any);
+    
+    if (isDoubleDigit) {
+      // Double-digit dice cannot crit or be vicious
+      return this.rollDoubleDigitDice(notation, options);
+    }
+
     const advantageLevel = options.advantageLevel || 0;
     const totalDiceToRoll = notation.count + Math.abs(advantageLevel);
 
     // Roll all dice in order
     const rolledDice: number[] = [];
     for (let i = 0; i < totalDiceToRoll; i++) {
-      rolledDice.push(diceService.rollSingleDie(notation.sides));
+      rolledDice.push(diceService.rollSingleDie(notation.sides as DiceType));
     }
 
     // Determine which dice to keep based on advantage/disadvantage
@@ -280,6 +212,93 @@ export class DiceFormulaService {
   }
 
   /**
+   * Roll double-digit dice (d44, d66, d88)
+   * These dice roll two dice and combine them as tens and ones
+   */
+  private rollDoubleDigitDice(
+    notation: ParsedDiceNotation,
+    options: DiceFormulaOptions,
+  ): {
+    allDice: { value: number; kept: boolean }[];
+    keptSum: number;
+    isCritical: boolean;
+    isFumble: boolean;
+    isDoubleDigit: boolean;
+  } {
+    if (notation.count !== 1) {
+      throw new Error(`Double-digit dice (d${notation.sides}) can only be rolled one at a time. Use 1d${notation.sides}.`);
+    }
+
+    const advantageLevel = options.advantageLevel || 0;
+    const baseDie = notation.sides === 44 ? 4 : notation.sides === 66 ? 6 : 8;
+    const totalDicePerPosition = 1 + Math.abs(advantageLevel);
+    
+    // Roll all dice for tens position
+    const tensRolls: number[] = [];
+    for (let i = 0; i < totalDicePerPosition; i++) {
+      tensRolls.push(diceService.rollSingleDie(baseDie as DiceType));
+    }
+    
+    // Roll all dice for ones position
+    const onesRolls: number[] = [];
+    for (let i = 0; i < totalDicePerPosition; i++) {
+      onesRolls.push(diceService.rollSingleDie(baseDie as DiceType));
+    }
+    
+    // Track indices for determining which dice are kept
+    const tensIndices = tensRolls.map((value, index) => ({ value, index }));
+    const onesIndices = onesRolls.map((value, index) => ({ value, index }));
+    
+    // Sort by value to determine which to keep/drop
+    const tensSorted = [...tensIndices].sort((a, b) => a.value - b.value);
+    const onesSorted = [...onesIndices].sort((a, b) => a.value - b.value);
+    
+    let keptTensIndex: number;
+    let keptOnesIndex: number;
+    
+    if (advantageLevel > 0) {
+      // Advantage: drop lowest, keep highest
+      keptTensIndex = tensSorted[tensSorted.length - 1].index;
+      keptOnesIndex = onesSorted[onesSorted.length - 1].index;
+    } else if (advantageLevel < 0) {
+      // Disadvantage: drop highest, keep lowest
+      keptTensIndex = tensSorted[0].index;
+      keptOnesIndex = onesSorted[0].index;
+    } else {
+      // No advantage/disadvantage
+      keptTensIndex = 0;
+      keptOnesIndex = 0;
+    }
+    
+    // Build the allDice array in the order rolled
+    // First all tens dice, then all ones dice
+    const allDice: { value: number; kept: boolean }[] = [];
+    
+    // Add tens dice
+    tensRolls.forEach((value, index) => {
+      allDice.push({ value, kept: index === keptTensIndex });
+    });
+    
+    // Add ones dice
+    onesRolls.forEach((value, index) => {
+      allDice.push({ value, kept: index === keptOnesIndex });
+    });
+    
+    // Calculate the final result
+    const keptTens = tensRolls[keptTensIndex];
+    const keptOnes = onesRolls[keptOnesIndex];
+    const keptSum = keptTens * 10 + keptOnes;
+    
+    return {
+      allDice,
+      keptSum,
+      isCritical: false, // Double-digit dice cannot crit
+      isFumble: false,   // Double-digit dice cannot fumble
+      isDoubleDigit: true,
+    };
+  }
+
+  /**
    * Build the expression with rolled dice values
    */
   private buildExpressionWithDice(
@@ -290,10 +309,13 @@ export class DiceFormulaService {
       keptSum: number;
       isCritical: boolean;
       isFumble: boolean;
+      isDoubleDigit?: boolean;
     },
   ): { expression: string; display: string } {
     // Build the dice display string
-    const diceDisplay = this.formatDiceDisplay(rollResult.allDice);
+    const diceDisplay = rollResult.isDoubleDigit
+      ? this.formatDoubleDigitDiceDisplay(rollResult.allDice, rollResult.keptSum)
+      : this.formatDiceDisplay(rollResult.allDice);
 
     // Replace the dice notation with the sum for evaluation
     const beforeDice = expression.substring(0, notation.position);
@@ -323,27 +345,32 @@ export class DiceFormulaService {
   }
 
   /**
+   * Format double-digit dice display
+   * Shows the individual dice with the final result
+   */
+  private formatDoubleDigitDiceDisplay(allDice: { value: number; kept: boolean }[], result: number): string {
+    // Format all dice (tens first, then ones)
+    const formattedDice = allDice.map((die) => {
+      const dieStr = `[${die.value}]`;
+      return die.kept ? dieStr : `~~${dieStr}~~`;
+    }).join(" ");
+    
+    // Return format: [dice] = result
+    // e.g., "[3] [2] = 32" or "[3] ~~[1]~~ [2] = 32"
+    return `${formattedDice} = ${result}`;
+  }
+
+  /**
    * Safely evaluate the mathematical expression
    */
   private evaluateExpression(expression: string): number {
     // Validate that only numbers and operators remain
-    if (!this.operatorRegex.test(expression)) {
+    if (!OPERATOR_REGEX.test(expression)) {
       throw new Error(`Invalid characters in expression: ${expression}`);
     }
 
-    try {
-      // Use Function constructor for safer evaluation than eval
-      const func = new Function(`"use strict"; return (${expression});`);
-      const result = func();
-
-      if (typeof result !== "number" || !isFinite(result)) {
-        throw new Error(`Expression did not evaluate to a finite number: ${result}`);
-      }
-
-      return Math.floor(result); // Always return integer results
-    } catch (error) {
-      throw new Error(`Failed to evaluate expression "${expression}": ${error}`);
-    }
+    const result = safeEvaluate(expression);
+    return Math.floor(result); // Always return integer results
   }
 }
 

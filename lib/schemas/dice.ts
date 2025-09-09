@@ -8,7 +8,9 @@ const diceTypeSchema = z.union([
   z.literal(10),
   z.literal(12),
   z.literal(20),
+  z.literal(44),
   z.literal(66),
+  z.literal(88),
   z.literal(100),
 ]);
 
@@ -22,7 +24,7 @@ export const diceExpressionSchema = z
       .meta({ title: "Dice Count", description: "Number of dice to roll (integer)" }),
     sides: diceTypeSchema.meta({
       title: "Dice Type",
-      description: "Type of dice (d4, d6, d8, d10, d12, d20, d66, d100)",
+      description: "Type of dice (d4, d6, d8, d10, d12, d20, d44, d66, d88, d100)",
     }),
   })
   .meta({ title: "Dice Expression", description: "Dice expression for rolling" });

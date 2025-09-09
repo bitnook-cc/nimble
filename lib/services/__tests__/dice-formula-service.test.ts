@@ -266,6 +266,131 @@ describe("DiceFormulaService", () => {
     });
   });
 
+  describe("Double-digit dice", () => {
+    it("should roll d44 correctly", () => {
+      // Roll d44: [3] for tens, [2] for ones = 32
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(3) // tens
+        .mockReturnValueOnce(2); // ones
+
+      const result = diceFormulaService.evaluateDiceFormula("d44");
+
+      expect(result.displayString).toBe("[3] [2] = 32");
+      expect(result.total).toBe(32);
+    });
+
+    it("should roll d66 correctly", () => {
+      // Roll d66: [5] for tens, [4] for ones = 54
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(5) // tens
+        .mockReturnValueOnce(4); // ones
+
+      const result = diceFormulaService.evaluateDiceFormula("d66");
+
+      expect(result.displayString).toBe("[5] [4] = 54");
+      expect(result.total).toBe(54);
+    });
+
+    it("should roll d88 correctly", () => {
+      // Roll d88: [7] for tens, [8] for ones = 78
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(7) // tens
+        .mockReturnValueOnce(8); // ones
+
+      const result = diceFormulaService.evaluateDiceFormula("d88");
+
+      expect(result.displayString).toBe("[7] [8] = 78");
+      expect(result.total).toBe(78);
+    });
+
+    it("should handle d44 with advantage", () => {
+      // Roll d44 with advantage 1: 
+      // Tens: [3], [4] - keep [4]
+      // Ones: [1], [2] - keep [2]
+      // Result = 42
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(3) // tens die 1
+        .mockReturnValueOnce(4) // tens die 2 (kept - higher)
+        .mockReturnValueOnce(1) // ones die 1
+        .mockReturnValueOnce(2); // ones die 2 (kept - higher)
+
+      const result = diceFormulaService.evaluateDiceFormula("d44", {
+        advantageLevel: 1,
+      });
+
+      expect(result.displayString).toBe("~~[3]~~ [4] ~~[1]~~ [2] = 42");
+      expect(result.total).toBe(42);
+    });
+
+    it("should handle d66 with disadvantage", () => {
+      // Roll d66 with disadvantage 1:
+      // Tens: [5], [3] - keep [3] (lower)
+      // Ones: [6], [2] - keep [2] (lower)
+      // Result = 32
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(5) // tens die 1
+        .mockReturnValueOnce(3) // tens die 2 (kept - lower)
+        .mockReturnValueOnce(6) // ones die 1
+        .mockReturnValueOnce(2); // ones die 2 (kept - lower)
+
+      const result = diceFormulaService.evaluateDiceFormula("d66", {
+        advantageLevel: -1,
+      });
+
+      expect(result.displayString).toBe("~~[5]~~ [3] ~~[6]~~ [2] = 32");
+      expect(result.total).toBe(32);
+    });
+
+    it("should work in expressions", () => {
+      // Roll d44: [2] [3] = 23, then add 10
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(2) // tens
+        .mockReturnValueOnce(3); // ones
+
+      const result = diceFormulaService.evaluateDiceFormula("d44 + 10");
+
+      expect(result.displayString).toBe("[2] [3] = 23 + 10");
+      expect(result.total).toBe(33);
+    });
+
+    it("should throw error for multiple double-digit dice", () => {
+      expect(() => diceFormulaService.evaluateDiceFormula("2d44")).toThrow(
+        "Double-digit dice (d44) can only be rolled one at a time"
+      );
+    });
+
+    it("should not allow criticals on double-digit dice", () => {
+      // Roll d44: [4] [4] = 44 (max for both dice, but shouldn't crit)
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(4) // tens (max for d4)
+        .mockReturnValueOnce(4); // ones (max for d4)
+
+      const result = diceFormulaService.evaluateDiceFormula("d44", {
+        allowCriticals: true,
+      });
+
+      expect(result.displayString).toBe("[4] [4] = 44");
+      expect(result.total).toBe(44);
+      // Should not have any additional dice from criticals
+    });
+
+    it("should not allow vicious on double-digit dice", () => {
+      // Roll d44: [4] [4] = 44 (max, but vicious shouldn't add extra die)
+      (diceService.rollSingleDie as any)
+        .mockReturnValueOnce(4) // tens
+        .mockReturnValueOnce(4); // ones
+
+      const result = diceFormulaService.evaluateDiceFormula("d44", {
+        allowCriticals: true,
+        vicious: true,
+      });
+
+      expect(result.displayString).toBe("[4] [4] = 44");
+      expect(result.total).toBe(44);
+      // Should not have any additional dice from vicious
+    });
+  });
+
   describe("Error handling", () => {
     it("should throw on invalid dice types", () => {
       expect(() => diceFormulaService.evaluateDiceFormula("3d7")).toThrow("Invalid dice type: d7");

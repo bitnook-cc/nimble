@@ -113,10 +113,16 @@ export class CharacterService implements ICharacterService {
    * Get detailed information about ability overrides
    * Returns a map of ability IDs to their override information
    */
-  getAbilityOverrideInfo(): Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }> {
+  getAbilityOverrideInfo(): Map<
+    string,
+    { currentLevel: number; overriddenLevels: number[]; isManual: boolean }
+  > {
     const allFeatures = this.getAllActiveFeatures();
-    const abilitiesByIdAndLevel = new Map<string, Array<{ level: number; ability: any; isManual: boolean }>>();
-    
+    const abilitiesByIdAndLevel = new Map<
+      string,
+      Array<{ level: number; ability: any; isManual: boolean }>
+    >();
+
     // Collect all abilities from effects grouped by ID
     for (const feature of allFeatures) {
       const level = (feature as any).level || 0;
@@ -132,7 +138,7 @@ export class CharacterService implements ICharacterService {
         }
       }
     }
-    
+
     // Check for manually added abilities
     if (this._character) {
       for (const ability of this._character._abilities || []) {
@@ -142,27 +148,33 @@ export class CharacterService implements ICharacterService {
         }
       }
     }
-    
+
     // Build override info for abilities that appear at multiple levels
-    const overrideInfo = new Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }>();
-    
+    const overrideInfo = new Map<
+      string,
+      { currentLevel: number; overriddenLevels: number[]; isManual: boolean }
+    >();
+
     for (const [abilityId, instances] of abilitiesByIdAndLevel) {
       if (instances.length > 1) {
         // Sort by level descending (manual = 999 will be first)
         instances.sort((a, b) => b.level - a.level);
         const current = instances[0];
-        const overriddenLevels = instances.slice(1).filter(i => !i.isManual).map(i => i.level);
-        
+        const overriddenLevels = instances
+          .slice(1)
+          .filter((i) => !i.isManual)
+          .map((i) => i.level);
+
         if (overriddenLevels.length > 0) {
-          overrideInfo.set(abilityId, { 
+          overrideInfo.set(abilityId, {
             currentLevel: current.isManual ? 0 : current.level,
             overriddenLevels,
-            isManual: current.isManual
+            isManual: current.isManual,
           });
         }
       }
     }
-    
+
     return overrideInfo;
   }
 
@@ -345,7 +357,10 @@ export class CharacterService implements ICharacterService {
 
     // Track abilities with their source priority and level
     // Priority: manually added (highest) > higher level effects > lower level effects
-    const abilitiesWithPriority = new Map<string, { ability: AbilityDefinition; priority: number; level: number }>();
+    const abilitiesWithPriority = new Map<
+      string,
+      { ability: AbilityDefinition; priority: number; level: number }
+    >();
 
     // 1. Get abilities from effects (non-spell abilities) with level tracking
     const allFeatures = this.getAllActiveFeatures();
@@ -375,7 +390,9 @@ export class CharacterService implements ICharacterService {
     }
 
     // Collect the final abilities list
-    const abilities: AbilityDefinition[] = Array.from(abilitiesWithPriority.values()).map(item => item.ability);
+    const abilities: AbilityDefinition[] = Array.from(abilitiesWithPriority.values()).map(
+      (item) => item.ability,
+    );
 
     // 3. Get spells from spell schools
     const schoolSpells = this.getSpellsFromSchools();
@@ -673,7 +690,8 @@ export class CharacterService implements ICharacterService {
         if (schoolSpells) {
           // Filter to only tier 0 (utility) spells that are within character's tier access
           const utilitySpells = schoolSpells.filter(
-            (spell) => spell.category === "utility" && spell.tier <= this._character!._spellTierAccess,
+            (spell) =>
+              spell.category === "utility" && spell.tier <= this._character!._spellTierAccess,
           );
           spellIds.push(...utilitySpells.map((spell) => spell.id));
         }

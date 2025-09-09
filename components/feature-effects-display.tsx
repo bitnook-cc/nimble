@@ -29,7 +29,10 @@ interface FeatureEffectsDisplayProps {
   onOpenSelectionDialog?: (effect: FeatureEffect) => void;
   character?: Character;
   className?: string;
-  abilityOverrideInfo?: Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }>;
+  abilityOverrideInfo?: Map<
+    string,
+    { currentLevel: number; overriddenLevels: number[]; isManual: boolean }
+  >;
 }
 
 const getEffectIcon = (effectType: string) => {
@@ -311,7 +314,7 @@ export function FeatureEffectsDisplay({
               override = abilityOverrideInfo.get(ability.id);
             }
           }
-          
+
           // Original display for non-selectable effects
           return (
             <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
@@ -322,8 +325,11 @@ export function FeatureEffectsDisplay({
                     {getEffectLabel(effect.type)}
                   </Badge>
                   {override && (
-                    <Badge variant="outline" className="text-xs bg-amber-50 border-amber-200 text-amber-700">
-                      {override.isManual 
+                    <Badge
+                      variant="outline"
+                      className="text-xs bg-amber-50 border-amber-200 text-amber-700"
+                    >
+                      {override.isManual
                         ? `Manual Override (Replaces Lvl ${override.overriddenLevels.join(", ")})`
                         : `Overrides Lvl ${override.overriddenLevels.join(", ")}`}
                     </Badge>

@@ -162,12 +162,10 @@ export const SpellSchoolDefinitionSchema = z
       .min(1)
       .meta({ title: "Color", description: "Tailwind color classes for the school" }),
     icon: z.string().min(1).meta({ title: "Icon", description: "Icon identifier for the school" }),
-    spells: z
-      .array(SpellAbilitySchema)
-      .meta({
-        title: "Spells",
-        description: "Array of all spells in this school (both combat and utility)",
-      }),
+    spells: z.array(SpellAbilitySchema).meta({
+      title: "Spells",
+      description: "Array of all spells in this school (both combat and utility)",
+    }),
   })
   .meta({
     title: "Spell School Definition",

@@ -90,7 +90,7 @@ const stormshifterFeatures: ClassFeature[] = [
         id: "master-of-storms-1",
         type: "spell_school",
         schoolId: "wind",
-      }
+      },
     ],
   },
   {
@@ -382,7 +382,7 @@ const stormshifterFeatures: ClassFeature[] = [
     name: "Expert Shifter (2)",
     description: "Gain 1 additional use of Beastshift per Safe Rest.",
     effects: [
-            {
+      {
         id: "expert-shifter-2-0",
         type: "ability",
         ability: {
@@ -488,7 +488,8 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 12,
     name: "Expert Shifter (3)",
     description: "Gain 1 additional use of Beastshift per Safe Rest.",
-    effects: [      {
+    effects: [
+      {
         id: "expert-shifter-3-0",
         type: "ability",
         ability: {
@@ -501,7 +502,8 @@ const stormshifterFeatures: ClassFeature[] = [
           maxUses: { type: "formula", expression: "DEX + 3" },
           actionCost: 1,
         },
-      },],
+      },
+    ],
   },
   // Level 13
   {
@@ -642,13 +644,13 @@ const stormshifterFeatures: ClassFeature[] = [
     description:
       "+1 to any 2 of your stats. (1/encounter) Cast a spell up to tier 4 for free when you enter or leave a Beastshift form.",
     effects: [
-            {
+      {
         id: "archdruid-0",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
         amount: 1,
       },
-           {
+      {
         id: "archdruid-1",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
@@ -661,11 +663,12 @@ const stormshifterFeatures: ClassFeature[] = [
           id: "archdruid-free-cast",
           type: "action",
           name: "Archdruid Free Cast",
-          description: "Cast a spell up to tier 4 for free when you enter or leave a Beastshift form.",
+          description:
+            "Cast a spell up to tier 4 for free when you enter or leave a Beastshift form.",
           frequency: "per_encounter",
           maxUses: { type: "fixed", value: 1 },
-        }
-      }
+        },
+      },
     ],
   },
   {

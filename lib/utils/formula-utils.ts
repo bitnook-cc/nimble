@@ -1,0 +1,182 @@
+import { AttributeName } from "../schemas/character";
+import { getCharacterService } from "../services/service-factory";
+
+/**
+ * Common utilities for formula evaluation and dice formula processing
+ */
+
+// Regex patterns for validation
+export const OPERATOR_REGEX = /^[+\-*/\(\)0-9\s]+$/;
+
+// Dangerous patterns that should be rejected for security
+const DANGEROUS_PATTERNS = [
+  /[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(/, // function calls
+  /\[|\]/, // array access
+  /\{|\}/, // object access
+  /;|:/, // statement separators
+  /=/, // assignment
+  /\.|`/, // property access or template literals
+];
+
+/**
+ * Clean and validate a formula expression for safety
+ * @param expression The expression to sanitize
+ * @returns The cleaned expression
+ * @throws Error if dangerous patterns are detected
+ */
+export function sanitizeExpression(expression: string): string {
+  // Remove extra whitespace
+  let cleaned = expression.replace(/\s+/g, " ").trim();
+  
+  // Convert variables to uppercase while preserving 'd' in dice notation
+  // First, protect dice notation by temporarily replacing it
+  const dicePattern = /(\d+)?d(\d+)/gi;
+  const diceMatches: Array<{match: string, index: number}> = [];
+  let match;
+  while ((match = dicePattern.exec(cleaned)) !== null) {
+    diceMatches.push({ match: match[0].toLowerCase(), index: match.index });
+  }
+  
+  // Convert everything to uppercase
+  cleaned = cleaned.toUpperCase();
+  
+  // Restore dice notation with lowercase 'd'
+  for (let i = diceMatches.length - 1; i >= 0; i--) {
+    const dice = diceMatches[i];
+    cleaned = cleaned.substring(0, dice.index) + dice.match + cleaned.substring(dice.index + dice.match.length);
+  }
+
+  // Check for obviously malicious patterns
+  for (const pattern of DANGEROUS_PATTERNS) {
+    if (pattern.test(cleaned)) {
+      throw new Error(`Potentially unsafe pattern detected: ${pattern}`);
+    }
+  }
+
+  return cleaned;
+}
+
+/**
+ * Replace attribute names and keywords with their numeric values
+ * @param expression The expression with variables to substitute
+ * @returns The expression with variables replaced
+ * @throws Error if no character is available for substitution
+ */
+export function substituteVariables(expression: string): string {
+  const characterService = getCharacterService();
+  const character = characterService.getCurrentCharacter();
+
+  if (!character) {
+    throw new Error("No character available for variable substitution");
+  }
+
+  let result = expression;
+
+  // Get attributes with stat boosts from character service
+  const attributes = characterService.getAttributes();
+
+  // Map of variable names to attribute names
+  const attributeMap: Record<string, AttributeName> = {
+    STR: "strength",
+    STRENGTH: "strength",
+    DEX: "dexterity",
+    DEXTERITY: "dexterity",
+    INT: "intelligence",
+    INTELLIGENCE: "intelligence",
+    WIL: "will",
+    WILL: "will",
+  };
+
+  // Replace attribute names (case-insensitive)
+  for (const [key, attributeName] of Object.entries(attributeMap)) {
+    const value = attributes[attributeName];
+    // Use word boundaries to avoid partial matches
+    result = result.replace(new RegExp(`\\b${key}\\b`, "g"), value.toString());
+  }
+
+  // Replace level keywords
+  result = result.replace(/\bLEVEL\b/g, character.level.toString());
+  result = result.replace(/\bLVL\b/g, character.level.toString());
+
+  return result;
+}
+
+/**
+ * Replace attribute names with support for dice notation (e.g., STRd6) and math expressions (e.g., 2d6 + STR)
+ * Handles variables that appear:
+ * - Before 'd' in dice notation (STRd6)
+ * - As standalone terms in expressions (2d6 + STR)
+ * @param expression The expression with variables to substitute
+ * @returns Object with substituted expression and whether variables were found
+ */
+export function substituteVariablesForDice(expression: string): { substituted: string; hasVariables: boolean } {
+  const characterService = getCharacterService();
+  const character = characterService.getCurrentCharacter();
+
+  if (!character) {
+    return { substituted: expression, hasVariables: false };
+  }
+
+  let result = expression;
+  let hasVariables = false;
+
+  // Get attributes with stat boosts
+  const attributes = characterService.getAttributes();
+
+  // Map of variable names to attribute names
+  const attributeMap: Record<string, AttributeName> = {
+    STR: "strength",
+    STRENGTH: "strength",
+    DEX: "dexterity",
+    DEXTERITY: "dexterity",
+    INT: "intelligence",
+    INTELLIGENCE: "intelligence",
+    WIL: "will",
+    WILL: "will",
+  };
+
+  // Use case-insensitive replacement with special handling for dice notation
+  for (const [key, attributeName] of Object.entries(attributeMap)) {
+    const value = attributes[attributeName];
+    // Match the attribute name when it's either:
+    // 1. Followed by 'd' (for dice notation like STRd6)
+    // 2. At a word boundary (for regular math like STR + 2 or 2d6 + STR)
+    const regex = new RegExp(`\\b${key}(?=d\\d+)|\\b${key}\\b`, "gi");
+    if (regex.test(result)) {
+      hasVariables = true;
+      result = result.replace(regex, value.toString());
+    }
+  }
+
+  // Replace level keyword with same special handling
+  const levelRegex = /\b(LEVEL|LVL)(?=d\d+)|\b(LEVEL|LVL)\b/gi;
+  if (levelRegex.test(result)) {
+    hasVariables = true;
+    result = result.replace(levelRegex, character.level.toString());
+  }
+
+  return { substituted: result, hasVariables };
+}
+
+/**
+ * Safely evaluate a mathematical expression using Function constructor
+ * This is safer than eval() as it doesn't have access to the global scope
+ * @param expression The mathematical expression to evaluate
+ * @returns The numeric result
+ * @throws Error if evaluation fails or result is not a finite number
+ */
+export function safeEvaluate(expression: string): number {
+  try {
+    // Create a restricted evaluation context
+    const func = new Function(`"use strict"; return (${expression});`);
+    const result = func();
+
+    if (typeof result !== "number" || !isFinite(result)) {
+      throw new Error(`Expression did not evaluate to a finite number: ${result}`);
+    }
+
+    return result;
+  } catch (error) {
+    throw new Error(`Failed to evaluate expression "${expression}": ${error}`);
+  }
+}

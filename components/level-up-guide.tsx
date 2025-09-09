@@ -290,12 +290,16 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                             addedSpellIds.push(spell.id);
                           }
                         }
-                      } else if (sel.schoolId && utilitySpellsEffect.selectionMode === "full_school") {
+                      } else if (
+                        sel.schoolId &&
+                        utilitySpellsEffect.selectionMode === "full_school"
+                      ) {
                         // Full school selection - add all utility spells from this school
                         const schoolSpells = contentRepo.getUtilitySpellsForSchool(sel.schoolId);
                         if (schoolSpells) {
                           const utilitySpells = schoolSpells.filter(
-                            (spell) => spell.category === "utility" && spell.tier <= spellTierAccess,
+                            (spell) =>
+                              spell.category === "utility" && spell.tier <= spellTierAccess,
                           );
                           const currentSpellIds = new Set(
                             updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),

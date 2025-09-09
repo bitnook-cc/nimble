@@ -18,42 +18,48 @@ const spellshaperPool: FeaturePool = {
       id: "echo-casting",
       level: 0,
       name: "Echo Casting",
-      description: "(2× mana, min. 1 mana) When you cast a tiered, single-target spell, you may cast a copy of that spell on a 2nd target for free.",
+      description:
+        "(2× mana, min. 1 mana) When you cast a tiered, single-target spell, you may cast a copy of that spell on a 2nd target for free.",
       effects: [],
     },
     {
       id: "elemental-destruction",
       level: 0,
       name: "Elemental Destruction",
-      description: "(1 or more mana) After you hit with a spell, you may spend 1 or more mana (up to your WIL) to reroll 1 die per mana spent.",
+      description:
+        "(1 or more mana) After you hit with a spell, you may spend 1 or more mana (up to your WIL) to reroll 1 die per mana spent.",
       effects: [],
     },
     {
       id: "elemental-transmutation",
       level: 0,
       name: "Elemental Transmutation",
-      description: "(1 mana) Change the damage type of a spell to: Fire, Ice, Lightning, Necrotic, or Radiant.",
+      description:
+        "(1 mana) Change the damage type of a spell to: Fire, Ice, Lightning, Necrotic, or Radiant.",
       effects: [],
     },
     {
       id: "extra-dimensional-vision",
       level: 0,
       name: "Extra-Dimensional Vision",
-      description: "(2 mana) You may ignore the line of sight requirement of a spell. Your spell will phase though barriers and obstacles to reach a target you know of within range.",
+      description:
+        "(2 mana) You may ignore the line of sight requirement of a spell. Your spell will phase though barriers and obstacles to reach a target you know of within range.",
       effects: [],
     },
     {
       id: "methodical-spellweaver",
       level: 0,
       name: "Methodical Spellweaver",
-      description: "(-2 mana) Spend 1 additional action to reduce the mana cost of a spell by 2 (min 1).",
+      description:
+        "(-2 mana) Spend 1 additional action to reduce the mana cost of a spell by 2 (min 1).",
       effects: [],
     },
     {
       id: "precise-casting",
       level: 0,
       name: "Precise Casting",
-      description: "(1+ mana) Choose 1 creature per mana spent to be unaffected by a spell you cast.",
+      description:
+        "(1+ mana) Choose 1 creature per mana spent to be unaffected by a spell you cast.",
       effects: [],
     },
     {
@@ -149,7 +155,7 @@ const mageFeatures: ClassFeature[] = [
         id: "elemental-mastery-0",
         type: "utility_spells",
         selectionMode: "full_school",
-      }
+      },
     ],
   },
   {
@@ -246,7 +252,7 @@ const mageFeatures: ClassFeature[] = [
         id: "elemental-mastery-1",
         type: "utility_spells",
         selectionMode: "full_school",
-      }
+      },
     ],
   },
   {

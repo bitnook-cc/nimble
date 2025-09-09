@@ -303,7 +303,9 @@ export function EffectSelectionDisplay({
                       return (
                         <div key={idx} className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-600" />
-                          {SchoolIcon && <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />}
+                          {SchoolIcon && (
+                            <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />
+                          )}
                           <span className="text-sm font-medium">
                             All utility spells from {school?.name || selection.schoolId}
                           </span>
@@ -311,13 +313,17 @@ export function EffectSelectionDisplay({
                       );
                     }
                     // Regular spell selection
-                    const spell = selection.spellId ? contentRepository.getSpellById(selection.spellId) : null;
+                    const spell = selection.spellId
+                      ? contentRepository.getSpellById(selection.spellId)
+                      : null;
                     const school = spell ? contentRepository.getSpellSchool(spell.school) : null;
                     const SchoolIcon = school ? getIconById(school.icon) : null;
                     return (
                       <div key={idx} className="flex items-center gap-2">
                         <Check className="w-4 h-4 text-green-600" />
-                        {SchoolIcon && <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />}
+                        {SchoolIcon && (
+                          <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />
+                        )}
                         <span className="text-sm">
                           {spell?.name || selection.spellId}
                           {school && (
