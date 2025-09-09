@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getClassService } from "@/lib/services/service-factory";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import {
   ClassFeature,
   FeatureEffect,
@@ -24,9 +23,9 @@ import {
 } from "./ui/dialog";
 
 interface FeaturePoolSelectionDialogProps {
-  pickFeature: PickFeatureFromPoolFeatureEffect;
+  pickPoolFeatureEffect: PickFeatureFromPoolFeatureEffect;
   onClose: () => void;
-  onSelectFeature?: (poolId: string, feature: ClassFeature) => void;
+  onSelectFeatures: (selections: PoolFeatureEffectSelection[]) => void;
   existingSelections?: PoolFeatureEffectSelection[];
 }
 
@@ -144,71 +143,50 @@ function renderEffect(effect: FeatureEffect, index: number): React.ReactNode {
 }
 
 export function FeaturePoolSelectionDialog({
-  pickFeature,
+  pickPoolFeatureEffect,
   onClose,
-  onSelectFeature,
+  onSelectFeatures,
   existingSelections = [],
 }: FeaturePoolSelectionDialogProps) {
-  const { character, selectPoolFeature, clearPoolFeatureSelections } = useCharacterService();
   const [selectedFeatures, setSelectedFeatures] = useState<ClassFeature[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const contentRepository = ContentRepositoryService.getInstance();
+  const pool = contentRepository.getFeaturePool(pickPoolFeatureEffect.poolId)!;
+
+  const currentEffectSelections = existingSelections
+      .filter(s => s.poolId === pickPoolFeatureEffect.poolId && s.grantedByEffectId === pickPoolFeatureEffect.id);
+
+  // Find the full feature objects for current selections
+  const currentFeatures = currentEffectSelections.map(s => s.feature);
+
   // Initialize with current selections if in edit mode
   useEffect(() => {
-    const currentEffectSelectionIds = existingSelections
-      .filter(s => s.poolId === pickFeature.poolId && s.grantedByEffectId === pickFeature.id)
-      .map(s => s.featureId);
-    
-    if (currentEffectSelectionIds.length > 0) {
+    if (currentEffectSelections.length > 0) {
       setIsEditMode(true);
-      const classService = getClassService();
-      const classId = character?.classId || pickFeature.poolId.split('-')[0];
-      const pool = classService.getFeaturePool(classId, pickFeature.poolId);
-      if (pool) {
-        // Find the full feature objects for current selections
-        const currentFeatures = pool.features.filter(
-          f => currentEffectSelectionIds.includes(f.id)
-        );
-        setSelectedFeatures(currentFeatures);
-      }
+      setSelectedFeatures(currentFeatures);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run on mount
-
-  const classService = getClassService();
-  const classId = character?.classId || pickFeature.poolId.split('-')[0]; // Fallback for builder
-  const pool = classService.getFeaturePool(classId, pickFeature.poolId);
-
-  // If callback provided, don't require character
-  if (!character && !onSelectFeature) {
-    return null;
-  }
-  
-  // Get features selected for THIS effect
-  const currentEffectSelections = existingSelections
-    .filter(s => s.poolId === pickFeature.poolId && s.grantedByEffectId === pickFeature.id)
-    .map(s => s.featureId);
-  
+    
   // Get ALL features selected from this pool (by any effect)
   const allPoolSelections = existingSelections
-    .filter(s => s.poolId === pickFeature.poolId)
-    .map(s => s.featureId);
+    .filter(s => s.poolId === pickPoolFeatureEffect.poolId);
   
   // Features selected by OTHER effects (these should be excluded)
-  const otherEffectSelections = allPoolSelections.filter(
-    id => !currentEffectSelections.includes(id)
-  );
+  const otherEffectSelectionIDs = allPoolSelections.filter(
+    s => s.grantedByEffectId !== pickPoolFeatureEffect.id
+  ).map(f => f.feature.id);
   
   // Filter out features selected by other effects
-  const allPoolFeatures = pool?.features || [];
-  const availableFeatures = allPoolFeatures.filter(
-    feature => !otherEffectSelections.includes(feature.id)
+  const availableFeatures = pool.features.filter(
+    feature => !otherEffectSelectionIDs.includes(feature.id)
   );
   
   // Calculate remaining selections
   const alreadySelectedCount = currentEffectSelections.length;
-  const remaining = pickFeature.choicesAllowed - alreadySelectedCount;
+  const remaining = pickPoolFeatureEffect.choicesAllowed - alreadySelectedCount;
 
   if (!pool) {
     return (
@@ -217,7 +195,7 @@ export function FeaturePoolSelectionDialog({
           <DialogHeader>
             <DialogTitle>Pool Not Found</DialogTitle>
             <DialogDescription>
-              The feature pool &ldquo;{pickFeature.poolId}&rdquo; could not be found.
+              The feature pool &ldquo;{pickPoolFeatureEffect.poolId}&rdquo; could not be found.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -231,26 +209,16 @@ export function FeaturePoolSelectionDialog({
   const handleSelectFeatures = async () => {
     setIsSelecting(true);
     try {
-      if (onSelectFeature) {
-        // Use callback for temp state management
-        // In edit mode, we're replacing selections
-        for (const feature of selectedFeatures) {
-          onSelectFeature(pickFeature.poolId, feature);
-        }
-      } else if (character) {
-        // Use service for live updates
-        // Always clear existing selections for this effect first (to handle replacements)
-        await clearPoolFeatureSelections(pickFeature.id);
-        
-        // Add new selections
-        for (const feature of selectedFeatures) {
-          await selectPoolFeature(
-            pickFeature.poolId,
-            feature,
-            pickFeature.id,
-          );
-        }
-      }
+      // Create new selections for the selected features
+      const newSelections: PoolFeatureEffectSelection[] = selectedFeatures.map(feature => ({
+        type: "pool_feature" as const,
+        grantedByEffectId: pickPoolFeatureEffect.id,
+        poolId: pickPoolFeatureEffect.poolId,
+        feature: feature,
+      }));
+
+      // Pass all selections to the callback
+      onSelectFeatures(newSelections);
       onClose();
     } catch (error) {
       console.error("Failed to select pool features:", error);
@@ -266,7 +234,7 @@ export function FeaturePoolSelectionDialog({
         return prev.filter(f => f.id !== feature.id);
       } else {
         // Only add if we haven't reached the limit
-        if (prev.length < pickFeature.choicesAllowed) {
+        if (prev.length < pickPoolFeatureEffect.choicesAllowed) {
           return [...prev, feature];
         }
         return prev;
@@ -285,8 +253,8 @@ export function FeaturePoolSelectionDialog({
             <span className="font-medium">
               {isEditMode ? (
                 <>
-                  Change your selection of {pickFeature.choicesAllowed} feature
-                  {pickFeature.choicesAllowed !== 1 ? "s" : ""}
+                  Change your selection of {pickPoolFeatureEffect.choicesAllowed} feature
+                  {pickPoolFeatureEffect.choicesAllowed !== 1 ? "s" : ""}
                   {currentEffectSelections.length > 0 && (
                     <span className="text-muted-foreground ml-1">
                       (Currently have {currentEffectSelections.length})
@@ -316,8 +284,8 @@ export function FeaturePoolSelectionDialog({
             ) : (
               availableFeatures.map((feature: ClassFeature, index: number) => {
                 const isSelected = selectedFeatures.some(f => f.id === feature.id);
-                const isCurrentSelection = currentEffectSelections.includes(feature.id);
-                const canSelect = selectedFeatures.length < pickFeature.choicesAllowed || isSelected;
+                const isCurrentSelection = currentEffectSelections.find(f => f.feature.id === feature.id);
+                const canSelect = selectedFeatures.length < pickPoolFeatureEffect.choicesAllowed || isSelected;
                 
                 return (
                   <Card
@@ -375,7 +343,7 @@ export function FeaturePoolSelectionDialog({
             {isSelecting 
               ? "Saving..." 
               : isEditMode
-                ? `Update Selection (${selectedFeatures.length}/${pickFeature.choicesAllowed})`
+                ? `Update Selection (${selectedFeatures.length}/${pickPoolFeatureEffect.choicesAllowed})`
                 : selectedFeatures.length > 1
                   ? `Select ${selectedFeatures.length} Features`
                   : "Select Feature"}

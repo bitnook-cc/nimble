@@ -171,7 +171,8 @@ export function EffectSelectionsSection() {
 
           {/* Pool Feature Selections */}
           {availablePoolSelections.map((effect: PickFeatureFromPoolFeatureEffect, index: number) => {
-            const pool = classService.getFeaturePool(character.classId, effect.poolId);
+            const contentRepository = ContentRepositoryService.getInstance();
+            const pool = contentRepository.getFeaturePool(effect.poolId);
             const remaining = effect.choicesAllowed - character.effectSelections.filter(
               s => s.type === "pool_feature" && s.grantedByEffectId === effect.id
             ).length;
@@ -301,8 +302,16 @@ export function EffectSelectionsSection() {
       {/* Pool Feature Selection Dialog */}
       {selectedPoolFeature && (
         <FeaturePoolSelectionDialog
-          pickFeature={selectedPoolFeature}
+          pickPoolFeatureEffect={selectedPoolFeature}
           onClose={() => setSelectedPoolFeature(null)}
+          onSelectFeatures={async (newSelections: PoolFeatureEffectSelection[]) => {
+            const characterService = getCharacterService();
+            // Use the new API to update all selections for this effect
+            await characterService.updatePoolSelectionsForEffect(
+              selectedPoolFeature.id, 
+              newSelections
+            );
+          }}
           existingSelections={character.effectSelections.filter(
             s => s.type === "pool_feature"
           ) as PoolFeatureEffectSelection[]}

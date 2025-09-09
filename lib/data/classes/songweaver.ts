@@ -277,7 +277,14 @@ const songweaverFeatures: ClassFeature[] = [
     level: 3,
     name: "Windbag",
     description: "Choose 1 Utility Spell from each spell school you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "windbag-0",
+        type: "utility_spells",
+        spellsPerSchool: 1,
+        selectionMode: "per_school",
+      }
+    ],
   },
   {
     id: "tier-2-spells",
@@ -374,7 +381,14 @@ const songweaverFeatures: ClassFeature[] = [
     level: 6,
     name: "Windbag (2)",
     description: "Choose a 2nd Utility Spell from each spell school you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "windbag-2-0",
+        type: "utility_spells",
+        spellsPerSchool: 1,
+        selectionMode: "per_school",
+      }
+    ],
   },
   {
     id: "subclass-feature-7",
@@ -538,7 +552,14 @@ const songweaverFeatures: ClassFeature[] = [
     level: 14,
     name: "Windbag (3)",
     description: "You know all Utility Spells from the spell schools you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "windbag-3-0",
+        type: "utility_spells",
+        spellsPerSchool: 1,
+        selectionMode: "per_school",
+      }
+    ],
   },
   {
     id: "subclass-feature-15",

@@ -15,6 +15,7 @@ import {
   CharacterConfiguration,
   EffectSelection,
   HitDice,
+  PoolFeatureEffectSelection,
   Skill,
   Skills,
 } from "../schemas/character";
@@ -185,6 +186,7 @@ export interface ICharacterService {
   // Selection methods
   selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void>;
   selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void>;
+  updatePoolSelectionsForEffect(effectId: string, selections: PoolFeatureEffectSelection[]): Promise<void>;
   clearPoolFeatureSelections(grantedByEffectId: string): Promise<void>;
   selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void>;
   clearSpellSchoolSelections(grantedByEffectId: string): Promise<void>;
@@ -212,6 +214,7 @@ export interface IClassService {
   ): import("../schemas/class").SubclassDefinition[];
   hasPendingSubclassSelections(character: Character): boolean;
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined;
+  getFeaturePoolById(poolId: string): FeaturePool | null;
   getAvailablePoolFeatures(
     classId: string,
     poolId: string,

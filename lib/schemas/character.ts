@@ -118,7 +118,6 @@ const baseEffectSelectionSchema = z.object({
 const poolFeatureEffectSelectionSchema = baseEffectSelectionSchema.extend({
   type: z.literal("pool_feature"),
   poolId: z.string().min(1),
-  featureId: z.string().min(1),
   feature: ClassFeatureSchema,
 });
 

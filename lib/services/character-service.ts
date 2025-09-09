@@ -1609,17 +1609,33 @@ export class CharacterService implements ICharacterService {
   async selectPoolFeature(poolId: string, feature: ClassFeature, grantedByEffectId: string): Promise<void> {
     if (!this._character) return;
 
+    const classService = getClassService();
+
+    const availableFeatures = classService.getAvailablePoolFeatures(
+      this._character.classId,
+      poolId,
+      this._character.effectSelections,
+    );
+
+    if (!availableFeatures.some((f) => f.id === feature.id)) {
+      throw new Error(
+        `Feature "${feature.name}" is not available for selection from pool "${poolId}"`,
+      );
+    }
+
+    // Create the selected pool feature record
+    const selectedPoolFeature: PoolFeatureEffectSelection = {
+      type: "pool_feature",
+      poolId,
+      feature,
+      grantedByEffectId: grantedByEffectId,
+    };
+
     this._character = {
       ...this._character,
       effectSelections: [
         ...this._character.effectSelections,
-        {
-          type: "pool_feature",
-          grantedByEffectId,
-          poolId,
-          featureId: feature.id,
-          feature
-        }
+        selectedPoolFeature
       ]
     };
 
@@ -1638,6 +1654,31 @@ export class CharacterService implements ICharacterService {
       effectSelections: this._character.effectSelections.filter(
         s => !(s.type === "pool_feature" && s.grantedByEffectId === grantedByEffectId)
       )
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Update all pool selections for a given effect
+   * This replaces all existing selections for the effect with new ones
+   */
+  async updatePoolSelectionsForEffect(
+    effectId: string, 
+    selections: PoolFeatureEffectSelection[]
+  ): Promise<void> {
+    if (!this._character) return;
+
+    // Remove all existing selections for this effect
+    const otherSelections = this._character.effectSelections.filter(
+      s => !(s.type === "pool_feature" && s.grantedByEffectId === effectId)
+    );
+
+    // Add the new selections
+    this._character = {
+      ...this._character,
+      effectSelections: [...otherSelections, ...selections]
     };
 
     await this.saveCharacter();

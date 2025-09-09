@@ -21,6 +21,7 @@ export function FeaturesSection() {
     character, 
     selectSubclass,
     selectPoolFeature,
+    updatePoolSelectionsForEffect,
     clearPoolFeatureSelections,
     selectSpellSchool,
     clearSpellSchoolSelections,
@@ -89,7 +90,7 @@ export function FeaturesSection() {
     const currentSelections = character.effectSelections;
     
     // Group pool features by effect ID for batch processing
-    const poolFeaturesByEffect = new Map<string, EffectSelection[]>();
+    const poolFeaturesByEffect = new Map<string, PoolFeatureEffectSelection[]>();
     const otherSelections: EffectSelection[] = [];
     
     for (const selection of selections) {
@@ -104,21 +105,10 @@ export function FeaturesSection() {
       }
     }
     
-    // Handle pool features - replace all for each effect
+    // Handle pool features - replace all for each effect using the new API
     for (const [effectId, poolSelections] of poolFeaturesByEffect) {
-      // Clear existing pool features for this effect
-      await clearPoolFeatureSelections(effectId);
-      
-      // Add all new pool features
-      for (const selection of poolSelections) {
-        if (selection.type === "pool_feature") {
-          await selectPoolFeature(
-            selection.poolId, 
-            selection.feature,
-            selection.grantedByEffectId
-          );
-        }
-      }
+      // Use the new batch update API
+      await updatePoolSelectionsForEffect(effectId, poolSelections);
     }
     
     // Handle other selections normally

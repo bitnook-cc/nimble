@@ -264,10 +264,18 @@ export class ClassService implements IClassService {
 
   /**
    * Get feature pool by ID
+   * @deprecated Use getFeaturePoolById for consistency with new API
    */
   getFeaturePool(classId: string, poolId: string): FeaturePool | undefined {
-    const classDefinition = this.contentRepository.getClassDefinition(classId);
-    return classDefinition?.featurePools?.find((pool: FeaturePool) => pool.id === poolId);
+    const pool = this.contentRepository.getFeaturePool(poolId);
+    return pool || undefined;
+  }
+
+  /**
+   * Get feature pool by ID only (new simplified API)
+   */
+  getFeaturePoolById(poolId: string): FeaturePool | null {
+    return this.contentRepository.getFeaturePool(poolId);
   }
 
   /**
@@ -286,7 +294,7 @@ export class ClassService implements IClassService {
     poolId: string,
     effectSelections: EffectSelection[] = [],
   ): ClassFeature[] {
-    const pool = this.getFeaturePool(classId, poolId);
+    const pool = this.contentRepository.getFeaturePool(poolId);
     if (!pool) {
       return [];
     }
@@ -299,7 +307,7 @@ export class ClassService implements IClassService {
     const selectedFeatureIds = new Set(
       selectedPoolFeatures
         .filter((selected) => selected.poolId === poolId)
-        .map((selected) => selected.featureId),
+        .map((selected) => selected.feature.id),
     );
 
     return pool.features.filter((feature) => {
@@ -362,7 +370,6 @@ export class ClassService implements IClassService {
     const selectedPoolFeature: PoolFeatureEffectSelection = {
       type: "pool_feature",
       poolId,
-      featureId: selectedFeature.id,
       feature: selectedFeature,
       grantedByEffectId: grantedByFeatureId,
     };

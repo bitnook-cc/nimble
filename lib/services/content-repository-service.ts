@@ -8,7 +8,7 @@ import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/ind
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
 import { AncestryDefinition } from "../schemas/ancestry";
 import { BackgroundDefinition } from "../schemas/background";
-import { ClassDefinition, SubclassDefinition } from "../schemas/class";
+import { ClassDefinition, FeaturePool, SubclassDefinition } from "../schemas/class";
 import { CustomContentType } from "../types/custom-content";
 import { CustomItemContent, RepositoryItem } from "../types/item-repository";
 import { ContentValidationService } from "./content-validation-service";
@@ -46,12 +46,43 @@ export interface SpellSchoolWithSpells {
 
 export class ContentRepositoryService {
   private static instance: ContentRepositoryService;
+  private featurePoolMap: Map<string, FeaturePool> = new Map();
+
+  constructor() {
+    // Initialize the feature pool map from built-in classes
+    this.initializeFeaturePools();
+  }
 
   public static getInstance(): ContentRepositoryService {
     if (!ContentRepositoryService.instance) {
       ContentRepositoryService.instance = new ContentRepositoryService();
     }
     return ContentRepositoryService.instance;
+  }
+
+  private initializeFeaturePools(): void {
+    // Add pools from built-in classes
+    builtInClasses.forEach(classDef => {
+      if (classDef.featurePools) {
+        classDef.featurePools.forEach(pool => {
+          this.featurePoolMap.set(pool.id, pool);
+        });
+      }
+    });
+
+    // Add pools from custom classes
+    this.updateFeaturePoolsFromCustomClasses();
+  }
+
+  private updateFeaturePoolsFromCustomClasses(): void {
+    const customClasses = this.getCustomClasses();
+    customClasses.forEach(classDef => {
+      if (classDef.featurePools) {
+        classDef.featurePools.forEach(pool => {
+          this.featurePoolMap.set(pool.id, pool);
+        });
+      }
+    });
   }
 
   // Class Management
@@ -410,6 +441,9 @@ export class ContentRepositoryService {
 
       localStorage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(updatedClasses));
 
+      // Update feature pool map with new classes
+      this.updateFeaturePoolsFromCustomClasses();
+
       const message =
         errors.length > 0
           ? `Successfully added/updated ${validClasses.length} class(es). ${errors.length} invalid entries skipped.`
@@ -431,6 +465,8 @@ export class ContentRepositoryService {
 
     if (filteredClasses.length < customClasses.length) {
       localStorage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(filteredClasses));
+      // Update feature pool map after removing class
+      this.initializeFeaturePools();
       return true;
     }
     return false;
@@ -1040,6 +1076,15 @@ export class ContentRepositoryService {
       console.warn("Error reading custom items from storage:", error);
       return [];
     }
+  }
+
+  // Feature Pool Management
+  public getFeaturePool(poolId: string): FeaturePool | null {
+    return this.featurePoolMap.get(poolId) || null;
+  }
+
+  public getAllFeaturePools(): FeaturePool[] {
+    return Array.from(this.featurePoolMap.values());
   }
 
   // Utility Methods

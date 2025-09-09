@@ -300,7 +300,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
               break;
 
             case "pick_feature_from_pool":
-              if (selection?.type === "pool_feature" && selection.featureId) {
+              if (selection?.type === "pool_feature" && selection.feature) {
                 const pickFeatureEffect = effect as PickFeatureFromPoolFeatureEffect;
                 const selectedFeature = selection.feature;
                 if (selectedFeature) {

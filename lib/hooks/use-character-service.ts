@@ -135,6 +135,7 @@ export function useCharacterService() {
     // Effect selection methods
     selectSubclass: characterService.selectSubclass.bind(characterService),
     selectPoolFeature: characterService.selectPoolFeature.bind(characterService),
+    updatePoolSelectionsForEffect: characterService.updatePoolSelectionsForEffect.bind(characterService),
     clearPoolFeatureSelections: characterService.clearPoolFeatureSelections.bind(characterService),
     selectSpellSchool: characterService.selectSpellSchool.bind(characterService),
     clearSpellSchoolSelections: characterService.clearSpellSchoolSelections.bind(characterService),
