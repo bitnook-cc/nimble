@@ -20,6 +20,7 @@ import {
   UtilitySpellsFeatureEffect,
 } from "@/lib/schemas/features";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 
 import { AttributeBoostSelectionDialog } from "./dialogs/attribute-boost-selection-dialog";
 import { FeaturePoolSelectionDialog } from "./dialogs/feature-pool-selection-dialog";
@@ -204,6 +205,10 @@ export function FeatureList({
     setSelectedSubclassChoiceEffect(null);
   };
 
+  // Get ability override info from character service
+  const characterService = getCharacterService();
+  const abilityOverrideInfo = characterService.getAbilityOverrideInfo();
+
   return (
     <>
       <div className="space-y-3">
@@ -224,6 +229,7 @@ export function FeatureList({
                   existingSelections={existingSelections}
                   onOpenSelectionDialog={handleOpenSelectionDialog}
                   character={character}
+                  abilityOverrideInfo={abilityOverrideInfo}
                 />
               )}
             </FeatureCard>

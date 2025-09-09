@@ -109,6 +109,63 @@ export class CharacterService implements ICharacterService {
     return this.getAllActiveFeatures().flatMap((f) => f.effects);
   }
 
+  /**
+   * Get detailed information about ability overrides
+   * Returns a map of ability IDs to their override information
+   */
+  getAbilityOverrideInfo(): Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }> {
+    const allFeatures = this.getAllActiveFeatures();
+    const abilitiesByIdAndLevel = new Map<string, Array<{ level: number; ability: any; isManual: boolean }>>();
+    
+    // Collect all abilities from effects grouped by ID
+    for (const feature of allFeatures) {
+      const level = (feature as any).level || 0;
+      for (const effect of feature.effects) {
+        if (effect.type === "ability") {
+          const ability = (effect as any).ability;
+          if (ability && ability.id) {
+            if (!abilitiesByIdAndLevel.has(ability.id)) {
+              abilitiesByIdAndLevel.set(ability.id, []);
+            }
+            abilitiesByIdAndLevel.get(ability.id)!.push({ level, ability, isManual: false });
+          }
+        }
+      }
+    }
+    
+    // Check for manually added abilities
+    if (this._character) {
+      for (const ability of this._character._abilities || []) {
+        if (ability.id && abilitiesByIdAndLevel.has(ability.id)) {
+          // Manual ability overrides all effect-granted versions
+          abilitiesByIdAndLevel.get(ability.id)!.push({ level: 999, ability, isManual: true });
+        }
+      }
+    }
+    
+    // Build override info for abilities that appear at multiple levels
+    const overrideInfo = new Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }>();
+    
+    for (const [abilityId, instances] of abilitiesByIdAndLevel) {
+      if (instances.length > 1) {
+        // Sort by level descending (manual = 999 will be first)
+        instances.sort((a, b) => b.level - a.level);
+        const current = instances[0];
+        const overriddenLevels = instances.slice(1).filter(i => !i.isManual).map(i => i.level);
+        
+        if (overriddenLevels.length > 0) {
+          overrideInfo.set(abilityId, { 
+            currentLevel: current.isManual ? 0 : current.level,
+            overriddenLevels,
+            isManual: current.isManual
+          });
+        }
+      }
+    }
+    
+    return overrideInfo;
+  }
+
   // Dynamic stat calculation methods
 
   /**
@@ -286,18 +343,39 @@ export class CharacterService implements ICharacterService {
   getAbilities(): AbilityDefinition[] {
     if (!this._character) return [];
 
-    const abilities: AbilityDefinition[] = [];
+    // Track abilities with their source priority and level
+    // Priority: manually added (highest) > higher level effects > lower level effects
+    const abilitiesWithPriority = new Map<string, { ability: AbilityDefinition; priority: number; level: number }>();
 
-    // 1. Get abilities from effects (non-spell abilities)
-    const effectAbilities = this.getAllActiveEffects()
-      .filter((effect) => effect.type === "ability")
-      .map((effect) => (effect as any).ability)
-      .filter((ability: any) => ability && ability.type !== "spell");
-
-    abilities.push(...effectAbilities);
+    // 1. Get abilities from effects (non-spell abilities) with level tracking
+    const allFeatures = this.getAllActiveFeatures();
+    for (const feature of allFeatures) {
+      const level = (feature as any).level || 0; // ClassFeature has level, others default to 0
+      for (const effect of feature.effects) {
+        if (effect.type === "ability") {
+          const ability = (effect as any).ability;
+          if (ability && ability.type !== "spell") {
+            const existing = abilitiesWithPriority.get(ability.id);
+            // Priority 1000 + level for effect-granted abilities
+            const priority = 1000 + level;
+            if (!existing || priority > existing.priority) {
+              abilitiesWithPriority.set(ability.id, { ability, priority, level });
+            }
+          }
+        }
+      }
+    }
 
     // 2. Get base abilities from character (includes directly granted spells)
-    abilities.push(...(this._character._abilities || []));
+    // These have highest priority (10000) as they are manually added
+    for (const ability of this._character._abilities || []) {
+      if (ability.id) {
+        abilitiesWithPriority.set(ability.id, { ability, priority: 10000, level: 0 });
+      }
+    }
+
+    // Collect the final abilities list
+    const abilities: AbilityDefinition[] = Array.from(abilitiesWithPriority.values()).map(item => item.ability);
 
     // 3. Get spells from spell schools
     const schoolSpells = this.getSpellsFromSchools();
@@ -322,7 +400,7 @@ export class CharacterService implements ICharacterService {
       }
     }
 
-    // Remove duplicates (in case same spell comes from multiple sources)
+    // Remove duplicates for spells (in case same spell comes from multiple sources)
     const uniqueAbilities = new Map<string, AbilityDefinition>();
     for (const ability of abilities) {
       if (ability.id && !uniqueAbilities.has(ability.id)) {

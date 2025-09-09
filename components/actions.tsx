@@ -201,6 +201,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
             {actionAbilities.map((ability) => {
               const currentUses = character._abilityUses.get(ability.id) || 0;
               const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
+              const remainingUses = maxUses - currentUses;
               const isUsed =
                 ability.frequency !== "at_will" && ability.maxUses && currentUses >= maxUses;
               const actionCost = ability.actionCost || 0;
@@ -257,7 +258,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                         {getFrequencyBadge(ability.frequency)}
                         {ability.frequency !== "at_will" && ability.maxUses && character && (
                           <Badge variant="secondary">
-                            {currentUses}/{maxUses} uses
+                            {remainingUses} / {maxUses} remaining
                           </Badge>
                         )}
                         {actionCost > 0 && (

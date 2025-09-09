@@ -143,6 +143,7 @@ export interface ICharacterService {
   getAllActiveFeatures(): CharacterFeature[];
   getAllActiveEffects(): import("../schemas/features").FeatureEffect[];
   getAbilities(): AbilityDefinition[];
+  getAbilityOverrideInfo(): Map<string, { currentLevel: number; overriddenLevels: number[]; isManual: boolean }>;
   getSpellSchools(): string[];
   getSubclassId(): string | null;
   applyDamage(amount: number, targetType?: "hp" | "temp_hp"): Promise<void>;

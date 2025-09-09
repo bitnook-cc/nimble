@@ -89,7 +89,7 @@ export class AbilityService {
     const maxUses = this.calculateMaxUses(ability);
 
     // For limited-use action abilities, check uses remaining
-    if (ability.type === "action" && (!currentUses || currentUses >= maxUses)) {
+    if (ability.type === "action" && (currentUses && currentUses >= maxUses)) {
       console.error(`Cannot use ability: no uses remaining (used ${currentUses}, max ${maxUses})`);
       return false;
     }

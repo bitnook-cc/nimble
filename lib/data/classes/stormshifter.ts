@@ -110,7 +110,7 @@ const stormshifterFeatures: ClassFeature[] = [
             "Transform into a harmless beast. While transformed, you can speak with animals. Lasts until you drop to 0 HP, cast a spell, or end it for free.",
           type: "action",
           frequency: "per_safe_rest",
-          maxUses: { type: "fixed", value: 2 },
+          maxUses: { type: "formula", expression: "DEX" },
           actionCost: 1,
         },
       },
@@ -130,20 +130,7 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 2,
     name: "Direbeast Form",
     description: "You can Beastshift into a Fearsome Beast.",
-    effects: [
-      {
-        id: "direbeast-form-0",
-        type: "ability",
-        ability: {
-          id: "direbeast-form",
-          name: "Direbeast Form",
-          description: "Beastshift into a Fearsome Beast.",
-          type: "action",
-          frequency: "per_safe_rest",
-          maxUses: { type: "fixed", value: 2 },
-        },
-      },
-    ],
+    effects: [],
   },
   {
     id: "mana-and-unlock-tier-1-spells",
@@ -217,7 +204,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "will"],
         amount: 1,
       },
     ],
@@ -235,14 +222,6 @@ const stormshifterFeatures: ClassFeature[] = [
         selectionMode: "per_school",
       },
     ],
-  },
-  {
-    id: "be-wild",
-    level: 4,
-    name: "Be Wild",
-    description:
-      "Whenever you spend a day with wild animals during a Safe Rest, you may choose different Stormshifter options available to you.",
-    effects: [], // Passive feature - no mechanical effects to process
   },
   // Level 5
   {
@@ -268,7 +247,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["strength", "intelligence"],
         amount: 1,
       },
     ],
@@ -294,7 +273,22 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 6,
     name: "Expert Shifter",
     description: "Gain 1 additional use of Beastshift per Safe Rest.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "expert-shifter-0",
+        type: "ability",
+        ability: {
+          id: "beastshift",
+          name: "Beastshift",
+          description:
+            "Transform into a beast. While transformed, you can speak with animals. Lasts until you drop to 0 HP, cast a spell, or end it for free.",
+          type: "action",
+          frequency: "per_safe_rest",
+          maxUses: { type: "formula", expression: "DEX + 1" },
+          actionCost: 1,
+        },
+      },
+    ],
   },
   {
     id: "tier-3-spells",
@@ -354,7 +348,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "will"],
         amount: 1,
       },
     ],
@@ -387,7 +381,22 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 9,
     name: "Expert Shifter (2)",
     description: "Gain 1 additional use of Beastshift per Safe Rest.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+            {
+        id: "expert-shifter-2-0",
+        type: "ability",
+        ability: {
+          id: "beastshift",
+          name: "Beastshift",
+          description:
+            "Transform into a beast. While transformed, you can speak with animals. Lasts until you drop to 0 HP, cast a spell, or end it for free.",
+          type: "action",
+          frequency: "per_safe_rest",
+          maxUses: { type: "formula", expression: "DEX + 2" },
+          actionCost: 1,
+        },
+      },
+    ],
   },
   {
     id: "secondary-stat-increase-2",
@@ -398,7 +407,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["strength", "intelligence"],
         amount: 1,
       },
     ],
@@ -455,7 +464,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "will"],
         amount: 1,
       },
     ],
@@ -479,7 +488,20 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 12,
     name: "Expert Shifter (3)",
     description: "Gain 1 additional use of Beastshift per Safe Rest.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [      {
+        id: "expert-shifter-3-0",
+        type: "ability",
+        ability: {
+          id: "beastshift",
+          name: "Beastshift",
+          description:
+            "Transform into a beast. While transformed, you can speak with animals. Lasts until you drop to 0 HP, cast a spell, or end it for free.",
+          type: "action",
+          frequency: "per_safe_rest",
+          maxUses: { type: "formula", expression: "DEX + 3" },
+          actionCost: 1,
+        },
+      },],
   },
   // Level 13
   {
@@ -491,7 +513,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["strength", "intelligence"],
         amount: 1,
       },
     ],
@@ -556,7 +578,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "will"],
         amount: 1,
       },
     ],
@@ -585,7 +607,7 @@ const stormshifterFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["strength", "intelligence"],
         amount: 1,
       },
     ],
@@ -619,7 +641,32 @@ const stormshifterFeatures: ClassFeature[] = [
     name: "Archdruid",
     description:
       "+1 to any 2 of your stats. (1/encounter) Cast a spell up to tier 4 for free when you enter or leave a Beastshift form.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+            {
+        id: "archdruid-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+           {
+        id: "archdruid-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "archdruid-2",
+        type: "ability",
+        ability: {
+          id: "archdruid-free-cast",
+          type: "action",
+          name: "Archdruid Free Cast",
+          description: "Cast a spell up to tier 4 for free when you enter or leave a Beastshift form.",
+          frequency: "per_encounter",
+          maxUses: { type: "fixed", value: 1 },
+        }
+      }
+    ],
   },
   {
     id: "upgraded-cantrips-4",
