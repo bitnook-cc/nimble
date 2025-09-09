@@ -80,7 +80,18 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 1,
     name: "Master of Storms",
     description: "You know cantrips from the Lightning and Wind schools.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "master-of-storms-0",
+        type: "spell_school",
+        schoolId: "lightning",
+      },
+      {
+        id: "master-of-storms-1",
+        type: "spell_school",
+        schoolId: "wind",
+      }
+    ],
   },
   {
     id: "beastshift",
@@ -219,9 +230,9 @@ const stormshifterFeatures: ClassFeature[] = [
     effects: [
       {
         id: "stormcaller-0",
-        type: "spell_school_choice",
-        availableSchools: ["storm-utility"],
-        numberOfChoices: 1,
+        type: "utility_spells",
+        numberOfSpells: 1,
+        selectionMode: "per_school",
       },
     ],
   },
@@ -311,7 +322,14 @@ const stormshifterFeatures: ClassFeature[] = [
     level: 7,
     name: "Stormcaller (2)",
     description: "Learn a 2nd Utility Spell from each spell school you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "stormcaller-2-0",
+        type: "utility_spells",
+        numberOfSpells: 1,
+        selectionMode: "per_school",
+      },
+    ],
   },
   // Level 8
   {

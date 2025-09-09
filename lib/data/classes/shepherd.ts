@@ -117,7 +117,32 @@ const shepherdFeatures: ClassFeature[] = [
     name: "Keeper of Life & Death",
     description:
       "You know Radiant and Necrotic cantrips. Searing Light (WIL times/Safe Rest) Action: Heal or Inflict grievous injuries: Heal WIL d8 HP to a Dying creature within Reach 6. OR: Inflict WIL d8 radiant damage to an undead or Bloodied enemy within Reach 6.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "keeper-of-life-and-death-0",
+        type: "spell_school",
+        schoolId: "radiant",
+      },
+      {
+        id: "keeper-of-life-and-death-1",
+        type: "spell_school",
+        schoolId: "necrotic",
+      },
+      {
+        id: "keeper-of-life-and-death-2",
+        type: "ability",
+        ability: {
+          id: "searing-light",
+          name: "Searing Light",
+          description:
+            "Action: Heal or Inflict grievous injuries: Heal WIL d8 HP to a Dying creature within Reach 6. OR: Inflict WIL d8 radiant damage to an undead or Bloodied enemy within Reach 6.",
+          type: "action",
+          frequency: "per_safe_rest",
+          actionCost: 1,
+          maxUses: { type: "formula", expression: "WIL"},
+        }
+      }
+    ],
   },
   {
     id: "mana-and-unlock-tier-1-spells",

@@ -292,19 +292,36 @@ export function EffectSelectionDisplay({
 
         if (spellCount > 0) {
           return (
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="text-sm">
-                {spellCount} spell{spellCount !== 1 ? "s" : ""} selected
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onOpenDialog(effect)}
-                className="h-6 px-2"
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="space-y-1">
+                  {spellSelections.map((selection, idx) => {
+                    const spell = contentRepository.getSpellById(selection.spellId);
+                    const school = spell ? contentRepository.getSpellSchool(spell.school) : null;
+                    const SchoolIcon = school ? getIconById(school.icon) : null;
+                    return (
+                      <div key={idx} className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        {SchoolIcon && <SchoolIcon className={`w-4 h-4 ${school?.color}`} />}
+                        <span className="text-sm">
+                          {spell?.name || selection.spellId}
+                          {school && (
+                            <span className="text-muted-foreground ml-1">({school.name})</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onOpenDialog(effect)}
+                  className="h-6 px-2"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </Button>
+              </div>
             </div>
           );
         }
