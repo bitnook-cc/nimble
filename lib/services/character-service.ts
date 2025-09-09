@@ -656,12 +656,32 @@ export class CharacterService implements ICharacterService {
   getSelectedUtilitySpellIds(): string[] {
     if (!this._character) return [];
 
+    const contentRepository = ContentRepositoryService.getInstance();
     const utilitySpellSelections = this._character.effectSelections.filter(
       (selection): selection is UtilitySpellsEffectSelection => selection.type === "utility_spells",
     );
 
-    // Get all spell IDs from utility spell selections (one per selection now)
-    return utilitySpellSelections.map((selection) => selection.spellId);
+    const spellIds: string[] = [];
+
+    for (const selection of utilitySpellSelections) {
+      if (selection.spellId) {
+        // Regular selection with specific spell ID
+        spellIds.push(selection.spellId);
+      } else if (selection.schoolId) {
+        // Full school selection - get all utility spells from this school
+        const schoolSpells = contentRepository.getUtilitySpellsForSchool(selection.schoolId);
+        if (schoolSpells) {
+          // Filter to only tier 0 (utility) spells that are within character's tier access
+          const utilitySpells = schoolSpells.filter(
+            (spell) => spell.category === "utility" && spell.tier <= this._character!._spellTierAccess,
+          );
+          spellIds.push(...utilitySpells.map((spell) => spell.id));
+        }
+      }
+    }
+
+    // Remove duplicates
+    return [...new Set(spellIds)];
   }
 
   /**

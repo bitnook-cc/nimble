@@ -80,7 +80,13 @@ const mageFeatures: ClassFeature[] = [
     level: 3,
     name: "Elemental Mastery",
     description: "Learn the Utility Spells from 1 spell school you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "elemental-mastery-0",
+        type: "utility_spells",
+        selectionMode: "full_school",
+      }
+    ],
   },
   {
     id: "spellshaper",
@@ -176,7 +182,13 @@ const mageFeatures: ClassFeature[] = [
     level: 6,
     name: "Elemental Mastery (2)",
     description: "Learn the Utility Spells from a 2nd spell school you know.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "elemental-mastery-1",
+        type: "utility_spells",
+        selectionMode: "full_school",
+      }
+    ],
   },
   {
     id: "subclass-feature-7",

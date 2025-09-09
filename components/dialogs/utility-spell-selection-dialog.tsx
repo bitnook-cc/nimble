@@ -40,34 +40,56 @@ export function UtilitySpellSelectionDialog({
   existingSelections = [],
 }: UtilitySpellSelectionDialogProps) {
   const [utilitySpellSelection, setUtilitySpellSelection] = useState<SpellAbilityDefinition[]>([]);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
   const contentRepository = ContentRepositoryService.getInstance();
   const isEditMode = existingSelections.length > 0;
+  const isFullSchoolMode = effect.selectionMode === "full_school";
 
   // Initialize selection when dialog opens
   useEffect(() => {
     if (open) {
-      const existingSpells = existingSelections
-        .map((s) => contentRepository.getSpellById(s.spellId))
-        .filter((s) => s !== null);
-      setUtilitySpellSelection(existingSpells);
+      if (isFullSchoolMode) {
+        // For full_school mode, check if there's an existing school selection
+        const existingSchool = existingSelections.length > 0 ? existingSelections[0].schoolId : null;
+        setSelectedSchoolId(existingSchool);
+      } else {
+        // For other modes, get existing spell selections
+        const existingSpells = existingSelections
+          .map((s) => s.spellId ? contentRepository.getSpellById(s.spellId) : null)
+          .filter((s) => s !== null);
+        setUtilitySpellSelection(existingSpells);
+      }
     } else {
       // Clear selection when dialog closes
       setUtilitySpellSelection([]);
+      setSelectedSchoolId(null);
     }
-  }, [open, existingSelections, contentRepository]);
+  }, [open, existingSelections, contentRepository, isFullSchoolMode]);
 
   const handleConfirm = () => {
-    // Create one selection object for each selected spell
-    const selections: UtilitySpellsEffectSelection[] = utilitySpellSelection.map((spell) => {
-      return {
-        type: "utility_spells" as const,
-        grantedByEffectId: effect.id,
-        spellId: spell.id,
-        schoolId: spell.school,
-      };
-    });
-
-    onConfirm(selections);
+    if (isFullSchoolMode) {
+      // For full_school mode, create a single selection with just the school ID
+      const selections: UtilitySpellsEffectSelection[] = selectedSchoolId
+        ? [{
+            type: "utility_spells" as const,
+            grantedByEffectId: effect.id,
+            schoolId: selectedSchoolId,
+            // No spellId for full_school mode
+          }]
+        : [];
+      onConfirm(selections);
+    } else {
+      // For other modes, create one selection object for each selected spell
+      const selections: UtilitySpellsEffectSelection[] = utilitySpellSelection.map((spell) => {
+        return {
+          type: "utility_spells" as const,
+          grantedByEffectId: effect.id,
+          spellId: spell.id,
+          schoolId: spell.school,
+        };
+      });
+      onConfirm(selections);
+    }
     onOpenChange(false);
   };
 
@@ -90,61 +112,123 @@ export function UtilitySpellSelectionDialog({
           <DialogDescription>
             {effect.selectionMode === "per_school"
               ? `Select ${effect.numberOfSpells || 1} utility spell${(effect.numberOfSpells || 1) > 1 ? "s" : ""} from each of ${availableSchools.length} school${availableSchools.length > 1 ? "s" : ""} (${totalSpellCount} total).`
+              : effect.selectionMode === "full_school"
+              ? `Select one spell school to gain access to all utility spells from that school.`
               : `Select ${totalSpellCount} utility spell${totalSpellCount > 1 ? "s" : ""} to learn.`}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[450px] pr-4">
           <div className="space-y-4">
-            {(() => {
-              const numberOfSpells = effect.numberOfSpells || 1;
-              const isPerSchoolMode = effect.selectionMode === "per_school";
-
-              // Get all already-selected utility spells from OTHER effects
-              const otherUtilitySpellSelections = character.effectSelections
-                .filter((s) => s.type === "utility_spells" && s.grantedByEffectId !== effect.id)
-                .map((s) => (s.type === "utility_spells" ? s.spellId : ""))
-                .filter((id) => id !== "");
-
-              // Group spells by school
-              return availableSchools.map((schoolId) => {
+            {isFullSchoolMode ? (
+              // Full school mode - show school selection
+              availableSchools.map((schoolId) => {
+                const school = contentRepository.getSpellSchool(schoolId);
+                const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
                 const schoolSpells = allAvailableSpells.filter(
                   (spell) => spell.school === schoolId,
                 );
-                const school = contentRepository.getSpellSchool(schoolId);
-                const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
-
-                // Count selected spells in this school
-                const selectedInSchool = utilitySpellSelection.filter((spell) => {
-                  return spell.school === schoolId;
-                }).length;
-
-                // Check if school is at limit
-                const schoolAtLimit =
-                  (isPerSchoolMode && selectedInSchool >= numberOfSpells) ||
-                  (!isPerSchoolMode && utilitySpellSelection.length >= numberOfSpells);
+                const isSelected = selectedSchoolId === schoolId;
 
                 return (
-                  <div key={schoolId} className="space-y-2">
-                    <div className="flex items-center justify-between sticky top-0 bg-background z-10 pb-1">
-                      <div className="flex items-center gap-2">
-                        {SchoolIcon && (
-                          <SchoolIcon className="w-4 h-4" style={{ color: school?.color }} />
-                        )}
-                        <h3 className="font-semibold" style={{ color: school?.color }}>
-                          {school?.name || schoolId}
-                        </h3>
+                  <div
+                    key={schoolId}
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => setSelectedSchoolId(isSelected ? null : schoolId)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            setSelectedSchoolId(checked ? schoolId : null);
+                          }}
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {SchoolIcon && (
+                              <SchoolIcon className="w-5 h-5" style={{ color: school?.color }} />
+                            )}
+                            <h3 className="font-semibold text-lg" style={{ color: school?.color }}>
+                              {school?.name || schoolId}
+                            </h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {school?.description || "A school of magic"}
+                          </p>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                              {schoolSpells.length} utility spell{schoolSpells.length !== 1 ? "s" : ""} available:
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {schoolSpells.map((spell) => (
+                                <Badge key={spell.id} variant="outline" className="text-xs">
+                                  {spell.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      {isPerSchoolMode && (
-                        <Badge
-                          variant={schoolAtLimit ? "secondary" : "outline"}
-                          className={`text-xs ${schoolAtLimit ? "bg-green-100 text-green-800" : ""}`}
-                        >
-                          {selectedInSchool}/{numberOfSpells} selected
-                          {schoolAtLimit && " ✓"}
-                        </Badge>
-                      )}
                     </div>
-                    <div className="space-y-2 pl-6">
+                  </div>
+                );
+              })
+            ) : (
+              // Regular spell selection mode
+              (() => {
+                const numberOfSpells = effect.numberOfSpells || 1;
+                const isPerSchoolMode = effect.selectionMode === "per_school";
+
+                // Get all already-selected utility spells from OTHER effects
+                const otherUtilitySpellSelections = character.effectSelections
+                  .filter((s) => s.type === "utility_spells" && s.grantedByEffectId !== effect.id)
+                  .map((s) => (s.type === "utility_spells" && s.spellId ? s.spellId : ""))
+                  .filter((id) => id !== "");
+
+                // Group spells by school
+                return availableSchools.map((schoolId) => {
+                  const schoolSpells = allAvailableSpells.filter(
+                    (spell) => spell.school === schoolId,
+                  );
+                  const school = contentRepository.getSpellSchool(schoolId);
+                  const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
+
+                  // Count selected spells in this school
+                  const selectedInSchool = utilitySpellSelection.filter((spell) => {
+                    return spell.school === schoolId;
+                  }).length;
+
+                  // Check if school is at limit
+                  const schoolAtLimit =
+                    (isPerSchoolMode && selectedInSchool >= numberOfSpells) ||
+                    (!isPerSchoolMode && utilitySpellSelection.length >= numberOfSpells);
+
+                  return (
+                    <div key={schoolId} className="space-y-2">
+                      <div className="flex items-center justify-between sticky top-0 bg-background z-10 pb-1">
+                        <div className="flex items-center gap-2">
+                          {SchoolIcon && (
+                            <SchoolIcon className="w-4 h-4" style={{ color: school?.color }} />
+                          )}
+                          <h3 className="font-semibold" style={{ color: school?.color }}>
+                            {school?.name || schoolId}
+                          </h3>
+                        </div>
+                        {isPerSchoolMode && (
+                          <Badge
+                            variant={schoolAtLimit ? "secondary" : "outline"}
+                            className={`text-xs ${schoolAtLimit ? "bg-green-100 text-green-800" : ""}`}
+                          >
+                            {selectedInSchool}/{numberOfSpells} selected
+                            {schoolAtLimit && " ✓"}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="space-y-2 pl-6">
                       {schoolSpells.map((spell) => {
                         const isAlreadySelected = otherUtilitySpellSelections.includes(spell.id);
                         const isSelected = !!utilitySpellSelection.find((s) => s.id === spell.id);
@@ -203,21 +287,28 @@ export function UtilitySpellSelectionDialog({
                   </div>
                 );
               });
-            })()}
+            })())
+            }
           </div>
         </ScrollArea>
         <DialogFooter>
           <Button
             onClick={handleConfirm}
             disabled={
-              !featureSelectionService.validateUtilitySpellSelection(
-                effect,
-                utilitySpellSelection,
-                character,
-              )
+              isFullSchoolMode
+                ? !selectedSchoolId
+                : !featureSelectionService.validateUtilitySpellSelection(
+                    effect,
+                    utilitySpellSelection,
+                    character,
+                  )
             }
           >
-            Confirm Selection ({utilitySpellSelection.length}/{totalSpellCount})
+            {isFullSchoolMode
+              ? selectedSchoolId
+                ? `Confirm School Selection`
+                : `Select a School`
+              : `Confirm Selection (${utilitySpellSelection.length}/${totalSpellCount})`}
           </Button>
         </DialogFooter>
       </DialogContent>

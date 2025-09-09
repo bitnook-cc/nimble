@@ -277,15 +277,36 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
                   utilitySelections.forEach((sel) => {
                     if (sel.type === "utility_spells") {
-                      const spell = contentRepo.getSpellById(sel.spellId);
-                      if (spell && spell.tier === 0) {
-                        // Add spell if not already in abilities
-                        const currentSpellIds = new Set(
-                          updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                        );
-                        if (!currentSpellIds.has(spell.id)) {
-                          updatedAbilities.push(spell);
-                          addedSpellIds.push(spell.id);
+                      if (sel.spellId) {
+                        // Regular spell selection
+                        const spell = contentRepo.getSpellById(sel.spellId);
+                        if (spell && spell.tier === 0) {
+                          // Add spell if not already in abilities
+                          const currentSpellIds = new Set(
+                            updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
+                          );
+                          if (!currentSpellIds.has(spell.id)) {
+                            updatedAbilities.push(spell);
+                            addedSpellIds.push(spell.id);
+                          }
+                        }
+                      } else if (sel.schoolId && utilitySpellsEffect.selectionMode === "full_school") {
+                        // Full school selection - add all utility spells from this school
+                        const schoolSpells = contentRepo.getUtilitySpellsForSchool(sel.schoolId);
+                        if (schoolSpells) {
+                          const utilitySpells = schoolSpells.filter(
+                            (spell) => spell.category === "utility" && spell.tier <= spellTierAccess,
+                          );
+                          const currentSpellIds = new Set(
+                            updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
+                          );
+                          utilitySpells.forEach((spell) => {
+                            if (!currentSpellIds.has(spell.id)) {
+                              updatedAbilities.push(spell);
+                              addedSpellIds.push(spell.id);
+                              currentSpellIds.add(spell.id);
+                            }
+                          });
                         }
                       }
                     }

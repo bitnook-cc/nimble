@@ -147,6 +147,9 @@ export class FeatureSelectionService {
     if (effect.selectionMode === "per_school") {
       const spellsPerSchool = effect.numberOfSpells || 1;
       return availableSchools.length * spellsPerSchool;
+    } else if (effect.selectionMode === "full_school") {
+      // full_school mode: user selects one school
+      return 1;
     } else {
       // "total" mode
       return effect.totalSpells || 1;
@@ -163,6 +166,11 @@ export class FeatureSelectionService {
     const selections = character.effectSelections.filter(
       (s) => s.type === "utility_spells" && s.grantedByEffectId === effect.id,
     );
+
+    if (effect.selectionMode === "full_school") {
+      // In full_school mode, we need exactly 1 selection (the school choice)
+      return Math.max(0, 1 - selections.length);
+    }
 
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     const totalRequired = this.getUtilitySpellSelectionCount(effect, availableSchools);
@@ -221,6 +229,13 @@ export class FeatureSelectionService {
     selectedSpells: SpellAbilityDefinition[],
     character: Character,
   ): boolean {
+    // For full_school mode, we don't validate individual spells, just the school selection
+    if (effect.selectionMode === "full_school") {
+      // This method is for validating spell selections, not school selections
+      // School selection validation happens in the UI component
+      return true;
+    }
+
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     const expectedCount = this.getUtilitySpellSelectionCount(effect, availableSchools);
 

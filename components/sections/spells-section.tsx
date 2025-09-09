@@ -201,6 +201,9 @@ export function SpellsSection() {
                               <Badge variant="outline" className={getTierColor(spell.tier)}>
                                 {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
                               </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {spell.category === "utility" ? "Utility" : "Combat"}
+                              </Badge>
                             </div>
 
                             {/* Action and Resource costs in a row */}
@@ -313,6 +316,9 @@ export function SpellsSection() {
                                       </h5>
                                       <Badge variant="outline" className={getTierColor(spell.tier)}>
                                         {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs">
+                                        {spell.category === "utility" ? "Utility" : "Combat"}
                                       </Badge>
                                       <Badge
                                         variant="outline"

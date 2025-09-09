@@ -296,13 +296,28 @@ export function EffectSelectionDisplay({
               <div className="flex items-center gap-2">
                 <div className="space-y-1">
                   {spellSelections.map((selection, idx) => {
-                    const spell = contentRepository.getSpellById(selection.spellId);
+                    // Check if this is a full_school selection (no spellId, just schoolId)
+                    if (!selection.spellId && selection.schoolId) {
+                      const school = contentRepository.getSpellSchool(selection.schoolId);
+                      const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
+                      return (
+                        <div key={idx} className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-600" />
+                          {SchoolIcon && <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />}
+                          <span className="text-sm font-medium">
+                            All utility spells from {school?.name || selection.schoolId}
+                          </span>
+                        </div>
+                      );
+                    }
+                    // Regular spell selection
+                    const spell = selection.spellId ? contentRepository.getSpellById(selection.spellId) : null;
                     const school = spell ? contentRepository.getSpellSchool(spell.school) : null;
                     const SchoolIcon = school ? getIconById(school.icon) : null;
                     return (
                       <div key={idx} className="flex items-center gap-2">
                         <Check className="w-4 h-4 text-green-600" />
-                        {SchoolIcon && <SchoolIcon className={`w-4 h-4 ${school?.color}`} />}
+                        {SchoolIcon && <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />}
                         <span className="text-sm">
                           {spell?.name || selection.spellId}
                           {school && (

@@ -191,6 +191,11 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return `Choose ${numChoices} spell school${numChoices > 1 ? "s" : ""}`;
 
     case "utility_spells":
+      if (effect.selectionMode === "full_school") {
+        return effect.schools && effect.schools.length > 0
+          ? `All utility spells from one chosen school (${effect.schools.join(", ")})`
+          : `All utility spells from one chosen school`;
+      }
       return effect.schools && effect.schools.length > 0
         ? `Utility spells from ${effect.schools.join(", ")}`
         : `Utility spells from your known schools`;
