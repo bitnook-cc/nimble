@@ -1,6 +1,70 @@
 import { ClassFeature } from "@/lib/schemas/features";
 
-import { ClassDefinition } from "../../schemas/class";
+import { ClassDefinition, FeaturePool } from "../../schemas/class";
+
+const spellshaperPool: FeaturePool = {
+  id: "spellshaper",
+  name: "Spellshaper",
+  description: "Gain Spellshaper abilities as you level up. You may use 1/turn.",
+  features: [
+    {
+      id: "dimensional-compression",
+      level: 0,
+      name: "Dimensional Compression",
+      description: "(1 or more mana) +4 range to a spell for each additional mana spent.",
+      effects: [],
+    },
+    {
+      id: "echo-casting",
+      level: 0,
+      name: "Echo Casting",
+      description: "(2× mana, min. 1 mana) When you cast a tiered, single-target spell, you may cast a copy of that spell on a 2nd target for free.",
+      effects: [],
+    },
+    {
+      id: "elemental-destruction",
+      level: 0,
+      name: "Elemental Destruction",
+      description: "(1 or more mana) After you hit with a spell, you may spend 1 or more mana (up to your WIL) to reroll 1 die per mana spent.",
+      effects: [],
+    },
+    {
+      id: "elemental-transmutation",
+      level: 0,
+      name: "Elemental Transmutation",
+      description: "(1 mana) Change the damage type of a spell to: Fire, Ice, Lightning, Necrotic, or Radiant.",
+      effects: [],
+    },
+    {
+      id: "extra-dimensional-vision",
+      level: 0,
+      name: "Extra-Dimensional Vision",
+      description: "(2 mana) You may ignore the line of sight requirement of a spell. Your spell will phase though barriers and obstacles to reach a target you know of within range.",
+      effects: [],
+    },
+    {
+      id: "methodical-spellweaver",
+      level: 0,
+      name: "Methodical Spellweaver",
+      description: "(-2 mana) Spend 1 additional action to reduce the mana cost of a spell by 2 (min 1).",
+      effects: [],
+    },
+    {
+      id: "precise-casting",
+      level: 0,
+      name: "Precise Casting",
+      description: "(1+ mana) Choose 1 creature per mana spent to be unaffected by a spell you cast.",
+      effects: [],
+    },
+    {
+      id: "stretch-time",
+      level: 0,
+      name: "Stretch Time",
+      description: "(2 mana) Reduce the action cost of a spell by 1 (min 1).",
+      effects: [],
+    },
+  ],
+};
 
 const mageFeatures: ClassFeature[] = [
   {
@@ -24,7 +88,7 @@ const mageFeatures: ClassFeature[] = [
         type: "spell_school",
         schoolId: "lightning",
       },
-    ], // Passive feature - no mechanical effects to process
+    ],
   },
   {
     id: "mana-and-unlock-tier-1-spells",
@@ -97,14 +161,9 @@ const mageFeatures: ClassFeature[] = [
     effects: [
       {
         id: "spellshaper-0",
-        type: "ability",
-        ability: {
-          id: "spellshaper",
-          name: "Spellshaper",
-          description: "Enhance your spells with powerful effects by spending additional mana.",
-          type: "action",
-          frequency: "at_will",
-        },
+        type: "pick_feature_from_pool",
+        poolId: "spellshaper",
+        choicesAllowed: 2,
       },
     ],
   },
@@ -229,7 +288,14 @@ const mageFeatures: ClassFeature[] = [
     level: 9,
     name: "Spellshaper (2)",
     description: "Choose 1 additional Spellshaper ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "spellshaper-2-0",
+        type: "pick_feature_from_pool",
+        poolId: "spellshaper",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "secondary-stat-increase-2",
@@ -311,7 +377,14 @@ const mageFeatures: ClassFeature[] = [
     level: 13,
     name: "Spellshaper (3)",
     description: "Choose 1 additional Spellshaper ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "spellshaper-3-0",
+        type: "pick_feature_from_pool",
+        poolId: "spellshaper",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "secondary-stat-increase-3",
@@ -459,6 +532,7 @@ export const mage: ClassDefinition = {
   saveAdvantages: { intelligence: "advantage", strength: "disadvantage" },
   startingEquipment: ["adventurers-garb", "staff", "soap"],
   features: mageFeatures,
+  featurePools: [spellshaperPool],
 };
 
 export const mageClass = mage;
