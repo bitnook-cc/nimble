@@ -12,13 +12,13 @@ export class AbilityService {
   /**
    * Calculate the actual max uses for an ability based on its maxUses definition
    */
-  calculateMaxUses(ability: ActionAbilityDefinition, character: Character): number {
+  calculateMaxUses(ability: ActionAbilityDefinition): number {
     if (!ability.maxUses) return 0;
 
     if (ability.maxUses.type === "fixed") {
       return ability.maxUses.value;
     } else {
-      return formulaEvaluatorService.evaluateFormula(ability.maxUses.expression, character);
+      return formulaEvaluatorService.evaluateFormula(ability.maxUses.expression);
     }
   }
 
@@ -86,7 +86,7 @@ export class AbilityService {
     }
 
     const currentUses = character._abilityUses.get(ability.id) || 0;
-    const maxUses = this.calculateMaxUses(ability, character);
+    const maxUses = this.calculateMaxUses(ability);
 
     // For limited-use action abilities, check uses remaining
     if (ability.type === "action" && (!currentUses || currentUses >= maxUses)) {

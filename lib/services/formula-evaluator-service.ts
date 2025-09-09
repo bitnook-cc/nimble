@@ -1,19 +1,21 @@
-import { AttributeName, Character } from "../schemas/character";
+import { AttributeName } from "../schemas/character";
 import { FlexibleValue } from "../schemas/flexible-value";
+import { getCharacterService } from "./service-factory";
 
 export class FormulaEvaluatorService {
   private readonly operatorRegex = /^[+\-*/\(\)0-9\s]+$/;
 
   /**
-   * Safely evaluate a formula expression with character context
+   * Safely evaluate a formula expression using the current character
+   * @param expression The formula expression to evaluate
    */
-  evaluateFormula(expression: string, character: Character): number {
+  evaluateFormula(expression: string): number {
     try {
       // Step 1: Clean and validate the expression
       const cleanedExpression = this.sanitizeExpression(expression);
 
       // Step 2: Replace variables with their values
-      const substitutedExpression = this.substituteVariables(cleanedExpression, character);
+      const substitutedExpression = this.substituteVariables(cleanedExpression);
 
       // Step 3: Validate that only numbers and operators remain
       if (!this.operatorRegex.test(substitutedExpression)) {
@@ -62,8 +64,18 @@ export class FormulaEvaluatorService {
   /**
    * Replace attribute names and keywords with their numeric values
    */
-  private substituteVariables(expression: string, character: Character): string {
+  private substituteVariables(expression: string): string {
+    const characterService = getCharacterService();
+    const character = characterService.getCurrentCharacter();
+    
+    if (!character) {
+      throw new Error("No character available for variable substitution");
+    }
+    
     let result = expression;
+
+    // Get attributes with stat boosts from character service
+    const attributes = characterService.getAttributes();
 
     // Replace attribute names (both full and abbreviated)
     const attributeMap: Record<string, AttributeName> = {
@@ -78,7 +90,7 @@ export class FormulaEvaluatorService {
     };
 
     for (const [key, attributeName] of Object.entries(attributeMap)) {
-      const value = character._attributes[attributeName];
+      const value = attributes[attributeName];
       // Use word boundaries to avoid partial matches
       result = result.replace(new RegExp(`\\b${key}\\b`, "g"), value.toString());
     }
@@ -111,26 +123,23 @@ export class FormulaEvaluatorService {
   }
 
   /**
-   * Evaluate a FlexibleValue (either fixed or formula-based) with character context
+   * Evaluate a FlexibleValue (either fixed or formula-based) using the current character
    */
-  evaluateFlexibleValue(value: FlexibleValue, character: Character): number {
+  evaluateFlexibleValue(value: FlexibleValue): number {
     if (value.type === "fixed") {
       return value.value;
     } else {
-      return this.evaluateFormula(value.expression, character);
+      return this.evaluateFormula(value.expression);
     }
   }
 
   /**
-   * Get a preview of what a formula would evaluate to with given character
+   * Get a preview of what a formula would evaluate to with the current character
    */
-  previewFormula(
-    expression: string,
-    character: Character,
-  ): { result: number; substituted: string } {
+  previewFormula(expression: string): { result: number; substituted: string } {
     const cleanedExpression = this.sanitizeExpression(expression);
-    const substitutedExpression = this.substituteVariables(cleanedExpression, character);
-    const result = this.evaluateFormula(expression, character);
+    const substitutedExpression = this.substituteVariables(cleanedExpression);
+    const result = this.evaluateFormula(expression);
 
     return { result, substituted: substitutedExpression };
   }

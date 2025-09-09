@@ -201,7 +201,7 @@ export class CharacterService implements ICharacterService {
     } else if (ability.type === "action") {
       const currentUses = this._character._abilityUses.get(ability.id) || 0;
       const maxUses = ability.maxUses
-        ? this.abilityService.calculateMaxUses(ability, this._character)
+        ? this.abilityService.calculateMaxUses(ability)
         : 0;
       const logEntry = this.logService.createAbilityUsageEntry(
         ability.name,
@@ -480,7 +480,7 @@ export class CharacterService implements ICharacterService {
     if (!definition) return 0;
     
     // Get the initial value for this resource
-    return resourceService.calculateInitialValue(definition, this._character);
+    return resourceService.calculateInitialValue(definition);
   }
 
   /**
@@ -503,8 +503,7 @@ export class CharacterService implements ICharacterService {
       resourceId,
       value,
       definition,
-      this._character._resourceValues || new Map(),
-      this._character
+      this._character._resourceValues || new Map()
     );
     
     await this.saveCharacter();
@@ -612,19 +611,18 @@ export class CharacterService implements ICharacterService {
     for (const bonus of bonuses) {
       if (bonus.attributes) {
         if (bonus.attributes.strength) {
-          result.strength += calculateFlexibleValue(bonus.attributes.strength, this._character);
+          result.strength += calculateFlexibleValue(bonus.attributes.strength);
         }
         if (bonus.attributes.dexterity) {
-          result.dexterity += calculateFlexibleValue(bonus.attributes.dexterity, this._character);
+          result.dexterity += calculateFlexibleValue(bonus.attributes.dexterity);
         }
         if (bonus.attributes.intelligence) {
           result.intelligence += calculateFlexibleValue(
-            bonus.attributes.intelligence,
-            this._character,
+            bonus.attributes.intelligence
           );
         }
         if (bonus.attributes.will) {
-          result.will += calculateFlexibleValue(bonus.attributes.will, this._character);
+          result.will += calculateFlexibleValue(bonus.attributes.will);
         }
       }
     }
@@ -652,7 +650,7 @@ export class CharacterService implements ICharacterService {
       if (bonus.skillBonuses) {
         for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
           if (result[skillName] && skillBonus) {
-            result[skillName].modifier += calculateFlexibleValue(skillBonus, this._character);
+            result[skillName].modifier += calculateFlexibleValue(skillBonus);
           }
         }
       }
@@ -683,7 +681,7 @@ export class CharacterService implements ICharacterService {
     // Apply initiative bonuses
     for (const bonus of bonuses) {
       if (bonus.initiativeBonus) {
-        result.modifier += calculateFlexibleValue(bonus.initiativeBonus, this._character);
+        result.modifier += calculateFlexibleValue(bonus.initiativeBonus);
       }
     }
 
@@ -704,7 +702,7 @@ export class CharacterService implements ICharacterService {
     // Apply hit dice bonuses
     for (const bonus of bonuses) {
       if (bonus.hitDiceBonus) {
-        result.max += calculateFlexibleValue(bonus.hitDiceBonus, this._character);
+        result.max += calculateFlexibleValue(bonus.hitDiceBonus);
       }
     }
 
@@ -725,7 +723,7 @@ export class CharacterService implements ICharacterService {
     // Apply max wounds bonuses
     for (const bonus of bonuses) {
       if (bonus.maxWoundsBonus) {
-        result += calculateFlexibleValue(bonus.maxWoundsBonus, this._character);
+        result += calculateFlexibleValue(bonus.maxWoundsBonus);
       }
     }
 
@@ -765,7 +763,7 @@ export class CharacterService implements ICharacterService {
     // Apply additional armor bonuses from features
     for (const bonus of bonuses) {
       if (bonus.armorBonus) {
-        armorValue += calculateFlexibleValue(bonus.armorBonus, this._character);
+        armorValue += calculateFlexibleValue(bonus.armorBonus);
       }
     }
 
@@ -781,7 +779,7 @@ export class CharacterService implements ICharacterService {
     const resource = this.getResourceDefinitions().find((r) => r.id === resourceId);
     if (!resource) return 0;
 
-    const baseMax = calculateFlexibleValue(resource.maxValue, this._character);
+    const baseMax = calculateFlexibleValue(resource.maxValue);
     const bonuses = this.getAllStatBonuses();
 
     let result = baseMax;
@@ -789,7 +787,7 @@ export class CharacterService implements ICharacterService {
     // Apply resource max bonuses
     for (const bonus of bonuses) {
       if (bonus.resourceMaxBonuses && bonus.resourceMaxBonuses[resourceId]) {
-        result += calculateFlexibleValue(bonus.resourceMaxBonuses[resourceId], this._character);
+        result += calculateFlexibleValue(bonus.resourceMaxBonuses[resourceId]);
       }
     }
 
@@ -805,7 +803,7 @@ export class CharacterService implements ICharacterService {
     const resource = this.getResourceDefinitions().find((r) => r.id === resourceId);
     if (!resource) return 0;
 
-    const baseMin = calculateFlexibleValue(resource.minValue, this._character);
+    const baseMin = calculateFlexibleValue(resource.minValue);
     const bonuses = this.getAllStatBonuses();
 
     let result = baseMin;
@@ -813,7 +811,7 @@ export class CharacterService implements ICharacterService {
     // Apply resource min bonuses
     for (const bonus of bonuses) {
       if (bonus.resourceMinBonuses && bonus.resourceMinBonuses[resourceId]) {
-        result += calculateFlexibleValue(bonus.resourceMinBonuses[resourceId], this._character);
+        result += calculateFlexibleValue(bonus.resourceMinBonuses[resourceId]);
       }
     }
 
@@ -834,7 +832,7 @@ export class CharacterService implements ICharacterService {
     // Apply speed bonuses
     for (const bonus of bonuses) {
       if (bonus.speedBonus) {
-        result += calculateFlexibleValue(bonus.speedBonus, this._character);
+        result += calculateFlexibleValue(bonus.speedBonus);
       }
     }
 
@@ -1116,7 +1114,6 @@ export class CharacterService implements ICharacterService {
     const newResourceValues = resourceService.resetResourcesByCondition(
       resourceDefinitions,
       this._character._resourceValues || new Map(),
-      this._character,
       "safe_rest"
     );
 
@@ -1297,7 +1294,6 @@ export class CharacterService implements ICharacterService {
     const newResourceValues = resourceService.resetResourcesByCondition(
       resourceDefinitions,
       this._character._resourceValues || new Map(),
-      this._character,
       "encounter_end"
     );
 
@@ -1367,7 +1363,6 @@ export class CharacterService implements ICharacterService {
     const newResourceValues = resourceService.resetResourcesByCondition(
       resourceDefinitions,
       this._character._resourceValues || new Map(),
-      this._character,
       "turn_end"
     );
 

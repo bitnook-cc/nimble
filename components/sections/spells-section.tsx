@@ -146,7 +146,7 @@ export function SpellsSection() {
               <div className="text-right">
                 <div className="text-lg font-bold">{manaResource.current}</div>
                 <div className="text-xs text-muted-foreground">
-                  / {getFlexibleValue(manaResource.definition.maxValue, character)}
+                  / {getFlexibleValue(manaResource.definition.maxValue)}
                 </div>
               </div>
             </div>
@@ -155,7 +155,7 @@ export function SpellsSection() {
               <div
                 className="bg-blue-500 h-2 rounded-full transition-all duration-200"
                 style={{
-                  width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue, character)) * 100))}%`,
+                  width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue)) * 100))}%`,
                 }}
               />
             </div>

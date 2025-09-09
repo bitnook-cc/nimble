@@ -66,7 +66,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
     // For at-will abilities, allow usage regardless of currentUses
     // For other abilities, check if they have remaining uses
     const currentUses = character._abilityUses.get(ability.id) || 0;
-    const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability, character) : 0;
+    const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
     
     if (
       ability.frequency !== "at_will" &&
@@ -203,7 +203,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {actionAbilities.map((ability) => {
               const currentUses = character._abilityUses.get(ability.id) || 0;
-              const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability, character) : 0;
+              const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
               const isUsed =
                 ability.frequency !== "at_will" &&
                 ability.maxUses &&

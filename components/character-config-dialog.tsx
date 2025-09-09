@@ -211,7 +211,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     const updatedCharacter = {
       ...character,
       _resourceDefinitions: [...character._resourceDefinitions, definition],
-      _resourceValues: new Map([...character._resourceValues, [definition.id, { type: "numerical" as const, value: getFlexibleValue(definition.maxValue, character) } as NumericalResourceValue]]),
+      _resourceValues: new Map([...character._resourceValues, [definition.id, { type: "numerical" as const, value: getFlexibleValue(definition.maxValue) } as NumericalResourceValue]]),
     };
     await updateCharacter(updatedCharacter);
 
@@ -609,7 +609,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 ID: {resource.definition.id} | {resource.current}/
-                                {getFlexibleValue(resource.definition.maxValue, character)} | Reset:{" "}
+                                {getFlexibleValue(resource.definition.maxValue)} | Reset:{" "}
                                 {resource.definition.resetCondition} →{" "}
                                 {resource.definition.resetType}
                               </div>

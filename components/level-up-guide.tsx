@@ -354,8 +354,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 // Initialize the resource value if it doesn't exist
                 if (!updatedResourceValues.has(resourceEffect.resourceDefinition.id)) {
                   const initialValue = resourceService.calculateInitialValue(
-                    resourceEffect.resourceDefinition,
-                    character,
+                    resourceEffect.resourceDefinition
                   );
                   updatedResourceValues.set(
                     resourceEffect.resourceDefinition.id,

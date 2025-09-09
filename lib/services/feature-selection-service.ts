@@ -181,7 +181,7 @@ export class FeatureSelectionService {
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     
     const allSpells = availableSchools.flatMap(schoolId => {
-      const spells = contentRepository.getSpellsBySchool(schoolId);
+      const spells = contentRepository.getUtilitySpellsForSchool(schoolId);
       return spells?.filter(s => 
         s.category === "utility" && 
         s.tier <= character._spellTierAccess

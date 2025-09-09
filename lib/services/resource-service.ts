@@ -1,4 +1,3 @@
-import { Character } from "../schemas/character";
 import { calculateFlexibleValue } from "../types/flexible-value";
 import { 
   ResourceDefinition, 
@@ -16,56 +15,56 @@ export class ResourceService {
   /**
    * Calculate the actual minimum value for a resource definition
    */
-  calculateMinValue(definition: ResourceDefinition, character: Character): number {
-    return calculateFlexibleValue(definition.minValue, character);
+  calculateMinValue(definition: ResourceDefinition): number {
+    return calculateFlexibleValue(definition.minValue);
   }
 
   /**
    * Calculate the actual maximum value for a resource definition
    */
-  calculateMaxValue(definition: ResourceDefinition, character: Character): number {
-    return calculateFlexibleValue(definition.maxValue, character);
+  calculateMaxValue(definition: ResourceDefinition): number {
+    return calculateFlexibleValue(definition.maxValue);
   }
 
   /**
    * Calculate the actual reset value for a resource definition (if applicable)
    */
-  private calculateResetValue(definition: ResourceDefinition, character: Character): number | undefined {
+  private calculateResetValue(definition: ResourceDefinition): number | undefined {
     if (!definition.resetValue) return undefined;
-    return calculateFlexibleValue(definition.resetValue, character);
+    return calculateFlexibleValue(definition.resetValue);
   }
 
   /**
    * Calculate the initial value for a resource based on its reset type
    */
-  calculateInitialValue(definition: ResourceDefinition, character: Character): number {
+  calculateInitialValue(definition: ResourceDefinition): number {
     switch (definition.resetType) {
       case "to_max":
-        return this.calculateMaxValue(definition, character);
+        return this.calculateMaxValue(definition);
       case "to_zero":
-        return this.calculateMinValue(definition, character);
+        return this.calculateMinValue(definition);
       case "to_default":
-        return this.calculateResetValue(definition, character) ?? 
-               this.calculateMaxValue(definition, character);
+        return this.calculateResetValue(definition) ?? 
+               this.calculateMaxValue(definition);
       default:
-        return this.calculateMaxValue(definition, character);
+        return this.calculateMaxValue(definition);
     }
   }
 
   /**
    * Calculate the reset value for a resource based on its reset type
    */
-  calculateResetTargetValue(definition: ResourceDefinition, character: Character): number {
+  calculateResetTargetValue(definition: ResourceDefinition): number {
     switch (definition.resetType) {
       case "to_max":
-        return this.calculateMaxValue(definition, character);
+        return this.calculateMaxValue(definition);
       case "to_zero":
-        return this.calculateMinValue(definition, character);
+        return this.calculateMinValue(definition);
       case "to_default":
-        return this.calculateResetValue(definition, character) ?? 
-               this.calculateMaxValue(definition, character);
+        return this.calculateResetValue(definition) ?? 
+               this.calculateMaxValue(definition);
       default:
-        return this.calculateMaxValue(definition, character);
+        return this.calculateMaxValue(definition);
     }
   }
 
@@ -97,11 +96,10 @@ export class ResourceService {
    */
   setResourceValue(
     definition: ResourceDefinition,
-    character: Character,
     newValue: number
   ): ResourceValue {
-    const minValue = this.calculateMinValue(definition, character);
-    const maxValue = this.calculateMaxValue(definition, character);
+    const minValue = this.calculateMinValue(definition);
+    const maxValue = this.calculateMaxValue(definition);
     const clampedValue = Math.max(minValue, Math.min(maxValue, newValue));
     
     return this.createNumericalValue(clampedValue);
@@ -115,7 +113,6 @@ export class ResourceService {
   resetResourcesByCondition(
     resourceDefinitions: ResourceDefinition[],
     currentValues: Map<string, ResourceValue>,
-    character: Character,
     condition: ResourceResetCondition
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
@@ -134,7 +131,7 @@ export class ResourceService {
       // 3. Skip if condition is "never" or "manual"
       if (definition.resetCondition === condition || 
           (conditionIndex >= 0 && resourceConditionIndex >= 0 && resourceConditionIndex <= conditionIndex)) {
-        const targetValue = this.calculateResetTargetValue(definition, character);
+        const targetValue = this.calculateResetTargetValue(definition);
         newValues.set(definition.id, this.createNumericalValue(targetValue));
       }
     }
@@ -147,13 +144,12 @@ export class ResourceService {
    * Returns a new Map with all resources at initial values
    */
   resetAllResources(
-    resourceDefinitions: ResourceDefinition[],
-    character: Character
+    resourceDefinitions: ResourceDefinition[]
   ): Map<string, ResourceValue> {
     const newValues = new Map<string, ResourceValue>();
     
     for (const definition of resourceDefinitions) {
-      const initialValue = this.calculateInitialValue(definition, character);
+      const initialValue = this.calculateInitialValue(definition);
       newValues.set(definition.id, this.createNumericalValue(initialValue));
     }
     
@@ -168,8 +164,7 @@ export class ResourceService {
     resourceId: string,
     amount: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>,
-    character: Character
+    currentValues: Map<string, ResourceValue>
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     const currentValue = this.getNumericalValue(currentValues.get(resourceId));
@@ -177,7 +172,7 @@ export class ResourceService {
     
     newValues.set(
       resourceId, 
-      this.setResourceValue(definition, character, newValue)
+      this.setResourceValue(definition, newValue)
     );
     
     return newValues;
@@ -191,8 +186,7 @@ export class ResourceService {
     resourceId: string,
     amount: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>,
-    character: Character
+    currentValues: Map<string, ResourceValue>
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     const currentValue = this.getNumericalValue(currentValues.get(resourceId));
@@ -200,7 +194,7 @@ export class ResourceService {
     
     newValues.set(
       resourceId,
-      this.setResourceValue(definition, character, newValue)
+      this.setResourceValue(definition, newValue)
     );
     
     return newValues;
@@ -214,13 +208,12 @@ export class ResourceService {
     resourceId: string,
     value: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>,
-    character: Character
+    currentValues: Map<string, ResourceValue>
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     newValues.set(
       resourceId,
-      this.setResourceValue(definition, character, value)
+      this.setResourceValue(definition, value)
     );
     return newValues;
   }

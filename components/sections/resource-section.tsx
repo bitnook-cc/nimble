@@ -100,8 +100,7 @@ export function ResourceSection() {
           {activeResources.map((resource) => {
             const ResourceIcon = getResourceIcon(resource);
             const calculatedMaxValue = resourceService.calculateMaxValue(
-              resource.definition,
-              character,
+              resource.definition
             );
             const resourceBarColor = getResourceBarColor(
               resource,

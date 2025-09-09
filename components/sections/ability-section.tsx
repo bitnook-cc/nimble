@@ -218,7 +218,7 @@ export function AbilitySection() {
 
     const actionAbility = ability as ActionAbilityDefinition;
     const currentUses = character._abilityUses.get(actionAbility.id) || 0;
-    const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility, character) : 0;
+    const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility) : 0;
     const isUsed = actionAbility.frequency !== "at_will" && actionAbility.maxUses && currentUses >= maxUses;
 
     // Check if ability has resource requirements and if we have enough resources
@@ -261,7 +261,7 @@ export function AbilitySection() {
                     {currentUses}/
                     {actionAbility.maxUses?.type === "fixed"
                       ? actionAbility.maxUses.value
-                      : abilityService.calculateMaxUses(actionAbility, character)}{" "}
+                      : abilityService.calculateMaxUses(actionAbility)}{" "}
                     uses
                     {actionAbility.maxUses.type === "formula" && (
                       <span className="text-xs opacity-70 ml-1">

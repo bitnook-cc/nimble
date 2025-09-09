@@ -119,7 +119,7 @@ export interface IAbilityService {
   ): boolean;
   getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number;
   calculateAbilityRollModifier(roll: AbilityRoll, character: Character): number;
-  calculateMaxUses(ability: ActionAbilityDefinition, character: Character): number;
+  calculateMaxUses(ability: ActionAbilityDefinition): number;
 }
 
 /**
