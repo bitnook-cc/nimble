@@ -1,9 +1,9 @@
 import { characterSchema } from "../schemas/character";
+import { Character, CreateCharacterData } from "../schemas/character";
 import {
   ICharacterRepository,
   LocalStorageCharacterRepository,
 } from "../storage/character-repository";
-import { Character, CreateCharacterData } from "../schemas/character";
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
 
 export class CharacterStorageService {

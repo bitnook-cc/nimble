@@ -1,14 +1,13 @@
 import { z } from "zod";
 
+import { diceExpressionSchema } from "./dice";
 import { flexibleValueSchema } from "./flexible-value";
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
-import { diceExpressionSchema } from "./dice";
 
 // ========================================
 // Feature Effect Schemas
 // ========================================
-
 
 const AbilityRollSchema = z.object({
   dice: diceExpressionSchema,
@@ -200,7 +199,10 @@ export const CharacterFeatureSchema = z
       .array(FeatureEffectSchema)
       .meta({ title: "Effects", description: "Array of effects this feature provides" }),
   })
-  .meta({ title: "Character Feature", description: "A feature that provides effects to characters" });
+  .meta({
+    title: "Character Feature",
+    description: "A feature that provides effects to characters",
+  });
 
 // Class Feature Schema - extends CharacterFeature with level
 export const ClassFeatureSchema = CharacterFeatureSchema.extend({
@@ -210,15 +212,17 @@ export const ClassFeatureSchema = CharacterFeatureSchema.extend({
     .min(1)
     .max(20)
     .meta({ title: "Level", description: "Level at which this feature is gained" }),
-})
-  .meta({ title: "Class Feature", description: "A class feature that provides effects to characters at specific levels" });
+}).meta({
+  title: "Class Feature",
+  description: "A class feature that provides effects to characters at specific levels",
+});
 
 // ========================================
 // Export Inferred Types
 // ========================================
 
 // Feature Effect Types
-export type FeatureEffectType = 
+export type FeatureEffectType =
   | "ability"
   | "attribute_boost"
   | "stat_bonus"
@@ -248,7 +252,9 @@ export type UtilitySpellsFeatureEffect = z.infer<typeof UtilitySpellsFeatureEffe
 export type SpellTierAccessFeatureEffect = z.infer<typeof SpellTierAccessFeatureEffectSchema>;
 export type ResourceFeatureEffect = z.infer<typeof ResourceFeatureEffectSchema>;
 export type SubclassChoiceFeatureEffect = z.infer<typeof SubclassChoiceFeatureEffectSchema>;
-export type PickFeatureFromPoolFeatureEffect = z.infer<typeof PickFeatureFromPoolFeatureEffectSchema>;
+export type PickFeatureFromPoolFeatureEffect = z.infer<
+  typeof PickFeatureFromPoolFeatureEffectSchema
+>;
 export type ResistanceFeatureEffect = z.infer<typeof ResistanceFeatureEffectSchema>;
 
 export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;

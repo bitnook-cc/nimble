@@ -4,8 +4,8 @@ import { gameConfig } from "../config/game-config";
 import { AbilityDefinition, AbilityDefinitionSchema } from "./abilities";
 import { ClassFeatureSchema } from "./features";
 import { flexibleValueSchema } from "./flexible-value";
-import { inventorySchema, Inventory } from "./inventory";
-import { resourceDefinitionSchema, ResourceDefinition, ResourceValue } from "./resources";
+import { Inventory, inventorySchema } from "./inventory";
+import { ResourceDefinition, ResourceValue, resourceDefinitionSchema } from "./resources";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 
@@ -74,7 +74,6 @@ export const woundsSchema = z.object({
   max: z.int().min(1),
 });
 
-
 // Resource value schemas for the new model
 const numericalResourceValueSchema = z.object({
   type: z.literal("numerical"),
@@ -87,7 +86,6 @@ export const characterConfigurationSchema = z.object({
   maxWounds: z.int().min(1),
   maxInventorySize: z.int().min(1),
 });
-
 
 const armorProficiencySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("cloth") }),

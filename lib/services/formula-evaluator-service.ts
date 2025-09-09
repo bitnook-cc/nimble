@@ -67,11 +67,11 @@ export class FormulaEvaluatorService {
   private substituteVariables(expression: string): string {
     const characterService = getCharacterService();
     const character = characterService.getCurrentCharacter();
-    
+
     if (!character) {
       throw new Error("No character available for variable substitution");
     }
-    
+
     let result = expression;
 
     // Get attributes with stat boosts from character service

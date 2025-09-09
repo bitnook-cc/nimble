@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
-import { getActivityLog, getDiceService } from "@/lib/services/service-factory";
 import { AttributeName, SkillName } from "@/lib/schemas/character";
+import { getActivityLog, getDiceService } from "@/lib/services/service-factory";
 
 import { useActivityLog } from "./use-activity-log";
 

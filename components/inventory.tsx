@@ -19,16 +19,14 @@ import {
 import { useState } from "react";
 
 import {
-  Item,
-  WeaponItem,
+  AmmunitionItem,
   ArmorItem,
   ConsumableItem,
-  AmmunitionItem,
   Inventory as InventoryType,
+  Item,
+  WeaponItem,
 } from "@/lib/schemas/inventory";
-import {
-  CreateItemData,
-} from "@/lib/types/inventory";
+import { CreateItemData } from "@/lib/types/inventory";
 import {
   canEquipArmor,
   canEquipWeapon,
@@ -40,7 +38,14 @@ import { ItemBrowser } from "./item-browser";
 import { ItemFormFields } from "./item-form-fields";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 
 interface InventoryProps {
   inventory: InventoryType;

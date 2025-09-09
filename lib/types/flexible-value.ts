@@ -2,8 +2,8 @@
  * Generic flexible value system for numbers that can be either fixed or formula-based
  * Used for ability max uses, resource min/max values, and other dynamic calculations
  */
-import { formulaEvaluatorService } from "../services/formula-evaluator-service";
 import type { FlexibleValue } from "../schemas/flexible-value";
+import { formulaEvaluatorService } from "../services/formula-evaluator-service";
 
 /**
  * Get the computed value from a FlexibleValue

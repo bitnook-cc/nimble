@@ -1,14 +1,12 @@
 import { SpellAbilityDefinition } from "../schemas/abilities";
+import { Character } from "../schemas/character";
 import {
-  Character,
-} from "../schemas/character";
-import { 
+  AttributeBoostFeatureEffect,
   FeatureEffect,
   PickFeatureFromPoolFeatureEffect,
-  SubclassChoiceFeatureEffect,
   SpellSchoolChoiceFeatureEffect,
-  AttributeBoostFeatureEffect,
-  UtilitySpellsFeatureEffect
+  SubclassChoiceFeatureEffect,
+  UtilitySpellsFeatureEffect,
 } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
 import { getCharacterService } from "./service-factory";
@@ -41,13 +39,16 @@ export class FeatureSelectionService {
    * Get all available effect selections that need to be made
    * This includes selections from all sources (class, ancestry, background, etc.)
    */
-  getAvailableEffectSelections(character: Character, allEffects: FeatureEffect[]): AvailableEffectSelections {
+  getAvailableEffectSelections(
+    character: Character,
+    allEffects: FeatureEffect[],
+  ): AvailableEffectSelections {
     const result: AvailableEffectSelections = {
       poolSelections: [],
       subclassChoices: [],
       spellSchoolSelections: [],
       attributeBoosts: [],
-      utilitySpellSelections: []
+      utilitySpellSelections: [],
     };
 
     for (const effect of allEffects) {
@@ -59,7 +60,7 @@ export class FeatureSelectionService {
           }
           break;
         }
-        
+
         case "subclass_choice": {
           // Check if subclass not already selected
           const characterService = getCharacterService();
@@ -68,7 +69,7 @@ export class FeatureSelectionService {
           }
           break;
         }
-        
+
         case "spell_school_choice": {
           const remaining = this.getRemainingSpellSchoolSelections(character, effect);
           if (remaining > 0) {
@@ -76,7 +77,7 @@ export class FeatureSelectionService {
           }
           break;
         }
-        
+
         case "attribute_boost": {
           const remaining = this.getRemainingAttributeBoosts(character, effect);
           if (remaining > 0) {
@@ -84,7 +85,7 @@ export class FeatureSelectionService {
           }
           break;
         }
-        
+
         case "utility_spells": {
           const remaining = this.getRemainingUtilitySpellSelections(character, effect);
           if (remaining > 0) {
@@ -102,11 +103,11 @@ export class FeatureSelectionService {
    * Get remaining pool selections for a specific effect
    */
   getRemainingPoolSelections(
-    character: Character, 
-    effect: PickFeatureFromPoolFeatureEffect, 
+    character: Character,
+    effect: PickFeatureFromPoolFeatureEffect,
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "pool_feature" && s.grantedByEffectId === effect.id
+      (s) => s.type === "pool_feature" && s.grantedByEffectId === effect.id,
     );
     return Math.max(0, effect.choicesAllowed - selections.length);
   }
@@ -116,10 +117,10 @@ export class FeatureSelectionService {
    */
   getRemainingSpellSchoolSelections(
     character: Character,
-    effect: SpellSchoolChoiceFeatureEffect, 
+    effect: SpellSchoolChoiceFeatureEffect,
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "spell_school" && s.grantedByEffectId === effect.id
+      (s) => s.type === "spell_school" && s.grantedByEffectId === effect.id,
     );
     const numberOfChoices = effect.numberOfChoices || 1;
     return Math.max(0, numberOfChoices - selections.length);
@@ -128,12 +129,9 @@ export class FeatureSelectionService {
   /**
    * Get remaining attribute boost selections for a specific effect
    */
-  getRemainingAttributeBoosts(
-    character: Character,
-    effect: AttributeBoostFeatureEffect, 
-  ): number {
+  getRemainingAttributeBoosts(character: Character, effect: AttributeBoostFeatureEffect): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "attribute_boost" && s.grantedByEffectId === effect.id
+      (s) => s.type === "attribute_boost" && s.grantedByEffectId === effect.id,
     );
     // Attribute boosts are single selection (one attribute gets the boost)
     return Math.max(0, 1 - selections.length);
@@ -142,7 +140,10 @@ export class FeatureSelectionService {
   /**
    * Get the total number of utility spells to select for an effect
    */
-  getUtilitySpellSelectionCount(effect: UtilitySpellsFeatureEffect, availableSchools: string[]): number {
+  getUtilitySpellSelectionCount(
+    effect: UtilitySpellsFeatureEffect,
+    availableSchools: string[],
+  ): number {
     if (effect.selectionMode === "per_school") {
       const spellsPerSchool = effect.numberOfSpells || 1;
       return availableSchools.length * spellsPerSchool;
@@ -157,15 +158,15 @@ export class FeatureSelectionService {
    */
   getRemainingUtilitySpellSelections(
     character: Character,
-    effect: UtilitySpellsFeatureEffect
+    effect: UtilitySpellsFeatureEffect,
   ): number {
     const selections = character.effectSelections.filter(
-      s => s.type === "utility_spells" && s.grantedByEffectId === effect.id
+      (s) => s.type === "utility_spells" && s.grantedByEffectId === effect.id,
     );
-    
+
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     const totalRequired = this.getUtilitySpellSelectionCount(effect, availableSchools);
-    
+
     return Math.max(0, totalRequired - selections.length);
   }
 
@@ -174,13 +175,13 @@ export class FeatureSelectionService {
    * Falls back to all character schools if not specified
    */
   getAvailableSchoolsForUtilitySpells(
-    effect: UtilitySpellsFeatureEffect, 
-    character: Character
+    effect: UtilitySpellsFeatureEffect,
+    character: Character,
   ): string[] {
     if (effect.schools && effect.schools.length > 0) {
       return effect.schools;
     }
-    
+
     // Fall back to all character's spell schools
     const characterService = getCharacterService();
     return characterService.getSpellSchools();
@@ -189,21 +190,18 @@ export class FeatureSelectionService {
   /**
    * Get available utility spells for selection
    */
-  getAvailableUtilitySpells(
-    effect: UtilitySpellsFeatureEffect,
-    character: Character
-  ) {
+  getAvailableUtilitySpells(effect: UtilitySpellsFeatureEffect, character: Character) {
     const contentRepository = ContentRepositoryService.getInstance();
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
-    
-    const allSpells = availableSchools.flatMap(schoolId => {
+
+    const allSpells = availableSchools.flatMap((schoolId) => {
       const spells = contentRepository.getUtilitySpellsForSchool(schoolId);
-      return spells?.filter(s => 
-        s.category === "utility" && 
-        s.tier <= character._spellTierAccess
-      ) || [];
+      return (
+        spells?.filter((s) => s.category === "utility" && s.tier <= character._spellTierAccess) ||
+        []
+      );
     });
-    
+
     // Remove duplicates by spell ID
     const uniqueSpells = new Map();
     for (const spell of allSpells) {
@@ -211,7 +209,7 @@ export class FeatureSelectionService {
         uniqueSpells.set(spell.id, spell);
       }
     }
-    
+
     return Array.from(uniqueSpells.values());
   }
 
@@ -221,20 +219,20 @@ export class FeatureSelectionService {
   validateUtilitySpellSelection(
     effect: UtilitySpellsFeatureEffect,
     selectedSpells: SpellAbilityDefinition[],
-    character: Character
+    character: Character,
   ): boolean {
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
     const expectedCount = this.getUtilitySpellSelectionCount(effect, availableSchools);
-    
+
     if (selectedSpells.length > expectedCount) {
       return false;
     }
-    
+
     // If per_school mode, validate distribution
     if (effect.selectionMode === "per_school") {
       const spellsPerSchool = effect.numberOfSpells || 1;
       const contentRepository = ContentRepositoryService.getInstance();
-      
+
       // Count spells per school
       const schoolCounts = new Map<string, number>();
       for (const spell of selectedSpells) {
@@ -243,7 +241,7 @@ export class FeatureSelectionService {
           schoolCounts.set(spell.school, (schoolCounts.get(spell.school) || 0) + 1);
         }
       }
-      
+
       // Verify each school has the correct count
       for (const schoolId of availableSchools) {
         if ((schoolCounts.get(schoolId) || 0) > spellsPerSchool) {
@@ -251,7 +249,7 @@ export class FeatureSelectionService {
         }
       }
     }
-    
+
     return true;
   }
 }

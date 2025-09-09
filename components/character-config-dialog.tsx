@@ -5,22 +5,22 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { Character, CharacterConfiguration } from "@/lib/schemas/character";
-import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
+  NumericalResourceValue,
   ResourceDefinition,
   ResourceResetCondition,
   ResourceResetType,
-  NumericalResourceValue,
 } from "@/lib/schemas/resources";
-import { RESOURCE_COLOR_SCHEMES, getColorSchemeById } from "@/lib/utils/resource-config";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import {
   AVAILABLE_ICONS,
-  getIconById,
-  getDefaultColorSchemeForIcon,
   type IconCategory,
+  getDefaultColorSchemeForIcon,
+  getIconById,
 } from "@/lib/utils/icon-utils";
+import { RESOURCE_COLOR_SCHEMES, getColorSchemeById } from "@/lib/utils/resource-config";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -122,12 +122,12 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
   // Resource Management Functions
   const characterService = getCharacterService();
   const resources = character ? characterService.getResources() : [];
-  
+
   const deleteResource = async (resourceId: string) => {
     const updatedDefinitions = character._resourceDefinitions.filter((r) => r.id !== resourceId);
     const updatedValues = new Map(character._resourceValues);
     updatedValues.delete(resourceId);
-    
+
     const updatedCharacter = {
       ...character,
       _resourceDefinitions: updatedDefinitions,
@@ -211,7 +211,16 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     const updatedCharacter = {
       ...character,
       _resourceDefinitions: [...character._resourceDefinitions, definition],
-      _resourceValues: new Map([...character._resourceValues, [definition.id, { type: "numerical" as const, value: getFlexibleValue(definition.maxValue) } as NumericalResourceValue]]),
+      _resourceValues: new Map([
+        ...character._resourceValues,
+        [
+          definition.id,
+          {
+            type: "numerical" as const,
+            value: getFlexibleValue(definition.maxValue),
+          } as NumericalResourceValue,
+        ],
+      ]),
     };
     await updateCharacter(updatedCharacter);
 

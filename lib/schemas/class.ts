@@ -26,7 +26,6 @@ const WeaponProficiencySchema = z.union([
   }),
 ]);
 
-
 const FeaturePoolSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -162,17 +161,13 @@ export const SpellSchoolDefinitionSchema = z
       .string()
       .min(1)
       .meta({ title: "Color", description: "Tailwind color classes for the school" }),
-    icon: z
-      .string()
-      .min(1)
-      .meta({ title: "Icon", description: "Icon identifier for the school" }),
+    icon: z.string().min(1).meta({ title: "Icon", description: "Icon identifier for the school" }),
     spells: z
       .array(SpellAbilitySchema)
-      .meta({ title: "Spells", description: "Array of spells in this school" }),
-    utilitySpells: z.array(SpellAbilitySchema).optional().default([]).meta({
-      title: "Utility Spells",
-      description: "Array of utility spells that must be learned separately",
-    }),
+      .meta({
+        title: "Spells",
+        description: "Array of all spells in this school (both combat and utility)",
+      }),
   })
   .meta({
     title: "Spell School Definition",

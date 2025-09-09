@@ -5,6 +5,7 @@ import {
   SpellAbilityDefinition,
   UsableAbilityDefinition,
 } from "../schemas/abilities";
+import { LogEntry } from "../schemas/activity-log";
 import { AncestryDefinition } from "../schemas/ancestry";
 import { BackgroundDefinition } from "../schemas/background";
 import {
@@ -16,15 +17,18 @@ import {
   EffectSelection,
   HitDice,
   PoolFeatureEffectSelection,
-  UtilitySpellsEffectSelection,
   Skill,
   Skills,
+  UtilitySpellsEffectSelection,
 } from "../schemas/character";
 import { FeaturePool } from "../schemas/class";
-import { ClassFeature, CharacterFeature, PickFeatureFromPoolFeatureEffect } from "../schemas/features";
-import { Item } from "../schemas/inventory";
-import { LogEntry } from "../schemas/activity-log";
 import { SingleDie } from "../schemas/dice";
+import {
+  CharacterFeature,
+  ClassFeature,
+  PickFeatureFromPoolFeatureEffect,
+} from "../schemas/features";
+import { Item } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
@@ -183,14 +187,24 @@ export interface ICharacterService {
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;
   getAvailableEffectSelections(): any; // Return type defined in feature-selection-service
-  
+
   // Selection methods
   selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void>;
-  updatePoolSelectionsForEffect(effectId: string, selections: PoolFeatureEffectSelection[]): Promise<void>;
+  updatePoolSelectionsForEffect(
+    effectId: string,
+    selections: PoolFeatureEffectSelection[],
+  ): Promise<void>;
   selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void>;
   clearSpellSchoolSelections(grantedByEffectId: string): Promise<void>;
-  selectAttributeBoost(attribute: AttributeName, amount: number, grantedByEffectId: string): Promise<void>;
-  updateUtilitySelectionsForEffect(effectId: string, newSelections: UtilitySpellsEffectSelection[]): Promise<void>;
+  selectAttributeBoost(
+    attribute: AttributeName,
+    amount: number,
+    grantedByEffectId: string,
+  ): Promise<void>;
+  updateUtilitySelectionsForEffect(
+    effectId: string,
+    newSelections: UtilitySpellsEffectSelection[],
+  ): Promise<void>;
 }
 
 /**

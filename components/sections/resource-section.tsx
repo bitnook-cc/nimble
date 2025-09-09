@@ -8,8 +8,8 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useResourceService } from "@/lib/hooks/use-resource-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { resourceService } from "@/lib/services/resource-service";
-import { getResourceColor } from "@/lib/utils/resource-config";
 import { getIconById } from "@/lib/utils/icon-utils";
+import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -77,7 +77,9 @@ export function ResourceSection() {
     return { backgroundColor: "#3b82f6" }; // blue-500
   };
 
-  const getResourceIcon = (resourceInstance: import("@/lib/schemas/resources").ResourceInstance) => {
+  const getResourceIcon = (
+    resourceInstance: import("@/lib/schemas/resources").ResourceInstance,
+  ) => {
     if (resourceInstance.definition.icon) {
       return getIconById(resourceInstance.definition.icon);
     }
@@ -99,9 +101,7 @@ export function ResourceSection() {
         <div className="space-y-4">
           {activeResources.map((resource) => {
             const ResourceIcon = getResourceIcon(resource);
-            const calculatedMaxValue = resourceService.calculateMaxValue(
-              resource.definition
-            );
+            const calculatedMaxValue = resourceService.calculateMaxValue(resource.definition);
             const resourceBarColor = getResourceBarColor(
               resource,
               resource.current,

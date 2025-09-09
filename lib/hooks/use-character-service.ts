@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { Character } from "../schemas/character";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { getCharacterService } from "../services/service-factory";
-import { Character } from "../schemas/character";
 import { useToastService } from "./use-toast-service";
 
 /**
@@ -130,14 +130,17 @@ export function useCharacterService() {
     getSpellSchools: characterService.getSpellSchools.bind(characterService),
     getAbilities: characterService.getAbilities.bind(characterService),
     getResources: characterService.getResources.bind(characterService),
-    getAvailableEffectSelections: characterService.getAvailableEffectSelections.bind(characterService),
-    
+    getAvailableEffectSelections:
+      characterService.getAvailableEffectSelections.bind(characterService),
+
     // Effect selection methods
     selectSubclass: characterService.selectSubclass.bind(characterService),
-    updatePoolSelectionsForEffect: characterService.updatePoolSelectionsForEffect.bind(characterService),
+    updatePoolSelectionsForEffect:
+      characterService.updatePoolSelectionsForEffect.bind(characterService),
     selectSpellSchool: characterService.selectSpellSchool.bind(characterService),
     clearSpellSchoolSelections: characterService.clearSpellSchoolSelections.bind(characterService),
     selectAttributeBoost: characterService.selectAttributeBoost.bind(characterService),
-    updateUtilitySelectionsForEffect: characterService.updateUtilitySelectionsForEffect.bind(characterService),
+    updateUtilitySelectionsForEffect:
+      characterService.updateUtilitySelectionsForEffect.bind(characterService),
   };
 }

@@ -1,5 +1,6 @@
+import { ClassFeature } from "@/lib/schemas/features";
+
 import { ClassDefinition, FeaturePool } from "../../schemas/class";
-import { ClassFeature } from "@/lib/schemas/features"
 
 // Chimeric Boons - Feature Pool
 const chimericBoonsFeatures: ClassFeature[] = [

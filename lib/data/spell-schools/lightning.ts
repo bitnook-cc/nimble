@@ -211,8 +211,7 @@ export const lightningSpellSchool: SpellSchoolWithSpells = {
   description: "Electrical storms and thunder magic that controls lightning and electricity",
   color: "text-yellow-500",
   icon: "zap",
-  spells: lightningSchoolSpells,
-  utilitySpells: lightningUtilitySpells,
+  spells: [...lightningSchoolSpells, ...lightningUtilitySpells], // Combine all spells (combat and utility)
 };
 
 // Legacy export for backward compatibility

@@ -1,10 +1,10 @@
-import { calculateFlexibleValue } from "../types/flexible-value";
-import { 
-  ResourceDefinition, 
+import {
+  NumericalResourceValue,
+  ResourceDefinition,
   ResourceResetCondition,
   ResourceValue,
-  NumericalResourceValue 
 } from "../schemas/resources";
+import { calculateFlexibleValue } from "../types/flexible-value";
 
 /**
  * Resource Service - Handles resource calculations and manipulations
@@ -44,8 +44,7 @@ export class ResourceService {
       case "to_zero":
         return this.calculateMinValue(definition);
       case "to_default":
-        return this.calculateResetValue(definition) ?? 
-               this.calculateMaxValue(definition);
+        return this.calculateResetValue(definition) ?? this.calculateMaxValue(definition);
       default:
         return this.calculateMaxValue(definition);
     }
@@ -61,8 +60,7 @@ export class ResourceService {
       case "to_zero":
         return this.calculateMinValue(definition);
       case "to_default":
-        return this.calculateResetValue(definition) ?? 
-               this.calculateMaxValue(definition);
+        return this.calculateResetValue(definition) ?? this.calculateMaxValue(definition);
       default:
         return this.calculateMaxValue(definition);
     }
@@ -74,7 +72,7 @@ export class ResourceService {
   createNumericalValue(value: number): NumericalResourceValue {
     return {
       type: "numerical",
-      value
+      value,
     };
   }
 
@@ -94,14 +92,11 @@ export class ResourceService {
    * Set a resource value with min/max clamping
    * Returns a new ResourceValue object
    */
-  setResourceValue(
-    definition: ResourceDefinition,
-    newValue: number
-  ): ResourceValue {
+  setResourceValue(definition: ResourceDefinition, newValue: number): ResourceValue {
     const minValue = this.calculateMinValue(definition);
     const maxValue = this.calculateMaxValue(definition);
     const clampedValue = Math.max(minValue, Math.min(maxValue, newValue));
-    
+
     return this.createNumericalValue(clampedValue);
   }
 
@@ -113,29 +108,33 @@ export class ResourceService {
   resetResourcesByCondition(
     resourceDefinitions: ResourceDefinition[],
     currentValues: Map<string, ResourceValue>,
-    condition: ResourceResetCondition
+    condition: ResourceResetCondition,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
-    
+
     // Define the hierarchy of reset conditions
     const conditionHierarchy: ResourceResetCondition[] = ["turn_end", "encounter_end", "safe_rest"];
     const conditionIndex = conditionHierarchy.indexOf(condition);
-    
+
     for (const definition of resourceDefinitions) {
       // Reset if the resource's condition matches or is "smaller" (earlier in hierarchy)
       const resourceConditionIndex = conditionHierarchy.indexOf(definition.resetCondition);
-      
+
       // Reset if:
       // 1. Exact match
       // 2. Resource condition is earlier in hierarchy (smaller scope)
       // 3. Skip if condition is "never" or "manual"
-      if (definition.resetCondition === condition || 
-          (conditionIndex >= 0 && resourceConditionIndex >= 0 && resourceConditionIndex <= conditionIndex)) {
+      if (
+        definition.resetCondition === condition ||
+        (conditionIndex >= 0 &&
+          resourceConditionIndex >= 0 &&
+          resourceConditionIndex <= conditionIndex)
+      ) {
         const targetValue = this.calculateResetTargetValue(definition);
         newValues.set(definition.id, this.createNumericalValue(targetValue));
       }
     }
-    
+
     return newValues;
   }
 
@@ -143,16 +142,14 @@ export class ResourceService {
    * Reset all resources to their initial values
    * Returns a new Map with all resources at initial values
    */
-  resetAllResources(
-    resourceDefinitions: ResourceDefinition[]
-  ): Map<string, ResourceValue> {
+  resetAllResources(resourceDefinitions: ResourceDefinition[]): Map<string, ResourceValue> {
     const newValues = new Map<string, ResourceValue>();
-    
+
     for (const definition of resourceDefinitions) {
       const initialValue = this.calculateInitialValue(definition);
       newValues.set(definition.id, this.createNumericalValue(initialValue));
     }
-    
+
     return newValues;
   }
 
@@ -164,17 +161,14 @@ export class ResourceService {
     resourceId: string,
     amount: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>
+    currentValues: Map<string, ResourceValue>,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     const currentValue = this.getNumericalValue(currentValues.get(resourceId));
     const newValue = currentValue - amount;
-    
-    newValues.set(
-      resourceId, 
-      this.setResourceValue(definition, newValue)
-    );
-    
+
+    newValues.set(resourceId, this.setResourceValue(definition, newValue));
+
     return newValues;
   }
 
@@ -186,17 +180,14 @@ export class ResourceService {
     resourceId: string,
     amount: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>
+    currentValues: Map<string, ResourceValue>,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
     const currentValue = this.getNumericalValue(currentValues.get(resourceId));
     const newValue = currentValue + amount;
-    
-    newValues.set(
-      resourceId,
-      this.setResourceValue(definition, newValue)
-    );
-    
+
+    newValues.set(resourceId, this.setResourceValue(definition, newValue));
+
     return newValues;
   }
 
@@ -208,13 +199,10 @@ export class ResourceService {
     resourceId: string,
     value: number,
     definition: ResourceDefinition,
-    currentValues: Map<string, ResourceValue>
+    currentValues: Map<string, ResourceValue>,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
-    newValues.set(
-      resourceId,
-      this.setResourceValue(definition, value)
-    );
+    newValues.set(resourceId, this.setResourceValue(definition, value));
     return newValues;
   }
 }

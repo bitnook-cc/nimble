@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { getActivityLog } from "@/lib/services/service-factory";
 import { LogEntry } from "@/lib/schemas/activity-log";
+import { getActivityLog } from "@/lib/services/service-factory";
 
 export interface UseActivityLogReturn {
   logEntries: LogEntry[];

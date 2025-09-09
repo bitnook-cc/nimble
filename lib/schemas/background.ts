@@ -22,6 +22,5 @@ export const BackgroundDefinitionSchema = z
     description: "Character background definition with features and traits",
   });
 
-
 // Export inferred types
 export type BackgroundDefinition = z.infer<typeof BackgroundDefinitionSchema>;

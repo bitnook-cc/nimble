@@ -1,12 +1,12 @@
 import { SpellAbilityDefinition } from "../../schemas/abilities";
 import { SpellSchoolWithSpells } from "../../services/content-repository-service";
-import { fireSpellSchool, fireSchoolSpells } from "./fire";
-import { iceSpellSchool, iceSchoolSpells } from "./ice";
-import { lightningSpellSchool, lightningSchoolSpells } from "./lightning";
-import { necroticSpellSchool, necroticSchoolSpells } from "./necrotic";
-import { radiantSpellSchool, radiantSchoolSpells } from "./radiant";
+import { fireSchoolSpells, fireSpellSchool } from "./fire";
+import { iceSchoolSpells, iceSpellSchool } from "./ice";
+import { lightningSchoolSpells, lightningSpellSchool } from "./lightning";
+import { necroticSchoolSpells, necroticSpellSchool } from "./necrotic";
+import { radiantSchoolSpells, radiantSpellSchool } from "./radiant";
 import { utilitySpellsBySchool } from "./utility-spells";
-import { windSpellSchool, windSchoolSpells } from "./wind";
+import { windSchoolSpells, windSpellSchool } from "./wind";
 
 /**
  * Get all built-in spell schools with full definitions

@@ -202,8 +202,7 @@ export const fireSpellSchool: SpellSchoolWithSpells = {
   description: "Destructive flames and burning magic that harnesses the power of fire and heat",
   color: "text-orange-600",
   icon: "flame",
-  spells: fireSchoolSpells,
-  utilitySpells: fireUtilitySpells,
+  spells: [...fireSchoolSpells, ...fireUtilitySpells], // Combine all spells (combat and utility)
 };
 
 // Legacy export for backward compatibility

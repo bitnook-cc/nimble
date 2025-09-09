@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
-import { getCharacterService } from "../services/service-factory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
+import { getCharacterService } from "../services/service-factory";
 import { useActivityLog } from "./use-activity-log";
 import { useCharacterService } from "./use-character-service";
 
@@ -23,7 +23,7 @@ export function useResourceService() {
       await characterService.setResourceValue(resourceId, newValue);
 
       // Log the resource usage
-      const resource = characterService.getResourceDefinitions().find(r => r.id === resourceId);
+      const resource = characterService.getResourceDefinitions().find((r) => r.id === resourceId);
       if (resource) {
         const maxValue = characterService.getResourceMaxValue(resourceId);
         const logEntry = {
@@ -54,7 +54,7 @@ export function useResourceService() {
       await characterService.setResourceValue(resourceId, newValue);
 
       // Log the resource usage
-      const resource = characterService.getResourceDefinitions().find(r => r.id === resourceId);
+      const resource = characterService.getResourceDefinitions().find((r) => r.id === resourceId);
       if (resource) {
         const logEntry = {
           id: `log-${Date.now()}`,
@@ -84,21 +84,17 @@ export function useResourceService() {
 
   // These methods are no longer needed with the new dynamic system
   // Resources are managed through the character service
-  const addResourceToCharacter = useCallback(
-    async (resource: ResourceInstance) => {
-      // Resources are now added through effects, not directly
-      console.warn("addResourceToCharacter is deprecated - resources are managed through effects");
-    },
-    [],
-  );
+  const addResourceToCharacter = useCallback(async (resource: ResourceInstance) => {
+    // Resources are now added through effects, not directly
+    console.warn("addResourceToCharacter is deprecated - resources are managed through effects");
+  }, []);
 
-  const removeResourceFromCharacter = useCallback(
-    async (resourceId: string) => {
-      // Resources are now removed through effects, not directly
-      console.warn("removeResourceFromCharacter is deprecated - resources are managed through effects");
-    },
-    [],
-  );
+  const removeResourceFromCharacter = useCallback(async (resourceId: string) => {
+    // Resources are now removed through effects, not directly
+    console.warn(
+      "removeResourceFromCharacter is deprecated - resources are managed through effects",
+    );
+  }, []);
 
   // Reset methods are handled by the character service
   const resetResourcesOnSafeRest = useCallback(async () => {
@@ -124,7 +120,9 @@ export function useResourceService() {
 
   // Get resources from character service
   const resources = character ? characterService.getResources() : [];
-  const activeResources = resources.filter(r => r.current !== 0 || r.definition.resetCondition !== "never");
+  const activeResources = resources.filter(
+    (r) => r.current !== 0 || r.definition.resetCondition !== "never",
+  );
 
   return {
     // State
@@ -146,6 +144,6 @@ export function useResourceService() {
 
     // Utility functions
     getResourceInstance: (resourceId: string): ResourceInstance | undefined =>
-      resources.find(r => r.definition.id === resourceId),
+      resources.find((r) => r.definition.id === resourceId),
   };
 }

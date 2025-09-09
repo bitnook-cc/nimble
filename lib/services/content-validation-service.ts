@@ -1,20 +1,20 @@
 import { z } from "zod";
 
-import { AncestryDefinitionSchema } from "../schemas/ancestry";
-import { BackgroundDefinitionSchema } from "../schemas/background";
 import {
   ActionAbilityDefinition,
   ActionAbilitySchema,
   SpellAbilityDefinition,
   SpellAbilitySchema,
 } from "../schemas/abilities";
+import { AncestryDefinitionSchema } from "../schemas/ancestry";
+import { AncestryDefinition } from "../schemas/ancestry";
+import { BackgroundDefinitionSchema } from "../schemas/background";
+import { BackgroundDefinition } from "../schemas/background";
 import {
   ClassDefinitionSchema,
   SpellSchoolDefinitionSchema,
   SubclassDefinitionSchema,
 } from "../schemas/class";
-import { AncestryDefinition } from "../schemas/ancestry";
-import { BackgroundDefinition } from "../schemas/background";
 import { ClassDefinition, SubclassDefinition } from "../schemas/class";
 import { SpellSchoolWithSpells } from "./content-repository-service";
 

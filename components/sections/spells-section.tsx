@@ -6,18 +6,18 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { Character } from "@/lib/schemas/character";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
+import { getIconById } from "@/lib/utils/icon-utils";
 import {
   formatActionCost,
   formatResourceCost,
   getInsufficientResourceMessage,
   hasEnoughResourcesForSpell,
 } from "@/lib/utils/spell-utils";
-import { getIconById } from "@/lib/utils/icon-utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -39,7 +39,7 @@ export function SpellsSection() {
   const characterService = getCharacterService();
   const allAbilities = characterService.getAbilities();
   const spellAbilities = allAbilities.filter(
-    (ability) => ability.type === "spell"
+    (ability) => ability.type === "spell",
   ) as SpellAbilityDefinition[];
 
   // Find mana resource (if any)
@@ -110,14 +110,12 @@ export function SpellsSection() {
     });
   });
 
-
   const getTierColor = (tier: number) => {
     if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
     if (tier <= 3) return "bg-blue-100 text-blue-800 border-blue-200";
     if (tier <= 6) return "bg-purple-100 text-purple-800 border-purple-200";
     return "bg-red-100 text-red-800 border-red-200";
   };
-
 
   const handleSpellCast = async (spell: SpellAbilityDefinition) => {
     await performUseAbility(spell.id);
@@ -130,7 +128,8 @@ export function SpellsSection() {
           <Sparkles className="w-5 h-5 text-purple-500" />
           Spells
           <Badge variant="secondary" className="ml-2">
-            {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`} Access
+            {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`}{" "}
+            Access
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -176,9 +175,7 @@ export function SpellsSection() {
             <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                  <h3
-                    className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}
-                  >
+                  <h3 className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}>
                     <SchoolIcon className="w-5 h-5" />
                     {schoolName} ({spells.length})
                   </h3>
@@ -290,9 +287,7 @@ export function SpellsSection() {
                       >
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                            <h4
-                              className={`font-semibold flex items-center gap-2 ${schoolColor}`}
-                            >
+                            <h4 className={`font-semibold flex items-center gap-2 ${schoolColor}`}>
                               <SchoolIcon className="w-4 h-4" />
                               {schoolName} ({spells.length} locked)
                             </h4>

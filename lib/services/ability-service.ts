@@ -50,7 +50,7 @@ export class AbilityService {
     if (ability.resourceCost && ability.resourceCost.type === "variable") {
       const resourceCost = ability.resourceCost;
       const requiredAmount = variableResourceAmount || resourceCost.minAmount;
-      
+
       // Validate variable amount is within bounds
       if (requiredAmount < resourceCost.minAmount || requiredAmount > resourceCost.maxAmount) {
         console.error(

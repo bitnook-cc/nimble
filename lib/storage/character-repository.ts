@@ -21,12 +21,14 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
     // Convert Maps to objects for serialization
     const serializable = {
       ...character,
-      _abilityUses: character._abilityUses instanceof Map 
-        ? Object.fromEntries(character._abilityUses) 
-        : character._abilityUses,
-      _resourceValues: character._resourceValues instanceof Map 
-        ? Object.fromEntries(character._resourceValues) 
-        : character._resourceValues,
+      _abilityUses:
+        character._abilityUses instanceof Map
+          ? Object.fromEntries(character._abilityUses)
+          : character._abilityUses,
+      _resourceValues:
+        character._resourceValues instanceof Map
+          ? Object.fromEntries(character._resourceValues)
+          : character._resourceValues,
     };
 
     if (index >= 0) {
@@ -58,16 +60,16 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
         _resourceValues: new Map(
           Object.entries(char._resourceValues || {}).map(([key, value]) => {
             // Ensure the value has the correct structure
-            if (typeof value === 'object' && value !== null && 'type' in value) {
+            if (typeof value === "object" && value !== null && "type" in value) {
               return [key, value];
             }
             // Handle legacy numeric values
-            if (typeof value === 'number') {
-              return [key, { type: 'numerical' as const, value }];
+            if (typeof value === "number") {
+              return [key, { type: "numerical" as const, value }];
             }
             // Default fallback
-            return [key, { type: 'numerical' as const, value: 0 }];
-          })
+            return [key, { type: "numerical" as const, value: 0 }];
+          }),
         ),
       }));
     } catch {
@@ -86,22 +88,24 @@ export class LocalStorageCharacterRepository implements ICharacterRepository {
       id: id || crypto.randomUUID(),
       ...data,
       // Ensure Maps are properly initialized
-      _abilityUses: data._abilityUses instanceof Map 
-        ? data._abilityUses 
-        : new Map(Object.entries(data._abilityUses || {})),
-      _resourceValues: data._resourceValues instanceof Map 
-        ? data._resourceValues 
-        : new Map<string, NumericalResourceValue>(
-            Object.entries(data._resourceValues || {}).map(([key, value]) => {
-              if (typeof value === 'object' && value !== null && 'type' in value) {
-                return [key, value as NumericalResourceValue];
-              }
-              if (typeof value === 'number') {
-                return [key, { type: 'numerical' as const, value }];
-              }
-              return [key, { type: 'numerical' as const, value: 0 }];
-            })
-          ),
+      _abilityUses:
+        data._abilityUses instanceof Map
+          ? data._abilityUses
+          : new Map(Object.entries(data._abilityUses || {})),
+      _resourceValues:
+        data._resourceValues instanceof Map
+          ? data._resourceValues
+          : new Map<string, NumericalResourceValue>(
+              Object.entries(data._resourceValues || {}).map(([key, value]) => {
+                if (typeof value === "object" && value !== null && "type" in value) {
+                  return [key, value as NumericalResourceValue];
+                }
+                if (typeof value === "number") {
+                  return [key, { type: "numerical" as const, value }];
+                }
+                return [key, { type: "numerical" as const, value: 0 }];
+              }),
+            ),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

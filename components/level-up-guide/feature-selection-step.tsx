@@ -1,12 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { FeatureList } from "@/components/feature-list";
 
-import { getClassService, getContentRepository, getCharacterService } from "@/lib/services/service-factory";
 import { Character, EffectSelection } from "@/lib/schemas/character";
 import { ClassFeature } from "@/lib/schemas/features";
+import {
+  getCharacterService,
+  getClassService,
+  getContentRepository,
+} from "@/lib/services/service-factory";
 
 interface FeatureSelectionStepProps {
   character: Character;
@@ -27,12 +33,12 @@ export function FeatureSelectionStep({
   onEffectSelectionsChange,
 }: FeatureSelectionStepProps) {
   const [groupedFeatures, setGroupedFeatures] = useState<GroupedFeatures[]>([]);
-  
+
   useEffect(() => {
     if (!character) return;
-    
+
     const classService = getClassService();
-    
+
     // Get all features for the levels being gained
     const featuresPerLevel: GroupedFeatures[] = [];
 
@@ -72,7 +78,7 @@ export function FeatureSelectionStep({
   // Initialize services after character check
   const contentRepo = getContentRepository();
   const characterService = getCharacterService();
-  
+
   // Get existing features from character
   const existingFeatures = {
     spellSchools: characterService.getSpellSchools(),
@@ -80,7 +86,7 @@ export function FeatureSelectionStep({
 
   // Get class and subclass names for display
   const classDefinition = contentRepo.getClassDefinition(character.classId);
-  const subclassId = character.effectSelections.find(s => s.type === "subclass")?.subclassId;
+  const subclassId = character.effectSelections.find((s) => s.type === "subclass")?.subclassId;
   const subclassDefinition = subclassId ? contentRepo.getSubclassDefinition(subclassId) : null;
 
   // Combine existing character selections with temp selections
@@ -90,9 +96,10 @@ export function FeatureSelectionStep({
   const handleSelectionsChange = (newSelections: EffectSelection[]) => {
     // Filter out the character's existing selections to get only temp selections
     const tempSelections = newSelections.filter(
-      selection => !character.effectSelections.some(
-        existing => existing.grantedByEffectId === selection.grantedByEffectId
-      )
+      (selection) =>
+        !character.effectSelections.some(
+          (existing) => existing.grantedByEffectId === selection.grantedByEffectId,
+        ),
     );
     onEffectSelectionsChange(tempSelections);
   };
@@ -114,9 +121,9 @@ export function FeatureSelectionStep({
             </h4>
             <FeatureList
               features={features}
-              source={features.some(f => f.id.includes('subclass')) ? "subclass" : "class"}
+              source={features.some((f) => f.id.includes("subclass")) ? "subclass" : "class"}
               sourceLabel={
-                features.some(f => f.id.includes('subclass')) 
+                features.some((f) => f.id.includes("subclass"))
                   ? subclassDefinition?.name || "Subclass"
                   : classDefinition?.name || "Class"
               }

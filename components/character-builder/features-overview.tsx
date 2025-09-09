@@ -1,15 +1,17 @@
 "use client";
 
 import { Book, Mountain, Swords } from "lucide-react";
+
 import React, { useEffect, useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+
 import { FeatureList } from "@/components/feature-list";
 
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { EffectSelection } from "@/lib/schemas/character";
 import { CharacterFeature, ClassFeature } from "@/lib/schemas/features";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 
 interface FeaturesOverviewProps {
   classId: string;
@@ -64,7 +66,7 @@ export function FeaturesOverview({
   const classDefinition = contentRepo.getClassDefinition(classId);
   const ancestryDefinition = contentRepo.getAncestryDefinition(ancestryId);
   const backgroundDefinition = contentRepo.getBackgroundDefinition(backgroundId);
-  
+
   // Empty existing features since we're building from scratch
   const existingFeatures = {
     spellSchools: [],

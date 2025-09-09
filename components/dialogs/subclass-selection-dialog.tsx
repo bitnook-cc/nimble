@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getClassService } from "@/lib/services/service-factory";
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { SubclassDefinition } from "@/lib/schemas/class";
 import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+import { getClassService } from "@/lib/services/service-factory";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -27,7 +27,12 @@ interface SubclassSelectionDialogProps {
   classId?: string; // Optional class ID for when character is not available
 }
 
-export function SubclassSelectionDialog({ subclassChoice, onClose, onSelectSubclass, classId }: SubclassSelectionDialogProps) {
+export function SubclassSelectionDialog({
+  subclassChoice,
+  onClose,
+  onSelectSubclass,
+  classId,
+}: SubclassSelectionDialogProps) {
   const { character, selectSubclass } = useCharacterService();
   const [selectedSubclass, setSelectedSubclass] = useState<SubclassDefinition | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -39,11 +44,11 @@ export function SubclassSelectionDialog({ subclassChoice, onClose, onSelectSubcl
 
   const classService = getClassService();
   const contentRepository = ContentRepositoryService.getInstance();
-  
+
   // Get class ID from either character or prop
-  const effectiveClassId = character?.classId || classId || 'fighter';
-  
-  const availableSubclasses = character 
+  const effectiveClassId = character?.classId || classId || "fighter";
+
+  const availableSubclasses = character
     ? classService.getAvailableSubclassesForCharacter(character)
     : contentRepository.getSubclassesForClass(effectiveClassId);
 
@@ -72,7 +77,7 @@ export function SubclassSelectionDialog({ subclassChoice, onClose, onSelectSubcl
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Choose Your {character?.classId || 'Class'} Subclass</DialogTitle>
+          <DialogTitle>Choose Your {character?.classId || "Class"} Subclass</DialogTitle>
           <DialogDescription>
             Choose your class specialization
             <br />

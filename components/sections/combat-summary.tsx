@@ -28,7 +28,14 @@ import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 // Health Bar Subcomponent
@@ -538,7 +545,7 @@ function ResourceTracker() {
 
   // All hooks called first, then safety check
   if (!character) return null;
-  
+
   const resources = characterService.getResources();
   if (resources.length === 0) return null;
 

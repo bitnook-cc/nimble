@@ -225,8 +225,7 @@ export const radiantSpellSchool: SpellSchoolWithSpells = {
   description: "Divine light and healing magic that channels sacred energy",
   color: "text-amber-400",
   icon: "sun",
-  spells: radiantSchoolSpells,
-  utilitySpells: radiantUtilitySpells,
+  spells: [...radiantSchoolSpells, ...radiantUtilitySpells], // Combine all spells (combat and utility)
 };
 
 // Legacy export for backward compatibility

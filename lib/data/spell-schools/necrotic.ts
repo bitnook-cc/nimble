@@ -247,8 +247,7 @@ export const necroticSpellSchool: SpellSchoolWithSpells = {
   description: "Dark magic that manipulates death, shadow, and the undead",
   color: "text-purple-700",
   icon: "skull",
-  spells: necroticSchoolSpells,
-  utilitySpells: necroticUtilitySpells,
+  spells: [...necroticSchoolSpells, ...necroticUtilitySpells], // Combine all spells (combat and utility)
 };
 
 // Legacy export for backward compatibility

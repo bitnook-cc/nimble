@@ -1,5 +1,6 @@
+import { ClassFeature } from "@/lib/schemas/features";
+
 import { ClassDefinition } from "../../schemas/class";
-import { ClassFeature } from "@/lib/schemas/features"
 
 // Lyrical Weaponry - Feature Pool
 const lyricalWeaponry: ClassFeature[] = [
@@ -283,7 +284,7 @@ const songweaverFeatures: ClassFeature[] = [
         type: "utility_spells",
         numberOfSpells: 1,
         selectionMode: "per_school",
-      }
+      },
     ],
   },
   {
@@ -387,7 +388,7 @@ const songweaverFeatures: ClassFeature[] = [
         type: "utility_spells",
         numberOfSpells: 1,
         selectionMode: "per_school",
-      }
+      },
     ],
   },
   {
@@ -558,7 +559,7 @@ const songweaverFeatures: ClassFeature[] = [
         type: "utility_spells",
         numberOfSpells: 1,
         selectionMode: "per_school",
-      }
+      },
     ],
   },
   {

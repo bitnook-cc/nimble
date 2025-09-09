@@ -1,8 +1,8 @@
 import { z } from "zod";
 
+import { ActionAbilitySchema, SpellAbilitySchema } from "../schemas/abilities";
 import { AncestryDefinitionSchema } from "../schemas/ancestry";
 import { BackgroundDefinitionSchema } from "../schemas/background";
-import { ActionAbilitySchema, SpellAbilitySchema } from "../schemas/abilities";
 import {
   ClassDefinitionSchema,
   SpellSchoolDefinitionSchema,

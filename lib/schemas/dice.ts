@@ -20,11 +20,10 @@ export const diceExpressionSchema = z
       .min(1)
       .max(20)
       .meta({ title: "Dice Count", description: "Number of dice to roll (integer)" }),
-    sides: diceTypeSchema
-      .meta({
-        title: "Dice Type",
-        description: "Type of dice (d4, d6, d8, d10, d12, d20, d66, d100)",
-      }),
+    sides: diceTypeSchema.meta({
+      title: "Dice Type",
+      description: "Type of dice (d4, d6, d8, d10, d12, d20, d66, d100)",
+    }),
   })
   .meta({ title: "Dice Expression", description: "Dice expression for rolling" });
 
@@ -34,7 +33,6 @@ export const singleDieSchema = z.object({
   result: z.number().positive(),
   isCritical: z.boolean().optional(),
 });
-
 
 // Export inferred types
 export type DiceType = z.infer<typeof diceTypeSchema>;

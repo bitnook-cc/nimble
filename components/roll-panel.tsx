@@ -5,8 +5,8 @@ import { Dices, X } from "lucide-react";
 import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
-import { diceService } from "@/lib/services/dice-service";
 import { DiceType } from "@/lib/schemas/dice";
+import { diceService } from "@/lib/services/dice-service";
 
 import { Button } from "./ui/button";
 import { DiceIcon } from "./ui/dice-icons";

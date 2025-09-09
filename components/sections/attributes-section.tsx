@@ -7,9 +7,9 @@ import { useCallback } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { AttributeName, SaveAdvantageType } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { AttributeName, SaveAdvantageType } from "@/lib/schemas/character";
 import { combineAdvantages } from "@/lib/utils/advantage";
 
 import { Button } from "../ui/button";

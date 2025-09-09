@@ -20,15 +20,15 @@ import { z } from "zod";
 
 import { useState } from "react";
 
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "@/lib/schemas/abilities";
+import { AncestryDefinition } from "@/lib/schemas/ancestry";
+import { BackgroundDefinition } from "@/lib/schemas/background";
 import { SpellSchoolDefinitionSchema } from "@/lib/schemas/class";
+import { ClassDefinition, SubclassDefinition } from "@/lib/schemas/class";
 import {
   ContentRepositoryService,
   ContentUploadResult,
 } from "@/lib/services/content-repository-service";
-import { ActionAbilityDefinition, SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { AncestryDefinition } from "@/lib/schemas/ancestry";
-import { BackgroundDefinition } from "@/lib/schemas/background";
-import { ClassDefinition, SubclassDefinition } from "@/lib/schemas/class";
 import {
   CustomContentType,
   getAllContentTypes,
@@ -560,7 +560,8 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
             Manage Content
           </DialogTitle>
           <DialogDescription>
-            Upload and manage custom content for classes, ancestries, backgrounds, abilities, and spells.
+            Upload and manage custom content for classes, ancestries, backgrounds, abilities, and
+            spells.
           </DialogDescription>
         </DialogHeader>
 

@@ -17,9 +17,10 @@ import React from "react";
 
 import { Badge } from "@/components/ui/badge";
 
-import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
 import { Character, EffectSelection } from "@/lib/schemas/character";
+import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
+
 import { EffectSelectionDisplay } from "./effect-selection-display";
 
 interface FeatureEffectsDisplayProps {
@@ -103,24 +104,24 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
 
     case "stat_bonus":
       const bonuses: string[] = [];
-      
+
       // Helper to format flexible values
       const formatValue = (val: number | FlexibleValue | undefined): string | null => {
         if (!val) return null;
-        if (typeof val === 'number') {
+        if (typeof val === "number") {
           if (val === 0) return null;
-          return `${val > 0 ? '+' : ''}${val}`;
+          return `${val > 0 ? "+" : ""}${val}`;
         }
-        if (val.type === 'fixed') {
+        if (val.type === "fixed") {
           if (val.value === 0) return null;
-          return `${val.value > 0 ? '+' : ''}${val.value}`;
+          return `${val.value > 0 ? "+" : ""}${val.value}`;
         }
-        if (val.type === 'formula') {
+        if (val.type === "formula") {
           return val.expression;
         }
         return null;
       };
-      
+
       // Attributes
       if (effect.statBonus.attributes) {
         Object.entries(effect.statBonus.attributes).forEach(([attr, val]) => {
@@ -130,7 +131,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
           }
         });
       }
-      
+
       // Skills
       if (effect.statBonus.skillBonuses) {
         Object.entries(effect.statBonus.skillBonuses).forEach(([skill, val]) => {
@@ -140,7 +141,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
           }
         });
       }
-      
+
       // Combat stats
       if (effect.statBonus.initiativeBonus) {
         const formatted = formatValue(effect.statBonus.initiativeBonus);
@@ -162,7 +163,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
         const formatted = formatValue(effect.statBonus.hitDiceBonus);
         if (formatted) bonuses.push(`${formatted} Hit Dice`);
       }
-      
+
       // Resources
       if (effect.statBonus.resourceMaxBonuses) {
         Object.entries(effect.statBonus.resourceMaxBonuses).forEach(([resourceId, val]) => {
@@ -174,7 +175,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
           }
         });
       }
-      
+
       return bonuses.length > 0 ? bonuses.join(", ") : "Stat bonus";
 
     case "proficiency":
@@ -189,7 +190,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return `Choose ${numChoices} spell school${numChoices > 1 ? "s" : ""}`;
 
     case "utility_spells":
-      return effect.schools && effect.schools.length > 0 
+      return effect.schools && effect.schools.length > 0
         ? `Utility spells from ${effect.schools.join(", ")}`
         : `Utility spells from your known schools`;
 
@@ -247,14 +248,14 @@ export function FeatureEffectsDisplay({
         {effects.map((effect, index) => {
           const effectId = effect.id || `effect-${index}`;
           const isSelectable = isSelectableEffect(effect);
-          
+
           // Check if we should show selection UI for this effect
           const needsSelection = onOpenSelectionDialog && isSelectable;
           // Get all selections for this effect
           const effectSelections = existingSelections.filter(
-            s => s.grantedByEffectId === effectId
+            (s) => s.grantedByEffectId === effectId,
           );
-          
+
           // If this is a selectable effect with selection handler, use EffectSelectionDisplay
           if (needsSelection) {
             return (
@@ -297,10 +298,7 @@ export function FeatureEffectsDisplay({
 
           // Original display for non-selectable effects
           return (
-            <div
-              key={effectId}
-              className="flex items-center gap-2 p-2 rounded-md border bg-card"
-            >
+            <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
               <div className="flex items-center gap-2 flex-1">
                 <div className="flex items-center gap-1">
                   {getEffectIcon(effect.type)}

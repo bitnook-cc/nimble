@@ -34,9 +34,7 @@ export function CharacterNameSection({
   const ancestryDefinition = contentRepository.getAncestryDefinition(character.ancestryId);
   const ancestryName = ancestryDefinition?.name || character.ancestryId;
 
-  const backgroundDefinition = contentRepository.getBackgroundDefinition(
-    character.backgroundId,
-  );
+  const backgroundDefinition = contentRepository.getBackgroundDefinition(character.backgroundId);
   const backgroundName = backgroundDefinition?.name || character.backgroundId;
 
   const handleLevelUp = () => {

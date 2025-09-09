@@ -1,10 +1,7 @@
 // Import and re-export types from schemas
-import type {
-  ItemType,
-} from "../schemas/inventory";
-
-import type { Currency } from "../schemas/currency";
 import type { AttributeName } from "../schemas/character";
+import type { Currency } from "../schemas/currency";
+import type { ItemType } from "../schemas/inventory";
 
 export interface CreateItemData {
   name: string;

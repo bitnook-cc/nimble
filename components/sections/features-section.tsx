@@ -1,13 +1,23 @@
 "use client";
 
 import { ChevronDown, ChevronRight, Lock, Sparkles, Unlock } from "lucide-react";
+
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService, getAncestryService, getBackgroundService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import {
+  AttributeName,
+  EffectSelection,
+  PoolFeatureEffectSelection,
+  UtilitySpellsEffectSelection,
+} from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { PoolFeatureEffectSelection, AttributeName, EffectSelection, UtilitySpellsEffectSelection } from "@/lib/schemas/character";
+import {
+  getAncestryService,
+  getBackgroundService,
+  getCharacterService,
+} from "@/lib/services/service-factory";
 
 import { FeatureList } from "../feature-list";
 import { Button } from "../ui/button";
@@ -15,8 +25,8 @@ import { Card, CardContent } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function FeaturesSection() {
-  const { 
-    character, 
+  const {
+    character,
     selectSubclass,
     updatePoolSelectionsForEffect,
     selectSpellSchool,
@@ -33,7 +43,7 @@ export function FeaturesSection() {
   const characterService = getCharacterService();
   const ancestryService = getAncestryService();
   const backgroundService = getBackgroundService();
-  
+
   // Get existing features from character
   const existingFeatures = {
     spellSchools: characterService.getSpellSchools(),
@@ -68,7 +78,7 @@ export function FeaturesSection() {
   // Add pool selection features to class features
   const allClassFeatures = [
     ...classFeatures,
-    ...poolSelections.map(selection => selection.feature),
+    ...poolSelections.map((selection) => selection.feature),
   ];
 
   // Get ancestry and background features
@@ -82,12 +92,12 @@ export function FeaturesSection() {
   const handleSelectionsChange = async (selections: EffectSelection[]) => {
     // Find what changed by comparing with current selections
     const currentSelections = character.effectSelections;
-    
+
     // Group pool features and utility spells by effect ID for batch processing
     const poolFeaturesByEffect = new Map<string, PoolFeatureEffectSelection[]>();
     const utilitySpellsByEffect = new Map<string, UtilitySpellsEffectSelection[]>();
     const otherSelections: EffectSelection[] = [];
-    
+
     for (const selection of selections) {
       if (selection.type === "pool_feature") {
         const effectId = selection.grantedByEffectId;
@@ -105,22 +115,24 @@ export function FeaturesSection() {
         otherSelections.push(selection);
       }
     }
-    
+
     // Handle pool features - replace all for each effect using the new API
     for (const [effectId, poolSelections] of poolFeaturesByEffect) {
       // Use the new batch update API
       await updatePoolSelectionsForEffect(effectId, poolSelections);
     }
-    
+
     // Handle utility spells - replace all for each effect using the new API
     for (const [effectId, utilitySelections] of utilitySpellsByEffect) {
       await updateUtilitySelectionsForEffect(effectId, utilitySelections);
     }
-    
+
     // Handle other selections normally
     for (const selection of otherSelections) {
-      const existing = currentSelections.find(s => s.grantedByEffectId === selection.grantedByEffectId);
-      
+      const existing = currentSelections.find(
+        (s) => s.grantedByEffectId === selection.grantedByEffectId,
+      );
+
       if (!existing || JSON.stringify(existing) !== JSON.stringify(selection)) {
         // This is new or changed, apply it
         switch (selection.type) {
@@ -136,7 +148,7 @@ export function FeaturesSection() {
             await selectAttributeBoost(
               selection.attribute,
               selection.amount,
-              selection.grantedByEffectId
+              selection.grantedByEffectId,
             );
             break;
         }
@@ -144,9 +156,10 @@ export function FeaturesSection() {
     }
   };
 
-  const hasFeatures = allClassFeatures.length > 0 || 
-    subclassFeatures.length > 0 || 
-    ancestryFeatures.length > 0 || 
+  const hasFeatures =
+    allClassFeatures.length > 0 ||
+    subclassFeatures.length > 0 ||
+    ancestryFeatures.length > 0 ||
     backgroundFeatures.length > 0;
 
   return (

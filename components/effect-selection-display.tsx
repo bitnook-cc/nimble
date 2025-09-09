@@ -1,23 +1,24 @@
 "use client";
 
-import { Plus, Check, Edit2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Check, Edit2, Plus } from "lucide-react";
 
-import { 
-  FeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  AttributeBoostFeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-} from "@/lib/schemas/features";
-import { 
+import { useEffect, useState } from "react";
+
+import {
+  AttributeBoostEffectSelection,
   Character,
   EffectSelection,
-  SpellSchoolEffectSelection,
-  AttributeBoostEffectSelection,
-  UtilitySpellsEffectSelection,
   PoolFeatureEffectSelection,
-  SubclassEffectSelection
+  SpellSchoolEffectSelection,
+  SubclassEffectSelection,
+  UtilitySpellsEffectSelection,
 } from "@/lib/schemas/character";
+import {
+  AttributeBoostFeatureEffect,
+  FeatureEffect,
+  PickFeatureFromPoolFeatureEffect,
+  SpellSchoolChoiceFeatureEffect,
+} from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getIconById } from "@/lib/utils/icon-utils";
@@ -37,16 +38,16 @@ interface EffectSelectionDisplayProps {
  * Component that displays the current selection for an effect
  * and allows editing or making new selections
  */
-export function EffectSelectionDisplay({ 
-  effect, 
-  effectId, 
+export function EffectSelectionDisplay({
+  effect,
+  effectId,
   existingSelections,
   onOpenDialog,
   character,
-  autoOpen = false 
+  autoOpen = false,
 }: EffectSelectionDisplayProps) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
-  
+
   // Check if we have any selections for this effect
   const hasSelections = existingSelections.length > 0;
 
@@ -65,8 +66,8 @@ export function EffectSelectionDisplay({
       switch (effect.type) {
         case "subclass_choice":
           return (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="default"
               onClick={() => onOpenDialog(effect)}
               className="gap-1"
@@ -78,14 +79,13 @@ export function EffectSelectionDisplay({
 
         case "pick_feature_from_pool":
           const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-          const remaining = character ? featureSelectionService.getRemainingPoolSelections(
-            character, 
-            poolEffect, 
-          ) : poolEffect.choicesAllowed;
+          const remaining = character
+            ? featureSelectionService.getRemainingPoolSelections(character, poolEffect)
+            : poolEffect.choicesAllowed;
           if (remaining > 0) {
             return (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="default"
                 onClick={() => onOpenDialog(effect)}
                 className="gap-1"
@@ -99,14 +99,13 @@ export function EffectSelectionDisplay({
 
         case "spell_school_choice":
           const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-          const schoolsRemaining = character ? featureSelectionService.getRemainingSpellSchoolSelections(
-            character,
-            spellEffect,
-          ) : (spellEffect.numberOfChoices || 1);
+          const schoolsRemaining = character
+            ? featureSelectionService.getRemainingSpellSchoolSelections(character, spellEffect)
+            : spellEffect.numberOfChoices || 1;
           if (schoolsRemaining > 0) {
             return (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="default"
                 onClick={() => onOpenDialog(effect)}
                 className="gap-1"
@@ -120,8 +119,8 @@ export function EffectSelectionDisplay({
 
         case "attribute_boost":
           return (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="default"
               onClick={() => onOpenDialog(effect)}
               className="gap-1"
@@ -133,8 +132,8 @@ export function EffectSelectionDisplay({
 
         case "utility_spells":
           return (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="default"
               onClick={() => onOpenDialog(effect)}
               className="gap-1"
@@ -159,7 +158,9 @@ export function EffectSelectionDisplay({
         return (
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium">{subclass?.name || subclassSelection.subclassId}</span>
+            <span className="text-sm font-medium">
+              {subclass?.name || subclassSelection.subclassId}
+            </span>
             <Button
               size="sm"
               variant="outline"
@@ -175,10 +176,9 @@ export function EffectSelectionDisplay({
       case "pool_feature": {
         const poolSelections = existingSelections as PoolFeatureEffectSelection[];
         const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
-        const remaining = character ? featureSelectionService.getRemainingPoolSelections(
-          character, 
-          poolEffect, 
-        ) : 0;
+        const remaining = character
+          ? featureSelectionService.getRemainingPoolSelections(character, poolEffect)
+          : 0;
 
         return (
           <div className="space-y-1">
@@ -190,8 +190,8 @@ export function EffectSelectionDisplay({
             ))}
             <div className="flex gap-2 mt-1">
               {remaining > 0 && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={() => onOpenDialog(effect)}
                   className="gap-1 h-7"
@@ -219,17 +219,18 @@ export function EffectSelectionDisplay({
       case "spell_school": {
         const schoolSelections = existingSelections as SpellSchoolEffectSelection[];
         const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
-        const remaining = character ? featureSelectionService.getRemainingSpellSchoolSelections(
-          character,
-          spellEffect,
-        ) : 0;
+        const remaining = character
+          ? featureSelectionService.getRemainingSpellSchoolSelections(character, spellEffect)
+          : 0;
 
         return (
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1">
                 {schoolSelections.map((selection, idx) => {
-                  const school = contentRepository.getAllSpellSchools().find(s => s.id === selection.schoolId);
+                  const school = contentRepository
+                    .getAllSpellSchools()
+                    .find((s) => s.id === selection.schoolId);
                   const SchoolIcon = school ? getIconById(school.icon) : null;
                   return (
                     <div key={idx} className="flex items-center gap-2">
@@ -250,8 +251,8 @@ export function EffectSelectionDisplay({
               </Button>
             </div>
             {remaining > 0 && (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="outline"
                 onClick={() => onOpenDialog(effect)}
                 className="gap-1 h-7"
@@ -270,7 +271,8 @@ export function EffectSelectionDisplay({
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-600" />
             <span className="text-sm font-medium">
-              {boostSelection.attribute.charAt(0).toUpperCase() + boostSelection.attribute.slice(1)} +{boostSelection.amount}
+              {boostSelection.attribute.charAt(0).toUpperCase() + boostSelection.attribute.slice(1)}{" "}
+              +{boostSelection.amount}
             </span>
             <Button
               size="sm"
@@ -287,23 +289,23 @@ export function EffectSelectionDisplay({
       case "utility_spells": {
         const spellSelections = existingSelections as UtilitySpellsEffectSelection[];
         const spellCount = spellSelections.length;
-        
+
         if (spellCount > 0) {
           return (
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-600" />
               <span className="text-sm">
-                {spellCount} spell{spellCount !== 1 ? 's' : ''} selected
+                {spellCount} spell{spellCount !== 1 ? "s" : ""} selected
               </span>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => onOpenDialog(effect)}
                 className="h-6 px-2"
-            >
-              <Edit2 className="w-3 h-3" />
-            </Button>
-          </div>
+              >
+                <Edit2 className="w-3 h-3" />
+              </Button>
+            </div>
           );
         }
         return null;

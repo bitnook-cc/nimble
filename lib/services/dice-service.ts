@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { SingleDie, DiceType } from "../schemas/dice";
+import { DiceType, SingleDie } from "../schemas/dice";
 import { parseDiceExpression } from "../utils/dice-parser";
 
 export interface DiceRollResult {

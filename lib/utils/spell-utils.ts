@@ -6,12 +6,13 @@ import { ResourceInstance } from "@/lib/schemas/resources";
  * @param resources - The character's current resources (from CharacterService.getResources())
  * @param spell - The spell to check
  */
-export function hasEnoughResourcesForSpell(resources: ResourceInstance[], spell: SpellAbilityDefinition): boolean {
+export function hasEnoughResourcesForSpell(
+  resources: ResourceInstance[],
+  spell: SpellAbilityDefinition,
+): boolean {
   if (!spell.resourceCost) return true;
 
-  const resource = resources.find(
-    (r) => r.definition.id === spell.resourceCost!.resourceId,
-  );
+  const resource = resources.find((r) => r.definition.id === spell.resourceCost!.resourceId);
 
   if (!resource) return false;
 
@@ -33,9 +34,7 @@ export function getInsufficientResourceMessage(
 ): string | null {
   if (!spell.resourceCost) return null;
 
-  const resource = resources.find(
-    (r) => r.definition.id === spell.resourceCost!.resourceId,
-  );
+  const resource = resources.find((r) => r.definition.id === spell.resourceCost!.resourceId);
 
   if (!resource) return "Missing required resource";
 

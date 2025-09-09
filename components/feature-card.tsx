@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { CharacterFeature, ClassFeature } from "@/lib/schemas/features";
 
 interface FeatureCardProps {
@@ -28,13 +30,7 @@ const getSourceBadgeColor = (source: "class" | "subclass" | "ancestry" | "backgr
   }
 };
 
-export function FeatureCard({
-  feature,
-  source,
-  sourceLabel,
-  level,
-  children,
-}: FeatureCardProps) {
+export function FeatureCard({ feature, source, sourceLabel, level, children }: FeatureCardProps) {
   const hasLevel = "level" in feature && level !== undefined;
 
   return (

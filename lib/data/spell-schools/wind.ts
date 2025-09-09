@@ -225,8 +225,7 @@ export const windSpellSchool: SpellSchoolWithSpells = {
   description: "Ancient mastery over wind and storms, controlling the very air itself",
   color: "text-teal-500",
   icon: "wind",
-  spells: windSchoolSpells,
-  utilitySpells: windUtilitySpells,
+  spells: [...windSchoolSpells, ...windUtilitySpells], // Combine all spells (combat and utility)
 };
 
 // Legacy export for backward compatibility

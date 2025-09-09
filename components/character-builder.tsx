@@ -4,9 +4,9 @@ import { Wand2 } from "lucide-react";
 
 import { useState } from "react";
 
+import { EffectSelection } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
-import { EffectSelection } from "@/lib/schemas/character";
 
 import { AncestrySelection } from "./character-builder/ancestry-selection";
 import { AttributeSelection } from "./character-builder/attribute-selection";
@@ -61,11 +61,7 @@ interface CharacterBuilderProps {
   onCharacterCreated: (characterId: string) => void;
 }
 
-export function CharacterBuilder({
-  isOpen,
-  onClose,
-  onCharacterCreated,
-}: CharacterBuilderProps) {
+export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: CharacterBuilderProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [builderState, setBuilderState] = useState<CharacterBuilderState>({
     name: "",

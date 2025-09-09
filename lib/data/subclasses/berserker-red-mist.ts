@@ -1,5 +1,6 @@
-import { SubclassDefinition } from "../../schemas/class";
 import { ClassFeature } from "@/lib/schemas/features";
+
+import { SubclassDefinition } from "../../schemas/class";
 
 const redMistFeatures: ClassFeature[] = [
   // Level 3

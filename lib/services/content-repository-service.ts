@@ -11,8 +11,8 @@ import { BackgroundDefinition } from "../schemas/background";
 import { ClassDefinition, FeaturePool, SubclassDefinition } from "../schemas/class";
 import { CustomContentType } from "../types/custom-content";
 import { CustomItemContent, RepositoryItem } from "../types/item-repository";
-import { ContentValidationService } from "./content-validation-service";
 import { type IconId } from "../utils/icon-utils";
+import { ContentValidationService } from "./content-validation-service";
 
 // Storage keys for custom content
 const STORAGE_KEYS = {
@@ -40,8 +40,7 @@ export interface SpellSchoolWithSpells {
   description: string;
   color: string; // Tailwind color classes for the school
   icon: IconId; // Icon identifier for the school
-  spells: SpellAbilityDefinition[];
-  utilitySpells: SpellAbilityDefinition[]; // Utility spells that must be learned separately
+  spells: SpellAbilityDefinition[]; // All spells (both combat and utility)
 }
 
 export class ContentRepositoryService {
@@ -57,9 +56,9 @@ export class ContentRepositoryService {
 
   private initializeFeaturePools(): void {
     // Add pools from built-in classes
-    builtInClasses.forEach(classDef => {
+    builtInClasses.forEach((classDef) => {
       if (classDef.featurePools) {
-        classDef.featurePools.forEach(pool => {
+        classDef.featurePools.forEach((pool) => {
           this.featurePoolMap.set(pool.id, pool);
         });
       }
@@ -71,9 +70,9 @@ export class ContentRepositoryService {
 
   private updateFeaturePoolsFromCustomClasses(): void {
     const customClasses = this.getCustomClasses();
-    customClasses.forEach(classDef => {
+    customClasses.forEach((classDef) => {
       if (classDef.featurePools) {
-        classDef.featurePools.forEach(pool => {
+        classDef.featurePools.forEach((pool) => {
           this.featurePoolMap.set(pool.id, pool);
         });
       }
@@ -468,7 +467,7 @@ export class ContentRepositoryService {
   }
 
   private getCustomClasses(): ClassDefinition[] {
-    try {     
+    try {
       const stored = localStorage.getItem(STORAGE_KEYS.customClasses);
       if (!stored) return [];
 
@@ -629,21 +628,21 @@ export class ContentRepositoryService {
   public getAllSpellSchools(): SpellSchoolWithSpells[] {
     const builtInSchools = getBuiltInSpellSchools();
     const customSchools = this.getCustomSpellSchools();
-    
+
     // Combine built-in and custom schools
     // Custom schools can override built-in ones with the same ID
     const schoolMap = new Map<string, SpellSchoolWithSpells>();
-    
+
     // Add built-in schools first
-    builtInSchools.forEach(school => {
+    builtInSchools.forEach((school) => {
       schoolMap.set(school.id, school);
     });
-    
+
     // Add/override with custom schools
-    customSchools.forEach(school => {
+    customSchools.forEach((school) => {
       schoolMap.set(school.id, school);
     });
-    
+
     return Array.from(schoolMap.values());
   }
 
@@ -652,6 +651,9 @@ export class ContentRepositoryService {
     return allSchools.find((school) => school.id === schoolId) || null;
   }
 
+  /**
+   * Get all spells from a school (both combat and utility)
+   */
   public getSpellsBySchool(schoolId: string): SpellAbilityDefinition[] {
     const school = this.getSpellSchool(schoolId);
     if (!school) return [];
@@ -661,6 +663,24 @@ export class ContentRepositoryService {
 
     // Merge school's defined spells with custom spells
     return [...school.spells, ...customSpells];
+  }
+
+  /**
+   * Get only combat spells from a school (excludes utility spells)
+   * These are automatically known when a character gains access to a spell school
+   */
+  public getCombatSpellsForSchool(schoolId: string): SpellAbilityDefinition[] {
+    const allSpells = this.getSpellsBySchool(schoolId);
+    // Return spells that are NOT utility spells
+    return allSpells.filter((spell) => spell.category !== "utility");
+  }
+
+  public getUtilitySpellsForSchool(schoolId: string): SpellAbilityDefinition[] {
+    const school = this.getSpellSchool(schoolId);
+    if (!school) return [];
+
+    // Filter for utility spells only (category: "utility")
+    return school.spells.filter((spell) => spell.category === "utility");
   }
 
   /**
@@ -682,13 +702,6 @@ export class ContentRepositoryService {
     }
 
     return null;
-  }
-
-  public getUtilitySpellsForSchool(schoolId: string): SpellAbilityDefinition[] {
-    const school = this.getSpellSchool(schoolId);
-    if (!school) return [];
-
-    return school.utilitySpells || [];
   }
 
   public uploadSpellSchools(schoolsJson: string): ContentUploadResult {
@@ -880,7 +893,7 @@ export class ContentRepositoryService {
   public getAllSpells(): SpellAbilityDefinition[] {
     // Get all spells from all built-in schools
     const builtInSchools = getBuiltInSpellSchools();
-    const builtInSpells = builtInSchools.flatMap(school => school.spells);
+    const builtInSpells = builtInSchools.flatMap((school) => school.spells);
     const customSpells = this.getCustomSpells();
     return [...builtInSpells, ...customSpells];
   }

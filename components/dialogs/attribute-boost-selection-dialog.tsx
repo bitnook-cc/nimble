@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AttributeBoostFeatureEffect } from "@/lib/schemas/features";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import { AttributeName } from "@/lib/schemas/character";
+import { AttributeBoostFeatureEffect } from "@/lib/schemas/features";
 
 interface AttributeBoostSelectionDialogProps {
   effect: AttributeBoostFeatureEffect;
@@ -19,7 +28,7 @@ export function AttributeBoostSelectionDialog({
   open,
   onOpenChange,
   onConfirm,
-  existingSelection
+  existingSelection,
 }: AttributeBoostSelectionDialogProps) {
   const [selectedAttribute, setSelectedAttribute] = useState<AttributeName | null>(null);
   const isEditMode = !!existingSelection;
@@ -64,10 +73,7 @@ export function AttributeBoostSelectionDialog({
           ))}
         </div>
         <DialogFooter>
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedAttribute}
-          >
+          <Button onClick={handleConfirm} disabled={!selectedAttribute}>
             Confirm Selection
           </Button>
         </DialogFooter>

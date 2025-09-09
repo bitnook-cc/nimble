@@ -124,7 +124,7 @@ export class CharacterCreationService implements ICharacterCreation {
       // Use the standard array: 2, 2, 0, -1
       // Assign both key attributes a 2, randomly assign -1 and 0 to the others
       const [primary, secondary] = classDefinition.keyAttributes;
-      
+
       // Start with all zeros
       attributes = {
         strength: 0,
@@ -132,15 +132,22 @@ export class CharacterCreationService implements ICharacterCreation {
         intelligence: 0,
         will: 0,
       };
-      
+
       // Assign 2 to both key attributes
       attributes[primary] = 2;
       attributes[secondary] = 2;
-      
+
       // Get the non-key attributes
-      const allAttributes: (keyof typeof attributes)[] = ["strength", "dexterity", "intelligence", "will"];
-      const nonKeyAttributes = allAttributes.filter(attr => attr !== primary && attr !== secondary);
-      
+      const allAttributes: (keyof typeof attributes)[] = [
+        "strength",
+        "dexterity",
+        "intelligence",
+        "will",
+      ];
+      const nonKeyAttributes = allAttributes.filter(
+        (attr) => attr !== primary && attr !== secondary,
+      );
+
       // Randomly assign -1 and 0 to the non-key attributes
       const shuffled = [...nonKeyAttributes].sort(() => Math.random() - 0.5);
       attributes[shuffled[0]] = -1;

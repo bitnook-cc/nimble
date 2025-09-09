@@ -3,7 +3,12 @@ import { PDFDocument, PDFForm } from "pdf-lib";
 import { Character, SaveAdvantageMap, SaveAdvantageType } from "../schemas/character";
 import { ContentRepositoryService } from "./content-repository-service";
 import { ICharacterService } from "./interfaces";
-import { getAncestryService, getBackgroundService, getCharacterService, getClassService } from "./service-factory";
+import {
+  getAncestryService,
+  getBackgroundService,
+  getCharacterService,
+  getClassService,
+} from "./service-factory";
 
 export interface PDFExportOptions {
   template: "full-page" | "half-page";
@@ -69,13 +74,9 @@ export class PDFExportService {
       const contentRepository = ContentRepositoryService.getInstance();
       const characterClass = contentRepository.getClassDefinition(character.classId);
       const subclassId = characterService.getSubclassId();
-      const subclass = subclassId
-        ? contentRepository.getSubclassDefinition(subclassId)
-        : null;
+      const subclass = subclassId ? contentRepository.getSubclassDefinition(subclassId) : null;
       const ancestry = contentRepository.getAncestryDefinition(character.ancestryId);
-      const background = contentRepository.getBackgroundDefinition(
-        character.backgroundId,
-      );
+      const background = contentRepository.getBackgroundDefinition(character.backgroundId);
       const attributes = characterService.getAttributes();
       const skills = characterService.getSkills();
       const initiative = characterService.getInitiative();

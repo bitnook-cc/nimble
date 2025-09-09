@@ -14,9 +14,7 @@ import {
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { abilityService } from "@/lib/services/ability-service";
 import {
   AbilityDefinition,
   AbilityFrequency,
@@ -24,6 +22,8 @@ import {
 } from "@/lib/schemas/abilities";
 import { AttributeName } from "@/lib/schemas/character";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
+import { abilityService } from "@/lib/services/ability-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { parseDiceExpression } from "@/lib/utils/dice-parser";
 
 import { Badge } from "../ui/badge";
@@ -219,7 +219,8 @@ export function AbilitySection() {
     const actionAbility = ability as ActionAbilityDefinition;
     const currentUses = character._abilityUses.get(actionAbility.id) || 0;
     const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility) : 0;
-    const isUsed = actionAbility.frequency !== "at_will" && actionAbility.maxUses && currentUses >= maxUses;
+    const isUsed =
+      actionAbility.frequency !== "at_will" && actionAbility.maxUses && currentUses >= maxUses;
 
     // Check if ability has resource requirements and if we have enough resources
     const getResourceInfo = () => {

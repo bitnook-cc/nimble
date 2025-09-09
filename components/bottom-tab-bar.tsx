@@ -40,8 +40,8 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
       if (!character) return false;
       // Show spells tab if character has any spell abilities (even tier 0)
       const characterService = getCharacterService();
-  const abilities = characterService.getAbilities();
-  const hasSpells = abilities.some((ability) => ability.type === "spell");
+      const abilities = characterService.getAbilities();
+      const hasSpells = abilities.some((ability) => ability.type === "spell");
       return hasSpells;
     }
     return true;

@@ -90,15 +90,13 @@ export class ServiceFactory {
 
     serviceContainer.register(
       SERVICE_KEYS.ANCESTRY_SERVICE,
-      (container) =>
-        new AncestryService(),
+      (container) => new AncestryService(),
       true, // singleton
     );
 
     serviceContainer.register(
       SERVICE_KEYS.BACKGROUND_SERVICE,
-      (container) =>
-        new BackgroundService(),
+      (container) => new BackgroundService(),
       true, // singleton
     );
 

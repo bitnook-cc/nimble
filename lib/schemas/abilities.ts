@@ -53,7 +53,12 @@ export const ResourceCostSchema = z
   .meta({ title: "Resource Cost", description: "Resource cost for using this ability" });
 
 // Ability frequency schema
-export const AbilityFrequencySchema = z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]);
+export const AbilityFrequencySchema = z.enum([
+  "per_turn",
+  "per_encounter",
+  "per_safe_rest",
+  "at_will",
+]);
 
 // Base ability schemas
 export const BaseAbilityDefinitionSchema = z.object({
@@ -78,8 +83,7 @@ export const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
   frequency: AbilityFrequencySchema,
   maxUses: flexibleValueSchema.optional(),
   roll: AbilityRollSchema.optional(),
-})
-  .meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
+}).meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
 // Spell ability schema
 export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
@@ -88,8 +92,7 @@ export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
   tier: z.number().int().min(0).max(9),
   category: z.enum(["combat", "utility"]),
   roll: AbilityRollSchema.optional(),
-})
-  .meta({ title: "Spell Ability", description: "Spell that characters can cast" });
+}).meta({ title: "Spell Ability", description: "Spell that characters can cast" });
 
 // Combined ability schema
 export const AbilityDefinitionSchema = z.discriminatedUnion("type", [
@@ -99,7 +102,10 @@ export const AbilityDefinitionSchema = z.discriminatedUnion("type", [
 ]);
 
 // Legacy schema for class features (includes currentUses)
-export const AbilitySchema = z.discriminatedUnion("type", [ActionAbilitySchema, SpellAbilitySchema]);
+export const AbilitySchema = z.discriminatedUnion("type", [
+  ActionAbilitySchema,
+  SpellAbilitySchema,
+]);
 
 // Export inferred types
 export type AbilityRoll = z.infer<typeof AbilityRollSchema>;

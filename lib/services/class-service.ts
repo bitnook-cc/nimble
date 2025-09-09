@@ -6,14 +6,10 @@ import {
   PoolFeatureEffectSelection,
   SubclassEffectSelection,
 } from "../schemas/character";
+import { ClassDefinition, FeaturePool, SubclassDefinition } from "../schemas/class";
 import {
-  ClassDefinition,
-  FeaturePool,
-  SubclassDefinition,
-} from "../schemas/class";
-import {
-  ClassFeature,
   AttributeBoostFeatureEffect,
+  ClassFeature,
   PickFeatureFromPoolFeatureEffect,
   SubclassChoiceFeatureEffect,
 } from "../schemas/features";
@@ -46,10 +42,11 @@ export class ClassService implements IClassService {
     // Add subclass features if character has a subclass
     const subclassId = this.characterService.getSubclassId();
     if (subclassId) {
-      const subclassFeatures = ContentRepositoryService.getInstance().getAllSubclassFeaturesUpToLevel(
-        subclassId,
-        character.level,
-      );
+      const subclassFeatures =
+        ContentRepositoryService.getInstance().getAllSubclassFeaturesUpToLevel(
+          subclassId,
+          character.level,
+        );
       return [...classFeatures, ...subclassFeatures];
     }
 
@@ -72,7 +69,8 @@ export class ClassService implements IClassService {
     grantedByEffectId: string,
   ): Promise<Character> {
     // Validate that the subclass is available for this character's class
-    const subclassDefinition = ContentRepositoryService.getInstance().getSubclassDefinition(subclassId);
+    const subclassDefinition =
+      ContentRepositoryService.getInstance().getSubclassDefinition(subclassId);
     if (!subclassDefinition) {
       throw new Error(`Subclass not found: ${subclassId}`);
     }
@@ -82,12 +80,14 @@ export class ClassService implements IClassService {
     }
 
     // Check if character has the appropriate subclass choice effect
-    const hasSubclassChoiceEffect = this.characterService.getAllActiveEffects().some(
-      (effect) => effect.type === "subclass_choice" && effect.id === grantedByEffectId,
-    );
+    const hasSubclassChoiceEffect = this.characterService
+      .getAllActiveEffects()
+      .some((effect) => effect.type === "subclass_choice" && effect.id === grantedByEffectId);
 
     if (!hasSubclassChoiceEffect) {
-      throw new Error(`Character does not have a subclass choice effect with id ${grantedByEffectId}`);
+      throw new Error(
+        `Character does not have a subclass choice effect with id ${grantedByEffectId}`,
+      );
     }
 
     // Check if already have a subclass selection for this effect
@@ -121,7 +121,8 @@ export class ClassService implements IClassService {
    */
   getAvailableSubclassChoices(character: Character): SubclassChoiceFeatureEffect[] {
     // Find all subclass choice effects from active features
-    const subclassChoiceEffects = this.characterService.getAllActiveEffects()
+    const subclassChoiceEffects = this.characterService
+      .getAllActiveEffects()
       .filter((effect): effect is SubclassChoiceFeatureEffect => effect.type === "subclass_choice");
 
     // Filter out subclass choices that have already been made
@@ -159,7 +160,8 @@ export class ClassService implements IClassService {
    */
   getAvailableAttributeBoostChoices(character: Character): AttributeBoostFeatureEffect[] {
     // Find all attribute boost effects from active features
-    const attributeBoostEffects = this.characterService.getAllActiveEffects()
+    const attributeBoostEffects = this.characterService
+      .getAllActiveEffects()
       .filter((effect): effect is AttributeBoostFeatureEffect => effect.type === "attribute_boost");
 
     // Filter out attribute boosts that have already been made
@@ -180,7 +182,8 @@ export class ClassService implements IClassService {
     attribute: AttributeName,
     amount: number,
   ): Promise<Character> {
-    const effect = this.characterService.getAllActiveEffects()
+    const effect = this.characterService
+      .getAllActiveEffects()
       .find((e) => e.id === effectId) as AttributeBoostFeatureEffect;
     if (!effect || effect.type !== "attribute_boost") {
       throw new Error(`Attribute boost effect ${effectId} not found`);

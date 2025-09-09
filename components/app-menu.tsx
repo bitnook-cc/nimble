@@ -4,10 +4,10 @@ import { Database, Download, Menu, Plus, Settings, Users } from "lucide-react";
 
 import { useState } from "react";
 
+import { Character } from "@/lib/schemas/character";
 import { pdfExportService } from "@/lib/services/pdf-export-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { AppSettings } from "@/lib/services/settings-service";
-import { Character } from "@/lib/schemas/character";
 
 import { CharacterCreateForm } from "./character-create-form";
 import { CharacterSelector } from "./character-selector";
@@ -121,7 +121,8 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
           <DialogHeader>
             <DialogTitle>Create New Character</DialogTitle>
             <DialogDescription>
-              Start your adventure by creating a new character. Choose their ancestry, background, and class.
+              Start your adventure by creating a new character. Choose their ancestry, background,
+              and class.
             </DialogDescription>
           </DialogHeader>
           <CharacterCreateForm

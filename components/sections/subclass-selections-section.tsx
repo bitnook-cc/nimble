@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getClassService } from "@/lib/services/service-factory";
 import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
+import { getClassService } from "@/lib/services/service-factory";
 
 import { SubclassSelectionDialog } from "../dialogs/subclass-selection-dialog";
 import { Badge } from "../ui/badge";

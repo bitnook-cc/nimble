@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { flexibleValueSchema } from "./flexible-value";
 import { ICON_IDS } from "../utils/icon-utils";
+import { flexibleValueSchema } from "./flexible-value";
 
 // Numerical resource value schema
 const numericalResourceValueSchema = z.object({

@@ -1,16 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SpellSchoolChoiceFeatureEffect } from "@/lib/schemas/features";
+
 import { Character } from "@/lib/schemas/character";
+import { SpellSchoolChoiceFeatureEffect } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getIconById } from "@/lib/utils/icon-utils";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 
 interface SpellSchoolSelectionDialogProps {
   effect: SpellSchoolChoiceFeatureEffect;
@@ -29,7 +38,7 @@ export function SpellSchoolSelectionDialog({
   onOpenChange,
   onConfirm,
   existingSelection,
-  existingSchools = []
+  existingSchools = [],
 }: SpellSchoolSelectionDialogProps) {
   const [selectedSchool, setSelectedSchool] = useState<string>("");
   const contentRepository = ContentRepositoryService.getInstance();
@@ -53,10 +62,10 @@ export function SpellSchoolSelectionDialog({
   // Get available schools
   const getAvailableSchools = () => {
     const allSchools = contentRepository.getAllSpellSchools();
-    
+
     // Filter out already selected schools (but keep the current one if editing)
-    return allSchools.filter(school => 
-      !existingSchools.includes(school.id) || school.id === existingSelection
+    return allSchools.filter(
+      (school) => !existingSchools.includes(school.id) || school.id === existingSelection,
     );
   };
 
@@ -68,9 +77,7 @@ export function SpellSchoolSelectionDialog({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>No Schools Available</DialogTitle>
-            <DialogDescription>
-              All spell schools have already been selected.
-            </DialogDescription>
+            <DialogDescription>All spell schools have already been selected.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button onClick={() => onOpenChange(false)}>Close</Button>
@@ -95,7 +102,7 @@ export function SpellSchoolSelectionDialog({
               {availableSchools.map((school) => {
                 const SchoolIcon = school.icon ? getIconById(school.icon) : null;
                 const isSelected = selectedSchool === school.id;
-                
+
                 return (
                   <div
                     key={school.id}
@@ -118,9 +125,7 @@ export function SpellSchoolSelectionDialog({
                         </Badge>
                       </div>
                       {school.description && (
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {school.description}
-                        </p>
+                        <p className="text-sm text-muted-foreground mb-2">{school.description}</p>
                       )}
                       <div className="flex flex-wrap gap-1">
                         {school.spells.slice(0, 5).map((spell) => (
@@ -142,10 +147,7 @@ export function SpellSchoolSelectionDialog({
           </RadioGroup>
         </ScrollArea>
         <DialogFooter>
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedSchool}
-          >
+          <Button onClick={handleConfirm} disabled={!selectedSchool}>
             Confirm Selection
           </Button>
         </DialogFooter>
