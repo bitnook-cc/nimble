@@ -42,6 +42,7 @@ export class ServiceContainer {
 
 // Service keys for type safety
 export const SERVICE_KEYS = {
+  STORAGE: "storage",
   CHARACTER_STORAGE: "characterStorage",
   ACTIVITY_LOG: "activityLog",
   ABILITY_SERVICE: "abilityService",

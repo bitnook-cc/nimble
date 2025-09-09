@@ -420,7 +420,25 @@ npm run dev      # Start development server
 npm run build    # Build for production
 npm run lint     # Run ESLint checks
 npm run typecheck # Type checking
+npm run test     # Run tests with Vitest
+npm run test:ui  # Run tests with Vitest UI
+npm run test:run # Run tests once (CI mode)
 ```
+
+### Testing
+
+The project uses **Vitest** for testing with the following conventions:
+
+- **Test Location**: Tests are placed in `__tests__` folders within service directories
+- **Test Naming**: Test files use `.test.ts` extension (e.g., `dice-formula-service.test.ts`)
+- **Mocking**: Services use `vi.mock()` for mocking dependencies
+- **Test Structure**: Tests use describe/it blocks with clear descriptions
+- **Coverage**: Tests focus on service logic, edge cases, and error handling
+
+#### Test Examples
+
+- `dice-formula-service.test.ts`: Tests dice rolling formulas, variable substitution, advantage/disadvantage, criticals, and double-digit dice
+- `flexible-value.test.ts`: Tests formula evaluation with attribute and level substitution
 
 ### Storage & Configuration
 

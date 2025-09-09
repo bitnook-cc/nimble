@@ -5,7 +5,7 @@ import { BackgroundService } from "./background-service";
 import { CharacterCreationService } from "./character-creation-service";
 import { CharacterService } from "./character-service";
 // Import existing services that implement the interfaces
-import { characterStorageService } from "./character-storage-service";
+import { CharacterStorageService } from "./character-storage-service";
 import { ClassService } from "./class-service";
 import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
@@ -25,6 +25,7 @@ import { ItemService } from "./item-service";
 import { SERVICE_KEYS, serviceContainer } from "./service-container";
 import { settingsService } from "./settings-service";
 import type { SettingsService } from "./settings-service";
+import { IStorageService, LocalStorageService, InMemoryStorageService } from "./storage-service";
 
 /**
  * Service Factory
@@ -32,6 +33,18 @@ import type { SettingsService } from "./settings-service";
  */
 export class ServiceFactory {
   private static initialized = false;
+  private static storageImplementation: 'localStorage' | 'inMemory' = 'localStorage';
+
+  /**
+   * Set the storage implementation to use
+   * Must be called before initialize()
+   */
+  static setStorageImplementation(impl: 'localStorage' | 'inMemory'): void {
+    if (this.initialized) {
+      throw new Error('Cannot change storage implementation after initialization');
+    }
+    this.storageImplementation = impl;
+  }
 
   /**
    * Initialize the service container with all dependencies
@@ -39,10 +52,25 @@ export class ServiceFactory {
   static initialize(): void {
     if (this.initialized) return;
 
-    // Register existing services that already implement interfaces
+    // Register storage service based on configuration
+    serviceContainer.register<IStorageService>(
+      SERVICE_KEYS.STORAGE,
+      () => {
+        if (this.storageImplementation === 'inMemory') {
+          return new InMemoryStorageService();
+        }
+        return new LocalStorageService();
+      },
+      true, // singleton
+    );
+
+    // Register character storage with injected storage service
     serviceContainer.register(
       SERVICE_KEYS.CHARACTER_STORAGE,
-      () => characterStorageService,
+      (container) => {
+        const storageService = container.get<IStorageService>(SERVICE_KEYS.STORAGE);
+        return new CharacterStorageService(storageService);
+      },
       true, // singleton
     );
 
@@ -133,6 +161,8 @@ export class ServiceFactory {
 }
 
 // Convenience functions for getting services with proper types
+export const getStorageService = (): IStorageService =>
+  ServiceFactory.getService(SERVICE_KEYS.STORAGE);
 export const getCharacterService = (): ICharacterService =>
   ServiceFactory.getService(SERVICE_KEYS.CHARACTER_SERVICE);
 export const getCharacterStorage = (): ICharacterStorage =>
@@ -153,6 +183,8 @@ export const getDiceService = (): DiceService =>
   ServiceFactory.getService(SERVICE_KEYS.DICE_SERVICE);
 export const getSettingsService = (): SettingsService =>
   ServiceFactory.getService(SERVICE_KEYS.SETTINGS_SERVICE);
-export const getContentRepository = (): ContentRepositoryService =>
-  ContentRepositoryService.getInstance();
+export const getContentRepository = (): ContentRepositoryService => {
+  const storage = ServiceFactory.getService<IStorageService>(SERVICE_KEYS.STORAGE);
+  return ContentRepositoryService.getInstance(storage);
+};
 export const getItemService = (): ItemService => ItemService.getInstance();

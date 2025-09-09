@@ -13,6 +13,7 @@ import { CustomContentType } from "../types/custom-content";
 import { CustomItemContent, RepositoryItem } from "../types/item-repository";
 import { type IconId } from "../utils/icon-utils";
 import { ContentValidationService } from "./content-validation-service";
+import { IStorageService, LocalStorageService } from "./storage-service";
 
 // Storage keys for custom content
 const STORAGE_KEYS = {
@@ -46,10 +47,16 @@ export interface SpellSchoolWithSpells {
 export class ContentRepositoryService {
   private static instance: ContentRepositoryService;
   private featurePoolMap: Map<string, FeaturePool> = new Map();
+  private storage: IStorageService;
 
-  public static getInstance(): ContentRepositoryService {
+  constructor(storageService?: IStorageService) {
+    this.storage = storageService || new LocalStorageService();
+    this.initializeFeaturePools();
+  }
+
+  public static getInstance(storageService?: IStorageService): ContentRepositoryService {
     if (!ContentRepositoryService.instance) {
-      ContentRepositoryService.instance = new ContentRepositoryService();
+      ContentRepositoryService.instance = new ContentRepositoryService(storageService);
     }
     return ContentRepositoryService.instance;
   }
@@ -140,7 +147,7 @@ export class ContentRepositoryService {
         customAncestries.push(ancestry);
 
         // Save to storage
-        localStorage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(customAncestries));
+        this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(customAncestries));
         resolve();
       } catch (error) {
         reject(error);
@@ -161,7 +168,7 @@ export class ContentRepositoryService {
           return;
         }
 
-        localStorage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(filteredAncestries));
+        this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(filteredAncestries));
         resolve();
       } catch (error) {
         reject(error);
@@ -171,7 +178,7 @@ export class ContentRepositoryService {
 
   private getCustomAncestries(): AncestryDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customAncestries);
+      const stored = this.storage.getItem(STORAGE_KEYS.customAncestries);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -229,7 +236,7 @@ export class ContentRepositoryService {
         customBackgrounds.push(background);
 
         // Save to storage
-        localStorage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(customBackgrounds));
+        this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(customBackgrounds));
         resolve();
       } catch (error) {
         reject(error);
@@ -250,7 +257,7 @@ export class ContentRepositoryService {
           return;
         }
 
-        localStorage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(filteredBackgrounds));
+        this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(filteredBackgrounds));
         resolve();
       } catch (error) {
         reject(error);
@@ -260,7 +267,7 @@ export class ContentRepositoryService {
 
   private getCustomBackgrounds(): BackgroundDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customBackgrounds);
+      const stored = this.storage.getItem(STORAGE_KEYS.customBackgrounds);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -324,7 +331,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(updatedAncestries));
+      this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(updatedAncestries));
       const message =
         validAncestries.length === 1
           ? `Successfully added/updated ancestry: ${validAncestries[0].name}`
@@ -379,7 +386,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(updatedBackgrounds));
+      this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(updatedBackgrounds));
       const message =
         validBackgrounds.length === 1
           ? `Successfully added/updated background: ${validBackgrounds[0].name}`
@@ -433,7 +440,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(updatedClasses));
+      this.storage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(updatedClasses));
 
       // Update feature pool map with new classes
       this.updateFeaturePoolsFromCustomClasses();
@@ -458,7 +465,7 @@ export class ContentRepositoryService {
     const filteredClasses = customClasses.filter((cls) => cls.id !== classId);
 
     if (filteredClasses.length < customClasses.length) {
-      localStorage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(filteredClasses));
+      this.storage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(filteredClasses));
       // Update feature pool map after removing class
       this.initializeFeaturePools();
       return true;
@@ -468,7 +475,7 @@ export class ContentRepositoryService {
 
   private getCustomClasses(): ClassDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customClasses);
+      const stored = this.storage.getItem(STORAGE_KEYS.customClasses);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -487,7 +494,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validClasses.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(validClasses));
+        this.storage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(validClasses));
       }
 
       return validClasses;
@@ -576,7 +583,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(updatedSubclasses));
+      this.storage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(updatedSubclasses));
 
       const message =
         errors.length > 0
@@ -595,7 +602,7 @@ export class ContentRepositoryService {
 
   private getCustomSubclasses(): SubclassDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customSubclasses);
+      const stored = this.storage.getItem(STORAGE_KEYS.customSubclasses);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -614,7 +621,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validSubclasses.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(validSubclasses));
+        this.storage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(validSubclasses));
       }
 
       return validSubclasses;
@@ -740,7 +747,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(updatedSchools));
+      this.storage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(updatedSchools));
 
       const message =
         errors.length > 0
@@ -759,7 +766,7 @@ export class ContentRepositoryService {
 
   private getCustomSpellSchools(): SpellSchoolWithSpells[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customSpellSchools);
+      const stored = this.storage.getItem(STORAGE_KEYS.customSpellSchools);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -781,7 +788,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validSchools.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(validSchools));
+        this.storage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(validSchools));
       }
 
       return validSchools;
@@ -838,7 +845,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(updatedAbilities));
+      this.storage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(updatedAbilities));
 
       const message =
         errors.length > 0
@@ -857,7 +864,7 @@ export class ContentRepositoryService {
 
   private getCustomAbilities(): ActionAbilityDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customAbilities);
+      const stored = this.storage.getItem(STORAGE_KEYS.customAbilities);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -879,7 +886,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validAbilities.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(validAbilities));
+        this.storage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(validAbilities));
       }
 
       return validAbilities;
@@ -939,7 +946,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(updatedSpells));
+      this.storage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(updatedSpells));
 
       const message =
         errors.length > 0
@@ -958,7 +965,7 @@ export class ContentRepositoryService {
 
   private getCustomSpells(): SpellAbilityDefinition[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customSpells);
+      const stored = this.storage.getItem(STORAGE_KEYS.customSpells);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -977,7 +984,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validSpells.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(validSpells));
+        this.storage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(validSpells));
       }
 
       return validSpells;
@@ -1051,7 +1058,7 @@ export class ContentRepositoryService {
         }
       });
 
-      localStorage.setItem(STORAGE_KEYS.customItems, JSON.stringify(updatedItems));
+      this.storage.setItem(STORAGE_KEYS.customItems, JSON.stringify(updatedItems));
 
       const message =
         errors.length > 0
@@ -1070,7 +1077,7 @@ export class ContentRepositoryService {
 
   private getCustomItems(): RepositoryItem[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.customItems);
+      const stored = this.storage.getItem(STORAGE_KEYS.customItems);
       if (!stored) return [];
 
       const parsed = JSON.parse(stored);
@@ -1097,7 +1104,7 @@ export class ContentRepositoryService {
 
       // If we filtered out invalid items, update localStorage
       if (validItems.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEYS.customItems, JSON.stringify(validItems));
+        this.storage.setItem(STORAGE_KEYS.customItems, JSON.stringify(validItems));
       }
 
       return validItems;
@@ -1125,7 +1132,7 @@ export class ContentRepositoryService {
   // Utility Methods
   public clearAllCustomContent(): void {
     Object.values(STORAGE_KEYS).forEach((key) => {
-      localStorage.removeItem(key);
+      this.storage.removeItem(key);
     });
   }
 

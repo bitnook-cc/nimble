@@ -1,15 +1,19 @@
 import { characterSchema } from "../schemas/character";
 import { Character, CreateCharacterData } from "../schemas/character";
-import {
-  ICharacterRepository,
-  LocalStorageCharacterRepository,
-} from "../storage/character-repository";
+import { ICharacterRepository } from "../storage/character-repository";
+import { StorageBasedCharacterRepository } from "../storage/storage-based-character-repository";
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
+import { IStorageService, LocalStorageService } from "./storage-service";
 
 export class CharacterStorageService {
   private readonly characterListStorageKey = "nimble-navigator-character-list";
+  private repository: ICharacterRepository;
 
-  constructor(private repository: ICharacterRepository = new LocalStorageCharacterRepository()) {}
+  constructor(storageService?: IStorageService) {
+    // If a storage service is provided, use it; otherwise use default localStorage
+    const storage = storageService || new LocalStorageService();
+    this.repository = new StorageBasedCharacterRepository(storage);
+  }
 
   async createCharacter(character: Character, id?: string): Promise<Character> {
     const validated = characterSchema.parse(character);
