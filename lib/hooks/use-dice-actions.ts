@@ -139,7 +139,15 @@ export function useDiceActions(): UseDiceActionsReturn {
           allowFumbles: false,
         });
         
-        const actionsGranted = Math.max(1, rollResult.total);
+        // Calculate actions based on initiative roll total (game rules)
+        let actionsGranted: number;
+        if (rollResult.total < 10) {
+          actionsGranted = 1;
+        } else if (rollResult.total <= 20) {
+          actionsGranted = 2;
+        } else {
+          actionsGranted = 3;
+        }
 
         const logEntry = activityLogService.createInitiativeEntry(
           actionsGranted,

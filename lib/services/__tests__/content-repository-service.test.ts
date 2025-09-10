@@ -83,18 +83,9 @@ describe("ContentRepositoryService", () => {
       hitDieSize: 10,
       startingHP: 15,
       keyAttributes: ["strength"],
-      proficiencies: { weapons: ["sword"], armor: ["heavy"], tools: [] },
-      primarySkills: ["Athletics"],
-      skillChoices: 2,
-      features: [],
-      isCustom: true,
-      spellCasting: null,
-      classResources: [],
-      startingWeapons: [],
-      startingArmor: [],
-      startingItems: [],
       armorProficiencies: [{ type: "mail" }],
       weaponProficiencies: [{ type: "strength_weapons" }, { type: "dexterity_weapons" }],
+      features: [],
       saveAdvantages: {},
       startingEquipment: [],
     };
@@ -211,7 +202,6 @@ describe("ContentRepositoryService", () => {
       name: "Test Background",
       description: "A test background",
       features: [],
-      isCustom: true,
     };
 
     it("should add a custom background", async () => {
@@ -246,7 +236,6 @@ describe("ContentRepositoryService", () => {
       type: "action",
       actionCost: 1,
       frequency: "at_will",
-      isCustom: true,
     };
 
     it("should upload custom abilities via JSON", () => {
@@ -285,9 +274,7 @@ describe("ContentRepositoryService", () => {
       tier: 1,
       school: "fire",
       category: "combat",
-      castingTime: "1 action",
-      range: "30 feet",
-      duration: "Instantaneous",
+      actionCost: 1,
     };
 
     it("should upload custom spells via JSON", () => {
@@ -418,7 +405,6 @@ describe("ContentRepositoryService", () => {
         description: "A test subclass",
         parentClassId: "berserker",
         features: [],
-        isCustom: true,
       };
 
       const subclassJson = JSON.stringify([customSubclass]);
@@ -438,16 +424,7 @@ describe("ContentRepositoryService", () => {
         hitDieSize: 8,
         startingHP: 8,
         keyAttributes: ["intelligence"],
-        proficiencies: { weapons: [], armor: [], tools: [] },
-        primarySkills: [],
-        skillChoices: 2,
         features: [],
-        isCustom: true,
-        spellCasting: null,
-        classResources: [],
-        startingWeapons: [],
-        startingArmor: [],
-        startingItems: [],
         armorProficiencies: [],
         weaponProficiencies: [],
         saveAdvantages: {},
@@ -488,16 +465,7 @@ describe("ContentRepositoryService", () => {
         hitDieSize: 8,
         startingHP: 8,
         keyAttributes: ["intelligence"],
-        proficiencies: { weapons: [], armor: [], tools: [] },
-        primarySkills: [],
-        skillChoices: 2,
         features: [],
-        isCustom: true,
-        spellCasting: null,
-        classResources: [],
-        startingWeapons: [],
-        startingArmor: [],
-        startingItems: [],
         armorProficiencies: [],
         weaponProficiencies: [],
         saveAdvantages: {},
@@ -521,16 +489,7 @@ describe("ContentRepositoryService", () => {
         hitDieSize: 8,
         startingHP: 8,
         keyAttributes: ["intelligence"],
-        proficiencies: { weapons: [], armor: [], tools: [] },
-        primarySkills: [],
-        skillChoices: 2,
         features: [],
-        isCustom: true,
-        spellCasting: null,
-        classResources: [],
-        startingWeapons: [],
-        startingArmor: [],
-        startingItems: [],
         armorProficiencies: [],
         weaponProficiencies: [],
         saveAdvantages: {},
@@ -554,9 +513,8 @@ describe("ContentRepositoryService", () => {
         name: "Persist Test",
         description: "Test",
         size: "medium",
-        speed: 30,
+        rarity: "common",
         features: [],
-        isCustom: true,
       };
 
       // Upload with first instance
@@ -578,7 +536,6 @@ describe("ContentRepositoryService", () => {
         name: "Isolated Test",
         description: "Test",
         features: [],
-        isCustom: true,
       };
 
       // Upload to current instance
