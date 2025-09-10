@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, Zap, TrendingUp } from "lucide-react";
 
 import { useState } from "react";
 
@@ -23,6 +23,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
 
 export function SpellsSection() {
   const { character, performUseAbility } = useCharacterService();
@@ -32,6 +33,7 @@ export function SpellsSection() {
 
   const contentRepository = ContentRepositoryService.getInstance();
   const [isLockedSectionOpen, setIsLockedSectionOpen] = useState<boolean>(false);
+  const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
 
   if (!character) return null;
 
@@ -144,11 +146,22 @@ export function SpellsSection() {
     return "bg-red-100 text-red-800 border-red-200";
   };
 
-  const handleSpellCast = async (spell: SpellAbilityDefinition) => {
-    await performUseAbility(spell.id);
+  const handleSpellCast = async (spell: SpellAbilityDefinition, extraResource: number = 0) => {
+    if (extraResource > 0 && spell.resourceCost?.type === "fixed") {
+      // Pass the total resource amount for upcasting
+      await performUseAbility(spell.id, spell.resourceCost.amount + extraResource);
+    } else {
+      await performUseAbility(spell.id);
+    }
+    setUpcastingSpell(null);
+  };
+
+  const handleUpcastClick = (spell: SpellAbilityDefinition) => {
+    setUpcastingSpell(spell);
   };
 
   return (
+    <>
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -262,16 +275,28 @@ export function SpellsSection() {
                               </div>
                             )}
                           </div>
-                          <Button
-                            size="sm"
-                            variant={canCast ? "outline" : "ghost"}
-                            onClick={() => handleSpellCast(spell)}
-                            className="ml-4"
-                            disabled={!canCast}
-                            title={insufficientMessage || "Cast spell"}
-                          >
-                            <Zap className="w-4 h-4" />
-                          </Button>
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              size="sm"
+                              variant={canCast ? "outline" : "ghost"}
+                              onClick={() => handleSpellCast(spell)}
+                              disabled={!canCast}
+                              title={insufficientMessage || "Cast spell"}
+                            >
+                              <Zap className="w-4 h-4" />
+                            </Button>
+                            {spell.resourceCost && spell.upcastBonus && (
+                              <Button
+                                size="sm"
+                                variant={canCast ? "outline" : "ghost"}
+                                onClick={() => handleUpcastClick(spell)}
+                                disabled={!canCast}
+                                title="Upcast spell for increased effect"
+                              >
+                                <TrendingUp className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -403,5 +428,19 @@ export function SpellsSection() {
         )}
       </CardContent>
     </Card>
+    
+    {/* Upcast Dialog */}
+    {upcastingSpell && (
+      <UpcastSpellDialog
+        spell={upcastingSpell}
+        resource={resources.find(r => 
+          r.definition.id === upcastingSpell.resourceCost?.resourceId
+        )}
+        maxSpellTier={character._spellTierAccess}
+        onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
+        onClose={() => setUpcastingSpell(null)}
+      />
+    )}
+    </>
   );
 }

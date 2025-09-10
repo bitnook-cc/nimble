@@ -280,25 +280,32 @@ export class CharacterService implements ICharacterService {
       let effectiveFormula = ability.diceFormula;
       
       // Apply spell scaling if this is a spell with scaling bonus
-      if (ability.type === "spell" && ability.scalingBonus) {
-        const scalingMultiplier = this.getSpellScalingLevel();
-        if (scalingMultiplier > 0) {
-          // Clean the scaling bonus (remove leading +/-)
-          const cleanBonus = ability.scalingBonus.replace(/^[+-]/, '');
-          
-          // Create a formula evaluator to evaluate the scaling bonus
-          const formulaEvaluator = new FormulaEvaluatorService();
-          
-          // Evaluate the scaling bonus formula (e.g., "5" or "INT")
-          // Multiply by the scaling multiplier
-          const scalingBonusValue = formulaEvaluator.evaluateFormula(cleanBonus);
-          const totalScalingBonus = scalingBonusValue * scalingMultiplier;
-          
-          // Add the total scaling bonus to the effective formula
-          if (totalScalingBonus !== 0) {
-            const sign = totalScalingBonus > 0 ? '+' : '';
-            effectiveFormula = `${ability.diceFormula}${sign}${totalScalingBonus}`;
+      if (ability.type === "spell") {
+        const formulaEvaluator = new FormulaEvaluatorService();
+        let totalBonus = 0;
+        
+        // Apply scaling bonus
+        if (ability.scalingBonus) {
+          const scalingMultiplier = this.getSpellScalingLevel();
+          if (scalingMultiplier > 0) {
+            const cleanScalingBonus = ability.scalingBonus.replace(/^[+-]/, '');
+            const scalingBonusValue = formulaEvaluator.evaluateFormula(cleanScalingBonus);
+            totalBonus += scalingBonusValue * scalingMultiplier;
           }
+        }
+        
+        // Apply upcast bonus if extra resources were spent
+        if (ability.upcastBonus && ability.resourceCost?.type === "fixed" && resourceAmount > ability.resourceCost.amount) {
+          const extraResource = resourceAmount - ability.resourceCost.amount;
+          const cleanUpcastBonus = ability.upcastBonus.replace(/^[+-]/, '');
+          const upcastBonusValue = formulaEvaluator.evaluateFormula(cleanUpcastBonus);
+          totalBonus += upcastBonusValue * extraResource;
+        }
+        
+        // Add the total bonus to the effective formula
+        if (totalBonus !== 0) {
+          const sign = totalBonus > 0 ? '+' : '';
+          effectiveFormula = `${ability.diceFormula}${sign}${totalBonus}`;
         }
       }
       
@@ -309,8 +316,32 @@ export class CharacterService implements ICharacterService {
         allowFumbles: true, // Abilities can fumble
       });
 
+      // Build the roll description with bonus breakdown
+      let rollDescription = `${ability.name} ability roll`;
+      if (ability.type === "spell") {
+        const bonusBreakdown = [];
+        
+        // Check for scaling
+        if (ability.scalingBonus) {
+          const scalingMultiplier = this.getSpellScalingLevel();
+          if (scalingMultiplier > 0) {
+            bonusBreakdown.push(`Scaled ×${scalingMultiplier}`);
+          }
+        }
+        
+        // Check for upcasting
+        if (ability.resourceCost?.type === "fixed" && resourceAmount > ability.resourceCost.amount) {
+          const extraResource = resourceAmount - ability.resourceCost.amount;
+          bonusBreakdown.push(`Upcast +${extraResource}`);
+        }
+        
+        if (bonusBreakdown.length > 0) {
+          rollDescription += ` (${bonusBreakdown.join(', ')})`;
+        }
+      }
+      
       const rollLogEntry = this.logService.createDiceRollEntry(
-        `${ability.name} ability roll`,
+        rollDescription,
         rollResult,
         0, // No advantage for ability rolls by default
       );
@@ -1657,8 +1688,8 @@ export class CharacterService implements ICharacterService {
       await this.saveCharacter();
       this.notifyCharacterChanged();
 
-      // Log the ability usage
-      await this.logAbilityUsage(ability, actionsToDeduct, resourceAmountUsed);
+      // Log the ability usage (pass variableResourceAmount for upcasting calculation)
+      await this.logAbilityUsage(ability, actionsToDeduct, variableResourceAmount || resourceAmountUsed);
     } catch (error) {
       console.error("Failed to use ability:", error);
     }

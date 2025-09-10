@@ -83,6 +83,10 @@ export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
     title: "Scaling Bonus",
     description: "Bonus dice formula per scaling multiplier (e.g., '+5', '+1d4', '+INT')",
   }),
+  upcastBonus: z.string().optional().meta({
+    title: "Upcast Bonus",
+    description: "Bonus dice formula per extra resource spent (e.g., '+10', '+2d6', '+WIL')",
+  }),
 }).meta({ title: "Spell Ability", description: "Spell that characters can cast" });
 
 // Combined ability schema

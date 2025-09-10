@@ -33,13 +33,14 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "ignite",
     name: "Ignite",
     description:
-      "Tier 1, 2 Actions, Single Target. Range: 8. Damage: 4d10 to a Smoldering target, ending the condition on hit. Upcast: +10 damage.",
+      "Tier 1, 2 Actions, Single Target. Range: 8. Damage: 4d10 to a Smoldering target, ending the condition on hit.",
     type: "spell",
     school: "fire",
     tier: 1,
     category: "combat",
     actionCost: 2,
     diceFormula: "4d10",
+    upcastBonus: "+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
