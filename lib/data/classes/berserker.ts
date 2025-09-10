@@ -186,9 +186,7 @@ const berserkerFeatures: ClassFeature[] = [
           frequency: "per_turn",
           maxUses: { type: "fixed", value: 1 },
           actionCost: 1,
-          roll: {
-            dice: { count: 1, sides: 4 },
-          },
+          diceFormula: "1d4",
         },
       },
     ],

@@ -1,67 +1,12 @@
 import { z } from "zod";
 
-import { diceExpressionSchema } from "./dice";
-import { flexibleValueSchema } from "./flexible-value";
+import { AbilitySchema } from "./abilities"
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
 
 // ========================================
 // Feature Effect Schemas
 // ========================================
-
-const AbilityRollSchema = z.object({
-  dice: diceExpressionSchema,
-  modifier: z.number().int().optional(),
-  attribute: z.enum(["strength", "dexterity", "intelligence", "will"]).optional(),
-});
-
-const ResourceCostSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("fixed"),
-    resourceId: z.string(),
-    amount: z.number().int().min(0),
-  }),
-  z.object({
-    type: z.literal("variable"),
-    resourceId: z.string(),
-    minAmount: z.number().int().min(0),
-    maxAmount: z.number().int().min(0),
-  }),
-]);
-
-const ActionAbilitySchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
-  type: z.literal("action"),
-  frequency: z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]),
-  maxUses: flexibleValueSchema.optional(),
-  currentUses: z.number().int().min(0).optional(),
-  roll: AbilityRollSchema.optional(),
-  actionCost: z.number().int().min(0).max(5).optional(),
-  resourceCost: ResourceCostSchema.optional(),
-});
-
-const SpellAbilitySchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
-  type: z.literal("spell"),
-  school: z.string().min(1),
-  tier: z.number().int().min(0).max(9),
-  category: z.enum(["combat", "utility"]),
-  roll: AbilityRollSchema.optional(),
-  actionCost: z.number().int().min(0).max(5).optional(),
-  resourceCost: ResourceCostSchema.optional(),
-});
-
-const AbilitySchema = z.discriminatedUnion("type", [ActionAbilitySchema, SpellAbilitySchema]);
-
-// Shared effect data schemas
-const AttributeBoostSchema = z.object({
-  attribute: z.array(z.enum(["strength", "dexterity", "intelligence", "will"])),
-  amount: z.number().int().min(-5).max(5),
-});
 
 const ProficiencyGrantSchema = z.object({
   type: z.enum(["skill", "save", "tool", "language"]),

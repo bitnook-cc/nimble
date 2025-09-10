@@ -140,6 +140,7 @@ const shepherdFeatures: ClassFeature[] = [
           frequency: "per_safe_rest",
           actionCost: 1,
           maxUses: { type: "formula", expression: "WIL" },
+          diceFormula: "WILd8",
         },
       },
     ],

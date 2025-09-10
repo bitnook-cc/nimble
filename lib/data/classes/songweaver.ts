@@ -180,10 +180,7 @@ const songweaverFeatures: ClassFeature[] = [
           tier: 0,
           category: "combat",
           actionCost: 1,
-          roll: {
-            dice: { count: 1, sides: 4 },
-            attribute: "intelligence",
-          },
+          diceFormula: "1d4+INT",
         },
       },
     ],

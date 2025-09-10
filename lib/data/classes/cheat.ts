@@ -171,9 +171,7 @@ const cheatFeatures: ClassFeature[] = [
           type: "action",
           frequency: "per_turn",
           maxUses: { type: "fixed", value: 1 },
-          roll: {
-            dice: { count: 1, sides: 6 },
-          },
+          diceFormula: "1d6",
         },
       },
     ],
