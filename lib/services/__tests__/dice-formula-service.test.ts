@@ -56,6 +56,33 @@ describe("DiceFormulaService", () => {
       expect(result.displayString).toBe("[2] + [1] + [4] + 2");
       expect(result.total).toBe(9); // 2 + 1 + 4 + 2 = 9
       expect(result.formula).toBe("3d6 + 2");
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.dice).toHaveLength(3);
+      expect(result.diceData?.dice[0]).toEqual({
+        value: 2,
+        size: 6,
+        kept: true,
+        category: 'normal',
+        index: 0
+      });
+      expect(result.diceData?.dice[1]).toEqual({
+        value: 1,
+        size: 6,
+        kept: true,
+        category: 'normal',
+        index: 1
+      });
+      expect(result.diceData?.dice[2]).toEqual({
+        value: 4,
+        size: 6,
+        kept: true,
+        category: 'normal',
+        index: 2
+      });
+      expect(result.diceData?.afterExpression).toBe("+ 2");
+      expect(result.diceData?.total).toBe(9);
     });
 
     it("should handle d6 as 1d6", () => {
@@ -122,6 +149,14 @@ describe("DiceFormulaService", () => {
       // The 2 should be dropped (lowest), keeping 4 and 5
       expect(result.displayString).toBe("[4] + ~~[2]~~ + [5]");
       expect(result.total).toBe(9); // 4 + 5 = 9
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.advantageLevel).toBe(1);
+      expect(result.diceData?.dice).toHaveLength(3);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 4, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 2, kept: false, category: 'dropped' });
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 5, kept: true, category: 'normal' });
     });
 
     it("should handle disadvantage correctly", () => {
@@ -171,6 +206,14 @@ describe("DiceFormulaService", () => {
 
       expect(result.displayString).toBe("[6] + [6] + [3]");
       expect(result.total).toBe(15);
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.criticalHits).toBe(2); // Initial crit + one exploded crit
+      expect(result.diceData?.dice).toHaveLength(3);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 6, kept: true, category: 'critical' });
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 3, kept: true, category: 'critical' });
     });
 
     it("should handle vicious on critical hit", () => {
@@ -187,6 +230,14 @@ describe("DiceFormulaService", () => {
 
       expect(result.displayString).toBe("[6] + [3] + [4]");
       expect(result.total).toBe(13); // 6 + 3 + 4
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.criticalHits).toBe(1); // Only the initial crit
+      expect(result.diceData?.dice).toHaveLength(3);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 3, kept: true, category: 'critical' });
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 4, kept: true, category: 'vicious' });
     });
 
     it("should handle vicious with multiple exploding crits", () => {
@@ -236,8 +287,26 @@ describe("DiceFormulaService", () => {
       // Note: Only 3 dice total, vicious die doesn't trigger another roll
     });
 
-    it("should handle fumbles", () => {
-      // Roll 2d6, first die is 1 (fumble)
+    it("should handle fumbles on d20", () => {
+      // Roll 1d20, first die is 1 (fumble)
+      (diceService.rollSingleDie as any).mockReturnValueOnce(1);
+
+      const result = diceFormulaService.evaluateDiceFormula("1d20 + 3", {
+        allowFumbles: true,
+      });
+
+      expect(result.displayString).toBe("[1] + 3");
+      expect(result.total).toBe(0); // Fumble results in 0 total
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.isFumble).toBe(true);
+      expect(result.diceData?.dice).toHaveLength(1);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: 'fumble' });
+    });
+    
+    it("should not fumble on non-d20 dice", () => {
+      // Roll 2d6, first die is 1 (but not a d20)
       (diceService.rollSingleDie as any).mockReturnValueOnce(1).mockReturnValueOnce(5);
 
       const result = diceFormulaService.evaluateDiceFormula("2d6 + 3", {
@@ -245,7 +314,13 @@ describe("DiceFormulaService", () => {
       });
 
       expect(result.displayString).toBe("[1] + [5] + 3");
-      expect(result.total).toBe(0); // Fumble results in 0 total
+      expect(result.total).toBe(9); // Not a fumble since it's not d20
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.isFumble).toBe(false);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 5, kept: true, category: 'normal' });
     });
 
     it("should check first kept die for critical/fumble with advantage", () => {
@@ -277,6 +352,14 @@ describe("DiceFormulaService", () => {
 
       expect(result.displayString).toBe("[3] [2] = 32");
       expect(result.total).toBe(32);
+      
+      // Check diceData
+      expect(result.diceData).toBeDefined();
+      expect(result.diceData?.isDoubleDigit).toBe(true);
+      expect(result.diceData?.dice).toHaveLength(2);
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 3, size: 4, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 2, size: 4, kept: true, category: 'normal' });
+      expect(result.diceData?.total).toBe(32);
     });
 
     it("should roll d66 correctly", () => {

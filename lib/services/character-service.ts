@@ -1496,9 +1496,7 @@ export class CharacterService implements ICharacterService {
    * Perform weapon attack with automatic action deduction
    */
   async performAttack(
-    weaponName: string,
-    damage: string,
-    attributeModifier: number,
+    weapon: WeaponItem,
     advantageLevel: number,
   ): Promise<void> {
     if (!this._character) return;
@@ -1511,24 +1509,44 @@ export class CharacterService implements ICharacterService {
       return;
     }
 
-    try {
-      // Roll the attack using dice service
-      const diceService = getDiceService();
-      const rollResult = diceService.rollAttack(damage, attributeModifier, advantageLevel);
+    // Validate weapon is equipped
+    if (!weapon.equipped) {
+      console.error(`Weapon ${weapon.name} is not equipped`);
+      return;
+    }
 
-      // Log the attack
-      const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? "+" : "") + attributeModifier : ""}`;
-      const logEntry = this.logService.createDiceRollEntry(
-        rollResult.dice,
-        rollResult.droppedDice,
-        attributeModifier,
-        rollResult.total,
-        `${weaponName} attack`,
-        rollExpression,
+    try {
+      // Use dice formula service to evaluate the damage formula
+      // The formula should include any attribute modifiers directly (e.g., "1d6 + STR")
+      const { diceFormulaService } = await import("./dice-formula-service");
+      const rollResult = diceFormulaService.evaluateDiceFormula(weapon.damage, {
         advantageLevel,
-        rollResult.isMiss,
-        rollResult.criticalHits,
+        allowCriticals: true,
+        allowFumbles: true,
+        vicious: weapon.vicious || false,
+      });
+
+      // Create a proper dice roll log entry
+      const logDescription = `${weapon.name} attack`;
+      
+      // Create a dice roll entry using the activity log service
+      const logEntry = this.logService.createDiceRollEntry(
+        [], // Legacy dice format - we use diceData now
+        undefined, // No dropped dice info in legacy format
+        0, // Modifier is included in the formula
+        rollResult.total,
+        logDescription,
+        rollResult.substitutedFormula || weapon.damage,
+        advantageLevel,
+        false, // TODO: Get fumble info from rollResult
+        0, // TODO: Get critical count from rollResult
       );
+      
+      // Add the dice data for rich display
+      if (rollResult.diceData) {
+        (logEntry as any).diceData = rollResult.diceData;
+      }
+      
       await this.logService.addLogEntry(logEntry);
 
       // Deduct action if in encounter (weapons always cost 1 action)

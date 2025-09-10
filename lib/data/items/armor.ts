@@ -38,7 +38,7 @@ export const MUNDANE_ARMOR: RepositoryArmorItem[] = [
       name: "Major Enchantment",
       type: "armor",
       size: 1,
-      armor: 4, // 4+DEX from table
+      armor: 4, // 4 + DEX from table
       maxDexBonus: 10,
       isMainArmor: true,
       cost: { gold: 1000 },
@@ -70,7 +70,7 @@ export const MUNDANE_ARMOR: RepositoryArmorItem[] = [
       name: "Rusty Mail",
       type: "armor",
       size: 4,
-      armor: 6, // 6+DEX(max 2) from table
+      armor: 6, // 6 + DEX(max 2) from table
       maxDexBonus: 2,
       isMainArmor: true,
       cost: { gold: 15 },
@@ -147,7 +147,7 @@ export const MUNDANE_ARMOR: RepositoryArmorItem[] = [
       name: "Ox Hide",
       type: "armor",
       size: 2,
-      armor: 4, // 4+DEX from table
+      armor: 4, // 4 + DEX from table
       maxDexBonus: 10,
       isMainArmor: true,
       cost: { gold: 45 },
@@ -177,7 +177,7 @@ export const MUNDANE_ARMOR: RepositoryArmorItem[] = [
       name: "Wyrmhide (Req. 1 STR)",
       type: "armor",
       size: 2,
-      armor: 6, // 6+DEX from table
+      armor: 6, // 6 + DEX from table
       maxDexBonus: 10,
       isMainArmor: true,
       cost: { gold: 2000 },

@@ -37,6 +37,7 @@ export function useActivityLog(): UseActivityLogReturn {
     try {
       // Persist to storage
       await activityLogService.addLogEntry(entry);
+      
       // Update local state
       setLogEntries((prevEntries) => [entry, ...prevEntries.slice(0, 99)]); // Keep only 100 entries
     } catch (error) {

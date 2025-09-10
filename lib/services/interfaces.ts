@@ -81,7 +81,7 @@ export interface IActivityLog {
     currentUses: number,
     maxUses: number,
   ): LogEntry;
-  createInitiativeEntry(rollTotal: number, actionsGranted: number): LogEntry;
+  createInitiativeEntry(actionsGranted: number, rollExpression?: string, diceData?: any): LogEntry;
   createSafeRestEntry(
     healingAmount: number,
     hitDiceRestored: number,
@@ -163,9 +163,7 @@ export interface ICharacterService {
   endEncounter(): Promise<void>;
   endTurn(): Promise<void>;
   performAttack(
-    weaponName: string,
-    damage: string,
-    attributeModifier: number,
+    weapon: import("../schemas/inventory").WeaponItem,
     advantageLevel: number,
   ): Promise<void>;
   performUseAbility(abilityId: string, variableResourceAmount?: number): Promise<void>;

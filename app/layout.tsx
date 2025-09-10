@@ -1,5 +1,3 @@
-import { Toaster } from "sonner";
-
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -21,7 +19,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
-        <Toaster />
       </body>
     </html>
   );

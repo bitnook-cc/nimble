@@ -1,10 +1,13 @@
 export type ToastType = "success" | "error" | "warning" | "info";
 
+import { DiceRollData } from "../schemas/dice";
+
 export interface Toast {
   id: string;
   type: ToastType;
   title: string;
   description?: string;
+  diceData?: DiceRollData;
   duration?: number;
 }
 
@@ -67,6 +70,16 @@ export class ToastService {
 
   showInfo(title: string, description?: string): void {
     this.addToast({ type: "info", title, description });
+  }
+
+  showDiceRoll(title: string, diceData?: DiceRollData, description?: string): void {
+    this.addToast({ 
+      type: "info", 
+      title, 
+      description,
+      diceData,
+      duration: 7000 // Slightly longer for dice rolls
+    });
   }
 
   clearAllToasts(): void {

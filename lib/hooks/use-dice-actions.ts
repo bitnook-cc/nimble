@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { AttributeName, SkillName } from "@/lib/schemas/character";
+import { diceFormulaService } from "@/lib/services/dice-formula-service";
 import { getActivityLog, getDiceService } from "@/lib/services/service-factory";
 
 import { useActivityLog } from "./use-activity-log";
@@ -119,10 +120,25 @@ export function useDiceActions(): UseDiceActionsReturn {
   const rollInitiative = useCallback(
     async (totalModifier: number, advantageLevel: number) => {
       try {
-        const rollResult = diceService.rollAttributeCheck(totalModifier, advantageLevel);
+        // Build the formula string
+        const formula = totalModifier >= 0 
+          ? `1d20 + ${totalModifier}`
+          : `1d20 - ${Math.abs(totalModifier)}`;
+        
+        // Roll using dice formula service (no crits/fumbles for initiative)
+        const rollResult = diceFormulaService.evaluateDiceFormula(formula, {
+          advantageLevel,
+          allowCriticals: false,
+          allowFumbles: false,
+        });
+        
         const actionsGranted = Math.max(1, rollResult.total);
 
-        const logEntry = activityLogService.createInitiativeEntry(rollResult.total, actionsGranted);
+        const logEntry = activityLogService.createInitiativeEntry(
+          actionsGranted,
+          formula,
+          rollResult.diceData
+        );
         await addLogEntry(logEntry);
 
         return { rollTotal: rollResult.total, actionsGranted };
@@ -131,7 +147,7 @@ export function useDiceActions(): UseDiceActionsReturn {
         return { rollTotal: 1, actionsGranted: 1 };
       }
     },
-    [diceService, activityLogService, addLogEntry],
+    [activityLogService, addLogEntry],
   );
 
   const attack = useCallback(

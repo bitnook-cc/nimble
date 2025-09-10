@@ -1,4 +1,4 @@
-import { DiceType } from "../schemas/dice";
+import { DiceType, CategorizedDie, DiceRollData, DiceCategory } from "../schemas/dice";
 import { 
   OPERATOR_REGEX,
   sanitizeExpression,
@@ -16,6 +16,7 @@ export interface DiceFormulaOptions {
 
 export interface DiceFormulaResult {
   displayString: string; // e.g., "[2] + ~~[1]~~ + [4] + 2"
+  diceData?: DiceRollData; // Data for rich display rendering
   total: number; // e.g., 9
   formula: string; // Original formula for reference
   substitutedFormula?: string; // Formula after variable substitution
@@ -69,10 +70,27 @@ export class DiceFormulaService {
 
       // Step 7: Evaluate the mathematical expression
       const total = this.evaluateExpression(expressionWithDice.expression);
+      const finalTotal = options.allowFumbles && rollResult.isFumble ? 0 : total;
+
+      // Create dice data for rich display
+      const beforeDice = substituted.substring(0, diceNotation.position).trim();
+      const afterDice = substituted.substring(diceNotation.position + diceNotation.length).trim();
+      
+      const diceData: DiceRollData = {
+        dice: rollResult.allDice,
+        beforeExpression: beforeDice || undefined,
+        afterExpression: afterDice || undefined,
+        total: finalTotal,
+        isDoubleDigit: rollResult.isDoubleDigit,
+        isFumble: rollResult.isFumble,
+        advantageLevel: options.advantageLevel || 0,
+        criticalHits: rollResult.criticalHits || 0,
+      };
 
       return {
         displayString: expressionWithDice.display,
-        total: options.allowFumbles && rollResult.isFumble ? 0 : total,
+        diceData,
+        total: finalTotal,
         formula,
         substitutedFormula: hasVariables ? substituted : undefined,
       };
@@ -119,11 +137,12 @@ export class DiceFormulaService {
     notation: ParsedDiceNotation,
     options: DiceFormulaOptions,
   ): {
-    allDice: { value: number; kept: boolean }[];
+    allDice: CategorizedDie[];
     keptSum: number;
     isCritical: boolean;
     isFumble: boolean;
     isDoubleDigit?: boolean;
+    criticalHits?: number;
   } {
     // Check if this is a double-digit die
     const isDoubleDigit = this.doubleDigitDiceTypes.includes(notation.sides as any);
@@ -166,32 +185,51 @@ export class DiceFormulaService {
       keptIndices = new Set(diceWithIndices.map((d) => d.index));
     }
 
-    // Build result maintaining original roll order
-    const allDice = rolledDice.map((value, index) => ({
-      value,
-      kept: keptIndices.has(index),
-    }));
+    // Build result maintaining original roll order with categories
+    const allDice: CategorizedDie[] = rolledDice.map((value, index) => {
+      const isKept = keptIndices.has(index);
+      // Check if this is the first kept die and it's a nat 1 (fumble)
+      const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
+      const isFumble = isFirstKept && value === 1 && notation.sides === 20 && options.allowFumbles === true;
+      
+      return {
+        value,
+        size: notation.sides,
+        kept: isKept,
+        category: isFumble ? 'fumble' : (isKept ? 'normal' : 'dropped'),
+        index,
+      };
+    });
 
     // Find the first kept die for critical/fumble checking
     const firstKeptDie = allDice.find((d) => d.kept);
     let isCritical = false;
     let isFumble = false;
+    let criticalHits = 0;
 
     if (firstKeptDie) {
-      isFumble = options.allowFumbles === true && firstKeptDie.value === 1;
+      isFumble = firstKeptDie.category === 'fumble';
       isCritical = options.allowCriticals === true && firstKeptDie.value === notation.sides;
 
       // Handle exploding criticals
       if (isCritical && options.allowCriticals) {
+        criticalHits = 1; // Count the initial critical
         let consecutiveCrits = 0;
         const maxCrits = 10; // Reasonable limit to prevent infinite loops
 
         while (consecutiveCrits < maxCrits) {
           const newRoll = diceService.rollSingleDie(notation.sides);
-          allDice.push({ value: newRoll, kept: true });
+          allDice.push({ 
+            value: newRoll,
+            size: notation.sides,
+            kept: true,
+            category: 'critical',
+            index: allDice.length
+          });
 
           if (newRoll === notation.sides) {
             consecutiveCrits++;
+            criticalHits++; // Count each exploded critical
           } else {
             break; // Stop rolling if we didn't get another critical
           }
@@ -200,7 +238,13 @@ export class DiceFormulaService {
         // Add vicious die if enabled (non-exploding extra die on crit)
         if (options.vicious === true) {
           const viciousRoll = diceService.rollSingleDie(notation.sides);
-          allDice.push({ value: viciousRoll, kept: true });
+          allDice.push({ 
+            value: viciousRoll,
+            size: notation.sides,
+            kept: true,
+            category: 'vicious',
+            index: allDice.length
+          });
           // Note: vicious die cannot explode, so we don't check for another crit
         }
       }
@@ -208,7 +252,7 @@ export class DiceFormulaService {
 
     const keptSum = allDice.filter((d) => d.kept).reduce((sum, d) => sum + d.value, 0);
 
-    return { allDice, keptSum, isCritical, isFumble };
+    return { allDice, keptSum, isCritical, isFumble, criticalHits };
   }
 
   /**
@@ -219,7 +263,7 @@ export class DiceFormulaService {
     notation: ParsedDiceNotation,
     options: DiceFormulaOptions,
   ): {
-    allDice: { value: number; kept: boolean }[];
+    allDice: CategorizedDie[];
     keptSum: number;
     isCritical: boolean;
     isFumble: boolean;
@@ -272,16 +316,28 @@ export class DiceFormulaService {
     
     // Build the allDice array in the order rolled
     // First all tens dice, then all ones dice
-    const allDice: { value: number; kept: boolean }[] = [];
+    const allDice: CategorizedDie[] = [];
     
     // Add tens dice
     tensRolls.forEach((value, index) => {
-      allDice.push({ value, kept: index === keptTensIndex });
+      allDice.push({ 
+        value,
+        size: baseDie as DiceType,
+        kept: index === keptTensIndex,
+        category: index === keptTensIndex ? 'normal' : 'dropped',
+        index: allDice.length
+      });
     });
     
     // Add ones dice
     onesRolls.forEach((value, index) => {
-      allDice.push({ value, kept: index === keptOnesIndex });
+      allDice.push({ 
+        value,
+        size: baseDie as DiceType,
+        kept: index === keptOnesIndex,
+        category: index === keptOnesIndex ? 'normal' : 'dropped',
+        index: allDice.length
+      });
     });
     
     // Calculate the final result
@@ -305,11 +361,12 @@ export class DiceFormulaService {
     expression: string,
     notation: ParsedDiceNotation,
     rollResult: {
-      allDice: { value: number; kept: boolean }[];
+      allDice: CategorizedDie[];
       keptSum: number;
       isCritical: boolean;
       isFumble: boolean;
       isDoubleDigit?: boolean;
+      criticalHits?: number;
     },
   ): { expression: string; display: string } {
     // Build the dice display string
@@ -333,7 +390,7 @@ export class DiceFormulaService {
   /**
    * Format dice for display with advantage/disadvantage strikethrough
    */
-  private formatDiceDisplay(allDice: { value: number; kept: boolean }[]): string {
+  private formatDiceDisplay(allDice: CategorizedDie[]): string {
     // Format each die in its original roll order
     const formattedDice = allDice.map((die) => {
       const dieStr = `[${die.value}]`;
@@ -348,7 +405,7 @@ export class DiceFormulaService {
    * Format double-digit dice display
    * Shows the individual dice with the final result
    */
-  private formatDoubleDigitDiceDisplay(allDice: { value: number; kept: boolean }[], result: number): string {
+  private formatDoubleDigitDiceDisplay(allDice: CategorizedDie[], result: number): string {
     // Format all dice (tens first, then ones)
     const formattedDice = allDice.map((die) => {
       const dieStr = `[${die.value}]`;

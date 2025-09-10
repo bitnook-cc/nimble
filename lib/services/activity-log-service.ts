@@ -1,6 +1,4 @@
-import { toast } from "sonner";
-
-import { createElement } from "react";
+import { toastService } from "./toast-service";
 
 import { gameConfig } from "../config/game-config";
 import { logEntrySchema } from "../schemas/activity-log";
@@ -66,114 +64,78 @@ export class ActivityLogService {
     this.showToastForLogEntry(newEntry);
   }
 
-  private createDiceDisplayComponent(rollEntry: DiceRollEntry) {
-    // If no advantage/disadvantage, show normally
-    if (!rollEntry.advantageLevel || rollEntry.advantageLevel === 0) {
-      const diceText = rollEntry.dice
-        .map((d) => `${d.result}${d.isCritical ? "*" : ""}`)
-        .join(", ");
-      return createElement("span", { className: "font-mono" }, diceText);
-    }
-
-    // For advantage/disadvantage, combine all dice and mark dropped ones
-    const allDice = [...rollEntry.dice, ...(rollEntry.droppedDice || [])];
-    const droppedSet = new Set((rollEntry.droppedDice || []).map((d) => `${d.result}-${d.type}`));
-
-    const diceElements = allDice.map((d, index) => {
-      const result = `${d.result}${d.isCritical ? "*" : ""}`;
-      const diceKey = `${d.result}-${d.type}`;
-      const isDropped = droppedSet.has(diceKey);
-
-      return createElement(
-        "span",
-        {
-          key: index,
-          className: isDropped ? "line-through text-gray-500" : "",
-        },
-        result + (index < allDice.length - 1 ? " " : ""),
-      );
-    });
-
-    return createElement("span", { className: "font-mono" }, ...diceElements);
-  }
-
   private showToastForLogEntry(entry: LogEntry): void {
     const { description } = entry;
 
     switch (entry.type) {
       case "roll":
         const rollEntry = entry as DiceRollEntry;
-        const modifierText =
-          rollEntry.modifier !== 0
-            ? ` ${rollEntry.modifier >= 0 ? "+" : ""}${rollEntry.modifier}`
-            : "";
-
-        const detailedComponent = createElement(
-          "div",
-          { className: "font-mono" },
-          `${rollEntry.rollExpression}: [`,
-          this.createDiceDisplayComponent(rollEntry),
-          `]${modifierText} = ${rollEntry.total}`,
-        );
-
-        if (rollEntry.isMiss) {
-          toast.error(`${description}: MISS`, { description: detailedComponent });
-        } else if (rollEntry.criticalHits && rollEntry.criticalHits > 0) {
-          const critComponent = createElement(
-            "div",
-            {},
-            detailedComponent,
-            createElement(
-              "div",
-              { className: "text-yellow-600 font-semibold" },
-              ` (${rollEntry.criticalHits} crit${rollEntry.criticalHits > 1 ? "s" : ""}!)`,
-            ),
+        // Use toast service with dice data for consistent display
+        if (rollEntry.diceData) {
+          toastService.showDiceRoll(
+            description,
+            rollEntry.diceData
           );
-          toast.success(`${description}: ${rollEntry.total}`, { description: critComponent });
         } else {
-          toast.info(`${description}: ${rollEntry.total}`, { description: detailedComponent });
+          // Fallback for rolls without diceData
+          if (rollEntry.isMiss) {
+            toastService.showError(`${description}: MISS`);
+          } else if (rollEntry.criticalHits && rollEntry.criticalHits > 0) {
+            toastService.showSuccess(`${description}: ${rollEntry.total} (${rollEntry.criticalHits} crit${rollEntry.criticalHits > 1 ? "s" : ""}!)`);
+          } else {
+            toastService.showInfo(`${description}: ${rollEntry.total}`);
+          }
         }
         break;
 
       case "damage":
-        toast.error(description);
+        toastService.showError(description);
         break;
 
       case "healing":
-        toast.success(description);
+        toastService.showSuccess(description);
         break;
 
       case "temp_hp":
-        toast.info(description);
+        toastService.showInfo(description);
         break;
 
       case "initiative":
-        toast.info(description);
+        const initiativeEntry = entry as InitiativeEntry;
+        if (initiativeEntry.diceData) {
+          const actionsText = `${initiativeEntry.actionsGranted} ${initiativeEntry.actionsGranted === 1 ? 'action' : 'actions'}`;
+          toastService.showDiceRoll(
+            `Initiative Roll (${actionsText})`,
+            initiativeEntry.diceData
+          );
+        } else {
+          toastService.showInfo(description);
+        }
         break;
 
       case "ability_usage":
-        toast.info(description);
+        toastService.showInfo(description);
         break;
 
       case "safe_rest":
-        toast.success(description);
+        toastService.showSuccess(description);
         break;
 
       case "resource":
         const resourceEntry = entry as ResourceUsageEntry;
         if (resourceEntry.action === "spent") {
-          toast.warning(description);
+          toastService.showWarning(description);
         } else {
-          toast.success(description);
+          toastService.showSuccess(description);
         }
         break;
 
       case "spell_cast":
-        toast.info(description);
+        toastService.showInfo(description);
         break;
 
       default:
-        toast(description);
+        toastService.showInfo(description);
     }
   }
 
@@ -246,14 +208,19 @@ export class ActivityLogService {
     };
   }
 
-  createInitiativeEntry(total: number, actionsGranted: number): InitiativeEntry {
+  createInitiativeEntry(
+    actionsGranted: number,
+    rollExpression?: string,
+    diceData?: any
+  ): InitiativeEntry {
     return {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "initiative",
-      description: `Initiative ${total} - Combat started with ${actionsGranted} actions`,
-      total,
+      description: `Initiative roll`,
       actionsGranted,
+      rollExpression,
+      diceData,
     };
   }
 

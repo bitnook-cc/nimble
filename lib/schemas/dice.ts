@@ -36,7 +36,34 @@ export const singleDieSchema = z.object({
   isCritical: z.boolean().optional(),
 });
 
+// Dice category enum for reuse
+export const diceCategorySchema = z.enum(['normal', 'critical', 'vicious', 'dropped', 'fumble']);
+
+// Schema for categorized dice data
+export const categorizedDieSchema = z.object({
+  value: z.number(),
+  size: z.number(),
+  kept: z.boolean(),
+  category: diceCategorySchema,
+  index: z.number(),
+});
+
+// Schema for dice roll data
+export const diceRollDataSchema = z.object({
+  dice: z.array(categorizedDieSchema),
+  beforeExpression: z.string().optional(),
+  afterExpression: z.string().optional(),
+  total: z.number(),
+  isDoubleDigit: z.boolean().optional(),
+  isFumble: z.boolean().optional(),
+  advantageLevel: z.number().optional(),
+  criticalHits: z.number().optional(),
+});
+
 // Export inferred types
 export type DiceType = z.infer<typeof diceTypeSchema>;
 export type DiceExpression = z.infer<typeof diceExpressionSchema>;
 export type SingleDie = z.infer<typeof singleDieSchema>;
+export type DiceCategory = z.infer<typeof diceCategorySchema>;
+export type CategorizedDie = z.infer<typeof categorizedDieSchema>;
+export type DiceRollData = z.infer<typeof diceRollDataSchema>;

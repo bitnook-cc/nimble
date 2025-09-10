@@ -29,7 +29,7 @@ const lyricalWeaponry: ClassFeature[] = [
     level: 4,
     name: "Inspiring Anthem",
     description:
-      "(1/encounter) Action: Grant all friendly Dying creatures who can hear you 1d4+WIL+1 actions.",
+      "(1/encounter) Action: Grant all friendly Dying creatures who can hear you 1d4 + WIL+1 actions.",
     effects: [
       {
         id: "inspiring-anthem-0",
@@ -37,7 +37,7 @@ const lyricalWeaponry: ClassFeature[] = [
         ability: {
           id: "inspiring-anthem",
           name: "Inspiring Anthem",
-          description: "Grant all friendly Dying creatures who can hear you 1d4+WIL+1 actions.",
+          description: "Grant all friendly Dying creatures who can hear you 1d4 + WIL+1 actions.",
           type: "action",
           frequency: "per_encounter",
           maxUses: { type: "fixed", value: 1 },
@@ -174,7 +174,7 @@ const songweaverFeatures: ClassFeature[] = [
           id: "vicious-mockery",
           name: "Vicious Mockery",
           description:
-            "Action: Range: 12. Damage: 1d4+INT psychic (ignoring armor). On hit: the target is Taunted during their next turn. High Levels: +2 damage every 5 levels.",
+            "Action: Range: 12. Damage: 1d4 + INT psychic (ignoring armor). On hit: the target is Taunted during their next turn. High Levels: +2 damage every 5 levels.",
           type: "spell",
           school: "wind",
           tier: 0,

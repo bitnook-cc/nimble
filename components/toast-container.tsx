@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { useToastService } from "@/lib/hooks/use-toast-service";
 import { Toast } from "@/lib/services/toast-service";
+import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "@/lib/utils/dice-display-components";
 
 export function ToastContainer() {
   const { toasts, removeToast } = useToastService();
@@ -61,8 +62,27 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
         {getIcon()}
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-sm">{toast.title}</h4>
-          {toast.description && (
-            <p className="text-sm text-muted-foreground mt-1">{toast.description}</p>
+          {toast.diceData ? (
+            <div className="mt-1">
+              {toast.diceData.isDoubleDigit ? (
+                <DoubleDigitDiceDisplay 
+                  dice={toast.diceData.dice}
+                  result={toast.diceData.total}
+                />
+              ) : (
+                <DiceFormulaDisplay 
+                  dice={toast.diceData.dice}
+                  beforeDice={toast.diceData.beforeExpression}
+                  afterDice={toast.diceData.afterExpression}
+                  total={toast.diceData.total}
+                  isFumble={toast.diceData.isFumble}
+                />
+              )}
+            </div>
+          ) : (
+            toast.description && (
+              <p className="text-sm text-muted-foreground mt-1">{toast.description}</p>
+            )
           )}
         </div>
         <Button

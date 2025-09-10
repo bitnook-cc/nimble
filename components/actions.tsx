@@ -43,14 +43,8 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
     (ability): ability is ActionAbilityDefinition => ability.type === "action",
   );
 
-  const getAttributeModifier = (attributeName?: AttributeName): number => {
-    if (!attributeName) return 0;
-    return character._attributes[attributeName];
-  };
 
   const handleAttack = async (weapon: WeaponItem) => {
-    if (!weapon.damage) return;
-
     // Check if we have enough actions for weapon attacks (always cost 1 action)
     if (character.inEncounter && character.actionTracker.current < 1) {
       console.error(
@@ -59,8 +53,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
       return;
     }
 
-    const attributeModifier = getAttributeModifier(weapon.attribute);
-    await performAttack(weapon.name, weapon.damage, attributeModifier, advantageLevel);
+    await performAttack(weapon, advantageLevel);
   };
 
   const handleUseAbility = async (ability: ActionAbilityDefinition) => {
@@ -127,12 +120,10 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {weapons.map((weapon) => {
-              const attributeModifier = getAttributeModifier(weapon.attribute);
-              const hasValidDamage = weapon.damage && weapon.damage.trim() !== "";
               const weaponActionCost = 1; // Weapons always cost 1 action
               const insufficientActions =
                 character.inEncounter && character.actionTracker.current < weaponActionCost;
-              const isDisabled = !hasValidDamage || insufficientActions;
+              const isDisabled = insufficientActions;
 
               return (
                 <Card key={weapon.id} className={insufficientActions ? "opacity-50" : ""}>
@@ -145,15 +136,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                   <CardContent className="space-y-3">
                     <div className="text-center text-sm">
                       <div className="text-muted-foreground">
-                        {weapon.damage || "No damage set"}
-                        {weapon.attribute && (
-                          <span>
-                            {" "}
-                            + {weapon.attribute.slice(0, 3).toUpperCase()} (
-                            {attributeModifier >= 0 ? "+" : ""}
-                            {attributeModifier})
-                          </span>
-                        )}
+                        {weapon.damage}
                       </div>
                       {weapon.properties && weapon.properties.length > 0 && (
                         <div className="text-xs text-muted-foreground mt-1">

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// Import SingleDie type from dice schemas
-import { singleDieSchema } from "./dice";
+// Import dice schemas from central location
+import { singleDieSchema, diceRollDataSchema } from "./dice";
 
 // Base log entry schema
 export const baseLogEntrySchema = z.object({
@@ -22,6 +22,7 @@ export const diceRollEntrySchema = z
     isMiss: z.boolean().optional(),
     criticalHits: z.number().optional(),
     advantageLevel: z.number().optional(),
+    diceData: diceRollDataSchema.optional(), // New field for rich display data
   })
   .merge(baseLogEntrySchema);
 
@@ -55,8 +56,9 @@ export const tempHPEntrySchema = z
 export const initiativeEntrySchema = z
   .object({
     type: z.literal("initiative"),
-    total: z.number(),
     actionsGranted: z.number().positive(),
+    rollExpression: z.string().optional(),
+    diceData: diceRollDataSchema.optional(), // Rich dice display data (includes total)
   })
   .merge(baseLogEntrySchema);
 

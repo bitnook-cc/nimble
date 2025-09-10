@@ -21,7 +21,7 @@ export const itemSchema = z.discriminatedUnion("type", [
     type: z.literal("weapon"),
     equipped: z.boolean().optional(),
     attribute: attributeNameSchema.optional(),
-    damage: z.string().optional(),
+    damage: z.string().min(1), // Required damage formula
     damageType: z.enum(["Slashing", "Piercing", "Bludgeoning"]).optional(),
     vicious: z.boolean().optional(),
     properties: z.array(z.string()).optional(),
