@@ -22,7 +22,6 @@ import {
   UtilitySpellsEffectSelection,
 } from "../schemas/character";
 import { FeaturePool } from "../schemas/class";
-import { SingleDie } from "../schemas/dice";
 import {
   CharacterFeature,
   ClassFeature,
@@ -32,6 +31,7 @@ import { Item } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
+import { DiceFormulaResult } from "./dice-service";
 
 /**
  * Character Storage Interface
@@ -55,15 +55,9 @@ export interface IActivityLog {
   addLogEntry(entry: LogEntry): Promise<void>;
   clearLogEntries(): Promise<void>;
   createDiceRollEntry(
-    dice: SingleDie[],
-    droppedDice: SingleDie[] | undefined,
-    modifier: number,
-    total: number,
     description: string,
-    rollExpression: string,
+    rollResult: DiceFormulaResult,
     advantageLevel?: number,
-    isMiss?: boolean,
-    criticalHits?: number,
   ): LogEntry;
   createHealingEntry(amount: number): LogEntry;
   createDamageEntry(amount: number, targetType: "hp" | "temp_hp"): LogEntry;

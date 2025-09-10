@@ -135,8 +135,10 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       const currentLevel = character.level + i + 1;
 
       // Roll with advantage (roll twice, take the higher)
-      const roll1 = diceService.rollSingleDie(hitDieSize as any);
-      const roll2 = diceService.rollSingleDie(hitDieSize as any);
+      const roll1Result = diceService.evaluateDiceFormula(`1d${hitDieSize}`, {});
+      const roll2Result = diceService.evaluateDiceFormula(`1d${hitDieSize}`, {});
+      const roll1 = roll1Result.total;
+      const roll2 = roll2Result.total;
       const result = Math.max(roll1, roll2);
 
       rolls.push({

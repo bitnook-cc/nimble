@@ -2,6 +2,7 @@ import { toastService } from "./toast-service";
 
 import { gameConfig } from "../config/game-config";
 import { logEntrySchema } from "../schemas/activity-log";
+import { DiceFormulaResult } from "./dice-service";
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
@@ -71,21 +72,10 @@ export class ActivityLogService {
       case "roll":
         const rollEntry = entry as DiceRollEntry;
         // Use toast service with dice data for consistent display
-        if (rollEntry.diceData) {
-          toastService.showDiceRoll(
-            description,
-            rollEntry.diceData
-          );
-        } else {
-          // Fallback for rolls without diceData
-          if (rollEntry.isMiss) {
-            toastService.showError(`${description}: MISS`);
-          } else if (rollEntry.criticalHits && rollEntry.criticalHits > 0) {
-            toastService.showSuccess(`${description}: ${rollEntry.total} (${rollEntry.criticalHits} crit${rollEntry.criticalHits > 1 ? "s" : ""}!)`);
-          } else {
-            toastService.showInfo(`${description}: ${rollEntry.total}`);
-          }
-        }
+        toastService.showDiceRoll(
+          description,
+          rollEntry.diceData
+        );
         break;
 
       case "damage":
@@ -145,30 +135,25 @@ export class ActivityLogService {
 
   // Helper methods to create specific log entries
   createDiceRollEntry(
-    dice: any[],
-    droppedDice: any[] | undefined,
-    modifier: number,
-    total: number,
     description: string,
-    rollExpression: string,
+    rollResult: DiceFormulaResult,
     advantageLevel?: number,
-    isMiss?: boolean,
-    criticalHits?: number,
   ): DiceRollEntry {
-    return {
+    if (!rollResult.diceData) {
+      throw new Error("DiceFormulaResult must include diceData");
+    }
+    
+    const entry: DiceRollEntry = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "roll",
-      dice,
-      droppedDice: droppedDice?.length ? droppedDice : undefined,
-      modifier,
-      total,
       description,
-      rollExpression,
+      rollExpression: rollResult.substitutedFormula || rollResult.formula,
       advantageLevel: advantageLevel !== 0 ? advantageLevel : undefined,
-      isMiss,
-      criticalHits: criticalHits && criticalHits > 0 ? criticalHits : undefined,
+      diceData: rollResult.diceData,
     };
+    
+    return entry;
   }
 
   createDamageEntry(amount: number, targetType: "hp" | "temp_hp" = "hp"): DamageEntry {

@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { DiceType } from "@/lib/schemas/dice";
+import { activityLogService } from "@/lib/services/activity-log-service";
 import { diceService } from "@/lib/services/dice-service";
 
 import { Button } from "./ui/button";
@@ -44,15 +45,6 @@ export function RollPanel() {
       return;
     }
 
-    const allDice = [];
-    let totalSum = 0;
-
-    for (const poolDie of dicePool) {
-      const { dice } = diceService.rollBasicDice(1, poolDie.type);
-      allDice.push(...dice);
-      totalSum += dice.reduce((sum, die) => sum + die.result, 0);
-    }
-
     // Create description showing dice types
     const diceTypeCounts = dicePool.reduce(
       (acc, die) => {
@@ -62,23 +54,25 @@ export function RollPanel() {
       {} as Record<DiceType, number>,
     );
 
-    const diceDescription = Object.entries(diceTypeCounts)
+    const diceFormula = Object.entries(diceTypeCounts)
       .map(([type, count]) => `${count}d${type}`)
       .join(" + ");
 
-    addLogEntry({
-      id: crypto.randomUUID(),
-      type: "roll",
-      timestamp: new Date(),
-      description: `Custom roll: ${diceDescription}`,
-      dice: allDice,
-      droppedDice: [],
-      total: totalSum,
-      modifier: 0,
-      rollExpression: diceDescription,
-      criticalHits: 0,
-      isMiss: false,
+    // Use dice formula service to roll
+    const rollResult = diceService.evaluateDiceFormula(diceFormula, {
+      advantageLevel: 0,
+      allowCriticals: true,
+      allowFumbles: true,
     });
+
+    // Create log entry using the new signature
+    const logEntry = activityLogService.createDiceRollEntry(
+      `Custom roll`,
+      rollResult,
+      0,
+    );
+
+    addLogEntry(logEntry);
 
     // Clear pool after rolling
     clearPool();

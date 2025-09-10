@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 
 import { AttributeName, SkillName } from "@/lib/schemas/character";
-import { diceFormulaService } from "@/lib/services/dice-formula-service";
-import { getActivityLog, getDiceService } from "@/lib/services/service-factory";
+import { diceService } from "@/lib/services/dice-service";
+import { getActivityLog } from "@/lib/services/service-factory";
 
 import { useActivityLog } from "./use-activity-log";
 
@@ -39,7 +39,6 @@ export interface UseDiceActionsReturn {
  * Consolidated from duplicate implementation in use-dice-service.ts
  */
 export function useDiceActions(): UseDiceActionsReturn {
-  const diceService = getDiceService();
   const activityLogService = getActivityLog();
   const { addLogEntry } = useActivityLog();
 
@@ -47,15 +46,17 @@ export function useDiceActions(): UseDiceActionsReturn {
     async (attributeName: AttributeName, value: number, advantageLevel: number) => {
       try {
         const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
-        const rollResult = diceService.rollAttributeCheck(value, advantageLevel);
-        const rollExpression = `d20${value !== 0 ? (value >= 0 ? "+" : "") + value : ""}`;
+        const formula = value >= 0 ? `1d20 + ${value}` : `1d20 - ${Math.abs(value)}`;
+        
+        const rollResult = diceService.evaluateDiceFormula(formula, {
+          advantageLevel,
+          allowCriticals: false, // Attribute checks don't crit
+          allowFumbles: false, // Attribute checks don't fumble
+        });
+        
         const logEntry = activityLogService.createDiceRollEntry(
-          rollResult.dice,
-          rollResult.droppedDice,
-          value,
-          rollResult.total,
           `${attributeLabel} check`,
-          rollExpression,
+          rollResult,
           advantageLevel,
         );
         await addLogEntry(logEntry);
@@ -63,22 +64,24 @@ export function useDiceActions(): UseDiceActionsReturn {
         console.error("Failed to roll dice:", error);
       }
     },
-    [diceService, activityLogService, addLogEntry],
+    [activityLogService, addLogEntry],
   );
 
   const rollSave = useCallback(
     async (attributeName: AttributeName, value: number, advantageLevel: number) => {
       try {
         const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
-        const rollResult = diceService.rollAttributeCheck(value, advantageLevel);
-        const rollExpression = `d20${value !== 0 ? (value >= 0 ? "+" : "") + value : ""}`;
+        const formula = value >= 0 ? `1d20 + ${value}` : `1d20 - ${Math.abs(value)}`;
+        
+        const rollResult = diceService.evaluateDiceFormula(formula, {
+          advantageLevel,
+          allowCriticals: false, // Saves don't crit
+          allowFumbles: false, // Saves don't fumble
+        });
+        
         const logEntry = activityLogService.createDiceRollEntry(
-          rollResult.dice,
-          rollResult.droppedDice,
-          value,
-          rollResult.total,
           `${attributeLabel} save`,
-          rollExpression,
+          rollResult,
           advantageLevel,
         );
         await addLogEntry(logEntry);
@@ -86,7 +89,7 @@ export function useDiceActions(): UseDiceActionsReturn {
         console.error("Failed to roll dice:", error);
       }
     },
-    [diceService, activityLogService, addLogEntry],
+    [activityLogService, addLogEntry],
   );
 
   const rollSkill = useCallback(
@@ -98,15 +101,19 @@ export function useDiceActions(): UseDiceActionsReturn {
     ) => {
       try {
         const totalModifier = attributeValue + skillModifier;
-        const rollResult = diceService.rollAttributeCheck(totalModifier, advantageLevel);
-        const rollExpression = `d20${totalModifier !== 0 ? (totalModifier >= 0 ? "+" : "") + totalModifier : ""}`;
+        const formula = totalModifier >= 0 
+          ? `1d20 + ${totalModifier}`
+          : `1d20 - ${Math.abs(totalModifier)}`;
+        
+        const rollResult = diceService.evaluateDiceFormula(formula, {
+          advantageLevel,
+          allowCriticals: false, // Skill checks don't crit
+          allowFumbles: false, // Skill checks don't fumble
+        });
+        
         const logEntry = activityLogService.createDiceRollEntry(
-          rollResult.dice,
-          rollResult.droppedDice,
-          totalModifier,
-          rollResult.total,
           `${skillName} skill check`,
-          rollExpression,
+          rollResult,
           advantageLevel,
         );
         await addLogEntry(logEntry);
@@ -114,7 +121,7 @@ export function useDiceActions(): UseDiceActionsReturn {
         console.error("Failed to roll dice:", error);
       }
     },
-    [diceService, activityLogService, addLogEntry],
+    [activityLogService, addLogEntry],
   );
 
   const rollInitiative = useCallback(
@@ -126,7 +133,7 @@ export function useDiceActions(): UseDiceActionsReturn {
           : `1d20 - ${Math.abs(totalModifier)}`;
         
         // Roll using dice formula service (no crits/fumbles for initiative)
-        const rollResult = diceFormulaService.evaluateDiceFormula(formula, {
+        const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: false,
           allowFumbles: false,
@@ -158,25 +165,28 @@ export function useDiceActions(): UseDiceActionsReturn {
       advantageLevel: number,
     ) => {
       try {
-        const rollResult = diceService.rollAttack(damage, attributeModifier, advantageLevel);
-        const rollExpression = `${damage}${attributeModifier !== 0 ? (attributeModifier >= 0 ? "+" : "") + attributeModifier : ""}`;
-        const logEntry = activityLogService.createDiceRollEntry(
-          rollResult.dice,
-          rollResult.droppedDice,
-          attributeModifier,
-          rollResult.total,
-          `${weaponName} attack`,
-          rollExpression,
+        // Build formula with modifier
+        const formula = attributeModifier >= 0 
+          ? `${damage} + ${attributeModifier}`
+          : `${damage} - ${Math.abs(attributeModifier)}`;
+        
+        const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
-          rollResult.isMiss,
-          rollResult.criticalHits,
+          allowCriticals: true, // Attacks can crit
+          allowFumbles: true, // Attacks can fumble
+        });
+        
+        const logEntry = activityLogService.createDiceRollEntry(
+          `${weaponName} attack`,
+          rollResult,
+          advantageLevel,
         );
         await addLogEntry(logEntry);
       } catch (error) {
         console.error("Failed to roll attack:", error);
       }
     },
-    [diceService, activityLogService, addLogEntry],
+    [activityLogService, addLogEntry],
   );
 
   return {

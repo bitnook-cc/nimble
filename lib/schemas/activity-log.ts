@@ -14,15 +14,9 @@ export const baseLogEntrySchema = z.object({
 export const diceRollEntrySchema = z
   .object({
     type: z.literal("roll"),
-    dice: z.array(singleDieSchema),
-    droppedDice: z.array(singleDieSchema).optional(),
-    modifier: z.number(),
-    total: z.number(),
     rollExpression: z.string().min(1),
-    isMiss: z.boolean().optional(),
-    criticalHits: z.number().optional(),
     advantageLevel: z.number().optional(),
-    diceData: diceRollDataSchema.optional(), // New field for rich display data
+    diceData: diceRollDataSchema, // Required field for rich display data
   })
   .merge(baseLogEntrySchema);
 

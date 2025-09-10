@@ -1,23 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
-import { diceFormulaService } from "../dice-formula-service";
 import { diceService } from "../dice-service";
 import { getCharacterService } from "../service-factory";
 
-// Mock the dice service
-vi.mock("../dice-service", () => ({
-  diceService: {
-    rollSingleDie: vi.fn(),
-  },
-}));
+// We'll mock the rollSingleDie method directly on the service instance
 
 // Mock the character service
 vi.mock("../service-factory", () => ({
   getCharacterService: vi.fn(),
 }));
 
-describe("DiceFormulaService", () => {
+describe("DiceService", () => {
   const mockCharacter: Partial<Character> = {
     level: 5,
     _attributes: {
@@ -46,12 +40,12 @@ describe("DiceFormulaService", () => {
   describe("Basic dice formulas", () => {
     it("should evaluate a simple dice formula", () => {
       // Mock dice rolls: 2, 1, 4
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(4);
 
-      const result = diceFormulaService.evaluateDiceFormula("3d6 + 2");
+      const result = diceService.evaluateDiceFormula("3d6 + 2");
 
       expect(result.displayString).toBe("[2] + [1] + [4] + 2");
       expect(result.total).toBe(9); // 2 + 1 + 4 + 2 = 9
@@ -86,9 +80,9 @@ describe("DiceFormulaService", () => {
     });
 
     it("should handle d6 as 1d6", () => {
-      (diceService.rollSingleDie as any).mockReturnValueOnce(4);
+      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(4);
 
-      const result = diceFormulaService.evaluateDiceFormula("d6 + 3");
+      const result = diceService.evaluateDiceFormula("d6 + 3");
 
       expect(result.displayString).toBe("[4] + 3");
       expect(result.total).toBe(7);
@@ -96,9 +90,9 @@ describe("DiceFormulaService", () => {
 
     it("should evaluate complex expressions", () => {
       // Mock dice rolls: 3, 5
-      (diceService.rollSingleDie as any).mockReturnValueOnce(3).mockReturnValueOnce(5);
+      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(3).mockReturnValueOnce(5);
 
-      const result = diceFormulaService.evaluateDiceFormula("(2d6) * 2 + 4");
+      const result = diceService.evaluateDiceFormula("(2d6) * 2 + 4");
 
       expect(result.displayString).toBe("([3] + [5]) * 2 + 4");
       expect(result.total).toBe(20); // (3 + 5) * 2 + 4 = 20
@@ -108,12 +102,12 @@ describe("DiceFormulaService", () => {
   describe("Variable substitution", () => {
     it("should substitute attribute variables", () => {
       // STR = 3, so 3d6
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(6);
 
-      const result = diceFormulaService.evaluateDiceFormula("STRd6 + WIL");
+      const result = diceService.evaluateDiceFormula("STRd6 + WIL");
 
       expect(result.displayString).toBe("[2] + [4] + [6] + 4");
       expect(result.total).toBe(16); // 2 + 4 + 6 + 4 = 16
@@ -123,10 +117,10 @@ describe("DiceFormulaService", () => {
     it("should handle level substitution", () => {
       // LEVEL = 5, so 5d4
       for (let i = 0; i < 5; i++) {
-        (diceService.rollSingleDie as any).mockReturnValueOnce(2);
+        vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(2);
       }
 
-      const result = diceFormulaService.evaluateDiceFormula("LEVELd4");
+      const result = diceService.evaluateDiceFormula("LEVELd4");
 
       expect(result.displayString).toBe("[2] + [2] + [2] + [2] + [2]");
       expect(result.total).toBe(10);
@@ -137,12 +131,12 @@ describe("DiceFormulaService", () => {
   describe("Advantage and disadvantage", () => {
     it("should handle advantage correctly", () => {
       // Roll 2d6 with advantage 1 (roll 3 dice, drop lowest)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
 
-      const result = diceFormulaService.evaluateDiceFormula("2d6", {
+      const result = diceService.evaluateDiceFormula("2d6", {
         advantageLevel: 1,
       });
 
@@ -161,12 +155,12 @@ describe("DiceFormulaService", () => {
 
     it("should handle disadvantage correctly", () => {
       // Roll 2d6 with disadvantage 1 (roll 3 dice, drop highest)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
 
-      const result = diceFormulaService.evaluateDiceFormula("2d6", {
+      const result = diceService.evaluateDiceFormula("2d6", {
         advantageLevel: -1,
       });
 
@@ -177,12 +171,12 @@ describe("DiceFormulaService", () => {
 
     it("should maintain roll order with multiple advantage", () => {
       // Roll 1d6 with advantage 2 (roll 3 dice, drop lowest 2)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(5);
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         advantageLevel: 2,
       });
 
@@ -195,12 +189,12 @@ describe("DiceFormulaService", () => {
   describe("Critical hits and fumbles", () => {
     it("should handle exploding criticals", () => {
       // Roll 1d6, get a 6 (critical), then 6 again, then 3
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(3); // Normal roll
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
       });
 
@@ -218,12 +212,12 @@ describe("DiceFormulaService", () => {
 
     it("should handle vicious on critical hit", () => {
       // Roll 1d6, get a 6 (critical), then 3 (normal), then 4 (vicious)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Exploding roll (not a crit, so stops)
         .mockReturnValueOnce(4); // Vicious die
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
         vicious: true,
       });
@@ -242,13 +236,13 @@ describe("DiceFormulaService", () => {
 
     it("should handle vicious with multiple exploding crits", () => {
       // Roll 1d6: 6 (crit) -> 6 (exploding crit) -> 2 (normal) -> 5 (vicious)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(2) // Normal roll (stops exploding)
         .mockReturnValueOnce(5); // Vicious die
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
         vicious: true,
       });
@@ -259,9 +253,9 @@ describe("DiceFormulaService", () => {
 
     it("should not add vicious die without critical", () => {
       // Roll 1d6, get a 3 (no critical)
-      (diceService.rollSingleDie as any).mockReturnValueOnce(3); // No critical
+      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(3); // No critical
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
         vicious: true,
       });
@@ -272,12 +266,12 @@ describe("DiceFormulaService", () => {
 
     it("should handle vicious die that rolls max (but doesn't explode)", () => {
       // Roll 1d6: 6 (crit) -> 3 (normal) -> 6 (vicious, max but doesn't explode)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Normal roll
         .mockReturnValueOnce(6); // Vicious die (max but doesn't explode)
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
         vicious: true,
       });
@@ -289,9 +283,9 @@ describe("DiceFormulaService", () => {
 
     it("should handle fumbles on d20", () => {
       // Roll 1d20, first die is 1 (fumble)
-      (diceService.rollSingleDie as any).mockReturnValueOnce(1);
+      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(1);
 
-      const result = diceFormulaService.evaluateDiceFormula("1d20 + 3", {
+      const result = diceService.evaluateDiceFormula("1d20 + 3", {
         allowFumbles: true,
       });
 
@@ -307,9 +301,9 @@ describe("DiceFormulaService", () => {
     
     it("should not fumble on non-d20 dice", () => {
       // Roll 2d6, first die is 1 (but not a d20)
-      (diceService.rollSingleDie as any).mockReturnValueOnce(1).mockReturnValueOnce(5);
+      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(1).mockReturnValueOnce(5);
 
-      const result = diceFormulaService.evaluateDiceFormula("2d6 + 3", {
+      const result = diceService.evaluateDiceFormula("2d6 + 3", {
         allowFumbles: true,
       });
 
@@ -326,12 +320,12 @@ describe("DiceFormulaService", () => {
     it("should check first kept die for critical/fumble with advantage", () => {
       // Roll 1d6 with advantage 1, rolls are [2, 6]
       // 2 is dropped, 6 is kept and should trigger critical
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6) // This becomes the first kept die
         .mockReturnValueOnce(4); // Exploding roll
 
-      const result = diceFormulaService.evaluateDiceFormula("1d6", {
+      const result = diceService.evaluateDiceFormula("1d6", {
         advantageLevel: 1,
         allowCriticals: true,
       });
@@ -344,11 +338,11 @@ describe("DiceFormulaService", () => {
   describe("Double-digit dice", () => {
     it("should roll d44 correctly", () => {
       // Roll d44: [3] for tens, [2] for ones = 32
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(3) // tens
         .mockReturnValueOnce(2); // ones
 
-      const result = diceFormulaService.evaluateDiceFormula("d44");
+      const result = diceService.evaluateDiceFormula("d44");
 
       expect(result.displayString).toBe("[3] [2] = 32");
       expect(result.total).toBe(32);
@@ -364,11 +358,11 @@ describe("DiceFormulaService", () => {
 
     it("should roll d66 correctly", () => {
       // Roll d66: [5] for tens, [4] for ones = 54
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(5) // tens
         .mockReturnValueOnce(4); // ones
 
-      const result = diceFormulaService.evaluateDiceFormula("d66");
+      const result = diceService.evaluateDiceFormula("d66");
 
       expect(result.displayString).toBe("[5] [4] = 54");
       expect(result.total).toBe(54);
@@ -376,11 +370,11 @@ describe("DiceFormulaService", () => {
 
     it("should roll d88 correctly", () => {
       // Roll d88: [7] for tens, [8] for ones = 78
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(7) // tens
         .mockReturnValueOnce(8); // ones
 
-      const result = diceFormulaService.evaluateDiceFormula("d88");
+      const result = diceService.evaluateDiceFormula("d88");
 
       expect(result.displayString).toBe("[7] [8] = 78");
       expect(result.total).toBe(78);
@@ -391,13 +385,13 @@ describe("DiceFormulaService", () => {
       // Tens: [3], [4] - keep [4]
       // Ones: [1], [2] - keep [2]
       // Result = 42
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(3) // tens die 1
         .mockReturnValueOnce(4) // tens die 2 (kept - higher)
         .mockReturnValueOnce(1) // ones die 1
         .mockReturnValueOnce(2); // ones die 2 (kept - higher)
 
-      const result = diceFormulaService.evaluateDiceFormula("d44", {
+      const result = diceService.evaluateDiceFormula("d44", {
         advantageLevel: 1,
       });
 
@@ -410,13 +404,13 @@ describe("DiceFormulaService", () => {
       // Tens: [5], [3] - keep [3] (lower)
       // Ones: [6], [2] - keep [2] (lower)
       // Result = 32
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(5) // tens die 1
         .mockReturnValueOnce(3) // tens die 2 (kept - lower)
         .mockReturnValueOnce(6) // ones die 1
         .mockReturnValueOnce(2); // ones die 2 (kept - lower)
 
-      const result = diceFormulaService.evaluateDiceFormula("d66", {
+      const result = diceService.evaluateDiceFormula("d66", {
         advantageLevel: -1,
       });
 
@@ -426,29 +420,29 @@ describe("DiceFormulaService", () => {
 
     it("should work in expressions", () => {
       // Roll d44: [2] [3] = 23, then add 10
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(2) // tens
         .mockReturnValueOnce(3); // ones
 
-      const result = diceFormulaService.evaluateDiceFormula("d44 + 10");
+      const result = diceService.evaluateDiceFormula("d44 + 10");
 
       expect(result.displayString).toBe("[2] [3] = 23 + 10");
       expect(result.total).toBe(33);
     });
 
     it("should throw error for multiple double-digit dice", () => {
-      expect(() => diceFormulaService.evaluateDiceFormula("2d44")).toThrow(
+      expect(() => diceService.evaluateDiceFormula("2d44")).toThrow(
         "Double-digit dice (d44) can only be rolled one at a time"
       );
     });
 
     it("should not allow criticals on double-digit dice", () => {
       // Roll d44: [4] [4] = 44 (max for both dice, but shouldn't crit)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(4) // tens (max for d4)
         .mockReturnValueOnce(4); // ones (max for d4)
 
-      const result = diceFormulaService.evaluateDiceFormula("d44", {
+      const result = diceService.evaluateDiceFormula("d44", {
         allowCriticals: true,
       });
 
@@ -459,11 +453,11 @@ describe("DiceFormulaService", () => {
 
     it("should not allow vicious on double-digit dice", () => {
       // Roll d44: [4] [4] = 44 (max, but vicious shouldn't add extra die)
-      (diceService.rollSingleDie as any)
+      vi.spyOn(diceService as any, 'rollSingleDie')
         .mockReturnValueOnce(4) // tens
         .mockReturnValueOnce(4); // ones
 
-      const result = diceFormulaService.evaluateDiceFormula("d44", {
+      const result = diceService.evaluateDiceFormula("d44", {
         allowCriticals: true,
         vicious: true,
       });
@@ -476,11 +470,11 @@ describe("DiceFormulaService", () => {
 
   describe("Error handling", () => {
     it("should throw on invalid dice types", () => {
-      expect(() => diceFormulaService.evaluateDiceFormula("3d7")).toThrow("Invalid dice type: d7");
+      expect(() => diceService.evaluateDiceFormula("3d7")).toThrow("Invalid dice type: d7");
     });
 
     it("should throw on zero dice count", () => {
-      expect(() => diceFormulaService.evaluateDiceFormula("0d6")).toThrow("Invalid dice count: 0");
+      expect(() => diceService.evaluateDiceFormula("0d6")).toThrow("Invalid dice count: 0");
     });
 
     it("should throw on negative dice count after substitution", () => {
@@ -495,19 +489,19 @@ describe("DiceFormulaService", () => {
         }),
       });
 
-      expect(() => diceFormulaService.evaluateDiceFormula("STRd6")).toThrow(
+      expect(() => diceService.evaluateDiceFormula("STRd6")).toThrow(
         "Invalid dice count: -1",
       );
     });
 
     it("should throw on formulas with no dice notation", () => {
-      expect(() => diceFormulaService.evaluateDiceFormula("2 + 3")).toThrow(
+      expect(() => diceService.evaluateDiceFormula("2 + 3")).toThrow(
         "No valid dice notation found",
       );
     });
 
     it("should throw on potentially unsafe patterns", () => {
-      expect(() => diceFormulaService.evaluateDiceFormula("alert('hack')")).toThrow(
+      expect(() => diceService.evaluateDiceFormula("alert('hack')")).toThrow(
         "Potentially unsafe pattern",
       );
     });

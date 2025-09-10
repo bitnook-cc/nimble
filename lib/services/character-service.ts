@@ -30,6 +30,7 @@ import { activityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
 import { characterStorageService } from "./character-storage-service";
 import { ContentRepositoryService } from "./content-repository-service";
+import { diceService } from "./dice-service";
 import { featureSelectionService } from "./feature-selection-service";
 import { IAbilityService, IActivityLog, ICharacterService, ICharacterStorage } from "./interfaces";
 import { resourceService } from "./resource-service";
@@ -37,7 +38,6 @@ import {
   getAncestryService,
   getBackgroundService,
   getClassService,
-  getDiceService,
   getSettingsService,
 } from "./service-factory";
 
@@ -279,20 +279,25 @@ export class CharacterService implements ICharacterService {
       const roll = ability.roll;
       const totalModifier = this.abilityService.calculateAbilityRollModifier(roll, this._character);
 
-      // Use the dice service to perform the roll
-      const diceService = getDiceService();
+      // Build the formula string for the ability roll
       const diceString = `${roll.dice.count}d${roll.dice.sides}`;
-      const rollResult = diceService.rollAttack(diceString, totalModifier, 0);
-      const rollExpression = `${diceString}${totalModifier !== 0 ? (totalModifier >= 0 ? "+" : "") + totalModifier : ""}`;
+      const formula = totalModifier >= 0 
+        ? `${diceString} + ${totalModifier}`
+        : `${diceString} - ${Math.abs(totalModifier)}`;
+
+      // Use dice formula service for rich display
+      const rollResult = diceService.evaluateDiceFormula(formula, {
+        advantageLevel: 0, // No advantage for ability rolls by default
+        allowCriticals: true, // Abilities can crit
+        allowFumbles: true, // Abilities can fumble
+      });
+
       const rollLogEntry = this.logService.createDiceRollEntry(
-        rollResult.dice,
-        rollResult.droppedDice,
-        totalModifier,
-        rollResult.total,
         `${ability.name} ability roll`,
-        rollExpression,
+        rollResult,
         0, // No advantage for ability rolls by default
       );
+      
       await this.logService.addLogEntry(rollLogEntry);
     }
   }
@@ -1285,14 +1290,22 @@ export class CharacterService implements ICharacterService {
       return;
     }
 
-    // Roll the hit die using dice service
-    const diceService = getDiceService();
+    // Roll the hit die using dice formula service
     const hitDieSize = this._character._hitDice.size;
     const strengthMod = this.getAttributes().strength;
 
-    const rollResult = diceService.rollBasicDice(1, hitDieSize as DiceType, 0); // No advantage/disadvantage
-    const dieRoll = rollResult.dice[0].result;
-    const totalHealing = Math.max(1, dieRoll + strengthMod); // Minimum 1 HP
+    // Build formula for catch breath
+    const formula = strengthMod >= 0 
+      ? `1d${hitDieSize} + ${strengthMod}`
+      : `1d${hitDieSize} - ${Math.abs(strengthMod)}`;
+
+    const rollResult = diceService.evaluateDiceFormula(formula, {
+      advantageLevel: 0,
+      allowCriticals: false, // Healing doesn't crit
+      allowFumbles: false, // Healing doesn't fumble
+    });
+
+    const totalHealing = Math.max(1, rollResult.total); // Minimum 1 HP
 
     // Calculate actual healing applied
     const currentHP = this._character.hitPoints.current;
@@ -1325,17 +1338,13 @@ export class CharacterService implements ICharacterService {
     // Log the catch breath with roll details
     await this.logService.addLogEntry(this.logService.createCatchBreathEntry(1, actualHealing, 0));
 
-    // Also log the dice roll for transparency using proper dice service result
-    await this.logService.addLogEntry(
-      this.logService.createDiceRollEntry(
-        rollResult.dice,
-        rollResult.droppedDice,
-        strengthMod,
-        totalHealing,
-        `Catch Breath (d${hitDieSize} + ${strengthMod} STR = ${totalHealing} healing)`,
-        `d${hitDieSize}${strengthMod !== 0 ? (strengthMod >= 0 ? "+" : "") + strengthMod : ""}`,
-      ),
+    // Also log the dice roll for transparency
+    const diceLogEntry = this.logService.createDiceRollEntry(
+      `Catch Breath healing`,
+      rollResult,
+      0,
     );
+    await this.logService.addLogEntry(diceLogEntry);
   }
 
   /**
@@ -1518,8 +1527,7 @@ export class CharacterService implements ICharacterService {
     try {
       // Use dice formula service to evaluate the damage formula
       // The formula should include any attribute modifiers directly (e.g., "1d6 + STR")
-      const { diceFormulaService } = await import("./dice-formula-service");
-      const rollResult = diceFormulaService.evaluateDiceFormula(weapon.damage, {
+      const rollResult = diceService.evaluateDiceFormula(weapon.damage, {
         advantageLevel,
         allowCriticals: true,
         allowFumbles: true,
@@ -1531,21 +1539,10 @@ export class CharacterService implements ICharacterService {
       
       // Create a dice roll entry using the activity log service
       const logEntry = this.logService.createDiceRollEntry(
-        [], // Legacy dice format - we use diceData now
-        undefined, // No dropped dice info in legacy format
-        0, // Modifier is included in the formula
-        rollResult.total,
         logDescription,
-        rollResult.substitutedFormula || weapon.damage,
+        rollResult,
         advantageLevel,
-        false, // TODO: Get fumble info from rollResult
-        0, // TODO: Get critical count from rollResult
       );
-      
-      // Add the dice data for rich display
-      if (rollResult.diceData) {
-        (logEntry as any).diceData = rollResult.diceData;
-      }
       
       await this.logService.addLogEntry(logEntry);
 
