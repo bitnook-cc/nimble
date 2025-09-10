@@ -1,9 +1,9 @@
 import { FlexibleValue } from "../schemas/flexible-value";
-import { 
-  OPERATOR_REGEX, 
-  sanitizeExpression, 
-  substituteVariables, 
-  safeEvaluate 
+import {
+  OPERATOR_REGEX,
+  safeEvaluate,
+  sanitizeExpression,
+  substituteVariables,
 } from "../utils/formula-utils";
 
 export class FormulaEvaluatorService {

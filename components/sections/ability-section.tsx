@@ -24,7 +24,11 @@ import { AttributeName } from "@/lib/schemas/character";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { abilityService } from "@/lib/services/ability-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { validateDiceFormula, getExampleFormulas, getSupportedVariables } from "@/lib/utils/formula-utils";
+import {
+  getExampleFormulas,
+  getSupportedVariables,
+  validateDiceFormula,
+} from "@/lib/utils/formula-utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -671,7 +675,7 @@ export function AbilitySection() {
                               ...newAbility,
                               diceFormula: formula,
                             });
-                            
+
                             // Validate the formula if it's not empty
                             if (formula) {
                               const validation = validateDiceFormula(formula);
@@ -684,7 +688,12 @@ export function AbilitySection() {
                         />
                         <div className="text-xs text-muted-foreground space-y-1">
                           <p>Examples: {getExampleFormulas().slice(0, 3).join(", ")}</p>
-                          <p>Variables: {getSupportedVariables().filter(v => v.length <= 3).join(", ")}</p>
+                          <p>
+                            Variables:{" "}
+                            {getSupportedVariables()
+                              .filter((v) => v.length <= 3)
+                              .join(", ")}
+                          </p>
                         </div>
                       </div>
                     </>

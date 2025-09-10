@@ -15,8 +15,8 @@ export interface IStorageService {
 export class LocalStorageService implements IStorageService {
   private isAvailable(): boolean {
     try {
-      const test = '__storage_test__';
-      if (typeof window === 'undefined' || !window.localStorage) {
+      const test = "__storage_test__";
+      if (typeof window === "undefined" || !window.localStorage) {
         return false;
       }
       window.localStorage.setItem(test, test);
@@ -29,7 +29,7 @@ export class LocalStorageService implements IStorageService {
 
   getItem(key: string): string | null {
     if (!this.isAvailable()) {
-      console.warn('LocalStorage is not available');
+      console.warn("LocalStorage is not available");
       return null;
     }
     try {
@@ -42,7 +42,7 @@ export class LocalStorageService implements IStorageService {
 
   setItem(key: string, value: string): void {
     if (!this.isAvailable()) {
-      console.warn('LocalStorage is not available');
+      console.warn("LocalStorage is not available");
       return;
     }
     try {
@@ -54,7 +54,7 @@ export class LocalStorageService implements IStorageService {
 
   removeItem(key: string): void {
     if (!this.isAvailable()) {
-      console.warn('LocalStorage is not available');
+      console.warn("LocalStorage is not available");
       return;
     }
     try {
@@ -66,7 +66,7 @@ export class LocalStorageService implements IStorageService {
 
   clear(): void {
     if (!this.isAvailable()) {
-      console.warn('LocalStorage is not available');
+      console.warn("LocalStorage is not available");
       return;
     }
     try {

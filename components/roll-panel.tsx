@@ -66,11 +66,7 @@ export function RollPanel() {
     });
 
     // Create log entry using the new signature
-    const logEntry = activityLogService.createDiceRollEntry(
-      `Custom roll`,
-      rollResult,
-      0,
-    );
+    const logEntry = activityLogService.createDiceRollEntry(`Custom roll`, rollResult, 0);
 
     addLogEntry(logEntry);
 

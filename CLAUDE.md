@@ -299,7 +299,7 @@ app/page.tsx (main orchestrator)
       - Attributes: `STR`, `DEX`, `INT`, `WIL` (or full names: `STRENGTH`, `DEXTERITY`, `INTELLIGENCE`, `WILL`)
       - Character level: `LEVEL` or `LVL`
       - Examples: `1d20+STR`, `2d6+LEVEL*2`, `STRd6+2`
-    - **Special Dice**: 
+    - **Special Dice**:
       - Standard: d4, d6, d8, d10, d12, d20, d100
       - Double-digit: d44, d66, d88 (roll two dice for tens and ones)
     - **Dice Options**:

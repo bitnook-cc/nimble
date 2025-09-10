@@ -63,9 +63,9 @@ export const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
   type: z.literal("action"),
   frequency: AbilityFrequencySchema,
   maxUses: flexibleValueSchema.optional(),
-  diceFormula: z.string().optional().meta({ 
-    title: "Dice Formula", 
-    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')" 
+  diceFormula: z.string().optional().meta({
+    title: "Dice Formula",
+    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')",
   }),
 }).meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
@@ -75,9 +75,9 @@ export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
   school: z.string().min(1),
   tier: z.number().int().min(0).max(9),
   category: z.enum(["combat", "utility"]),
-  diceFormula: z.string().optional().meta({ 
-    title: "Dice Formula", 
-    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')" 
+  diceFormula: z.string().optional().meta({
+    title: "Dice Formula",
+    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')",
   }),
 }).meta({ title: "Spell Ability", description: "Spell that characters can cast" });
 

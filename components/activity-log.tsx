@@ -165,11 +165,7 @@ function NonRollEntryDisplay({
         <span className="text-lg">{getEntryIcon()}</span>
         <span className="font-medium">{entry.description}</span>
       </div>
-      {getEntryValue() && (
-        <span className={`font-bold ${getEntryColor()}`}>
-          {getEntryValue()}
-        </span>
-      )}
+      {getEntryValue() && <span className={`font-bold ${getEntryColor()}`}>{getEntryValue()}</span>}
     </div>
   );
 }

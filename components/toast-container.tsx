@@ -65,12 +65,9 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
           {toast.diceData ? (
             <div className="mt-1">
               {toast.diceData.isDoubleDigit ? (
-                <DoubleDigitDiceDisplay 
-                  dice={toast.diceData.dice}
-                  result={toast.diceData.total}
-                />
+                <DoubleDigitDiceDisplay dice={toast.diceData.dice} result={toast.diceData.total} />
               ) : (
-                <DiceFormulaDisplay 
+                <DiceFormulaDisplay
                   dice={toast.diceData.dice}
                   beforeDice={toast.diceData.beforeExpression}
                   afterDice={toast.diceData.afterExpression}

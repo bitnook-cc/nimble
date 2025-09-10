@@ -1,7 +1,8 @@
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
+import type { Character } from "../../schemas/character";
 import { ServiceFactory } from "../service-factory";
 import { InMemoryStorageService } from "../storage-service";
-import type { Character } from "../../schemas/character";
 
 /**
  * Example test demonstrating how to use in-memory storage for testing
@@ -11,27 +12,27 @@ describe("Example: Using In-Memory Storage in Tests", () => {
   beforeEach(() => {
     // Reset services and set to use in-memory storage
     ServiceFactory.reset();
-    ServiceFactory.setStorageImplementation('inMemory');
+    ServiceFactory.setStorageImplementation("inMemory");
   });
 
   afterEach(() => {
     // Reset back to default localStorage for other tests
     ServiceFactory.reset();
-    ServiceFactory.setStorageImplementation('localStorage');
+    ServiceFactory.setStorageImplementation("localStorage");
   });
 
   it("should use in-memory storage for character storage", async () => {
     // Get the storage service to verify it's in-memory
     const { getStorageService } = await import("../service-factory");
     const storage = getStorageService();
-    
+
     // Verify we're using InMemoryStorageService
     expect(storage.constructor.name).toBe("InMemoryStorageService");
-    
+
     // Store some test data directly
     storage.setItem("test-key", "test-value");
     expect(storage.getItem("test-key")).toBe("test-value");
-    
+
     // Clear for next test
     storage.clear();
   });
@@ -52,7 +53,7 @@ describe("Example: Using In-Memory Storage in Tests", () => {
 
     // Store test data
     storage.setItem("test-settings", JSON.stringify({ theme: "dark" }));
-    
+
     // Retrieve test data
     const settings = JSON.parse(storage.getItem("test-settings") || "{}");
     expect(settings.theme).toBe("dark");

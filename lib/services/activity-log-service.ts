@@ -1,8 +1,5 @@
-import { toastService } from "./toast-service";
-
 import { gameConfig } from "../config/game-config";
 import { logEntrySchema } from "../schemas/activity-log";
-import { DiceFormulaResult } from "./dice-service";
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
@@ -17,6 +14,8 @@ import {
   SpellCastEntry,
   TempHPEntry,
 } from "../schemas/activity-log";
+import { DiceFormulaResult } from "./dice-service";
+import { toastService } from "./toast-service";
 
 export class ActivityLogService {
   private readonly storageKey = "nimble-navigator-activity-log";
@@ -72,10 +71,7 @@ export class ActivityLogService {
       case "roll":
         const rollEntry = entry as DiceRollEntry;
         // Use toast service with dice data for consistent display
-        toastService.showDiceRoll(
-          description,
-          rollEntry.diceData
-        );
+        toastService.showDiceRoll(description, rollEntry.diceData);
         break;
 
       case "damage":
@@ -93,11 +89,8 @@ export class ActivityLogService {
       case "initiative":
         const initiativeEntry = entry as InitiativeEntry;
         if (initiativeEntry.diceData) {
-          const actionsText = `${initiativeEntry.actionsGranted} ${initiativeEntry.actionsGranted === 1 ? 'action' : 'actions'}`;
-          toastService.showDiceRoll(
-            `Initiative Roll (${actionsText})`,
-            initiativeEntry.diceData
-          );
+          const actionsText = `${initiativeEntry.actionsGranted} ${initiativeEntry.actionsGranted === 1 ? "action" : "actions"}`;
+          toastService.showDiceRoll(`Initiative Roll (${actionsText})`, initiativeEntry.diceData);
         } else {
           toastService.showInfo(description);
         }
@@ -142,7 +135,7 @@ export class ActivityLogService {
     if (!rollResult.diceData) {
       throw new Error("DiceFormulaResult must include diceData");
     }
-    
+
     const entry: DiceRollEntry = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
@@ -152,7 +145,7 @@ export class ActivityLogService {
       advantageLevel: advantageLevel !== 0 ? advantageLevel : undefined,
       diceData: rollResult.diceData,
     };
-    
+
     return entry;
   }
 
@@ -196,7 +189,7 @@ export class ActivityLogService {
   createInitiativeEntry(
     actionsGranted: number,
     rollExpression?: string,
-    diceData?: any
+    diceData?: any,
   ): InitiativeEntry {
     return {
       id: crypto.randomUUID(),

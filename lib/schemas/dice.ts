@@ -37,7 +37,7 @@ export const singleDieSchema = z.object({
 });
 
 // Dice category enum for reuse
-export const diceCategorySchema = z.enum(['normal', 'critical', 'vicious', 'dropped', 'fumble']);
+export const diceCategorySchema = z.enum(["normal", "critical", "vicious", "dropped", "fumble"]);
 
 // Schema for categorized dice data
 export const categorizedDieSchema = z.object({

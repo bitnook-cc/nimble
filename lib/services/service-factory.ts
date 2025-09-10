@@ -25,7 +25,7 @@ import { ItemService } from "./item-service";
 import { SERVICE_KEYS, serviceContainer } from "./service-container";
 import { settingsService } from "./settings-service";
 import type { SettingsService } from "./settings-service";
-import { IStorageService, LocalStorageService, InMemoryStorageService } from "./storage-service";
+import { IStorageService, InMemoryStorageService, LocalStorageService } from "./storage-service";
 
 /**
  * Service Factory
@@ -33,15 +33,15 @@ import { IStorageService, LocalStorageService, InMemoryStorageService } from "./
  */
 export class ServiceFactory {
   private static initialized = false;
-  private static storageImplementation: 'localStorage' | 'inMemory' = 'localStorage';
+  private static storageImplementation: "localStorage" | "inMemory" = "localStorage";
 
   /**
    * Set the storage implementation to use
    * Must be called before initialize()
    */
-  static setStorageImplementation(impl: 'localStorage' | 'inMemory'): void {
+  static setStorageImplementation(impl: "localStorage" | "inMemory"): void {
     if (this.initialized) {
-      throw new Error('Cannot change storage implementation after initialization');
+      throw new Error("Cannot change storage implementation after initialization");
     }
     this.storageImplementation = impl;
   }
@@ -56,7 +56,7 @@ export class ServiceFactory {
     serviceContainer.register<IStorageService>(
       SERVICE_KEYS.STORAGE,
       () => {
-        if (this.storageImplementation === 'inMemory') {
+        if (this.storageImplementation === "inMemory") {
           return new InMemoryStorageService();
         }
         return new LocalStorageService();

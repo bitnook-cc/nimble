@@ -2,11 +2,7 @@ import { InitiativeEntry } from "@/lib/schemas/activity-log";
 import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 
 // Component for displaying initiative entries with dice data
-export function InitiativeEntryDisplay({
-  entry,
-}: {
-  entry: InitiativeEntry;
-}) {
+export function InitiativeEntryDisplay({ entry }: { entry: InitiativeEntry }) {
   const getActionsText = () => {
     const total = entry.diceData?.total ?? 0;
     if (total < 10) return "1 action";
@@ -20,17 +16,15 @@ export function InitiativeEntryDisplay({
       <div className="flex items-center gap-3">
         <span className="font-medium">{entry.description}</span>
         {entry.rollExpression && (
-          <span className="text-sm text-muted-foreground font-mono">
-            ({entry.rollExpression})
-          </span>
+          <span className="text-sm text-muted-foreground font-mono">({entry.rollExpression})</span>
         )}
       </div>
-      
+
       {/* Right side: Dice display and actions granted */}
       <div className="flex items-center gap-3">
         {entry.diceData && (
           <span className="text-sm">
-            <DiceFormulaDisplay 
+            <DiceFormulaDisplay
               dice={entry.diceData.dice}
               beforeDice={entry.diceData.beforeExpression}
               afterDice={entry.diceData.afterExpression}

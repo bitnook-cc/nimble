@@ -1,5 +1,6 @@
 import { AttributeName } from "../schemas/character";
 import { getCharacterService } from "../services/service-factory";
+import { getClassService } from "../services/service-factory";
 
 /**
  * Common utilities for formula evaluation and dice formula processing
@@ -28,23 +29,26 @@ const DANGEROUS_PATTERNS = [
 export function sanitizeExpression(expression: string): string {
   // Remove extra whitespace
   let cleaned = expression.replace(/\s+/g, " ").trim();
-  
+
   // Convert variables to uppercase while preserving 'd' in dice notation
   // First, protect dice notation by temporarily replacing it
   const dicePattern = /(\d+)?d(\d+)/gi;
-  const diceMatches: Array<{match: string, index: number}> = [];
+  const diceMatches: Array<{ match: string; index: number }> = [];
   let match;
   while ((match = dicePattern.exec(cleaned)) !== null) {
     diceMatches.push({ match: match[0].toLowerCase(), index: match.index });
   }
-  
+
   // Convert everything to uppercase
   cleaned = cleaned.toUpperCase();
-  
+
   // Restore dice notation with lowercase 'd'
   for (let i = diceMatches.length - 1; i >= 0; i--) {
     const dice = diceMatches[i];
-    cleaned = cleaned.substring(0, dice.index) + dice.match + cleaned.substring(dice.index + dice.match.length);
+    cleaned =
+      cleaned.substring(0, dice.index) +
+      dice.match +
+      cleaned.substring(dice.index + dice.match.length);
   }
 
   // Check for obviously malicious patterns
@@ -95,6 +99,15 @@ export function substituteVariables(expression: string): string {
     result = result.replace(new RegExp(`\\b${key}\\b`, "g"), value.toString());
   }
 
+  // Replace KEY with the highest key attribute value
+  const classService = getClassService();
+  const characterClass = classService.getCharacterClass(character);
+  if (characterClass && characterClass.keyAttributes && characterClass.keyAttributes.length > 0) {
+    const keyAttributeValues = characterClass.keyAttributes.map((attr) => attributes[attr]);
+    const highestKeyValue = Math.max(...keyAttributeValues);
+    result = result.replace(/\bKEY\b/g, highestKeyValue.toString());
+  }
+
   // Replace level keywords
   result = result.replace(/\bLEVEL\b/g, character.level.toString());
   result = result.replace(/\bLVL\b/g, character.level.toString());
@@ -110,7 +123,10 @@ export function substituteVariables(expression: string): string {
  * @param expression The expression with variables to substitute
  * @returns Object with substituted expression and whether variables were found
  */
-export function substituteVariablesForDice(expression: string): { substituted: string; hasVariables: boolean } {
+export function substituteVariablesForDice(expression: string): {
+  substituted: string;
+  hasVariables: boolean;
+} {
   const characterService = getCharacterService();
   const character = characterService.getCurrentCharacter();
 
@@ -146,6 +162,20 @@ export function substituteVariablesForDice(expression: string): { substituted: s
     if (regex.test(result)) {
       hasVariables = true;
       result = result.replace(regex, value.toString());
+    }
+  }
+
+  // Replace KEY with the highest key attribute value
+  const classService = getClassService();
+  const characterClass = classService.getCharacterClass(character);
+  if (characterClass && characterClass.keyAttributes && characterClass.keyAttributes.length > 0) {
+    const keyAttributeValues = characterClass.keyAttributes.map((attr) => attributes[attr]);
+    const highestKeyValue = Math.max(...keyAttributeValues);
+    // Handle KEY in dice notation (KEYd6) or as standalone
+    const keyRegex = /\bKEY(?=d\d+)|\bKEY\b/gi;
+    if (keyRegex.test(result)) {
+      hasVariables = true;
+      result = result.replace(keyRegex, highestKeyValue.toString());
     }
   }
 
@@ -195,59 +225,74 @@ export function validateDiceFormula(formula: string): { valid: boolean; error?: 
   try {
     // Step 1: Clean the formula
     const cleaned = sanitizeExpression(formula);
-    
-    // Step 2: Check for dice notation
-    const hasDice = DICE_NOTATION_REGEX.test(cleaned);
+
+    // Step 2: Check for dice notation (create new regex to avoid lastIndex issues)
+    const hasDice = /\b(\d+)?d(\d+)\b/gi.test(cleaned);
     if (!hasDice) {
-      return { valid: false, error: "Formula must contain at least one dice notation (e.g., 1d20, 2d6)" };
+      return {
+        valid: false,
+        error: "Formula must contain at least one dice notation (e.g., 1d20, 2d6)",
+      };
     }
-    
+
     // Step 3: Validate dice types
     const diceMatches = [...cleaned.matchAll(/\b(\d+)?d(\d+)\b/gi)];
     const validDiceTypes = [4, 6, 8, 10, 12, 20, 44, 66, 88, 100];
-    
+
     for (const match of diceMatches) {
       const sides = parseInt(match[2]);
       if (!validDiceTypes.includes(sides)) {
-        return { 
-          valid: false, 
-          error: `Invalid dice type d${sides}. Valid types: d4, d6, d8, d10, d12, d20, d44, d66, d88, d100` 
+        return {
+          valid: false,
+          error: `Invalid dice type d${sides}. Valid types: d4, d6, d8, d10, d12, d20, d44, d66, d88, d100`,
         };
       }
-      
+
       const count = match[1] ? parseInt(match[1]) : 1;
       if (count <= 0 || count > 20) {
-        return { 
-          valid: false, 
-          error: `Invalid dice count ${count}. Must be between 1 and 20` 
+        return {
+          valid: false,
+          error: `Invalid dice count ${count}. Must be between 1 and 20`,
         };
       }
     }
-    
+
     // Step 4: Replace dice and variables with numbers for syntax check
     let testExpression = cleaned;
-    
+
     // Replace dice notation with a number
     testExpression = testExpression.replace(/\b(\d+)?d(\d+)\b/gi, "1");
-    
+
     // Replace known variables with numbers
-    const variables = ["STR", "STRENGTH", "DEX", "DEXTERITY", "INT", "INTELLIGENCE", "WIL", "WILL", "LEVEL", "LVL"];
+    const variables = [
+      "STR",
+      "STRENGTH",
+      "DEX",
+      "DEXTERITY",
+      "INT",
+      "INTELLIGENCE",
+      "WIL",
+      "WILL",
+      "KEY",
+      "LEVEL",
+      "LVL",
+    ];
     for (const variable of variables) {
       testExpression = testExpression.replace(new RegExp(`\\b${variable}\\b`, "gi"), "1");
     }
-    
+
     // Step 5: Check if only valid characters remain
     if (!OPERATOR_REGEX.test(testExpression)) {
       return { valid: false, error: "Formula contains invalid characters or unknown variables" };
     }
-    
+
     // Step 6: Try to evaluate the test expression to check syntax
     try {
       safeEvaluate(testExpression);
     } catch (error) {
       return { valid: false, error: "Invalid mathematical expression syntax" };
     }
-    
+
     return { valid: true };
   } catch (error) {
     return { valid: false, error: `Validation error: ${error}` };
@@ -259,11 +304,17 @@ export function validateDiceFormula(formula: string): { valid: boolean; error?: 
  */
 export function getSupportedVariables(): string[] {
   return [
-    "STR", "STRENGTH",
-    "DEX", "DEXTERITY", 
-    "INT", "INTELLIGENCE",
-    "WIL", "WILL",
-    "LEVEL", "LVL"
+    "STR",
+    "STRENGTH",
+    "DEX",
+    "DEXTERITY",
+    "INT",
+    "INTELLIGENCE",
+    "WIL",
+    "WILL",
+    "KEY",
+    "LEVEL",
+    "LVL",
   ];
 }
 
@@ -278,6 +329,7 @@ export function getExampleFormulas(): string[] {
     "1d8+LEVEL+2",
     "(2d4+1)*2",
     "3d6+DEX",
-    "1d12+STR*2"
+    "1d12+STR*2",
+    "1d20+KEY",
   ];
 }

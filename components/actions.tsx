@@ -43,7 +43,6 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
     (ability): ability is ActionAbilityDefinition => ability.type === "action",
   );
 
-
   const handleAttack = async (weapon: WeaponItem) => {
     // Check if we have enough actions for weapon attacks (always cost 1 action)
     if (character.inEncounter && character.actionTracker.current < 1) {
@@ -135,9 +134,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-center text-sm">
-                      <div className="text-muted-foreground">
-                        {weapon.damage}
-                      </div>
+                      <div className="text-muted-foreground">{weapon.damage}</div>
                       {weapon.properties && weapon.properties.length > 0 && (
                         <div className="text-xs text-muted-foreground mt-1">
                           {weapon.properties.join(", ")}

@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
 import { diceService } from "../dice-service";
-import { getCharacterService } from "../service-factory";
+import { getCharacterService, getClassService } from "../service-factory";
 
 // We'll mock the rollSingleDie method directly on the service instance
 
-// Mock the character service
+// Mock the character service and class service
 vi.mock("../service-factory", () => ({
   getCharacterService: vi.fn(),
+  getClassService: vi.fn(),
 }));
 
 describe("DiceService", () => {
@@ -35,12 +36,17 @@ describe("DiceService", () => {
         will: 4,
       }),
     });
+
+    // Setup class service mock (return null for no class)
+    (getClassService as any).mockReturnValue({
+      getCharacterClass: () => null,
+    });
   });
 
   describe("Basic dice formulas", () => {
     it("should evaluate a simple dice formula", () => {
       // Mock dice rolls: 2, 1, 4
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(4);
@@ -50,7 +56,7 @@ describe("DiceService", () => {
       expect(result.displayString).toBe("[2] + [1] + [4] + 2");
       expect(result.total).toBe(9); // 2 + 1 + 4 + 2 = 9
       expect(result.formula).toBe("3d6 + 2");
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.dice).toHaveLength(3);
@@ -58,29 +64,29 @@ describe("DiceService", () => {
         value: 2,
         size: 6,
         kept: true,
-        category: 'normal',
-        index: 0
+        category: "normal",
+        index: 0,
       });
       expect(result.diceData?.dice[1]).toEqual({
         value: 1,
         size: 6,
         kept: true,
-        category: 'normal',
-        index: 1
+        category: "normal",
+        index: 1,
       });
       expect(result.diceData?.dice[2]).toEqual({
         value: 4,
         size: 6,
         kept: true,
-        category: 'normal',
-        index: 2
+        category: "normal",
+        index: 2,
       });
       expect(result.diceData?.afterExpression).toBe("+ 2");
       expect(result.diceData?.total).toBe(9);
     });
 
     it("should handle d6 as 1d6", () => {
-      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(4);
+      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(4);
 
       const result = diceService.evaluateDiceFormula("d6 + 3");
 
@@ -90,7 +96,9 @@ describe("DiceService", () => {
 
     it("should evaluate complex expressions", () => {
       // Mock dice rolls: 3, 5
-      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(3).mockReturnValueOnce(5);
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(5);
 
       const result = diceService.evaluateDiceFormula("(2d6) * 2 + 4");
 
@@ -102,7 +110,7 @@ describe("DiceService", () => {
   describe("Variable substitution", () => {
     it("should substitute attribute variables", () => {
       // STR = 3, so 3d6
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(6);
@@ -117,7 +125,7 @@ describe("DiceService", () => {
     it("should handle level substitution", () => {
       // LEVEL = 5, so 5d4
       for (let i = 0; i < 5; i++) {
-        vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(2);
+        vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(2);
       }
 
       const result = diceService.evaluateDiceFormula("LEVELd4");
@@ -131,7 +139,7 @@ describe("DiceService", () => {
   describe("Advantage and disadvantage", () => {
     it("should handle advantage correctly", () => {
       // Roll 2d6 with advantage 1 (roll 3 dice, drop lowest)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
@@ -143,19 +151,23 @@ describe("DiceService", () => {
       // The 2 should be dropped (lowest), keeping 4 and 5
       expect(result.displayString).toBe("[4] + ~~[2]~~ + [5]");
       expect(result.total).toBe(9); // 4 + 5 = 9
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.advantageLevel).toBe(1);
       expect(result.diceData?.dice).toHaveLength(3);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 4, kept: true, category: 'normal' });
-      expect(result.diceData?.dice[1]).toMatchObject({ value: 2, kept: false, category: 'dropped' });
-      expect(result.diceData?.dice[2]).toMatchObject({ value: 5, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 4, kept: true, category: "normal" });
+      expect(result.diceData?.dice[1]).toMatchObject({
+        value: 2,
+        kept: false,
+        category: "dropped",
+      });
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 5, kept: true, category: "normal" });
     });
 
     it("should handle disadvantage correctly", () => {
       // Roll 2d6 with disadvantage 1 (roll 3 dice, drop highest)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
@@ -171,7 +183,7 @@ describe("DiceService", () => {
 
     it("should maintain roll order with multiple advantage", () => {
       // Roll 1d6 with advantage 2 (roll 3 dice, drop lowest 2)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(5);
@@ -189,7 +201,7 @@ describe("DiceService", () => {
   describe("Critical hits and fumbles", () => {
     it("should handle exploding criticals", () => {
       // Roll 1d6, get a 6 (critical), then 6 again, then 3
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(3); // Normal roll
@@ -200,19 +212,27 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[6] + [6] + [3]");
       expect(result.total).toBe(15);
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.criticalHits).toBe(2); // Initial crit + one exploded crit
       expect(result.diceData?.dice).toHaveLength(3);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: 'normal' });
-      expect(result.diceData?.dice[1]).toMatchObject({ value: 6, kept: true, category: 'critical' });
-      expect(result.diceData?.dice[2]).toMatchObject({ value: 3, kept: true, category: 'critical' });
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: "normal" });
+      expect(result.diceData?.dice[1]).toMatchObject({
+        value: 6,
+        kept: true,
+        category: "critical",
+      });
+      expect(result.diceData?.dice[2]).toMatchObject({
+        value: 3,
+        kept: true,
+        category: "critical",
+      });
     });
 
     it("should handle vicious on critical hit", () => {
       // Roll 1d6, get a 6 (critical), then 3 (normal), then 4 (vicious)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Exploding roll (not a crit, so stops)
         .mockReturnValueOnce(4); // Vicious die
@@ -224,19 +244,23 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[6] + [3] + [4]");
       expect(result.total).toBe(13); // 6 + 3 + 4
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.criticalHits).toBe(1); // Only the initial crit
       expect(result.diceData?.dice).toHaveLength(3);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: 'normal' });
-      expect(result.diceData?.dice[1]).toMatchObject({ value: 3, kept: true, category: 'critical' });
-      expect(result.diceData?.dice[2]).toMatchObject({ value: 4, kept: true, category: 'vicious' });
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 6, kept: true, category: "normal" });
+      expect(result.diceData?.dice[1]).toMatchObject({
+        value: 3,
+        kept: true,
+        category: "critical",
+      });
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 4, kept: true, category: "vicious" });
     });
 
     it("should handle vicious with multiple exploding crits", () => {
       // Roll 1d6: 6 (crit) -> 6 (exploding crit) -> 2 (normal) -> 5 (vicious)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(2) // Normal roll (stops exploding)
@@ -253,7 +277,7 @@ describe("DiceService", () => {
 
     it("should not add vicious die without critical", () => {
       // Roll 1d6, get a 3 (no critical)
-      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(3); // No critical
+      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(3); // No critical
 
       const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
@@ -266,7 +290,7 @@ describe("DiceService", () => {
 
     it("should handle vicious die that rolls max (but doesn't explode)", () => {
       // Roll 1d6: 6 (crit) -> 3 (normal) -> 6 (vicious, max but doesn't explode)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Normal roll
         .mockReturnValueOnce(6); // Vicious die (max but doesn't explode)
@@ -283,7 +307,7 @@ describe("DiceService", () => {
 
     it("should handle fumbles on d20", () => {
       // Roll 1d20, first die is 1 (fumble)
-      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(1);
+      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(1);
 
       const result = diceService.evaluateDiceFormula("1d20 + 3", {
         allowFumbles: true,
@@ -291,17 +315,19 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[1] + 3");
       expect(result.total).toBe(0); // Fumble results in 0 total
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.isFumble).toBe(true);
       expect(result.diceData?.dice).toHaveLength(1);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: 'fumble' });
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: "fumble" });
     });
-    
+
     it("should not fumble on non-d20 dice", () => {
       // Roll 2d6, first die is 1 (but not a d20)
-      vi.spyOn(diceService as any, 'rollSingleDie').mockReturnValueOnce(1).mockReturnValueOnce(5);
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(5);
 
       const result = diceService.evaluateDiceFormula("2d6 + 3", {
         allowFumbles: true,
@@ -309,18 +335,18 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[1] + [5] + 3");
       expect(result.total).toBe(9); // Not a fumble since it's not d20
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.isFumble).toBe(false);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: 'normal' });
-      expect(result.diceData?.dice[1]).toMatchObject({ value: 5, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[0]).toMatchObject({ value: 1, kept: true, category: "normal" });
+      expect(result.diceData?.dice[1]).toMatchObject({ value: 5, kept: true, category: "normal" });
     });
 
     it("should check first kept die for critical/fumble with advantage", () => {
       // Roll 1d6 with advantage 1, rolls are [2, 6]
       // 2 is dropped, 6 is kept and should trigger critical
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6) // This becomes the first kept die
         .mockReturnValueOnce(4); // Exploding roll
@@ -338,7 +364,7 @@ describe("DiceService", () => {
   describe("Double-digit dice", () => {
     it("should roll d44 correctly", () => {
       // Roll d44: [3] for tens, [2] for ones = 32
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(3) // tens
         .mockReturnValueOnce(2); // ones
 
@@ -346,19 +372,29 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[3] [2] = 32");
       expect(result.total).toBe(32);
-      
+
       // Check diceData
       expect(result.diceData).toBeDefined();
       expect(result.diceData?.isDoubleDigit).toBe(true);
       expect(result.diceData?.dice).toHaveLength(2);
-      expect(result.diceData?.dice[0]).toMatchObject({ value: 3, size: 4, kept: true, category: 'normal' });
-      expect(result.diceData?.dice[1]).toMatchObject({ value: 2, size: 4, kept: true, category: 'normal' });
+      expect(result.diceData?.dice[0]).toMatchObject({
+        value: 3,
+        size: 4,
+        kept: true,
+        category: "normal",
+      });
+      expect(result.diceData?.dice[1]).toMatchObject({
+        value: 2,
+        size: 4,
+        kept: true,
+        category: "normal",
+      });
       expect(result.diceData?.total).toBe(32);
     });
 
     it("should roll d66 correctly", () => {
       // Roll d66: [5] for tens, [4] for ones = 54
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(5) // tens
         .mockReturnValueOnce(4); // ones
 
@@ -370,7 +406,7 @@ describe("DiceService", () => {
 
     it("should roll d88 correctly", () => {
       // Roll d88: [7] for tens, [8] for ones = 78
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(7) // tens
         .mockReturnValueOnce(8); // ones
 
@@ -381,11 +417,11 @@ describe("DiceService", () => {
     });
 
     it("should handle d44 with advantage", () => {
-      // Roll d44 with advantage 1: 
+      // Roll d44 with advantage 1:
       // Tens: [3], [4] - keep [4]
       // Ones: [1], [2] - keep [2]
       // Result = 42
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(3) // tens die 1
         .mockReturnValueOnce(4) // tens die 2 (kept - higher)
         .mockReturnValueOnce(1) // ones die 1
@@ -404,7 +440,7 @@ describe("DiceService", () => {
       // Tens: [5], [3] - keep [3] (lower)
       // Ones: [6], [2] - keep [2] (lower)
       // Result = 32
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(5) // tens die 1
         .mockReturnValueOnce(3) // tens die 2 (kept - lower)
         .mockReturnValueOnce(6) // ones die 1
@@ -420,7 +456,7 @@ describe("DiceService", () => {
 
     it("should work in expressions", () => {
       // Roll d44: [2] [3] = 23, then add 10
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(2) // tens
         .mockReturnValueOnce(3); // ones
 
@@ -432,13 +468,13 @@ describe("DiceService", () => {
 
     it("should throw error for multiple double-digit dice", () => {
       expect(() => diceService.evaluateDiceFormula("2d44")).toThrow(
-        "Double-digit dice (d44) can only be rolled one at a time"
+        "Double-digit dice (d44) can only be rolled one at a time",
       );
     });
 
     it("should not allow criticals on double-digit dice", () => {
       // Roll d44: [4] [4] = 44 (max for both dice, but shouldn't crit)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(4) // tens (max for d4)
         .mockReturnValueOnce(4); // ones (max for d4)
 
@@ -453,7 +489,7 @@ describe("DiceService", () => {
 
     it("should not allow vicious on double-digit dice", () => {
       // Roll d44: [4] [4] = 44 (max, but vicious shouldn't add extra die)
-      vi.spyOn(diceService as any, 'rollSingleDie')
+      vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(4) // tens
         .mockReturnValueOnce(4); // ones
 
@@ -489,9 +525,7 @@ describe("DiceService", () => {
         }),
       });
 
-      expect(() => diceService.evaluateDiceFormula("STRd6")).toThrow(
-        "Invalid dice count: -1",
-      );
+      expect(() => diceService.evaluateDiceFormula("STRd6")).toThrow("Invalid dice count: -1");
     });
 
     it("should throw on formulas with no dice notation", () => {

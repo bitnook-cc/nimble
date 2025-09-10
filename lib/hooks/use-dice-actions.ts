@@ -47,13 +47,13 @@ export function useDiceActions(): UseDiceActionsReturn {
       try {
         const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
         const formula = value >= 0 ? `1d20 + ${value}` : `1d20 - ${Math.abs(value)}`;
-        
+
         const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: false, // Attribute checks don't crit
           allowFumbles: false, // Attribute checks don't fumble
         });
-        
+
         const logEntry = activityLogService.createDiceRollEntry(
           `${attributeLabel} check`,
           rollResult,
@@ -72,13 +72,13 @@ export function useDiceActions(): UseDiceActionsReturn {
       try {
         const attributeLabel = attributeName.charAt(0).toUpperCase() + attributeName.slice(1);
         const formula = value >= 0 ? `1d20 + ${value}` : `1d20 - ${Math.abs(value)}`;
-        
+
         const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: false, // Saves don't crit
           allowFumbles: false, // Saves don't fumble
         });
-        
+
         const logEntry = activityLogService.createDiceRollEntry(
           `${attributeLabel} save`,
           rollResult,
@@ -101,16 +101,15 @@ export function useDiceActions(): UseDiceActionsReturn {
     ) => {
       try {
         const totalModifier = attributeValue + skillModifier;
-        const formula = totalModifier >= 0 
-          ? `1d20 + ${totalModifier}`
-          : `1d20 - ${Math.abs(totalModifier)}`;
-        
+        const formula =
+          totalModifier >= 0 ? `1d20 + ${totalModifier}` : `1d20 - ${Math.abs(totalModifier)}`;
+
         const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: false, // Skill checks don't crit
           allowFumbles: false, // Skill checks don't fumble
         });
-        
+
         const logEntry = activityLogService.createDiceRollEntry(
           `${skillName} skill check`,
           rollResult,
@@ -128,17 +127,16 @@ export function useDiceActions(): UseDiceActionsReturn {
     async (totalModifier: number, advantageLevel: number) => {
       try {
         // Build the formula string
-        const formula = totalModifier >= 0 
-          ? `1d20 + ${totalModifier}`
-          : `1d20 - ${Math.abs(totalModifier)}`;
-        
+        const formula =
+          totalModifier >= 0 ? `1d20 + ${totalModifier}` : `1d20 - ${Math.abs(totalModifier)}`;
+
         // Roll using dice formula service (no crits/fumbles for initiative)
         const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: false,
           allowFumbles: false,
         });
-        
+
         // Calculate actions based on initiative roll total (game rules)
         let actionsGranted: number;
         if (rollResult.total < 10) {
@@ -152,7 +150,7 @@ export function useDiceActions(): UseDiceActionsReturn {
         const logEntry = activityLogService.createInitiativeEntry(
           actionsGranted,
           formula,
-          rollResult.diceData
+          rollResult.diceData,
         );
         await addLogEntry(logEntry);
 
@@ -174,16 +172,17 @@ export function useDiceActions(): UseDiceActionsReturn {
     ) => {
       try {
         // Build formula with modifier
-        const formula = attributeModifier >= 0 
-          ? `${damage} + ${attributeModifier}`
-          : `${damage} - ${Math.abs(attributeModifier)}`;
-        
+        const formula =
+          attributeModifier >= 0
+            ? `${damage} + ${attributeModifier}`
+            : `${damage} - ${Math.abs(attributeModifier)}`;
+
         const rollResult = diceService.evaluateDiceFormula(formula, {
           advantageLevel,
           allowCriticals: true, // Attacks can crit
           allowFumbles: true, // Attacks can fumble
         });
-        
+
         const logEntry = activityLogService.createDiceRollEntry(
           `${weaponName} attack`,
           rollResult,

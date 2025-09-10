@@ -182,8 +182,6 @@ export class AbilityService {
         ability.type === "action" || ability.type === "spell",
     );
   }
-
-
 }
 
 export const abilityService = new AbilityService();

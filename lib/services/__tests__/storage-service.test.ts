@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { LocalStorageService, InMemoryStorageService, IStorageService } from "../storage-service";
+
+import { IStorageService, InMemoryStorageService, LocalStorageService } from "../storage-service";
 
 describe("Storage Services", () => {
   describe("InMemoryStorageService", () => {
@@ -36,7 +37,7 @@ describe("Storage Services", () => {
       storage.setItem("key1", "value1");
       storage.setItem("key2", "value2");
       storage.setItem("key3", "value3");
-      
+
       const keys = storage.getAllKeys();
       expect(keys).toHaveLength(3);
       expect(keys).toContain("key1");
@@ -64,7 +65,7 @@ describe("Storage Services", () => {
       it("should get all items with getAll", () => {
         storage.setItem("key1", "value1");
         storage.setItem("key2", "value2");
-        
+
         const all = storage.getAll();
         expect(all).toEqual({
           key1: "value1",
@@ -78,7 +79,7 @@ describe("Storage Services", () => {
           key2: "value2",
           key3: "value3",
         });
-        
+
         expect(storage.getItem("key1")).toBe("value1");
         expect(storage.getItem("key2")).toBe("value2");
         expect(storage.getItem("key3")).toBe("value3");
@@ -109,7 +110,7 @@ describe("Storage Services", () => {
       };
 
       // Mock window.localStorage
-      Object.defineProperty(window, 'localStorage', {
+      Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
         writable: true,
       });
@@ -157,19 +158,21 @@ describe("Storage Services", () => {
 
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      
+
       // Should not throw
       expect(() => storage.setItem("test", "value")).not.toThrow();
       // Either error or warn should have been called
-      expect(consoleErrorSpy.mock.calls.length + consoleWarnSpy.mock.calls.length).toBeGreaterThan(0);
-      
+      expect(consoleErrorSpy.mock.calls.length + consoleWarnSpy.mock.calls.length).toBeGreaterThan(
+        0,
+      );
+
       consoleErrorSpy.mockRestore();
       consoleWarnSpy.mockRestore();
     });
 
     it("should handle missing localStorage gracefully", () => {
       // Remove localStorage
-      Object.defineProperty(window, 'localStorage', {
+      Object.defineProperty(window, "localStorage", {
         value: undefined,
         writable: true,
       });
@@ -203,14 +206,14 @@ describe("Storage Services", () => {
       it("should handle basic CRUD operations", () => {
         // Create
         storage.setItem("key", "value");
-        
+
         // Read
         expect(storage.getItem("key")).toBe("value");
-        
+
         // Update
         storage.setItem("key", "new-value");
         expect(storage.getItem("key")).toBe("new-value");
-        
+
         // Delete
         storage.removeItem("key");
         expect(storage.getItem("key")).toBeNull();
@@ -224,8 +227,8 @@ describe("Storage Services", () => {
     describe("LocalStorageService with mocked localStorage", () => {
       testStorageImplementation(() => {
         const mockStorage: Record<string, string> = {};
-        
-        Object.defineProperty(window, 'localStorage', {
+
+        Object.defineProperty(window, "localStorage", {
           value: {
             getItem: vi.fn((key: string) => mockStorage[key] || null),
             setItem: vi.fn((key: string, value: string) => {
@@ -246,7 +249,7 @@ describe("Storage Services", () => {
           },
           writable: true,
         });
-        
+
         return new LocalStorageService();
       });
     });

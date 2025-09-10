@@ -1,4 +1,5 @@
 import React from "react";
+
 import { DiceRollData } from "../schemas/dice";
 import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "./dice-display-components";
 
@@ -18,23 +19,16 @@ export function DiceRollDisplay({ diceData, description, formula }: DiceRollDisp
       {/* Left side: Description and Formula */}
       <div className="flex items-center gap-3">
         {description && <span className="font-medium">{description}</span>}
-        {formula && (
-          <span className="text-sm text-muted-foreground font-mono">
-            ({formula})
-          </span>
-        )}
+        {formula && <span className="text-sm text-muted-foreground font-mono">({formula})</span>}
       </div>
-      
+
       {/* Right side: Dice display and total */}
       <div className="flex items-center gap-2">
         <span className="text-sm">
           {diceData.isDoubleDigit ? (
-            <DoubleDigitDiceDisplay 
-              dice={diceData.dice}
-              result={diceData.total}
-            />
+            <DoubleDigitDiceDisplay dice={diceData.dice} result={diceData.total} />
           ) : (
-            <DiceFormulaDisplay 
+            <DiceFormulaDisplay
               dice={diceData.dice}
               beforeDice={diceData.beforeExpression}
               afterDice={diceData.afterExpression}

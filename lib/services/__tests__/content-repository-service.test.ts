@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ContentRepositoryService } from "../content-repository-service";
-import { InMemoryStorageService } from "../storage-service";
-import type { ClassDefinition, SubclassDefinition } from "../../schemas/class";
+import type { ActionAbilityDefinition, SpellAbilityDefinition } from "../../schemas/abilities";
 import type { AncestryDefinition } from "../../schemas/ancestry";
 import type { BackgroundDefinition } from "../../schemas/background";
-import type { ActionAbilityDefinition, SpellAbilityDefinition } from "../../schemas/abilities";
+import type { ClassDefinition, SubclassDefinition } from "../../schemas/class";
+import { ContentRepositoryService } from "../content-repository-service";
 import type { SpellSchoolWithSpells } from "../content-repository-service";
+import { InMemoryStorageService } from "../storage-service";
 
 describe("ContentRepositoryService", () => {
   let contentRepository: ContentRepositoryService;
@@ -15,10 +15,10 @@ describe("ContentRepositoryService", () => {
   beforeEach(() => {
     // Reset the singleton instance
     (ContentRepositoryService as any).instance = null;
-    
+
     // Create in-memory storage for testing
     inMemoryStorage = new InMemoryStorageService();
-    
+
     // Create content repository with in-memory storage
     contentRepository = ContentRepositoryService.getInstance(inMemoryStorage);
   });
@@ -34,8 +34,8 @@ describe("ContentRepositoryService", () => {
     it("should load built-in subclasses", () => {
       const subclasses = contentRepository.getSubclassesForClass("berserker");
       expect(subclasses.length).toBeGreaterThan(0);
-      
-      const mountainheart = subclasses.find(s => s.id === "path-of-the-mountainheart");
+
+      const mountainheart = subclasses.find((s) => s.id === "path-of-the-mountainheart");
       expect(mountainheart).toBeDefined();
       expect(mountainheart?.name).toBe("Path of the Mountainheart");
     });
@@ -56,22 +56,22 @@ describe("ContentRepositoryService", () => {
     it("should get all available classes", () => {
       const classes = contentRepository.getAllClasses();
       expect(classes.length).toBeGreaterThan(0);
-      expect(classes.some(c => c.id === "berserker")).toBe(true);
-      expect(classes.some(c => c.id === "mage")).toBe(true);
+      expect(classes.some((c) => c.id === "berserker")).toBe(true);
+      expect(classes.some((c) => c.id === "mage")).toBe(true);
     });
 
     it("should get all available ancestries", () => {
       const ancestries = contentRepository.getAllAncestries();
       expect(ancestries.length).toBeGreaterThan(0);
-      expect(ancestries.some(a => a.id === "human")).toBe(true);
-      expect(ancestries.some(a => a.id === "dwarf")).toBe(true);
+      expect(ancestries.some((a) => a.id === "human")).toBe(true);
+      expect(ancestries.some((a) => a.id === "dwarf")).toBe(true);
     });
 
     it("should get all available backgrounds", () => {
       const backgrounds = contentRepository.getAllBackgrounds();
       expect(backgrounds.length).toBeGreaterThan(0);
-      expect(backgrounds.some(b => b.id === "fearless")).toBe(true);
-      expect(backgrounds.some(b => b.id === "survivalist")).toBe(true);
+      expect(backgrounds.some((b) => b.id === "fearless")).toBe(true);
+      expect(backgrounds.some((b) => b.id === "survivalist")).toBe(true);
     });
   });
 
@@ -104,7 +104,7 @@ describe("ContentRepositoryService", () => {
       const classJson = JSON.stringify([customClass]);
       const uploadResult = contentRepository.uploadClasses(classJson);
       expect(uploadResult.success).toBe(true);
-      
+
       const retrieved = contentRepository.getClassDefinition("test-warrior");
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("Test Warrior");
@@ -115,18 +115,18 @@ describe("ContentRepositoryService", () => {
     it("should include custom classes in getAllClasses", () => {
       const classJson = JSON.stringify([customClass]);
       contentRepository.uploadClasses(classJson);
-      
+
       const allClasses = contentRepository.getAllClasses();
-      expect(allClasses.some(c => c.id === "test-warrior")).toBe(true);
+      expect(allClasses.some((c) => c.id === "test-warrior")).toBe(true);
     });
 
     it("should delete custom class", () => {
       const classJson = JSON.stringify([customClass]);
       contentRepository.uploadClasses(classJson);
-      
+
       const deleted = contentRepository.removeCustomClass("test-warrior");
       expect(deleted).toBe(true);
-      
+
       const retrieved = contentRepository.getClassDefinition("test-warrior");
       expect(retrieved).toBeNull();
     });
@@ -134,7 +134,7 @@ describe("ContentRepositoryService", () => {
     it("should not delete built-in class", () => {
       const deleted = contentRepository.removeCustomClass("berserker");
       expect(deleted).toBe(false);
-      
+
       const berserker = contentRepository.getClassDefinition("berserker");
       expect(berserker).toBeDefined();
     });
@@ -142,11 +142,11 @@ describe("ContentRepositoryService", () => {
     it("should persist custom classes in storage", () => {
       const classJson = JSON.stringify([customClass]);
       contentRepository.uploadClasses(classJson);
-      
+
       // Check that it's in storage
       const stored = inMemoryStorage.getItem("nimble-navigator-custom-classes");
       expect(stored).toBeTruthy();
-      
+
       const parsed = JSON.parse(stored!);
       expect(parsed).toHaveLength(1);
       expect(parsed[0].id).toBe("test-warrior");
@@ -165,7 +165,7 @@ describe("ContentRepositoryService", () => {
 
     it("should add a custom ancestry", async () => {
       await contentRepository.addCustomAncestry(customAncestry);
-      
+
       const retrieved = contentRepository.getAncestryDefinition("test-race");
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("Test Race");
@@ -181,16 +181,16 @@ describe("ContentRepositoryService", () => {
     it("should delete custom ancestry", async () => {
       await contentRepository.addCustomAncestry(customAncestry);
       await contentRepository.removeCustomAncestry("test-race");
-      
+
       const retrieved = contentRepository.getAncestryDefinition("test-race");
       expect(retrieved).toBeNull();
     });
 
     it("should not delete built-in ancestry", async () => {
       await expect(contentRepository.removeCustomAncestry("human")).rejects.toThrow(
-        "Custom ancestry with ID 'human' not found"
+        "Custom ancestry with ID 'human' not found",
       );
-      
+
       const human = contentRepository.getAncestryDefinition("human");
       expect(human).toBeDefined();
     });
@@ -206,7 +206,7 @@ describe("ContentRepositoryService", () => {
 
     it("should add a custom background", async () => {
       await contentRepository.addCustomBackground(customBackground);
-      
+
       const retrieved = contentRepository.getBackgroundDefinition("test-background");
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("Test Background");
@@ -222,7 +222,7 @@ describe("ContentRepositoryService", () => {
     it("should delete custom background", async () => {
       await contentRepository.addCustomBackground(customBackground);
       await contentRepository.removeCustomBackground("test-background");
-      
+
       const retrieved = contentRepository.getBackgroundDefinition("test-background");
       expect(retrieved).toBeNull();
     });
@@ -248,7 +248,7 @@ describe("ContentRepositoryService", () => {
     it("should retrieve uploaded custom ability", () => {
       const abilityJson = JSON.stringify([customAbility]);
       contentRepository.uploadAbilities(abilityJson);
-      
+
       const retrieved = contentRepository.getActionAbility("test-ability");
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("Test Ability");
@@ -259,9 +259,9 @@ describe("ContentRepositoryService", () => {
     it("should get all abilities including custom", () => {
       const abilityJson = JSON.stringify([customAbility]);
       contentRepository.uploadAbilities(abilityJson);
-      
+
       const abilities = contentRepository.getAllActionAbilities();
-      expect(abilities.some(a => a.id === "test-ability")).toBe(true);
+      expect(abilities.some((a) => a.id === "test-ability")).toBe(true);
     });
   });
 
@@ -287,7 +287,7 @@ describe("ContentRepositoryService", () => {
     it("should retrieve uploaded custom spell", () => {
       const spellJson = JSON.stringify([customSpell]);
       contentRepository.uploadSpells(spellJson);
-      
+
       const retrieved = contentRepository.getSpell("test-spell");
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("Test Spell");
@@ -298,9 +298,9 @@ describe("ContentRepositoryService", () => {
     it("should get all spells including custom", () => {
       const spellJson = JSON.stringify([customSpell]);
       contentRepository.uploadSpells(spellJson);
-      
+
       const spells = contentRepository.getAllSpells();
-      expect(spells.some(s => s.id === "test-spell")).toBe(true);
+      expect(spells.some((s) => s.id === "test-spell")).toBe(true);
     });
   });
 
@@ -308,8 +308,8 @@ describe("ContentRepositoryService", () => {
     it("should get all spell schools with spells", () => {
       const schools = contentRepository.getAllSpellSchools();
       expect(schools.length).toBeGreaterThan(0);
-      
-      const fireSchool = schools.find(s => s.id === "fire");
+
+      const fireSchool = schools.find((s) => s.id === "fire");
       expect(fireSchool).toBeDefined();
       expect(fireSchool?.spells.length).toBeGreaterThanOrEqual(0);
     });
@@ -352,7 +352,7 @@ describe("ContentRepositoryService", () => {
     it("should get all feature pools", () => {
       const pools = contentRepository.getAllFeaturePools();
       expect(pools.length).toBeGreaterThan(0);
-      expect(pools.some(p => p.id === "savage-arsenal-pool")).toBe(true);
+      expect(pools.some((p) => p.id === "savage-arsenal-pool")).toBe(true);
     });
   });
 
@@ -361,7 +361,7 @@ describe("ContentRepositoryService", () => {
       const items = contentRepository.getAllItems();
       expect(items.length).toBeGreaterThan(0);
       // Built-in items exist (items are wrapped in RepositoryItem)
-      expect(items.some(i => i.item.name === "Short Sword")).toBe(true);
+      expect(items.some((i) => i.item.name === "Short Sword")).toBe(true);
     });
 
     // Item upload not implemented yet
@@ -379,10 +379,10 @@ describe("ContentRepositoryService", () => {
       const features = contentRepository.getAllClassFeaturesUpToLevel("berserker", 3);
       expect(features).toBeDefined();
       expect(features.length).toBeGreaterThan(0);
-      
+
       // Should include level 1, 2, and 3 features
-      const levels = features.map(f => f.level);
-      expect(levels.some(l => l === 1)).toBe(true);
+      const levels = features.map((f) => f.level);
+      expect(levels.some((l) => l === 1)).toBe(true);
     });
   });
 
@@ -457,7 +457,7 @@ describe("ContentRepositoryService", () => {
 
     it("should update stats when content is added", () => {
       const initialStats = contentRepository.getCustomContentStats();
-      
+
       const customClass: ClassDefinition = {
         id: "stats-test",
         name: "Stats Test",
@@ -474,7 +474,7 @@ describe("ContentRepositoryService", () => {
 
       const classJson = JSON.stringify([customClass]);
       contentRepository.uploadClasses(classJson);
-      
+
       const newStats = contentRepository.getCustomContentStats();
       expect(newStats["class-definition"]).toBe(initialStats["class-definition"] + 1);
     });
@@ -502,7 +502,7 @@ describe("ContentRepositoryService", () => {
       // Verify it's in the in-memory storage
       const stored = inMemoryStorage.getItem("nimble-navigator-custom-classes");
       expect(stored).toBeTruthy();
-      
+
       const parsed = JSON.parse(stored!);
       expect(parsed[0].id).toBe("storage-test");
     });
@@ -566,7 +566,7 @@ describe("ContentRepositoryService", () => {
       // Should handle gracefully and return built-in content
       const classes = contentRepository.getAllClasses();
       expect(classes.length).toBeGreaterThan(0);
-      expect(classes.some(c => c.id === "berserker")).toBe(true);
+      expect(classes.some((c) => c.id === "berserker")).toBe(true);
     });
 
     it("should validate custom content", () => {

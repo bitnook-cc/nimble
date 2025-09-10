@@ -1,4 +1,5 @@
 import React from "react";
+
 import { DiceCategory } from "../schemas/dice";
 
 export interface DiceDisplayProps {
@@ -12,35 +13,35 @@ export interface DiceDisplayProps {
  * Component to display a single die with appropriate styling
  */
 export function DiceDisplay({ value, size, category, isFirst = false }: DiceDisplayProps) {
-  const diceType = size ? `d${size}` : '';
-  
+  const diceType = size ? `d${size}` : "";
+
   const getStyles = () => {
     switch (category) {
-      case 'critical':
+      case "critical":
         return {
           className: "font-bold text-orange-600 dark:text-orange-500",
-          tooltip: `Critical ${diceType} (exploded): ${value}`
+          tooltip: `Critical ${diceType} (exploded): ${value}`,
         };
-      case 'vicious':
+      case "vicious":
         return {
           className: "font-bold text-purple-600 dark:text-purple-500",
-          tooltip: `Vicious ${diceType} (bonus damage): ${value}`
+          tooltip: `Vicious ${diceType} (bonus damage): ${value}`,
         };
-      case 'dropped':
+      case "dropped":
         return {
           className: "text-gray-400 dark:text-gray-500 line-through opacity-60",
-          tooltip: `Dropped ${diceType} (advantage/disadvantage): ${value}`
+          tooltip: `Dropped ${diceType} (advantage/disadvantage): ${value}`,
         };
-      case 'fumble':
+      case "fumble":
         return {
           className: "font-bold text-red-600 dark:text-red-500",
-          tooltip: `Fumble ${diceType} (natural 1): ${value}`
+          tooltip: `Fumble ${diceType} (natural 1): ${value}`,
         };
-      case 'normal':
+      case "normal":
       default:
         return {
           className: isFirst ? "font-semibold" : "",
-          tooltip: `Rolled ${diceType}: ${value}`
+          tooltip: `Rolled ${diceType}: ${value}`,
         };
     }
   };
@@ -48,10 +49,7 @@ export function DiceDisplay({ value, size, category, isFirst = false }: DiceDisp
   const { className, tooltip } = getStyles();
 
   return (
-    <span 
-      className={`inline-block mx-0.5 ${className}`}
-      title={tooltip}
-    >
+    <span className={`inline-block mx-0.5 ${className}`} title={tooltip}>
       [{value}]
     </span>
   );
@@ -60,12 +58,12 @@ export function DiceDisplay({ value, size, category, isFirst = false }: DiceDisp
 /**
  * Component to display the full dice roll formula with rich formatting
  */
-export function DiceFormulaDisplay({ 
-  dice, 
-  beforeDice, 
+export function DiceFormulaDisplay({
+  dice,
+  beforeDice,
   afterDice,
   total,
-  isFumble 
+  isFumble,
 }: {
   dice: Array<{ value: number; size?: number; category: DiceCategory; kept: boolean }>;
   beforeDice?: string;
@@ -74,18 +72,18 @@ export function DiceFormulaDisplay({
   isFumble?: boolean;
 }) {
   // Group dice by whether they're kept or dropped for display
-  const keptDice = dice.filter(d => d.kept);
-  const droppedDice = dice.filter(d => !d.kept);
-  
+  const keptDice = dice.filter((d) => d.kept);
+  const droppedDice = dice.filter((d) => !d.kept);
+
   return (
     <span className="inline-flex items-center gap-1">
       {beforeDice && <span className="text-black dark:text-white font-medium">{beforeDice}</span>}
-      
+
       {/* Display kept dice first */}
       {keptDice.map((die, index) => (
         <React.Fragment key={`kept-${index}`}>
           {index > 0 && <span className="text-gray-400 dark:text-gray-500">+</span>}
-          <DiceDisplay 
+          <DiceDisplay
             value={die.value}
             size={die.size}
             category={die.category}
@@ -93,7 +91,7 @@ export function DiceFormulaDisplay({
           />
         </React.Fragment>
       ))}
-      
+
       {/* Display dropped dice if any */}
       {droppedDice.length > 0 && (
         <>
@@ -101,20 +99,18 @@ export function DiceFormulaDisplay({
           {droppedDice.map((die, index) => (
             <React.Fragment key={`dropped-${index}`}>
               {index > 0 && <span className="text-gray-400 dark:text-gray-500">,</span>}
-              <DiceDisplay 
-                value={die.value}
-                size={die.size}
-                category="dropped"
-              />
+              <DiceDisplay value={die.value} size={die.size} category="dropped" />
             </React.Fragment>
           ))}
         </>
       )}
-      
+
       {afterDice && <span className="text-black text-gray-500 font-medium">{afterDice}</span>}
-      
+
       <span className="text-gray-500 mx-1">=</span>
-      <span className={`font-bold ${isFumble ? 'text-red-600 dark:text-red-500' : 'text-green-600 dark:text-green-500'}`}>
+      <span
+        className={`font-bold ${isFumble ? "text-red-600 dark:text-red-500" : "text-green-600 dark:text-green-500"}`}
+      >
         {total}
       </span>
     </span>
@@ -126,7 +122,7 @@ export function DiceFormulaDisplay({
  */
 export function DoubleDigitDiceDisplay({
   dice,
-  result
+  result,
 }: {
   dice: Array<{ value: number; size?: number; kept: boolean }>;
   result: number;
@@ -135,35 +131,33 @@ export function DoubleDigitDiceDisplay({
   const halfLength = dice.length / 2;
   const tensDice = dice.slice(0, halfLength);
   const onesDice = dice.slice(halfLength);
-  
+
   return (
     <span className="inline-flex items-center gap-1">
       <span className="text-gray-600 dark:text-gray-400 text-sm">Tens:</span>
       {tensDice.map((die, index) => (
-        <DiceDisplay 
+        <DiceDisplay
           key={`tens-${index}`}
           value={die.value}
           size={die.size}
-          category={die.kept ? 'normal' : 'dropped'}
+          category={die.kept ? "normal" : "dropped"}
         />
       ))}
-      
+
       <span className="text-gray-500 mx-2">|</span>
-      
+
       <span className="text-gray-600 dark:text-gray-400 text-sm">Ones:</span>
       {onesDice.map((die, index) => (
-        <DiceDisplay 
+        <DiceDisplay
           key={`ones-${index}`}
           value={die.value}
           size={die.size}
-          category={die.kept ? 'normal' : 'dropped'}
+          category={die.kept ? "normal" : "dropped"}
         />
       ))}
-      
+
       <span className="text-gray-500 dark:text-gray-400 mx-1">=</span>
-      <span className="font-bold text-green-600 dark:text-green-500">
-        {result}
-      </span>
+      <span className="font-bold text-green-600 dark:text-green-500">{result}</span>
     </span>
   );
 }

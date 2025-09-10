@@ -288,7 +288,7 @@ export class CharacterService implements ICharacterService {
         rollResult,
         0, // No advantage for ability rolls by default
       );
-      
+
       await this.logService.addLogEntry(rollLogEntry);
     }
   }
@@ -1286,9 +1286,10 @@ export class CharacterService implements ICharacterService {
     const strengthMod = this.getAttributes().strength;
 
     // Build formula for catch breath
-    const formula = strengthMod >= 0 
-      ? `1d${hitDieSize} + ${strengthMod}`
-      : `1d${hitDieSize} - ${Math.abs(strengthMod)}`;
+    const formula =
+      strengthMod >= 0
+        ? `1d${hitDieSize} + ${strengthMod}`
+        : `1d${hitDieSize} - ${Math.abs(strengthMod)}`;
 
     const rollResult = diceService.evaluateDiceFormula(formula, {
       advantageLevel: 0,
@@ -1330,11 +1331,7 @@ export class CharacterService implements ICharacterService {
     await this.logService.addLogEntry(this.logService.createCatchBreathEntry(1, actualHealing, 0));
 
     // Also log the dice roll for transparency
-    const diceLogEntry = this.logService.createDiceRollEntry(
-      `Catch Breath healing`,
-      rollResult,
-      0,
-    );
+    const diceLogEntry = this.logService.createDiceRollEntry(`Catch Breath healing`, rollResult, 0);
     await this.logService.addLogEntry(diceLogEntry);
   }
 
@@ -1495,10 +1492,7 @@ export class CharacterService implements ICharacterService {
   /**
    * Perform weapon attack with automatic action deduction
    */
-  async performAttack(
-    weapon: WeaponItem,
-    advantageLevel: number,
-  ): Promise<void> {
+  async performAttack(weapon: WeaponItem, advantageLevel: number): Promise<void> {
     if (!this._character) return;
 
     // Check if we have enough actions for weapon attacks (always cost 1 action)
@@ -1527,14 +1521,14 @@ export class CharacterService implements ICharacterService {
 
       // Create a proper dice roll log entry
       const logDescription = `${weapon.name} attack`;
-      
+
       // Create a dice roll entry using the activity log service
       const logEntry = this.logService.createDiceRollEntry(
         logDescription,
         rollResult,
         advantageLevel,
       );
-      
+
       await this.logService.addLogEntry(logEntry);
 
       // Deduct action if in encounter (weapons always cost 1 action)

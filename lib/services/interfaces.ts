@@ -20,7 +20,7 @@ import {
   Skills,
   UtilitySpellsEffectSelection,
 } from "../schemas/character";
-import { FeaturePool } from "../schemas/class";
+import { ClassDefinition, FeaturePool } from "../schemas/class";
 import {
   CharacterFeature,
   ClassFeature,
@@ -206,6 +206,7 @@ export interface ICharacterService {
  * Handles class features and progression
  */
 export interface IClassService {
+  getCharacterClass(character: Character): ClassDefinition | null;
   getExpectedFeaturesForCharacter(character: Character): ClassFeature[];
   selectSubclass(
     character: Character,

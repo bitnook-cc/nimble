@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { berserkerClass } from "../../data/classes/berserker";
 import { human } from "../../data/ancestries/human";
 import { fearless } from "../../data/backgrounds/fearless";
+import { berserkerClass } from "../../data/classes/berserker";
 import type { Character } from "../../schemas/character";
+import { StorageBasedCharacterRepository } from "../../storage/storage-based-character-repository";
 import { CharacterCreationService } from "../character-creation-service";
 import { CharacterStorageService } from "../character-storage-service";
+import type { IAncestryService, IBackgroundService, ICharacterService } from "../interfaces";
 import { InMemoryStorageService } from "../storage-service";
-import { StorageBasedCharacterRepository } from "../../storage/storage-based-character-repository";
-import type { ICharacterService, IAncestryService, IBackgroundService } from "../interfaces";
 
 describe("CharacterCreationService", () => {
   let characterCreationService: CharacterCreationService;
@@ -23,7 +23,7 @@ describe("CharacterCreationService", () => {
 
     // Create in-memory storage for testing
     inMemoryStorage = new InMemoryStorageService();
-    
+
     // Create real character storage service with in-memory storage
     characterStorageService = new CharacterStorageService(inMemoryStorage);
 
@@ -61,19 +61,19 @@ describe("CharacterCreationService", () => {
         id: "character-123",
         name: "Test Hero",
         classId: "berserker",
-        ancestryId: "human", 
+        ancestryId: "human",
         backgroundId: "fearless",
         level: 1,
         effectSelections: [],
         _spellTierAccess: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
-        _initiative: { 
+        _initiative: {
           name: "Initiative",
           associatedAttribute: "dexterity" as const,
           modifier: 0,
-          bonus: 0, 
-          isPrimarySkill: false 
+          bonus: 0,
+          isPrimarySkill: false,
         },
         _skills: {},
         _abilities: [],
@@ -93,11 +93,11 @@ describe("CharacterCreationService", () => {
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },
         inEncounter: false,
-        inventory: { 
-          items: [], 
+        inventory: {
+          items: [],
           capacity: 10,
           maxSize: 10,
-          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 }
+          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -114,7 +114,7 @@ describe("CharacterCreationService", () => {
       const updatedCharacter = await characterStorageService.getCharacter("character-123");
       expect(updatedCharacter).toBeDefined();
       expect(updatedCharacter?.inventory).toBeDefined();
-      
+
       // Note: Without ItemService mocking, the items won't be created,
       // but the inventory structure should still be updated
     });
@@ -138,12 +138,12 @@ describe("CharacterCreationService", () => {
         _spellTierAccess: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
-        _initiative: { 
+        _initiative: {
           name: "Initiative",
           associatedAttribute: "dexterity" as const,
           modifier: 0,
-          bonus: 0, 
-          isPrimarySkill: false 
+          bonus: 0,
+          isPrimarySkill: false,
         },
         _skills: {},
         _abilities: [],
@@ -163,11 +163,11 @@ describe("CharacterCreationService", () => {
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },
         inEncounter: false,
-        inventory: { 
-          items: [{ id: "existing", name: "Existing Item", type: "freeform" as const, size: 1 }], 
+        inventory: {
+          items: [{ id: "existing", name: "Existing Item", type: "freeform" as const, size: 1 }],
           capacity: 10,
           maxSize: 10,
-          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 }
+          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -210,12 +210,12 @@ describe("CharacterCreationService", () => {
         _spellTierAccess: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
-        _initiative: { 
+        _initiative: {
           name: "Initiative",
           associatedAttribute: "dexterity" as const,
           modifier: 0,
-          bonus: 0, 
-          isPrimarySkill: false 
+          bonus: 0,
+          isPrimarySkill: false,
         },
         _skills: {},
         _abilities: [],
@@ -235,11 +235,11 @@ describe("CharacterCreationService", () => {
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },
         inEncounter: false,
-        inventory: { 
-          items: [], 
+        inventory: {
+          items: [],
           capacity: 10,
           maxSize: 10,
-          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 }
+          currency: { copper: 0, silver: 0, gold: 0, platinum: 0 },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -282,7 +282,7 @@ describe("CharacterCreationService", () => {
       // Verify the service was created with all dependencies
       expect(characterCreationService).toBeDefined();
       expect(characterStorageService).toBeDefined();
-      
+
       // Verify mock services were called as expected
       expect(mockAncestryService.getAvailableAncestries).toBeDefined();
       expect(mockBackgroundService.getAvailableBackgrounds).toBeDefined();

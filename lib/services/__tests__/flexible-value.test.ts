@@ -4,11 +4,12 @@ import type { Character } from "../../schemas/character";
 import { FlexibleValue } from "../../schemas/flexible-value";
 import { calculateFlexibleValue } from "../../types/flexible-value";
 import { formulaEvaluatorService } from "../formula-evaluator-service";
-import { getCharacterService } from "../service-factory";
+import { getCharacterService, getClassService } from "../service-factory";
 
-// Mock the character service
+// Mock the character service and class service
 vi.mock("../service-factory", () => ({
   getCharacterService: vi.fn(),
+  getClassService: vi.fn(),
 }));
 
 describe("FlexibleValue", () => {
@@ -34,6 +35,11 @@ describe("FlexibleValue", () => {
         intelligence: 1,
         will: 4,
       }),
+    });
+
+    // Setup class service mock (return null for no class)
+    (getClassService as any).mockReturnValue({
+      getCharacterClass: () => null,
     });
   });
 
@@ -107,7 +113,9 @@ describe("FlexibleValue", () => {
       });
 
       it("should substitute full attribute names", () => {
-        const result = formulaEvaluatorService.evaluateFormula("STRENGTH + DEXTERITY + INTELLIGENCE + WILL");
+        const result = formulaEvaluatorService.evaluateFormula(
+          "STRENGTH + DEXTERITY + INTELLIGENCE + WILL",
+        );
         expect(result).toBe(10); // 3 + 2 + 1 + 4
       });
 
@@ -184,21 +192,21 @@ describe("FlexibleValue", () => {
     describe("previewFormula", () => {
       it("should return both result and substituted expression", () => {
         const preview = formulaEvaluatorService.previewFormula("STR + WIL");
-        
+
         expect(preview.result).toBe(7); // 3 + 4
         expect(preview.substituted).toBe("3 + 4");
       });
 
       it("should show level substitution", () => {
         const preview = formulaEvaluatorService.previewFormula("LEVEL * 2 + DEX");
-        
+
         expect(preview.result).toBe(12); // 5 * 2 + 2
         expect(preview.substituted).toBe("5 * 2 + 2");
       });
 
       it("should handle complex expressions", () => {
         const preview = formulaEvaluatorService.previewFormula("(STR + DEX) * (WIL - INT)");
-        
+
         expect(preview.result).toBe(15); // (3 + 2) * (4 - 1) = 5 * 3
         expect(preview.substituted).toBe("(3 + 2) * (4 - 1)");
       });
@@ -258,7 +266,9 @@ describe("FlexibleValue", () => {
       });
 
       it("should handle nested parentheses", () => {
-        const result = formulaEvaluatorService.evaluateFormula("((2 + 3) * (4 + 5)) + ((6 - 1) * 2)");
+        const result = formulaEvaluatorService.evaluateFormula(
+          "((2 + 3) * (4 + 5)) + ((6 - 1) * 2)",
+        );
         expect(result).toBe(55); // (5 * 9) + (5 * 2) = 45 + 10
       });
 
