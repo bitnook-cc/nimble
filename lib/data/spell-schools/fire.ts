@@ -53,12 +53,13 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "enchant-weapon",
     name: "Enchant Weapon",
     description:
-      "Tier 2, 1 Action, Single Target. Concentration: Up to 1 minute. A weapon you touch is enchanted with magical flame. It deals +KEY damage and inflicts Smoldering on crit. Upcast: +KEY damage.",
+      "Tier 2, 1 Action, Single Target. Concentration: Up to 1 minute. A weapon you touch is enchanted with magical flame. It deals +KEY damage and inflicts Smoldering on crit.",
     type: "spell",
     school: "fire",
     tier: 2,
     category: "combat",
     actionCost: 1,
+    upcastBonus: "+INT",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -71,12 +72,13 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "flame-barrier",
     name: "Flame Barrier",
     description:
-      "Tier 3, 1 Action, Self. Reaction: When attacked. Defend for free. Until the start of your next turn, melee attackers against you take KEY damage (ignoring armor) and gain Smoldering. Upcast: +KEY damage.",
+      "Tier 3, 1 Action, Self. Reaction: When attacked. Defend for free. Until the start of your next turn, melee attackers against you take KEY damage (ignoring armor) and gain Smoldering.",
     type: "spell",
     school: "fire",
     tier: 3,
     category: "combat",
     actionCost: 1,
+    upcastBonus: "+INT",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -96,6 +98,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "2d20+10",
+    upcastBonus: "+2",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

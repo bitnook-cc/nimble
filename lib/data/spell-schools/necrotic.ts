@@ -26,6 +26,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d12",
+    scalingBonus: "+6",
   },
 
   // Tier 1
@@ -40,6 +41,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d12",
+    upcastBonus: "+1d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -59,6 +61,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d12",
+    upcastBonus: "+2",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -97,6 +100,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "5d12",
+    upcastBonus: "+1d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -116,6 +120,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d20",
+    upcastBonus: "+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -135,6 +140,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d6", // d66 with advantage represented as 3d6
+    upcastBonus: "+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -154,6 +160,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 3,
     diceFormula: "4d20",
+    upcastBonus: "+1d20",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -173,6 +180,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d12+INT",
+    scalingBonus: "+1d12",
   },
   {
     id: "summon-shadow",

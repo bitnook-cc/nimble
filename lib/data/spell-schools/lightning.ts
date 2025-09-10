@@ -42,6 +42,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d8",
+    upcastBonus: "+4",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -79,6 +80,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d8+4",
+    upcastBonus: "+4",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

@@ -14,6 +14,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d6",
+    scalingBonus: "+2",
   },
   {
     id: "true-strike",
@@ -39,6 +40,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d6+INT",
+    upcastBonus: "+1d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -168,6 +170,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d6+WIL",
+    upcastBonus: "+1d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

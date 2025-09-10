@@ -41,6 +41,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 1,
+    upcastBonus: "+2*INT",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -53,13 +54,14 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     id: "shatter",
     name: "Shatter",
     description:
-      "Tier 2, 2 Actions, Single Target. Range: 12. Damage: 3d6. If any die rolls the max against a Hampered target, this counts as a crit. On crit: +20 damage. Deal freeze increase the crit range by 1. ANY die by 1. +5 damage on crit.",
+      "Tier 2, 2 Actions, Single Target. Range: 12. Damage: 3d6. If any die rolls the max against a Hampered target, this counts as a crit. On crit: +20 damage. Upcast: +5 damage on crit.",
     type: "spell",
     school: "ice",
     tier: 2,
     category: "combat",
     actionCost: 2,
     diceFormula: "3d6",
+    upcastBonus: "+5",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -97,6 +99,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 3,
     diceFormula: "2d6",
+    upcastBonus: "+1",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

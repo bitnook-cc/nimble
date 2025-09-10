@@ -14,6 +14,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d4",
+    scalingBonus: "+2",
   },
   {
     id: "breath-of-life",
@@ -39,6 +40,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "3d4",
+    upcastBonus: "+5",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -94,6 +96,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 2,
     diceFormula: "4d4+10",
+    upcastBonus: "+1d4",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -113,6 +116,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 3,
     diceFormula: "1d6",
+    upcastBonus: "+1d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -169,6 +173,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     category: "combat",
     actionCost: 1,
     diceFormula: "1d4+INT",
+    scalingBonus: "+2",
   },
 ];
 
