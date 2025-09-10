@@ -8,6 +8,7 @@ import {
   Plus,
   Shield,
   Sparkles,
+  Sparkle,
   TrendingUp,
   Users,
   Zap,
@@ -53,6 +54,8 @@ const getEffectIcon = (effectType: string) => {
       return <Sparkles className="h-3 w-3" />;
     case "spell_tier_access":
       return <Crown className="h-3 w-3" />;
+    case "spell_scaling":
+      return <Sparkle className="h-3 w-3" />;
     case "resource":
       return <CircleDot className="h-3 w-3" />;
     case "subclass_choice":
@@ -84,6 +87,8 @@ const getEffectLabel = (effectType: string) => {
       return "Utility Spells";
     case "spell_tier_access":
       return "Spell Tier Access";
+    case "spell_scaling":
+      return "Cantrip Scaling";
     case "resource":
       return "Resource";
     case "subclass_choice":
@@ -205,6 +210,17 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
 
     case "spell_tier_access":
       return `Access to Tier ${effect.maxTier} spells`;
+
+    case "spell_scaling":
+      const multiplier = (effect as any).multiplier || 1;
+      const scalingDescriptions = [
+        "Your cantrips deal additional damage",
+        "Your cantrips grow stronger with enhanced damage",
+        "Your cantrips become significantly more powerful",
+        "Your cantrips reach their maximum potential"
+      ];
+      const bonusText = multiplier === 1 ? "(+1× scaling bonus)" : `(+${multiplier}× scaling bonus)`;
+      return `${scalingDescriptions[multiplier - 1] || scalingDescriptions[0]} ${bonusText}`;
 
     case "resource":
       return `${effect.resourceDefinition.name}: ${effect.resourceDefinition.description || "Resource"}`;

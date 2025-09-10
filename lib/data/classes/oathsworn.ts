@@ -206,7 +206,13 @@ const oathswornFeatures: ClassFeature[] = [
     level: 5,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "upgraded-cantrips-1-0",
+        type: "spell_scaling",
+        multiplier: 1,
+      },
+    ],
   },
   {
     id: "secondary-stat-increase-1",
@@ -329,7 +335,13 @@ const oathswornFeatures: ClassFeature[] = [
     level: 10,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "upgraded-cantrips-2-0",
+        type: "spell_scaling",
+        multiplier: 2,
+      },
+    ],
   },
   {
     id: "radiant-judgment-5",
@@ -426,7 +438,13 @@ const oathswornFeatures: ClassFeature[] = [
     level: 15,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "upgraded-cantrips-3-0",
+        type: "spell_scaling",
+        multiplier: 3,
+      },
+    ],
   },
   {
     id: "sacred-decree-6",
@@ -502,7 +520,13 @@ const oathswornFeatures: ClassFeature[] = [
     level: 20,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "upgraded-cantrips-4-0",
+        type: "spell_scaling",
+        multiplier: 4,
+      },
+    ],
   },
 ];
 
