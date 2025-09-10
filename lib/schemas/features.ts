@@ -151,6 +151,11 @@ const ResistanceFeatureEffectSchema = BaseFeatureEffectSchema.extend({
   resistances: z.array(ResistanceSchema),
 });
 
+const SpellScalingFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+  type: z.literal("spell_scaling"),
+  multiplier: z.number().int().min(1).max(4),
+});
+
 export const FeatureEffectSchema = z.discriminatedUnion("type", [
   AbilityFeatureEffectSchema,
   AttributeBoostFeatureEffectSchema,
@@ -164,6 +169,7 @@ export const FeatureEffectSchema = z.discriminatedUnion("type", [
   SubclassChoiceFeatureEffectSchema,
   PickFeatureFromPoolFeatureEffectSchema,
   ResistanceFeatureEffectSchema,
+  SpellScalingFeatureEffectSchema,
 ]);
 
 // Export individual effect schemas for validation
@@ -180,6 +186,7 @@ export {
   SubclassChoiceFeatureEffectSchema,
   PickFeatureFromPoolFeatureEffectSchema,
   ResistanceFeatureEffectSchema,
+  SpellScalingFeatureEffectSchema,
 };
 
 // ========================================
@@ -234,7 +241,8 @@ export type FeatureEffectType =
   | "resource"
   | "subclass_choice"
   | "pick_feature_from_pool"
-  | "resistance";
+  | "resistance"
+  | "spell_scaling";
 
 export type EffectSource = "feature" | "item";
 
@@ -256,6 +264,7 @@ export type PickFeatureFromPoolFeatureEffect = z.infer<
   typeof PickFeatureFromPoolFeatureEffectSchema
 >;
 export type ResistanceFeatureEffect = z.infer<typeof ResistanceFeatureEffectSchema>;
+export type SpellScalingFeatureEffect = z.infer<typeof SpellScalingFeatureEffectSchema>;
 
 export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
 

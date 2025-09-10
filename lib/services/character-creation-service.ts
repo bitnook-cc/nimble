@@ -238,6 +238,7 @@ export class CharacterCreationService implements ICharacterCreation {
       level: 1,
       classId,
       _spellTierAccess: 0,
+      _spellScalingLevel: 0,
       _proficiencies: proficiencies,
       _attributes: attributes,
       _initiative: createDefaultInitiative(),

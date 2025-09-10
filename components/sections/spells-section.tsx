@@ -42,6 +42,33 @@ export function SpellsSection() {
     (ability) => ability.type === "spell",
   ) as SpellAbilityDefinition[];
 
+  // Get spell scaling multiplier
+  const spellScalingMultiplier = characterService.getSpellScalingLevel();
+
+  // Helper function to get effective damage formula with scaling
+  const getEffectiveDamageFormula = (spell: SpellAbilityDefinition): string | null => {
+    if (!spell.diceFormula) return null;
+    
+    // If no scaling bonus or multiplier is 0, return base formula
+    if (!spell.scalingBonus || spellScalingMultiplier === 0) {
+      return spell.diceFormula;
+    }
+
+    // Build the effective formula
+    const scalingPart = spell.scalingBonus.startsWith('+') || spell.scalingBonus.startsWith('-')
+      ? spell.scalingBonus
+      : `+${spell.scalingBonus}`;
+    
+    // If multiplier is 1, just add the bonus once
+    if (spellScalingMultiplier === 1) {
+      return `${spell.diceFormula}${scalingPart}`;
+    } else {
+      // Extract the numeric/dice part from the scaling bonus and multiply
+      const cleanBonus = scalingPart.replace(/^[+-]/, '');
+      return `${spell.diceFormula}+${spellScalingMultiplier}×(${cleanBonus})`;
+    }
+  };
+
   // Find mana resource (if any)
   const resources = characterService.getResources();
   const manaResource = resources.find(
@@ -226,7 +253,12 @@ export function SpellsSection() {
                             <p className="text-sm text-muted-foreground">{spell.description}</p>
                             {spell.diceFormula && (
                               <div className="text-xs text-muted-foreground">
-                                Roll: {spell.diceFormula}
+                                <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                  <span className="ml-2 text-green-600">
+                                    (Scaled ×{spellScalingMultiplier})
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>
@@ -346,7 +378,12 @@ export function SpellsSection() {
                                     </p>
                                     {spell.diceFormula && (
                                       <div className="text-xs text-muted-foreground/70">
-                                        Roll: {spell.diceFormula}
+                                        <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                        {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                          <span className="ml-2 text-green-600/70">
+                                            (Will scale ×{spellScalingMultiplier})
+                                          </span>
+                                        )}
                                       </div>
                                     )}
                                   </div>

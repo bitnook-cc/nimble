@@ -7,25 +7,27 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     id: "ice-lance",
     name: "Ice Lance",
     description:
-      "Cantrip, 1 Action, Single Target. Range: 12. Damage: 1d6 cold or piercing damage. On hit: Slowed. High Levels: +3 damage every 5 levels.",
+      "Cantrip, 1 Action, Single Target. Range: 12. Damage: 1d6 cold or piercing damage. On hit: Slowed.",
     type: "spell",
     school: "ice",
     tier: 0,
     category: "combat",
     actionCost: 1,
     diceFormula: "1d6",
+    scalingBonus: "+3",
   },
   {
     id: "snowblind",
     name: "Snowblind",
     description:
-      "Cantrip, 1 Action, Single Target. Reach: 1. Damage: 1d6. On hit: Blinded until the end of their next turn. High Levels: +3 damage every 5 levels.",
+      "Cantrip, 1 Action, Single Target. Reach: 1. Damage: 1d6. On hit: Blinded until the end of their next turn.",
     type: "spell",
     school: "ice",
     tier: 0,
     category: "combat",
     actionCost: 1,
     diceFormula: "1d6",
+    scalingBonus: "+3",
   },
 
   // Tier 1

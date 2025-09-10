@@ -140,6 +140,7 @@ export interface ICharacterService {
     { currentLevel: number; overriddenLevels: number[]; isManual: boolean }
   >;
   getSpellSchools(): string[];
+  getSpellScalingLevel(): number;
   getSubclassId(): string | null;
   applyDamage(amount: number, targetType?: "hp" | "temp_hp"): Promise<void>;
   applyHealing(amount: number): Promise<void>;

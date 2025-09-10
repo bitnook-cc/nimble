@@ -7,25 +7,27 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     id: "zap",
     name: "Zap",
     description:
-      "Cantrip, 1 Action, Single Target. Range: 12. Damage: 2d8. On miss: the lightning fails to find ground, and strikes you instead. High Levels: +6 damage every 5 levels.",
+      "Cantrip, 1 Action, Single Target. Range: 12. Damage: 2d8. On miss: the lightning fails to find ground, and strikes you instead.",
     type: "spell",
     school: "lightning",
     tier: 0,
     category: "combat",
     actionCost: 1,
     diceFormula: "2d8",
+    scalingBonus: "+6",
   },
   {
     id: "overload",
     name: "Overload",
     description:
-      "Cantrip, 1 Action, AoE. Castiable only if you are Charged, ending the condition. Reach: 2. Damage: 2d8 to others within Reach. High Levels: +4 damage every 5 levels. Charged: Whenever you take lightning damage, you are Charged for 1 minute.",
+      "Cantrip, 1 Action, AoE. Castiable only if you are Charged, ending the condition. Reach: 2. Damage: 2d8 to others within Reach. Charged: Whenever you take lightning damage, you are Charged for 1 minute.",
     type: "spell",
     school: "lightning",
     tier: 0,
     category: "combat",
     actionCost: 1,
     diceFormula: "2d8",
+    scalingBonus: "+4",
   },
 
   // Tier 1

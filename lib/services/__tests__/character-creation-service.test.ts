@@ -66,6 +66,7 @@ describe("CharacterCreationService", () => {
         level: 1,
         effectSelections: [],
         _spellTierAccess: 0,
+        _spellScalingLevel: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
         _initiative: {
@@ -136,6 +137,7 @@ describe("CharacterCreationService", () => {
         level: 1,
         effectSelections: [],
         _spellTierAccess: 0,
+        _spellScalingLevel: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
         _initiative: {
@@ -208,6 +210,7 @@ describe("CharacterCreationService", () => {
         level: 1,
         effectSelections: [],
         _spellTierAccess: 0,
+        _spellScalingLevel: 0,
         _proficiencies: { weapons: [], armor: [], tools: [] },
         _attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
         _initiative: {

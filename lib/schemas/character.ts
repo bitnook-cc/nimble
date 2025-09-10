@@ -171,6 +171,7 @@ export const characterSchema = z.object({
   classId: z.string().min(1),
   effectSelections: z.array(effectSelectionSchema),
   _spellTierAccess: z.int().min(0).max(9),
+  _spellScalingLevel: z.int().min(0).max(4),
   _proficiencies: proficienciesSchema,
   _attributes: attributeSchema,
   _initiative: skillSchema,
@@ -233,6 +234,7 @@ export interface CreateCharacterData {
   subclassId?: string;
   effectSelections: EffectSelection[];
   _spellTierAccess: number;
+  _spellScalingLevel: number;
   _proficiencies: Proficiencies;
   _attributes: Attributes;
   _initiative: Skill;

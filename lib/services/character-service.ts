@@ -32,6 +32,7 @@ import { characterStorageService } from "./character-storage-service";
 import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
 import { featureSelectionService } from "./feature-selection-service";
+import { FormulaEvaluatorService } from "./formula-evaluator-service";
 import { IAbilityService, IActivityLog, ICharacterService, ICharacterStorage } from "./interfaces";
 import { resourceService } from "./resource-service";
 import {
@@ -276,8 +277,33 @@ export class CharacterService implements ICharacterService {
 
     // Handle ability roll if it has one
     if (ability.diceFormula) {
+      let effectiveFormula = ability.diceFormula;
+      
+      // Apply spell scaling if this is a spell with scaling bonus
+      if (ability.type === "spell" && ability.scalingBonus) {
+        const scalingMultiplier = this.getSpellScalingLevel();
+        if (scalingMultiplier > 0) {
+          // Clean the scaling bonus (remove leading +/-)
+          const cleanBonus = ability.scalingBonus.replace(/^[+-]/, '');
+          
+          // Create a formula evaluator to evaluate the scaling bonus
+          const formulaEvaluator = new FormulaEvaluatorService();
+          
+          // Evaluate the scaling bonus formula (e.g., "5" or "INT")
+          // Multiply by the scaling multiplier
+          const scalingBonusValue = formulaEvaluator.evaluateFormula(cleanBonus);
+          const totalScalingBonus = scalingBonusValue * scalingMultiplier;
+          
+          // Add the total scaling bonus to the effective formula
+          if (totalScalingBonus !== 0) {
+            const sign = totalScalingBonus > 0 ? '+' : '';
+            effectiveFormula = `${ability.diceFormula}${sign}${totalScalingBonus}`;
+          }
+        }
+      }
+      
       // Use dice formula service for rich display
-      const rollResult = diceService.evaluateDiceFormula(ability.diceFormula, {
+      const rollResult = diceService.evaluateDiceFormula(effectiveFormula, {
         advantageLevel: 0, // No advantage for ability rolls by default
         allowCriticals: true, // Abilities can crit
         allowFumbles: true, // Abilities can fumble
@@ -446,6 +472,30 @@ export class CharacterService implements ICharacterService {
     }
 
     return maxTier;
+  }
+
+  /**
+   * Get the spell scaling multiplier based on effects
+   */
+  getSpellScalingLevel(): number {
+    if (!this._character) return 0;
+
+    // Start with base spell scaling multiplier
+    let scalingMultiplier = this._character._spellScalingLevel || 0;
+
+    // Check for spell scaling effects - only highest applies
+    const scalingEffects = this.getAllActiveEffects().filter(
+      (effect) => effect.type === "spell_scaling",
+    );
+
+    for (const effect of scalingEffects) {
+      const scalingEffect = effect as any;
+      if (scalingEffect.multiplier > scalingMultiplier) {
+        scalingMultiplier = scalingEffect.multiplier;
+      }
+    }
+
+    return scalingMultiplier;
   }
 
   /**

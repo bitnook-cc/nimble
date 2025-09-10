@@ -7,13 +7,14 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "flame-dart",
     name: "Flame Dart",
     description:
-      "Cantrip, 1 Action, Single Target. Range: 8. Damage: 1d10. On crit: Smoldering. High Levels: +5 damage every 5 levels.",
+      "Cantrip, 1 Action, Single Target. Range: 8. Damage: 1d10. On crit: Smoldering.",
     type: "spell",
     school: "fire",
     tier: 0,
     category: "combat",
     actionCost: 1,
     diceFormula: "1d10",
+    scalingBonus: "+5",
   },
   {
     id: "hearts-fire",
