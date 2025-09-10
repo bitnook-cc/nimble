@@ -24,7 +24,7 @@ import { AttributeName } from "@/lib/schemas/character";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { abilityService } from "@/lib/services/ability-service";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { parseDiceExpression } from "@/lib/utils/dice-parser";
+import { validateDiceFormula, getExampleFormulas, getSupportedVariables } from "@/lib/utils/formula-utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -45,11 +45,7 @@ interface NewAbilityForm {
   maxUsesValue?: number; // For fixed type
   maxUsesExpression?: string; // For formula type
   actionCost?: number;
-  roll?: {
-    dice: string;
-    modifier?: number;
-    attribute?: AttributeName;
-  };
+  diceFormula?: string;
   resourceCost?: {
     type: "fixed" | "variable";
     resourceId: string;
@@ -124,15 +120,7 @@ export function AbilitySection() {
                 }
               : {}),
             ...(newAbility.actionCost ? { actionCost: newAbility.actionCost } : {}),
-            ...(newAbility.roll && newAbility.roll.dice
-              ? {
-                  roll: {
-                    dice: parseDiceExpression(newAbility.roll.dice) || { count: 1, sides: 6 },
-                    modifier: newAbility.roll.modifier,
-                    attribute: newAbility.roll.attribute,
-                  },
-                }
-              : {}),
+            ...(newAbility.diceFormula ? { diceFormula: newAbility.diceFormula } : {}),
             ...(newAbility.resourceCost && newAbility.resourceCost.resourceId
               ? {
                   resourceCost:
@@ -286,10 +274,9 @@ export function AbilitySection() {
                 )}
               </div>
               <p className="text-sm text-muted-foreground mb-2">{ability.description}</p>
-              {actionAbility.roll && (
+              {actionAbility.diceFormula && (
                 <div className="mb-3 p-2 bg-muted/50 rounded text-sm">
-                  <strong>Roll:</strong>{" "}
-                  {abilityService.getAbilityRollDescription(actionAbility.roll, character)}
+                  <strong>Roll:</strong> {actionAbility.diceFormula}
                 </div>
               )}
 
@@ -671,79 +658,33 @@ export function AbilitySection() {
                         </div>
                       </div>
 
-                      {/* Roll Configuration */}
+                      {/* Dice Formula Configuration */}
                       <div className="space-y-2">
-                        <Label>Roll Configuration (Optional)</Label>
-                        <div className="space-y-3 p-3 border rounded-md">
-                          <div className="space-y-2">
-                            <Label htmlFor="ability-dice">Dice (e.g., 2d4, 1d6)</Label>
-                            <Input
-                              id="ability-dice"
-                              placeholder="2d4"
-                              value={newAbility.roll?.dice || ""}
-                              onChange={(e) =>
-                                setNewAbility({
-                                  ...newAbility,
-                                  roll: {
-                                    ...newAbility.roll,
-                                    dice: e.target.value,
-                                  },
-                                })
+                        <Label htmlFor="ability-dice-formula">Dice Formula (Optional)</Label>
+                        <Input
+                          id="ability-dice-formula"
+                          placeholder="e.g., 1d20+5, 2d6+STR, STRd6"
+                          value={newAbility.diceFormula || ""}
+                          onChange={(e) => {
+                            const formula = e.target.value;
+                            setNewAbility({
+                              ...newAbility,
+                              diceFormula: formula,
+                            });
+                            
+                            // Validate the formula if it's not empty
+                            if (formula) {
+                              const validation = validateDiceFormula(formula);
+                              if (!validation.valid) {
+                                // You could set an error state here for display
+                                console.warn("Invalid dice formula:", validation.error);
                               }
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="ability-modifier">Fixed Modifier</Label>
-                              <Input
-                                id="ability-modifier"
-                                type="number"
-                                placeholder="0"
-                                value={newAbility.roll?.modifier || ""}
-                                onChange={(e) =>
-                                  setNewAbility({
-                                    ...newAbility,
-                                    roll: {
-                                      dice: newAbility.roll?.dice || "",
-                                      ...newAbility.roll,
-                                      modifier: e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined,
-                                    },
-                                  })
-                                }
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="ability-attribute">Attribute</Label>
-                              <Select
-                                value={newAbility.roll?.attribute || "none"}
-                                onValueChange={(value: AttributeName | "none") =>
-                                  setNewAbility({
-                                    ...newAbility,
-                                    roll: {
-                                      dice: newAbility.roll?.dice || "",
-                                      ...newAbility.roll,
-                                      attribute: value === "none" ? undefined : value,
-                                    },
-                                  })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="None" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">None</SelectItem>
-                                  <SelectItem value="strength">Strength</SelectItem>
-                                  <SelectItem value="dexterity">Dexterity</SelectItem>
-                                  <SelectItem value="intelligence">Intelligence</SelectItem>
-                                  <SelectItem value="will">Will</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
+                            }
+                          }}
+                        />
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          <p>Examples: {getExampleFormulas().slice(0, 3).join(", ")}</p>
+                          <p>Variables: {getSupportedVariables().filter(v => v.length <= 3).join(", ")}</p>
                         </div>
                       </div>
                     </>

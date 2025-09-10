@@ -224,11 +224,9 @@ export function SpellsSection() {
                             </div>
 
                             <p className="text-sm text-muted-foreground">{spell.description}</p>
-                            {spell.roll && (
+                            {spell.diceFormula && (
                               <div className="text-xs text-muted-foreground">
-                                Roll: {spell.roll.dice.count}d{spell.roll.dice.sides}
-                                {spell.roll.modifier && ` + ${spell.roll.modifier}`}
-                                {spell.roll.attribute && ` + ${spell.roll.attribute}`}
+                                Roll: {spell.diceFormula}
                               </div>
                             )}
                           </div>
@@ -346,11 +344,9 @@ export function SpellsSection() {
                                     <p className="text-sm text-muted-foreground/70">
                                       {spell.description}
                                     </p>
-                                    {spell.roll && (
+                                    {spell.diceFormula && (
                                       <div className="text-xs text-muted-foreground/70">
-                                        Roll: {spell.roll.dice.count}d{spell.roll.dice.sides}
-                                        {spell.roll.modifier && ` + ${spell.roll.modifier}`}
-                                        {spell.roll.attribute && ` + ${spell.roll.attribute}`}
+                                        Roll: {spell.diceFormula}
                                       </div>
                                     )}
                                   </div>

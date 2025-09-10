@@ -1,6 +1,5 @@
 import {
   AbilityDefinition,
-  AbilityRoll,
   ActionAbilityDefinition,
   SpellAbilityDefinition,
   UsableAbilityDefinition,
@@ -184,43 +183,7 @@ export class AbilityService {
     );
   }
 
-  /**
-   * Calculate the total modifier for an ability roll
-   */
-  calculateAbilityRollModifier(abilityRoll: AbilityRoll, character: Character): number {
-    let totalModifier = abilityRoll.modifier || 0;
 
-    if (abilityRoll.attribute) {
-      totalModifier += character._attributes[abilityRoll.attribute];
-    }
-
-    return totalModifier;
-  }
-
-  /**
-   * Get ability roll description for display
-   */
-  getAbilityRollDescription(abilityRoll: AbilityRoll, character: Character): string {
-    const diceString = `${abilityRoll.dice.count}d${abilityRoll.dice.sides}`;
-    const parts: string[] = [diceString];
-
-    if (abilityRoll.modifier) {
-      parts.push(abilityRoll.modifier > 0 ? `+${abilityRoll.modifier}` : `${abilityRoll.modifier}`);
-    }
-
-    if (abilityRoll.attribute) {
-      const attributeValue = character._attributes[abilityRoll.attribute];
-      const attributeName =
-        abilityRoll.attribute.charAt(0).toUpperCase() + abilityRoll.attribute.slice(1, 3);
-      parts.push(
-        attributeValue >= 0
-          ? `+${attributeValue} ${attributeName}`
-          : `${attributeValue} ${attributeName}`,
-      );
-    }
-
-    return parts.join(" ");
-  }
 }
 
 export const abilityService = new AbilityService();

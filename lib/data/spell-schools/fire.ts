@@ -13,9 +13,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 10 },
-    },
+    diceFormula: "1d10",
   },
   {
     id: "hearts-fire",
@@ -40,9 +38,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 4, sides: 10 },
-    },
+    diceFormula: "4d10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -97,10 +93,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     tier: 4,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 2, sides: 20 },
-      modifier: 10,
-    },
+    diceFormula: "2d20+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

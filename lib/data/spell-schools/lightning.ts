@@ -13,9 +13,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 2, sides: 8 },
-    },
+    diceFormula: "2d8",
   },
   {
     id: "overload",
@@ -27,9 +25,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 2, sides: 8 },
-    },
+    diceFormula: "2d8",
   },
 
   // Tier 1
@@ -43,9 +39,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 8 },
-    },
+    diceFormula: "3d8",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -82,10 +76,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 3,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 8 },
-      modifier: 4,
-    },
+    diceFormula: "3d8+4",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -140,9 +131,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 6,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 2, sides: 8 }, // d88 represented as 2d8 with special interpretation
-    },
+    diceFormula: "2d8", // d88 represented as 2d8 with special interpretation
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -161,9 +150,7 @@ const lightningSchoolSpells: SpellAbilityDefinition[] = [
     tier: 9,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 2, sides: 8 }, // d88 represented as 2d8
-    },
+    diceFormula: "2d8", // d88 represented as 2d8
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

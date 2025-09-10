@@ -1,6 +1,5 @@
 import {
   AbilityDefinition,
-  AbilityRoll,
   ActionAbilityDefinition,
   SpellAbilityDefinition,
   UsableAbilityDefinition,
@@ -117,7 +116,6 @@ export interface IAbilityService {
     variableResourceAmount?: number,
   ): boolean;
   getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number;
-  calculateAbilityRollModifier(roll: AbilityRoll, character: Character): number;
   calculateMaxUses(ability: ActionAbilityDefinition): number;
 }
 

@@ -275,18 +275,9 @@ export class CharacterService implements ICharacterService {
     }
 
     // Handle ability roll if it has one
-    if (ability.roll) {
-      const roll = ability.roll;
-      const totalModifier = this.abilityService.calculateAbilityRollModifier(roll, this._character);
-
-      // Build the formula string for the ability roll
-      const diceString = `${roll.dice.count}d${roll.dice.sides}`;
-      const formula = totalModifier >= 0 
-        ? `${diceString} + ${totalModifier}`
-        : `${diceString} - ${Math.abs(totalModifier)}`;
-
+    if (ability.diceFormula) {
       // Use dice formula service for rich display
-      const rollResult = diceService.evaluateDiceFormula(formula, {
+      const rollResult = diceService.evaluateDiceFormula(ability.diceFormula, {
         advantageLevel: 0, // No advantage for ability rolls by default
         allowCriticals: true, // Abilities can crit
         allowFumbles: true, // Abilities can fumble

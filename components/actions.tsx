@@ -230,10 +230,9 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                     <div className="text-center text-sm">
                       <div className="text-muted-foreground mb-2">{ability.description}</div>
 
-                      {ability.roll && (
+                      {ability.diceFormula && (
                         <div className="mb-2 p-2 bg-muted/50 rounded text-sm">
-                          <strong>Roll:</strong>{" "}
-                          {abilityService.getAbilityRollDescription(ability.roll, character)}
+                          <strong>Roll:</strong> {ability.diceFormula}
                         </div>
                       )}
 

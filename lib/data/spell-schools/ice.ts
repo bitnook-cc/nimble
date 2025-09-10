@@ -13,9 +13,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 6 },
-    },
+    diceFormula: "1d6",
   },
   {
     id: "snowblind",
@@ -27,9 +25,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 6 },
-    },
+    diceFormula: "1d6",
   },
 
   // Tier 1
@@ -61,9 +57,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 2,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 6 },
-    },
+    diceFormula: "3d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -100,9 +94,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 4,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 2, sides: 6 },
-    },
+    diceFormula: "2d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -121,10 +113,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 5,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 4, sides: 6 },
-      modifier: 10,
-    },
+    diceFormula: "4d6+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -143,9 +132,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 8,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 1, sides: 66 },
-    },
+    diceFormula: "1d66",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -164,9 +151,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     tier: 9,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 1, sides: 66 },
-    },
+    diceFormula: "1d66",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

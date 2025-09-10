@@ -1,25 +1,6 @@
 import { z } from "zod";
 
-import { diceExpressionSchema } from "./dice";
 import { flexibleValueSchema } from "./flexible-value";
-
-export const AbilityRollSchema = z
-  .object({
-    dice: diceExpressionSchema.meta({
-      title: "Dice",
-      description: "Dice to roll for this ability",
-    }),
-    modifier: z
-      .int()
-      .int()
-      .optional()
-      .meta({ title: "Modifier", description: "Fixed modifier to add to the roll (integer)" }),
-    attribute: z
-      .enum(["strength", "dexterity", "intelligence", "will"])
-      .optional()
-      .meta({ title: "Attribute", description: "Attribute to add to the roll" }),
-  })
-  .meta({ title: "Ability Roll", description: "Roll configuration for abilities" });
 
 export const ResourceCostSchema = z
   .discriminatedUnion("type", [
@@ -82,7 +63,10 @@ export const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
   type: z.literal("action"),
   frequency: AbilityFrequencySchema,
   maxUses: flexibleValueSchema.optional(),
-  roll: AbilityRollSchema.optional(),
+  diceFormula: z.string().optional().meta({ 
+    title: "Dice Formula", 
+    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')" 
+  }),
 }).meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
 // Spell ability schema
@@ -91,7 +75,10 @@ export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
   school: z.string().min(1),
   tier: z.number().int().min(0).max(9),
   category: z.enum(["combat", "utility"]),
-  roll: AbilityRollSchema.optional(),
+  diceFormula: z.string().optional().meta({ 
+    title: "Dice Formula", 
+    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')" 
+  }),
 }).meta({ title: "Spell Ability", description: "Spell that characters can cast" });
 
 // Combined ability schema
@@ -108,7 +95,6 @@ export const AbilitySchema = z.discriminatedUnion("type", [
 ]);
 
 // Export inferred types
-export type AbilityRoll = z.infer<typeof AbilityRollSchema>;
 export type ResourceCost = z.infer<typeof ResourceCostSchema>;
 export type FixedResourceCost = Extract<ResourceCost, { type: "fixed" }>;
 export type VariableResourceCost = Extract<ResourceCost, { type: "variable" }>;

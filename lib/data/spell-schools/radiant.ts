@@ -13,9 +13,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 6 },
-    },
+    diceFormula: "1d6",
   },
   {
     id: "true-strike",
@@ -40,10 +38,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 6 },
-      attribute: "intelligence",
-    },
+    diceFormula: "1d6+INT",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -117,9 +112,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     tier: 5,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 1, sides: 100 },
-    },
+    diceFormula: "1d100",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -174,10 +167,7 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 6 },
-      attribute: "will",
-    },
+    diceFormula: "1d6+WIL",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",

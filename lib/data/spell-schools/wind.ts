@@ -13,9 +13,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 4 },
-    },
+    diceFormula: "1d4",
   },
   {
     id: "breath-of-life",
@@ -40,9 +38,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 4 },
-    },
+    diceFormula: "3d4",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -97,10 +93,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 4,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 4, sides: 4 },
-      modifier: 10,
-    },
+    diceFormula: "4d4+10",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -119,9 +112,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 5,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 1, sides: 6 },
-    },
+    diceFormula: "1d6",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -140,9 +131,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 6,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 3, sides: 4 }, // d44 with advantage represented as 3d4
-    },
+    diceFormula: "3d4", // d44 with advantage represented as 3d4
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -179,10 +168,7 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 4 },
-      attribute: "intelligence",
-    },
+    diceFormula: "1d4+INT",
   },
 ];
 

@@ -7,6 +7,7 @@ import { getCharacterService } from "../services/service-factory";
 
 // Regex patterns for validation
 export const OPERATOR_REGEX = /^[+\-*/\(\)0-9\s]+$/;
+export const DICE_NOTATION_REGEX = /\b(\d+)?d(\d+)\b/gi;
 
 // Dangerous patterns that should be rejected for security
 const DANGEROUS_PATTERNS = [
@@ -179,4 +180,104 @@ export function safeEvaluate(expression: string): number {
   } catch (error) {
     throw new Error(`Failed to evaluate expression "${expression}": ${error}`);
   }
+}
+
+/**
+ * Validate a dice formula for syntax and safety
+ * @param formula The dice formula to validate
+ * @returns Object with validation result and error message if invalid
+ */
+export function validateDiceFormula(formula: string): { valid: boolean; error?: string } {
+  if (!formula || formula.trim().length === 0) {
+    return { valid: false, error: "Formula cannot be empty" };
+  }
+
+  try {
+    // Step 1: Clean the formula
+    const cleaned = sanitizeExpression(formula);
+    
+    // Step 2: Check for dice notation
+    const hasDice = DICE_NOTATION_REGEX.test(cleaned);
+    if (!hasDice) {
+      return { valid: false, error: "Formula must contain at least one dice notation (e.g., 1d20, 2d6)" };
+    }
+    
+    // Step 3: Validate dice types
+    const diceMatches = [...cleaned.matchAll(/\b(\d+)?d(\d+)\b/gi)];
+    const validDiceTypes = [4, 6, 8, 10, 12, 20, 44, 66, 88, 100];
+    
+    for (const match of diceMatches) {
+      const sides = parseInt(match[2]);
+      if (!validDiceTypes.includes(sides)) {
+        return { 
+          valid: false, 
+          error: `Invalid dice type d${sides}. Valid types: d4, d6, d8, d10, d12, d20, d44, d66, d88, d100` 
+        };
+      }
+      
+      const count = match[1] ? parseInt(match[1]) : 1;
+      if (count <= 0 || count > 20) {
+        return { 
+          valid: false, 
+          error: `Invalid dice count ${count}. Must be between 1 and 20` 
+        };
+      }
+    }
+    
+    // Step 4: Replace dice and variables with numbers for syntax check
+    let testExpression = cleaned;
+    
+    // Replace dice notation with a number
+    testExpression = testExpression.replace(/\b(\d+)?d(\d+)\b/gi, "1");
+    
+    // Replace known variables with numbers
+    const variables = ["STR", "STRENGTH", "DEX", "DEXTERITY", "INT", "INTELLIGENCE", "WIL", "WILL", "LEVEL", "LVL"];
+    for (const variable of variables) {
+      testExpression = testExpression.replace(new RegExp(`\\b${variable}\\b`, "gi"), "1");
+    }
+    
+    // Step 5: Check if only valid characters remain
+    if (!OPERATOR_REGEX.test(testExpression)) {
+      return { valid: false, error: "Formula contains invalid characters or unknown variables" };
+    }
+    
+    // Step 6: Try to evaluate the test expression to check syntax
+    try {
+      safeEvaluate(testExpression);
+    } catch (error) {
+      return { valid: false, error: "Invalid mathematical expression syntax" };
+    }
+    
+    return { valid: true };
+  } catch (error) {
+    return { valid: false, error: `Validation error: ${error}` };
+  }
+}
+
+/**
+ * Get list of supported variables for dice formulas
+ */
+export function getSupportedVariables(): string[] {
+  return [
+    "STR", "STRENGTH",
+    "DEX", "DEXTERITY", 
+    "INT", "INTELLIGENCE",
+    "WIL", "WILL",
+    "LEVEL", "LVL"
+  ];
+}
+
+/**
+ * Get example dice formulas for UI hints
+ */
+export function getExampleFormulas(): string[] {
+  return [
+    "1d20+5",
+    "2d6+STR",
+    "STRd6",
+    "1d8+LEVEL+2",
+    "(2d4+1)*2",
+    "3d6+DEX",
+    "1d12+STR*2"
+  ];
 }

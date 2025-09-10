@@ -13,9 +13,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 4 },
-    },
+    diceFormula: "1d4",
   },
   {
     id: "withering-touch",
@@ -27,9 +25,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 12 },
-    },
+    diceFormula: "1d12",
   },
 
   // Tier 1
@@ -43,9 +39,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 1,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 12 },
-    },
+    diceFormula: "3d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -64,9 +58,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 2,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 12 },
-    },
+    diceFormula: "1d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -85,9 +77,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 3,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 4, sides: 12 },
-    },
+    diceFormula: "4d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -106,9 +96,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 4,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 5, sides: 12 },
-    },
+    diceFormula: "5d12",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -127,9 +115,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 5,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 20 },
-    },
+    diceFormula: "3d20",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -148,9 +134,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 6,
     category: "combat",
     actionCost: 2,
-    roll: {
-      dice: { count: 3, sides: 6 }, // d66 with advantage represented as 3d6
-    },
+    diceFormula: "3d6", // d66 with advantage represented as 3d6
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -169,9 +153,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 7,
     category: "combat",
     actionCost: 3,
-    roll: {
-      dice: { count: 4, sides: 20 },
-    },
+    diceFormula: "4d20",
     resourceCost: {
       type: "fixed",
       resourceId: "mana",
@@ -190,10 +172,7 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
     tier: 0,
     category: "combat",
     actionCost: 1,
-    roll: {
-      dice: { count: 1, sides: 12 },
-      attribute: "intelligence",
-    },
+    diceFormula: "1d12+INT",
   },
   {
     id: "summon-shadow",

@@ -292,6 +292,28 @@ app/page.tsx (main orchestrator)
     - Consistent visual feedback and state indicators
     - Mode-aware component rendering
 
+18. **Dice Formula System**
+    - **Dice Notation**: Standard dice notation (e.g., `1d20`, `3d6`, `2d8+5`)
+    - **Mathematical Operations**: Supports `+`, `-`, `*`, `/`, parentheses
+    - **Variable Substitution**:
+      - Attributes: `STR`, `DEX`, `INT`, `WIL` (or full names: `STRENGTH`, `DEXTERITY`, `INTELLIGENCE`, `WILL`)
+      - Character level: `LEVEL` or `LVL`
+      - Examples: `1d20+STR`, `2d6+LEVEL*2`, `STRd6+2`
+    - **Special Dice**: 
+      - Standard: d4, d6, d8, d10, d12, d20, d100
+      - Double-digit: d44, d66, d88 (roll two dice for tens and ones)
+    - **Dice Options**:
+      - Advantage/Disadvantage: Roll extra dice and keep highest/lowest
+      - Critical hits: Exploding dice on max rolls (d20 only)
+      - Fumbles: Natural 1 on d20 results in automatic failure
+      - Vicious: Extra non-exploding die on critical hits
+    - **Formula Examples**:
+      - `1d20+5` - Roll d20 and add 5
+      - `2d6+STR` - Roll 2d6 and add Strength attribute
+      - `STRd6` - Roll number of d6 equal to Strength
+      - `1d8+LEVEL+2` - Roll d8, add level and 2
+      - `(2d4+1)*2` - Roll 2d4, add 1, then multiply by 2
+
 ## Key Design Principles
 
 - **Type Safety**: TypeScript throughout with Zod runtime validation
