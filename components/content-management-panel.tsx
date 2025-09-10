@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Copy,
   Database,
+  Download,
   ExternalLink,
   FileText,
   Package,
@@ -218,6 +219,24 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
     return uniqueSpells;
   };
 
+  const exportContent = (item: ContentItem, contentType: CustomContentType) => {
+    const metadata = getContentTypeMetadata(contentType);
+    const itemId = 'item' in item ? (item as RepositoryItem).item.id : (item as any).id;
+    const filename = `${itemId}.json`;
+    
+    const jsonContent = JSON.stringify(item, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const renderContentSection = (contentType: CustomContentType, count: number) => {
     const metadata = getContentTypeMetadata(contentType);
     const items = getContentForType(contentType);
@@ -420,7 +439,17 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-muted-foreground">{repoItem.item.id}</div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-muted-foreground">{repoItem.item.id}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-5 w-5 p-0"
+                                      onClick={() => exportContent(repoItem, contentType)}
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </Button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -457,7 +486,17 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         </span>
                                       )}
                                     </div>
-                                    <div className="text-muted-foreground">{spell.id}</div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">{spell.id}</span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-5 w-5 p-0"
+                                        onClick={() => exportContent(spell, contentType)}
+                                      >
+                                        <Download className="h-3 w-3" />
+                                      </Button>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -487,8 +526,18 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
                                     </div>
                                   </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {repositoryItem.item.id}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                      {repositoryItem.item.id}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => exportContent(item, contentType)}
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </Button>
                                   </div>
                                 </div>
                               );
@@ -531,8 +580,18 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       </div>
                                     )}
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {regularItem.id}
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">
+                                    {regularItem.id}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => exportContent(item, contentType)}
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               </div>
                             );
