@@ -157,26 +157,6 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
       amount: 7,
     },
   },
-
-  // Tier 1 (Shepherd only)
-  {
-    id: "lifebinding-spirit",
-    name: "Lifebinding Spirit",
-    description:
-      "Tier 1, 1 Action. Summon a spirit companion that follows you and is immune to harm. It lasts until you cast this spell again, take a Safe Rest, or it heals a number of times equal to the mana spent summoning it. Action: It attacks or heals a creature within Reach 4. It attacks for 1d6 + WIL radiant damage (ignoring armor), or heals for the same amount. Upcast: Increment its die size by 1 (max d12), +1 healing use. SHEPHERD ONLY",
-    type: "spell",
-    school: "radiant",
-    tier: 1,
-    category: "combat",
-    actionCost: 1,
-    diceFormula: "1d6+WIL",
-    upcastBonus: "+1d6",
-    resourceCost: {
-      type: "fixed",
-      resourceId: "mana",
-      amount: 1,
-    },
-  },
 ];
 
 const radiantUtilitySpells: SpellAbilityDefinition[] = [

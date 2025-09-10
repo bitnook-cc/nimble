@@ -179,7 +179,6 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
 
       // Prepare feature-related updates
       let updatedAttributes = { ...character._attributes };
-      let updatedAbilities = [...character._abilities];
       let updatedResourceDefinitions = [...(character._resourceDefinitions || [])];
       let updatedResourceValues = new Map(character._resourceValues || new Map());
       let effectSelections: EffectSelection[] = [...(character.effectSelections || [])];
@@ -245,22 +244,8 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                     .getAllSpellSchools()
                     .find((s) => s.id === selection.schoolId);
                   if (selectedSchool) {
-                    // Get only combat spells from the selected school up to current tier access
-                    // Utility spells must be selected separately via utility_spells effect
-                    const schoolSpells = contentRepo
-                      .getCombatSpellsForSchool(selection.schoolId)
-                      .filter((spell) => spell.tier <= spellTierAccess);
-
-                    // Add spells that aren't already in abilities
-                    const currentSpellIds = new Set(
-                      updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                    );
-                    const newSpells = schoolSpells.filter(
-                      (spell) => !currentSpellIds.has(spell.id),
-                    );
-                    updatedAbilities.push(...newSpells);
-
                     // Selection is already tracked in levelUpData.effectSelections
+                    // Spells from spell schools are now calculated dynamically from features
                     effectSelections.push(selection);
                   }
                 }
@@ -273,53 +258,8 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 );
 
                 if (utilitySelections.length > 0) {
-                  // Add selected utility spells
-                  const utilitySpellsEffect = effect as UtilitySpellsFeatureEffect;
-                  const addedSpellIds: string[] = [];
-
-                  utilitySelections.forEach((sel) => {
-                    if (sel.type === "utility_spells") {
-                      if (sel.spellId) {
-                        // Regular spell selection
-                        const spell = contentRepo.getSpellById(sel.spellId);
-                        if (spell && spell.tier === 0) {
-                          // Add spell if not already in abilities
-                          const currentSpellIds = new Set(
-                            updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                          );
-                          if (!currentSpellIds.has(spell.id)) {
-                            updatedAbilities.push(spell);
-                            addedSpellIds.push(spell.id);
-                          }
-                        }
-                      } else if (
-                        sel.schoolId &&
-                        utilitySpellsEffect.selectionMode === "full_school"
-                      ) {
-                        // Full school selection - add all utility spells from this school
-                        const schoolSpells = contentRepo.getUtilitySpellsForSchool(sel.schoolId);
-                        if (schoolSpells) {
-                          const utilitySpells = schoolSpells.filter(
-                            (spell) =>
-                              spell.category === "utility" && spell.tier <= spellTierAccess,
-                          );
-                          const currentSpellIds = new Set(
-                            updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                          );
-                          utilitySpells.forEach((spell) => {
-                            if (!currentSpellIds.has(spell.id)) {
-                              updatedAbilities.push(spell);
-                              addedSpellIds.push(spell.id);
-                              currentSpellIds.add(spell.id);
-                            }
-                          });
-                        }
-                      }
-                    }
-                  });
-
-                  // Selections are already tracked in levelUpData.effectSelections
-                  // No need to add them again
+                  // Utility spell selections are already tracked in levelUpData.effectSelections
+                  // Spells are now calculated dynamically from features and effect selections
                 }
                 break;
 
@@ -335,38 +275,15 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   const pickFeatureEffect = effect as PickFeatureFromPoolFeatureEffect;
                   const selectedFeature = selection.feature;
                   if (selectedFeature) {
-                    // Apply the selected feature's effects
-                    for (const selectedEffect of selectedFeature.effects) {
-                      if (selectedEffect.type === "ability") {
-                        const abilityEffect = selectedEffect as AbilityFeatureEffect;
-                        if (
-                          abilityEffect?.ability &&
-                          !updatedAbilities.some((a) => a.id === abilityEffect.ability.id)
-                        ) {
-                          updatedAbilities.push(abilityEffect.ability);
-                        }
-                      }
-                    }
                     // Selection is already tracked in levelUpData.effectSelections
+                    // Abilities from picked features are now calculated dynamically
                     effectSelections.push(selection);
                   }
                 }
                 break;
 
               case "spell_school":
-                const spellSchoolEffect = effect as SpellSchoolFeatureEffect;
-                // Get only combat spells from the school up to current tier access
-                // Utility spells must be selected separately via utility_spells effect
-                const schoolSpells = contentRepo
-                  .getCombatSpellsForSchool(spellSchoolEffect?.schoolId || "")
-                  .filter((spell) => spell.tier <= spellTierAccess);
-
-                // Add spells that aren't already in abilities
-                const currentSpellIds = new Set(
-                  updatedAbilities.filter((a) => a.type === "spell").map((a) => a.id),
-                );
-                const newSpells = schoolSpells.filter((spell) => !currentSpellIds.has(spell.id));
-                updatedAbilities.push(...newSpells);
+                // Spells from spell school effects are now calculated dynamically from features
                 break;
 
               case "spell_tier_access":
@@ -397,13 +314,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 break;
 
               case "ability":
-                const abilityEffect = effect as AbilityFeatureEffect;
-                if (
-                  abilityEffect?.ability &&
-                  !updatedAbilities.some((a) => a.id === abilityEffect.ability.id)
-                ) {
-                  updatedAbilities.push(abilityEffect.ability);
-                }
+                // Abilities from effects are now calculated dynamically from features
                 break;
             }
           }
@@ -426,7 +337,6 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
         },
         _skills: updatedSkills,
         _attributes: updatedAttributes,
-        _abilities: updatedAbilities,
         _resourceDefinitions: updatedResourceDefinitions,
         _resourceValues: updatedResourceValues,
         effectSelections,
