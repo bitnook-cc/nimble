@@ -5,7 +5,7 @@
   "outputDirectory": "apps/web/out",
   "rewrites": [
     {
-      "source": "/v0/api/:path*",
+      "source": "/api/:path*",
       "destination": "https://nimble-api.vercel.app/:path*"
     }
   ]

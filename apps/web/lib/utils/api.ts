@@ -1,15 +1,15 @@
 /**
  * API utility for making requests to the backend
  * - In development: calls localhost:3001
- * - In production: calls /v0/api (proxied by Vercel)
+ * - In production: calls /api (proxied by Vercel)
  */
 
 const getApiUrl = () => {
   // Check if we're in the browser
   if (typeof window !== 'undefined') {
-    // In production, use the relative /v0/api path (Vercel will rewrite it)
+    // In production, use the relative /api path (Vercel will rewrite it)
     if (window.location.hostname !== 'localhost') {
-      return '/v0/api';
+      return '/api';
     }
   }
   // In development, use the local API server
