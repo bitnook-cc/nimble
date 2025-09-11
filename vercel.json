@@ -2,7 +2,7 @@
   "buildCommand": "turbo run build --filter=@nimble/web",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/web/.next",
+  "outputDirectory": "apps/web/out",
   "rewrites": [
     {
       "source": "/v0/api/:path*",
