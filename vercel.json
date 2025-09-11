@@ -1,10 +1,12 @@
 {
-  "buildCommand": "turbo run build",
-  "framework": null,
+  "buildCommand": "turbo run build --filter=@nimble/web",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://nimble-api.vercel.app/$1"
+      "source": "/api/:path*",
+      "destination": "https://nimble-api.vercel.app/:path*"
     }
   ]
 }
