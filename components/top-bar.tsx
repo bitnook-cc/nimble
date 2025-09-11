@@ -14,6 +14,7 @@ interface TopBarProps {
   settings: AppSettings;
   characters: Character[];
   onSettingsChange: (settings: AppSettings) => void;
+  hasCharacter?: boolean;
 }
 
 function CompactAdvantageToggle() {
@@ -78,7 +79,7 @@ function CompactAdvantageToggle() {
   );
 }
 
-export function TopBar({ settings, characters, onSettingsChange }: TopBarProps) {
+export function TopBar({ settings, characters, onSettingsChange, hasCharacter = false }: TopBarProps) {
   return (
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
@@ -94,10 +95,14 @@ export function TopBar({ settings, characters, onSettingsChange }: TopBarProps) 
         {/* Center - Empty space for balance */}
         <div></div>
 
-        {/* Right side - Advantage and Roll Panel */}
+        {/* Right side - Advantage and Roll Panel (only show when character exists) */}
         <div className="flex items-center gap-3">
-          <CompactAdvantageToggle />
-          <RollPanel />
+          {hasCharacter && (
+            <>
+              <CompactAdvantageToggle />
+              <RollPanel />
+            </>
+          )}
         </div>
       </div>
     </div>
