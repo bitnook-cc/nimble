@@ -1,0 +1,10 @@
+{
+  "buildCommand": "turbo run build",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://nimble-api.vercel.app/$1"
+    }
+  ]
+}

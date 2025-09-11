@@ -9,6 +9,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@nimble/web",
+    "dev:api": "turbo dev --filter=@nimble/api",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
