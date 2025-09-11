@@ -1,7 +1,7 @@
 {
   "buildCommand": "turbo run build --filter=@nimble/web",
   "installCommand": "npm install",
-  "framework": "",
+  "framework": "null",
   "outputDirectory": "apps/web/out",
   "rewrites": [
     {
