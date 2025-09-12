@@ -12,16 +12,65 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 - **Location**: `apps/api/`
 - **Port**: 3001 (configurable via PORT env var)
 - **Entry**: `apps/api/src/index.ts`
+- **Authentication**: Iron Session (serverless-compatible) with Google OAuth
+- **Database**: PostgreSQL with Prisma ORM
 - **Endpoints**:
   - `GET /` - Welcome message
   - `GET /health` - Health check
   - `GET /api/hello` - Example API endpoint
+  - `GET /auth/google` - Initiate Google OAuth
+  - `GET /auth/user` - Get current user
+  - `POST /auth/logout` - Logout user
+  - `GET /db/test` - Test database connection (development)
+
+## Database Configuration
+
+### Local Development (PostgreSQL with Docker)
+The API uses PostgreSQL for data persistence. In local development, a Docker container is automatically started.
+
+#### Automatic Setup
+- **Auto-start**: Database automatically starts when running `npm run dev`
+- **Container**: `nimble-postgres` (PostgreSQL 15 Alpine)
+- **Database**: `nimbledb`
+- **Port**: 5432
+- **Credentials**: See `.env.example` for local defaults
+
+#### Database Commands (from `apps/api/`)
+```bash
+npm run db:start-local  # Start PostgreSQL container
+npm run db:push         # Push schema to database
+npm run db:generate     # Generate Prisma client
+npm run db:studio       # Open Prisma Studio GUI
+```
+
+#### Docker Management
+```bash
+docker stop nimble-postgres    # Stop database
+docker start nimble-postgres   # Start database
+docker logs nimble-postgres    # View logs
+docker rm nimble-postgres      # Remove container (data persists in volume)
+```
+
+### Production (Vercel Postgres)
+For production deployment:
+1. Create database in Vercel Dashboard > Storage
+2. Copy `DATABASE_URL` from Vercel to environment variables
+3. Deploy - Prisma will use Vercel's managed PostgreSQL
+
+### Environment Variables
+```bash
+# .env (local development)
+DATABASE_URL="postgresql://postgres:nimblelocal123@localhost:5432/nimbledb?schema=public"
+
+# Production (Vercel)
+DATABASE_URL="postgres://user:pass@host/database?sslmode=require"
+```
 
 ## Turborepo Commands
 
 ### Root Level Commands (run from `/Users/six/prototype/nimble`)
 ```bash
-# Development
+# Development (auto-starts database)
 npm run dev           # Run all apps in development mode
 npm run dev:web       # Run only web app
 npm run dev:api       # Run only API server
@@ -80,10 +129,20 @@ Nimble Navigator: A comprehensive digital character sheet application for the Ni
 - **Zod** for runtime data validation
 - **pdf-lib** for PDF generation and manipulation
 
+### Backend
+
+- **Express.js** REST API server
+- **Iron Session** for serverless-compatible sessions (encrypted cookies)
+- **Passport.js** with Google OAuth 2.0
+- **Prisma ORM** for database access
+- **PostgreSQL** database (local Docker / Vercel Postgres)
+- **TypeScript** with tsx for development
+
 ### Storage
 
-- **Local Storage** with abstraction layer for future server sync
-- **No server-side state** currently (designed for easy migration)
+- **Local Storage** for client-side character data
+- **PostgreSQL** for server-side data persistence
+- **Iron Session cookies** for authentication state
 
 ### Mobile
 
