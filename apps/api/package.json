@@ -7,9 +7,11 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
+    "db:deploy": "prisma migrate deploy",
     "predev": "npm run db:start-local",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
+    "vercel-build": "prisma generate && prisma migrate deploy && tsc",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit"

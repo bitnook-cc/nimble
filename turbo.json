@@ -5,7 +5,10 @@
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "SESSION_SECRET",
+    "API_URL",
     "PORT",
+    "COOKIE_DOMAIN",
+    "ALLOWED_ORIGINS",
     "NODE_ENV",
     "DATABASE_URL"
   ],
@@ -13,7 +16,18 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "out/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "out/**", "dist/**"],
+      "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET", 
+        "SESSION_SECRET",
+        "API_URL",
+        "PORT",
+        "COOKIE_DOMAIN",
+        "ALLOWED_ORIGINS",
+        "NODE_ENV",
+        "DATABASE_URL"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

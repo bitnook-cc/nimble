@@ -10,6 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User model for authentication and tracking
+model User {
+  id          String   @id @default(cuid())
+  googleId    String   @unique
+  email       String   @unique
+  name        String
+  picture     String?
+  loginCount  Int      @default(0)
+  lastLoginAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([email])
+  @@index([googleId])
+}
+
 // Simple test model to verify database connection
 model TestEntry {
   id        String   @id @default(cuid())

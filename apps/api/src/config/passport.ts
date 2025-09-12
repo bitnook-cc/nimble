@@ -3,12 +3,16 @@ dotenv.config();
 
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 interface User {
   id: string;
   email: string;
   name: string;
   picture?: string;
+  loginCount: number;
 }
 
 // Configure Google OAuth strategy
@@ -23,16 +27,42 @@ passport.use(
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
-        // In a real app, you would save/update the user in your database here
+        const email = profile.emails?.[0]?.value || '';
+        const googleId = profile.id;
+        
+        // Find or create user in database
+        const dbUser = await prisma.user.upsert({
+          where: { googleId },
+          update: {
+            // Update user info in case it changed
+            name: profile.displayName,
+            picture: profile.photos?.[0]?.value,
+            // Increment login count
+            loginCount: { increment: 1 },
+            lastLoginAt: new Date(),
+          },
+          create: {
+            googleId,
+            email,
+            name: profile.displayName,
+            picture: profile.photos?.[0]?.value,
+            loginCount: 1,
+            lastLoginAt: new Date(),
+          },
+        });
+        
+        // Return user object with login count
         const user: User = {
-          id: profile.id,
-          email: profile.emails?.[0]?.value || '',
-          name: profile.displayName,
-          picture: profile.photos?.[0]?.value,
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          picture: dbUser.picture || undefined,
+          loginCount: dbUser.loginCount,
         };
         
         return done(null, user);
       } catch (error) {
+        console.error('Error in Google OAuth callback:', error);
         return done(error as Error, undefined);
       }
     }

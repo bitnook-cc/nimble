@@ -6,6 +6,7 @@ export interface SessionData {
     email: string;
     name: string;
     picture?: string;
+    loginCount: number;
   };
 }
 
