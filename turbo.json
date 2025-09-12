@@ -5,7 +5,6 @@
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "SESSION_SECRET",
-    "CLIENT_URL",
     "PORT",
     "NODE_ENV"
   ],
@@ -38,7 +37,6 @@
         "GOOGLE_CLIENT_ID",
         "GOOGLE_CLIENT_SECRET", 
         "SESSION_SECRET",
-        "CLIENT_URL",
         "PORT",
         "NODE_ENV"
       ]

@@ -27,27 +27,23 @@ export function AuthButton() {
       }
       setLoading(false);
     });
-
-    // Check for auth query params (from OAuth callback)
-    const params = new URLSearchParams(window.location.search);
-    const authStatus = params.get('auth');
-    if (authStatus === 'success') {
-      // Remove the query param and refresh user data
-      window.history.replaceState({}, '', window.location.pathname);
-      authService.fetchUser().then((response) => {
-        if (response.user) {
-          setUser(response.user);
-        }
-      });
-    } else if (authStatus === 'failed') {
-      // Remove the query param
-      window.history.replaceState({}, '', window.location.pathname);
-      console.error('Authentication failed');
-    }
   }, []);
 
-  const handleLogin = () => {
-    authService.login();
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      await authService.login();
+      // Fetch user data after successful login
+      const response = await authService.fetchUser();
+      if (response.user) {
+        setUser(response.user);
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      // You could show a toast notification here
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
