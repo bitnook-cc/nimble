@@ -24,7 +24,7 @@ router.get(
     // Store state in request for failure handling
     const state = req.query.state as string;
     const failureRedirect = state ? `/auth/failure?state=${encodeURIComponent(state)}` : '/auth/failure';
-    console.log("oogle Callback", req.query);
+    console.log("Google Callback", req.query, req.get('host'));
     passport.authenticate('google', { failureRedirect })(req, res, next);
   },
   (req, res) => {

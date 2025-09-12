@@ -110,12 +110,10 @@ export function FeatureList({
         break;
       case "utility_spells":
         setSelectedUtilitySpellsEffect(effect);
-        console.log(existingSelections, effect);
         // Check if there are existing selections for this effect
         const existingUtilitySelections = existingSelections.filter(
           (s) => s.type === "utility_spells" && s.grantedByEffectId === effect.id,
         ) as UtilitySpellsEffectSelection[];
-        console.log(existingUtilitySelections);
         setExistingUtilitySpellSelections(existingUtilitySelections);
         break;
     }

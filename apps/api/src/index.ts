@@ -40,7 +40,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     'http://localhost:3002',
     'http://localhost:3003',
     // Default production URLs (override with ALLOWED_ORIGINS env var)
-    'https://nimble.vercel.app',
+    'https://nimble.bitnook.cc',
     'https://nimble-navigator.vercel.app'
   ];
 
