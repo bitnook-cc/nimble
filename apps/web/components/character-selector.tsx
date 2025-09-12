@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { NimbleCard, NimbleCardBanner } from "./ui/nimble-card";
 
 interface CharacterSelectorProps {
   isOpen?: boolean;
@@ -110,21 +111,23 @@ export function CharacterSelector({
           </div>
         ) : (
           sortedCharacters.map((character) => (
-            <Card
+            <NimbleCard
               key={character.id}
-              className={`cursor-pointer transition-colors ${
+              variant={character.id === activeCharacterId ? "accent" : "default"}
+              className={`cursor-pointer transition-all ${
                 character.id === activeCharacterId
-                  ? "ring-2 ring-primary bg-primary/5"
-                  : "hover:bg-muted/50"
+                  ? "scale-[1.02]"
+                  : "hover:scale-[1.01]"
               }`}
-              onClick={() => {
-                if (character.id !== activeCharacterId) {
-                  switchCharacter(character.id);
-                  onClose?.();
-                }
-              }}
             >
-              <CardContent className="p-4">
+              <div
+                onClick={() => {
+                  if (character.id !== activeCharacterId) {
+                    switchCharacter(character.id);
+                    onClose?.();
+                  }
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="shrink-0">
@@ -159,8 +162,8 @@ export function CharacterSelector({
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </NimbleCard>
           ))
         )}
       </div>
