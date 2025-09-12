@@ -103,7 +103,7 @@ export default function NimbleCardDemo() {
             <div>
               <div>
                 <span className="font-bold">ACTIONS:</span>
-                <span className="ml-1">after each hero's turn, choose one:</span>
+                <span className="ml-1">after each hero&apos;s turn, choose one:</span>
               </div>
               <div className="ml-4">
                 <span className="font-bold">Longsword.</span>
