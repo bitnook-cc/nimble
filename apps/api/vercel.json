@@ -2,14 +2,14 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
   "functions": {
-    "dist/index.js": {
+    "api/index.js": {
       "maxDuration": 10
     }
   },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/dist/index.js"
+      "destination": "/api/$1"
     }
   ]
 }
