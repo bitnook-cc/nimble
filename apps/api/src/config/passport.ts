@@ -17,9 +17,9 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.NODE_ENV === 'production' 
-        ? 'https://nimble-api.vercel.app/auth/google/callback'
-        : 'http://localhost:3001/auth/google/callback',
+      callbackURL: process.env.API_URL 
+        ? `${process.env.API_URL}/auth/google/callback`
+        : `http://localhost:${process.env.PORT || 3001}/auth/google/callback`,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {

@@ -19,7 +19,11 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    // Set domain to parent domain if configured (e.g., ".nimble.com" for subdomain sharing)
+    domain: process.env.COOKIE_DOMAIN || undefined,
+    // Use 'lax' for subdomain sharing, 'none' for cross-domain
+    sameSite: process.env.COOKIE_DOMAIN ? 'lax' : (process.env.NODE_ENV === 'production' ? 'none' : 'lax')
   }
 }));
 
@@ -28,13 +32,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // CORS configuration - allow specific origins
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002',
-  'http://localhost:3003',
-  // Add production URLs here
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'http://localhost:3002',
+    'http://localhost:3003',
+    // Default production URLs (override with ALLOWED_ORIGINS env var)
+    'https://nimble.vercel.app',
+    'https://nimble-navigator.vercel.app'
+  ];
 
 app.use(cors({
   origin: (origin, callback) => {
