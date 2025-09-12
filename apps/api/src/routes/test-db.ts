@@ -5,7 +5,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // Test database connection
-router.get('/test', async (req, res) => {
+router.get('/test', async (_req, res) => {
   try {
     // Try to create a test entry
     const testEntry = await prisma.testEntry.create({
@@ -36,7 +36,7 @@ router.get('/test', async (req, res) => {
 });
 
 // Clean up test entries
-router.delete('/test', async (req, res) => {
+router.delete('/test', async (_req, res) => {
   try {
     const deleted = await prisma.testEntry.deleteMany();
     res.json({ 
