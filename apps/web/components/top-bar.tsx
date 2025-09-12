@@ -7,6 +7,7 @@ import { Character } from "@/lib/schemas/character";
 import { AppSettings } from "@/lib/services/settings-service";
 
 import { AppMenu } from "./app-menu";
+import { AuthButton } from "./auth-button";
 import { RollPanel } from "./roll-panel";
 import { Button } from "./ui/button";
 
@@ -83,19 +84,20 @@ export function TopBar({ settings, characters, onSettingsChange, hasCharacter = 
   return (
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        {/* Left side - Menu */}
-        <div className="flex items-center">
+        {/* Left side - Menu and Auth */}
+        <div className="flex items-center gap-2">
           <AppMenu
             settings={settings}
             characters={characters}
             onSettingsChange={onSettingsChange}
           />
+          <AuthButton />
         </div>
 
         {/* Center - Empty space for balance */}
         <div></div>
 
-        {/* Right side - Advantage and Roll Panel (only show when character exists) */}
+        {/* Right side - Advantage and Roll Panel */}
         <div className="flex items-center gap-3">
           {hasCharacter && (
             <>

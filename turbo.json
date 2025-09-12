@@ -1,6 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "SESSION_SECRET",
+    "CLIENT_URL",
+    "PORT",
+    "NODE_ENV"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -25,7 +33,15 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET", 
+        "SESSION_SECRET",
+        "CLIENT_URL",
+        "PORT",
+        "NODE_ENV"
+      ]
     }
   }
 }

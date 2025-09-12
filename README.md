@@ -1,6 +1,6 @@
 # Nimble Navigator
 
-A comprehensive digital character sheet application for the Nimble RPG system. Navigate your adventures with ease using this intuitive character management tool. Built with Next.js, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence.
+A comprehensive digital character sheet application for the Nimble RPG system. Navigate your adventures with ease using this intuitive character management tool. Built as a Turborepo monorepo with Next.js, Express.js, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence and optional Google authentication.
 
 ![Nimble Navigator Preview](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
@@ -8,6 +8,13 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0+-38bdf8)
 
 ## 🚀 Recent Updates
+
+### Google Authentication (September 2025)
+
+- Optional Google OAuth login for user authentication
+- Secure session management with Express.js backend
+- User profiles with avatar display
+- Persistent login state across sessions
 
 ### Multiple Effects Per Feature (December 2024)
 
@@ -81,6 +88,14 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 - **Offline-First**: No server required, works completely offline
 - **Auto-Save**: All data persists to local storage automatically
 
+### Authentication & User Management
+
+- **Google OAuth**: Sign in with Google account (optional)
+- **User Profiles**: Display user name and avatar when logged in
+- **Session Persistence**: Stay logged in across browser sessions
+- **Secure Backend**: Express.js API server with Passport.js authentication
+- **Privacy First**: Authentication is optional, app works fully offline
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -98,8 +113,16 @@ cd nimble
 # Install dependencies
 npm install
 
-# Start development server
+# Configure Google OAuth (optional)
+# 1. Copy apps/api/.env.example to apps/api/.env
+# 2. Add your Google OAuth credentials (see apps/api/README.md for setup)
+
+# Start development servers (both web and API)
 npm run dev
+
+# Or run them separately:
+npm run dev:web  # Web app only (port 3000)
+npm run dev:api  # API server only (port 3001)
 
 # Open your browser to http://localhost:3000
 ```
@@ -162,6 +185,11 @@ npm start
 
 ## 🏗️ Technology Stack
 
+### Monorepo Architecture
+- **Build System**: Turborepo for efficient monorepo management
+- **Workspaces**: npm workspaces for dependency management
+
+### Frontend (apps/web)
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS + shadcn/ui components
@@ -169,14 +197,28 @@ npm start
 - **Storage**: Local Storage with repository abstraction
 - **Icons**: Lucide React icons
 
+### Backend (apps/api)
+- **Framework**: Express.js REST API
+- **Authentication**: Passport.js with Google OAuth 2.0
+- **Session Management**: express-session with secure cookies
+- **Environment**: dotenv for configuration
+- **Development**: tsx for TypeScript execution
+
 ## 🔧 Development
 
 ### Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint checks
+#### Monorepo Root
+- `npm run dev` - Start all development servers (web + API)
+- `npm run dev:web` - Start only web development server
+- `npm run dev:api` - Start only API development server
+- `npm run build` - Build all apps for production
+- `npm run lint` - Run ESLint checks on all workspaces
+- `npm run typecheck` - Run TypeScript type checking
+
+#### Individual Apps
+- `npx turbo dev --filter=@nimble/web` - Run web app only
+- `npx turbo dev --filter=@nimble/api` - Run API server only
 
 ### Code Quality
 

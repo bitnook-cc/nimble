@@ -1,3 +1,53 @@
+# Nimble Navigator - Turborepo Monorepo
+
+## Repository Structure
+
+This is a **Turborepo monorepo** containing multiple applications and packages:
+
+### Applications
+- **`apps/web`**: Next.js 14 web application (main character sheet app)
+- **`apps/api`**: Express.js REST API server (port 3001)
+
+### Express API Server
+- **Location**: `apps/api/`
+- **Port**: 3001 (configurable via PORT env var)
+- **Entry**: `apps/api/src/index.ts`
+- **Endpoints**:
+  - `GET /` - Welcome message
+  - `GET /health` - Health check
+  - `GET /api/hello` - Example API endpoint
+
+## Turborepo Commands
+
+### Root Level Commands (run from `/Users/six/prototype/nimble`)
+```bash
+# Development
+npm run dev           # Run all apps in development mode
+npm run dev:web       # Run only web app
+npm run dev:api       # Run only API server
+
+# Build
+npm run build         # Build all apps
+
+# Quality checks
+npm run lint          # Lint all workspaces
+npm run typecheck     # Type check all workspaces
+npm run test          # Run all tests
+npm run test:ui       # Run tests with UI
+npm run test:run      # Run tests once (CI mode)
+```
+
+### Turbo-specific Commands
+```bash
+# Run specific tasks with filters
+npx turbo dev --filter=@nimble/web
+npx turbo dev --filter=@nimble/api
+npx turbo build --filter=@nimble/web
+
+# Dry run to see what would be executed
+npx turbo build --dry-run
+```
+
 # Nimble Navigator - Application Design
 
 ## Recent Major Refactor: Multiple Effects Per Feature (December 2024)
@@ -332,6 +382,19 @@ app/page.tsx (main orchestrator)
 
 ## File Structure
 
+### Monorepo Root Structure
+```
+/Users/six/prototype/nimble/
+├── apps/
+│   ├── web/         # Next.js web application
+│   └── api/         # Express.js API server
+├── packages/        # Shared packages (if any)
+├── turbo.json       # Turborepo configuration
+├── package.json     # Root package.json with workspaces
+└── CLAUDE.md        # This documentation
+```
+
+### Web Application Structure (`apps/web/`)
 ```
 lib/
 ├── config/          # Game configuration and constants
@@ -437,14 +500,25 @@ app/
 
 ### Development Commands
 
+#### Monorepo Root Commands (from `/Users/six/prototype/nimble`)
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run lint     # Run ESLint checks
-npm run typecheck # Type checking
-npm run test     # Run tests with Vitest
-npm run test:ui  # Run tests with Vitest UI
-npm run test:run # Run tests once (CI mode)
+npm run dev           # Start all apps (web + API)
+npm run dev:web       # Start only web app
+npm run dev:api       # Start only API server
+npm run build         # Build all apps
+npm run lint          # Lint all workspaces
+npm run typecheck     # Type check all workspaces
+npm run test          # Run all tests
+npm run test:ui       # Run tests with UI
+npm run test:run      # Run tests once (CI mode)
+```
+
+#### Individual App Commands
+```bash
+# Run commands for specific apps using Turbo filters
+npx turbo dev --filter=@nimble/web
+npx turbo build --filter=@nimble/api
+npx turbo test --filter=@nimble/web
 ```
 
 ### Testing
