@@ -13,8 +13,11 @@ import { TopBar } from "@/components/top-bar";
 
 import { useCharacterManagement } from "@/lib/hooks/use-character-management";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useThemeInit } from "@/lib/hooks/use-theme-init";
 
 function HomeContent() {
+  // Initialize theme after hydration
+  useThemeInit();
   // App state management
   const {
     characters,

@@ -325,6 +325,23 @@
   --nimble-text: #ffffff;
 }
 
+/* Nimble theme specific styles */
+[data-theme="nimble"] .nimble-card,
+[data-theme="nimble"] .nimble-card-simple {
+  --nimble-solid-bg: #f2ebda;
+  --nimble-passive-bg: #d8d2c2;
+  --nimble-accent: #8b7355;
+  --nimble-text: #3a3028;
+}
+
+[data-theme="nimble"].dark .nimble-card,
+[data-theme="nimble"].dark .nimble-card-simple {
+  --nimble-solid-bg: #2a2922;
+  --nimble-passive-bg: #3a3930;
+  --nimble-accent: #9b8365;
+  --nimble-text: #e5dfd5;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .nimble-card {

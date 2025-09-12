@@ -1,5 +1,6 @@
 export interface AppSettings {
   activeCharacterId?: string; // Optional to allow null state when no characters exist
+  themeId?: string; // Store theme ID as string to handle any theme
 }
 
 export class SettingsService {
@@ -32,9 +33,15 @@ export class SettingsService {
     await this.saveSettings({ ...settings, activeCharacterId: undefined });
   }
 
+  async updateTheme(themeId: string): Promise<void> {
+    const settings = await this.getSettings();
+    await this.saveSettings({ ...settings, themeId });
+  }
+
   private getDefaultSettings(): AppSettings {
     return {
       activeCharacterId: undefined, // No default character when starting fresh
+      themeId: "default", // Default to light theme
     };
   }
 }

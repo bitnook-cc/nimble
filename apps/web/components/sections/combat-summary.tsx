@@ -65,9 +65,9 @@ function HealthBar() {
           {current}/{max} HP
           {temporary > 0 && <span className="text-blue-600 ml-1">(+{temporary})</span>}
         </span>
-        <span className="text-xs text-gray-500">{Math.round(healthPercentage)}%</span>
+        <span className="text-xs text-muted-foreground">{Math.round(healthPercentage)}%</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
+      <div className="w-full bg-muted rounded-full h-3 relative overflow-hidden">
         {/* Current HP bar */}
         <div
           className={`h-3 transition-all duration-300 ${getHealthBarColor()} absolute left-0 top-0 ${
@@ -171,7 +171,7 @@ function WoundsDisplay() {
           <Minus className="w-4 h-4" />
         </Button>
         {getStatusIcon()}
-        <span className="text-sm font-medium text-gray-600 min-w-[3ch] text-center">
+        <span className="text-sm font-medium text-muted-foreground min-w-[3ch] text-center">
           {wounds.current}/{wounds.max}
         </span>
         <Button
@@ -214,7 +214,7 @@ function WoundsDisplay() {
                 : "text-red-500"
               : isHovered
                 ? "text-red-300"
-                : "text-gray-300"
+                : "text-muted-foreground/50"
           }`}
         />
       </button>,
@@ -315,10 +315,10 @@ function HPActionDialog({
               onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
               className={`flex-1 px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                 actionType === "damage"
-                  ? "border-red-600 text-red-600 focus:border-red-700 focus:ring-red-200"
+                  ? "border-destructive text-destructive focus:border-destructive focus:ring-destructive/20"
                   : actionType === "healing"
                     ? "border-green-600 text-green-600 focus:border-green-700 focus:ring-green-200"
-                    : "border-blue-600 text-blue-600 focus:border-blue-700 focus:ring-blue-200"
+                    : "border-primary text-primary focus:border-primary focus:ring-primary/20"
               }`}
             />
 
@@ -382,7 +382,7 @@ function QuickActionsBar() {
           size="sm"
           onClick={() => setOpenDialog("damage")}
           disabled={currentHp <= 0}
-          className="text-red-600 border-red-600 hover:bg-red-50 text-xs h-7"
+          className="text-destructive border-destructive hover:bg-destructive/10 text-xs h-7"
         >
           <Droplets className="w-3 h-3 mr-1" />
           Damage
@@ -393,7 +393,7 @@ function QuickActionsBar() {
           size="sm"
           onClick={() => setOpenDialog("healing")}
           disabled={currentHp >= maxHp}
-          className="text-green-600 border-green-600 hover:bg-green-50 text-xs h-7"
+          className="text-green-600 border-green-600 hover:bg-green-600/10 text-xs h-7"
         >
           <HeartPlus className="w-3 h-3 mr-1" />
           Healing
@@ -403,7 +403,7 @@ function QuickActionsBar() {
           variant="outline"
           size="sm"
           onClick={() => setOpenDialog("tempHP")}
-          className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs h-7"
+          className="text-primary border-primary hover:bg-primary/10 text-xs h-7"
         >
           <ShieldPlus className="w-3 h-3 mr-1" />
           Temp HP
@@ -473,7 +473,7 @@ function ActionTracker() {
                 : "bg-green-500 hover:bg-green-600 text-white"
               : isBonus
                 ? "bg-gray-200 hover:bg-gray-300 text-gray-500"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-500"
+                : "bg-muted hover:bg-muted/80 text-muted-foreground"
           }`}
           onClick={isAvailable ? useAction : undefined}
           disabled={!isAvailable}
@@ -487,12 +487,12 @@ function ActionTracker() {
   };
 
   return (
-    <Card className="border border-gray-200">
+    <Card className="border">
       <CardContent className="p-3">
         <div className="flex items-center justify-between">
           {/* Action Dots */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-600 mr-2">Actions:</span>
+            <span className="text-sm font-medium text-muted-foreground mr-2">Actions:</span>
             <div className="flex items-center gap-1">{getActionDots()}</div>
           </div>
 
@@ -560,7 +560,7 @@ function ResourceTracker() {
       <div className="relative w-10 h-10">
         <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
           {/* Background circle */}
-          <circle cx="20" cy="20" r="16" stroke="#e5e7eb" strokeWidth="3" fill="transparent" />
+          <circle cx="20" cy="20" r="16" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-muted" />
           {/* Progress circle */}
           <circle
             cx="20"
@@ -577,18 +577,18 @@ function ResourceTracker() {
         </svg>
         {/* Center text */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-medium text-gray-700">{current}</span>
+          <span className="text-xs font-medium">{current}</span>
         </div>
       </div>
     );
   };
 
   return (
-    <Card className="border border-gray-200">
+    <Card className="border">
       <CardContent className="p-3">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-500" />
+            <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium">Resources</span>
           </div>
         </div>
@@ -602,10 +602,10 @@ function ResourceTracker() {
               <div key={resource.definition.id} className="flex flex-col items-center">
                 {createPieChart(resource.current, maxValue, color)}
                 <div className="mt-1 text-center">
-                  <div className="text-xs font-medium text-gray-700 leading-tight">
+                  <div className="text-xs font-medium leading-tight">
                     {resource.definition.name}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {resource.current}/{maxValue}
                   </div>
                 </div>
@@ -693,7 +693,7 @@ function CombatStatusBar() {
   const status = getCombinedStatus();
 
   return (
-    <Card className="border-2 border-gray-200">
+    <Card className="border-2 border-border">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -715,7 +715,7 @@ function CombatStatusBar() {
         <div className="grid grid-cols-2 gap-4 items-start">
           {/* Wounds Column */}
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-600 mb-1">Wounds</span>
+            <span className="text-sm font-medium text-muted-foreground mb-1">Wounds</span>
             <div className="flex items-center h-8">
               <WoundsDisplay />
             </div>
@@ -723,7 +723,7 @@ function CombatStatusBar() {
 
           {/* Initiative Column */}
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-600 mb-1">Initiative</span>
+            <span className="text-sm font-medium text-muted-foreground mb-1">Initiative</span>
             <div className="flex items-center justify-end">
               {!inEncounter ? (
                 <Tooltip>

@@ -6,12 +6,14 @@ interface NimbleCardProps {
   children: ReactNode;
   className?: string;
   variant?: "default" | "simple" | "accent" | "muted";
+  style?: React.CSSProperties;
 }
 
 export function NimbleCard({
   children,
   className,
   variant = "default",
+  style,
 }: NimbleCardProps) {
   const variantClass = variant === "simple" ? "nimble-card-simple" : 
                        variant === "accent" ? "nimble-card nimble-card-accent" :
@@ -20,7 +22,7 @@ export function NimbleCard({
 
   if (variant === "simple") {
     return (
-      <div className={cn(variantClass, className)}>
+      <div className={cn(variantClass, className)} style={style}>
         {children}
       </div>
     );
@@ -28,7 +30,7 @@ export function NimbleCard({
 
   // Exact Nimbrew structure: content first, then nested grids
   return (
-    <div className={cn(variantClass, className)}>
+    <div className={cn(variantClass, className)} style={style}>
       {/* Main content wrapper */}
       <div className="nimble-card-content-wrapper">
         {children}
