@@ -49,7 +49,7 @@ for i in {1..10}; do
     
     # Run database migrations
     echo "📦 Running database migrations..."
-    npx prisma db push --skip-generate
+    npx prisma migrate deploy
     
     if [ $? -eq 0 ]; then
       echo "✅ Database migrations complete"

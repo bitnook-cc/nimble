@@ -11,7 +11,7 @@
     "predev": "npm run db:start-local",
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
-    "vercel-build": "prisma generate && prisma db push && tsc",
+    "vercel-build": "prisma generate && prisma migrate reset --force --skip-seed && tsc",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit"

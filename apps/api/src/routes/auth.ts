@@ -26,7 +26,6 @@ router.get(
     // Store state in request for failure handling
     const state = req.query.state as string;
     const failureRedirect = state ? `/auth/failure?state=${encodeURIComponent(state)}` : '/auth/failure';
-    console.log("Google Callback", req.query, req.get('host'));
     
     passport.authenticate('google', { session: false }, async (err, user) => {
       if (err || !user) {
@@ -49,7 +48,6 @@ router.get(
           console.error('Failed to decode state:', error);
         }
       }
-      console.log("Redirect URI:", redirectUri);
       
       // Fallback to a default if no redirect URI
       if (!redirectUri) {
