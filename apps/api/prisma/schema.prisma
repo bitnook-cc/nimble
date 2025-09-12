@@ -22,6 +22,37 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  // Relations
+  characterBackups CharacterBackup[]
+  userSettings     UserSettings?
+  
   @@index([email])
   @@index([googleId])
+}
+
+// Character backup storage
+model CharacterBackup {
+  id            String   @id @default(uuid())
+  userId        String
+  characterId   String
+  characterData Json     // Full character object as JSONB
+  updatedAt     DateTime // Character's last update timestamp
+  syncedAt      DateTime @default(now()) // When this backup was created/updated
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, characterId])
+  @@index([userId, characterId])
+}
+
+// User settings and limits
+model UserSettings {
+  userId        String   @id
+  maxCharacters Int      @default(30)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -140,8 +140,15 @@ class AuthService {
     });
   }
 
-  getUser(): User | null {
-    return this.user;
+  async getUser(): Promise<User | null> {
+    // If user is already cached, return it
+    if (this.user) {
+      return this.user;
+    }
+    
+    // Otherwise, try to fetch the user from the server
+    const response = await this.fetchUser();
+    return response.user || null;
   }
 
   isAuthenticated(): boolean {

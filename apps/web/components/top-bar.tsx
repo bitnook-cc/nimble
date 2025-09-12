@@ -8,6 +8,7 @@ import { AppSettings } from "@/lib/services/settings-service";
 
 import { AppMenu } from "./app-menu";
 import { AuthButton } from "./auth-button";
+import { SyncButton } from "./sync-button";
 import { RollPanel } from "./roll-panel";
 import { Button } from "./ui/button";
 
@@ -92,6 +93,7 @@ export function TopBar({ settings, characters, onSettingsChange, hasCharacter = 
             onSettingsChange={onSettingsChange}
           />
           <AuthButton />
+          <SyncButton />
         </div>
 
         {/* Center - Empty space for balance */}

@@ -37,6 +37,8 @@ export function AuthButton() {
       const response = await authService.fetchUser();
       if (response.user) {
         setUser(response.user);
+        // Emit auth-changed event for other components
+        window.dispatchEvent(new CustomEvent('auth-changed', { detail: { authenticated: true } }));
       }
     } catch (error) {
       console.error('Login failed:', error);
@@ -49,6 +51,8 @@ export function AuthButton() {
   const handleLogout = async () => {
     await authService.logout();
     setUser(null);
+    // Emit auth-changed event for other components
+    window.dispatchEvent(new CustomEvent('auth-changed', { detail: { authenticated: false } }));
   };
 
   if (loading) {

@@ -4,6 +4,7 @@ import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from './config/session';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
+import syncRoutes from './routes/sync';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -72,6 +73,9 @@ app.get('/', (_req, res) => {
 
 // Auth routes
 app.use('/auth', authRoutes);
+
+// Sync routes
+app.use('/sync', syncRoutes);
 
 // Example API endpoint
 app.get('/hello', (req, res) => {
