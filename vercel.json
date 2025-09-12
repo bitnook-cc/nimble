@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://nimble-api.vercel.app/:path*"
+      "destination": "https://api.nimble.bitnook.cc/:path*"
     }
   ]
 }
