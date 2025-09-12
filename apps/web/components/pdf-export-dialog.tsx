@@ -18,7 +18,7 @@ import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 export interface PDFExportOptions {
-  template: "full-page" | "half-page";
+  template: "full-page" | "half-page" | "detailed-page";
   editable: boolean;
 }
 
@@ -35,7 +35,7 @@ export function PDFExportDialog({
   onExport,
   isExporting = false,
 }: PDFExportDialogProps) {
-  const [template, setTemplate] = useState<"full-page" | "half-page">("full-page");
+  const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">("full-page");
   const [editable, setEditable] = useState(true);
 
   const handleExport = () => {
@@ -61,7 +61,7 @@ export function PDFExportDialog({
             <Label className="text-sm font-medium">Page Size</Label>
             <RadioGroup
               value={template}
-              onValueChange={(value) => setTemplate(value as "full-page" | "half-page")}
+              onValueChange={(value) => setTemplate(value as "full-page" | "half-page" | "detailed-page")}
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">
@@ -76,6 +76,13 @@ export function PDFExportDialog({
                 <Label htmlFor="half-page" className="text-sm">
                   Half Page
                   <span className="text-muted-foreground ml-1">(Compact layout)</span>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="detailed-page" id="detailed-page" />
+                <Label htmlFor="detailed-page" className="text-sm">
+                  Detailed Page
+                  <span className="text-muted-foreground ml-1">(Extended character sheet)</span>
                 </Label>
               </div>
             </RadioGroup>

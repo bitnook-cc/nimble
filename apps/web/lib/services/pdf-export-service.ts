@@ -11,7 +11,7 @@ import {
 } from "./service-factory";
 
 export interface PDFExportOptions {
-  template: "full-page" | "half-page";
+  template: "full-page" | "half-page" | "detailed-page";
   editable: boolean;
 }
 
@@ -56,10 +56,17 @@ export class PDFExportService {
   ): Promise<void> {
     try {
       // Load the template PDF based on selected template
-      const templateFile =
-        options.template === "half-page"
-          ? "/character-sheet-half-page.pdf"
-          : "/character-sheet-full-page.pdf";
+      let templateFile: string;
+      switch (options.template) {
+        case "half-page":
+          templateFile = "/character-sheet-half-page.pdf";
+          break;
+        case "detailed-page":
+          templateFile = "/character-sheet-detailed-page.pdf";
+          break;
+        default:
+          templateFile = "/character-sheet-full-page.pdf";
+      }
 
       const response = await fetch(templateFile);
       if (!response.ok) {
@@ -153,7 +160,17 @@ export class PDFExportService {
       const blob = new Blob([arrayBuffer], { type: "application/pdf" });
 
       // Create filename with template suffix
-      const templateSuffix = options.template === "half-page" ? "_half" : "_full";
+      let templateSuffix: string;
+      switch (options.template) {
+        case "half-page":
+          templateSuffix = "_half";
+          break;
+        case "detailed-page":
+          templateSuffix = "_detailed";
+          break;
+        default:
+          templateSuffix = "_full";
+      }
       const editableSuffix = options.editable ? "_editable" : "_flattened";
       const filename = `${character.name.replace(/[^a-zA-Z0-9]/g, "_")}_character_sheet${templateSuffix}${editableSuffix}.pdf`;
 
@@ -288,7 +305,7 @@ export class PDFExportService {
         }
       });
 
-    // Distribute features across columns (2 for half-page, 3 for full-page)
+    // Distribute features across columns (2 for half-page, 3 for full-page and detailed-page)
     const columnCount = options.template === "half-page" ? 2 : 3;
     const featuresPerColumn = Math.ceil(allFeatures.length / columnCount);
 
