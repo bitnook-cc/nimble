@@ -39,14 +39,7 @@ passport.use(
   )
 );
 
-// Serialize user for session
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
-
-// Deserialize user from session
-passport.deserializeUser((user: User, done) => {
-  done(null, user);
-});
+// No need for serializeUser/deserializeUser with iron-session
+// Iron-session handles session storage directly
 
 export default passport;

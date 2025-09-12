@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
+import { getIronSession } from 'iron-session';
+import { sessionOptions, SessionData } from '../config/session';
 
 const router = Router();
 
@@ -25,45 +27,53 @@ router.get(
     const state = req.query.state as string;
     const failureRedirect = state ? `/auth/failure?state=${encodeURIComponent(state)}` : '/auth/failure';
     console.log("Google Callback", req.query, req.get('host'));
-    passport.authenticate('google', { failureRedirect })(req, res, next);
-  },
-  (req, res) => {
-    // Decode the state parameter to get the redirect URI
-    let redirectUri = '';
     
-    if (req.query.state) {
-      try {
-        const stateData = JSON.parse(Buffer.from(req.query.state as string, 'base64').toString());
-        redirectUri = stateData.redirectUri || '';
-      } catch (error) {
-        console.error('Failed to decode state:', error);
+    passport.authenticate('google', { session: false }, async (err, user) => {
+      if (err || !user) {
+        return res.redirect(failureRedirect);
       }
-    }
-    console.log("Redirect URI:", redirectUri);
-    // Fallback to a default if no redirect URI
-    if (!redirectUri) {
-      redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
-    }
-    
-    // Redirect to the client callback page with success status
-    res.redirect(`${redirectUri}?status=success`);
+      
+      // Save user to iron-session
+      const session = await getIronSession<SessionData>(req, res, sessionOptions);
+      session.user = user;
+      await session.save();
+      
+      // Decode the state parameter to get the redirect URI
+      let redirectUri = '';
+      
+      if (req.query.state) {
+        try {
+          const stateData = JSON.parse(Buffer.from(req.query.state as string, 'base64').toString());
+          redirectUri = stateData.redirectUri || '';
+        } catch (error) {
+          console.error('Failed to decode state:', error);
+        }
+      }
+      console.log("Redirect URI:", redirectUri);
+      
+      // Fallback to a default if no redirect URI
+      if (!redirectUri) {
+        redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
+      }
+      
+      // Redirect to the client callback page with success status
+      res.redirect(`${redirectUri}?status=success`);
+    })(req, res, next);
   }
 );
 
 // Logout
-router.post('/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to logout' });
-    }
-    return res.json({ message: 'Logged out successfully' });
-  });
+router.post('/logout', async (req, res) => {
+  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  session.destroy();
+  res.json({ message: 'Logged out successfully' });
 });
 
 // Get current user
-router.get('/user', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ user: req.user });
+router.get('/user', async (req, res) => {
+  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  if (session.user) {
+    res.json({ user: session.user });
   } else {
     res.status(401).json({ error: 'Not authenticated' });
   }

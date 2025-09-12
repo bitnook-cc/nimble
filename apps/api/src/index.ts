@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import session from 'express-session';
+import { getIronSession } from 'iron-session';
+import { sessionOptions, SessionData } from './config/session';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
 import dotenv from 'dotenv';
@@ -11,25 +12,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    // Set domain to parent domain if configured (e.g., ".nimble.com" for subdomain sharing)
-    domain: process.env.COOKIE_DOMAIN || undefined,
-    // Use 'lax' for subdomain sharing, 'none' for cross-domain
-    sameSite: process.env.COOKIE_DOMAIN ? 'lax' : (process.env.NODE_ENV === 'production' ? 'none' : 'lax')
-  }
-}));
+// Iron Session middleware
+app.use(async (req, res, next) => {
+  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  req.session = session;
+  next();
+});
 
-// Passport middleware
+// Passport middleware (only for OAuth strategies, not for sessions)
 app.use(passport.initialize());
-app.use(passport.session());
 
 // CORS configuration - allow specific origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -92,11 +83,12 @@ app.get('/hello', (req, res) => {
 });
 
 // Protected API endpoint example
-app.get('/api/protected', (req, res) => {
-  if (req.isAuthenticated()) {
+app.get('/api/protected', async (req, res) => {
+  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  if (session.user) {
     res.json({ 
       message: 'This is a protected route',
-      user: req.user 
+      user: session.user 
     });
   } else {
     res.status(401).json({ error: 'Unauthorized' });
