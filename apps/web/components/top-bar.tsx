@@ -85,7 +85,7 @@ export function TopBar({ settings, characters, onSettingsChange, hasCharacter = 
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         {/* Left side - Menu and Auth */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <AppMenu
             settings={settings}
             characters={characters}

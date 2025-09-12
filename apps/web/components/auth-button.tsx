@@ -63,7 +63,7 @@ export function AuthButton() {
     return (
       <Button variant="outline" size="sm" onClick={handleLogin}>
         <LogIn className="w-4 h-4 mr-2" />
-        Sign In
+        Sign in with Google
       </Button>
     );
   }
@@ -71,8 +71,8 @@ export function AuthButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-0">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" size="sm" className="p-0 hover:opacity-80 transition-opacity">
+          <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-primary/50 transition-all cursor-pointer">
             <AvatarImage src={user.picture} alt={user.name} />
             <AvatarFallback>
               {user.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -80,7 +80,7 @@ export function AuthButton() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="start" className="w-56">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
             <p className="font-medium">{user.name}</p>

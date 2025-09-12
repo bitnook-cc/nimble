@@ -70,7 +70,7 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
             <Menu className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem onClick={() => setShowCharacterSelector(true)}>
             <Users className="w-4 h-4 mr-2" />
             Characters
