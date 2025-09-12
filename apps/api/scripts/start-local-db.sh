@@ -46,6 +46,17 @@ fi
 for i in {1..10}; do
   if docker exec nimble-postgres pg_isready -U postgres > /dev/null 2>&1; then
     echo "✅ PostgreSQL is ready for connections"
+    
+    # Run database migrations
+    echo "📦 Running database migrations..."
+    npx prisma db push --skip-generate
+    
+    if [ $? -eq 0 ]; then
+      echo "✅ Database migrations complete"
+    else
+      echo "⚠️  Database migration failed, but continuing..."
+    fi
+    
     exit 0
   fi
   echo "⏳ Waiting for PostgreSQL to be ready... ($i/10)"
