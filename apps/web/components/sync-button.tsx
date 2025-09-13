@@ -19,6 +19,8 @@ export function SyncButton() {
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSynced, setIsSynced] = useState(false);
   const { toast } = useToast();
 
   // Check authentication and sync status on mount
@@ -32,6 +34,11 @@ export function SyncButton() {
         if (auth) {
           const status = await syncService.getSyncStatus();
           setSyncStatus(status);
+          
+          // Check for unsynced changes
+          const hasUnsyncedChanges = await syncService.checkForChanges();
+          setHasChanges(hasUnsyncedChanges);
+          setIsSynced(!hasUnsyncedChanges && syncService.getLastSyncTime() !== null);
         }
       } catch (error) {
         console.error('Failed to check status:', error);
@@ -47,14 +54,29 @@ export function SyncButton() {
       checkStatus();
     };
 
+    // Listen for character changes to detect unsynced changes
+    const handleCharacterChange = async () => {
+      if (isAuthenticated) {
+        const hasUnsyncedChanges = await syncService.checkForChanges();
+        setHasChanges(hasUnsyncedChanges);
+        setIsSynced(!hasUnsyncedChanges && syncService.getLastSyncTime() !== null);
+      }
+    };
+
     window.addEventListener('auth-changed', handleAuthChange);
     window.addEventListener('characters-synced', checkStatus);
+    window.addEventListener('character-updated', handleCharacterChange);
+    window.addEventListener('character-created', handleCharacterChange);
+    window.addEventListener('character-deleted', handleCharacterChange);
 
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
       window.removeEventListener('characters-synced', checkStatus);
+      window.removeEventListener('character-updated', handleCharacterChange);
+      window.removeEventListener('character-created', handleCharacterChange);
+      window.removeEventListener('character-deleted', handleCharacterChange);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   const handleSync = useCallback(async () => {
     if (!isAuthenticated || isSyncing) return;
@@ -74,6 +96,15 @@ export function SyncButton() {
           title: "Sync Complete",
           description: `Synced ${result.characterCount} character${result.characterCount !== 1 ? 's' : ''}`,
         });
+        
+        // Update sync state
+        setHasChanges(false);
+        setIsSynced(true);
+        
+        // Reset button text after 2 seconds
+        setTimeout(() => {
+          setIsSynced(false);
+        }, 2000);
       } else {
         toast({
           title: "Sync Failed",
@@ -140,12 +171,12 @@ export function SyncButton() {
             variant="ghost"
             size="sm"
             onClick={handleSync}
-            disabled={isSyncing}
+            disabled={isSyncing || (isSynced && !hasChanges)}
             className="h-8"
           >
             {getIcon()}
             <span className="ml-2 hidden sm:inline">
-              {isSyncing ? "Syncing..." : "Sync"}
+              {isSyncing ? "Syncing..." : (isSynced && !hasChanges) ? "Synced!" : "Sync"}
             </span>
           </Button>
         </TooltipTrigger>

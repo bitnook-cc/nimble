@@ -4,16 +4,9 @@ dotenv.config();
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { PrismaClient } from '@prisma/client';
+import { AuthUser } from '@nimble/shared';
 
 const prisma = new PrismaClient();
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string;
-  loginCount: number;
-}
 
 // Configure Google OAuth strategy
 passport.use(
@@ -51,13 +44,16 @@ passport.use(
           },
         });
         
-        // Return user object with login count
-        const user: User = {
+        // Return user object with login count and timestamps
+        const user: AuthUser = {
           id: dbUser.id,
+          googleId: dbUser.googleId,
           email: dbUser.email,
           name: dbUser.name,
           picture: dbUser.picture || undefined,
           loginCount: dbUser.loginCount,
+          lastLoginAt: dbUser.lastLoginAt,
+          createdAt: dbUser.createdAt,
         };
         
         return done(null, user);

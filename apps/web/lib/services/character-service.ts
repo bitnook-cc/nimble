@@ -1093,6 +1093,11 @@ export class CharacterService implements ICharacterService {
         characterId: this.character.id,
         character: this.character,
       });
+      
+      // Also emit window event for external listeners (like sync button)
+      window.dispatchEvent(new CustomEvent('character-updated', { 
+        detail: { characterId: this.character.id } 
+      }));
     }
   }
 
@@ -1988,6 +1993,11 @@ export class CharacterService implements ICharacterService {
       type: "deleted",
       characterId,
     });
+    
+    // Also emit window event for external listeners
+    window.dispatchEvent(new CustomEvent('character-deleted', { 
+      detail: { characterId } 
+    }));
   }
 
   notifyCharacterCreated(character: Character): void {
@@ -1997,6 +2007,11 @@ export class CharacterService implements ICharacterService {
       characterId: character.id,
       character,
     });
+    
+    // Also emit window event for external listeners
+    window.dispatchEvent(new CustomEvent('character-created', { 
+      detail: { characterId: character.id } 
+    }));
   }
 }
 

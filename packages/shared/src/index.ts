@@ -4,3 +4,4 @@ export * from './schemas/sync-helpers';
 
 // Type exports
 export * from './types/sync-types';
+export * from './types/auth-types';

@@ -1,20 +1,14 @@
+import { AuthUser } from '@nimble/shared';
 import { apiUrl } from '@/lib/utils/api';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string;
-}
-
 interface AuthResponse {
-  user?: User;
+  user?: AuthUser;
   error?: string;
 }
 
 class AuthService {
   private static instance: AuthService;
-  private user: User | null = null;
+  private user: AuthUser | null = null;
 
   private constructor() {}
 
@@ -140,7 +134,7 @@ class AuthService {
     });
   }
 
-  async getUser(): Promise<User | null> {
+  async getUser(): Promise<AuthUser | null> {
     // If user is already cached, return it
     if (this.user) {
       return this.user;

@@ -1,13 +1,8 @@
 import { SessionOptions } from 'iron-session';
+import { AuthUser } from '@nimble/shared';
 
 export interface SessionData {
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-    picture?: string;
-    loginCount: number;
-  };
+  user?: AuthUser;
 }
 
 export const sessionOptions: SessionOptions = {

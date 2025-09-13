@@ -265,27 +265,38 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Conduit of Shadow",
     description:
       "Your Patron grants you knowledge of: Shadow Blast (Necrotic cantrip) Action (1/turn) Range: 8 Damage: 1d12 + KEY. High Levels: +1d12 damage every 5 levels.",
-    effects: [], // Passive feature - no mechanical effects to process
-  },
-  {
-    id: "summon-shadows",
-    level: 1,
-    name: "Summon Shadows",
-    description:
-      "(Necrotic cantrip) High Levels: +1 Reach every 5 levels. Action: Summon a shadow minion within Reach 1 (you can summon a max of INT or LVL minions this way, whichever is lower). Action (1/turn) Command ALL of your minions to move 6 then attack (Reach 1, 1d12 each).",
     effects: [
+      {
+        id: "shadow-blast-0",
+        type: "ability",
+        ability: {
+          id: "shadow-blast",
+          name: "Shadow Blast",
+          description:
+            "Cantrip, 1 Action, Single Target. Range: 8. Damage: 1d12+KEY. 1/round. High Levels: +1d12 every 5 levels. SHADOWMANCER ONLY",
+          type: "spell",
+          school: "necrotic",
+          tier: 0,
+          category: "combat",
+          actionCost: 1,
+          diceFormula: "1d12+KEY",
+          scalingBonus: "+1d12",
+        }
+      },
       {
         id: "summon-shadows-0",
         type: "ability",
         ability: {
-          id: "summon-shadows",
-          name: "Summon Shadows",
+          id: "summon-shadow",
+          name: "Summon Shadow",
           description:
-            "Summon a shadow minion within Reach 1. Command ALL minions to move 6 then attack.",
-          type: "action",
-          frequency: "at_will",
+            "Cantrip, 1 Action. Summon a shadow minion within Reach 1 (you can summon a max of WIL or LVL minions, whichever is lower). Your shadow minions follow the normal minion rules: they have 1 HP, no damage bonus, and do not crit. They abandon you immediately outside of combat. Action: 1 (turn) you may command ALL of your minions to move up to 6 then attack (Reach 1, d12 each). High Levels: +1 Reach every 5 levels.",
+          type: "spell",
+          school: "necrotic",
+          tier: 0,
+          category: "combat",
           actionCost: 1,
-        },
+        }
       },
     ],
   },

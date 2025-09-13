@@ -11,6 +11,9 @@ class SyncService {
   private apiUrl: string;
   private characterStorage: ICharacterStorage;
   private characterService: ICharacterService;
+  private lastSyncedCharacters: Map<string, string> = new Map(); // characterId -> JSON hash
+  private lastSyncTime: Date | null = null;
+  private hasUnsyncedChanges: boolean = false;
 
   private constructor() {
     // Use the centralized API URL
@@ -18,6 +21,96 @@ class SyncService {
     // Get services from the service factory
     this.characterStorage = ServiceFactory.getService<ICharacterStorage>(SERVICE_KEYS.CHARACTER_STORAGE);
     this.characterService = ServiceFactory.getService<ICharacterService>(SERVICE_KEYS.CHARACTER_SERVICE);
+    
+    // Load last sync state from localStorage
+    this.loadSyncState();
+  }
+
+  private loadSyncState() {
+    try {
+      // Check if we're in a browser environment
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const syncState = localStorage.getItem('nimble-sync-state');
+        if (syncState) {
+          const parsed = JSON.parse(syncState);
+          this.lastSyncedCharacters = new Map(parsed.characters || []);
+          this.lastSyncTime = parsed.lastSyncTime ? new Date(parsed.lastSyncTime) : null;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load sync state:', error);
+    }
+  }
+
+  private saveSyncState() {
+    try {
+      // Check if we're in a browser environment
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const syncState = {
+          characters: Array.from(this.lastSyncedCharacters.entries()),
+          lastSyncTime: this.lastSyncTime?.toISOString(),
+        };
+        localStorage.setItem('nimble-sync-state', JSON.stringify(syncState));
+      }
+    } catch (error) {
+      console.error('Failed to save sync state:', error);
+    }
+  }
+
+  private createCharacterHash(character: Character): string {
+    // Create a hash of the character data for change detection
+    // We exclude the id from the hash since we track by id
+    const { id, ...characterData } = character;
+    return JSON.stringify(characterData);
+  }
+
+  /**
+   * Check if there are unsynced changes
+   */
+  async checkForChanges(): Promise<boolean> {
+    try {
+      const localCharacters = await this.characterStorage.getAllCharacters();
+      
+      // Check if any character has changed
+      for (const character of localCharacters) {
+        const currentHash = this.createCharacterHash(character);
+        const lastHash = this.lastSyncedCharacters.get(character.id);
+        
+        if (!lastHash || lastHash !== currentHash) {
+          this.hasUnsyncedChanges = true;
+          return true;
+        }
+      }
+      
+      // Check if any characters were deleted
+      const localIds = new Set(localCharacters.map(c => c.id));
+      for (const [syncedId] of this.lastSyncedCharacters) {
+        if (!localIds.has(syncedId)) {
+          this.hasUnsyncedChanges = true;
+          return true;
+        }
+      }
+      
+      this.hasUnsyncedChanges = false;
+      return false;
+    } catch (error) {
+      console.error('Failed to check for changes:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get whether there are unsynced changes
+   */
+  getHasUnsyncedChanges(): boolean {
+    return this.hasUnsyncedChanges;
+  }
+
+  /**
+   * Get the last sync time
+   */
+  getLastSyncTime(): Date | null {
+    return this.lastSyncTime;
   }
 
   static getInstance(): SyncService {
@@ -120,6 +213,15 @@ class SyncService {
         await this.characterStorage.replaceAllCharacters(result.characters);
         
         console.log(`[Sync Client] Updated local storage with ${result.characters.length} synced characters`);
+        
+        // Update sync state tracking
+        this.lastSyncedCharacters.clear();
+        for (const character of result.characters) {
+          this.lastSyncedCharacters.set(character.id, this.createCharacterHash(character));
+        }
+        this.lastSyncTime = new Date(result.syncedAt);
+        this.hasUnsyncedChanges = false;
+        this.saveSyncState();
         
         // Reload the current character if it exists
         const currentCharacter = this.characterService.getCurrentCharacter();

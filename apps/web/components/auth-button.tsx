@@ -2,8 +2,10 @@
 
 import { LogIn, LogOut, User } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AuthUser } from "@nimble/shared";
 
 import { authService } from "@/lib/services/auth-service";
+import { syncService } from "@/lib/services/sync-service";
 
 import { Button } from "./ui/button";
 import {
@@ -16,7 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export function AuthButton() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,6 +41,18 @@ export function AuthButton() {
         setUser(response.user);
         // Emit auth-changed event for other components
         window.dispatchEvent(new CustomEvent('auth-changed', { detail: { authenticated: true } }));
+        
+        // Auto-sync characters after successful login
+        try {
+          console.log('[Auth] Auto-syncing characters after login...');
+          const syncResult = await syncService.syncCharacters();
+          if (syncResult) {
+            console.log(`[Auth] Auto-sync complete: ${syncResult.characterCount} characters synced`);
+          }
+        } catch (syncError) {
+          console.error('[Auth] Auto-sync failed:', syncError);
+          // Don't throw - sync failure shouldn't prevent login
+        }
       }
     } catch (error) {
       console.error('Login failed:', error);
@@ -83,7 +97,7 @@ export function AuthButton() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="p-0 hover:opacity-80 transition-opacity">
             <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-primary/50 transition-all cursor-pointer">
-              <AvatarImage src={user.picture} alt={user.name} />
+              <AvatarImage src={user.picture || undefined} alt={user.name} />
               <AvatarFallback>
                 {user.name?.charAt(0)?.toUpperCase() || 'U'}
               </AvatarFallback>

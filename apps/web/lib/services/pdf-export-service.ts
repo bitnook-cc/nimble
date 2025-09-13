@@ -89,6 +89,7 @@ export class PDFExportService {
       const initiative = characterService.getInitiative();
       const hitDice = characterService.getHitDice();
       const armorValue = characterService.getArmorValue();
+      const speed = characterService.getSpeed();
 
       // Fill form fields using exact field names
 
@@ -121,10 +122,14 @@ export class PDFExportService {
       this.setTextField(form, "Initiative", this.formatModifier(initiative.modifier), true);
 
       // Speed - using exact field name with formatted text
-      this.setTextField(form, "Height, Weight", `Speed: ${character.speed}`);
+      this.setTextField(form, "Height, Weight", `Speed: ${speed}`);
+      this.setTextField(form, "Speed", `${speed}`, true);
 
       // Hit Dice - using exact field names with centered alignment
       this.setTextField(form, "Hit Dice Total", hitDice.max.toString(), true);
+      this.setTextField(form, "Hit Dice - Max", hitDice.max.toString(), true);
+
+      this.setTextField(form, "Hit Die", "d" + hitDice.size.toString(), true);
 
       // Skills - using exact field names (capitalized) with associated attribute values
       const skillMappings = [

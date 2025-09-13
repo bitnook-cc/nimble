@@ -1,14 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 import { IronSession } from 'iron-session';
+import { AuthUser } from '@nimble/shared';
 import { SessionData } from '../config/session';
-
-export interface SessionUser {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string;
-  loginCount: number;
-}
 
 export class AuthService {
   constructor(private prisma: PrismaClient) {}
@@ -17,35 +10,26 @@ export class AuthService {
    * Ensures a user exists in the database, creating them if necessary
    * Also updates the session with the correct user ID if needed
    */
-  async ensureUserExists(session: IronSession<SessionData>): Promise<SessionUser | null> {
+  async ensureUserExists(session: IronSession<SessionData>): Promise<AuthUser | null> {
     if (!session.user) {
       return null;
     }
 
     try {
-      // Check if user exists in database by ID
+      // Check if user exists in database by googleId (the unique identifier)
       let dbUser = await this.prisma.user.findUnique({
-        where: { id: session.user.id }
+        where: { googleId: session.user.googleId }
       });
 
-      // If user doesn't exist by ID, try to find by email
       if (!dbUser) {
-        console.log(`[AuthService] User ${session.user.email} not found by ID, checking by email...`);
-        
-        dbUser = await this.prisma.user.findUnique({
-          where: { email: session.user.email }
-        });
-
-        if (!dbUser) {
-          // Create new user if not found
-          console.log(`[AuthService] Creating new user ${session.user.email}`);
-          dbUser = await this.createUser(session.user);
-        } else {
-          // Update the session with the correct user ID from database
-          console.log(`[AuthService] Found user by email, updating session ID from ${session.user.id} to ${dbUser.id}`);
-          session.user.id = dbUser.id;
-          await session.save();
-        }
+        // Create new user if not found
+        console.log(`[AuthService] User with Google ID ${session.user.googleId} not found, creating new user ${session.user.email}`);
+        dbUser = await this.createUser(session.user);
+      } else if (dbUser.id !== session.user.id) {
+        // Update the session with the correct user ID from database if it doesn't match
+        console.log(`[AuthService] Updating session ID from ${session.user.id} to ${dbUser.id}`);
+        session.user.id = dbUser.id;
+        await session.save();
       }
 
       // Return the session user (which now has the correct ID)
@@ -60,14 +44,13 @@ export class AuthService {
   /**
    * Creates a new user in the database
    */
-  private async createUser(sessionUser: SessionUser): Promise<User> {
+  private async createUser(sessionUser: AuthUser): Promise<User> {
     return await this.prisma.user.create({
       data: {
-        id: sessionUser.id,
+        googleId: sessionUser.googleId,
         email: sessionUser.email,
         name: sessionUser.name,
         picture: sessionUser.picture,
-        googleId: sessionUser.id, // Using ID as googleId for backwards compatibility
         loginCount: sessionUser.loginCount || 1,
         lastLoginAt: new Date(),
       }

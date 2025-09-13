@@ -147,12 +147,35 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       }
     });
 
+    // Listen for sync events to refresh character list
+    const handleCharactersSynced = async () => {
+      // Refresh character list after sync
+      const updatedCharacters = await characterStorage.getAllCharacters();
+      setCharacters(updatedCharacters);
+      
+      // If we had no characters before and got some from sync, hide the selection screen
+      if (updatedCharacters.length > 0 && showCharacterSelection && loadError?.includes("No characters")) {
+        setShowCharacterSelection(false);
+        setLoadError(null);
+        
+        // Load the first character if no active character is set
+        const characterService = getCharacterService();
+        const currentSettings = await settingsService.getSettings();
+        if (!currentSettings.activeCharacterId && updatedCharacters.length > 0) {
+          await characterService.loadCharacter(updatedCharacters[0].id);
+        }
+      }
+    };
+    
+    window.addEventListener('characters-synced', handleCharactersSynced);
+
     return () => {
       unsubscribeCreated();
       unsubscribeSwitched();
       unsubscribeDeleted();
+      window.removeEventListener('characters-synced', handleCharactersSynced);
     };
-  }, [subscribeToEvent, characterStorage, settingsService, settings.activeCharacterId]);
+  }, [subscribeToEvent, characterStorage, settingsService, settings.activeCharacterId, showCharacterSelection, loadError]);
 
   const handleSettingsChange = async (newSettings: AppSettings) => {
     setSettings(newSettings);
