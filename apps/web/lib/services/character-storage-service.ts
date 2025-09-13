@@ -61,9 +61,45 @@ export class CharacterStorageService {
   async updateLastPlayed(characterId: string): Promise<void> {
     const character = await this.getCharacter(characterId);
     if (character) {
-      character.updatedAt = new Date();
+      if (!character.timestamps) {
+        character.timestamps = {};
+      }
+      character.timestamps.updatedAt = Date.now();
       await this.updateCharacter(character);
     }
+  }
+
+  /**
+   * Replace all characters with a new set, validating each one
+   * Used for sync operations
+   */
+  async replaceAllCharacters(characters: Character[]): Promise<void> {
+    console.log(`[CharacterStorage] Replacing all characters with ${characters.length} new characters`);
+    
+    // Validate all characters first
+    const validatedCharacters: Character[] = [];
+    for (const char of characters) {
+      try {
+        const validated = characterSchema.parse(char);
+        validatedCharacters.push(validated);
+      } catch (error) {
+        console.error(`[CharacterStorage] Failed to validate character ${char.id}:`, error);
+        // Try to recover the character
+        const recovered = await this.validateOrRecoverCharacter(char, char.id || `recovered-${Date.now()}`);
+        if (recovered) {
+          validatedCharacters.push(recovered);
+        }
+      }
+    }
+    
+    // Clear existing characters and save the new ones
+    // This is done through the repository which handles the storage
+    await this.repository.clear();
+    for (const char of validatedCharacters) {
+      await this.repository.save(char);
+    }
+    
+    console.log(`[CharacterStorage] Successfully replaced with ${validatedCharacters.length} validated characters`);
   }
 
   /**

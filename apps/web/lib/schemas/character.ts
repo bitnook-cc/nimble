@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { syncableSchema } from "@nimble/shared";
 
 import { gameConfig } from "../config/game-config";
 import { AbilityDefinition, AbilityDefinitionSchema } from "./abilities";
@@ -162,7 +163,7 @@ const resourceValuesMapSchema = z.union([
   z.record(z.string(), resourceValueSchema).transform((obj) => new Map(Object.entries(obj))),
 ]);
 
-export const characterSchema = z.object({
+const characterBaseSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(50),
   ancestryId: z.string().min(1),
@@ -189,9 +190,10 @@ export const characterSchema = z.object({
   actionTracker: actionTrackerSchema,
   inEncounter: z.boolean(),
   inventory: inventorySchema,
-  createdAt: z.date(),
-  updatedAt: z.date(),
 });
+
+// Extend the base schema with syncable fields
+export const characterSchema = characterBaseSchema.and(syncableSchema);
 
 export type ValidatedCharacter = z.infer<typeof characterSchema>;
 

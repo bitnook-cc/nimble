@@ -15,6 +15,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@nimble/shared": "file:../../packages/shared",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.3",

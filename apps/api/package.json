@@ -5,18 +5,26 @@
   "scripts": {
     "db:start-local": "./scripts/start-local-db.sh",
     "db:push": "prisma db push",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:reset": "prisma migrate reset",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:deploy": "prisma migrate deploy",
-    "predev": "npm run db:start-local",
+    "predev": "npm run db:start-local && npm run db:migrate:deploy",
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
     "vercel-build": "prisma generate && prisma migrate deploy && tsc",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "dependencies": {
+    "@nimble/shared": "file:../../packages/shared",
     "@prisma/client": "^6.16.1",
     "@types/express-session": "^1.18.2",
     "@types/passport": "^1.0.17",
@@ -37,8 +45,10 @@
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.18.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.4"
   }
 }

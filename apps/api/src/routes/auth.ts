@@ -2,8 +2,12 @@ import { Router } from 'express';
 import passport from 'passport';
 import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from '../config/session';
+import { PrismaClient } from '@prisma/client';
+import { AuthService } from '../services/auth-service';
 
 const router = Router();
+const prisma = new PrismaClient();
+const authService = new AuthService(prisma);
 
 // Google OAuth login
 router.get('/google', (req, res, next) => {
@@ -70,8 +74,17 @@ router.post('/logout', async (req, res) => {
 // Get current user
 router.get('/user', async (req, res) => {
   const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (session.user) {
-    res.json({ user: session.user });
+  
+  if (!session.user) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+
+  // Ensure user exists in database and get updated session
+  const user = await authService.ensureUserExists(session);
+  
+  if (user) {
+    res.json({ user });
   } else {
     res.status(401).json({ error: 'Not authenticated' });
   }

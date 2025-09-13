@@ -257,8 +257,10 @@ export class CharacterCreationService implements ICharacterCreation {
       inEncounter: false,
       inventory,
       effectSelections,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      timestamps: {
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
     });
 
     // Load the character into the service to apply features

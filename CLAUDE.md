@@ -37,10 +37,14 @@ The API uses PostgreSQL for data persistence. In local development, a Docker con
 
 #### Database Commands (from `apps/api/`)
 ```bash
-npm run db:start-local  # Start PostgreSQL container
-npm run db:push         # Push schema to database
-npm run db:generate     # Generate Prisma client
-npm run db:studio       # Open Prisma Studio GUI
+npm run db:start-local      # Start PostgreSQL container
+npm run db:migrate:dev      # Create and apply new migration interactively
+npm run db:migrate:create   # Create new migration without applying
+npm run db:migrate:deploy   # Apply pending migrations (used in predev)
+npm run db:migrate:reset    # Reset database and reapply all migrations
+npm run db:generate         # Generate Prisma client
+npm run db:studio           # Open Prisma Studio GUI
+npm run db:push             # Push schema directly (NOT recommended - use migrations)
 ```
 
 #### Docker Management

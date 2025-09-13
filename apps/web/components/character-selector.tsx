@@ -77,7 +77,7 @@ export function CharacterSelector({
   };
 
   const sortedCharacters = [...characters].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
+    (a, b) => (b.timestamps?.updatedAt || 0) - (a.timestamps?.updatedAt || 0),
   );
 
   const content = (
@@ -144,7 +144,7 @@ export function CharacterSelector({
                       </h3>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="w-3 h-3 mr-1" />
-                        {formatLastPlayed(character.updatedAt)}
+                        {formatLastPlayed(new Date(character.timestamps?.updatedAt || Date.now()))}
                       </div>
                     </div>
                   </div>

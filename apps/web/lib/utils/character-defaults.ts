@@ -137,8 +137,10 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     inventory: createDefaultInventory(0),
     _abilities: [],
     _abilityUses: new Map(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    timestamps: {
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
   };
 };
 
@@ -183,7 +185,10 @@ export const mergeWithDefaultCharacter = (
   mergedCharacter.id = characterId;
 
   // Update timestamps to indicate this was recovered
-  mergedCharacter.updatedAt = new Date();
+  if (!mergedCharacter.timestamps) {
+    mergedCharacter.timestamps = {};
+  }
+  mergedCharacter.timestamps.updatedAt = Date.now();
 
   return mergedCharacter as Character;
 };

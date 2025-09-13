@@ -1,29 +1,23 @@
 import { Character } from '@/lib/schemas/character';
-import { CharacterStorageService } from './character-storage-service';
+import { ICharacterStorage, ICharacterService } from './interfaces';
 import { authService } from './auth-service';
-
-export interface SyncStatus {
-  characterCount: number;
-  lastSyncedAt: string | null;
-  maxCharacters: number;
-}
-
-export interface SyncResult {
-  characters: Character[];
-  syncedAt: string;
-  characterCount: number;
-  maxCharacters: number;
-}
+import { SyncStatus, SyncResult } from '@nimble/shared';
+import { apiUrl } from '@/lib/utils/api';
+import { ServiceFactory } from './service-factory';
+import { SERVICE_KEYS } from './service-container';
 
 class SyncService {
   private static instance: SyncService;
   private apiUrl: string;
-  private characterStorage: CharacterStorageService;
+  private characterStorage: ICharacterStorage;
+  private characterService: ICharacterService;
 
   private constructor() {
-    // Use environment variable or default to localhost for development
-    this.apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    this.characterStorage = new CharacterStorageService();
+    // Use the centralized API URL
+    this.apiUrl = apiUrl;
+    // Get services from the service factory
+    this.characterStorage = ServiceFactory.getService<ICharacterStorage>(SERVICE_KEYS.CHARACTER_STORAGE);
+    this.characterService = ServiceFactory.getService<ICharacterService>(SERVICE_KEYS.CHARACTER_SERVICE);
   }
 
   static getInstance(): SyncService {
@@ -79,6 +73,14 @@ class SyncService {
     try {
       // Get all local characters from storage
       const localCharacters = await this.characterStorage.getAllCharacters();
+      
+      console.log('[Sync Client] Starting sync with server');
+      console.log(`[Sync Client] Sending ${localCharacters.length} local characters to sync`);
+      console.log('[Sync Client] Character IDs being sent:', localCharacters.map(c => ({
+        id: c.id,
+        name: c.name,
+        updatedAt: c.timestamps?.updatedAt ? new Date(c.timestamps.updatedAt).toISOString() : 'unknown'
+      })));
 
       // Send to server for sync
       const response = await fetch(`${this.apiUrl}/sync/characters`, {
@@ -92,19 +94,39 @@ class SyncService {
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.log('User not authenticated');
+          console.log('[Sync Client] User not authenticated');
           return null;
         }
         const error = await response.json();
+        console.error('[Sync Client] Sync failed:', error);
         throw new Error(error.error || 'Failed to sync characters');
       }
 
       const result: SyncResult = await response.json();
+      
+      console.log('[Sync Client] Sync response received');
+      console.log(`[Sync Client] Received ${result.characterCount} characters from server`);
+      console.log(`[Sync Client] Max characters allowed: ${result.maxCharacters}`);
+      console.log('[Sync Client] Synced at:', new Date(result.syncedAt).toISOString());
+      console.log('[Sync Client] Character IDs received:', result.characters?.map(c => ({
+        id: c.id,
+        name: c.name,
+        updatedAt: c.timestamps?.updatedAt ? new Date(c.timestamps.updatedAt).toISOString() : 'unknown'
+      })));
 
-      // Update local storage with merged characters
+      // Update local storage with merged characters using character storage service
       if (result.characters && Array.isArray(result.characters)) {
-        // Clear existing characters and replace with synced ones
-        localStorage.setItem('nimble-navigator-characters', JSON.stringify(result.characters));
+        // Use character storage service to validate and store all characters
+        await this.characterStorage.replaceAllCharacters(result.characters);
+        
+        console.log(`[Sync Client] Updated local storage with ${result.characters.length} synced characters`);
+        
+        // Reload the current character if it exists
+        const currentCharacter = this.characterService.getCurrentCharacter();
+        if (currentCharacter) {
+          console.log(`[Sync Client] Reloading current character: ${currentCharacter.id}`);
+          await this.characterService.loadCharacter(currentCharacter.id);
+        }
         
         // Notify any listeners about the update
         window.dispatchEvent(new CustomEvent('characters-synced', { 
@@ -147,7 +169,7 @@ class SyncService {
   /**
    * Format last synced time for display
    */
-  formatLastSynced(lastSyncedAt: string | null): string {
+  formatLastSynced(lastSyncedAt: number | null): string {
     if (!lastSyncedAt) {
       return 'Never synced';
     }

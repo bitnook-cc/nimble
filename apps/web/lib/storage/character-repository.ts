@@ -6,6 +6,7 @@ export interface ICharacterRepository {
   list(): Promise<Character[]>;
   delete(id: string): Promise<void>;
   create(data: CreateCharacterData, id?: string): Promise<Character>;
+  clear(): Promise<void>;
 }
 
 // LocalStorageCharacterRepository has been replaced by StorageBasedCharacterRepository

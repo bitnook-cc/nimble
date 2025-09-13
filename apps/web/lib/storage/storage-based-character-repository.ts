@@ -15,7 +15,11 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     const characters = await this.list();
     const index = characters.findIndex((c) => c.id === character.id);
 
-    character.updatedAt = new Date();
+    // Update timestamp
+    if (!character.timestamps) {
+      character.timestamps = {};
+    }
+    character.timestamps.updatedAt = Date.now();
 
     // Convert Maps to objects for serialization
     const serializable = {
@@ -86,11 +90,17 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     const character: Character = {
       ...data,
       id: id || `character-${Date.now()}`,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      timestamps: {
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
     } as Character;
 
     await this.save(character);
     return character;
+  }
+
+  async clear(): Promise<void> {
+    this.storage.setItem(this.storageKey, JSON.stringify([]));
   }
 }

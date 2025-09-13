@@ -1,25 +1,9 @@
-import { PrismaClient, UserSettings } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { Syncable, SyncResult, SyncStatus, isNewerThan } from '@nimble/shared';
+import { SERVER_CONFIG } from '../config/server-config';
 
-export interface SyncCharacterData {
-  id: string;
-  timestamps?: {
-    updatedAt: string;
-  };
-  [key: string]: any; // Allow any character data structure
-}
-
-export interface SyncResult {
-  characters: SyncCharacterData[];
-  syncedAt: string;
-  characterCount: number;
-  maxCharacters: number;
-}
-
-export interface SyncStatus {
-  characterCount: number;
-  lastSyncedAt: Date | null;
-  maxCharacters: number;
-}
+// Type alias for clarity - any object with syncable fields
+type SyncCharacterData = Syncable & Record<string, any>;
 
 export class CharacterSyncService {
   constructor(private prisma: PrismaClient) {}
@@ -27,24 +11,38 @@ export class CharacterSyncService {
   /**
    * Sync characters - merges local and remote based on timestamps
    */
-  async syncCharacters(userId: string, characters: SyncCharacterData[]): Promise<SyncResult> {
+  async syncCharacters(userId: string, characters: Syncable[]): Promise<SyncResult> {
+    console.log(`[Sync Server] Starting sync for user: ${userId}`);
+    console.log(`[Sync Server] Received ${characters?.length || 0} characters from client`);
+    
     // Validate input
     if (!Array.isArray(characters)) {
+      console.error('[Sync Server] Invalid input: characters is not an array');
       throw new Error('Invalid request: characters must be an array');
     }
 
-    // Get or create user settings
-    let userSettings = await this.getUserSettings(userId);
-
     // Validate character count
-    if (characters.length > userSettings.maxCharacters) {
-      throw new Error(`Character limit exceeded. Maximum allowed: ${userSettings.maxCharacters}`);
+    if (characters.length > SERVER_CONFIG.sync.maxCharactersPerUser) {
+      console.error(`[Sync Server] Character limit exceeded for user ${userId}: ${characters.length} > ${SERVER_CONFIG.sync.maxCharactersPerUser}`);
+      throw new Error(`Character limit exceeded. Maximum allowed: ${SERVER_CONFIG.sync.maxCharactersPerUser}`);
     }
+    
+    console.log('[Sync Server] Client characters:', characters.map(c => ({
+      id: c.id,
+      updatedAt: c.timestamps?.updatedAt ? new Date(c.timestamps.updatedAt).toISOString() : 'unknown'
+    })));
 
     // Fetch existing backups
     const existingBackups = await this.prisma.characterBackup.findMany({
       where: { userId }
     });
+    
+    console.log(`[Sync Server] Found ${existingBackups.length} existing backups for user ${userId}`);
+    console.log('[Sync Server] Existing backups:', existingBackups.map(b => ({
+      characterId: b.characterId,
+      updatedAt: b.updatedAt.toISOString(),
+      syncedAt: b.syncedAt.toISOString()
+    })));
 
     // Create a map for quick lookup
     const backupMap = new Map(
@@ -57,11 +55,12 @@ export class CharacterSyncService {
 
     for (const character of characters) {
       if (!character.id || !character.timestamps?.updatedAt) {
-        console.warn('Skipping character without id or updatedAt:', character.name);
+        console.warn(`[Sync Server] Skipping character without id or updatedAt: ${character.id}`);
         continue;
       }
 
       const characterId = character.id;
+      // timestamps.updatedAt is a Unix timestamp in milliseconds
       const characterUpdatedAt = new Date(character.timestamps.updatedAt);
       const existingBackup = backupMap.get(characterId);
 
@@ -70,14 +69,19 @@ export class CharacterSyncService {
       let needsUpdate = true;
 
       if (existingBackup) {
-        const backupUpdatedAt = new Date(existingBackup.updatedAt);
+        const backupData = existingBackup.characterData as SyncCharacterData;
         
-        if (backupUpdatedAt > characterUpdatedAt) {
-          // Remote is newer, use it
-          characterToKeep = existingBackup.characterData as SyncCharacterData;
+        // Use the shared helper to compare timestamps
+        if (!isNewerThan(character, backupData)) {
+          // Remote is newer or equal, use it
+          console.log(`[Sync Server] Character ${characterId}: Server version is newer or equal, keeping server version`);
+          characterToKeep = backupData;
           needsUpdate = false; // No need to update database
+        } else {
+          console.log(`[Sync Server] Character ${characterId}: Client version is newer, will update server`);
         }
-        // If local is newer or equal, we'll update the database
+      } else {
+        console.log(`[Sync Server] Character ${characterId}: New character, will create backup`);
       }
 
       syncedCharacters.push(characterToKeep);
@@ -111,30 +115,41 @@ export class CharacterSyncService {
     // Add remote-only characters to the result
     for (const backup of existingBackups) {
       if (!characters.find(c => c.id === backup.characterId)) {
+        console.log(`[Sync Server] Including server-only character: ${backup.characterId}`);
         syncedCharacters.push(backup.characterData as SyncCharacterData);
       }
     }
 
     // Execute all database operations in a transaction
     if (operations.length > 0) {
+      console.log(`[Sync Server] Executing ${operations.length} database operations for user ${userId}`);
       await this.prisma.$transaction(operations);
+      console.log(`[Sync Server] Database operations completed successfully`);
+    } else {
+      console.log(`[Sync Server] No database updates needed for user ${userId}`);
     }
 
-    return {
+    const result = {
       characters: syncedCharacters,
-      syncedAt: new Date().toISOString(),
+      syncedAt: Date.now(),
       characterCount: syncedCharacters.length,
-      maxCharacters: userSettings.maxCharacters
+      maxCharacters: SERVER_CONFIG.sync.maxCharactersPerUser
     };
+    
+    console.log(`[Sync Server] Sync complete for user ${userId}`);
+    console.log(`[Sync Server] Returning ${result.characterCount} characters`);
+    console.log('[Sync Server] Final character IDs:', syncedCharacters.map(c => ({
+      id: c.id,
+      updatedAt: c.timestamps?.updatedAt ? new Date(c.timestamps.updatedAt).toISOString() : 'unknown'
+    })));
+    
+    return result;
   }
 
   /**
    * Get sync status for a user
    */
   async getSyncStatus(userId: string): Promise<SyncStatus> {
-    // Get user settings
-    const userSettings = await this.getUserSettings(userId);
-
     // Get character count and last sync time
     const [characterCount, lastBackup] = await Promise.all([
       this.prisma.characterBackup.count({
@@ -149,8 +164,8 @@ export class CharacterSyncService {
 
     return {
       characterCount,
-      lastSyncedAt: lastBackup?.syncedAt || null,
-      maxCharacters: userSettings.maxCharacters
+      lastSyncedAt: lastBackup?.syncedAt?.getTime() || null,
+      maxCharacters: SERVER_CONFIG.sync.maxCharactersPerUser
     };
   }
 
@@ -168,24 +183,4 @@ export class CharacterSyncService {
     });
   }
 
-  /**
-   * Get or create user settings
-   */
-  private async getUserSettings(userId: string): Promise<UserSettings> {
-    let userSettings = await this.prisma.userSettings.findUnique({
-      where: { userId }
-    });
-
-    if (!userSettings) {
-      // Create default settings if they don't exist
-      userSettings = await this.prisma.userSettings.create({
-        data: { 
-          userId, 
-          maxCharacters: 30 
-        }
-      });
-    }
-
-    return userSettings;
-  }
 }

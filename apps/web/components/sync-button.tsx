@@ -3,7 +3,8 @@
 import { CloudUpload, CloudOff, Cloud, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { syncService, SyncStatus } from "@/lib/services/sync-service";
+import { syncService } from "@/lib/services/sync-service";
+import { SyncStatus } from "@nimble/shared";
 import { Button } from "./ui/button";
 import {
   Tooltip,

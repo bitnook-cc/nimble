@@ -43,6 +43,7 @@ export interface ICharacterStorage {
   updateCharacter(character: Character): Promise<void>;
   deleteCharacter(id: string): Promise<void>;
   updateLastPlayed(id: string): Promise<void>;
+  replaceAllCharacters(characters: Character[]): Promise<void>;
 }
 
 /**
