@@ -25,9 +25,9 @@ export const ResourceCostSchema = z
         title: "Minimum Amount",
         description: "Minimum amount of resource to consume (integer)",
       }),
-      maxAmount: z.int().int().min(0).meta({
+      maxAmount: z.int().int().min(0).optional().meta({
         title: "Maximum Amount",
-        description: "Maximum amount of resource to consume (integer)",
+        description: "Maximum amount of resource to consume (integer). If not specified, defaults to the max amount of the resource.",
       }),
     }),
   ])

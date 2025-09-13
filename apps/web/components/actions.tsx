@@ -255,7 +255,9 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                           >
                             {ability.resourceCost.type === "fixed"
                               ? `${ability.resourceCost.amount} ${resourceInfo.resourceName}`
-                              : `${ability.resourceCost.minAmount}-${ability.resourceCost.maxAmount} ${resourceInfo.resourceName}`}
+                              : ability.resourceCost.maxAmount
+                                ? `${ability.resourceCost.minAmount}-${ability.resourceCost.maxAmount} ${resourceInfo.resourceName}`
+                                : `${ability.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
                           </Badge>
                         )}
                       </div>

@@ -176,6 +176,8 @@ export interface ICharacterService {
   getMaxWounds(): number;
   getArmorValue(): number;
   getResourceDefinitions(): ResourceDefinition[];
+  getResourceDefinition(resourceId: string): ResourceDefinition | undefined;
+  getResourceName(resourceId: string): string;
   getResources(): ResourceInstance[];
   getResourceValue(resourceId: string): number;
   setResourceValue(resourceId: string, value: number): Promise<void>;

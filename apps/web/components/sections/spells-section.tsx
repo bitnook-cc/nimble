@@ -392,9 +392,7 @@ export function SpellsSection() {
                                       )}
                                       {spell.resourceCost && (
                                         <Badge variant="secondary" className="text-xs">
-                                          {spell.resourceCost.type === "fixed"
-                                            ? `${spell.resourceCost.amount} ${spell.resourceCost.resourceId}`
-                                            : `${spell.resourceCost.minAmount}-${spell.resourceCost.maxAmount} ${spell.resourceCost.resourceId}`}
+                                          {formatResourceCost(spell.resourceCost)}
                                         </Badge>
                                       )}
                                     </div>

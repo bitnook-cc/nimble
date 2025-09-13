@@ -14,7 +14,6 @@ import {
   SubclassEffectSelection,
   UtilitySpellsEffectSelection,
 } from "../schemas/character";
-import { DiceType } from "../schemas/dice";
 import {
   CharacterFeature,
   ClassFeature,
@@ -25,10 +24,7 @@ import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventor
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { StatBonus } from "../schemas/stat-bonus";
 import { calculateFlexibleValue } from "../types/flexible-value";
-import { abilityService } from "./ability-service";
-import { activityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
-import { characterStorageService } from "./character-storage-service";
 import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
 import { featureSelectionService } from "./feature-selection-service";
@@ -603,6 +599,21 @@ export class CharacterService implements ICharacterService {
     }
 
     return Array.from(resources.values());
+  }
+
+  /**
+   * Get a specific resource definition by ID
+   */
+  getResourceDefinition(resourceId: string): ResourceDefinition | undefined {
+    return this.getResourceDefinitions().find((r) => r.id === resourceId);
+  }
+
+  /**
+   * Get the display name for a resource by ID
+   */
+  getResourceName(resourceId: string): string {
+    const definition = this.getResourceDefinition(resourceId);
+    return definition?.name || resourceId;
   }
 
   /**
@@ -1670,7 +1681,7 @@ export class CharacterService implements ICharacterService {
           : this._character.actionTracker;
 
       // Update resources if the ability consumed any
-      const resourceAmountUsed = abilityService.getResourceCostAmount(
+      const resourceAmountUsed = this.abilityService.getResourceCostAmount(
         ability,
         variableResourceAmount,
       );
@@ -2014,11 +2025,3 @@ export class CharacterService implements ICharacterService {
     }));
   }
 }
-
-// Export a singleton instance for backward compatibility
-// This is deprecated - use the service factory instead
-export const characterService = new CharacterService(
-  characterStorageService,
-  activityLogService,
-  abilityService,
-);

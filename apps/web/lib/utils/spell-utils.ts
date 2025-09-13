@@ -1,5 +1,6 @@
 import { ResourceCost, SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ResourceInstance } from "@/lib/schemas/resources";
+import { getCharacterService } from "../services/service-factory";
 
 /**
  * Check if a character has enough resources to cast a spell
@@ -55,10 +56,15 @@ export function getInsufficientResourceMessage(
  * Format resource cost for display
  */
 export function formatResourceCost(resourceCost: ResourceCost): string {
+  const resourceName = getCharacterService().getResourceName(resourceCost.resourceId);
+  
   if (resourceCost.type === "fixed") {
-    return `${resourceCost.amount} ${resourceCost.resourceId}`;
+    return `${resourceCost.amount} ${resourceName}`;
   } else {
-    return `${resourceCost.minAmount}-${resourceCost.maxAmount} ${resourceCost.resourceId}`;
+    // If maxAmount is not specified, show as "X+" instead of a range
+    return resourceCost.maxAmount 
+      ? `${resourceCost.minAmount}-${resourceCost.maxAmount} ${resourceName}`
+      : `${resourceCost.minAmount}+ ${resourceName}`;
   }
 }
 

@@ -138,7 +138,7 @@ export function AbilitySection() {
                           type: "variable" as const,
                           resourceId: newAbility.resourceCost.resourceId,
                           minAmount: newAbility.resourceCost.minAmount || 1,
-                          maxAmount: newAbility.resourceCost.maxAmount || 5,
+                          maxAmount: newAbility.resourceCost.maxAmount || undefined,
                         },
                 }
               : {}),
@@ -273,7 +273,9 @@ export function AbilitySection() {
                   >
                     {actionAbility.resourceCost.type === "fixed"
                       ? `${actionAbility.resourceCost.amount} ${resourceInfo.resourceName}`
-                      : `${actionAbility.resourceCost.minAmount}-${actionAbility.resourceCost.maxAmount} ${resourceInfo.resourceName}`}
+                      : actionAbility.resourceCost.maxAmount
+                        ? `${actionAbility.resourceCost.minAmount}-${actionAbility.resourceCost.maxAmount} ${resourceInfo.resourceName}`
+                        : `${actionAbility.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
                   </Badge>
                 )}
               </div>
@@ -301,7 +303,7 @@ export function AbilitySection() {
                         max={
                           actionAbility.resourceCost.type === "variable"
                             ? Math.min(
-                                actionAbility.resourceCost.maxAmount,
+                                actionAbility.resourceCost.maxAmount ?? characterService.getResourceMaxValue(actionAbility.resourceCost.resourceId),
                                 resourceInfo.resource?.current || 0,
                               )
                             : resourceInfo.resource?.current || 0
@@ -643,13 +645,13 @@ export function AbilitySection() {
                                       type="number"
                                       min="1"
                                       max="10"
-                                      value={newAbility.resourceCost.maxAmount || 5}
+                                      value={newAbility.resourceCost.maxAmount || ""}
                                       onChange={(e) =>
                                         setNewAbility({
                                           ...newAbility,
                                           resourceCost: {
                                             ...newAbility.resourceCost!,
-                                            maxAmount: parseInt(e.target.value) || 5,
+                                            maxAmount: e.target.value ? parseInt(e.target.value) : undefined,
                                           },
                                         })
                                       }

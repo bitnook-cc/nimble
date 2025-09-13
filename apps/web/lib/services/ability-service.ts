@@ -6,6 +6,7 @@ import {
 } from "../schemas/abilities";
 import { Character } from "../schemas/character";
 import { formulaEvaluatorService } from "./formula-evaluator-service";
+import { getCharacterService } from "./service-factory";
 
 export class AbilityService {
   /**
@@ -49,11 +50,15 @@ export class AbilityService {
     if (ability.resourceCost && ability.resourceCost.type === "variable") {
       const resourceCost = ability.resourceCost;
       const requiredAmount = variableResourceAmount || resourceCost.minAmount;
+      
+      // Get the actual max amount - if not specified, use the resource's max value
+      const resourceMaxValue = getCharacterService().getResourceMaxValue(resourceCost.resourceId);
+      const effectiveMaxAmount = resourceCost.maxAmount ?? resourceMaxValue;
 
       // Validate variable amount is within bounds
-      if (requiredAmount < resourceCost.minAmount || requiredAmount > resourceCost.maxAmount) {
+      if (requiredAmount < resourceCost.minAmount || requiredAmount > effectiveMaxAmount) {
         console.error(
-          `Cannot use ability: invalid resource amount (need ${requiredAmount}, min ${resourceCost.minAmount}, max ${resourceCost.maxAmount})`,
+          `Cannot use ability: invalid resource amount (need ${requiredAmount}, min ${resourceCost.minAmount}, max ${effectiveMaxAmount})`,
         );
         return false;
       }

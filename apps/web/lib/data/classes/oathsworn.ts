@@ -19,27 +19,6 @@ const oathswornFeatures: ClassFeature[] = [
       "Gain a magical pool of healing power. This pool's maximum is always equal to 5 × LVL and recharges on a Safe Rest. Action: Touch a target and spend any amount of remaining healing power to restore that many HP.",
     effects: [
       {
-        id: "lay-on-hands-0",
-        type: "ability",
-        ability: {
-          id: "lay-on-hands",
-          name: "Lay on Hands",
-          description:
-            "Touch a target and spend any amount of remaining healing power to restore that many HP.",
-          type: "action",
-          frequency: "at_will",
-          actionCost: 1,
-        },
-      },
-    ],
-  },
-  {
-    id: "lay-on-hands-pool",
-    level: 1,
-    name: "Lay on Hands Pool",
-    description: "Magical healing power that can be spent to restore HP.",
-    effects: [
-      {
         id: "lay-on-hands-pool-0",
         type: "resource",
         resourceDefinition: {
@@ -51,7 +30,25 @@ const oathswornFeatures: ClassFeature[] = [
           resetCondition: "safe_rest",
           resetType: "to_max",
           minValue: { type: "fixed", value: 0 },
-          maxValue: { type: "fixed", value: 5 }, // Will be calculated as 5 × LVL
+          maxValue: { type: "formula", expression: "5 * LVL" },
+        },
+      },
+      {
+        id: "lay-on-hands-0",
+        type: "ability",
+        ability: {
+          id: "lay-on-hands",
+          name: "Lay on Hands",
+          description:
+            "Touch a target and spend any amount of remaining healing power to restore that many HP.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "variable",
+            resourceId: "lay-on-hands-pool",
+            minAmount: 1,
+          },
         },
       },
     ],
