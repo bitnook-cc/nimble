@@ -81,7 +81,7 @@ export const elf: AncestryDefinition = {
       name: "Lithe",
       description:
         "Advantage on Initiative, +1 Speed. You know Elvish if your INT is not negative.",
-      effects: [
+      traits: [
         {
           id: "elf-lithe-0",
           type: "stat_bonus",

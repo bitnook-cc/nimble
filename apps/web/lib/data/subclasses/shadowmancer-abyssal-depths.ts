@@ -13,7 +13,7 @@ export const shadowmancerAbyssalDepths: SubclassDefinition = {
       name: "Master of Nightfrost",
       description:
         "Your Patron grants you knowledge of Ice spells. Gain the ability to breathe underwater. Your shadow minions become beings of nightfrost. Your shadow blast and minions can deal cold or necrotic damage, and whenever they would crit, you gain INT+LVL temp HP.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "shadowfrost",
@@ -21,7 +21,7 @@ export const shadowmancerAbyssalDepths: SubclassDefinition = {
       name: "Shadowfrost",
       description:
         "Your Shadow Blast also Slows. You can cast Cryosleep or Rimeblades without Pilfering Power by spending 10 temp HP. Choose 1 Ice Utility Spell.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "glacial-resilience",
@@ -29,7 +29,7 @@ export const shadowmancerAbyssalDepths: SubclassDefinition = {
       name: "Glacial Resilience",
       description:
         "(1/Safe Rest) Reaction (whenever you are attacked or would gain a condition), gain 10+LVL temp HP and end ALL negative conditions on yourself. At the end of your next turn, any remaining temp HP are lost.",
-      effects: [
+      traits: [
         {
           id: "glacial-resilience-0",
           type: "ability",
@@ -51,7 +51,7 @@ export const shadowmancerAbyssalDepths: SubclassDefinition = {
       name: "Cryomancer's Reprisal",
       description:
         "Pay half your max HP to cast ANY Ice spell. After casting an Ice spell in this way, you gain an invisible aura: the next creature that hits you with a melee attack this encounter takes cold damage equal to half the HP you spent on this casting.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

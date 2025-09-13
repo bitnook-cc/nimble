@@ -13,7 +13,7 @@ export const shepherdLuminaryMercy: SubclassDefinition = {
       name: "Merciful Healing",
       description:
         "When an effect caused by you heals a Dying creature, they are healed for twice as much. (1/round) Your Lifebinding Spirit can act for free while you are Dying.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "life-is-beautiful",
@@ -21,7 +21,7 @@ export const shepherdLuminaryMercy: SubclassDefinition = {
       name: "Life is Beautiful",
       description:
         "Harmless and lovely creatures such as butterflies and humming birds are attracted to your presence and often follow you. Flowers bloom more vibrantly in your presence.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "conduit-of-light",
@@ -29,7 +29,7 @@ export const shepherdLuminaryMercy: SubclassDefinition = {
       name: "Conduit of Light",
       description:
         "When an effect caused by you would heal HP, you may expend 1 use of Searing Light to heal (or damage, ignoring armor) another target within 6 spaces of yourself for the same amount.",
-      effects: [
+      traits: [
         {
           id: "conduit-of-light-0",
           type: "ability",
@@ -50,7 +50,7 @@ export const shepherdLuminaryMercy: SubclassDefinition = {
       name: "Powerful Healer",
       description:
         "(WIL times/Safe Rest) Whenever you would roll dice to heal damage, you may instead heal the max amount you could roll, or give that many temp HP.",
-      effects: [
+      traits: [
         {
           id: "powerful-healer-0",
           type: "ability",
@@ -72,7 +72,7 @@ export const shepherdLuminaryMercy: SubclassDefinition = {
       name: "Empowered Conduit",
       description:
         "Your Conduit of Light may target 1 additional creature. Regain 1 charge of Searing Light when you roll Initiative (this expires if unspent at the end of combat).",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

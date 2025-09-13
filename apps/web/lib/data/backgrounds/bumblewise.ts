@@ -11,7 +11,7 @@ export const bumblewise: BackgroundDefinition = {
       name: "Accidental Wisdom",
       description:
         "A result of 1 or less on any WIL-related roll counts as a natural 20 (WIL save, Naturecraft, Perception, Influence, or Insight check).",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

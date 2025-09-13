@@ -13,7 +13,7 @@ export const goblin: AncestryDefinition = {
       name: "Skedaddle",
       description:
         "Can move 2 spaces for free after you become the target of an attack or negative effect (after damage, ignoring difficult terrain). You know Goblin if your INT is not negative.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

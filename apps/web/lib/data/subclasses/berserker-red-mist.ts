@@ -10,7 +10,7 @@ const redMistFeatures: ClassFeature[] = [
     name: "Blood Frenzy",
     description:
       "(1/turn) While Raging, whenever you crit or kill an enemy, change 1 Fury Die to the maximum.",
-    effects: [
+    traits: [
       {
         id: "red-mist-blood-frenzy-0",
         type: "ability",
@@ -32,7 +32,7 @@ const redMistFeatures: ClassFeature[] = [
     name: "Savage Awareness",
     description:
       "Advantage on Perception checks to notice or track down blood. Blindsight 2 while Raging: you ignore the Blinded condition and can see through darkness and Invisibility within that Range.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -40,7 +40,7 @@ const redMistFeatures: ClassFeature[] = [
     level: 7,
     name: "Unstoppable Brutality",
     description: "While Raging, you may gain 1 Wound to reroll any attack or save.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 11
   {
@@ -49,7 +49,7 @@ const redMistFeatures: ClassFeature[] = [
     name: "Opportunistic Frenzy",
     description:
       "While Raging, you can make opportunity attacks without disadvantage, and you may make them whenever an enemy enters your melee weapon's reach.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 15
   {
@@ -57,7 +57,7 @@ const redMistFeatures: ClassFeature[] = [
     level: 15,
     name: "Onslaught",
     description: "While Raging, gain +2 speed. (1/round) you may move for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

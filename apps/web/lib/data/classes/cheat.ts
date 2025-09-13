@@ -10,7 +10,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: '"Creative" Accounting',
     description:
       "Steal up to INT actions from your next turn (Gain up to INT actions now, the next time you would gain actions, subtract the number stolen). You cannot use this 2 turns in a row.",
-    effects: [
+    traits: [
       {
         id: "creative-accounting-0",
         type: "ability",
@@ -31,7 +31,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Exploit Weakness",
     description:
       "Action: Make a contested INT check against an enemy. If you win, you can use Vicious Opportunist against them, even if they are not Distracted. This lasts for 1 minute or until you use this ability against another target.",
-    effects: [
+    traits: [
       {
         id: "exploit-weakness-0",
         type: "ability",
@@ -53,7 +53,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Feinting Attack",
     description:
       "If you miss for the 2nd time in a single round, you may change the primary die to any result instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "how-d-you-get-here",
@@ -61,7 +61,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "How'd YOU get here?!",
     description:
       '2 actions: "Teleport" up to 4 spaces away, adjacent to a Distracted target, and make a melee attack against them. If you crit, you may "teleport" again.',
-    effects: [
+    traits: [
       {
         id: "how-d-you-get-here-0",
         type: "ability",
@@ -84,14 +84,14 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "I'm Outta Here!",
     description:
       "When an ally within 4 spaces is crit, you may turn invisible until the end of your next turn.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "misdirection",
     level: 1,
     name: "Misdirection",
     description: "Gain INT armor. Whenever you Defend, you may halve the damage instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "steal-tempo",
@@ -99,7 +99,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Steal Tempo",
     description:
       "When you land a critical hit for the second time on a turn, your target loses 1 action and you gain 1 action.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "sunder-armor-medium",
@@ -107,7 +107,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Sunder Armor (Medium)",
     description:
       "Action: When you crit an enemy with medium armor, sunder their armor. Until the start of your next turn, ALL melee attacks against that target ignore its armor.",
-    effects: [
+    traits: [
       {
         id: "sunder-armor-medium-0",
         type: "ability",
@@ -129,7 +129,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Sunder Armor (Heavy)",
     description:
       "Req. Sunder Armor (Medium). Your Sunder Armor ability now also applies to enemies wearing heavy armor.",
-    effects: [
+    traits: [
       {
         id: "sunder-armor-heavy-0",
         type: "ability",
@@ -149,7 +149,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     name: "Trickshot",
     description:
       "When you throw a dagger, it returns back to your hand at the end of your turn. On a hit, it ricochets to another creature within 2 spaces, dealing half as much damage to them.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 
@@ -160,7 +160,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 1,
     name: "Sneak Attack",
     description: "When you crit, deal +1d6 damage.",
-    effects: [
+    traits: [
       {
         id: "cheat-sneak-attack-0",
         type: "ability",
@@ -182,7 +182,7 @@ const cheatFeatures: ClassFeature[] = [
     name: "Vicious Opportunist",
     description:
       "(1/turn) When you hit a Distracted target with a melee attack, you may change the Primary Die roll to whatever you like (changing it to the max value counts as a crit).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 2
   {
@@ -192,7 +192,7 @@ const cheatFeatures: ClassFeature[] = [
     name: "Cheat",
     description:
       "You're a well-rounded cheater. Gain the following abilities: (1/round) You may either Move or Hide for free. (1/day) You may change any skill check to 10+INT. If you roll less than 10 on Initiative, you may change it to 10 instead. You may gain advantage on skill checks while playing any games, competitions, or placing wagers. If you're caught though...",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 3
   {
@@ -200,7 +200,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 3,
     name: "Cheat Subclass",
     description: "Choose your path of deception.",
-    effects: [
+    traits: [
       {
         id: "cheat-subclass-choice-0",
         type: "subclass_choice",
@@ -212,7 +212,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 3,
     name: "Sneak Attack (2)",
     description: "Your Sneak Attack becomes 1d8.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-thieves-cant",
@@ -220,7 +220,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Thieves' Cant",
     description: "You learn the secret language of rogues and scoundrels.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 4
   {
@@ -228,7 +228,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 4,
     name: "Key Stat Increase",
     description: "+1 DEX or INT",
-    effects: [
+    traits: [
       {
         id: "cheat-key-stat-increase-1-0",
         type: "attribute_boost",
@@ -242,7 +242,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 4,
     name: "Underhanded Ability",
     description: "Choose an Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-1-0",
         type: "pick_feature_from_pool",
@@ -257,7 +257,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 5,
     name: "Twist the Blade",
     description: "Action: Change one of your Sneak Attack dice to whatever you like.",
-    effects: [
+    traits: [
       {
         id: "cheat-twist-the-blade-0",
         type: "ability",
@@ -278,14 +278,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Quick Read",
     description:
       "(1/encounter) Gain advantage on an Assess check. (1/day) Gain advantage on an Examination check.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-secondary-stat-increase-1",
     level: 5,
     name: "Secondary Stat Increase",
     description: "+1 WIL or STR",
-    effects: [
+    traits: [
       {
         id: "cheat-secondary-stat-increase-1-0",
         type: "attribute_boost",
@@ -300,7 +300,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 6,
     name: "Underhanded Ability (2)",
     description: "Choose a 2nd Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-2-0",
         type: "pick_feature_from_pool",
@@ -315,14 +315,14 @@ const cheatFeatures: ClassFeature[] = [
     level: 7,
     name: "Subclass Feature",
     description: "Gain your Cheat subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-sneak-attack-3",
     level: 7,
     name: "Sneak Attack (3)",
     description: "Your Sneak Attack becomes 2d8.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 8
   {
@@ -330,7 +330,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 8,
     name: "Underhanded Ability (3)",
     description: "Choose a 3rd Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-3-0",
         type: "pick_feature_from_pool",
@@ -344,7 +344,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 8,
     name: "Key Stat Increase",
     description: "+1 DEX or INT",
-    effects: [
+    traits: [
       {
         id: "cheat-key-stat-increase-2-0",
         type: "attribute_boost",
@@ -359,14 +359,14 @@ const cheatFeatures: ClassFeature[] = [
     level: 9,
     name: "Sneak Attack (4)",
     description: "Your Sneak Attack becomes 2d10.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-secondary-stat-increase-2",
     level: 9,
     name: "Secondary Stat Increase",
     description: "+1 WIL or STR",
-    effects: [
+    traits: [
       {
         id: "cheat-secondary-stat-increase-2-0",
         type: "attribute_boost",
@@ -382,7 +382,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Underhanded Ability (4)",
     description: "Choose a 4th Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-4-0",
         type: "pick_feature_from_pool",
@@ -397,14 +397,14 @@ const cheatFeatures: ClassFeature[] = [
     level: 11,
     name: "Subclass Feature",
     description: "Gain your Cheat subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-sneak-attack-5",
     level: 11,
     name: "Sneak Attack (5)",
     description: "Your Sneak Attack becomes 2d12.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 12
   {
@@ -413,7 +413,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Underhanded Ability (5)",
     description: "Choose a 5th Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-5-0",
         type: "pick_feature_from_pool",
@@ -427,7 +427,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 12,
     name: "Key Stat Increase",
     description: "+1 DEX or INT",
-    effects: [
+    traits: [
       {
         id: "cheat-key-stat-increase-3-0",
         type: "attribute_boost",
@@ -442,7 +442,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 13,
     name: "Twist the Blade (2)",
     description: "(1/turn) You can Twist the Blade for free.",
-    effects: [
+    traits: [
       {
         id: "cheat-twist-the-blade-2-0",
         type: "ability",
@@ -462,7 +462,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 13,
     name: "Secondary Stat Increase",
     description: "+1 WIL or STR",
-    effects: [
+    traits: [
       {
         id: "cheat-secondary-stat-increase-3-0",
         type: "attribute_boost",
@@ -478,7 +478,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Underhanded Ability (6)",
     description: "Choose a 6th Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-6-0",
         type: "pick_feature_from_pool",
@@ -493,14 +493,14 @@ const cheatFeatures: ClassFeature[] = [
     level: 15,
     name: "Subclass Feature",
     description: "Gain your Cheat subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-sneak-attack-6",
     level: 15,
     name: "Sneak Attack (6)",
     description: "Your Sneak Attack becomes 2d20.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 16
   {
@@ -509,7 +509,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Underhanded Ability (7)",
     description: "Choose a 7th Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-7-0",
         type: "pick_feature_from_pool",
@@ -523,7 +523,7 @@ const cheatFeatures: ClassFeature[] = [
     level: 16,
     name: "Key Stat Increase",
     description: "+1 DEX or INT",
-    effects: [
+    traits: [
       {
         id: "cheat-key-stat-increase-4-0",
         type: "attribute_boost",
@@ -538,14 +538,14 @@ const cheatFeatures: ClassFeature[] = [
     level: 17,
     name: "Sneak Attack (7)",
     description: "Your Sneak Attack becomes 3d20.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "cheat-secondary-stat-increase-4",
     level: 17,
     name: "Secondary Stat Increase",
     description: "+1 WIL or STR",
-    effects: [
+    traits: [
       {
         id: "cheat-secondary-stat-increase-4-0",
         type: "attribute_boost",
@@ -561,7 +561,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Underhanded Ability (8)",
     description: "Choose an 8th Underhanded Ability.",
-    effects: [
+    traits: [
       {
         id: "cheat-underhanded-ability-8-0",
         type: "pick_feature_from_pool",
@@ -577,7 +577,7 @@ const cheatFeatures: ClassFeature[] = [
 
     name: "Epic Boon",
     description: "Choose an Epic Boon (see pg. 23 of the GM's Guide).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 20
   {
@@ -586,7 +586,7 @@ const cheatFeatures: ClassFeature[] = [
     name: "Supreme Execution",
     description:
       "+1 to any 2 of your stats. When you attack with a blade, you do not require targets to be Distracted to trigger Vicious Opportunist.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 
@@ -598,7 +598,7 @@ const tradeSecrets: ClassFeature = {
   name: "Trade Secrets",
   description:
     "Whenever you spend a night talking shop with other roguish types during a Safe Rest, you may choose different Cheat options available to you.",
-  effects: [], // Passive feature - no mechanical effects to process
+  traits: [], // Passive feature - no mechanical traits to process
 };
 
 // Distracted feature (important mechanic)
@@ -609,7 +609,7 @@ const distracted: ClassFeature = {
   name: "Distracted",
   description:
     "A target is Distracted if it is adjacent to or Taunted by an ally, or if it cannot see you.",
-  effects: [], // Passive feature - no mechanical effects to process
+  traits: [], // Passive feature - no mechanical traits to process
 };
 
 // Magic feature
@@ -620,7 +620,7 @@ const magic: ClassFeature = {
   name: "Magic?",
   description:
     "The Cheat has some abilities that look magical-they might be, but don't have to be. You have your ways, okay? No need to explain how you did that, not even to the GM!",
-  effects: [], // Passive feature - no mechanical effects to process
+  traits: [], // Passive feature - no mechanical traits to process
 };
 
 export const cheatClass: ClassDefinition = {

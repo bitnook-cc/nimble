@@ -10,7 +10,7 @@ const mountainheartFeatures: ClassFeature[] = [
     name: "Stone's Resilience",
     description:
       "Whenever you expend Fury Dice to reduce incoming damage, add the value of the die to the amount reduced.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "mountainheart-tenacity",
@@ -18,7 +18,7 @@ const mountainheartFeatures: ClassFeature[] = [
     name: "Mountain Tenacity",
     description:
       "Whenever you expend your Hit Dice to recover HP, for every 10 HP you would recover, you may heal 1 Wound instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -27,7 +27,7 @@ const mountainheartFeatures: ClassFeature[] = [
     name: "Unbreakable",
     description:
       "(1/encounter) While Raging, if you would suffer your last Wound or other negative condition of your choice, you don't.",
-    effects: [
+    traits: [
       {
         id: "mountainheart-unbreakable-0",
         type: "ability",
@@ -49,7 +49,7 @@ const mountainheartFeatures: ClassFeature[] = [
     level: 11,
     name: "Titan's Fury",
     description: "After you miss an attack or are crit by an enemy, Rage for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 15
   {
@@ -58,7 +58,7 @@ const mountainheartFeatures: ClassFeature[] = [
     name: "Mountain's Endurance",
     description:
       "While Dying, if an attack against you would be a crit, the attack is rerolled instead (when-crit abilities, such as Titan's Fury, still trigger).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

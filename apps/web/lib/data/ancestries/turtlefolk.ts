@@ -12,7 +12,7 @@ export const turtlefolk: AncestryDefinition = {
       id: "turtlefolk-slow-and-steady",
       name: "Slow & Steady",
       description: "+4 Armor, -2 speed.",
-      effects: [
+      traits: [
         {
           id: "turtlefolk-slow-and-steady-0",
           type: "stat_bonus",

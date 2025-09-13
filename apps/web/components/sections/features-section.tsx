@@ -8,9 +8,9 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
   AttributeName,
-  EffectSelection,
-  PoolFeatureEffectSelection,
-  UtilitySpellsEffectSelection,
+  TraitSelection,
+  PoolFeatureTraitSelection,
+  UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import {
@@ -28,11 +28,11 @@ export function FeaturesSection() {
   const {
     character,
     selectSubclass,
-    updatePoolSelectionsForEffect,
+    updatePoolSelectionsForTrait,
     selectSpellSchool,
     clearSpellSchoolSelections,
     selectAttributeBoost,
-    updateUtilitySelectionsForEffect,
+    updateUtilitySelectionsForTrait,
   } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
 
@@ -71,8 +71,8 @@ export function FeaturesSection() {
     : [];
 
   // Get pool feature selections
-  const poolSelections = (character.effectSelections || []).filter(
-    (sf): sf is PoolFeatureEffectSelection => sf.type === "pool_feature",
+  const poolSelections = (character.traitSelections || []).filter(
+    (sf): sf is PoolFeatureTraitSelection => sf.type === "pool_feature",
   );
 
   // Add pool selection features to class features
@@ -89,66 +89,66 @@ export function FeaturesSection() {
   const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(character);
 
   // Handler for selection changes from FeatureList
-  const handleSelectionsChange = async (selections: EffectSelection[]) => {
+  const handleSelectionsChange = async (selections: TraitSelection[]) => {
     // Find what changed by comparing with current selections
-    const currentSelections = character.effectSelections;
+    const currentSelections = character.traitSelections;
 
     // Group pool features and utility spells by effect ID for batch processing
-    const poolFeaturesByEffect = new Map<string, PoolFeatureEffectSelection[]>();
-    const utilitySpellsByEffect = new Map<string, UtilitySpellsEffectSelection[]>();
-    const otherSelections: EffectSelection[] = [];
+    const poolFeaturesByEffect = new Map<string, PoolFeatureTraitSelection[]>();
+    const utilitySpellsByEffect = new Map<string, UtilitySpellsTraitSelection[]>();
+    const otherSelections: TraitSelection[] = [];
 
     for (const selection of selections) {
       if (selection.type === "pool_feature") {
-        const effectId = selection.grantedByEffectId;
-        if (!poolFeaturesByEffect.has(effectId)) {
-          poolFeaturesByEffect.set(effectId, []);
+        const traitId = selection.grantedByTraitId;
+        if (!poolFeaturesByEffect.has(traitId)) {
+          poolFeaturesByEffect.set(traitId, []);
         }
-        poolFeaturesByEffect.get(effectId)!.push(selection);
+        poolFeaturesByEffect.get(traitId)!.push(selection);
       } else if (selection.type === "utility_spells") {
-        const effectId = selection.grantedByEffectId;
-        if (!utilitySpellsByEffect.has(effectId)) {
-          utilitySpellsByEffect.set(effectId, []);
+        const traitId = selection.grantedByTraitId;
+        if (!utilitySpellsByEffect.has(traitId)) {
+          utilitySpellsByEffect.set(traitId, []);
         }
-        utilitySpellsByEffect.get(effectId)!.push(selection);
+        utilitySpellsByEffect.get(traitId)!.push(selection);
       } else {
         otherSelections.push(selection);
       }
     }
 
     // Handle pool features - replace all for each effect using the new API
-    for (const [effectId, poolSelections] of poolFeaturesByEffect) {
+    for (const [traitId, poolSelections] of poolFeaturesByEffect) {
       // Use the new batch update API
-      await updatePoolSelectionsForEffect(effectId, poolSelections);
+      await updatePoolSelectionsForTrait(traitId, poolSelections);
     }
 
     // Handle utility spells - replace all for each effect using the new API
-    for (const [effectId, utilitySelections] of utilitySpellsByEffect) {
-      await updateUtilitySelectionsForEffect(effectId, utilitySelections);
+    for (const [traitId, utilitySelections] of utilitySpellsByEffect) {
+      await updateUtilitySelectionsForTrait(traitId, utilitySelections);
     }
 
     // Handle other selections normally
     for (const selection of otherSelections) {
       const existing = currentSelections.find(
-        (s) => s.grantedByEffectId === selection.grantedByEffectId,
+        (s) => s.grantedByTraitId === selection.grantedByTraitId,
       );
 
       if (!existing || JSON.stringify(existing) !== JSON.stringify(selection)) {
         // This is new or changed, apply it
         switch (selection.type) {
           case "subclass":
-            await selectSubclass(selection.subclassId, selection.grantedByEffectId);
+            await selectSubclass(selection.subclassId, selection.grantedByTraitId);
             break;
           case "spell_school":
             // Clear existing selections first (for edit mode)
-            await clearSpellSchoolSelections(selection.grantedByEffectId);
-            await selectSpellSchool(selection.schoolId, selection.grantedByEffectId);
+            await clearSpellSchoolSelections(selection.grantedByTraitId);
+            await selectSpellSchool(selection.schoolId, selection.grantedByTraitId);
             break;
           case "attribute_boost":
             await selectAttributeBoost(
               selection.attribute,
               selection.amount,
-              selection.grantedByEffectId,
+              selection.grantedByTraitId,
             );
             break;
         }
@@ -190,7 +190,7 @@ export function FeaturesSection() {
                       features={allClassFeatures}
                       source="class"
                       sourceLabel={classDefinition.name}
-                      existingSelections={character.effectSelections}
+                      existingSelections={character.traitSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
                       existingFeatures={existingFeatures}
@@ -206,7 +206,7 @@ export function FeaturesSection() {
                       features={subclassFeatures}
                       source="subclass"
                       sourceLabel={subclassDefinition?.name || "Subclass"}
-                      existingSelections={character.effectSelections}
+                      existingSelections={character.traitSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
                       existingFeatures={existingFeatures}
@@ -222,7 +222,7 @@ export function FeaturesSection() {
                       features={ancestryFeatures}
                       source="ancestry"
                       sourceLabel={ancestryDefinition?.name || "Ancestry"}
-                      existingSelections={character.effectSelections}
+                      existingSelections={character.traitSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
                       existingFeatures={existingFeatures}
@@ -238,7 +238,7 @@ export function FeaturesSection() {
                       features={backgroundFeatures}
                       source="background"
                       sourceLabel={backgroundDefinition?.name || "Background"}
-                      existingSelections={character.effectSelections}
+                      existingSelections={character.traitSelections}
                       onSelectionsChange={handleSelectionsChange}
                       character={character}
                       existingFeatures={existingFeatures}

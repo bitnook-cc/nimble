@@ -1,24 +1,24 @@
 import { AbilityDefinition } from "../schemas/abilities";
 import {
   ActionTracker,
-  AttributeBoostEffectSelection,
+  AttributeBoostTraitSelection,
   AttributeName,
   Attributes,
   Character,
   CharacterConfiguration,
-  EffectSelection,
-  PoolFeatureEffectSelection,
+  TraitSelection,
+  PoolFeatureTraitSelection,
   Skill,
   Skills,
-  SpellSchoolEffectSelection,
-  SubclassEffectSelection,
-  UtilitySpellsEffectSelection,
+  SpellSchoolTraitSelection,
+  SubclassTraitSelection,
+  UtilitySpellsTraitSelection,
 } from "../schemas/character";
 import {
   CharacterFeature,
   ClassFeature,
-  FeatureEffect,
-  StatBonusFeatureEffect,
+  FeatureTrait,
+  StatBonusFeatureTrait,
 } from "../schemas/features";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
@@ -102,8 +102,8 @@ export class CharacterService implements ICharacterService {
     return [...features, ...selectedFeatures, ...itemFeatures];
   }
 
-  getAllActiveEffects(): FeatureEffect[] {
-    return this.getAllActiveFeatures().flatMap((f) => f.effects);
+  getAllActiveTraits(): FeatureTrait[] {
+    return this.getAllActiveFeatures().flatMap((f) => f.traits);
   }
 
   /**
@@ -120,10 +120,10 @@ export class CharacterService implements ICharacterService {
       Array<{ level: number; ability: any; isManual: boolean }>
     >();
 
-    // Collect all abilities from effects grouped by ID
+    // Collect all abilities from traits grouped by ID
     for (const feature of allFeatures) {
       const level = (feature as any).level || 0;
-      for (const effect of feature.effects) {
+      for (const effect of feature.traits) {
         if (effect.type === "ability") {
           const ability = (effect as any).ability;
           if (ability && ability.id) {
@@ -183,10 +183,10 @@ export class CharacterService implements ICharacterService {
   private getAllStatBonuses(): StatBonus[] {
     if (!this._character) return [];
 
-    return this.getAllActiveEffects()
+    return this.getAllActiveTraits()
       .map((effect) => {
         if (effect.type === "stat_bonus") {
-          return (effect as StatBonusFeatureEffect).statBonus;
+          return (effect as StatBonusFeatureTrait).statBonus;
         }
         return null;
       })
@@ -355,8 +355,8 @@ export class CharacterService implements ICharacterService {
 
     const schools = new Set<string>();
 
-    // Get schools from direct spell_school effects
-    const schoolEffects = this.getAllActiveEffects().filter(
+    // Get schools from direct spell_school traits
+    const schoolEffects = this.getAllActiveTraits().filter(
       (effect) => effect.type === "spell_school",
     );
 
@@ -405,17 +405,17 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return [];
 
     // Track abilities with their source priority and level
-    // Priority: manually added (highest) > higher level effects > lower level effects
+    // Priority: manually added (highest) > higher level traits > lower level traits
     const abilitiesWithPriority = new Map<
       string,
       { ability: AbilityDefinition; priority: number; level: number }
     >();
 
-    // 1. Get abilities from effects (non-spell abilities) with level tracking
+    // 1. Get abilities from traits (non-spell abilities) with level tracking
     const allFeatures = this.getAllActiveFeatures();
     for (const feature of allFeatures) {
       const level = (feature as any).level || 0; // ClassFeature has level, others default to 0
-      for (const effect of feature.effects) {
+      for (const effect of feature.traits) {
         if (effect.type === "ability") {
           const ability = (effect as any).ability;
           if (ability && ability.type !== "spell") {
@@ -478,7 +478,7 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Get the maximum spell tier access based on effects
+   * Get the maximum spell tier access based on traits
    */
   getSpellTierAccess(): number {
     if (!this._character) return 0;
@@ -486,8 +486,8 @@ export class CharacterService implements ICharacterService {
     // Start with base spell tier access
     let maxTier = this._character._spellTierAccess || 0;
 
-    // Check for spell tier access effects
-    const tierEffects = this.getAllActiveEffects().filter(
+    // Check for spell tier access traits
+    const tierEffects = this.getAllActiveTraits().filter(
       (effect) => effect.type === "spell_tier_access",
     );
 
@@ -502,7 +502,7 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Get the spell scaling multiplier based on effects
+   * Get the spell scaling multiplier based on traits
    */
   getSpellScalingLevel(): number {
     if (!this._character) return 0;
@@ -510,8 +510,8 @@ export class CharacterService implements ICharacterService {
     // Start with base spell scaling multiplier
     let scalingMultiplier = this._character._spellScalingLevel || 0;
 
-    // Check for spell scaling effects - only highest applies
-    const scalingEffects = this.getAllActiveEffects().filter(
+    // Check for spell scaling traits - only highest applies
+    const scalingEffects = this.getAllActiveTraits().filter(
       (effect) => effect.type === "spell_scaling",
     );
 
@@ -544,7 +544,7 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Get all proficiencies including those from effects
+   * Get all proficiencies including those from traits
    */
   getProficiencies() {
     if (!this._character) return { armor: [], weapons: [] };
@@ -555,12 +555,12 @@ export class CharacterService implements ICharacterService {
       weapons: [...this._character._proficiencies.weapons],
     };
 
-    // Add proficiencies from effects
-    const profEffects = this.getAllActiveEffects().filter(
+    // Add proficiencies from traits
+    const profEffects = this.getAllActiveTraits().filter(
       (effect) => effect.type === "proficiency",
     );
 
-    // Would need to implement merging logic for proficiency effects
+    // Would need to implement merging logic for proficiency traits
     // For now, just return base proficiencies
     return proficiencies;
   }
@@ -574,7 +574,7 @@ export class CharacterService implements ICharacterService {
 
   /**
    * Get all resource definitions available to the character
-   * Includes both directly granted resources and resources from effects
+   * Includes both directly granted resources and resources from traits
    */
   getResourceDefinitions(): ResourceDefinition[] {
     if (!this._character) return [];
@@ -586,8 +586,8 @@ export class CharacterService implements ICharacterService {
       resources.set(resource.id, resource);
     }
 
-    // 2. Add resources from effects
-    const resourceEffects = this.getAllActiveEffects().filter(
+    // 2. Add resources from traits
+    const resourceEffects = this.getAllActiveTraits().filter(
       (effect) => effect.type === "resource",
     );
 
@@ -695,8 +695,8 @@ export class CharacterService implements ICharacterService {
   getSubclassId(): string | null {
     if (!this._character) return null;
 
-    const subclassSelection = this._character.effectSelections.find(
-      (selection): selection is SubclassEffectSelection => selection.type === "subclass",
+    const subclassSelection = this._character.traitSelections.find(
+      (selection): selection is SubclassTraitSelection => selection.type === "subclass",
     );
 
     return subclassSelection?.subclassId || null;
@@ -708,8 +708,8 @@ export class CharacterService implements ICharacterService {
   private getSelectedPoolFeatures(): ClassFeature[] {
     if (!this._character) return [];
 
-    const poolSelections = this._character.effectSelections.filter(
-      (selection): selection is PoolFeatureEffectSelection => selection.type === "pool_feature",
+    const poolSelections = this._character.traitSelections.filter(
+      (selection): selection is PoolFeatureTraitSelection => selection.type === "pool_feature",
     );
 
     return poolSelections.map((selection) => selection.feature);
@@ -721,8 +721,8 @@ export class CharacterService implements ICharacterService {
   getSelectedSpellSchoolIds(): string[] {
     if (!this._character) return [];
 
-    const spellSchoolSelections = this._character.effectSelections.filter(
-      (selection): selection is SpellSchoolEffectSelection => selection.type === "spell_school",
+    const spellSchoolSelections = this._character.traitSelections.filter(
+      (selection): selection is SpellSchoolTraitSelection => selection.type === "spell_school",
     );
 
     return spellSchoolSelections.map((selection) => selection.schoolId);
@@ -736,8 +736,8 @@ export class CharacterService implements ICharacterService {
       return { strength: 0, dexterity: 0, intelligence: 0, will: 0 };
     }
 
-    const attributeBoosts = this._character.effectSelections.filter(
-      (selection): selection is AttributeBoostEffectSelection =>
+    const attributeBoosts = this._character.traitSelections.filter(
+      (selection): selection is AttributeBoostTraitSelection =>
         selection.type === "attribute_boost",
     );
 
@@ -762,8 +762,8 @@ export class CharacterService implements ICharacterService {
     if (!this._character) return [];
 
     const contentRepository = ContentRepositoryService.getInstance();
-    const utilitySpellSelections = this._character.effectSelections.filter(
-      (selection): selection is UtilitySpellsEffectSelection => selection.type === "utility_spells",
+    const utilitySpellSelections = this._character.traitSelections.filter(
+      (selection): selection is UtilitySpellsTraitSelection => selection.type === "utility_spells",
     );
 
     const spellIds: string[] = [];
@@ -1766,7 +1766,7 @@ export class CharacterService implements ICharacterService {
    * Get all available effect selections that need to be made
    * This includes selections from all sources (class, ancestry, background, etc.)
    */
-  getAvailableEffectSelections() {
+  getAvailableTraitSelections() {
     if (!this._character) {
       return {
         poolSelections: [],
@@ -1778,31 +1778,31 @@ export class CharacterService implements ICharacterService {
     }
 
     // Delegate to the feature selection service
-    const allEffects = this.getAllActiveEffects();
-    return featureSelectionService.getAvailableEffectSelections(this._character, allEffects);
+    const allEffects = this.getAllActiveTraits();
+    return featureSelectionService.getAvailableTraitSelections(this._character, allEffects);
   }
 
   /**
    * Make or update a subclass selection
    */
-  async selectSubclass(subclassId: string, grantedByEffectId: string): Promise<void> {
+  async selectSubclass(subclassId: string, grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
     // Remove any existing subclass selection
-    const updatedSelections: EffectSelection[] = this._character.effectSelections.filter(
+    const updatedSelections: TraitSelection[] = this._character.traitSelections.filter(
       (s) => s.type !== "subclass",
     );
 
     // Add new selection
     updatedSelections.push({
       type: "subclass" as const,
-      grantedByEffectId,
+      grantedByTraitId,
       subclassId,
     });
 
     this._character = {
       ...this._character,
-      effectSelections: updatedSelections,
+      traitSelections: updatedSelections,
     };
 
     await this.saveCharacter();
@@ -1812,13 +1812,13 @@ export class CharacterService implements ICharacterService {
   /**
    * Clear pool feature selections for a specific effect
    */
-  async clearPoolFeatureSelections(grantedByEffectId: string): Promise<void> {
+  async clearPoolFeatureSelections(grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
     this._character = {
       ...this._character,
-      effectSelections: this._character.effectSelections.filter(
-        (s) => !(s.type === "pool_feature" && s.grantedByEffectId === grantedByEffectId),
+      traitSelections: this._character.traitSelections.filter(
+        (s) => !(s.type === "pool_feature" && s.grantedByTraitId === grantedByTraitId),
       ),
     };
 
@@ -1830,21 +1830,21 @@ export class CharacterService implements ICharacterService {
    * Update all pool selections for a given effect
    * This replaces all existing selections for the effect with new ones
    */
-  async updatePoolSelectionsForEffect(
-    effectId: string,
-    selections: PoolFeatureEffectSelection[],
+  async updatePoolSelectionsForTrait(
+    traitId: string,
+    selections: PoolFeatureTraitSelection[],
   ): Promise<void> {
     if (!this._character) return;
 
     // Remove all existing selections for this effect
-    const otherSelections = this._character.effectSelections.filter(
-      (s) => !(s.type === "pool_feature" && s.grantedByEffectId === effectId),
+    const otherSelections = this._character.traitSelections.filter(
+      (s) => !(s.type === "pool_feature" && s.grantedByTraitId === traitId),
     );
 
     // Add the new selections
     this._character = {
       ...this._character,
-      effectSelections: [...otherSelections, ...selections],
+      traitSelections: [...otherSelections, ...selections],
     };
 
     await this.saveCharacter();
@@ -1854,16 +1854,16 @@ export class CharacterService implements ICharacterService {
   /**
    * Add a spell school selection
    */
-  async selectSpellSchool(schoolId: string, grantedByEffectId: string): Promise<void> {
+  async selectSpellSchool(schoolId: string, grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
     this._character = {
       ...this._character,
-      effectSelections: [
-        ...this._character.effectSelections,
+      traitSelections: [
+        ...this._character.traitSelections,
         {
           type: "spell_school",
-          grantedByEffectId,
+          grantedByTraitId,
           schoolId,
         },
       ],
@@ -1876,13 +1876,13 @@ export class CharacterService implements ICharacterService {
   /**
    * Clear spell school selections for a specific effect
    */
-  async clearSpellSchoolSelections(grantedByEffectId: string): Promise<void> {
+  async clearSpellSchoolSelections(grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
     this._character = {
       ...this._character,
-      effectSelections: this._character.effectSelections.filter(
-        (s) => !(s.type === "spell_school" && s.grantedByEffectId === grantedByEffectId),
+      traitSelections: this._character.traitSelections.filter(
+        (s) => !(s.type === "spell_school" && s.grantedByTraitId === grantedByTraitId),
       ),
     };
 
@@ -1896,26 +1896,26 @@ export class CharacterService implements ICharacterService {
   async selectAttributeBoost(
     attribute: AttributeName,
     amount: number,
-    grantedByEffectId: string,
+    grantedByTraitId: string,
   ): Promise<void> {
     if (!this._character) return;
 
     // Remove any existing boost from this effect
-    const updatedSelections = this._character.effectSelections.filter(
-      (s) => !(s.type === "attribute_boost" && s.grantedByEffectId === grantedByEffectId),
+    const updatedSelections = this._character.traitSelections.filter(
+      (s) => !(s.type === "attribute_boost" && s.grantedByTraitId === grantedByTraitId),
     );
 
     // Add new selection
     updatedSelections.push({
       type: "attribute_boost",
-      grantedByEffectId,
+      grantedByTraitId,
       attribute,
       amount,
     });
 
     this._character = {
       ...this._character,
-      effectSelections: updatedSelections,
+      traitSelections: updatedSelections,
     };
 
     await this.saveCharacter();
@@ -1926,15 +1926,15 @@ export class CharacterService implements ICharacterService {
    * Update all utility spell selections for a specific effect
    * This replaces all existing selections for the effect with new ones
    */
-  async updateUtilitySelectionsForEffect(
-    effectId: string,
-    newSelections: UtilitySpellsEffectSelection[],
+  async updateUtilitySelectionsForTrait(
+    traitId: string,
+    newSelections: UtilitySpellsTraitSelection[],
   ): Promise<void> {
     if (!this._character) return;
 
     // Remove all existing selections for this effect
-    const otherSelections = this._character.effectSelections.filter(
-      (s) => !(s.type === "utility_spells" && s.grantedByEffectId === effectId),
+    const otherSelections = this._character.traitSelections.filter(
+      (s) => !(s.type === "utility_spells" && s.grantedByTraitId === traitId),
     );
 
     // Add the new selections
@@ -1942,7 +1942,7 @@ export class CharacterService implements ICharacterService {
 
     this._character = {
       ...this._character,
-      effectSelections: updatedSelections,
+      traitSelections: updatedSelections,
     };
 
     await this.saveCharacter();

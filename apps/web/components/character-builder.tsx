@@ -4,7 +4,7 @@ import { Wand2 } from "lucide-react";
 
 import { useState } from "react";
 
-import { EffectSelection } from "@/lib/schemas/character";
+import { TraitSelection } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
 
@@ -26,7 +26,7 @@ interface CharacterBuilderState {
   name: string;
 
   // Features
-  effectSelections: EffectSelection[];
+  traitSelections: TraitSelection[];
 
   // Attributes
   attributes: {
@@ -65,7 +65,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
   const [currentStep, setCurrentStep] = useState(0);
   const [builderState, setBuilderState] = useState<CharacterBuilderState>({
     name: "",
-    effectSelections: [],
+    traitSelections: [],
     attributes: {
       strength: 0,
       dexterity: 0,
@@ -109,8 +109,8 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
     }));
   };
 
-  const handleFeatureSelectionsChange = (selections: EffectSelection[]) => {
-    setBuilderState((prev) => ({ ...prev, effectSelections: selections }));
+  const handleFeatureSelectionsChange = (selections: TraitSelection[]) => {
+    setBuilderState((prev) => ({ ...prev, traitSelections: selections }));
   };
 
   const handleAttributesChange = (attributes: typeof builderState.attributes) => {
@@ -144,7 +144,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
 
     try {
       // Effect selections are already in the correct format
-      const effectSelections = builderState.effectSelections;
+      const traitSelections = builderState.traitSelections;
 
       // Create the complete character at the end
       const character = await characterCreationService.createCompleteCharacter({
@@ -154,7 +154,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
         backgroundId: builderState.backgroundId,
         attributes: builderState.attributes,
         skillAllocations: builderState.skillAllocations,
-        effectSelections,
+        traitSelections,
         selectedEquipment: builderState.selectedEquipment,
       });
 
@@ -305,8 +305,8 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
             classId={builderState.classId}
             ancestryId={builderState.ancestryId}
             backgroundId={builderState.backgroundId}
-            effectSelections={builderState.effectSelections}
-            onEffectSelectionsChange={handleFeatureSelectionsChange}
+            traitSelections={builderState.traitSelections}
+            onTraitSelectionsChange={handleFeatureSelectionsChange}
           />
         );
       case "attributes":

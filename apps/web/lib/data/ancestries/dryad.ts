@@ -13,7 +13,7 @@ export const dryad: AncestryDefinition = {
       name: "Danger Pollen/Spores",
       description:
         "Whenever an enemy causes you one or more Wounds, you excrete soporific spores: all adjacent enemies are Dazed. You know Elvish if your INT is not negative.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

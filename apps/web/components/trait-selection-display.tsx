@@ -5,19 +5,19 @@ import { Check, Edit2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
-  AttributeBoostEffectSelection,
+  AttributeBoostTraitSelection,
   Character,
-  EffectSelection,
-  PoolFeatureEffectSelection,
-  SpellSchoolEffectSelection,
-  SubclassEffectSelection,
-  UtilitySpellsEffectSelection,
+  TraitSelection,
+  PoolFeatureTraitSelection,
+  SpellSchoolTraitSelection,
+  SubclassTraitSelection,
+  UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {
-  AttributeBoostFeatureEffect,
-  FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
+  AttributeBoostFeatureTrait,
+  FeatureTrait,
+  PickFeatureFromPoolFeatureTrait,
+  SpellSchoolChoiceFeatureTrait,
 } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
@@ -25,11 +25,11 @@ import { getIconById } from "@/lib/utils/icon-utils";
 
 import { Button } from "./ui/button";
 
-interface EffectSelectionDisplayProps {
-  effect: FeatureEffect;
-  effectId: string;
-  existingSelections: EffectSelection[]; // Always pass all selections for this effect
-  onOpenDialog: (effect: FeatureEffect) => void;
+interface TraitSelectionDisplayProps {
+  effect: FeatureTrait;
+  traitId: string;
+  existingSelections: TraitSelection[]; // Always pass all selections for this effect
+  onOpenDialog: (effect: FeatureTrait) => void;
   character?: Character;
   autoOpen?: boolean;
 }
@@ -38,14 +38,14 @@ interface EffectSelectionDisplayProps {
  * Component that displays the current selection for an effect
  * and allows editing or making new selections
  */
-export function EffectSelectionDisplay({
+export function TraitSelectionDisplay({
   effect,
-  effectId,
+  traitId,
   existingSelections,
   onOpenDialog,
   character,
   autoOpen = false,
-}: EffectSelectionDisplayProps) {
+}: TraitSelectionDisplayProps) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   // Check if we have any selections for this effect
@@ -78,7 +78,7 @@ export function EffectSelectionDisplay({
           );
 
         case "pick_feature_from_pool":
-          const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
+          const poolEffect = effect as PickFeatureFromPoolFeatureTrait;
           const remaining = character
             ? featureSelectionService.getRemainingPoolSelections(character, poolEffect)
             : poolEffect.choicesAllowed;
@@ -98,7 +98,7 @@ export function EffectSelectionDisplay({
           break;
 
         case "spell_school_choice":
-          const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
+          const spellEffect = effect as SpellSchoolChoiceFeatureTrait;
           const schoolsRemaining = character
             ? featureSelectionService.getRemainingSpellSchoolSelections(character, spellEffect)
             : spellEffect.numberOfChoices || 1;
@@ -152,7 +152,7 @@ export function EffectSelectionDisplay({
     const firstSelection = existingSelections[0];
     switch (firstSelection?.type) {
       case "subclass": {
-        const subclassSelection = firstSelection as SubclassEffectSelection;
+        const subclassSelection = firstSelection as SubclassTraitSelection;
         const contentRepository = ContentRepositoryService.getInstance();
         const subclass = contentRepository.getSubclassDefinition(subclassSelection.subclassId);
         return (
@@ -174,8 +174,8 @@ export function EffectSelectionDisplay({
       }
 
       case "pool_feature": {
-        const poolSelections = existingSelections as PoolFeatureEffectSelection[];
-        const poolEffect = effect as PickFeatureFromPoolFeatureEffect;
+        const poolSelections = existingSelections as PoolFeatureTraitSelection[];
+        const poolEffect = effect as PickFeatureFromPoolFeatureTrait;
         const remaining = character
           ? featureSelectionService.getRemainingPoolSelections(character, poolEffect)
           : 0;
@@ -217,8 +217,8 @@ export function EffectSelectionDisplay({
       }
 
       case "spell_school": {
-        const schoolSelections = existingSelections as SpellSchoolEffectSelection[];
-        const spellEffect = effect as SpellSchoolChoiceFeatureEffect;
+        const schoolSelections = existingSelections as SpellSchoolTraitSelection[];
+        const spellEffect = effect as SpellSchoolChoiceFeatureTrait;
         const remaining = character
           ? featureSelectionService.getRemainingSpellSchoolSelections(character, spellEffect)
           : 0;
@@ -266,7 +266,7 @@ export function EffectSelectionDisplay({
       }
 
       case "attribute_boost": {
-        const boostSelection = firstSelection as AttributeBoostEffectSelection;
+        const boostSelection = firstSelection as AttributeBoostTraitSelection;
         return (
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-600" />
@@ -287,7 +287,7 @@ export function EffectSelectionDisplay({
       }
 
       case "utility_spells": {
-        const spellSelections = existingSelections as UtilitySpellsEffectSelection[];
+        const spellSelections = existingSelections as UtilitySpellsTraitSelection[];
         const spellCount = spellSelections.length;
 
         if (spellCount > 0) {

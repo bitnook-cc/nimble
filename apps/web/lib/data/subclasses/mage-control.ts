@@ -13,7 +13,7 @@ export const mageControl: SubclassDefinition = {
       name: "Force of Will",
       description:
         "(1/round) On your turn, you may Demand Control. Choose 1 option from the Control Table which you haven't chosen yet, resets when you roll initiative, or when you have chosen all options once.",
-      effects: [
+      traits: [
         {
           id: "force-of-will-0",
           type: "ability",
@@ -35,7 +35,7 @@ export const mageControl: SubclassDefinition = {
       name: "Control Table",
       description:
         "Magic is Dangerous. You can stitch its fraying edges together to your own benefit... for a time.\n\n• I INSIST: Cast a cantrip for free, ignoring all disadvantage, it cannot miss.\n• ELEMENTAL AFFLICTION: A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition.\n• NO: Choose a creature, it cannot harm a creature of your choice during its next turn.\n• LOSE CONTROL: Do ALL of the above, but the GM chooses each time.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "deny-fate",
@@ -43,22 +43,22 @@ export const mageControl: SubclassDefinition = {
       name: "Deny Fate",
       description:
         "Whenever you miss with a spell or an effect you cause is saved against, you MUST Demand Control.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "at-any-cost",
       level: 7,
       name: "At Any Cost",
       description: "Learn 1 cantrip and 1 tiered spell from the Necrotic school.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "nullify",
       level: 7,
       name: "Nullify",
       description:
-        "(1/encounter) Ignore all disadvantage and other negative effects on your next action this turn, then Demand Control.",
-      effects: [
+        "(1/encounter) Ignore all disadvantage and other negative traits on your next action this turn, then Demand Control.",
+      traits: [
         {
           id: "nullify-0",
           type: "ability",
@@ -66,7 +66,7 @@ export const mageControl: SubclassDefinition = {
             id: "nullify",
             name: "Nullify",
             description:
-              "Ignore all disadvantage and other negative effects on your next action this turn, then Demand Control.",
+              "Ignore all disadvantage and other negative traits on your next action this turn, then Demand Control.",
             type: "action",
             frequency: "per_encounter",
             maxUses: { type: "fixed", value: 1 },
@@ -80,7 +80,7 @@ export const mageControl: SubclassDefinition = {
       name: "Steel Will",
       description:
         "(1/Safe Rest) Whenever you would fail a save, you may succeed instead. Whenever you roll a 1 on an Elemental Surge die, you may reroll it once.",
-      effects: [
+      traits: [
         {
           id: "steel-will-0",
           type: "ability",
@@ -101,7 +101,7 @@ export const mageControl: SubclassDefinition = {
       name: "Supreme Control",
       description:
         "Whenever you Demand Control, you may choose to trigger the selected option twice. You may Demand Control as a Reaction.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

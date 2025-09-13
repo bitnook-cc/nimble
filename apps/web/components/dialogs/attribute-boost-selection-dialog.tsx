@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/dialog";
 
 import { AttributeName } from "@/lib/schemas/character";
-import { AttributeBoostFeatureEffect } from "@/lib/schemas/features";
+import { AttributeBoostFeatureTrait } from "@/lib/schemas/features";
 
 interface AttributeBoostSelectionDialogProps {
-  effect: AttributeBoostFeatureEffect;
+  effect: AttributeBoostFeatureTrait;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (attribute: AttributeName, amount: number) => void;

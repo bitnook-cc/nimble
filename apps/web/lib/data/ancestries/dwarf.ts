@@ -91,7 +91,7 @@ export const dwarf: AncestryDefinition = {
       name: "Stout",
       description:
         "+2 max Hit Dice, +1 max Wounds, -1 Speed. You know Dwarvish if your INT is not negative.",
-      effects: [
+      traits: [
         {
           id: "dwarf-stout-0",
           type: "stat_bonus",

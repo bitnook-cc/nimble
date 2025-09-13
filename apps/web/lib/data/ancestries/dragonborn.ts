@@ -13,7 +13,7 @@ export const dragonborn: AncestryDefinition = {
       name: "Draconic Heritage",
       description:
         "+1 Armor. When you attack: deal an additional LVL+KEY damage (ignoring armor) divided as you choose among any of your targets; recharges whenever you Safe Rest or gain a Wound. You know Draconic if your INT is not negative.",
-      effects: [
+      traits: [
         {
           id: "dragonborn-draconic-heritage-0",
           type: "stat_bonus",

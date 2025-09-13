@@ -13,7 +13,7 @@ export const shadowmancerRedDragon: SubclassDefinition = {
       name: "Draconic Crimson Rite",
       description:
         "Your Patron grants you knowledge of Fire spells. Your shadow minions become dragons of fire instead of shadows. Your Shadow Blast can deal fire or necrotic damage and inflict Smoldering whenever they would crit.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "we-ll-all-burn",
@@ -21,7 +21,7 @@ export const shadowmancerRedDragon: SubclassDefinition = {
       name: "We'll ALL Burn!",
       description:
         "You may cast Pyrodasim without Pilfering Power by including yourself in the damage. You have advantage on the save. Choose 1 Fire Utility Spell.",
-      effects: [
+      traits: [
         {
           id: "we-ll-all-burn-0",
           type: "ability",
@@ -42,14 +42,14 @@ export const shadowmancerRedDragon: SubclassDefinition = {
       name: "Heart of Burning Fire",
       description:
         "Regain 1 use of Pilfered Power each time you roll Initiative. This expires at the end of combat if unused.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "enveloped-by-the-master",
       level: 15,
       name: "Enveloped by the Master",
       description: "Gain 1d4 Wounds to cast Dragonform.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

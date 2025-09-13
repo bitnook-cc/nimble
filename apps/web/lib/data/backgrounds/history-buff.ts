@@ -11,7 +11,7 @@ export const historyBuff: BackgroundDefinition = {
       name: "Ancient Knowledge",
       description:
         "Advantage on all Lore checks related to knowledge about items, facts, or events that happened more than 100 years ago.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

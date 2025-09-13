@@ -11,7 +11,7 @@ export const acrobat: BackgroundDefinition = {
       name: "Acrobatic Training",
       description:
         "Can be thrown by a larger ally, REALLY far. Half damage from falling and forced movement.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

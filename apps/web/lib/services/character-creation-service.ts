@@ -1,6 +1,6 @@
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
-import { Attributes, Character, EffectSelection } from "../schemas/character";
+import { Attributes, Character, TraitSelection } from "../schemas/character";
 import { Item } from "../schemas/inventory";
 import {
   createDefaultActionTracker,
@@ -40,7 +40,7 @@ export interface CreateCompleteCharacterOptions {
   classId: string;
   attributes: Attributes;
   skillAllocations: Record<string, number>;
-  effectSelections: EffectSelection[];
+  traitSelections: TraitSelection[];
   selectedEquipment: string[];
 }
 
@@ -162,7 +162,7 @@ export class CharacterCreationService implements ICharacterCreation {
       classId,
       attributes,
       skillAllocations: {}, // Use defaults
-      effectSelections: [], // No custom feature selections for quick create
+      traitSelections: [], // No custom feature selections for quick create
       selectedEquipment: classDefinition.startingEquipment || [], // Use class default equipment
     });
   }
@@ -178,7 +178,7 @@ export class CharacterCreationService implements ICharacterCreation {
       classId,
       attributes,
       skillAllocations,
-      effectSelections,
+      traitSelections,
       selectedEquipment,
     } = options;
 
@@ -256,7 +256,7 @@ export class CharacterCreationService implements ICharacterCreation {
       actionTracker: createDefaultActionTracker(),
       inEncounter: false,
       inventory,
-      effectSelections,
+      traitSelections,
       timestamps: {
         createdAt: Date.now(),
         updatedAt: Date.now(),

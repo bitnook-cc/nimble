@@ -13,7 +13,7 @@ export const minotaur: AncestryDefinition = {
       name: "Charge",
       description:
         "When you move at least 4 spaces, you can push a creature in your path. Medium: 1 space; Small/Tiny: up to 2 spaces. 1/turn.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

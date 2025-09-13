@@ -11,7 +11,7 @@ export const madeABadChoice: BackgroundDefinition = {
       name: "Ill-Gotten Gains",
       description:
         "Start with 500 or 1000 extra gold, or an uncommon/rare magical item (GM's choice). Gain an equally powerful curse or enemy who wants it back.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

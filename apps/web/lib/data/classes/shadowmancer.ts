@@ -9,14 +9,14 @@ const lesserInvocations: ClassFeature[] = [
     level: 2,
     name: "Abhorrent Speech",
     description: "You can communicate with horrible creatures (aberrations, undead, etc.).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "beguiling-influence",
     level: 2,
     name: "Beguiling Influence",
     description: "(1/day) You may reroll an Influence check.",
-    effects: [
+    traits: [
       {
         id: "beguiling-influence-0",
         type: "ability",
@@ -37,7 +37,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Blood Sight",
     description:
       "(1/day) You may reroll an Examination check. Additionally, you can detect traces of blood on a surface, even after it has been cleaned.",
-    effects: [
+    traits: [
       {
         id: "blood-sight-0",
         type: "ability",
@@ -58,7 +58,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Devoted Acolyte",
     description:
       "Learn 2 of the following languages: Celestial, Draconic, Deep Speak, Infernal, or Primordial. Advantage on Lore checks related to those 2 languages.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "eldritch-sense",
@@ -66,7 +66,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Eldritch Sense",
     description:
       "You can sense the presence of any shapechanger or creature concealed by magic while within 6 spaces of them.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "gaze-of-two-minds",
@@ -74,7 +74,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Gaze of Two Minds",
     description:
       "Touch a willing creature and perceive through its senses instead of your own for as long as you hold concentration.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "knowledge-from-beyond",
@@ -82,7 +82,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Knowledge from Beyond",
     description:
       "Whenever you fail an Insight or Arcana check, you may suffer 1 Wound to succeed instead.",
-    effects: [
+    traits: [
       {
         id: "knowledge-from-beyond-0",
         type: "ability",
@@ -102,14 +102,14 @@ const lesserInvocations: ClassFeature[] = [
     name: "My Favored Pet",
     description:
       "One shadow minion can begrudgingly tolerate you outside of combat. It can (very creepily) do any menial task a below average commoner could.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "voice-of-the-dark",
     level: 2,
     name: "Voice of the Dark",
     description: "You can communicate telepathically with a humanoid within 6 spaces.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "whispers-of-the-grave",
@@ -117,7 +117,7 @@ const lesserInvocations: ClassFeature[] = [
     name: "Whispers of the Grave",
     description:
       "(1/day) You can ask a dead creature 3 yes/no questions. It can never be questioned this way again.",
-    effects: [
+    traits: [
       {
         id: "whispers-of-the-grave-0",
         type: "ability",
@@ -142,14 +142,14 @@ const greaterInvocations: ClassFeature[] = [
     name: "Armor of Shadows",
     description:
       "Reduce all damage you receive by an amount equal to the number of minions you have.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "fiendish-boon",
     level: 2,
     name: "Fiendish Boon",
     description: "Increase your DEX or INT by 1. You have 1 fewer maximum Hit Dice.",
-    effects: [
+    traits: [
       {
         id: "fiendish-boon-0",
         type: "attribute_boost",
@@ -164,7 +164,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Hungering Shadows",
     description:
       "Whenever one of your shadows would crit, the next tiered spell you cast this encounter does not cost any use of Pilfered Power.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "one-with-shadows",
@@ -172,7 +172,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "One with Shadows",
     description:
       "Action: When you are in an area of dim light or darkness, you may become Invisible until you move or attack.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "repelling-blast",
@@ -180,14 +180,14 @@ const greaterInvocations: ClassFeature[] = [
     name: "Repelling Blast",
     description:
       "When you hit a Medium or smaller creature with Shadow Blast, you can push the creature up to 2 spaces away from yourself.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "shadow-magus",
     level: 2,
     name: "Shadow Magus",
     description: "Your minions gain +4 Reach and deal 1d10 damage instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "shadow-spear",
@@ -195,7 +195,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Shadow Spear",
     description:
       "Your Shadow Blast can target creatures twice as far away, it ignores cover, and you may attack Prone targets with advantage while it (instead of disadvantage).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "shadow-rush",
@@ -203,7 +203,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Shadow Rush",
     description:
       "When your shadow minions attack, instead of rolling damage, you may have any of them deal the max amount, then die.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "shadow-warp",
@@ -211,7 +211,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Shadow Warp",
     description:
       "Action: Switch places with a creature within 12 spaces that has been dealt necrotic damage this turn.",
-    effects: [
+    traits: [
       {
         id: "shadow-warp-0",
         type: "ability",
@@ -233,7 +233,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Swarming Shadows",
     description:
       "Whenever one of your shadows would crit, summon another shadow minion adjacent to the target.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "vengeful-blast",
@@ -241,7 +241,7 @@ const greaterInvocations: ClassFeature[] = [
     name: "Vengeful Blast",
     description:
       "Whenever a minion dies, you may cast Shadow Blast as a reaction (even if you already cast it this turn).",
-    effects: [
+    traits: [
       {
         id: "vengeful-blast-0",
         type: "ability",
@@ -265,7 +265,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Conduit of Shadow",
     description:
       "Your Patron grants you knowledge of: Shadow Blast (Necrotic cantrip) Action (1/turn) Range: 8 Damage: 1d12 + KEY. High Levels: +1d12 damage every 5 levels.",
-    effects: [
+    traits: [
       {
         id: "shadow-blast-0",
         type: "ability",
@@ -305,7 +305,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 2,
     name: "Master of Darkness",
     description: "Your Patron grants you knowledge of Necrotic cantrips and tier 1 spells.",
-    effects: [
+    traits: [
       {
         id: "master-of-darkness-0",
         type: "spell_school",
@@ -324,7 +324,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Pilfered Power",
     description:
       "You may steal power from your patron to cast tiered spells, always casting them at the highest tier you have unlocked. You can do this DEX times before your patron takes notice. Each time you exceed this limit, your patron damages you for half your max HP as recompense. This limit resets when you commune with your patron during a Safe Rest.",
-    effects: [
+    traits: [
       {
         id: "pilfered-power-0",
         type: "ability",
@@ -345,7 +345,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 3,
     name: "THE PACT IS SEALED",
     description: "Choose a subclass and 1 Lesser Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "the-pact-is-sealed-0",
         type: "subclass_choice",
@@ -357,7 +357,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 4,
     name: "Key Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
@@ -371,7 +371,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 4,
     name: "A Gift from the Master",
     description: "Choose 1 Greater Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "gift-from-the-master-1-0",
         type: "pick_feature_from_pool",
@@ -385,7 +385,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 5,
     name: "Tier 2 Spells",
     description: "You may now cast tier 2 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-2-spells-0",
         type: "spell_tier_access",
@@ -398,7 +398,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 5,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-1-0",
         type: "spell_scaling",
@@ -411,7 +411,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 5,
     name: "Secondary Stat Increase",
     description: "+1 STR or WIL.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-1-0",
         type: "attribute_boost",
@@ -426,7 +426,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "A Gift from the Master (2)",
     description:
       "Choose a 2nd Greater Shadow Invocation. Shadowmastery: Choose 1 Necrotic Utility Spell.",
-    effects: [
+    traits: [
       {
         id: "gift-from-the-master-2-0",
         type: "pick_feature_from_pool",
@@ -440,7 +440,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 6,
     name: "Shadowmastery",
     description: "Choose 1 Necrotic Utility Spell.",
-    effects: [
+    traits: [
       {
         id: "shadowmastery-1-0",
         type: "spell_school",
@@ -453,14 +453,14 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 7,
     name: "Subclass Feature",
     description: "Gain your Shadowmancer subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "tier-3-spells",
     level: 7,
     name: "Tier 3 Spells",
     description: "You may now cast tier 3 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-3-spells-0",
         type: "spell_tier_access",
@@ -473,7 +473,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 8,
     name: "Key Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-2-0",
         type: "attribute_boost",
@@ -487,7 +487,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 8,
     name: "Lesser Invocation (2)",
     description: "Choose a 2nd Lesser Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "lesser-invocation-2-0",
         type: "pick_feature_from_pool",
@@ -501,7 +501,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 9,
     name: "A Gift from the Master (3)",
     description: "Choose a 3rd Greater Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "gift-from-the-master-3-0",
         type: "pick_feature_from_pool",
@@ -515,7 +515,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 9,
     name: "Secondary Stat Increase",
     description: "+1 STR or WIL.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-2-0",
         type: "attribute_boost",
@@ -529,7 +529,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 10,
     name: "Tier 4 Spells",
     description: "You may now cast tier 4 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-4-spells-0",
         type: "spell_tier_access",
@@ -542,7 +542,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 10,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-2-0",
         type: "spell_scaling",
@@ -555,14 +555,14 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 11,
     name: "Subclass Feature",
     description: "Gain your Shadowmancer subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "lesser-invocation-3",
     level: 11,
     name: "Lesser Invocation (3)",
     description: "Choose a 3rd Lesser Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "lesser-invocation-3-0",
         type: "pick_feature_from_pool",
@@ -577,14 +577,14 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Greedy Pact",
     description:
       "When you would take damage from Pilfer Power, make a STR save: 1-9: Suffer damage as normal. 10-19: Suffer only 10 HP of damage. 20+: Suffer no damage and cast the spell as if it were 1 tier higher.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-3",
     level: 12,
     name: "Key Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-3-0",
         type: "attribute_boost",
@@ -598,7 +598,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 13,
     name: "Tier 5 Spells",
     description: "You may now cast tier 5 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-5-spells-0",
         type: "spell_tier_access",
@@ -611,7 +611,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 13,
     name: "Secondary Stat Increase",
     description: "+1 STR or WIL.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-3-0",
         type: "attribute_boost",
@@ -625,7 +625,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 14,
     name: "A Gift from the Master (4)",
     description: "Choose a 4th Greater Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "gift-from-the-master-4-0",
         type: "pick_feature_from_pool",
@@ -639,21 +639,21 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 14,
     name: "Shadowmastery (2)",
     description: "You know all Necrotic Utility Spells.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "subclass-feature-15",
     level: 15,
     name: "Subclass Feature",
     description: "Gain your Shadowmancer subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "upgraded-cantrips-3",
     level: 15,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-3-0",
         type: "spell_scaling",
@@ -666,7 +666,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 16,
     name: "Tier 6 Spells",
     description: "You may now cast tier 6 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-6-spells-0",
         type: "spell_tier_access",
@@ -679,7 +679,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 16,
     name: "Key Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-4-0",
         type: "attribute_boost",
@@ -694,14 +694,14 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Dire Shadows",
     description:
       "Attacks against your shadow minions are made with disadvantage. They take no damage from successful saves.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "secondary-stat-increase-4",
     level: 17,
     name: "Secondary Stat Increase",
     description: "+1 STR or WIL.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-4-0",
         type: "attribute_boost",
@@ -715,7 +715,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 18,
     name: "A Gift from the Master (5)",
     description: "Choose a 5th Greater Shadow Invocation.",
-    effects: [
+    traits: [
       {
         id: "gift-from-the-master-5-0",
         type: "pick_feature_from_pool",
@@ -729,7 +729,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 19,
     name: "Tier 7 Spells",
     description: "You may now cast tier 7 spells; all of your spells are cast at this tier.",
-    effects: [
+    traits: [
       {
         id: "tier-7-spells-0",
         type: "spell_tier_access",
@@ -742,7 +742,7 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 19,
     name: "Epic Boon",
     description: "Choose an Epic Boon (see pg. 23 of the GM's Guide).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "eldritch-usurper",
@@ -750,14 +750,14 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Eldritch Usurper",
     description:
       "+1 to any 2 of your stats. Whenever you summon a single shadow minion, summon 2 instead. They die only when they receive 12 or more damage at one time.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "upgraded-cantrips-4",
     level: 20,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-4-0",
         type: "spell_scaling",

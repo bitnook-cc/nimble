@@ -85,14 +85,14 @@ export function useResourceService() {
   // These methods are no longer needed with the new dynamic system
   // Resources are managed through the character service
   const addResourceToCharacter = useCallback(async (resource: ResourceInstance) => {
-    // Resources are now added through effects, not directly
-    console.warn("addResourceToCharacter is deprecated - resources are managed through effects");
+    // Resources are now added through traits, not directly
+    console.warn("addResourceToCharacter is deprecated - resources are managed through traits");
   }, []);
 
   const removeResourceFromCharacter = useCallback(async (resourceId: string) => {
-    // Resources are now removed through effects, not directly
+    // Resources are now removed through traits, not directly
     console.warn(
-      "removeResourceFromCharacter is deprecated - resources are managed through effects",
+      "removeResourceFromCharacter is deprecated - resources are managed through traits",
     );
   }, []);
 

@@ -9,7 +9,7 @@ const bulwarkFeatures: ClassFeature[] = [
     level: 3,
     name: "Armor Master",
     description: "You are proficient with plate armor.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "bulwark-shield-expert",
@@ -17,7 +17,7 @@ const bulwarkFeatures: ClassFeature[] = [
     name: "Shield Expert",
     description:
       "While wearing a shield, you may Defend 2× each round. The first time each round you block all of the damage from an attack, you may make an opportunity attack against the attacker for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -26,7 +26,7 @@ const bulwarkFeatures: ClassFeature[] = [
     name: "Juggernaut",
     description:
       "When you use Coordinated Strike, you deal extra damage equal to your armor, and you can add 1 to your primary die.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 11
   {
@@ -34,7 +34,7 @@ const bulwarkFeatures: ClassFeature[] = [
     level: 11,
     name: "Taunting Strike",
     description: "(1/turn) You may Taunt a creature you hit until the end of their next turn.",
-    effects: [
+    traits: [
       {
         id: "bulwark-taunting-strike-0",
         type: "ability",
@@ -55,7 +55,7 @@ const bulwarkFeatures: ClassFeature[] = [
     level: 15,
     name: "Shield Wall",
     description: "Allies within 2 spaces gain ALL the benefits of the shield you have equipped.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

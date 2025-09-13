@@ -16,19 +16,19 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { Character, UtilitySpellsEffectSelection } from "@/lib/schemas/character";
-import { UtilitySpellsFeatureEffect } from "@/lib/schemas/features";
+import { Character, UtilitySpellsTraitSelection } from "@/lib/schemas/character";
+import { UtilitySpellsFeatureTrait } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getIconById } from "@/lib/utils/icon-utils";
 
 interface UtilitySpellSelectionDialogProps {
-  effect: UtilitySpellsFeatureEffect;
+  effect: UtilitySpellsFeatureTrait;
   character: Character;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (selections: UtilitySpellsEffectSelection[]) => void;
-  existingSelections?: UtilitySpellsEffectSelection[];
+  onConfirm: (selections: UtilitySpellsTraitSelection[]) => void;
+  existingSelections?: UtilitySpellsTraitSelection[];
 }
 
 export function UtilitySpellSelectionDialog({
@@ -70,11 +70,11 @@ export function UtilitySpellSelectionDialog({
   const handleConfirm = () => {
     if (isFullSchoolMode) {
       // For full_school mode, create a single selection with just the school ID
-      const selections: UtilitySpellsEffectSelection[] = selectedSchoolId
+      const selections: UtilitySpellsTraitSelection[] = selectedSchoolId
         ? [
             {
               type: "utility_spells" as const,
-              grantedByEffectId: effect.id,
+              grantedByTraitId: effect.id,
               schoolId: selectedSchoolId,
               // No spellId for full_school mode
             },
@@ -83,10 +83,10 @@ export function UtilitySpellSelectionDialog({
       onConfirm(selections);
     } else {
       // For other modes, create one selection object for each selected spell
-      const selections: UtilitySpellsEffectSelection[] = utilitySpellSelection.map((spell) => {
+      const selections: UtilitySpellsTraitSelection[] = utilitySpellSelection.map((spell) => {
         return {
           type: "utility_spells" as const,
-          grantedByEffectId: effect.id,
+          grantedByTraitId: effect.id,
           spellId: spell.id,
           schoolId: spell.school,
         };
@@ -187,9 +187,9 @@ export function UtilitySpellSelectionDialog({
                   const numberOfSpells = effect.numberOfSpells || 1;
                   const isPerSchoolMode = effect.selectionMode === "per_school";
 
-                  // Get all already-selected utility spells from OTHER effects
-                  const otherUtilitySpellSelections = character.effectSelections
-                    .filter((s) => s.type === "utility_spells" && s.grantedByEffectId !== effect.id)
+                  // Get all already-selected utility spells from OTHER traits
+                  const otherUtilitySpellSelections = character.traitSelections
+                    .filter((s) => s.type === "utility_spells" && s.grantedByTraitId !== effect.id)
                     .map((s) => (s.type === "utility_spells" && s.spellId ? s.spellId : ""))
                     .filter((id) => id !== "");
 

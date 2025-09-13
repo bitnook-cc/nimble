@@ -11,7 +11,7 @@ export const hunterWildheart: SubclassDefinition = {
       level: 3,
       name: "Impressive Form",
       description: "+5 max HP. Upgrade your Hit Dice to d10s.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "i-have-the-high-ground",
@@ -19,7 +19,7 @@ export const hunterWildheart: SubclassDefinition = {
       name: "I Have the High Ground",
       description:
         "When you roll Initiative or gain one or more Thrill of the Hunt charges, move up to half your speed for free, ignoring difficult terrain.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "resourceful-herbalist",
@@ -27,7 +27,7 @@ export const hunterWildheart: SubclassDefinition = {
       name: "Resourceful Herbalist",
       description:
         "Whenever you Safe Rest in a location near where plants or fungi can grow, you may spend 4 gold and gain a healing herbs to craft a number of Healing Salves equal to your WIL.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "healing-salve",
@@ -35,7 +35,7 @@ export const hunterWildheart: SubclassDefinition = {
       name: "Healing Salve",
       description:
         "Heal yourself or an adjacent creature WIL d6 HP. Only you or another Advanced Herbalist may activate these, and they expire whenever you Safe Rest.",
-      effects: [
+      traits: [
         {
           id: "healing-salve-0",
           type: "ability",
@@ -57,7 +57,7 @@ export const hunterWildheart: SubclassDefinition = {
       name: "Ha! I'm Over Here!",
       description:
         "If an attack would cause you to drop to 0 HP, you instead move up to your speed away and take no damage.",
-      effects: [
+      traits: [
         {
           id: "ha-im-over-here-0",
           type: "ability",
@@ -79,7 +79,7 @@ export const hunterWildheart: SubclassDefinition = {
       name: "Unparalleled Survivalist",
       description:
         "Gain +WIL armor. When you attack with a ranged weapon, you may first move half your speed for free.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

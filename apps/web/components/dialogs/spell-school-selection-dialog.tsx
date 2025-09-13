@@ -17,12 +17,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Character } from "@/lib/schemas/character";
-import { SpellSchoolChoiceFeatureEffect } from "@/lib/schemas/features";
+import { SpellSchoolChoiceFeatureTrait } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getIconById } from "@/lib/utils/icon-utils";
 
 interface SpellSchoolSelectionDialogProps {
-  effect: SpellSchoolChoiceFeatureEffect;
+  effect: SpellSchoolChoiceFeatureTrait;
   character: Character;
   open: boolean;
   onOpenChange: (open: boolean) => void;

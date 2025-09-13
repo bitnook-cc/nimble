@@ -10,7 +10,7 @@ const wayOfFlameFeatures: ClassFeature[] = [
     name: "Exploding Soul",
     description:
       "(1/round) On your turn, you may suffer a Wound. Whenever you gain a Wound, deal STR + Wounds damage to any creatures you choose within 2 spaces (ignoring armor) and give them the Smoldering condition.",
-    effects: [
+    traits: [
       {
         id: "exploding-soul-0",
         type: "ability",
@@ -32,7 +32,7 @@ const wayOfFlameFeatures: ClassFeature[] = [
     name: "Blazing Speed",
     description:
       "Gain +2 speed while using Windstep. After you cease movement with Windstep, enemies you passed through take STR + DEX fire damage. You may have Smoldering enemies take double, ending the condition.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 11
   {
@@ -41,7 +41,7 @@ const wayOfFlameFeatures: ClassFeature[] = [
     name: "Chain Reaction",
     description:
       "(1/turn) When you crit, deal fire damage equal to your STR + Wounds to creatures of your choice within 2 spaces of your target. Repeat any number of times, targeting creatures not yet damaged by this effect within 2 spaces of any already damaged.",
-    effects: [
+    traits: [
       {
         id: "chain-reaction-0",
         type: "ability",
@@ -62,7 +62,7 @@ const wayOfFlameFeatures: ClassFeature[] = [
     level: 15,
     name: "Burning Soul",
     description: "Double any fire damage you deal.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

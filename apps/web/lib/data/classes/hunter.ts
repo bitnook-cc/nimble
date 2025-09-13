@@ -9,7 +9,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Hunter's Mark",
     description:
       "Mark a creature as your quarry for 1 day. It can't be hidden from you, and your attacks against it gain your choice of advantage OR +1 LVL damage.",
-    effects: [
+    traits: [
       {
         id: "hunters-mark-0",
         type: "ability",
@@ -30,7 +30,7 @@ const hunterFeatures: ClassFeature[] = [
     level: 1,
     name: "Forager",
     description: "Gain advantage on skill checks to find food and water in the wild.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thrill-of-the-hunt-resource",
@@ -38,7 +38,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Thrill of the Hunt Charges",
     description:
       "Charges used to fuel Thrill of the Hunt abilities. Gain charges when your quarry dies or when you hit your quarry in melee/crit at range.",
-    effects: [
+    traits: [
       {
         id: "thrill-of-the-hunt-resource-0",
         type: "resource",
@@ -62,7 +62,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Thrill of the Hunt",
     description:
       "Choose 2 Thrill of the Hunt (ToH) abilities. Gain a charge to use these abilities during that encounter whenever:\n• Your quarry dies.\n• You hit your quarry in melee or crit your quarry at range.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "roll-and-strike",
@@ -70,7 +70,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Roll & Strike",
     description:
       "If you have no Thrill of the Hunt charges, move up to your speed toward your quarry. If you end adjacent to them, make a melee attack against them for free.",
-    effects: [
+    traits: [
       {
         id: "roll-and-strike-0",
         type: "ability",
@@ -92,14 +92,14 @@ const hunterFeatures: ClassFeature[] = [
     name: "Remember the Wild",
     description:
       "Whenever you spend a day in the wilderness during a Safe Rest, you may choose different Hunter options available to you.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "subclass",
     level: 3,
     name: "Hunter Subclass",
     description: "Choose a Hunter subclass.",
-    effects: [
+    traits: [
       {
         id: "subclass-0",
         type: "subclass_choice",
@@ -112,21 +112,21 @@ const hunterFeatures: ClassFeature[] = [
     name: "Tracker's Intuition",
     description:
       "You can discern the events of a past encounter by studying tracks and other subtle environmental clues, accurately determining the kind and amount of creatures, their direction, key actions, and passage of time.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thrill-of-the-hunt-2",
     level: 4,
     name: "Thrill of the Hunt (2)",
     description: "Choose a 3rd Thrill of the Hunt ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-1",
     level: 4,
     name: "Key Stat Increase",
     description: "+1 DEX or WIL.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
@@ -140,7 +140,7 @@ const hunterFeatures: ClassFeature[] = [
     level: 4,
     name: "Explorer of the Wilds",
     description: "+2 speed, gain a climbing speed.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "hunters-resolve",
@@ -148,7 +148,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Hunter's Resolve",
     description:
       "Whenever you have no Thrill of the Hunt charges, gain Hunter's Resolve until the end of your turn: treat all creatures as your quarry for the purposes of movement and melee attacks.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "final-takedown",
@@ -156,7 +156,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Final Takedown",
     description:
       "Spend 1 Thrill of the Hunt charge to make a melee attack against your Bloodied quarry. Turn it into a crit and double the damage of your Hunter's Mark. If they survive, they crit you back.",
-    effects: [
+    traits: [
       {
         id: "final-takedown-0",
         type: "ability",
@@ -177,7 +177,7 @@ const hunterFeatures: ClassFeature[] = [
     level: 5,
     name: "Secondary Stat Increase",
     description: "+1 STR or INT.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-1-0",
 
@@ -193,35 +193,35 @@ const hunterFeatures: ClassFeature[] = [
     name: "Versatile Bowmaster",
     description:
       "Whenever you attack with a Longbow, you may roll 2d4 instead of 1d8; or with a Crossbow, 2d8 instead of 4d4.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thrill-of-the-hunt-3",
     level: 6,
     name: "Thrill of the Hunt (3)",
     description: "Choose a 4th Thrill of the Hunt ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "subclass-feature-7",
     level: 7,
     name: "Subclass Feature",
     description: "Gain your Hunter subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thrill-of-the-hunt-4",
     level: 8,
     name: "Thrill of the Hunt (4)",
     description: "Choose a 5th Thrill of the Hunt ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-2",
     level: 8,
     name: "Key Stat Increase",
     description: "+1 DEX or WIL.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-2-0",
 
@@ -237,14 +237,14 @@ const hunterFeatures: ClassFeature[] = [
     name: "No Escape",
     description:
       "Whenever you see one or more allies make an opportunity attack, you may also make a ranged opportunity attack against the same target.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "secondary-stat-increase-2",
     level: 9,
     name: "Secondary Stat Increase",
     description: "+1 STR or INT.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-2-0",
 
@@ -260,35 +260,35 @@ const hunterFeatures: ClassFeature[] = [
     name: "Veteran Stalker",
     description:
       "Gain a Thrill of the Hunt charge whenever you are first Bloodied in an encounter and for every Wound you gain.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "keen-eye-steady-hand",
     level: 10,
     name: "Keen Eye, Steady Hand",
     description: "Add WIL to your ranged weapon damage.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "subclass-feature-11",
     level: 11,
     name: "Subclass Feature",
     description: "Gain your Hunter subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thrill-of-the-hunt-5",
     level: 12,
     name: "Thrill of the Hunt (5)",
     description: "Choose a 6th Thrill of the Hunt ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-3",
     level: 12,
     name: "Key Stat Increase",
     description: "+1 DEX or WIL.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-3-0",
 
@@ -303,14 +303,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 13,
     name: "Keen Sight",
     description: "Advantage on Perception checks.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "secondary-stat-increase-3",
     level: 13,
     name: "Secondary Stat Increase",
     description: "+1 STR or INT.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-3-0",
 
@@ -325,21 +325,21 @@ const hunterFeatures: ClassFeature[] = [
     level: 14,
     name: "Thrill of the Hunt (6)",
     description: "Choose a 7th Thrill of the Hunt ability.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "subclass-feature-15",
     level: 15,
     name: "Subclass Feature",
     description: "Gain your Hunter subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-4",
     level: 16,
     name: "Key Stat Increase",
     description: "+1 DEX or WIL.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-4-0",
 
@@ -354,14 +354,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 17,
     name: "Peerless Hunter",
     description: "You can Defend against your quarry for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "secondary-stat-increase-4",
     level: 17,
     name: "Secondary Stat Increase",
     description: "+1 STR or INT.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-4-0",
 
@@ -376,14 +376,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 18,
     name: "Wild Endurance",
     description: "Gain 1 Thrill of the Hunt charge at the start of your turns.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "epic-boon",
     level: 19,
     name: "Epic Boon",
     description: "Choose an Epic Boon.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "nemesis",
@@ -391,7 +391,7 @@ const hunterFeatures: ClassFeature[] = [
     name: "Nemesis",
     description:
       "+1 to any 2 of your stats. Your Hunter's Mark can target any number of creatures simultaneously.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

@@ -10,7 +10,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Assist Me, My Friend!",
     description:
       "Whenever you make your first melee attack each round, you may add your Lifebinding Spirit's damage to the attack.",
-    effects: [
+    traits: [
       {
         id: "assist-me-my-friend-0",
         type: "ability",
@@ -31,7 +31,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Empowered Companion",
     description:
       "Whenever you spend mana to call forth your Lifebinding Spirit, you cast it as if you spent 1 additional mana (ignoring the typical spell tier restrictions). The maximum die size is now a d20.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "guiding-spirit",
@@ -39,14 +39,14 @@ const sacredGraces: ClassFeature[] = [
     name: "Guiding Spirit",
     description:
       "When your Lifebinding Spirit rolls a 6 or higher on its damage die, the target begins to glow with radiant light. The next attack against that target has advantage.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "hasty-companion",
     level: 3,
     name: "Hasty Companion",
     description: "+4 Reach for your Lifebinding Spirit. It can also act for free when summoned.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "illuminate-soul",
@@ -54,7 +54,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Illuminate Soul",
     description:
       "Action: A creature within 6 spaces begins to glow with radiant light. For 1 Round, attacks against them are made with your choice of advantage or disadvantage. You may do this WIL times per Safe Rest.",
-    effects: [
+    traits: [
       {
         id: "illuminate-soul-0",
         type: "ability",
@@ -76,7 +76,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Light Bearer",
     description:
       "Regain 1 use of Searing Light when you roll Initiative (this expires if unspent at the end of combat).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "not-beyond-my-reach",
@@ -84,7 +84,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Not Beyond MY Reach",
     description:
       "You may target creatures who have been dead less than 1 round for healing. For every 10 HP a dead creature is healed this way, you may have them recover 1 Wound instead (you must heal at least 1 Wound to revive them).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "vengeful-spirit",
@@ -92,7 +92,7 @@ const sacredGraces: ClassFeature[] = [
     name: "Vengeful Spirit",
     description:
       "Action: Your Lifebinding Spirit sacrifices itself to transform into a swirling vortex of radiant light. At the end of your turn, it damages all enemies within 3 spaces of you, ignoring armor and cover. This lasts for a number of rounds equal to the healing charges left on the Lifebinding Spirit. This effect ends early if you summon your spirit again.",
-    effects: [
+    traits: [
       {
         id: "vengeful-spirit-0",
         type: "ability",
@@ -117,7 +117,7 @@ const shepherdFeatures: ClassFeature[] = [
     name: "Keeper of Life & Death",
     description:
       "You know Radiant and Necrotic cantrips. Searing Light (WIL times/Safe Rest) Action: Heal or Inflict grievous injuries: Heal WIL d8 HP to a Dying creature within Reach 6. OR: Inflict WIL d8 radiant damage to an undead or Bloodied enemy within Reach 6.",
-    effects: [
+    traits: [
       {
         id: "keeper-of-life-and-death-0",
         type: "spell_school",
@@ -151,7 +151,7 @@ const shepherdFeatures: ClassFeature[] = [
     name: "Mana Pool",
     description:
       "You unlock tier 1 Radiant and Necrotic spells and gain a mana pool to cast these spells. This mana pool's maximum is always equal to (WIL × 3) + LVL and recharges on a Safe Rest.",
-    effects: [
+    traits: [
       {
         id: "mana-and-unlock-tier-1-spells-0",
         type: "resource",
@@ -180,7 +180,7 @@ const shepherdFeatures: ClassFeature[] = [
     name: "Lifebinding Spirit",
     description:
       "(Radiant Spell, Tier 1) Action: Summon a spirit companion that follows you and is immune to harm. It lasts until you cast this spell again, take a Safe Rest, or it heals a number of times equal to the mana spent summoning it. Action: It attacks or heals a creature within Reach 4. It attacks for 1d6 + WIL radiant damage (ignoring armor), or heals for the same amount. Upcasting: Increment its die size by 1 (max d12), +1 healing use.",
-    effects: [
+    traits: [
       {
         id: "lifebinding-spirit-0",
         type: "ability",
@@ -207,7 +207,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 3,
     name: "Subclass",
     description: "Choose a Shepherd subclass.",
-    effects: [
+    traits: [
       {
         id: "subclass-0",
         type: "subclass_choice",
@@ -219,7 +219,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 3,
     name: "Master of Twilight",
     description: "Choose 1 Necrotic and 1 Radiant Utility Spell.",
-    effects: [
+    traits: [
       {
         id: "master-of-twilight-1-0",
         type: "utility_spells",
@@ -234,7 +234,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 4,
     name: "Tier 2 Spells",
     description: "You may now cast tier 2 spells and upcast spells at tier 2.",
-    effects: [
+    traits: [
       {
         id: "tier-2-spells-0",
         type: "spell_tier_access",
@@ -247,7 +247,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 4,
     name: "Key Stat Increase",
     description: "+1 WIL or STR.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
@@ -261,7 +261,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 5,
     name: "Secondary Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-1-0",
         type: "attribute_boost",
@@ -275,7 +275,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 5,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-1-0",
         type: "spell_scaling",
@@ -288,7 +288,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 5,
     name: "Sacred Grace",
     description: "Choose 2 Sacred Graces.",
-    effects: [
+    traits: [
       {
         id: "sacred-grace-1-0",
         type: "pick_feature_from_pool",
@@ -302,7 +302,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 6,
     name: "Tier 3 Spells",
     description: "You may now cast tier 3 spells and upcast spells at tier 3.",
-    effects: [
+    traits: [
       {
         id: "tier-3-spells-0",
         type: "spell_tier_access",
@@ -315,7 +315,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 6,
     name: "Master of Twilight (2)",
     description: "Choose a 2nd Necrotic and Radiant Utility Spell.",
-    effects: [
+    traits: [
       {
         id: "master-of-twilight-2-0",
         type: "utility_spells",
@@ -330,14 +330,14 @@ const shepherdFeatures: ClassFeature[] = [
     level: 7,
     name: "Subclass Feature",
     description: "Gain your Shepherd subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "tier-4-spells",
     level: 8,
     name: "Tier 4 Spells",
     description: "You may now cast tier 4 spells and upcast spells at tier 4.",
-    effects: [
+    traits: [
       {
         id: "tier-4-spells-0",
         type: "spell_tier_access",
@@ -350,7 +350,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 8,
     name: "Key Stat Increase",
     description: "+1 WIL or STR.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-2-0",
         type: "attribute_boost",
@@ -364,7 +364,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 9,
     name: "Sacred Grace (2)",
     description: "Choose a 3rd Sacred Grace.",
-    effects: [
+    traits: [
       {
         id: "sacred-grace-2-0",
         type: "pick_feature_from_pool",
@@ -378,7 +378,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 9,
     name: "Secondary Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-2-0",
         type: "attribute_boost",
@@ -392,7 +392,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 10,
     name: "Tier 5 Spells",
     description: "You may now cast tier 5 spells and upcast spells at tier 5.",
-    effects: [
+    traits: [
       {
         id: "tier-5-spells-0",
         type: "spell_tier_access",
@@ -405,7 +405,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 10,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-2-0",
         type: "spell_scaling",
@@ -418,14 +418,14 @@ const shepherdFeatures: ClassFeature[] = [
     level: 11,
     name: "Subclass Feature",
     description: "Gain your Shepherd subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "master-of-twilight-3",
     level: 11,
     name: "Master of Twilight (3)",
     description: "You know all Necrotic and Radiant Utility Spells.",
-    effects: [
+    traits: [
       {
         id: "master-of-twilight-3-0",
         type: "utility_spells",
@@ -440,7 +440,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 12,
     name: "Tier 6 Spells",
     description: "You may now cast tier 6 spells and upcast spells at tier 6.",
-    effects: [
+    traits: [
       {
         id: "tier-6-spells-0",
         type: "spell_tier_access",
@@ -453,7 +453,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 12,
     name: "Key Stat Increase",
     description: "+1 WIL or STR.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-3-0",
         type: "attribute_boost",
@@ -467,7 +467,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 13,
     name: "Sacred Grace (3)",
     description: "Choose a 4th Sacred Grace.",
-    effects: [
+    traits: [
       {
         id: "sacred-grace-3-0",
         type: "pick_feature_from_pool",
@@ -481,7 +481,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 13,
     name: "Secondary Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-3-0",
         type: "attribute_boost",
@@ -495,7 +495,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 14,
     name: "Tier 7 Spells",
     description: "You may now cast tier 7 spells and upcast spells at tier 7.",
-    effects: [
+    traits: [
       {
         id: "tier-7-spells-0",
         type: "spell_tier_access",
@@ -508,14 +508,14 @@ const shepherdFeatures: ClassFeature[] = [
     level: 15,
     name: "Subclass Feature",
     description: "Gain your Shepherd subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "upgraded-cantrips-3",
     level: 15,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-3-0",
         type: "spell_scaling",
@@ -528,7 +528,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 16,
     name: "Tier 8 Spells",
     description: "You may now cast tier 8 spells and upcast spells at tier 8.",
-    effects: [
+    traits: [
       {
         id: "tier-8-spells-0",
         type: "spell_tier_access",
@@ -541,7 +541,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 16,
     name: "Key Stat Increase",
     description: "+1 WIL or STR.",
-    effects: [
+    traits: [
       {
         id: "key-stat-increase-4-0",
         type: "attribute_boost",
@@ -556,7 +556,7 @@ const shepherdFeatures: ClassFeature[] = [
     name: "Revitalizing Blessing",
     description:
       "(1/round) Whenever you roll a 6 or higher on one or more healing die, the target may recover one Wound.",
-    effects: [
+    traits: [
       {
         id: "revitalizing-blessing-0",
         type: "ability",
@@ -575,7 +575,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 17,
     name: "Secondary Stat Increase",
     description: "+1 INT or DEX.",
-    effects: [
+    traits: [
       {
         id: "secondary-stat-increase-4-0",
         type: "attribute_boost",
@@ -589,7 +589,7 @@ const shepherdFeatures: ClassFeature[] = [
     level: 18,
     name: "Tier 9 Spells",
     description: "You may now cast tier 9 spells and upcast spells at tier 9.",
-    effects: [
+    traits: [
       {
         id: "tier-9-spells-0",
         type: "spell_tier_access",
@@ -602,21 +602,21 @@ const shepherdFeatures: ClassFeature[] = [
     level: 19,
     name: "Epic Boon",
     description: "Choose an Epic Boon (see pg. 23 of the GM's Guide).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "twilight-sage",
     level: 20,
     name: "Twilight Sage",
     description: "+1 to any 2 of your stats. Your Lifebinding Spirit rolls twice as many dice.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "upgraded-cantrips-4",
     level: 20,
     name: "Upgraded Cantrips",
     description: "Your cantrips grow stronger.",
-    effects: [
+    traits: [
       {
         id: "upgraded-cantrips-4-0",
         type: "spell_scaling",

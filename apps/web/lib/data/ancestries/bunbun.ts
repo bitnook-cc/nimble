@@ -13,7 +13,7 @@ export const bunbun: AncestryDefinition = {
       name: "Bunny Legs",
       description:
         "Before Interposing or after Defending (after damage), hop up to your Speed in any direction for free, 1/encounter.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

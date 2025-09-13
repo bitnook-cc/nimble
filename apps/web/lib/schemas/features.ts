@@ -5,7 +5,7 @@ import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
 
 // ========================================
-// Feature Effect Schemas
+// Feature Trait Schemas
 // ========================================
 
 const ProficiencyGrantSchema = z.object({
@@ -26,44 +26,44 @@ const ResistanceSchema = z.object({
   description: z.string().optional(),
 });
 
-// Feature Effect Schemas
-const BaseFeatureEffectSchema = z.object({
+// Feature Trait Schemas
+const BaseFeatureTraitSchema = z.object({
   id: z.string().min(1),
 });
 
-const AbilityFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const AbilityFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("ability"),
   ability: AbilitySchema,
 });
 
-const AttributeBoostFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const AttributeBoostFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("attribute_boost"),
   allowedAttributes: z.array(z.enum(["strength", "dexterity", "intelligence", "will"])),
   amount: z.number().int().positive(),
 });
 
-const StatBonusFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const StatBonusFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("stat_bonus"),
   statBonus: statBonusSchema,
 });
 
-const ProficiencyFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const ProficiencyFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("proficiency"),
   proficiencies: z.array(ProficiencyGrantSchema),
 });
 
-const SpellSchoolFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const SpellSchoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("spell_school"),
   schoolId: z.string().min(1),
 });
 
-const SpellSchoolChoiceFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const SpellSchoolChoiceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("spell_school_choice"),
   availableSchools: z.array(z.string()).optional(),
   numberOfChoices: z.number().int().min(1).default(1),
 });
 
-const UtilitySpellsFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const UtilitySpellsFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("utility_spells"),
   schools: z.array(z.string()).optional(), // If empty, use all character's schools
   selectionMode: z.enum(["per_school", "total", "full_school"]).default("total"),
@@ -71,67 +71,67 @@ const UtilitySpellsFeatureEffectSchema = BaseFeatureEffectSchema.extend({
   totalSpells: z.number().int().min(1).optional(), // Used when selectionMode is "total"
 });
 
-const SpellTierAccessFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const SpellTierAccessFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("spell_tier_access"),
   maxTier: z.number().int().min(1).max(9),
 });
 
-const ResourceFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const ResourceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("resource"),
   resourceDefinition: resourceDefinitionSchema,
 });
 
-const SubclassChoiceFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const SubclassChoiceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("subclass_choice"),
 });
 
-const PickFeatureFromPoolFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const PickFeatureFromPoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("pick_feature_from_pool"),
   poolId: z.string().min(1),
   choicesAllowed: z.number().int().min(1),
 });
 
-const ResistanceFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const ResistanceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("resistance"),
   resistances: z.array(ResistanceSchema),
 });
 
-const SpellScalingFeatureEffectSchema = BaseFeatureEffectSchema.extend({
+const SpellScalingFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("spell_scaling"),
   multiplier: z.number().int().min(1).max(4),
 });
 
-export const FeatureEffectSchema = z.discriminatedUnion("type", [
-  AbilityFeatureEffectSchema,
-  AttributeBoostFeatureEffectSchema,
-  StatBonusFeatureEffectSchema,
-  ProficiencyFeatureEffectSchema,
-  SpellSchoolFeatureEffectSchema,
-  SpellSchoolChoiceFeatureEffectSchema,
-  UtilitySpellsFeatureEffectSchema,
-  SpellTierAccessFeatureEffectSchema,
-  ResourceFeatureEffectSchema,
-  SubclassChoiceFeatureEffectSchema,
-  PickFeatureFromPoolFeatureEffectSchema,
-  ResistanceFeatureEffectSchema,
-  SpellScalingFeatureEffectSchema,
+export const FeatureTraitSchema = z.discriminatedUnion("type", [
+  AbilityFeatureTraitSchema,
+  AttributeBoostFeatureTraitSchema,
+  StatBonusFeatureTraitSchema,
+  ProficiencyFeatureTraitSchema,
+  SpellSchoolFeatureTraitSchema,
+  SpellSchoolChoiceFeatureTraitSchema,
+  UtilitySpellsFeatureTraitSchema,
+  SpellTierAccessFeatureTraitSchema,
+  ResourceFeatureTraitSchema,
+  SubclassChoiceFeatureTraitSchema,
+  PickFeatureFromPoolFeatureTraitSchema,
+  ResistanceFeatureTraitSchema,
+  SpellScalingFeatureTraitSchema,
 ]);
 
-// Export individual effect schemas for validation
+// Export individual trait schemas for validation
 export {
-  AbilityFeatureEffectSchema,
-  AttributeBoostFeatureEffectSchema,
-  StatBonusFeatureEffectSchema,
-  ProficiencyFeatureEffectSchema,
-  SpellSchoolFeatureEffectSchema,
-  SpellSchoolChoiceFeatureEffectSchema,
-  UtilitySpellsFeatureEffectSchema,
-  SpellTierAccessFeatureEffectSchema,
-  ResourceFeatureEffectSchema,
-  SubclassChoiceFeatureEffectSchema,
-  PickFeatureFromPoolFeatureEffectSchema,
-  ResistanceFeatureEffectSchema,
-  SpellScalingFeatureEffectSchema,
+  AbilityFeatureTraitSchema,
+  AttributeBoostFeatureTraitSchema,
+  StatBonusFeatureTraitSchema,
+  ProficiencyFeatureTraitSchema,
+  SpellSchoolFeatureTraitSchema,
+  SpellSchoolChoiceFeatureTraitSchema,
+  UtilitySpellsFeatureTraitSchema,
+  SpellTierAccessFeatureTraitSchema,
+  ResourceFeatureTraitSchema,
+  SubclassChoiceFeatureTraitSchema,
+  PickFeatureFromPoolFeatureTraitSchema,
+  ResistanceFeatureTraitSchema,
+  SpellScalingFeatureTraitSchema,
 };
 
 // ========================================
@@ -147,13 +147,13 @@ export const CharacterFeatureSchema = z
       .string()
       .min(1)
       .meta({ title: "Description", description: "Detailed description of the feature" }),
-    effects: z
-      .array(FeatureEffectSchema)
-      .meta({ title: "Effects", description: "Array of effects this feature provides" }),
+    traits: z
+      .array(FeatureTraitSchema)
+      .meta({ title: "Traits", description: "Array of traits this feature provides" }),
   })
   .meta({
     title: "Character Feature",
-    description: "A feature that provides effects to characters",
+    description: "A feature that provides traits to characters",
   });
 
 // Class Feature Schema - extends CharacterFeature with level
@@ -166,15 +166,15 @@ export const ClassFeatureSchema = CharacterFeatureSchema.extend({
     .meta({ title: "Level", description: "Level at which this feature is gained" }),
 }).meta({
   title: "Class Feature",
-  description: "A class feature that provides effects to characters at specific levels",
+  description: "A class feature that provides traits to characters at specific levels",
 });
 
 // ========================================
 // Export Inferred Types
 // ========================================
 
-// Feature Effect Types
-export type FeatureEffectType =
+// Feature Trait Types
+export type FeatureTraitType =
   | "ability"
   | "attribute_boost"
   | "stat_bonus"
@@ -189,29 +189,29 @@ export type FeatureEffectType =
   | "resistance"
   | "spell_scaling";
 
-export type EffectSource = "feature" | "item";
+export type TraitSource = "feature" | "item";
 
 export type ProficiencyGrant = z.infer<typeof ProficiencyGrantSchema>;
 export type SpellSchool = z.infer<typeof SpellSchoolSchema>;
 export type Resistance = z.infer<typeof ResistanceSchema>;
 
-export type AbilityFeatureEffect = z.infer<typeof AbilityFeatureEffectSchema>;
-export type AttributeBoostFeatureEffect = z.infer<typeof AttributeBoostFeatureEffectSchema>;
-export type StatBonusFeatureEffect = z.infer<typeof StatBonusFeatureEffectSchema>;
-export type ProficiencyFeatureEffect = z.infer<typeof ProficiencyFeatureEffectSchema>;
-export type SpellSchoolFeatureEffect = z.infer<typeof SpellSchoolFeatureEffectSchema>;
-export type SpellSchoolChoiceFeatureEffect = z.infer<typeof SpellSchoolChoiceFeatureEffectSchema>;
-export type UtilitySpellsFeatureEffect = z.infer<typeof UtilitySpellsFeatureEffectSchema>;
-export type SpellTierAccessFeatureEffect = z.infer<typeof SpellTierAccessFeatureEffectSchema>;
-export type ResourceFeatureEffect = z.infer<typeof ResourceFeatureEffectSchema>;
-export type SubclassChoiceFeatureEffect = z.infer<typeof SubclassChoiceFeatureEffectSchema>;
-export type PickFeatureFromPoolFeatureEffect = z.infer<
-  typeof PickFeatureFromPoolFeatureEffectSchema
+export type AbilityFeatureTrait = z.infer<typeof AbilityFeatureTraitSchema>;
+export type AttributeBoostFeatureTrait = z.infer<typeof AttributeBoostFeatureTraitSchema>;
+export type StatBonusFeatureTrait = z.infer<typeof StatBonusFeatureTraitSchema>;
+export type ProficiencyFeatureTrait = z.infer<typeof ProficiencyFeatureTraitSchema>;
+export type SpellSchoolFeatureTrait = z.infer<typeof SpellSchoolFeatureTraitSchema>;
+export type SpellSchoolChoiceFeatureTrait = z.infer<typeof SpellSchoolChoiceFeatureTraitSchema>;
+export type UtilitySpellsFeatureTrait = z.infer<typeof UtilitySpellsFeatureTraitSchema>;
+export type SpellTierAccessFeatureTrait = z.infer<typeof SpellTierAccessFeatureTraitSchema>;
+export type ResourceFeatureTrait = z.infer<typeof ResourceFeatureTraitSchema>;
+export type SubclassChoiceFeatureTrait = z.infer<typeof SubclassChoiceFeatureTraitSchema>;
+export type PickFeatureFromPoolFeatureTrait = z.infer<
+  typeof PickFeatureFromPoolFeatureTraitSchema
 >;
-export type ResistanceFeatureEffect = z.infer<typeof ResistanceFeatureEffectSchema>;
-export type SpellScalingFeatureEffect = z.infer<typeof SpellScalingFeatureEffectSchema>;
+export type ResistanceFeatureTrait = z.infer<typeof ResistanceFeatureTraitSchema>;
+export type SpellScalingFeatureTrait = z.infer<typeof SpellScalingFeatureTraitSchema>;
 
-export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
+export type FeatureTrait = z.infer<typeof FeatureTraitSchema>;
 
 // Character Feature Types
 export type CharacterFeature = z.infer<typeof CharacterFeatureSchema>;

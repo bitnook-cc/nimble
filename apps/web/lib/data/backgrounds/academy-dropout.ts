@@ -10,7 +10,7 @@ export const academyDropout: BackgroundDefinition = {
       id: "academy-dropout-street-smart-learning",
       name: "Street Smart Learning",
       description: "Learn any 1 Utility Spell of your choice.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

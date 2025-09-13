@@ -11,13 +11,13 @@ export const tradesmanArtisan: BackgroundDefinition = {
       name: "Professional Expertise",
       description:
         "Choose a profession (Baker/Cook, Smith, Stonemason, Weaver, Leatherworker, etc.). Checks you make related to that profession are made with advantage.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "tradesman-artisan-professional-knowledge",
       name: "Professional Knowledge",
       description: "You retain special knowledge related to your profession.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

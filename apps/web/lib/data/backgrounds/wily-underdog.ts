@@ -11,7 +11,7 @@ export const wilyUnderdog: BackgroundDefinition = {
       name: "Creative Problem Solving",
       description:
         "Reroll a failed STR-related roll (e.g., STR attack, STR save, Might check) and use another stat instead, 1/day.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

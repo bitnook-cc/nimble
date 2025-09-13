@@ -11,13 +11,13 @@ export const backOutOfRetirement: BackgroundDefinition = {
       name: "I Remember How to Do This",
       description:
         "You may gain 1 Wound to use an ability or cast a spell as if you were 1 level higher.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "back-out-of-retirement-these-old-bones",
       name: "These Old Bones",
       description: "Your age has long since started to show. -1 max Wounds.",
-      effects: [
+      traits: [
         {
           id: "back-out-of-retirement-these-old-bones-0",
           type: "stat_bonus",

@@ -11,7 +11,7 @@ export const whatIveBeenAround: BackgroundDefinition = {
       name: "Convenient Connections",
       description:
         "1/per location (or at GM's discretion). You happen to know JUST the person who has the information you're looking for. Roll 1d20: 1-5. They want you DEAD. 6-12. You owe them money. 13-19. They can be convinced to help you. 20. They are your biggest fan/are madly in love with you.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

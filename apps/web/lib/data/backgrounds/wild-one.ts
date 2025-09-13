@@ -11,7 +11,7 @@ export const wildOne: BackgroundDefinition = {
       name: "One with Nature",
       description:
         "Wild creatures are less frightened of you and more willing to aid you. +1 Naturecraft.",
-      effects: [
+      traits: [
         {
           id: "wild-one-one-with-nature-0",
           type: "stat_bonus",
@@ -27,7 +27,7 @@ export const wildOne: BackgroundDefinition = {
       id: "wild-one-wild-rest",
       name: "Wild Rest",
       description: "While Field Resting, roll your Hit Dice with advantage while in the wild.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

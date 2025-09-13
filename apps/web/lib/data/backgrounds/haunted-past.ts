@@ -11,13 +11,13 @@ export const hauntedPast: BackgroundDefinition = {
       name: "Cryptic Voices",
       description:
         "You are haunted by voices that occasionally give you cryptic advice. The voices are sometimes VERY helpful. Other times they only want to see you suffer.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "haunted-past-fearless-from-experience",
       name: "Fearless From Experience",
       description: "Advantage against fear.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

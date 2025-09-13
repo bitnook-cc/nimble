@@ -11,14 +11,14 @@ export const raisedByGoblins: BackgroundDefinition = {
       name: "Native Goblin Speaker",
       description:
         "You speak Goblin natively (much better than one who has learned it later in life).",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "raised-by-goblins-trap-sense",
       name: "Trap Sense",
       description:
         "You automatically notice and can avoid crudely-made traps and have advantage to notice and disarm more sophisticated traps.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

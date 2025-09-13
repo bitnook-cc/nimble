@@ -18,16 +18,16 @@ import React from "react";
 
 import { Badge } from "@/components/ui/badge";
 
-import { Character, EffectSelection } from "@/lib/schemas/character";
-import { FeatureEffect, SpellSchoolFeatureEffect } from "@/lib/schemas/features";
+import { Character, TraitSelection } from "@/lib/schemas/character";
+import { FeatureTrait, SpellSchoolFeatureTrait } from "@/lib/schemas/features";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 
-import { EffectSelectionDisplay } from "./effect-selection-display";
+import { TraitSelectionDisplay } from "./trait-selection-display";
 
-interface FeatureEffectsDisplayProps {
-  effects: FeatureEffect[];
-  existingSelections?: EffectSelection[];
-  onOpenSelectionDialog?: (effect: FeatureEffect) => void;
+interface FeatureTraitsDisplayProps {
+  traits: FeatureTrait[];
+  existingSelections?: TraitSelection[];
+  onOpenSelectionDialog?: (effect: FeatureTrait) => void;
   character?: Character;
   className?: string;
   abilityOverrideInfo?: Map<
@@ -102,7 +102,7 @@ const getEffectLabel = (effectType: string) => {
   }
 };
 
-const formatEffectDescription = (effect: FeatureEffect): string => {
+const formatEffectDescription = (effect: FeatureTrait): string => {
   switch (effect.type) {
     case "ability":
       return `Grants: ${effect.ability.name}`;
@@ -191,7 +191,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
       return effect.proficiencies.map((p) => p.name).join(", ");
 
     case "spell_school":
-      const spellSchoolEffect = effect as SpellSchoolFeatureEffect;
+      const spellSchoolEffect = effect as SpellSchoolFeatureTrait;
       return `Unlocks spell school: ${spellSchoolEffect.schoolId}`;
 
     case "spell_school_choice":
@@ -239,7 +239,7 @@ const formatEffectDescription = (effect: FeatureEffect): string => {
   }
 };
 
-const isSelectableEffect = (effect: FeatureEffect): boolean => {
+const isSelectableEffect = (effect: FeatureTrait): boolean => {
   return [
     "attribute_boost",
     "spell_school_choice",
@@ -249,18 +249,18 @@ const isSelectableEffect = (effect: FeatureEffect): boolean => {
   ].includes(effect.type);
 };
 
-export function FeatureEffectsDisplay({
-  effects,
+export function FeatureTraitsDisplay({
+  traits,
   existingSelections = [],
   onOpenSelectionDialog,
   character,
   className = "",
   abilityOverrideInfo,
-}: FeatureEffectsDisplayProps) {
-  if (!effects || effects.length === 0) {
+}: FeatureTraitsDisplayProps) {
+  if (!traits || traits.length === 0) {
     return (
       <div className="text-sm text-muted-foreground italic">
-        Passive feature - no mechanical effects
+        Passive feature - no mechanical traits
       </div>
     );
   }
@@ -271,21 +271,21 @@ export function FeatureEffectsDisplay({
         Effects
       </div>
       <div className="space-y-2">
-        {effects.map((effect, index) => {
-          const effectId = effect.id || `effect-${index}`;
+        {traits.map((effect, index) => {
+          const traitId = effect.id || `effect-${index}`;
           const isSelectable = isSelectableEffect(effect);
 
           // Check if we should show selection UI for this effect
           const needsSelection = onOpenSelectionDialog && isSelectable;
           // Get all selections for this effect
-          const effectSelections = existingSelections.filter(
-            (s) => s.grantedByEffectId === effectId,
+          const traitSelections = existingSelections.filter(
+            (s) => s.grantedByTraitId === traitId,
           );
 
-          // If this is a selectable effect with selection handler, use EffectSelectionDisplay
+          // If this is a selectable effect with selection handler, use TraitSelectionDisplay
           if (needsSelection) {
             return (
-              <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
+              <div key={traitId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
                 <div className="flex items-center gap-1">
                   {getEffectIcon(effect.type)}
                   <Badge variant="secondary" className="text-xs">
@@ -293,12 +293,12 @@ export function FeatureEffectsDisplay({
                   </Badge>
                 </div>
                 <div className="flex-1">
-                  {effectSelections.length > 0 ? (
+                  {traitSelections.length > 0 ? (
                     // Show the selection instead of the description
-                    <EffectSelectionDisplay
+                    <TraitSelectionDisplay
                       effect={effect}
-                      effectId={effectId}
-                      existingSelections={effectSelections}
+                      traitId={traitId}
+                      existingSelections={traitSelections}
                       onOpenDialog={onOpenSelectionDialog}
                       character={character}
                       autoOpen={false}
@@ -307,10 +307,10 @@ export function FeatureEffectsDisplay({
                     // Show the description with a selection button
                     <div className="flex items-center justify-between">
                       <span className="text-sm">{formatEffectDescription(effect)}</span>
-                      <EffectSelectionDisplay
+                      <TraitSelectionDisplay
                         effect={effect}
-                        effectId={effectId}
-                        existingSelections={effectSelections}
+                        traitId={traitId}
+                        existingSelections={traitSelections}
                         onOpenDialog={onOpenSelectionDialog}
                         character={character}
                         autoOpen={false}
@@ -331,9 +331,9 @@ export function FeatureEffectsDisplay({
             }
           }
 
-          // Original display for non-selectable effects
+          // Original display for non-selectable traits
           return (
-            <div key={effectId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
+            <div key={traitId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
               <div className="flex items-center gap-2 flex-1">
                 <div className="flex items-center gap-1">
                   {getEffectIcon(effect.type)}

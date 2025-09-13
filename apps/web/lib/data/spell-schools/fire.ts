@@ -111,7 +111,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "fiery-embrace",
     name: "Fiery Embrace",
     description:
-      "Tier 5, 2 Actions, AoE. Concentration: Up to 1 minute. Reach: 3. While within Reach: 1 ally gains the effects of Enchant Weapon. Enemies gain Smoldering, lose damage resistance, and their damage immunity is reduced to resistance. Upcast: +1 ally.",
+      "Tier 5, 2 Actions, AoE. Concentration: Up to 1 minute. Reach: 3. While within Reach: 1 ally gains the traits of Enchant Weapon. Enemies gain Smoldering, lose damage resistance, and their damage immunity is reduced to resistance. Upcast: +1 ally.",
     type: "spell",
     school: "fire",
     tier: 5,
@@ -129,7 +129,7 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
     id: "living-inferno",
     name: "Living Inferno",
     description:
-      "Tier 7, 3 Actions, Self. The effects of Flame Barrier until your next turn. At the end of this turn and your next turn, cast Pyroclasm for free. Upcast: Upcast Flame Barrier and Pyroclasm.",
+      "Tier 7, 3 Actions, Self. The traits of Flame Barrier until your next turn. At the end of this turn and your next turn, cast Pyroclasm for free. Upcast: Upcast Flame Barrier and Pyroclasm.",
     type: "spell",
     school: "fire",
     tier: 7,

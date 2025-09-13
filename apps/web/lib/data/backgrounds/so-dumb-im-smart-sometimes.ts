@@ -11,7 +11,7 @@ export const soDumbImSmartSometimes: BackgroundDefinition = {
       name: "Lucky Stupidity",
       description:
         "Reroll an INT-related skill check, 1/day. Reroll a failed INT save with advantage, 1/Safe Rest.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

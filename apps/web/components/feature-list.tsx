@@ -5,19 +5,19 @@ import React, { useState } from "react";
 import {
   AttributeName,
   Character,
-  EffectSelection,
-  PoolFeatureEffectSelection,
-  UtilitySpellsEffectSelection,
+  TraitSelection,
+  PoolFeatureTraitSelection,
+  UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {
-  AttributeBoostFeatureEffect,
+  AttributeBoostFeatureTrait,
   CharacterFeature,
   ClassFeature,
-  FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  SubclassChoiceFeatureEffect,
-  UtilitySpellsFeatureEffect,
+  FeatureTrait,
+  PickFeatureFromPoolFeatureTrait,
+  SpellSchoolChoiceFeatureTrait,
+  SubclassChoiceFeatureTrait,
+  UtilitySpellsFeatureTrait,
 } from "@/lib/schemas/features";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getCharacterService } from "@/lib/services/service-factory";
@@ -28,7 +28,7 @@ import { SpellSchoolSelectionDialog } from "./dialogs/spell-school-selection-dia
 import { SubclassSelectionDialog } from "./dialogs/subclass-selection-dialog";
 import { UtilitySpellSelectionDialog } from "./dialogs/utility-spell-selection-dialog";
 import { FeatureCard } from "./feature-card";
-import { FeatureEffectsDisplay } from "./feature-effects-display";
+import { FeatureTraitsDisplay } from "./feature-traits-display";
 
 interface ExistingFeatures {
   spellSchools: string[];
@@ -39,8 +39,8 @@ interface FeatureListProps {
   features: (CharacterFeature | ClassFeature)[];
   source: "class" | "subclass" | "ancestry" | "background";
   sourceLabel: string;
-  existingSelections: EffectSelection[];
-  onSelectionsChange: (selections: EffectSelection[]) => void;
+  existingSelections: TraitSelection[];
+  onSelectionsChange: (selections: TraitSelection[]) => void;
   character?: Character;
   existingFeatures?: ExistingFeatures;
 }
@@ -55,18 +55,18 @@ export function FeatureList({
   existingFeatures = { spellSchools: [] },
 }: FeatureListProps) {
   // Dialog states
-  const [selectedPoolFeatureEffect, setSelectedPoolFeatureEffect] =
-    useState<PickFeatureFromPoolFeatureEffect | null>(null);
+  const [selectedPoolFeatureTrait, setSelectedPoolFeatureTrait] =
+    useState<PickFeatureFromPoolFeatureTrait | null>(null);
   const [selectedSubclassChoiceEffect, setSelectedSubclassChoiceEffect] =
-    useState<SubclassChoiceFeatureEffect | null>(null);
+    useState<SubclassChoiceFeatureTrait | null>(null);
   const [selectedSpellSchoolChoiceEffect, setSelectedSpellSchoolChoiceEffect] =
-    useState<SpellSchoolChoiceFeatureEffect | null>(null);
+    useState<SpellSchoolChoiceFeatureTrait | null>(null);
   const [selectedAttributeBoostEffect, setSelectedAttributeBoostEffect] =
-    useState<AttributeBoostFeatureEffect | null>(null);
+    useState<AttributeBoostFeatureTrait | null>(null);
   const [selectedUtilitySpellsEffect, setSelectedUtilitySpellsEffect] =
-    useState<UtilitySpellsFeatureEffect | null>(null);
+    useState<UtilitySpellsFeatureTrait | null>(null);
   const [existingUtilitySpellSelections, setExistingUtilitySpellSelections] = useState<
-    UtilitySpellsEffectSelection[]
+    UtilitySpellsTraitSelection[]
   >([]);
   const [existingAttributeSelection, setExistingAttributeSelection] = useState<
     AttributeName | undefined
@@ -76,19 +76,19 @@ export function FeatureList({
   >();
 
   // Handler for opening selection dialogs
-  const handleOpenSelectionDialog = (effect: FeatureEffect) => {
+  const handleOpenSelectionDialog = (effect: FeatureTrait) => {
     switch (effect.type) {
       case "subclass_choice":
         setSelectedSubclassChoiceEffect(effect);
         break;
       case "pick_feature_from_pool":
-        setSelectedPoolFeatureEffect(effect);
+        setSelectedPoolFeatureTrait(effect);
         break;
       case "spell_school_choice":
         setSelectedSpellSchoolChoiceEffect(effect);
         // Check for existing selection
         const existingSchoolSelection = existingSelections.find(
-          (s) => s.type === "spell_school" && s.grantedByEffectId === effect.id,
+          (s) => s.type === "spell_school" && s.grantedByTraitId === effect.id,
         );
         if (existingSchoolSelection && existingSchoolSelection.type === "spell_school") {
           setExistingSpellSchoolSelection(existingSchoolSelection.schoolId);
@@ -100,7 +100,7 @@ export function FeatureList({
         setSelectedAttributeBoostEffect(effect);
         // Check for existing selection
         const existingAttrSelection = existingSelections.find(
-          (s) => s.type === "attribute_boost" && s.grantedByEffectId === effect.id,
+          (s) => s.type === "attribute_boost" && s.grantedByTraitId === effect.id,
         );
         if (existingAttrSelection && existingAttrSelection.type === "attribute_boost") {
           setExistingAttributeSelection(existingAttrSelection.attribute);
@@ -112,23 +112,23 @@ export function FeatureList({
         setSelectedUtilitySpellsEffect(effect);
         // Check if there are existing selections for this effect
         const existingUtilitySelections = existingSelections.filter(
-          (s) => s.type === "utility_spells" && s.grantedByEffectId === effect.id,
-        ) as UtilitySpellsEffectSelection[];
+          (s) => s.type === "utility_spells" && s.grantedByTraitId === effect.id,
+        ) as UtilitySpellsTraitSelection[];
         setExistingUtilitySpellSelections(existingUtilitySelections);
         break;
     }
   };
 
   // Handler for selection changes
-  const handleSelectionChange = (effectId: string, selection: EffectSelection | null) => {
+  const handleSelectionChange = (traitId: string, selection: TraitSelection | null) => {
     if (selection) {
       // Add or update selection
-      const updated = existingSelections.filter((s) => s.grantedByEffectId !== effectId);
+      const updated = existingSelections.filter((s) => s.grantedByTraitId !== traitId);
       updated.push(selection);
       onSelectionsChange(updated);
     } else {
       // Remove selection
-      const updated = existingSelections.filter((s) => s.grantedByEffectId !== effectId);
+      const updated = existingSelections.filter((s) => s.grantedByTraitId !== traitId);
       onSelectionsChange(updated);
     }
   };
@@ -140,7 +140,7 @@ export function FeatureList({
     handleSelectionChange(selectedSpellSchoolChoiceEffect.id, {
       type: "spell_school",
       schoolId,
-      grantedByEffectId: selectedSpellSchoolChoiceEffect.id,
+      grantedByTraitId: selectedSpellSchoolChoiceEffect.id,
     });
 
     setSelectedSpellSchoolChoiceEffect(null);
@@ -153,19 +153,19 @@ export function FeatureList({
       type: "attribute_boost",
       attribute,
       amount,
-      grantedByEffectId: selectedAttributeBoostEffect.id,
+      grantedByTraitId: selectedAttributeBoostEffect.id,
     });
 
     setSelectedAttributeBoostEffect(null);
   };
 
-  const handleSelectUtilitySpells = (selections: UtilitySpellsEffectSelection[]) => {
+  const handleSelectUtilitySpells = (selections: UtilitySpellsTraitSelection[]) => {
     if (!selectedUtilitySpellsEffect || !character) return;
 
     // Remove existing selections for this effect
     const otherSelections = existingSelections.filter(
       (s) =>
-        !(s.type === "utility_spells" && s.grantedByEffectId === selectedUtilitySpellsEffect.id),
+        !(s.type === "utility_spells" && s.grantedByTraitId === selectedUtilitySpellsEffect.id),
     );
 
     // Add new selections
@@ -176,19 +176,19 @@ export function FeatureList({
     setExistingUtilitySpellSelections([]);
   };
 
-  const handleSelectPoolFeatures = (newSelections: PoolFeatureEffectSelection[]) => {
-    if (!selectedPoolFeatureEffect) return;
+  const handleSelectPoolFeatures = (newSelections: PoolFeatureTraitSelection[]) => {
+    if (!selectedPoolFeatureTrait) return;
 
     // Remove existing selections for this effect
     const otherSelections = existingSelections.filter(
-      (s) => !(s.type === "pool_feature" && s.grantedByEffectId === selectedPoolFeatureEffect.id),
+      (s) => !(s.type === "pool_feature" && s.grantedByTraitId === selectedPoolFeatureTrait.id),
     );
 
     // Add new selections
     const updated = [...otherSelections, ...newSelections];
 
     onSelectionsChange(updated);
-    setSelectedPoolFeatureEffect(null);
+    setSelectedPoolFeatureTrait(null);
   };
 
   const handleSelectSubclass = (subclassId: string) => {
@@ -197,7 +197,7 @@ export function FeatureList({
     handleSelectionChange(selectedSubclassChoiceEffect.id, {
       type: "subclass",
       subclassId,
-      grantedByEffectId: selectedSubclassChoiceEffect.id,
+      grantedByTraitId: selectedSubclassChoiceEffect.id,
     });
 
     setSelectedSubclassChoiceEffect(null);
@@ -221,9 +221,9 @@ export function FeatureList({
               sourceLabel={sourceLabel}
               level={level}
             >
-              {feature.effects && feature.effects.length > 0 && (
-                <FeatureEffectsDisplay
-                  effects={feature.effects}
+              {feature.traits && feature.traits.length > 0 && (
+                <FeatureTraitsDisplay
+                  traits={feature.traits}
                   existingSelections={existingSelections}
                   onOpenSelectionDialog={handleOpenSelectionDialog}
                   character={character}
@@ -236,15 +236,15 @@ export function FeatureList({
       </div>
 
       {/* Selection Dialogs */}
-      {selectedPoolFeatureEffect && (
+      {selectedPoolFeatureTrait && (
         <FeaturePoolSelectionDialog
-          pickPoolFeatureEffect={selectedPoolFeatureEffect}
+          pickPoolFeatureTrait={selectedPoolFeatureTrait}
           onSelectFeatures={handleSelectPoolFeatures}
-          onClose={() => setSelectedPoolFeatureEffect(null)}
+          onClose={() => setSelectedPoolFeatureTrait(null)}
           existingSelections={
             existingSelections.filter(
               (s) => s.type === "pool_feature",
-            ) as PoolFeatureEffectSelection[]
+            ) as PoolFeatureTraitSelection[]
           }
         />
       )}

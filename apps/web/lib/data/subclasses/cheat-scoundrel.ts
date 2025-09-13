@@ -10,7 +10,7 @@ const scoundrelFeatures: ClassFeature[] = [
     name: "Low Blow",
     description:
       "When you Sneak Attack, you may spend 2 additional actions to Incapacitate your target until the start of your next turn (STR save DC 10+INT). Save or fail, they are Taunted by you until you drop to 0 HP.",
-    effects: [
+    traits: [
       {
         id: "scoundrel-low-blow-0",
         type: "ability",
@@ -32,7 +32,7 @@ const scoundrelFeatures: ClassFeature[] = [
     name: "Sweet Talk",
     description:
       "You may gain advantage on all Influence checks with NPC's you've just met for the first time. This lasts until you fail an Influence check with them or until you meet a 2nd time. You have disadvantage on Influence checks with them after you use this ability (until you get back on good terms).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -41,7 +41,7 @@ const scoundrelFeatures: ClassFeature[] = [
     name: "Pocket Sand",
     description:
       "(2/encounter-you've got to collect more sand!) When you Defend against a melee attack, Blind the attacker until the start of their next turn and force them to reroll the attack (Blinded creatures attack with disadvantage).",
-    effects: [
+    traits: [
       {
         id: "scoundrel-pocket-sand-0",
         type: "ability",
@@ -64,7 +64,7 @@ const scoundrelFeatures: ClassFeature[] = [
     name: "Escape Plan",
     description:
       "(1/Safe Rest) When you would drop to 0 HP or gain a Wound, you don't. Instead, you turn Invisible for 1 minute or until you attack.",
-    effects: [
+    traits: [
       {
         id: "scoundrel-escape-plan-0",
         type: "ability",
@@ -87,7 +87,7 @@ const scoundrelFeatures: ClassFeature[] = [
     name: "Heads I Win, Tails You Lose",
     description:
       "(1/encounter) Attacks you make this round don't miss, you crit on 1 less than normally needed, and you gain LVL temp HP.",
-    effects: [
+    traits: [
       {
         id: "scoundrel-heads-i-win-tails-you-lose-0",
         type: "ability",

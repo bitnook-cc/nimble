@@ -13,7 +13,7 @@ export const halfGiant: AncestryDefinition = {
       name: "Strength of Stone",
       description:
         "Force an enemy to reroll a crit against you, 1/encounter. +2 Might. You know Dwarvish if your INT is not negative.",
-      effects: [
+      traits: [
         {
           id: "half-giant-strength-of-stone-0",
           type: "stat_bonus",

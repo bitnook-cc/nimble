@@ -36,7 +36,7 @@ describe('AncestryService', () => {
         id: 'test-feature',
         name: 'Test Feature',
         description: 'A test feature',
-        effects: [
+        traits: [
           {
             id: 'test-effect-1',
             type: 'attribute_boost',

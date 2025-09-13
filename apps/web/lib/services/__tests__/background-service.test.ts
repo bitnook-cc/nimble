@@ -34,7 +34,7 @@ describe('BackgroundService', () => {
         id: 'test-feature',
         name: 'Test Feature',
         description: 'A test feature',
-        effects: [
+        traits: [
           {
             id: 'test-effect-1',
             type: 'stat_bonus',

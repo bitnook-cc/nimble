@@ -4,7 +4,7 @@ export const celestial: AncestryDefinition = {
   id: "celestial",
   name: "Celestial",
   description:
-    "Descendants of divine beings, Celestials carry an aura of nobility and grace. Their innate connection to the higher planes allows them to resist the effects of misfortune, standing strong where others may falter.",
+    "Descendants of divine beings, Celestials carry an aura of nobility and grace. Their innate connection to the higher planes allows them to resist the traits of misfortune, standing strong where others may falter.",
   size: "medium",
   rarity: "exotic",
   features: [
@@ -13,7 +13,7 @@ export const celestial: AncestryDefinition = {
       name: "Highborn",
       description:
         "Your disadvantaged save is Neutral instead. You know Celestial if your INT isn't negative.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

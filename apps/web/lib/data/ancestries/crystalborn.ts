@@ -13,7 +13,7 @@ export const crystalborn: AncestryDefinition = {
       name: "Reflective Aura",
       description:
         "When you Defend, gain KEY armor and deal KEY damage back to the attacker. 1/encounter.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

@@ -10,7 +10,7 @@ const wayOfPainFeatures: ClassFeature[] = [
     name: "Bring the Pain",
     description:
       "(1/round) You may turn any melee attack against you into a crit. Whenever you are crit, reduce the damage by half. The attacker takes the same amount of damage you took (ignoring armor). You may suffer 1 Wound to double the damage the enemy takes.",
-    effects: [
+    traits: [
       {
         id: "bring-the-pain-0",
         type: "ability",
@@ -31,7 +31,7 @@ const wayOfPainFeatures: ClassFeature[] = [
     level: 7,
     name: "Share My Pain",
     description: "Your Swiftstrike can also target a 2nd creature within Reach 2.",
-    effects: [
+    traits: [
       {
         id: "share-my-pain-0",
         type: "ability",
@@ -52,7 +52,7 @@ const wayOfPainFeatures: ClassFeature[] = [
     name: "Pain Sharpens the Mind",
     description:
       "While you are Bloodied, gain advantage on the first attack you make each turn, and on all saves.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 15
   {
@@ -60,7 +60,7 @@ const wayOfPainFeatures: ClassFeature[] = [
     level: 15,
     name: "Echoed Agony",
     description: "Your Swiftstrike can also target a 3rd creature within Reach 4.",
-    effects: [
+    traits: [
       {
         id: "echoed-agony-0",
         type: "ability",

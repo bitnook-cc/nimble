@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { FeatureList } from "@/components/feature-list";
 
-import { Character, EffectSelection } from "@/lib/schemas/character";
+import { Character, TraitSelection } from "@/lib/schemas/character";
 import { ClassFeature } from "@/lib/schemas/features";
 import {
   getCharacterService,
@@ -17,8 +17,8 @@ import {
 interface FeatureSelectionStepProps {
   character: Character;
   levelsToGain: number;
-  effectSelections: EffectSelection[];
-  onEffectSelectionsChange: (selections: EffectSelection[]) => void;
+  traitSelections: TraitSelection[];
+  onTraitSelectionsChange: (selections: TraitSelection[]) => void;
 }
 
 interface GroupedFeatures {
@@ -29,8 +29,8 @@ interface GroupedFeatures {
 export function FeatureSelectionStep({
   character,
   levelsToGain,
-  effectSelections,
-  onEffectSelectionsChange,
+  traitSelections,
+  onTraitSelectionsChange,
 }: FeatureSelectionStepProps) {
   const [groupedFeatures, setGroupedFeatures] = useState<GroupedFeatures[]>([]);
 
@@ -86,22 +86,22 @@ export function FeatureSelectionStep({
 
   // Get class and subclass names for display
   const classDefinition = contentRepo.getClassDefinition(character.classId);
-  const subclassId = character.effectSelections.find((s) => s.type === "subclass")?.subclassId;
+  const subclassId = character.traitSelections.find((s) => s.type === "subclass")?.subclassId;
   const subclassDefinition = subclassId ? contentRepo.getSubclassDefinition(subclassId) : null;
 
   // Combine existing character selections with temp selections
-  const allSelections = [...character.effectSelections, ...effectSelections];
+  const allSelections = [...character.traitSelections, ...traitSelections];
 
   // Handler that manages temp selections separately
-  const handleSelectionsChange = (newSelections: EffectSelection[]) => {
+  const handleSelectionsChange = (newSelections: TraitSelection[]) => {
     // Filter out the character's existing selections to get only temp selections
     const tempSelections = newSelections.filter(
       (selection) =>
-        !character.effectSelections.some(
-          (existing) => existing.grantedByEffectId === selection.grantedByEffectId,
+        !character.traitSelections.some(
+          (existing) => existing.grantedByTraitId === selection.grantedByTraitId,
         ),
     );
-    onEffectSelectionsChange(tempSelections);
+    onTraitSelectionsChange(tempSelections);
   };
 
   return (

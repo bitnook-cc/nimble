@@ -10,7 +10,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Swiftshift",
     description:
       "When you roll Initiative, you may Beastshift or move for free. While transformed, you may shift between different Direbeast forms for free (and as a reaction by spending 1 mana); however, Beastshifting for free does not grant any temp HP.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "windborne-protector",
@@ -18,7 +18,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Windborne Protector",
     description:
       "(1/encounter) Reaction: when an enemy attacks, spend 2 mana to shift into a Fearsome Beast. Then you may Interpose from up to 12 spaces away and Defend for free (if you have not yet done so this round).",
-    effects: [
+    traits: [
       {
         id: "windborne-protector-0",
         type: "ability",
@@ -40,7 +40,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Friend of Beasts",
     description:
       "Beasts will not attack you until you first harm them. You may transform into harmless beasts without spending a Beastshift charge.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -48,7 +48,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     level: 7,
     name: "Unleash the Beast",
     description: "(1/encounter) When you miss, you can crit instead.",
-    effects: [
+    traits: [
       {
         id: "unleash-the-beast-0",
         type: "ability",
@@ -69,7 +69,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Storm Wake",
     description:
       "(1/encounter) Action: Spend 3 mana to shift into a Beast of the Pack, then teleport in a straight line up to 12 spaces away, unerringly dealing WIL d8 lightning damage to any creatures adjacent to your path.",
-    effects: [
+    traits: [
       {
         id: "storm-wake-0",
         type: "ability",
@@ -92,7 +92,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     level: 11,
     name: "Master of Forms",
     description: "Your shapeshift forms can have 2 Chimeric Boons at a time.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "venomous-gaze",
@@ -100,7 +100,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Venomous Gaze",
     description:
       "(1/encounter) Action: Spend 2 mana to shift into a Beast of Nightmares. Then either poison a creature (if you move 2 × WIL spaces closer to you on a failed WIL save (they will with disadvantage and must repeat until they save or can move no further)). If they end up in the same space as you, you may Sting them for free.",
-    effects: [
+    traits: [
       {
         id: "venomous-gaze-0",
         type: "ability",
@@ -124,7 +124,7 @@ const fangAndClawFeatures: ClassFeature[] = [
     name: "Master of Forms (2)",
     description:
       "You can Beastshift 2 additional times per Safe Rest. Choose 2 additional Chimeric Boons. Your Direbeast forms can have 3 at a time.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

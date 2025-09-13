@@ -11,7 +11,7 @@ export const devotedProtector: BackgroundDefinition = {
       name: "Protective Bond",
       description:
         "You can survive +3 max Wounds as long as your chosen ally is nearby. Whenever they take a Wound, you do too.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

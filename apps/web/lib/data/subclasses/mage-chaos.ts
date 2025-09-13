@@ -13,7 +13,7 @@ export const mageChaos: SubclassDefinition = {
       name: "Force of Chaos",
       description:
         "Whenever you cast a spell, you can choose to spend 1 less mana. Whenever you do this and whenever you crit, Invoke Chaos: Roll on the Chaos Table.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "chaos-table-note",
@@ -21,14 +21,14 @@ export const mageChaos: SubclassDefinition = {
       name: "Chaos Table",
       description:
         "Where's the Chaos Table? It's a secret for the GM only! Suffice it to say, rolling a 1 is really bad, but rolling a 20 is AWESOME—but if you're sure you want to spoil it, you can find it on the back inside cover of the GM's Guide. Let chaos reign!",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "tempest-mage",
       level: 7,
       name: "Tempest Mage",
       description: "Learn 1 cantrip and 1 tiered spell from the Wind school.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "chaos-lash",
@@ -36,7 +36,7 @@ export const mageChaos: SubclassDefinition = {
       name: "Chaos Lash",
       description:
         "(1/encounter) Reaction (when an enemy moves adjacent to you): They are pushed back 2 spaces, and on a failed WIL save, knocked Prone as well. Invoke Chaos.",
-      effects: [
+      traits: [
         {
           id: "chaos-lash-0",
           type: "ability",
@@ -57,8 +57,8 @@ export const mageChaos: SubclassDefinition = {
       level: 11,
       name: "Thrive in Chaos",
       description:
-        "Whenever you Invoke Chaos, you may roll twice and cause both effects. (1/Safe Rest) You may choose which roll to use instead.",
-      effects: [
+        "Whenever you Invoke Chaos, you may roll twice and cause both traits. (1/Safe Rest) You may choose which roll to use instead.",
+      traits: [
         {
           id: "thrive-in-chaos-0",
           type: "ability",
@@ -78,7 +78,7 @@ export const mageChaos: SubclassDefinition = {
       level: 15,
       name: "Master of Chaos",
       description: "Whenever you Invoke Chaos, roll with advantage.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

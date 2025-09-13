@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { SubclassDefinition } from "@/lib/schemas/class";
-import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
+import { SubclassChoiceFeatureTrait } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getClassService } from "@/lib/services/service-factory";
 
@@ -21,7 +21,7 @@ import {
 } from "../ui/dialog";
 
 interface SubclassSelectionDialogProps {
-  subclassChoice: SubclassChoiceFeatureEffect;
+  subclassChoice: SubclassChoiceFeatureTrait;
   onClose: () => void;
   onSelectSubclass?: (subclassId: string) => void;
   classId?: string; // Optional class ID for when character is not available
@@ -62,8 +62,8 @@ export function SubclassSelectionDialog({
         onSelectSubclass(selectedSubclass.id);
       } else if (character) {
         // Use service for live updates
-        const grantedByEffectId = subclassChoice.id;
-        await selectSubclass(selectedSubclass.id, grantedByEffectId);
+        const grantedByTraitId = subclassChoice.id;
+        await selectSubclass(selectedSubclass.id, grantedByTraitId);
       }
       onClose();
     } catch (error) {

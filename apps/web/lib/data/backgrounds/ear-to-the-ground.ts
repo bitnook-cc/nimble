@@ -11,7 +11,7 @@ export const earToTheGround: BackgroundDefinition = {
       name: "Information Network",
       description:
         "Advantage on checks to know or obtain gossip for events that will soon happen or have happened less than 1 year ago.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

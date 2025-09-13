@@ -11,7 +11,7 @@ export const accidentalAcrobat: BackgroundDefinition = {
       name: "Lucky Clumsiness",
       description:
         "Whenever you fail a DEX-related roll (e.g., DEX attack, DEX save, Stealth check, Finesse check), you may roll again. If you still fail, the consequences are BAD.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

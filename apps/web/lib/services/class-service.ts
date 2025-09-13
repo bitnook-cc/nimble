@@ -1,17 +1,17 @@
 import {
-  AttributeBoostEffectSelection,
+  AttributeBoostTraitSelection,
   AttributeName,
   Character,
-  EffectSelection,
-  PoolFeatureEffectSelection,
-  SubclassEffectSelection,
+  TraitSelection,
+  PoolFeatureTraitSelection,
+  SubclassTraitSelection,
 } from "../schemas/character";
 import { ClassDefinition, FeaturePool, SubclassDefinition } from "../schemas/class";
 import {
-  AttributeBoostFeatureEffect,
+  AttributeBoostFeatureTrait,
   ClassFeature,
-  PickFeatureFromPoolFeatureEffect,
-  SubclassChoiceFeatureEffect,
+  PickFeatureFromPoolFeatureTrait,
+  SubclassChoiceFeatureTrait,
 } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
 import { ICharacterService, IClassService } from "./interfaces";
@@ -66,7 +66,7 @@ export class ClassService implements IClassService {
   async selectSubclass(
     character: Character,
     subclassId: string,
-    grantedByEffectId: string,
+    grantedByTraitId: string,
   ): Promise<Character> {
     // Validate that the subclass is available for this character's class
     const subclassDefinition =
@@ -81,34 +81,34 @@ export class ClassService implements IClassService {
 
     // Check if character has the appropriate subclass choice effect
     const hasSubclassChoiceEffect = this.characterService
-      .getAllActiveEffects()
-      .some((effect) => effect.type === "subclass_choice" && effect.id === grantedByEffectId);
+      .getAllActiveTraits()
+      .some((trait) => trait.type === "subclass_choice" && trait.id === grantedByTraitId);
 
     if (!hasSubclassChoiceEffect) {
       throw new Error(
-        `Character does not have a subclass choice effect with id ${grantedByEffectId}`,
+        `Character does not have a subclass choice effect with id ${grantedByTraitId}`,
       );
     }
 
     // Check if already have a subclass selection for this effect
-    const existingSubclassSelection = character.effectSelections?.find(
-      (f) => f.type === "subclass" && f.grantedByEffectId === grantedByEffectId,
+    const existingSubclassSelection = character.traitSelections?.find(
+      (f) => f.type === "subclass" && f.grantedByTraitId === grantedByTraitId,
     );
     if (existingSubclassSelection) {
       throw new Error("Subclass has already been selected for this effect");
     }
 
     // Create the selected subclass record
-    const selectedSubclass: SubclassEffectSelection = {
+    const selectedSubclass: SubclassTraitSelection = {
       type: "subclass",
       subclassId,
-      grantedByEffectId,
+      grantedByTraitId,
     };
 
     // Update character with selected subclass
     const updatedCharacter = {
       ...character,
-      effectSelections: [...(character.effectSelections || []), selectedSubclass],
+      traitSelections: [...(character.traitSelections || []), selectedSubclass],
     };
 
     await this.characterService.updateCharacter(updatedCharacter);
@@ -117,18 +117,18 @@ export class ClassService implements IClassService {
   }
 
   /**
-   * Get available subclass choice effects for a character at their current level
+   * Get available subclass choice traits for a character at their current level
    */
-  getAvailableSubclassChoices(character: Character): SubclassChoiceFeatureEffect[] {
-    // Find all subclass choice effects from active features
+  getAvailableSubclassChoices(character: Character): SubclassChoiceFeatureTrait[] {
+    // Find all subclass choice traits from active features
     const subclassChoiceEffects = this.characterService
-      .getAllActiveEffects()
-      .filter((effect): effect is SubclassChoiceFeatureEffect => effect.type === "subclass_choice");
+      .getAllActiveTraits()
+      .filter((trait): trait is SubclassChoiceFeatureTrait => trait.type === "subclass_choice");
 
     // Filter out subclass choices that have already been made
-    return subclassChoiceEffects.filter((effect) => {
-      const hasSelection = character.effectSelections?.some(
-        (f) => f.type === "subclass" && f.grantedByEffectId === effect.id,
+    return subclassChoiceEffects.filter((trait) => {
+      const hasSelection = character.traitSelections?.some(
+        (f) => f.type === "subclass" && f.grantedByTraitId === trait.id,
       );
       return !hasSelection;
     });
@@ -158,16 +158,16 @@ export class ClassService implements IClassService {
   /**
    * Get available attribute boost choices for a character
    */
-  getAvailableAttributeBoostChoices(character: Character): AttributeBoostFeatureEffect[] {
-    // Find all attribute boost effects from active features
+  getAvailableAttributeBoostChoices(character: Character): AttributeBoostFeatureTrait[] {
+    // Find all attribute boost traits from active features
     const attributeBoostEffects = this.characterService
-      .getAllActiveEffects()
-      .filter((effect): effect is AttributeBoostFeatureEffect => effect.type === "attribute_boost");
+      .getAllActiveTraits()
+      .filter((trait): trait is AttributeBoostFeatureTrait => trait.type === "attribute_boost");
 
     // Filter out attribute boosts that have already been made
-    return attributeBoostEffects.filter((effect) => {
-      const hasSelection = character.effectSelections?.some(
-        (f) => f.type === "attribute_boost" && f.grantedByEffectId === effect.id,
+    return attributeBoostEffects.filter((trait) => {
+      const hasSelection = character.traitSelections?.some(
+        (f) => f.type === "attribute_boost" && f.grantedByTraitId === trait.id,
       );
       return !hasSelection;
     });
@@ -178,15 +178,15 @@ export class ClassService implements IClassService {
    */
   async selectAttributeBoost(
     character: Character,
-    effectId: string,
+    traitId: string,
     attribute: AttributeName,
     amount: number,
   ): Promise<Character> {
     const effect = this.characterService
-      .getAllActiveEffects()
-      .find((e) => e.id === effectId) as AttributeBoostFeatureEffect;
+      .getAllActiveTraits()
+      .find((trait) => trait.id === traitId) as AttributeBoostFeatureTrait;
     if (!effect || effect.type !== "attribute_boost") {
-      throw new Error(`Attribute boost effect ${effectId} not found`);
+      throw new Error(`Attribute boost effect ${traitId} not found`);
     }
 
     if (!effect.allowedAttributes.includes(attribute)) {
@@ -194,9 +194,9 @@ export class ClassService implements IClassService {
     }
 
     // Create the selection record
-    const selection: AttributeBoostEffectSelection = {
+    const selection: AttributeBoostTraitSelection = {
       type: "attribute_boost",
-      grantedByEffectId: effectId,
+      grantedByTraitId: traitId,
       attribute,
       amount,
     };
@@ -204,7 +204,7 @@ export class ClassService implements IClassService {
     // Add the selection (attributes will be calculated dynamically)
     const updatedCharacter = {
       ...character,
-      effectSelections: [...character.effectSelections, selection],
+      traitSelections: [...character.traitSelections, selection],
     };
 
     // Save to storage
@@ -243,13 +243,13 @@ export class ClassService implements IClassService {
    *
    * @param classId - The class ID to get the pool from
    * @param poolId - The ID of the specific feature pool to get features from
-   * @param effectSelections - The current effect selections to check against
+   * @param traitSelections - The current effect selections to check against
    * @returns Array of ClassFeature objects that haven't been selected yet from this pool
    */
   getAvailablePoolFeatures(
     classId: string,
     poolId: string,
-    effectSelections: EffectSelection[] = [],
+    traitSelections: TraitSelection[] = [],
   ): ClassFeature[] {
     const pool = ContentRepositoryService.getInstance().getFeaturePool(poolId);
     if (!pool) {
@@ -257,8 +257,8 @@ export class ClassService implements IClassService {
     }
 
     // Filter out features that have already been selected
-    const selectedPoolFeatures = effectSelections.filter(
-      (f): f is PoolFeatureEffectSelection => f.type === "pool_feature",
+    const selectedPoolFeatures = traitSelections.filter(
+      (f): f is PoolFeatureTraitSelection => f.type === "pool_feature",
     );
 
     const selectedFeatureIds = new Set(
@@ -275,26 +275,26 @@ export class ClassService implements IClassService {
   /**
    * Get pick feature from pool features that are available for a character.
    *
-   * This returns PickFeatureFromPoolFeatureEffect objects (the "chooser" effects) that still have selections remaining.
+   * This returns PickFeatureFromPoolFeatureTrait objects (the "chooser" traits) that still have selections remaining.
    * These are the features that grant the ability to pick from a pool, not the pool contents themselves.
    * Used to show which pool selections the player still needs to make.
    *
    * @param character - The character to check for available selections
-   * @returns Array of PickFeatureFromPoolFeatureEffect objects that have remaining selections to make
+   * @returns Array of PickFeatureFromPoolFeatureTrait objects that have remaining selections to make
    */
-  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureEffect[] {
+  getAvailablePoolSelections(character: Character): PickFeatureFromPoolFeatureTrait[] {
     const expectedFeatures = this.getExpectedFeaturesForCharacter(character);
-    const pickEffects: PickFeatureFromPoolFeatureEffect[] = [];
+    const pickEffects: PickFeatureFromPoolFeatureTrait[] = [];
 
-    // Find all pick_feature_from_pool effects
+    // Find all pick_feature_from_pool traits
     for (const feature of expectedFeatures) {
-      const effects = feature.effects.filter(
+      const traits = feature.traits.filter(
         (e) => e.type === "pick_feature_from_pool",
-      ) as PickFeatureFromPoolFeatureEffect[];
-      pickEffects.push(...effects);
+      ) as PickFeatureFromPoolFeatureTrait[];
+      pickEffects.push(...traits);
     }
 
-    // Filter out effects where all selections have been made
+    // Filter out traits where all selections have been made
     return pickEffects.filter((pickEffect) => {
       const remaining = this.getRemainingPoolSelections(character, pickEffect);
       return remaining > 0;
@@ -314,7 +314,7 @@ export class ClassService implements IClassService {
     const availableFeatures = this.getAvailablePoolFeatures(
       character.classId,
       poolId,
-      character.effectSelections,
+      character.traitSelections,
     );
 
     if (!availableFeatures.some((f) => f.id === selectedFeature.id)) {
@@ -324,20 +324,20 @@ export class ClassService implements IClassService {
     }
 
     // Create the selected pool feature record
-    const selectedPoolFeature: PoolFeatureEffectSelection = {
+    const selectedPoolFeature: PoolFeatureTraitSelection = {
       type: "pool_feature",
       poolId,
       feature: selectedFeature,
-      grantedByEffectId: grantedByFeatureId,
+      grantedByTraitId: grantedByFeatureId,
     };
 
     // Add to character's effect selections
     const updatedCharacter = {
       ...character,
-      effectSelections: [...(character.effectSelections || []), selectedPoolFeature],
+      traitSelections: [...(character.traitSelections || []), selectedPoolFeature],
     };
 
-    // Update character (effects will be applied dynamically)
+    // Update character (traits will be applied dynamically)
     let finalCharacter = updatedCharacter;
 
     await this.characterService.updateCharacter(finalCharacter);
@@ -347,7 +347,7 @@ export class ClassService implements IClassService {
   /**
    * Check if character has pending pool selections to make.
    *
-   * This is a convenience method that checks if there are any PickFeatureFromPoolFeatureEffect
+   * This is a convenience method that checks if there are any PickFeatureFromPoolFeatureTrait
    * features with remaining selections. Returns true if the player needs to make selections.
    *
    * @param character - The character to check
@@ -362,25 +362,25 @@ export class ClassService implements IClassService {
    * Get count of remaining selections for a specific pool selection feature.
    *
    * This calculates how many more times a player can select from a specific pool.
-   * For example, if a PickFeatureFromPoolFeatureEffect allows 2 choices and the player has made 1,
+   * For example, if a PickFeatureFromPoolFeatureTrait allows 2 choices and the player has made 1,
    * this returns 1.
    *
    * @param character - The character making selections
-   * @param pickFeatureFromPoolEffect - The specific PickFeatureFromPoolFeatureEffect to check
+   * @param pickFeatureFromPoolEffect - The specific PickFeatureFromPoolFeatureTrait to check
    * @returns Number of remaining selections allowed (0 if all selections have been made)
    */
   getRemainingPoolSelections(
     character: Character,
-    pickFeatureFromPoolEffect: PickFeatureFromPoolFeatureEffect,
+    pickFeatureFromPoolEffect: PickFeatureFromPoolFeatureTrait,
   ): number {
-    const grantedByEffectId = pickFeatureFromPoolEffect.id;
+    const grantedByTraitId = pickFeatureFromPoolEffect.id;
 
-    const selectedPoolFeatures = (character.effectSelections || []).filter(
-      (f): f is PoolFeatureEffectSelection => f.type === "pool_feature",
+    const selectedPoolFeatures = (character.traitSelections || []).filter(
+      (f): f is PoolFeatureTraitSelection => f.type === "pool_feature",
     );
 
     const currentSelections = selectedPoolFeatures.filter(
-      (selected) => selected.grantedByEffectId === grantedByEffectId,
+      (selected) => selected.grantedByTraitId === grantedByTraitId,
     ).length;
 
     return Math.max(0, pickFeatureFromPoolEffect.choicesAllowed - currentSelections);

@@ -13,7 +13,7 @@ export const songweaverHeraldSnark: SubclassDefinition = {
       name: "Opportunistic Snark",
       description:
         "Reaction (when an enemy within Range 12 misses an attack): You may cast Vicious Mockery at them; it deals double damage when cast this way.",
-      effects: [
+      traits: [
         {
           id: "opportunistic-snark-0",
           type: "ability",
@@ -34,7 +34,7 @@ export const songweaverHeraldSnark: SubclassDefinition = {
       name: "Fight Picker",
       description:
         "(1/turn) When an enemy is damaged by your Vicious Mockery, you may have one of your allies Fight Them! until the end of the enemy's turn instead.",
-      effects: [
+      traits: [
         {
           id: "fight-picker-0",
           type: "ability",
@@ -55,7 +55,7 @@ export const songweaverHeraldSnark: SubclassDefinition = {
       name: "Chord of Chaos",
       description:
         "(1/encounter) Action: You may move ALL creatures within hearing of your song up to 6 spaces into an obviously dangerous place.",
-      effects: [
+      traits: [
         {
           id: "chord-of-chaos-0",
           type: "ability",
@@ -77,7 +77,7 @@ export const songweaverHeraldSnark: SubclassDefinition = {
       level: 15,
       name: "Words Like Swords",
       description: "Your Vicious Mockery damage becomes 1d6+INT+WIL.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

@@ -10,7 +10,7 @@ const vanguardFeatures: ClassFeature[] = [
     name: "Advance!",
     description:
       "(1/round) After you move toward an enemy, gain advantage on the first melee attack you make against it. When you use your Coordinated Strike, you and all allies within 12 spaces can first move up to half their speed for free.",
-    effects: [
+    traits: [
       {
         id: "vanguard-advance-0",
         type: "ability",
@@ -33,7 +33,7 @@ const vanguardFeatures: ClassFeature[] = [
     name: "Experienced Commander",
     description:
       "Your Coordinated Strike may target 1 additional ally. Gain +1 use of Coordinated Strike/Safe Rest.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 11
   {
@@ -42,7 +42,7 @@ const vanguardFeatures: ClassFeature[] = [
     name: "Survey the Battlefield",
     description:
       "When you roll Initiative, regain 1 use of Coordinated Strike. +1 max Combat Dice.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 15
   {
@@ -51,7 +51,7 @@ const vanguardFeatures: ClassFeature[] = [
     name: "As One!",
     description:
       "Attacks made with your Coordinated Strike also grant advantage and ignore all disadvantage. Your chosen allies gain 1 additional action to use on their next turn.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 

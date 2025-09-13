@@ -13,7 +13,7 @@ export const fiendkin: AncestryDefinition = {
       name: "Flameborn",
       description:
         "1 of your neutral saves is advantaged instead. You know Infernal if your INT is not negative.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

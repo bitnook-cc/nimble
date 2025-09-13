@@ -96,7 +96,7 @@ export const human: AncestryDefinition = {
       id: "human-tenacious",
       name: "Tenacious",
       description: "+1 to all skills and Initiative.",
-      effects: [
+      traits: [
         {
           id: "human-tenacious-0",
           type: "stat_bonus",

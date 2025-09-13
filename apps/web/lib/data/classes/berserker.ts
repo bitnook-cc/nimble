@@ -10,14 +10,14 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Death Blow",
     description:
       "After you deal damage from a crit, you may expend any number of Fury Dice. Sum the dice and deal double that amount of damage.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "deathless-rage",
     level: 1,
     name: "Deathless Rage",
     description: "(1/turn) While Dying, you may suffer 1 Wound to gain 1 action.",
-    effects: [
+    traits: [
       {
         id: "deathless-rage-0",
         type: "ability",
@@ -38,7 +38,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Eager for Battle",
     description:
       "Gain advantage on Initiative. Move 2 × DEX spaces for free on your first turn each encounter.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "into-the-fray",
@@ -46,7 +46,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Into the Fray",
     description:
       "Action: Leap up to 2 × DEX spaces toward an enemy. If you land adjacent to at least 2 enemies, the next attack against 1 of them for free.",
-    effects: [
+    traits: [
       {
         id: "into-the-fray-0",
         type: "ability",
@@ -67,14 +67,14 @@ const savageArsenalFeatures: ClassFeature[] = [
     level: 1,
     name: "Mighty Endurance",
     description: "You can now survive an additional 4 Wounds before death.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "more-blood",
     level: 1,
     name: "MORE BLOOD!",
     description: "Whenever an enemy crits you, gain 1 Fury Die.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "rampage",
@@ -82,7 +82,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Rampage",
     description:
       "(1/turn) After you land a hit, you may treat your next attack this turn as if you rolled that same amount instead of rolling again.",
-    effects: [
+    traits: [
       {
         id: "rampage-0",
         type: "ability",
@@ -104,7 +104,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Swift Fury",
     description:
       "Whenever you gain one or more Fury Dice, move up to DEX spaces for free, ignoring difficult terrain.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "thunderous-steps",
@@ -112,7 +112,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Thunderous Steps",
     description:
       "After moving at least 4 spaces while Raging, you may deal STR Bludgeoning damage to all adjacent creatures where you stop.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "unstoppable-force",
@@ -120,14 +120,14 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "Unstoppable Force",
     description:
       "While Dying and Raging, taking damage causes 1 Wound (instead of 2) and critical hits inflict 2 Wounds (instead of 3).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "whirlwind",
     level: 1,
     name: "Whirlwind",
     description: "2 actions: Attack ALL targets within your melee weapon's reach.",
-    effects: [
+    traits: [
       {
         id: "whirlwind-0",
         type: "ability",
@@ -148,7 +148,7 @@ const savageArsenalFeatures: ClassFeature[] = [
     name: "You're Next!",
     description:
       "Action: While Raging, you can make a Might skill check to demoralize an enemy within Reach 12 (DC: their current HP). On a success, they immediately flee the battle.",
-    effects: [
+    traits: [
       {
         id: "you-re-next-0",
         type: "ability",
@@ -173,7 +173,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 1,
     name: "Rage",
     description: "Enter a battle fury that enhances your combat prowess.",
-    effects: [
+    traits: [
       {
         id: "berserker-rage-0",
         type: "ability",
@@ -197,7 +197,7 @@ const berserkerFeatures: ClassFeature[] = [
     name: "That All You Got?!",
     description:
       "When you are attacked, you may expend 1 or more Fury Dice to reduce the damage taken by STR + DEX for each die spent.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 2
   {
@@ -205,7 +205,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 2,
     name: "Intensifying Fury",
     description: "If you are Raging at the beginning of your turn, roll 1 Fury Die for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-one-with-ancients",
@@ -213,7 +213,7 @@ const berserkerFeatures: ClassFeature[] = [
     name: "One with the Ancients",
     description:
       "(1/Safe Rest) When faced with a decision about which direction or course of action to take, you can call upon your ancestors to guide you toward the most dangerous or challenging path.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 3
   {
@@ -221,7 +221,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 3,
     name: "Berserker Subclass",
     description: "Choose your path of rage and fury.",
-    effects: [
+    traits: [
       {
         id: "berserker-subclass-choice-0",
         type: "subclass_choice",
@@ -233,7 +233,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 3,
     name: "Bloodlust",
     description: "Expend 1 or more Fury Dice on your turn, move DEX spaces per die spent for free.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 4
   {
@@ -242,14 +242,14 @@ const berserkerFeatures: ClassFeature[] = [
     name: "Enduring Rage",
     description:
       "While Dying, you Rage automatically for free at the beginning of your turn, have a max of 2 actions instead of 1, and ignore the STR saves to make attacks.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-key-stat-increase-1",
     level: 4,
     name: "Key Stat Increase",
     description: "+1 STR or DEX",
-    effects: [
+    traits: [
       {
         id: "berserker-key-stat-increase-1-0",
         type: "attribute_boost",
@@ -263,7 +263,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 4,
     name: "Savage Arsenal",
     description: "Choose 1 ability from the Savage Arsenal.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-1-0",
         type: "pick_feature_from_pool",
@@ -278,14 +278,14 @@ const berserkerFeatures: ClassFeature[] = [
     level: 5,
     name: "Rage (2)",
     description: "Whenever you Rage, gain 2 Fury Dice instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-secondary-stat-increase-1",
     level: 5,
     name: "Secondary Stat Increase",
     description: "+1 INT or WIL",
-    effects: [
+    traits: [
       {
         id: "berserker-secondary-stat-increase-1-0",
         type: "attribute_boost",
@@ -300,7 +300,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 6,
     name: "Savage Arsenal (2)",
     description: "Choose a 2nd Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-2-0",
         type: "pick_feature_from_pool",
@@ -314,7 +314,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 6,
     name: "Intensifying Fury (2)",
     description: "Your Fury Dice are now d6s.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 7
   {
@@ -322,7 +322,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 7,
     name: "Subclass Feature",
     description: "Gain your Berserker subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 8
   {
@@ -330,7 +330,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 8,
     name: "Savage Arsenal (3)",
     description: "Choose a 3rd Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-3-0",
         type: "pick_feature_from_pool",
@@ -344,7 +344,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 8,
     name: "Key Stat Increase",
     description: "+1 STR or DEX",
-    effects: [
+    traits: [
       {
         id: "berserker-key-stat-increase-2-0",
         type: "attribute_boost",
@@ -359,14 +359,14 @@ const berserkerFeatures: ClassFeature[] = [
     level: 9,
     name: "Intensifying Fury (3)",
     description: "Your Fury Dice are now d8s.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-secondary-stat-increase-2",
     level: 9,
     name: "Secondary Stat Increase",
     description: "+1 INT or WIL",
-    effects: [
+    traits: [
       {
         id: "berserker-secondary-stat-increase-2-0",
         type: "attribute_boost",
@@ -381,7 +381,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 10,
     name: "Savage Arsenal (4)",
     description: "Choose a 4th Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-4-0",
         type: "pick_feature_from_pool",
@@ -396,7 +396,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 11,
     name: "Subclass Feature",
     description: "Gain your Berserker subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 12
   {
@@ -404,7 +404,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 12,
     name: "Savage Arsenal (5)",
     description: "Choose a 5th Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-5-0",
         type: "pick_feature_from_pool",
@@ -418,7 +418,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 12,
     name: "Key Stat Increase",
     description: "+1 STR or DEX",
-    effects: [
+    traits: [
       {
         id: "berserker-key-stat-increase-3-0",
         type: "attribute_boost",
@@ -433,14 +433,14 @@ const berserkerFeatures: ClassFeature[] = [
     level: 13,
     name: "Intensifying Fury (4)",
     description: "Your Fury Dice are now d10s.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-secondary-stat-increase-3",
     level: 13,
     name: "Secondary Stat Increase",
     description: "+1 INT or WIL",
-    effects: [
+    traits: [
       {
         id: "berserker-secondary-stat-increase-3-0",
         type: "attribute_boost",
@@ -455,7 +455,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 14,
     name: "Savage Arsenal (6)",
     description: "Choose a 6th Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-6-0",
         type: "pick_feature_from_pool",
@@ -470,7 +470,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 15,
     name: "Subclass Feature",
     description: "Gain your Berserker subclass feature.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 16
   {
@@ -478,7 +478,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 16,
     name: "Savage Arsenal (7)",
     description: "Choose a 7th Savage Arsenal ability.",
-    effects: [
+    traits: [
       {
         id: "berserker-savage-arsenal-7-0",
         type: "pick_feature_from_pool",
@@ -492,7 +492,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 16,
     name: "Key Stat Increase",
     description: "+1 STR or DEX",
-    effects: [
+    traits: [
       {
         id: "berserker-key-stat-increase-4-0",
         type: "attribute_boost",
@@ -507,14 +507,14 @@ const berserkerFeatures: ClassFeature[] = [
     level: 17,
     name: "Intensifying Fury (5)",
     description: "Your Fury Dice are now d12s.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "berserker-secondary-stat-increase-4",
     level: 17,
     name: "Secondary Stat Increase",
     description: "+1 INT or WIL",
-    effects: [
+    traits: [
       {
         id: "berserker-secondary-stat-increase-4-0",
         type: "attribute_boost",
@@ -529,7 +529,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 18,
     name: "DEEP RAGE",
     description: "Dropping to 0 HP does not cause your Rage to end.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 19
   {
@@ -537,7 +537,7 @@ const berserkerFeatures: ClassFeature[] = [
     level: 19,
     name: "Epic Boon",
     description: "Choose an Epic Boon (see pg. 23 of the GM's Guide).",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
   // Level 20
   {
@@ -546,7 +546,7 @@ const berserkerFeatures: ClassFeature[] = [
     name: "BOUNDLESS RAGE",
     description:
       "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
-    effects: [], // Passive feature - no mechanical effects to process
+    traits: [], // Passive feature - no mechanical traits to process
   },
 ];
 
@@ -557,7 +557,7 @@ const wrathAndRuin: ClassFeature = {
   name: "Wrath & Ruin",
   description:
     "Whenever you perform a notable act of destruction or feat of strength during a Safe Rest, you may choose different Berserker options available to you.",
-  effects: [], // Passive feature - no mechanical effects to process
+  traits: [], // Passive feature - no mechanical traits to process
 };
 
 export const berserkerClass: ClassDefinition = {

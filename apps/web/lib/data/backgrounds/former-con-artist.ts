@@ -10,19 +10,19 @@ export const formerConArtist: BackgroundDefinition = {
       id: "former-con-artist-master-forger",
       name: "Master Forger",
       description: "You can forge most documents or mimic voices flawlessly.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "former-con-artist-criminal-network",
       name: "Criminal Network",
       description: "You have a criminal contact in most major cities.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
     {
       id: "former-con-artist-questionable-reputation",
       name: "Questionable Reputation",
       description: "Your reputation often precedes you—until you prove yourself to be trustworthy.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
 };

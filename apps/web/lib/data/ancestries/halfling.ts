@@ -79,7 +79,7 @@ export const halfling: AncestryDefinition = {
       id: "halfling-elusive",
       name: "Elusive",
       description: "+1 to Stealth. If you fail a save, you can succeed instead, 1/Safe Rest.",
-      effects: [
+      traits: [
         {
           id: "halfling-elusive-0",
           type: "stat_bonus",

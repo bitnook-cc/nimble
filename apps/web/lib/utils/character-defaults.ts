@@ -113,7 +113,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
   return {
     name: "Unnamed Character",
     level: 1,
-    effectSelections: [],
+    traitSelections: [],
     _spellTierAccess: 0,
     _resourceDefinitions: [],
     _resourceValues: new Map(),

@@ -1,22 +1,22 @@
 import { SpellAbilityDefinition } from "../schemas/abilities";
 import { Character } from "../schemas/character";
 import {
-  AttributeBoostFeatureEffect,
-  FeatureEffect,
-  PickFeatureFromPoolFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  SubclassChoiceFeatureEffect,
-  UtilitySpellsFeatureEffect,
+  AttributeBoostFeatureTrait,
+  FeatureTrait,
+  PickFeatureFromPoolFeatureTrait,
+  SpellSchoolChoiceFeatureTrait,
+  SubclassChoiceFeatureTrait,
+  UtilitySpellsFeatureTrait,
 } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
 import { getCharacterService } from "./service-factory";
 
-export interface AvailableEffectSelections {
-  poolSelections: PickFeatureFromPoolFeatureEffect[];
-  subclassChoices: SubclassChoiceFeatureEffect[];
-  spellSchoolSelections: SpellSchoolChoiceFeatureEffect[];
-  attributeBoosts: AttributeBoostFeatureEffect[];
-  utilitySpellSelections: UtilitySpellsFeatureEffect[];
+export interface AvailableTraitSelections {
+  poolSelections: PickFeatureFromPoolFeatureTrait[];
+  subclassChoices: SubclassChoiceFeatureTrait[];
+  spellSchoolSelections: SpellSchoolChoiceFeatureTrait[];
+  attributeBoosts: AttributeBoostFeatureTrait[];
+  utilitySpellSelections: UtilitySpellsFeatureTrait[];
 }
 
 /**
@@ -39,11 +39,11 @@ export class FeatureSelectionService {
    * Get all available effect selections that need to be made
    * This includes selections from all sources (class, ancestry, background, etc.)
    */
-  getAvailableEffectSelections(
+  getAvailableTraitSelections(
     character: Character,
-    allEffects: FeatureEffect[],
-  ): AvailableEffectSelections {
-    const result: AvailableEffectSelections = {
+    allEffects: FeatureTrait[],
+  ): AvailableTraitSelections {
+    const result: AvailableTraitSelections = {
       poolSelections: [],
       subclassChoices: [],
       spellSchoolSelections: [],
@@ -104,10 +104,10 @@ export class FeatureSelectionService {
    */
   getRemainingPoolSelections(
     character: Character,
-    effect: PickFeatureFromPoolFeatureEffect,
+    effect: PickFeatureFromPoolFeatureTrait,
   ): number {
-    const selections = character.effectSelections.filter(
-      (s) => s.type === "pool_feature" && s.grantedByEffectId === effect.id,
+    const selections = character.traitSelections.filter(
+      (s) => s.type === "pool_feature" && s.grantedByTraitId === effect.id,
     );
     return Math.max(0, effect.choicesAllowed - selections.length);
   }
@@ -117,10 +117,10 @@ export class FeatureSelectionService {
    */
   getRemainingSpellSchoolSelections(
     character: Character,
-    effect: SpellSchoolChoiceFeatureEffect,
+    effect: SpellSchoolChoiceFeatureTrait,
   ): number {
-    const selections = character.effectSelections.filter(
-      (s) => s.type === "spell_school" && s.grantedByEffectId === effect.id,
+    const selections = character.traitSelections.filter(
+      (s) => s.type === "spell_school" && s.grantedByTraitId === effect.id,
     );
     const numberOfChoices = effect.numberOfChoices || 1;
     return Math.max(0, numberOfChoices - selections.length);
@@ -129,9 +129,9 @@ export class FeatureSelectionService {
   /**
    * Get remaining attribute boost selections for a specific effect
    */
-  getRemainingAttributeBoosts(character: Character, effect: AttributeBoostFeatureEffect): number {
-    const selections = character.effectSelections.filter(
-      (s) => s.type === "attribute_boost" && s.grantedByEffectId === effect.id,
+  getRemainingAttributeBoosts(character: Character, effect: AttributeBoostFeatureTrait): number {
+    const selections = character.traitSelections.filter(
+      (s) => s.type === "attribute_boost" && s.grantedByTraitId === effect.id,
     );
     // Attribute boosts are single selection (one attribute gets the boost)
     return Math.max(0, 1 - selections.length);
@@ -141,7 +141,7 @@ export class FeatureSelectionService {
    * Get the total number of utility spells to select for an effect
    */
   getUtilitySpellSelectionCount(
-    effect: UtilitySpellsFeatureEffect,
+    effect: UtilitySpellsFeatureTrait,
     availableSchools: string[],
   ): number {
     if (effect.selectionMode === "per_school") {
@@ -161,10 +161,10 @@ export class FeatureSelectionService {
    */
   getRemainingUtilitySpellSelections(
     character: Character,
-    effect: UtilitySpellsFeatureEffect,
+    effect: UtilitySpellsFeatureTrait,
   ): number {
-    const selections = character.effectSelections.filter(
-      (s) => s.type === "utility_spells" && s.grantedByEffectId === effect.id,
+    const selections = character.traitSelections.filter(
+      (s) => s.type === "utility_spells" && s.grantedByTraitId === effect.id,
     );
 
     if (effect.selectionMode === "full_school") {
@@ -183,7 +183,7 @@ export class FeatureSelectionService {
    * Falls back to all character schools if not specified
    */
   getAvailableSchoolsForUtilitySpells(
-    effect: UtilitySpellsFeatureEffect,
+    effect: UtilitySpellsFeatureTrait,
     character: Character,
   ): string[] {
     if (effect.schools && effect.schools.length > 0) {
@@ -198,7 +198,7 @@ export class FeatureSelectionService {
   /**
    * Get available utility spells for selection
    */
-  getAvailableUtilitySpells(effect: UtilitySpellsFeatureEffect, character: Character) {
+  getAvailableUtilitySpells(effect: UtilitySpellsFeatureTrait, character: Character) {
     const contentRepository = ContentRepositoryService.getInstance();
     const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
 
@@ -225,7 +225,7 @@ export class FeatureSelectionService {
    * Validate utility spell selection
    */
   validateUtilitySpellSelection(
-    effect: UtilitySpellsFeatureEffect,
+    effect: UtilitySpellsFeatureTrait,
     selectedSpells: SpellAbilityDefinition[],
     character: Character,
   ): boolean {

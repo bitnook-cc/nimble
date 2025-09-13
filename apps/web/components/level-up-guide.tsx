@@ -7,18 +7,18 @@ import React, { useState } from "react";
 import { WizardDialog } from "@/components/wizard/wizard-dialog";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { AttributeName, EffectSelection } from "@/lib/schemas/character";
+import { AttributeName, TraitSelection } from "@/lib/schemas/character";
 import {
-  AbilityFeatureEffect,
-  AttributeBoostFeatureEffect,
+  AbilityFeatureTrait,
+  AttributeBoostFeatureTrait,
   ClassFeature,
-  PickFeatureFromPoolFeatureEffect,
-  ResourceFeatureEffect,
-  SpellSchoolChoiceFeatureEffect,
-  SpellSchoolFeatureEffect,
-  SpellTierAccessFeatureEffect,
-  SubclassChoiceFeatureEffect,
-  UtilitySpellsFeatureEffect,
+  PickFeatureFromPoolFeatureTrait,
+  ResourceFeatureTrait,
+  SpellSchoolChoiceFeatureTrait,
+  SpellSchoolFeatureTrait,
+  SpellTierAccessFeatureTrait,
+  SubclassChoiceFeatureTrait,
+  UtilitySpellsFeatureTrait,
 } from "@/lib/schemas/features";
 import { resourceService } from "@/lib/services/resource-service";
 import {
@@ -52,7 +52,7 @@ interface LevelUpData {
   newMaxHp: number;
   newHitDice: { current: number; max: number };
   skillAllocations: Record<string, number>;
-  effectSelections: EffectSelection[]; // Selections for interactive features
+  traitSelections: TraitSelection[]; // Selections for interactive features
 }
 
 const STEPS = [
@@ -63,14 +63,14 @@ const STEPS = [
   // More steps to come: 'abilities', 'review'
 ];
 
-// Helper function to determine primary feature type from effects
+// Helper function to determine primary feature type from traits
 function getPrimaryFeatureType(feature: ClassFeature): string {
-  if (feature.effects.length === 0) {
+  if (feature.traits.length === 0) {
     return "passive_feature";
   }
 
   // Return the first effect type as the primary type
-  return feature.effects[0].type;
+  return feature.traits[0].type;
 }
 
 export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
@@ -83,7 +83,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
     newMaxHp: character?.hitPoints.max || 0,
     newHitDice: character ? { ...character._hitDice } : { current: 0, max: 0 },
     skillAllocations: {},
-    effectSelections: [],
+    traitSelections: [],
   });
 
   // Service instances
@@ -181,7 +181,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       let updatedAttributes = { ...character._attributes };
       let updatedResourceDefinitions = [...(character._resourceDefinitions || [])];
       let updatedResourceValues = new Map(character._resourceValues || new Map());
-      let effectSelections: EffectSelection[] = [...(character.effectSelections || [])];
+      let traitSelections: TraitSelection[] = [...(character.traitSelections || [])];
       let spellTierAccess = character._spellTierAccess;
       const characterService = getCharacterService();
 
@@ -208,32 +208,32 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             ),
         );
 
-        // Process each feature's effects directly
+        // Process each feature's traits directly
         for (const feature of levelFeatures) {
           // Features are now dynamically calculated, no need to track granted features
 
-          // Process all effects of the feature
-          for (let effectIndex = 0; effectIndex < feature.effects.length; effectIndex++) {
-            const effect = feature.effects[effectIndex];
-            const effectId = effect.id || `${feature.id}-${effectIndex}`;
+          // Process all traits of the feature
+          for (let effectIndex = 0; effectIndex < feature.traits.length; effectIndex++) {
+            const effect = feature.traits[effectIndex];
+            const traitId = effect.id || `${feature.id}-${effectIndex}`;
 
             // Find the selection for this effect
-            const selection = levelUpData.effectSelections.find(
-              (s) => s.grantedByEffectId === effectId,
+            const selection = levelUpData.traitSelections.find(
+              (s) => s.grantedByTraitId === traitId,
             );
 
             const primaryType = effect.type;
             switch (primaryType) {
               case "attribute_boost":
                 if (selection?.type === "attribute_boost" && selection.attribute) {
-                  const attributeBoostEffect = effect as AttributeBoostFeatureEffect;
+                  const attributeBoostEffect = effect as AttributeBoostFeatureTrait;
                   const boostAmount = attributeBoostEffect?.amount || 1;
                   updatedAttributes[selection.attribute] = Math.min(
                     10,
                     updatedAttributes[selection.attribute] + boostAmount,
                   );
-                  // Selection is already tracked in levelUpData.effectSelections
-                  effectSelections.push(selection);
+                  // Selection is already tracked in levelUpData.traitSelections
+                  traitSelections.push(selection);
                 }
                 break;
 
@@ -244,55 +244,55 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                     .getAllSpellSchools()
                     .find((s) => s.id === selection.schoolId);
                   if (selectedSchool) {
-                    // Selection is already tracked in levelUpData.effectSelections
+                    // Selection is already tracked in levelUpData.traitSelections
                     // Spells from spell schools are now calculated dynamically from features
-                    effectSelections.push(selection);
+                    traitSelections.push(selection);
                   }
                 }
                 break;
 
               case "utility_spells":
                 // Get all utility spell selections for this effect
-                const utilitySelections = levelUpData.effectSelections.filter(
-                  (s) => s.type === "utility_spells" && s.grantedByEffectId === effectId,
+                const utilitySelections = levelUpData.traitSelections.filter(
+                  (s) => s.type === "utility_spells" && s.grantedByTraitId === traitId,
                 );
 
                 if (utilitySelections.length > 0) {
-                  // Utility spell selections are already tracked in levelUpData.effectSelections
+                  // Utility spell selections are already tracked in levelUpData.traitSelections
                   // Spells are now calculated dynamically from features and effect selections
                 }
                 break;
 
               case "subclass_choice":
                 if (selection?.type === "subclass" && selection.subclassId) {
-                  // Selection is already tracked in levelUpData.effectSelections
-                  effectSelections.push(selection);
+                  // Selection is already tracked in levelUpData.traitSelections
+                  traitSelections.push(selection);
                 }
                 break;
 
               case "pick_feature_from_pool":
                 if (selection?.type === "pool_feature" && selection.feature) {
-                  const pickFeatureEffect = effect as PickFeatureFromPoolFeatureEffect;
+                  const pickFeatureTrait = effect as PickFeatureFromPoolFeatureTrait;
                   const selectedFeature = selection.feature;
                   if (selectedFeature) {
-                    // Selection is already tracked in levelUpData.effectSelections
+                    // Selection is already tracked in levelUpData.traitSelections
                     // Abilities from picked features are now calculated dynamically
-                    effectSelections.push(selection);
+                    traitSelections.push(selection);
                   }
                 }
                 break;
 
               case "spell_school":
-                // Spells from spell school effects are now calculated dynamically from features
+                // Spells from spell school traits are now calculated dynamically from features
                 break;
 
               case "spell_tier_access":
-                const tierAccessEffect = effect as SpellTierAccessFeatureEffect;
+                const tierAccessEffect = effect as SpellTierAccessFeatureTrait;
                 spellTierAccess = Math.max(spellTierAccess, tierAccessEffect?.maxTier || 0);
                 break;
 
               case "resource":
-                const resourceEffect = effect as ResourceFeatureEffect;
+                const resourceEffect = effect as ResourceFeatureTrait;
                 if (
                   resourceEffect?.resourceDefinition &&
                   !updatedResourceDefinitions.some(
@@ -314,7 +314,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                 break;
 
               case "ability":
-                // Abilities from effects are now calculated dynamically from features
+                // Abilities from traits are now calculated dynamically from features
                 break;
             }
           }
@@ -339,7 +339,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
         _attributes: updatedAttributes,
         _resourceDefinitions: updatedResourceDefinitions,
         _resourceValues: updatedResourceValues,
-        effectSelections,
+        traitSelections,
         _spellTierAccess: spellTierAccess,
       };
 
@@ -396,9 +396,9 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
           <FeatureSelectionStep
             character={character}
             levelsToGain={levelUpData.levelsToGain}
-            effectSelections={levelUpData.effectSelections}
-            onEffectSelectionsChange={(selections) =>
-              setLevelUpData((prev) => ({ ...prev, effectSelections: selections }))
+            traitSelections={levelUpData.traitSelections}
+            onTraitSelectionsChange={(selections) =>
+              setLevelUpData((prev) => ({ ...prev, traitSelections: selections }))
             }
           />
         );

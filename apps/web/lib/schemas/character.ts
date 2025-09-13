@@ -108,47 +108,47 @@ export const proficienciesSchema = z.object({
   weapons: z.array(weaponProficiencySchema),
 });
 
-// Base schema for all effect selections
-const baseEffectSelectionSchema = z.object({
-  grantedByEffectId: z.string().min(1),
+// Base schema for all trait selections
+const baseTraitSelectionSchema = z.object({
+  grantedByTraitId: z.string().min(1),
 });
 
-// Individual effect selection schemas
-const poolFeatureEffectSelectionSchema = baseEffectSelectionSchema.extend({
+// Individual trait selection schemas
+const poolFeatureTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("pool_feature"),
   poolId: z.string().min(1),
   feature: ClassFeatureSchema,
 });
 
-const spellSchoolEffectSelectionSchema = baseEffectSelectionSchema.extend({
+const spellSchoolTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("spell_school"),
   schoolId: z.string().min(1),
 });
 
-const attributeBoostEffectSelectionSchema = baseEffectSelectionSchema.extend({
+const attributeBoostTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("attribute_boost"),
   attribute: attributeNameSchema,
   amount: z.number().int().positive(),
 });
 
-const utilitySpellsEffectSelectionSchema = baseEffectSelectionSchema.extend({
+const utilitySpellsTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("utility_spells"),
   spellId: z.string().min(1).optional(), // Optional for full_school mode
   schoolId: z.string().min(1),
 });
 
-const subclassEffectSelectionSchema = baseEffectSelectionSchema.extend({
+const subclassTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("subclass"),
   subclassId: z.string().min(1),
 });
 
-// Union of all effect selection types
-const effectSelectionSchema = z.discriminatedUnion("type", [
-  poolFeatureEffectSelectionSchema,
-  spellSchoolEffectSelectionSchema,
-  attributeBoostEffectSelectionSchema,
-  utilitySpellsEffectSelectionSchema,
-  subclassEffectSelectionSchema,
+// Union of all trait selection types
+const traitSelectionSchema = z.discriminatedUnion("type", [
+  poolFeatureTraitSelectionSchema,
+  spellSchoolTraitSelectionSchema,
+  attributeBoostTraitSelectionSchema,
+  utilitySpellsTraitSelectionSchema,
+  subclassTraitSelectionSchema,
 ]);
 
 // Helper schemas for Map transformations
@@ -170,7 +170,7 @@ const characterBaseSchema = z.object({
   backgroundId: z.string().min(1),
   level: z.int().min(1).max(20),
   classId: z.string().min(1),
-  effectSelections: z.array(effectSelectionSchema),
+  traitSelections: z.array(traitSelectionSchema),
   _spellTierAccess: z.int().min(0).max(9),
   _spellScalingLevel: z.int().min(0).max(4),
   _proficiencies: proficienciesSchema,
@@ -211,14 +211,14 @@ export type Wounds = z.infer<typeof woundsSchema>;
 export type CharacterConfiguration = z.infer<typeof characterConfigurationSchema>;
 export type Proficiencies = z.infer<typeof proficienciesSchema>;
 
-// Effect selection types
-export type BaseEffectSelection = z.infer<typeof baseEffectSelectionSchema>;
-export type PoolFeatureEffectSelection = z.infer<typeof poolFeatureEffectSelectionSchema>;
-export type SpellSchoolEffectSelection = z.infer<typeof spellSchoolEffectSelectionSchema>;
-export type AttributeBoostEffectSelection = z.infer<typeof attributeBoostEffectSelectionSchema>;
-export type UtilitySpellsEffectSelection = z.infer<typeof utilitySpellsEffectSelectionSchema>;
-export type SubclassEffectSelection = z.infer<typeof subclassEffectSelectionSchema>;
-export type EffectSelection = z.infer<typeof effectSelectionSchema>;
+// Trait selection types
+export type BaseTraitSelection = z.infer<typeof baseTraitSelectionSchema>;
+export type PoolFeatureTraitSelection = z.infer<typeof poolFeatureTraitSelectionSchema>;
+export type SpellSchoolTraitSelection = z.infer<typeof spellSchoolTraitSelectionSchema>;
+export type AttributeBoostTraitSelection = z.infer<typeof attributeBoostTraitSelectionSchema>;
+export type UtilitySpellsTraitSelection = z.infer<typeof utilitySpellsTraitSelectionSchema>;
+export type SubclassTraitSelection = z.infer<typeof subclassTraitSelectionSchema>;
+export type TraitSelection = z.infer<typeof traitSelectionSchema>;
 
 // Character type
 export type Character = z.infer<typeof characterSchema>;
@@ -234,7 +234,7 @@ export interface CreateCharacterData {
   level: number;
   classId: string;
   subclassId?: string;
-  effectSelections: EffectSelection[];
+  traitSelections: TraitSelection[];
   _spellTierAccess: number;
   _spellScalingLevel: number;
   _proficiencies: Proficiencies;

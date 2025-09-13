@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { SubclassChoiceFeatureEffect } from "@/lib/schemas/features";
+import { SubclassChoiceFeatureTrait } from "@/lib/schemas/features";
 import { getClassService } from "@/lib/services/service-factory";
 
 import { SubclassSelectionDialog } from "../dialogs/subclass-selection-dialog";
@@ -15,7 +15,7 @@ export function SubclassSelectionsSection() {
   // Get everything we need from service hooks
   const { character } = useCharacterService();
   const [selectedSubclassChoice, setSelectedSubclassChoice] =
-    useState<SubclassChoiceFeatureEffect | null>(null);
+    useState<SubclassChoiceFeatureTrait | null>(null);
 
   if (!character) return null;
 
@@ -26,7 +26,7 @@ export function SubclassSelectionsSection() {
     return null;
   }
 
-  const handleOpenSelection = (subclassChoice: SubclassChoiceFeatureEffect) => {
+  const handleOpenSelection = (subclassChoice: SubclassChoiceFeatureTrait) => {
     setSelectedSubclassChoice(subclassChoice);
   };
 
@@ -48,7 +48,7 @@ export function SubclassSelectionsSection() {
         </CardHeader>
         <CardContent className="space-y-3">
           {availableSubclassChoices.map(
-            (subclassChoice: SubclassChoiceFeatureEffect, index: number) => {
+            (subclassChoice: SubclassChoiceFeatureTrait, index: number) => {
               return (
                 <div
                   key={index}

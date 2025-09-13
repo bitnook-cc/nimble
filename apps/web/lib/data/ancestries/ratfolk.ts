@@ -12,7 +12,7 @@ export const ratfolk: AncestryDefinition = {
       id: "ratfolk-scurry",
       name: "Scurry",
       description: "Gain +2 armor if you moved on your last turn.",
-      effects: [], // Passive feature - no mechanical effects to process
+      traits: [], // Passive feature - no mechanical traits to process
     },
   ],
   nameConfig: {

@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { FeatureList } from "@/components/feature-list";
 
-import { EffectSelection } from "@/lib/schemas/character";
+import { TraitSelection } from "@/lib/schemas/character";
 import { CharacterFeature, ClassFeature } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 
@@ -17,8 +17,8 @@ interface FeaturesOverviewProps {
   classId: string;
   ancestryId: string;
   backgroundId: string;
-  effectSelections: EffectSelection[];
-  onEffectSelectionsChange: (selections: EffectSelection[]) => void;
+  traitSelections: TraitSelection[];
+  onTraitSelectionsChange: (selections: TraitSelection[]) => void;
 }
 
 interface CategorizedFeatures {
@@ -31,8 +31,8 @@ export function FeaturesOverview({
   classId,
   ancestryId,
   backgroundId,
-  effectSelections,
-  onEffectSelectionsChange,
+  traitSelections,
+  onTraitSelectionsChange,
 }: FeaturesOverviewProps) {
   const [categorizedFeatures, setCategorizedFeatures] = useState<CategorizedFeatures>({
     class: [],
@@ -93,8 +93,8 @@ export function FeaturesOverview({
               features={categorizedFeatures.class}
               source="class"
               sourceLabel={classDefinition?.name || "Class"}
-              existingSelections={effectSelections}
-              onSelectionsChange={onEffectSelectionsChange}
+              existingSelections={traitSelections}
+              onSelectionsChange={onTraitSelectionsChange}
               existingFeatures={existingFeatures}
             />
           </div>
@@ -113,8 +113,8 @@ export function FeaturesOverview({
                 features={categorizedFeatures.ancestry}
                 source="ancestry"
                 sourceLabel={ancestryDefinition?.name || "Ancestry"}
-                existingSelections={effectSelections}
-                onSelectionsChange={onEffectSelectionsChange}
+                existingSelections={traitSelections}
+                onSelectionsChange={onTraitSelectionsChange}
                 existingFeatures={existingFeatures}
               />
             </div>
@@ -136,8 +136,8 @@ export function FeaturesOverview({
                 features={categorizedFeatures.background}
                 source="background"
                 sourceLabel={backgroundDefinition?.name || "Background"}
-                existingSelections={effectSelections}
-                onSelectionsChange={onEffectSelectionsChange}
+                existingSelections={traitSelections}
+                onSelectionsChange={onTraitSelectionsChange}
                 existingFeatures={existingFeatures}
               />
             </div>
