@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { APP_CONFIG } from '@/lib/config/app-config';
 
 export interface Toast {
   id: string;
@@ -27,7 +28,7 @@ export function useToast() {
       
       // Check if we're in a browser environment
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Nimble Navigator', { body: message });
+        new Notification(APP_CONFIG.APP_NAME, { body: message });
       } else {
         // Fallback to console for now
         console.log(`[Toast] ${variant === 'destructive' ? '❌' : '✅'} ${message}`);

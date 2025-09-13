@@ -4,6 +4,7 @@ import { AlertTriangle, Clock, Plus, Trash2, User } from "lucide-react";
 
 import { useState } from "react";
 
+import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { Character } from "@/lib/schemas/character";
 
@@ -176,7 +177,7 @@ export function CharacterSelector({
         <div className="container mx-auto py-8 flex-1">
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold mb-2">Nimble Navigator</h1>
+              <h1 className="text-3xl font-bold mb-2">{APP_CONFIG.APP_NAME}</h1>
               <p className="text-muted-foreground">Select a character or create a new one</p>
             </div>
             {content}

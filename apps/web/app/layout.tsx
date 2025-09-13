@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { APP_CONFIG } from "@/lib/config/app-config";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nimble Navigator",
-  description: "Navigate your adventures with ease - A digital character sheet for Nimble RPG",
+  title: APP_CONFIG.APP_NAME,
+  description: APP_CONFIG.APP_DESCRIPTION,
 };
 
 export default function RootLayout({
