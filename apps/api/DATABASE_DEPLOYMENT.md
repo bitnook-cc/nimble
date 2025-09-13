@@ -18,7 +18,9 @@ The database will automatically initialize/migrate when deployed to Vercel using
 
 ### Initial Setup (One-Time)
 
-#### Option 1: Using Prisma Migrate (Recommended for Production)
+**⚠️ IMPORTANT: Always use Prisma Migrate for all environments. NEVER use `db:push` as it bypasses migration tracking and causes database drift.**
+
+#### Using Prisma Migrate (REQUIRED)
 
 1. Create your first migration locally:
    ```bash
@@ -31,18 +33,15 @@ The database will automatically initialize/migrate when deployed to Vercel using
 
 4. Deploy to Vercel - migrations will run automatically
 
-#### Option 2: Using db:push (Quick Setup)
+#### ~~Option 2: Using db:push~~ (DEPRECATED - DO NOT USE)
 
-For quick prototyping, you can use `db:push` instead:
+**❌ DO NOT USE `db:push` - It causes database drift and breaks migration tracking**
 
-1. Change the vercel-build script to:
-   ```json
-   "vercel-build": "prisma generate && prisma db push && tsc"
-   ```
-
-2. Deploy to Vercel
-
-**Note**: `db:push` is not recommended for production as it doesn't create migration history.
+The `db:push` command bypasses the migration system and directly synchronizes your schema with the database. This causes:
+- Loss of migration history
+- Database drift between environments
+- Inability to rollback changes
+- Deployment failures when migrations are out of sync
 
 ### Environment Variables on Vercel
 
@@ -94,7 +93,7 @@ npx prisma migrate status
 
 ### Local vs Production
 
-- **Local**: Uses Docker PostgreSQL, runs `db:push` for quick iteration
+- **Local**: Uses Docker PostgreSQL, runs `migrate deploy` for consistency with production
 - **Production**: Uses Vercel Postgres, runs `migrate deploy` for proper migration tracking
 
-The system is designed to handle both environments automatically based on the context.
+Both environments use the same migration workflow to ensure consistency and prevent database drift.

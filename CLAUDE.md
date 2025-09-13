@@ -36,16 +36,33 @@ The API uses PostgreSQL for data persistence. In local development, a Docker con
 - **Credentials**: See `.env.example` for local defaults
 
 #### Database Commands (from `apps/api/`)
+
+**IMPORTANT: Always use migrations for database changes. NEVER use `db:push` as it bypasses migration tracking.**
+
 ```bash
-npm run db:start-local      # Start PostgreSQL container
+# Migration workflow (ALWAYS use these for schema changes)
 npm run db:migrate:dev      # Create and apply new migration interactively
 npm run db:migrate:create   # Create new migration without applying
-npm run db:migrate:deploy   # Apply pending migrations (used in predev)
+npm run db:migrate:deploy   # Apply pending migrations (runs automatically in predev)
 npm run db:migrate:reset    # Reset database and reapply all migrations
-npm run db:generate         # Generate Prisma client
+
+# Other database commands
+npm run db:start-local      # Start PostgreSQL container
+npm run db:generate         # Generate Prisma client after schema changes
 npm run db:studio           # Open Prisma Studio GUI
-npm run db:push             # Push schema directly (NOT recommended - use migrations)
+
+# DEPRECATED - DO NOT USE
+# npm run db:push           # ⚠️ NEVER USE - bypasses migrations, causes drift
 ```
+
+#### Making Database Schema Changes
+
+When you need to modify the database schema:
+
+1. **Edit `apps/api/prisma/schema.prisma`** with your changes
+2. **Create a migration**: Run `npm run db:migrate:dev` and provide a descriptive name
+3. **Commit the migration file** in `apps/api/prisma/migrations/`
+4. **Never use `db:push`** - it causes database drift and breaks migration tracking
 
 #### Docker Management
 ```bash
