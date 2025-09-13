@@ -24,6 +24,11 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
   - `GET /auth/user` - Get current user
   - `POST /auth/logout` - Logout user
   - `GET /db/test` - Test database connection (development)
+  - **Image Endpoints** (requires authentication):
+    - `POST /images/characters/:characterId/avatar` - Upload character avatar
+    - `GET /images/characters/:characterId/avatar` - Get character avatar URL
+    - `DELETE /images/characters/:characterId/avatar` - Delete character avatar
+    - `GET /images/characters/avatars` - List all user's character avatars
 
 ## Database Configuration
 
@@ -132,29 +137,56 @@ npx turbo build --dry-run
 
 ## Recent Major Changes
 
-### Character Image Upload System (January 2025)
+### Character Image System (January 2025)
 
-Added client-side character portrait system with image upload, cropping, and history management.
+Complete character portrait system with local storage, server backup, and automatic sync.
 
 #### Key Features
 
 - **IndexedDB Storage**: Images stored locally in browser's IndexedDB with UUID-based identification
+- **Server Backup**: Optional backup to Vercel Blob Storage (when configured)
+- **Automatic Sync**: Images sync bidirectionally during character sync operations
 - **Image Processing**: Client-side cropping with react-image-crop library
 - **Dual-Size Storage**: Automatic generation of 100x100px profile and 50x50px thumbnail in WebP format
 - **Version History**: Browse and switch between previously uploaded images
 - **Responsive UI**: Character header redesigned with avatar on left side
 - **Graceful Fallback**: SVG placeholder when no image or IndexedDB unavailable
+- **Graceful Degradation**: Works offline-first, syncs when server available
 
 #### Technical Implementation
 
-- **Service**: `CharacterImageService` manages IndexedDB operations with singleton pattern
-- **Processing**: `image-processing.ts` handles crop calculations and canvas operations
+- **Client Services**:
+  - `CharacterImageService`: Manages IndexedDB operations with singleton pattern
+  - `ImageSyncService`: Handles upload/download between client and server
+  - `image-processing.ts`: Handles crop calculations and canvas operations
+  
+- **Server Integration**:
+  - **Storage**: Vercel Blob Storage (path: `users/{userId}/characters/{characterId}/avatar.webp`)
+  - **Authentication**: Requires authenticated session via Iron Session
+  - **Graceful Degradation**: Returns 503 when `BLOB_READ_WRITE_TOKEN` not configured
+  - **Automatic Sync**: Images sync during character sync operations
+  
 - **Components**: 
   - `CharacterAvatar`: Displays image with loading states
   - `CharacterImageUploadDialog`: Upload and crop interface
   - `CharacterImageHistoryDialog`: Browse previous images
-- **Schema**: Character model extended with `imageId` field (UUID string)
-- **Storage**: Images stored as Blobs in IndexedDB, referenced by UUID
+
+#### Environment Configuration
+
+```bash
+# Production (Vercel)
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx  # Required for image sync
+
+# Development
+# Images work locally without token, sync disabled with warning
+```
+
+#### Sync Behavior
+
+1. **Upload Flow**: User uploads image → Saved to IndexedDB → Automatically uploaded to server (if available)
+2. **Sync Flow**: Character sync → Check for image differences → Upload local or download server images
+3. **Offline Mode**: Full functionality with IndexedDB, syncs when connection restored
+4. **Server Unavailable**: Shows warning message, continues with local-only storage
 
 ### Character Schema Migration System (January 2025)
 

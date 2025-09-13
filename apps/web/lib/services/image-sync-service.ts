@@ -1,5 +1,6 @@
 import { characterImageService } from './character-image-service';
 import { authService } from './auth-service';
+import { apiUrl } from '@/lib/utils/api';
 
 export interface ImageSyncResult {
   success: boolean;
@@ -17,7 +18,6 @@ export interface ImageSyncResult {
  */
 class ImageSyncService {
   private static instance: ImageSyncService;
-  private apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   private constructor() {}
 
@@ -50,7 +50,7 @@ class ImageSyncService {
       const base64 = await this.blobToBase64(profileBlob);
 
       // Upload to server
-      const response = await fetch(`${this.apiUrl}/images/characters/${characterId}/avatar`, {
+      const response = await fetch(`${apiUrl}/images/characters/${characterId}/avatar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ class ImageSyncService {
    */
   async getCharacterImageUrl(characterId: string): Promise<string | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/images/characters/${characterId}/avatar`, {
+      const response = await fetch(`${apiUrl}/images/characters/${characterId}/avatar`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -215,7 +215,7 @@ class ImageSyncService {
    */
   async deleteCharacterImage(characterId: string): Promise<boolean> {
     try {
-      const response = await fetch(`${this.apiUrl}/images/characters/${characterId}/avatar`, {
+      const response = await fetch(`${apiUrl}/images/characters/${characterId}/avatar`, {
         method: 'DELETE',
         credentials: 'include'
       });

@@ -9,14 +9,17 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 
 ## 🚀 Recent Updates
 
-### Character Image Upload (January 2025)
+### Character Image System with Cloud Sync (January 2025)
 
 - Upload and crop character portraits with intuitive interface
 - Client-side image processing with automatic resizing (100x100px profile, 50x50px thumbnail)
 - Image history management - browse and switch between previous portraits
 - IndexedDB storage for offline functionality
+- **NEW: Automatic cloud backup** to Vercel Blob Storage (when configured)
+- **NEW: Bidirectional sync** - images sync with character data
 - Redesigned character header with avatar display
 - SVG placeholder for characters without images
+- Graceful degradation when server unavailable
 
 ### Google Authentication (September 2025)
 
