@@ -305,7 +305,18 @@ const shadowmancerFeatures: ClassFeature[] = [
     level: 2,
     name: "Master of Darkness",
     description: "Your Patron grants you knowledge of Necrotic cantrips and tier 1 spells.",
-    effects: [], // Passive feature - no mechanical effects to process
+    effects: [
+      {
+        id: "master-of-darkness-0",
+        type: "spell_school",
+        schoolId: "necrotic",
+      },
+      {
+        id: "master-of-darkness-1",
+        type: "spell_tier_access",
+        maxTier: 1,
+      },
+    ],
   },
   {
     id: "pilfered-power",
