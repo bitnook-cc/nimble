@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/web",
+    "apps/api",
+    "packages/shared"
   ],
   "scripts": {
     "build": "turbo build",

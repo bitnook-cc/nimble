@@ -24,7 +24,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@nimble/shared": "file:../../packages/shared",
+    "@nimble/shared": "0.0.0",
     "@prisma/client": "^6.16.1",
     "@types/express-session": "^1.18.2",
     "@types/passport": "^1.0.17",
