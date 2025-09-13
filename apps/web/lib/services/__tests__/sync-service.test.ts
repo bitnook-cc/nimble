@@ -57,7 +57,7 @@ vi.mock('@/lib/utils/api', () => ({
 // Now import after mocks are set up
 import { authService } from '../auth-service';
 import { ServiceFactory } from '../service-factory';
-import { syncService } from '../sync-service';
+import { syncService } from '../sync/sync-service';
 
 describe('SyncService', () => {
   let mockAuthService: any;

@@ -1,10 +1,10 @@
 import { Character } from '@/lib/schemas/character';
-import { ICharacterStorage, ICharacterService } from './interfaces';
-import { authService } from './auth-service';
+import { ICharacterStorage, ICharacterService } from '../interfaces';
+import { authService } from '../auth-service';
 import { SyncStatus, SyncResult } from '@nimble/shared';
 import { apiUrl } from '@/lib/utils/api';
-import { ServiceFactory } from './service-factory';
-import { SERVICE_KEYS } from './service-container';
+import { ServiceFactory } from '../service-factory';
+import { SERVICE_KEYS } from '../service-container';
 import { imageSyncService } from './image-sync-service';
 
 class SyncService {

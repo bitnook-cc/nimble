@@ -109,9 +109,21 @@ class CharacterImageService {
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.add(image);
 
-      request.onsuccess = () => resolve(imageId);
+      request.onsuccess = () => {
+        // Emit event to notify UI of image change
+        this.emitImageChangeEvent(characterId);
+        resolve(imageId);
+      };
       request.onerror = () => reject(request.error);
     });
+  }
+
+  private emitImageChangeEvent(characterId: string) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('character-image-updated', {
+        detail: { characterId }
+      }));
+    }
   }
 
   async getImage(imageId: string): Promise<CharacterImage | null> {

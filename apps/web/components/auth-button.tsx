@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AuthUser } from "@nimble/shared";
 
 import { authService } from "@/lib/services/auth-service";
-import { syncService } from "@/lib/services/sync-service";
+import { syncService } from "@/lib/services/sync/sync-service";
 
 import { Button } from "./ui/button";
 import {

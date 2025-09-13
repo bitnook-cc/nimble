@@ -1,5 +1,5 @@
-import { characterImageService } from './character-image-service';
-import { authService } from './auth-service';
+import { characterImageService } from '../character-image-service';
+import { authService } from '../auth-service';
 import { apiUrl } from '@/lib/utils/api';
 
 export interface ImageSyncResult {
@@ -110,7 +110,7 @@ class ImageSyncService {
       // Generate thumbnail from the downloaded image
       const thumbnail = await this.generateThumbnail(blob);
 
-      // Save to IndexedDB
+      // Save to IndexedDB (will emit event automatically)
       await characterImageService.saveImage(characterId, blob, thumbnail, imageId);
 
       console.log('[ImageSync] Download successful, saved with ID:', imageId);

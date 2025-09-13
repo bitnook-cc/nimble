@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { CharacterAvatarPlaceholder } from './character-avatar-placeholder';
-import { characterImageService } from '../lib/services/character-image-service';
+import { useCharacterImage } from '../lib/hooks/use-character-image';
 
 interface CharacterAvatarProps {
   characterId: string;
@@ -24,44 +23,8 @@ export function CharacterAvatar({
   onClick,
   clickable = false,
 }: CharacterAvatarProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    let objectUrl: string | null = null;
-
-    const loadImage = async () => {
-      try {
-        setIsLoading(true);
-        
-        if (imageId) {
-          const image = await characterImageService.getImage(imageId);
-          
-          if (image && isMounted) {
-            const blob = size === 'thumbnail' ? image.thumbnailImage : image.profileImage;
-            objectUrl = characterImageService.createObjectURL(blob);
-            setImageUrl(objectUrl);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load character image:', error);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadImage();
-
-    return () => {
-      isMounted = false;
-      if (objectUrl) {
-        characterImageService.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [characterId, imageId, size]);
+  const { imageDataUrl, thumbnailDataUrl, isLoading } = useCharacterImage(characterId);
+  const imageUrl = size === 'thumbnail' ? thumbnailDataUrl : imageDataUrl;
 
   const dimensions = size === 'thumbnail' ? 'w-[50px] h-[50px]' : 'w-[100px] h-[100px]';
   const isClickable = clickable || !!onClick;
