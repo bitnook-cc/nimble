@@ -1,4 +1,5 @@
 import { gameConfig } from "../config/game-config";
+import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
 import {
   AttributeName,
   Character,
@@ -114,6 +115,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     name: "Unnamed Character",
     level: 1,
     traitSelections: [],
+    _schemaVersion: CURRENT_SCHEMA_VERSION,
     _spellTierAccess: 0,
     _resourceDefinitions: [],
     _resourceValues: new Map(),

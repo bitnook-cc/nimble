@@ -4,19 +4,28 @@ import { ICharacterRepository } from "../storage/character-repository";
 import { StorageBasedCharacterRepository } from "../storage/storage-based-character-repository";
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
 import { IStorageService, LocalStorageService } from "./storage-service";
+import { MigrationService } from "./migration-service";
+import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
 
 export class CharacterStorageService {
   private readonly characterListStorageKey = "nimble-navigator-character-list";
   private repository: ICharacterRepository;
+  private migrationService: MigrationService;
 
   constructor(storageService?: IStorageService) {
     // If a storage service is provided, use it; otherwise use default localStorage
     const storage = storageService || new LocalStorageService();
     this.repository = new StorageBasedCharacterRepository(storage);
+    this.migrationService = MigrationService.getInstance();
   }
 
   async createCharacter(character: Character, id?: string): Promise<Character> {
-    const validated = characterSchema.parse(character);
+    // Ensure new characters have the current schema version
+    const characterWithVersion = {
+      ...character,
+      _schemaVersion: CURRENT_SCHEMA_VERSION
+    };
+    const validated = characterSchema.parse(characterWithVersion);
     return this.repository.create(validated, id);
   }
 
@@ -70,6 +79,20 @@ export class CharacterStorageService {
   }
 
   /**
+   * Check if any characters need migration
+   * @returns Array of characters that need migration
+   */
+  async getCharactersNeedingMigration(): Promise<any[]> {
+    try {
+      const allCharacters = await this.repository.list();
+      return allCharacters.filter(char => this.migrationService.needsMigration(char));
+    } catch (error) {
+      console.error("Failed to check for characters needing migration:", error);
+      return [];
+    }
+  }
+
+  /**
    * Replace all characters with a new set, validating each one
    * Used for sync operations
    */
@@ -110,6 +133,19 @@ export class CharacterStorageService {
    */
   private async validateOrRecoverCharacter(character: any, id: string): Promise<Character | null> {
     try {
+      // First, check if the character needs migration
+      if (this.migrationService.needsMigration(character)) {
+        console.info(`Character ${id} needs migration from version ${character._schemaVersion || 0} to ${CURRENT_SCHEMA_VERSION}`);
+        
+        try {
+          character = await this.migrationService.migrateCharacter(character);
+          console.info(`Successfully migrated character ${id}`);
+        } catch (migrationError) {
+          console.error(`Failed to migrate character ${id}:`, migrationError);
+          // Continue with recovery attempt below
+        }
+      }
+
       return characterSchema.parse(character);
     } catch (error) {
       console.warn(
@@ -120,6 +156,9 @@ export class CharacterStorageService {
       try {
         // Attempt to recover by merging with default character template
         const recoveredCharacter = mergeWithDefaultCharacter(character, id);
+        
+        // Ensure the recovered character has the current schema version
+        recoveredCharacter._schemaVersion = CURRENT_SCHEMA_VERSION;
 
         // Validate the recovered character
         const validatedCharacter = characterSchema.parse(recoveredCharacter);

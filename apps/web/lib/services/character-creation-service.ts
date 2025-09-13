@@ -1,5 +1,6 @@
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
+import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
 import { Attributes, Character, TraitSelection } from "../schemas/character";
 import { Item } from "../schemas/inventory";
 import {
@@ -237,6 +238,7 @@ export class CharacterCreationService implements ICharacterCreation {
       backgroundId,
       level: 1,
       classId,
+      _schemaVersion: CURRENT_SCHEMA_VERSION,
       _spellTierAccess: 0,
       _spellScalingLevel: 0,
       _proficiencies: proficiencies,

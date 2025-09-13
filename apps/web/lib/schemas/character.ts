@@ -171,6 +171,7 @@ const characterBaseSchema = z.object({
   level: z.int().min(1).max(20),
   classId: z.string().min(1),
   traitSelections: z.array(traitSelectionSchema),
+  _schemaVersion: z.int().min(1).default(1),
   _spellTierAccess: z.int().min(0).max(9),
   _spellScalingLevel: z.int().min(0).max(4),
   _proficiencies: proficienciesSchema,

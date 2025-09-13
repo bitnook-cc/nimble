@@ -5,10 +5,12 @@
 This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Applications
+
 - **`apps/web`**: Next.js 14 web application (main character sheet app)
 - **`apps/api`**: Express.js REST API server (port 3001)
 
 ### Express API Server
+
 - **Location**: `apps/api/`
 - **Port**: 3001 (configurable via PORT env var)
 - **Entry**: `apps/api/src/index.ts`
@@ -26,9 +28,11 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 ## Database Configuration
 
 ### Local Development (PostgreSQL with Docker)
+
 The API uses PostgreSQL for data persistence. In local development, a Docker container is automatically started.
 
 #### Automatic Setup
+
 - **Auto-start**: Database automatically starts when running `npm run dev`
 - **Container**: `nimble-postgres` (PostgreSQL 15 Alpine)
 - **Database**: `nimbledb`
@@ -65,6 +69,7 @@ When you need to modify the database schema:
 4. **Never use `db:push`** - it causes database drift and breaks migration tracking
 
 #### Docker Management
+
 ```bash
 docker stop nimble-postgres    # Stop database
 docker start nimble-postgres   # Start database
@@ -73,12 +78,15 @@ docker rm nimble-postgres      # Remove container (data persists in volume)
 ```
 
 ### Production (Vercel Postgres)
+
 For production deployment:
+
 1. Create database in Vercel Dashboard > Storage
 2. Copy `DATABASE_URL` from Vercel to environment variables
 3. Deploy - Prisma will use Vercel's managed PostgreSQL
 
 ### Environment Variables
+
 ```bash
 # .env (local development)
 DATABASE_URL="postgresql://postgres:nimblelocal123@localhost:5432/nimbledb?schema=public"
@@ -90,6 +98,7 @@ DATABASE_URL="postgres://user:pass@host/database?sslmode=require"
 ## Turborepo Commands
 
 ### Root Level Commands (run from `/Users/six/prototype/nimble`)
+
 ```bash
 # Development (auto-starts database)
 npm run dev           # Run all apps in development mode
@@ -108,6 +117,7 @@ npm run test:run      # Run tests once (CI mode)
 ```
 
 ### Turbo-specific Commands
+
 ```bash
 # Run specific tasks with filters
 npx turbo dev --filter=@nimble/web
@@ -130,8 +140,6 @@ Completed a major refactor changing from single "effect" per feature to multiple
 
 - **Features now have `effects: FeatureEffect[]`** instead of `effect: FeatureEffect`
 - **Effect-level tracking**: Each effect gets a unique ID (`${parentFeatureId}-${effectIndex}`)
-- **FeatureEffectGrant**: Tracks individual effect grants with source information
-- **grantedEffects on Character**: Replaces grantedFeatures for granular tracking
 - **New FeatureEffectService**: Centralized service for applying effects from features
 - **Updated UI components**: New FeatureEffectsDisplay component for rendering multiple effects
 
@@ -209,7 +217,12 @@ interface ResourceDefinition {
   description?: string;
   colorScheme: string; // Predefined color scheme (blue-magic, red-fury, etc.)
   icon?: string; // Icon identifier (sparkles, fire, etc.)
-  resetCondition: "safe_rest" | "encounter_end" | "turn_end" | "never" | "manual";
+  resetCondition:
+    | "safe_rest"
+    | "encounter_end"
+    | "turn_end"
+    | "never"
+    | "manual";
   resetType: "to_max" | "to_zero" | "to_default";
   resetValue?: number;
   minValue: number;
@@ -463,6 +476,7 @@ app/page.tsx (main orchestrator)
 ## File Structure
 
 ### Monorepo Root Structure
+
 ```
 /Users/six/prototype/nimble/
 ├── apps/
@@ -475,6 +489,7 @@ app/page.tsx (main orchestrator)
 ```
 
 ### Web Application Structure (`apps/web/`)
+
 ```
 lib/
 ├── config/          # Game configuration and constants
@@ -581,6 +596,7 @@ app/
 ### Development Commands
 
 #### Monorepo Root Commands (from `/Users/six/prototype/nimble`)
+
 ```bash
 npm run dev           # Start all apps (web + API)
 npm run dev:web       # Start only web app
@@ -594,6 +610,7 @@ npm run test:run      # Run tests once (CI mode)
 ```
 
 #### Individual App Commands
+
 ```bash
 # Run commands for specific apps using Turbo filters
 npx turbo dev --filter=@nimble/web
