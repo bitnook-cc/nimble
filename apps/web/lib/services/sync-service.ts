@@ -6,7 +6,6 @@ import { apiUrl } from '@/lib/utils/api';
 import { ServiceFactory } from './service-factory';
 import { SERVICE_KEYS } from './service-container';
 import { imageSyncService } from './image-sync-service';
-import { characterImageService } from './character-image-service';
 
 class SyncService {
   private static instance: SyncService;
@@ -238,68 +237,24 @@ class SyncService {
         }));
       }
 
-      // Sync character images if any are provided
-      if (result.images && result.images.length > 0) {
-        console.log(`[Sync Client] Processing ${result.images.length} character images`);
+      // Sync character images using the dedicated sync method
+      if (result.characters && Array.isArray(result.characters)) {
+        console.log(`[Sync Client] Syncing images for ${result.characters.length} characters`);
         
-        for (const imageMetadata of result.images) {
+        for (const character of result.characters) {
           try {
-            // Check if we have the image locally
-            const character = result.characters?.find(c => c.id === imageMetadata.characterId);
-            if (character) {
-              // Properly check if the image exists in IndexedDB, not just if character has imageId
-              const hasLocalImage = character.imageId ? 
-                await characterImageService.imageExists(character.id, character.imageId) : false;
-              
-              if (!hasLocalImage && imageMetadata.url) {
-                // Download image from server
-                console.log(`[Sync Client] Downloading image for character ${imageMetadata.characterId}`);
-                const downloadResult = await imageSyncService.downloadCharacterImage(
-                  imageMetadata.characterId,
-                  imageMetadata.url
-                );
-                
-                if (downloadResult.success) {
-                  console.log(`[Sync Client] Image downloaded successfully for character ${imageMetadata.characterId}`);
-                  // Note: The downloadCharacterImage method already saves to IndexedDB
-                  // and returns the new imageId, but we don't update the character here
-                  // since that would require another sync cycle
-                }
-              } else if (hasLocalImage && character.imageId) {
-                // We already have a local image and server has an image
-                // No need to sync - local image takes precedence
-                console.log(`[Sync Client] Both local and server images exist for character ${imageMetadata.characterId}, keeping local`);
-              }
+            // Use the imageSyncService's syncCharacterImage method which handles all sync logic
+            const imageSyncResult = await imageSyncService.syncCharacterImage(
+              character.id, 
+              character.imageId
+            );
+            
+            if (!imageSyncResult.success && imageSyncResult.error) {
+              console.warn(`[Sync Client] Image sync warning for character ${character.id}: ${imageSyncResult.error}`);
             }
           } catch (error) {
-            console.error(`[Sync Client] Failed to sync image for character ${imageMetadata.characterId}:`, error);
+            console.error(`[Sync Client] Failed to sync image for character ${character.id}:`, error);
             // Don't fail the entire sync if one image fails
-          }
-        }
-      } else if (result.images === undefined) {
-        console.log('[Sync Client] No images returned from server - blob storage may not be configured');
-      }
-
-      // Also check for characters with local images that weren't in the server response
-      if (result.characters && Array.isArray(result.characters)) {
-        for (const character of result.characters) {
-          if (character.imageId) {
-            // First verify the image actually exists in IndexedDB
-            const imageExists = await characterImageService.imageExists(character.id, character.imageId);
-            if (imageExists) {
-              const hasServerImage = result.images?.some(img => img.characterId === character.id);
-              if (!hasServerImage) {
-                try {
-                  console.log(`[Sync Client] Uploading missing image for character ${character.id}`);
-                  await imageSyncService.uploadCharacterImage(character.id, character.imageId);
-                } catch (error) {
-                  console.error(`[Sync Client] Failed to upload image for character ${character.id}:`, error);
-                }
-              }
-            } else if (character.imageId) {
-              // Character has imageId but image doesn't exist in IndexedDB
-              console.warn(`[Sync Client] Character ${character.id} has imageId ${character.imageId} but image not found in IndexedDB`);
-            }
           }
         }
       }
