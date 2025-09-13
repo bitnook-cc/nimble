@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { Syncable, SyncResult, SyncStatus, isNewerThan } from '@nimble/shared';
+import { Syncable, SyncResult, SyncStatus, CharacterImageMetadata, isNewerThan } from '@nimble/shared';
+import { list } from '@vercel/blob';
 import { SERVER_CONFIG } from '../config/server-config';
 
 // Type alias for clarity - any object with syncable fields
@@ -129,11 +130,39 @@ export class CharacterSyncService {
       console.log(`[Sync Server] No database updates needed for user ${userId}`);
     }
 
-    const result = {
+    // Fetch character images from Blob Storage (only if configured)
+    let images: CharacterImageMetadata[] = [];
+    const isBlobStorageConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
+    
+    if (isBlobStorageConfigured) {
+      try {
+        const prefix = `users/${userId}/characters/`;
+        const { blobs } = await list({
+          prefix,
+          limit: 100
+        });
+        
+        images = blobs.map(blob => ({
+          characterId: blob.pathname.split('/')[3], // Extract character ID from path
+          url: blob.url
+          // Note: clientImageId would be in metadata, but metadata is not supported in current version
+        }));
+        
+        console.log(`[Sync Server] Found ${images.length} character images for user ${userId}`);
+      } catch (error) {
+        console.error('[Sync Server] Failed to fetch character images:', error);
+        // Don't fail the sync if images can't be fetched
+      }
+    } else {
+      console.log('[Sync Server] Blob storage not configured - skipping image sync');
+    }
+
+    const result: SyncResult = {
       characters: syncedCharacters,
       syncedAt: Date.now(),
       characterCount: syncedCharacters.length,
-      maxCharacters: SERVER_CONFIG.sync.maxCharactersPerUser
+      maxCharacters: SERVER_CONFIG.sync.maxCharactersPerUser,
+      images: images.length > 0 ? images : undefined
     };
     
     console.log(`[Sync Server] Sync complete for user ${userId}`);

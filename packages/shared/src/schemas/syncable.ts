@@ -5,7 +5,7 @@ import { z } from 'zod';
  * These fields are managed by the sync system
  */
 export const syncableSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(), // UUID for global uniqueness
   timestamps: z.object({
     createdAt: z.number().optional(), // Unix timestamp in milliseconds
     updatedAt: z.number().optional(), // Unix timestamp in milliseconds

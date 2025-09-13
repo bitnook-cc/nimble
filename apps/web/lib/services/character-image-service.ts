@@ -90,11 +90,12 @@ class CharacterImageService {
   async saveImage(
     characterId: string,
     profileBlob: Blob,
-    thumbnailBlob: Blob
+    thumbnailBlob: Blob,
+    saveAsImageId?: string
   ): Promise<string> {
     const db = await this.ensureDB();
-    
-    const imageId = uuidv4();
+
+    const imageId = saveAsImageId || uuidv4();
     const image: CharacterImage = {
       id: imageId,
       characterId,
@@ -176,6 +177,42 @@ class CharacterImageService {
       const request = store.delete(imageId);
       
       request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getProfileImage(characterId: string, imageId: string): Promise<Blob | null> {
+    const db = await this.ensureDB();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.get(imageId);
+      
+      request.onsuccess = () => {
+        const result = request.result;
+        if (result && result.characterId === characterId) {
+          resolve(result.profileImage);
+        } else {
+          resolve(null);
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async imageExists(characterId: string, imageId: string): Promise<boolean> {
+    const db = await this.ensureDB();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.get(imageId);
+      
+      request.onsuccess = () => {
+        const result = request.result;
+        resolve(result && result.characterId === characterId);
+      };
       request.onerror = () => reject(request.error);
     });
   }

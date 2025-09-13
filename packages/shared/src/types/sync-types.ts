@@ -19,6 +19,14 @@ export interface SyncStatus {
 }
 
 /**
+ * Character image metadata for sync
+ */
+export interface CharacterImageMetadata {
+  characterId: string;
+  url: string;
+}
+
+/**
  * Sync result response
  */
 export interface SyncResult {
@@ -26,6 +34,7 @@ export interface SyncResult {
   syncedAt: number; // Unix timestamp in milliseconds
   characterCount: number;
   maxCharacters: number;
+  images?: CharacterImageMetadata[]; // Optional array of image URLs for characters
 }
 
 /**

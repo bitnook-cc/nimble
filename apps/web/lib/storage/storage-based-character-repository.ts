@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Character, CreateCharacterData } from "../schemas/character";
 import { IStorageService } from "../services/storage-service";
 import { ICharacterRepository } from "./character-repository";
@@ -89,7 +90,7 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   async create(data: CreateCharacterData, id?: string): Promise<Character> {
     const character: Character = {
       ...data,
-      id: id || `character-${Date.now()}`,
+      id: id || uuidv4(),
       timestamps: {
         createdAt: Date.now(),
         updatedAt: Date.now(),

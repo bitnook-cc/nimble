@@ -5,6 +5,7 @@ import { SyncStatus, SyncResult } from '@nimble/shared';
 import { apiUrl } from '@/lib/utils/api';
 import { ServiceFactory } from './service-factory';
 import { SERVICE_KEYS } from './service-container';
+import { imageSyncService } from './image-sync-service';
 
 class SyncService {
   private static instance: SyncService;
@@ -234,6 +235,63 @@ class SyncService {
         window.dispatchEvent(new CustomEvent('characters-synced', { 
           detail: { characters: result.characters } 
         }));
+      }
+
+      // Sync character images if any are provided
+      if (result.images && result.images.length > 0) {
+        console.log(`[Sync Client] Processing ${result.images.length} character images`);
+        
+        for (const imageMetadata of result.images) {
+          try {
+            // Check if we have the image locally
+            const character = result.characters?.find(c => c.id === imageMetadata.characterId);
+            if (character) {
+              const hasLocalImage = character.imageId ? true : false;
+              
+              if (!hasLocalImage && imageMetadata.url) {
+                // Download image from server
+                console.log(`[Sync Client] Downloading image for character ${imageMetadata.characterId}`);
+                const downloadResult = await imageSyncService.downloadCharacterImage(
+                  imageMetadata.characterId,
+                  imageMetadata.url
+                );
+                
+                if (downloadResult.success) {
+                  console.log(`[Sync Client] Image downloaded successfully for character ${imageMetadata.characterId}`);
+                  // Note: The downloadCharacterImage method already saves to IndexedDB
+                  // and returns the new imageId, but we don't update the character here
+                  // since that would require another sync cycle
+                }
+              } else if (hasLocalImage && character.imageId) {
+                // We already have a local image and server has an image
+                // No need to sync - local image takes precedence
+                console.log(`[Sync Client] Both local and server images exist for character ${imageMetadata.characterId}, keeping local`);
+              }
+            }
+          } catch (error) {
+            console.error(`[Sync Client] Failed to sync image for character ${imageMetadata.characterId}:`, error);
+            // Don't fail the entire sync if one image fails
+          }
+        }
+      } else if (result.images === undefined) {
+        console.log('[Sync Client] No images returned from server - blob storage may not be configured');
+      }
+
+      // Also check for characters with local images that weren't in the server response
+      if (result.characters && Array.isArray(result.characters)) {
+        for (const character of result.characters) {
+          if (character.imageId) {
+            const hasServerImage = result.images?.some(img => img.characterId === character.id);
+            if (!hasServerImage) {
+              try {
+                console.log(`[Sync Client] Uploading missing image for character ${character.id}`);
+                await imageSyncService.uploadCharacterImage(character.id, character.imageId);
+              } catch (error) {
+                console.error(`[Sync Client] Failed to upload image for character ${character.id}:`, error);
+              }
+            }
+          }
+        }
       }
 
       return result;

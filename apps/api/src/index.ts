@@ -5,6 +5,7 @@ import { sessionOptions, SessionData } from './config/session';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
 import syncRoutes from './routes/sync';
+import imagesRoutes from './routes/images';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -77,6 +78,9 @@ app.use('/auth', authRoutes);
 // Sync routes
 app.use('/sync', syncRoutes);
 
+// Images routes
+app.use('/images', imagesRoutes);
+
 // Example API endpoint
 app.get('/hello', (req, res) => {
   const name = req.query.name || 'World';
@@ -103,6 +107,14 @@ app.get('/api/protected', async (req, res) => {
 if (process.env.VERCEL !== '1') {
   app.listen(PORT, () => {
     console.log(`✨ API server running on http://localhost:${PORT}`);
+    
+    // Log blob storage configuration status
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      console.log('📦 Blob storage configured - image sync enabled');
+    } else {
+      console.log('⚠️  Blob storage not configured (BLOB_READ_WRITE_TOKEN missing) - image sync disabled');
+      console.log('    Images will only be stored locally in IndexedDB');
+    }
   });
 }
 

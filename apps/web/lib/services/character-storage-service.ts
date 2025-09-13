@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { characterSchema } from "../schemas/character";
 import { Character, CreateCharacterData } from "../schemas/character";
 import { ICharacterRepository } from "../storage/character-repository";
@@ -44,7 +45,7 @@ export class CharacterStorageService {
       for (const char of characters) {
         const validatedChar = await this.validateOrRecoverCharacter(
           char,
-          char.id || `recovered-${Date.now()}`,
+          char.id || uuidv4(),
         );
         if (validatedChar) {
           validCharacters.push(validatedChar);
@@ -108,7 +109,7 @@ export class CharacterStorageService {
       } catch (error) {
         console.error(`[CharacterStorage] Failed to validate character ${char.id}:`, error);
         // Try to recover the character
-        const recovered = await this.validateOrRecoverCharacter(char, char.id || `recovered-${Date.now()}`);
+        const recovered = await this.validateOrRecoverCharacter(char, char.id || uuidv4());
         if (recovered) {
           validatedCharacters.push(recovered);
         }

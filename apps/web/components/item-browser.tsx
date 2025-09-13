@@ -21,7 +21,7 @@ import { useMemo, useState } from "react";
 import { ItemType } from "@/lib/schemas/inventory";
 import { getItemService } from "@/lib/services/service-factory";
 import { getCharacterService } from "@/lib/services/service-factory";
-import { ItemFilter, RepositoryItem } from "@/lib/types/item-repository";
+import { ItemFilter, RepositoryArmorItem, RepositoryItem, RepositoryWeaponItem } from "@/lib/types/item-repository";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -371,12 +371,12 @@ export function ItemBrowser({
                                       </div>
                                     )}
                                     {repositoryItem.item.type === "weapon" &&
-                                      (repositoryItem.item as any).damage && (
-                                        <span>Damage: {(repositoryItem.item as any).damage}</span>
+                                      (repositoryItem as RepositoryWeaponItem).item.damage && (
+                                        <span>Damage: {(repositoryItem as RepositoryWeaponItem).item.damage}</span>
                                       )}
                                     {repositoryItem.item.type === "armor" &&
-                                      (repositoryItem.item as any).armor && (
-                                        <span>AC: {(repositoryItem.item as any).armor}</span>
+                                      (repositoryItem as RepositoryArmorItem).item.armor && (
+                                        <span>AC: {(repositoryItem as RepositoryArmorItem).item.armor}</span>
                                       )}
                                     {(repositoryItem.item.type === "consumable" ||
                                       repositoryItem.item.type === "ammunition") &&

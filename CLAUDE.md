@@ -132,6 +132,30 @@ npx turbo build --dry-run
 
 ## Recent Major Changes
 
+### Character Image Upload System (January 2025)
+
+Added client-side character portrait system with image upload, cropping, and history management.
+
+#### Key Features
+
+- **IndexedDB Storage**: Images stored locally in browser's IndexedDB with UUID-based identification
+- **Image Processing**: Client-side cropping with react-image-crop library
+- **Dual-Size Storage**: Automatic generation of 100x100px profile and 50x50px thumbnail in WebP format
+- **Version History**: Browse and switch between previously uploaded images
+- **Responsive UI**: Character header redesigned with avatar on left side
+- **Graceful Fallback**: SVG placeholder when no image or IndexedDB unavailable
+
+#### Technical Implementation
+
+- **Service**: `CharacterImageService` manages IndexedDB operations with singleton pattern
+- **Processing**: `image-processing.ts` handles crop calculations and canvas operations
+- **Components**: 
+  - `CharacterAvatar`: Displays image with loading states
+  - `CharacterImageUploadDialog`: Upload and crop interface
+  - `CharacterImageHistoryDialog`: Browse previous images
+- **Schema**: Character model extended with `imageId` field (UUID string)
+- **Storage**: Images stored as Blobs in IndexedDB, referenced by UUID
+
 ### Character Schema Migration System (January 2025)
 
 Implemented a Prisma-like migration system to handle character schema changes without breaking existing characters.
