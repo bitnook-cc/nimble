@@ -15,7 +15,7 @@
     "predev": "npm run db:start-local && npm run db:migrate:deploy",
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
-    "vercel-build": "cd ../../packages/shared && npm run build && cd ../../apps/api && prisma generate && prisma migrate deploy && tsc",
+    "vercel-build": "cd ../.. && npx turbo build --filter=@nimble/api && cd apps/api && prisma migrate deploy",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
