@@ -191,6 +191,7 @@ const characterBaseSchema = z.object({
   actionTracker: actionTrackerSchema,
   inEncounter: z.boolean(),
   inventory: inventorySchema,
+  imageId: z.string().uuid().optional(),
 });
 
 // Extend the base schema with syncable fields

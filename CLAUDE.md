@@ -130,18 +130,67 @@ npx turbo build --dry-run
 
 # Nimble Navigator - Application Design
 
-## Recent Major Refactor: Multiple Effects Per Feature (December 2024)
+## Recent Major Changes
 
-### Overview
+### Character Schema Migration System (January 2025)
 
-Completed a major refactor changing from single "effect" per feature to multiple "effects" per feature. This enables features to grant multiple different benefits (e.g., a feature can grant both an ability AND a resource, or multiple attribute boosts).
+Implemented a Prisma-like migration system to handle character schema changes without breaking existing characters.
 
-### Key Changes
+#### Key Features
 
-- **Features now have `effects: FeatureEffect[]`** instead of `effect: FeatureEffect`
-- **Effect-level tracking**: Each effect gets a unique ID (`${parentFeatureId}-${effectIndex}`)
-- **New FeatureEffectService**: Centralized service for applying effects from features
-- **Updated UI components**: New FeatureEffectsDisplay component for rendering multiple effects
+- **Schema Versioning**: Characters now have a `_schemaVersion` field tracking their data structure version
+- **Automatic Migration**: Characters are automatically migrated to the latest schema version when loaded
+- **Sequential Migrations**: Each migration transforms data from version N-1 to version N
+- **Error Recovery**: Failed migrations trigger a UI dialog with option to download backup JSON
+- **Progress Tracking**: Batch migrations show real-time progress for multiple characters
+
+#### Migration Process
+
+1. **Detection**: When a character is loaded, the system checks its schema version
+2. **Migration Chain**: If outdated, applies all migrations sequentially (e.g., v0→v1→v2)
+3. **Validation**: Each migration is validated before proceeding to the next
+4. **UI Feedback**: For batch operations, shows progress dialog with current character/migration
+5. **Fallback**: If migration fails, users can download their original character data
+
+#### Creating New Migrations
+
+To add a new migration when changing the character schema:
+
+1. **Update Schema**: Modify the character schema in `lib/schemas/character.ts`
+2. **Increment Version**: Update `CURRENT_SCHEMA_VERSION` in `lib/migrations/constants.ts`
+3. **Create Migration**: Add a new migration to `lib/migrations/registry.ts`:
+   ```typescript
+   const v1ToV2Migration: Migration = {
+     version: 2,
+     description: 'Add new field X',
+     migrate: (character: any) => {
+       return {
+         ...character,
+         newField: 'default value',
+         _schemaVersion: 2
+       };
+     }
+   };
+   ```
+4. **Test Migration**: Add tests in `lib/migrations/__tests__/`
+5. **Deploy**: The migration will run automatically when users load their characters
+
+#### Current Migrations
+
+- **v0→v1**: Renamed "effect" terminology to "trait" throughout the system
+  - `effectSelections` → `traitSelections`
+  - `grantedByEffectId` → `grantedByTraitId`
+
+### Multiple Traits Per Feature (December 2024)
+
+Completed a major refactor changing from single "trait" per feature to multiple "traits" per feature. This enables features to grant multiple different benefits (e.g., a feature can grant both an ability AND a resource, or multiple attribute boosts).
+
+#### Key Changes
+
+- **Features now have `traits: FeatureTrait[]`** instead of single trait
+- **Trait-level tracking**: Each trait gets a unique ID (`${parentFeatureId}-${traitIndex}`)
+- **New FeatureTraitService**: Centralized service for applying traits from features
+- **Updated UI components**: New FeatureTraitsDisplay component for rendering multiple traits
 
 ## Overview
 
@@ -192,6 +241,7 @@ interface Character {
   level: number;
   classId: string;
   subclassId?: string;
+  _schemaVersion: number; // Schema version for migration tracking
   ancestry: AncestryTrait; // Ancestry with features and size category
   background: BackgroundTrait; // Background with passive features
   attributes: { strength; dexterity; intelligence; will };
@@ -206,7 +256,7 @@ interface Character {
   skills: { [skillName]: Skill };
   inventory: Inventory;
   abilities: Abilities;
-  grantedFeatures: string[];
+  traitSelections: TraitSelection[]; // Selected traits from features
   timestamps: { createdAt; updatedAt };
 }
 
@@ -240,6 +290,8 @@ interface ResourceInstance {
 
 - **CharacterCreationService** handles character creation with proper initialization and class/ancestry/background features
 - **CharacterService** handles character CRUD operations with validation and business logic
+- **CharacterStorageService** manages character persistence with automatic schema migration on load
+- **MigrationService** handles sequential schema migrations with progress tracking and error recovery
 - **ClassService** handles class definitions, subclass management, feature progression, and spell tier system
 - **AncestryService** manages ancestry definitions, features (stat boosts, proficiencies, resistances)
 - **BackgroundService** manages background definitions with passive features
