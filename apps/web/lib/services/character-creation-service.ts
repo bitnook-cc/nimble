@@ -23,7 +23,9 @@ import {
   ICharacterService,
   ICharacterStorage,
 } from "./interfaces";
+import { v4 as uuidv4 } from 'uuid';
 import { ItemService } from "./item-service";
+import { uuid } from "zod";
 
 export interface QuickCreateOptions {
   name?: string; // Optional - will be generated if not provided
@@ -230,9 +232,8 @@ export class CharacterCreationService implements ICharacterCreation {
     }
 
     // Create the character with all data
-    const characterId = `character-${Date.now()}`;
     const character = await this.characterStorage.createCharacter({
-      id: characterId,
+      id: uuidv4(),
       name,
       ancestryId,
       backgroundId,

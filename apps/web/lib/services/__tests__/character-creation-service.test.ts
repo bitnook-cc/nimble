@@ -58,7 +58,7 @@ describe("CharacterCreationService", () => {
     it("should add starting equipment to character inventory", async () => {
       // Create a test character in storage
       const testCharacter = {
-        id: "character-123",
+        id: "123e4567-e89b-12d3-a456-426614174000",
         name: "Test Hero",
         classId: "berserker",
         ancestryId: "human",
@@ -107,10 +107,10 @@ describe("CharacterCreationService", () => {
       } as Character;
 
       // Save character to storage
-      await characterStorageService.createCharacter(testCharacter, "character-123");
+      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174000");
 
       // Apply starting equipment
-      await characterCreationService.applyStartingEquipment("character-123", ["sword", "armor"]);
+      await characterCreationService.applyStartingEquipment("123e4567-e89b-12d3-a456-426614174000", ["sword", "armor"]);
 
       // Verify the character was updated
       const updatedCharacter = await characterStorageService.getCharacter("character-123");
@@ -130,7 +130,7 @@ describe("CharacterCreationService", () => {
     it("should handle empty equipment list", async () => {
       // Create a test character with existing items
       const testCharacter = {
-        id: "character-123",
+        id: "123e4567-e89b-12d3-a456-426614174001",
         name: "Test Hero",
         classId: "berserker",
         ancestryId: "human",
@@ -178,11 +178,11 @@ describe("CharacterCreationService", () => {
         saveAdvantages: {},
       } as Character;
 
-      await characterStorageService.createCharacter(testCharacter, "character-123");
+      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174001");
 
-      await characterCreationService.applyStartingEquipment("character-123", []);
+      await characterCreationService.applyStartingEquipment("123e4567-e89b-12d3-a456-426614174001", []);
 
-      const character = await characterStorageService.getCharacter("character-123");
+      const character = await characterStorageService.getCharacter("123e4567-e89b-12d3-a456-426614174001");
       expect(character?.inventory.items).toHaveLength(1);
       expect(character?.inventory.items[0].id).toBe("existing");
     });
@@ -204,7 +204,7 @@ describe("CharacterCreationService", () => {
   describe("Storage Integration", () => {
     it("should store characters in in-memory storage", async () => {
       const testCharacter = {
-        id: "test-1",
+        id: "123e4567-e89b-12d3-a456-426614174002",
         name: "Storage Test",
         classId: "berserker",
         ancestryId: "human",
@@ -253,10 +253,10 @@ describe("CharacterCreationService", () => {
       } as Character;
 
       // Save to storage
-      await characterStorageService.createCharacter(testCharacter, "test-1");
+      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174002");
 
       // Verify it's in storage
-      const stored = await characterStorageService.getCharacter("test-1");
+      const stored = await characterStorageService.getCharacter("123e4567-e89b-12d3-a456-426614174002");
       expect(stored?.name).toBe("Storage Test");
 
       // Verify it's in the in-memory storage
