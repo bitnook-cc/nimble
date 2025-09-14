@@ -203,10 +203,16 @@ export class PDFExportService {
           field.setAlignment(1); // 0 = left, 1 = center, 2 = right
         }
       } else {
-        console.error(`Field "${fieldName}" exists but is null`);
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`Field "${fieldName}" exists but is null`);
+        }
       }
     } catch (error) {
-      console.error(`Could not find field "${fieldName}" (value: ${value})`);
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Could not find field "${fieldName}" (value: ${value})`);
+      }
     }
   }
 
@@ -223,10 +229,16 @@ export class PDFExportService {
           field.uncheck();
         }
       } else {
-        console.error(`Checkbox field "${fieldName}" exists but is null`);
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`Checkbox field "${fieldName}" exists but is null`);
+        }
       }
     } catch (error) {
-      console.error(`Could not find checkbox "${fieldName}"`);
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Could not find checkbox "${fieldName}"`);
+      }
     }
   }
 

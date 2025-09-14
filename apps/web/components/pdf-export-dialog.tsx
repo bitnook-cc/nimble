@@ -5,7 +5,6 @@ import { Download, FileText } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "./ui/button";
-import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -36,10 +35,10 @@ export function PDFExportDialog({
   isExporting = false,
 }: PDFExportDialogProps) {
   const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">("full-page");
-  const [editable, setEditable] = useState(true);
 
   const handleExport = () => {
-    onExport({ template, editable });
+    // Always export as editable
+    onExport({ template, editable: true });
   };
 
   return (
@@ -86,24 +85,6 @@ export function PDFExportDialog({
                 </Label>
               </div>
             </RadioGroup>
-          </div>
-
-          {/* Editable Option */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Form Options</Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="editable"
-                checked={editable}
-                onCheckedChange={(checked) => setEditable(checked as boolean)}
-              />
-              <Label htmlFor="editable" className="text-sm">
-                Keep form editable
-                <span className="text-muted-foreground ml-1 block text-xs">
-                  Uncheck to flatten the form (prevents further editing)
-                </span>
-              </Label>
-            </div>
           </div>
         </div>
 
