@@ -7,8 +7,10 @@ import { useState } from "react";
 import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { Character } from "@/lib/schemas/character";
+import { syncService } from "@/lib/services/sync/sync-service";
 
 import { CharacterCreateForm } from "./character-create-form";
+import { CharacterDeleteDialog } from "./character-delete-dialog";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -33,6 +35,7 @@ export function CharacterSelector({
   fullScreen = false,
 }: CharacterSelectorProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [deleteDialogCharacter, setDeleteDialogCharacter] = useState<Character | null>(null);
   const { switchCharacter, deleteCharacter } = useCharacterService();
 
   const handleCreateCharacter = () => {
@@ -43,24 +46,24 @@ export function CharacterSelector({
     setShowCreateForm(false);
   };
 
-  const handleDeleteCharacter = (characterId: string) => {
-    const character = characters.find((c) => c.id === characterId);
-    if (!character) return;
+  const handleDeleteCharacter = async (characterId: string, deleteFromServer: boolean) => {
+    // Delete locally
+    deleteCharacter(characterId);
 
-    const isLastCharacter = characters.length === 1;
-    const isActiveCharacter = character.id === activeCharacterId;
-
-    let confirmMessage = `Are you sure you want to delete "${character.name}"?`;
-    if (isLastCharacter) {
-      confirmMessage +=
-        "\n\nThis is your last character. You'll need to create a new one after deletion.";
-    } else if (isActiveCharacter) {
-      confirmMessage += "\n\nThis is your currently active character.";
+    // Delete from server if requested
+    if (deleteFromServer) {
+      try {
+        await syncService.deleteCharacterBackup(characterId);
+        console.log(`Deleted character ${characterId} from server backup`);
+      } catch (error) {
+        console.error(`Failed to delete character ${characterId} from server:`, error);
+        // Don't throw - local deletion already succeeded
+      }
     }
+  };
 
-    if (confirm(confirmMessage)) {
-      deleteCharacter(characterId);
-    }
+  const openDeleteDialog = (character: Character) => {
+    setDeleteDialogCharacter(character);
   };
 
   const formatLastPlayed = (date: Date) => {
@@ -155,7 +158,7 @@ export function CharacterSelector({
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteCharacter(character.id);
+                        openDeleteDialog(character);
                       }}
                       className="text-red-500 hover:text-red-700"
                     >
@@ -173,31 +176,57 @@ export function CharacterSelector({
 
   if (fullScreen) {
     return (
-      <div className="flex-1 flex flex-col">
-        <div className="container mx-auto py-8 flex-1">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold mb-2">{APP_CONFIG.APP_NAME}</h1>
-              <p className="text-muted-foreground">Select a character or create a new one</p>
+      <>
+        <div className="flex-1 flex flex-col">
+          <div className="container mx-auto py-8 flex-1">
+            <div className="max-w-2xl mx-auto space-y-6">
+              <div className="text-center">
+                <h1 className="text-3xl font-bold mb-2">{APP_CONFIG.APP_NAME}</h1>
+                <p className="text-muted-foreground">Select a character or create a new one</p>
+              </div>
+              {content}
             </div>
-            {content}
           </div>
         </div>
-      </div>
+
+        {deleteDialogCharacter && (
+          <CharacterDeleteDialog
+            isOpen={!!deleteDialogCharacter}
+            onClose={() => setDeleteDialogCharacter(null)}
+            character={deleteDialogCharacter}
+            isLastCharacter={characters.length === 1}
+            isActiveCharacter={deleteDialogCharacter.id === activeCharacterId}
+            onDelete={handleDeleteCharacter}
+          />
+        )}
+      </>
     );
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Characters</DialogTitle>
-          <DialogDescription>
-            Select a character to continue playing or create a new one.
-          </DialogDescription>
-        </DialogHeader>
-        {content}
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Characters</DialogTitle>
+            <DialogDescription>
+              Select a character to continue playing or create a new one.
+            </DialogDescription>
+          </DialogHeader>
+          {content}
+        </DialogContent>
+      </Dialog>
+
+      {deleteDialogCharacter && (
+        <CharacterDeleteDialog
+          isOpen={!!deleteDialogCharacter}
+          onClose={() => setDeleteDialogCharacter(null)}
+          character={deleteDialogCharacter}
+          isLastCharacter={characters.length === 1}
+          isActiveCharacter={deleteDialogCharacter.id === activeCharacterId}
+          onDelete={handleDeleteCharacter}
+        />
+      )}
+    </>
   );
 }

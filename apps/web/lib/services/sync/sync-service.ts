@@ -271,6 +271,7 @@ class SyncService {
    */
   async deleteCharacterBackup(characterId: string): Promise<boolean> {
     try {
+      // Delete character data
       const response = await fetch(`${this.apiUrl}/sync/characters/${characterId}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -279,9 +280,25 @@ class SyncService {
       if (!response.ok) {
         if (response.status === 404) {
           // Character doesn't exist on server, that's ok
-          return true;
+          console.log(`Character ${characterId} doesn't exist on server, skipping deletion`);
+        } else {
+          throw new Error('Failed to delete character backup');
         }
-        throw new Error('Failed to delete character backup');
+      }
+
+      // Also try to delete character image
+      try {
+        const imageResponse = await fetch(`${this.apiUrl}/images/characters/${characterId}/avatar`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+
+        if (!imageResponse.ok && imageResponse.status !== 404 && imageResponse.status !== 503) {
+          console.warn(`Failed to delete character image: ${imageResponse.status}`);
+        }
+      } catch (imageError) {
+        console.warn('Failed to delete character image:', imageError);
+        // Don't fail the whole operation if image deletion fails
       }
 
       return true;
