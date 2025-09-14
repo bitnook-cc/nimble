@@ -56,9 +56,11 @@ describe("CharacterCreationService", () => {
 
   describe("applyStartingEquipment", () => {
     it("should add starting equipment to character inventory", async () => {
+      const testCharacterId = "123e4567-e89b-12d3-a456-426614174000";
+      
       // Create a test character in storage
       const testCharacter = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: testCharacterId,
         name: "Test Hero",
         classId: "berserker",
         ancestryId: "human",
@@ -107,13 +109,13 @@ describe("CharacterCreationService", () => {
       } as Character;
 
       // Save character to storage
-      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174000");
+      await characterStorageService.createCharacter(testCharacter, testCharacterId);
 
       // Apply starting equipment
-      await characterCreationService.applyStartingEquipment("123e4567-e89b-12d3-a456-426614174000", ["sword", "armor"]);
+      await characterCreationService.applyStartingEquipment(testCharacterId, ["sword", "armor"]);
 
       // Verify the character was updated
-      const updatedCharacter = await characterStorageService.getCharacter("character-123");
+      const updatedCharacter = await characterStorageService.getCharacter(testCharacterId);
       expect(updatedCharacter).toBeDefined();
       expect(updatedCharacter?.inventory).toBeDefined();
 
@@ -128,9 +130,11 @@ describe("CharacterCreationService", () => {
     });
 
     it("should handle empty equipment list", async () => {
+      const testCharacterId = "123e4567-e89b-12d3-a456-426614174001";
+      
       // Create a test character with existing items
       const testCharacter = {
-        id: "123e4567-e89b-12d3-a456-426614174001",
+        id: testCharacterId,
         name: "Test Hero",
         classId: "berserker",
         ancestryId: "human",
@@ -178,11 +182,11 @@ describe("CharacterCreationService", () => {
         saveAdvantages: {},
       } as Character;
 
-      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174001");
+      await characterStorageService.createCharacter(testCharacter, testCharacterId);
 
-      await characterCreationService.applyStartingEquipment("123e4567-e89b-12d3-a456-426614174001", []);
+      await characterCreationService.applyStartingEquipment(testCharacterId, []);
 
-      const character = await characterStorageService.getCharacter("123e4567-e89b-12d3-a456-426614174001");
+      const character = await characterStorageService.getCharacter(testCharacterId);
       expect(character?.inventory.items).toHaveLength(1);
       expect(character?.inventory.items[0].id).toBe("existing");
     });
@@ -203,8 +207,10 @@ describe("CharacterCreationService", () => {
 
   describe("Storage Integration", () => {
     it("should store characters in in-memory storage", async () => {
+      const testCharacterId = "123e4567-e89b-12d3-a456-426614174002";
+      
       const testCharacter = {
-        id: "123e4567-e89b-12d3-a456-426614174002",
+        id: testCharacterId,
         name: "Storage Test",
         classId: "berserker",
         ancestryId: "human",
@@ -253,10 +259,10 @@ describe("CharacterCreationService", () => {
       } as Character;
 
       // Save to storage
-      await characterStorageService.createCharacter(testCharacter, "123e4567-e89b-12d3-a456-426614174002");
+      await characterStorageService.createCharacter(testCharacter, testCharacterId);
 
       // Verify it's in storage
-      const stored = await characterStorageService.getCharacter("123e4567-e89b-12d3-a456-426614174002");
+      const stored = await characterStorageService.getCharacter(testCharacterId);
       expect(stored?.name).toBe("Storage Test");
 
       // Verify it's in the in-memory storage
@@ -271,6 +277,330 @@ describe("CharacterCreationService", () => {
       // Each test gets its own in-memory storage
       const rawData = inMemoryStorage.getItem("nimble-navigator-characters");
       expect(rawData).toBeNull(); // Should be empty at start of each test
+    });
+  });
+
+  describe("quickCreateCharacter", () => {
+    it("should create a character with minimal options", async () => {
+      // Mock ContentRepository methods
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue({
+          ...berserkerClass,
+          keyAttributes: ["strength", "will"],
+        }),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
+
+      // Mock ItemService
+      const itemService = vi.spyOn(characterCreationService as any, 'itemService', 'get').mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue({
+          id: "battleaxe",
+          name: "Battleaxe",
+          type: "weapon",
+          size: 1,
+          damage: "1d8",
+        }),
+      });
+
+      const character = await characterCreationService.quickCreateCharacter({
+        classId: "berserker",
+      });
+
+      expect(character).toBeDefined();
+      expect(character.classId).toBe("berserker");
+      expect(character.level).toBe(1);
+      expect(character.name).toBeDefined(); // Should have generated name
+      expect(character.ancestryId).toBeDefined(); // Should have random ancestry
+      expect(character.backgroundId).toBeDefined(); // Should have random background
+      expect(character._attributes).toBeDefined();
+      
+      // Check key attributes are set to 2
+      expect(character._attributes.strength).toBe(2);
+      expect(character._attributes.will).toBe(2);
+      
+      // Check non-key attributes
+      const nonKeyValues = [character._attributes.dexterity, character._attributes.intelligence];
+      expect(nonKeyValues).toContain(0);
+      expect(nonKeyValues).toContain(-1);
+    });
+
+    it("should use provided name, ancestry, and background when specified", async () => {
+      // Mock ContentRepository methods
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
+
+      // Mock ItemService
+      const itemService = vi.spyOn(characterCreationService as any, 'itemService', 'get').mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
+
+      const character = await characterCreationService.quickCreateCharacter({
+        name: "Custom Hero",
+        classId: "berserker",
+        ancestryId: "human",
+        backgroundId: "fearless",
+        level: 1,
+        attributes: {
+          strength: 3,
+          dexterity: 1,
+          intelligence: -1,
+          will: 2,
+        },
+      });
+
+      expect(character.name).toBe("Custom Hero");
+      expect(character.ancestryId).toBe("human");
+      expect(character.backgroundId).toBe("fearless");
+      expect(character._attributes.strength).toBe(3);
+      expect(character._attributes.dexterity).toBe(1);
+      expect(character._attributes.intelligence).toBe(-1);
+      expect(character._attributes.will).toBe(2);
+    });
+
+    it("should throw error for invalid class", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(null),
+      });
+
+      await expect(
+        characterCreationService.quickCreateCharacter({
+          classId: "invalid-class",
+        })
+      ).rejects.toThrow("Class not found: invalid-class");
+    });
+
+    it("should throw error when no ancestries available", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+      });
+
+      vi.mocked(mockAncestryService.getAvailableAncestries).mockReturnValue([]);
+
+      await expect(
+        characterCreationService.quickCreateCharacter({
+          classId: "berserker",
+        })
+      ).rejects.toThrow("No ancestries available");
+    });
+
+    it("should throw error when no backgrounds available", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+      });
+
+      vi.mocked(mockAncestryService.getAvailableAncestries).mockReturnValue([human]);
+      vi.mocked(mockBackgroundService.getAvailableBackgrounds).mockReturnValue([]);
+
+      await expect(
+        characterCreationService.quickCreateCharacter({
+          classId: "berserker",
+        })
+      ).rejects.toThrow("No backgrounds available");
+    });
+  });
+
+  describe("createCompleteCharacter", () => {
+    it("should create a character with all specified options", async () => {
+      // Mock ContentRepository methods
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
+
+      // Mock ItemService
+      const itemService = vi.spyOn(characterCreationService as any, 'itemService', 'get').mockReturnValue({
+        createInventoryItem: vi.fn().mockImplementation((itemId) => {
+          if (itemId === "battleaxe") {
+            return {
+              id: "battleaxe",
+              name: "Battleaxe",
+              type: "weapon",
+              size: 1,
+              damage: "1d8",
+            };
+          } else if (itemId === "rations-meat") {
+            return {
+              id: "rations-meat",
+              name: "Rations (Meat)",
+              type: "consumable",
+              size: 1,
+              count: 5,
+            };
+          }
+          return null;
+        }),
+      });
+
+      const character = await characterCreationService.createCompleteCharacter({
+        name: "Complete Hero",
+        ancestryId: "human",
+        backgroundId: "fearless",
+        classId: "berserker",
+        attributes: {
+          strength: 3,
+          dexterity: 1,
+          intelligence: 0,
+          will: 2,
+        },
+        skillAllocations: {},
+        traitSelections: [],
+        selectedEquipment: ["battleaxe", "rations-meat"],
+      });
+
+      expect(character).toBeDefined();
+      expect(character.name).toBe("Complete Hero");
+      expect(character.classId).toBe("berserker");
+      expect(character.ancestryId).toBe("human");
+      expect(character.backgroundId).toBe("fearless");
+      expect(character.level).toBe(1);
+      
+      // Check attributes
+      expect(character._attributes.strength).toBe(3);
+      expect(character._attributes.will).toBe(2);
+      
+      // Check trait selections
+      expect(character.traitSelections).toHaveLength(0);
+      
+      // Check inventory
+      expect(character.inventory.items).toHaveLength(2);
+      expect(character.inventory.items[0].id).toBe("battleaxe");
+      expect(character.inventory.items[1].id).toBe("rations-meat");
+      
+      // Check character was saved
+      const savedCharacter = await characterStorageService.getCharacter(character.id);
+      expect(savedCharacter).toBeDefined();
+      expect(savedCharacter?.name).toBe("Complete Hero");
+    });
+
+    it("should handle empty skill allocations and equipment", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
+
+      const itemService = vi.spyOn(characterCreationService as any, 'itemService', 'get').mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
+
+      const character = await characterCreationService.createCompleteCharacter({
+        name: "Simple Hero",
+        ancestryId: "human",
+        backgroundId: "fearless",
+        classId: "berserker",
+        attributes: {
+          strength: 2,
+          dexterity: 0,
+          intelligence: 0,
+          will: 2,
+        },
+        skillAllocations: {},
+        traitSelections: [],
+        selectedEquipment: [],
+      });
+
+      expect(character).toBeDefined();
+      expect(character._skills?.Athletics?.modifier || 0).toBe(0); // Should be default
+      expect(character.inventory.items).toHaveLength(0);
+      expect(character.traitSelections).toHaveLength(0);
+    });
+
+    it("should throw error for invalid class", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(null),
+      });
+
+      await expect(
+        characterCreationService.createCompleteCharacter({
+          name: "Test",
+          ancestryId: "human",
+          backgroundId: "fearless",
+          classId: "invalid-class",
+          attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
+          skillAllocations: {},
+          traitSelections: [],
+          selectedEquipment: [],
+        })
+      ).rejects.toThrow("Class not found: invalid-class");
+    });
+
+    it("should throw error for invalid ancestry", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(null),
+      });
+
+      await expect(
+        characterCreationService.createCompleteCharacter({
+          name: "Test",
+          ancestryId: "invalid-ancestry",
+          backgroundId: "fearless",
+          classId: "berserker",
+          attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
+          skillAllocations: {},
+          traitSelections: [],
+          selectedEquipment: [],
+        })
+      ).rejects.toThrow("Ancestry not found: invalid-ancestry");
+    });
+
+    it("should throw error for invalid background", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(null),
+      });
+
+      await expect(
+        characterCreationService.createCompleteCharacter({
+          name: "Test",
+          ancestryId: "human",
+          backgroundId: "invalid-background",
+          classId: "berserker",
+          attributes: { strength: 0, dexterity: 0, intelligence: 0, will: 0 },
+          skillAllocations: {},
+          traitSelections: [],
+          selectedEquipment: [],
+        })
+      ).rejects.toThrow("Background not found: invalid-background");
+    });
+
+    it("should correctly set hit points based on class", async () => {
+      const contentRepository = vi.spyOn(characterCreationService as any, 'contentRepository', 'get').mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue({
+          ...berserkerClass,
+          startingHP: 25,
+          hitDieSize: 12,
+        }),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
+
+      const itemService = vi.spyOn(characterCreationService as any, 'itemService', 'get').mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
+
+      const character = await characterCreationService.createCompleteCharacter({
+        name: "Tank Hero",
+        ancestryId: "human",
+        backgroundId: "fearless",
+        classId: "berserker",
+        attributes: { strength: 3, dexterity: 0, intelligence: 0, will: 2 },
+        skillAllocations: {},
+        traitSelections: [],
+        selectedEquipment: [],
+      });
+
+      expect(character.hitPoints.current).toBe(25);
+      expect(character.hitPoints.max).toBe(25);
+      expect(character._hitDice.size).toBe(12);
+      expect(character._hitDice.current).toBe(1);
+      expect(character._hitDice.max).toBe(1);
     });
   });
 
