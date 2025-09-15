@@ -2,7 +2,6 @@ import { Migration } from './types';
 import { v0ToV1Migration } from './migrations/v0-to-v1';
 import { v1ToV2Migration } from './migrations/v1-to-v2';
 import { v2ToV3Migration } from './migrations/v2-to-v3';
-import { v3ToV4Migration } from './migrations/v3-to-v4';
 
 /**
  * Registry of all character migrations
@@ -16,7 +15,6 @@ export const migrations: Migration[] = [
   v0ToV1Migration,
   v1ToV2Migration,
   v2ToV3Migration,
-  v3ToV4Migration,
   // Add new migrations here as the schema evolves
 ];
 
