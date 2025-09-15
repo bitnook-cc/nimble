@@ -132,7 +132,7 @@ export function DicePoolCards() {
             </CardHeader>
             <CardContent className="space-y-3">
               {/* Dice display - always show all slots */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                 {Array.from({ length: maxSize }, (_, index) => {
                   const dieValue = pool.currentDice[index];
                   const isSelected = selectedDice[pool.definition.id] === index;
