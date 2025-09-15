@@ -36,8 +36,8 @@ export const dicePoolDefinitionSchema = z.object({
     title: "Dice Size",
     description: "Size of dice in the pool (d4, d6, d8, etc.)",
   }),
-  maxSize: flexibleValueSchema.meta({
-    title: "Maximum Size",
+  maxDice: flexibleValueSchema.meta({
+    title: "Maximum Dice",
     description: "Maximum number of dice that can be stored in the pool",
   }),
   resetCondition: resourceResetConditionSchema.meta({

@@ -4,7 +4,7 @@
  * Increment this when making breaking changes to the character schema
  * and create a corresponding migration in the migrations/ directory
  */
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
 
 /**
  * Minimum supported schema version

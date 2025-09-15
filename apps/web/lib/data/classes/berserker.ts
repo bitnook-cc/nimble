@@ -189,6 +189,21 @@ const berserkerFeatures: ClassFeature[] = [
           diceFormula: "1d4",
         },
       },
+      {
+        id: "berserker-rage-1",
+        type: "dice_pool",
+        poolDefinition: {
+          id: "fury",
+          name: "Fury",
+          description: "Fury Dice granted by the Rage ability.",
+          diceSize: 4,
+          maxDice: { type: "formula", expression: "KEY"},
+          resetCondition: "encounter_end",
+          resetType: "to_zero",
+          colorScheme: "red-fury",
+          icon: "flame",
+        }
+      }
     ],
   },
   {

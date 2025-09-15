@@ -56,7 +56,7 @@ export function DicePoolConfigurationSection({
       colorScheme: "blue-magic",
       icon: "dices",
       diceSize: 6 as DiceType,
-      maxSize: { type: "fixed", value: 3 },
+      maxDice: { type: "fixed", value: 3 },
       resetCondition: "encounter_end",
       resetType: "to_zero",
     });
@@ -99,7 +99,7 @@ export function DicePoolConfigurationSection({
       colorScheme: newDicePool.colorScheme || "blue-magic",
       icon: newDicePool.icon,
       diceSize: newDicePool.diceSize || 6,
-      maxSize: newDicePool.maxSize || { type: "fixed", value: 3 },
+      maxDice: newDicePool.maxDice || { type: "fixed", value: 3 },
       resetCondition: newDicePool.resetCondition || "encounter_end",
       resetType: newDicePool.resetType || "to_zero",
     };
@@ -225,12 +225,12 @@ export function DicePoolConfigurationSection({
                           <Input
                             type="number"
                             value={
-                              pool.definition.maxSize.type === "fixed"
-                                ? pool.definition.maxSize.value
+                              pool.definition.maxDice.type === "fixed"
+                                ? pool.definition.maxDice.value
                                 : 3
                             }
                             onChange={(e) =>
-                              updateDicePool(pool.definition.id, "maxSize", {
+                              updateDicePool(pool.definition.id, "maxDice", {
                                 type: "fixed",
                                 value: parseInt(e.target.value) || 3,
                               })
@@ -390,7 +390,7 @@ export function DicePoolConfigurationSection({
                         <div>
                           <p className="font-medium text-sm">{pool.definition.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            d{pool.definition.diceSize} • Max: {pool.definition.maxSize.type === "fixed" ? pool.definition.maxSize.value : "formula"} • {pool.definition.resetCondition.replace("_", " ")}
+                            d{pool.definition.diceSize} • Max: {pool.definition.maxDice.type === "fixed" ? pool.definition.maxDice.value : "formula"} • {pool.definition.resetCondition.replace("_", " ")}
                           </p>
                         </div>
                       </div>
@@ -470,12 +470,12 @@ export function DicePoolConfigurationSection({
                     type="number"
                     placeholder="3"
                     value={
-                      newDicePool.maxSize?.type === "fixed"
-                        ? newDicePool.maxSize.value
+                      newDicePool.maxDice?.type === "fixed"
+                        ? newDicePool.maxDice.value
                         : ""
                     }
                     onChange={(e) =>
-                      updateNewDicePool("maxSize", {
+                      updateNewDicePool("maxDice", {
                         type: "fixed",
                         value: parseInt(e.target.value) || 3,
                       })

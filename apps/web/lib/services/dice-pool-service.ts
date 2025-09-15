@@ -146,7 +146,7 @@ export class DicePoolService implements DicePoolServiceInterface {
   }
 
   getPoolMaxSize(pool: DicePoolInstance, character: Character): number {
-    return evaluateFlexibleValue(pool.definition.maxSize);
+    return evaluateFlexibleValue(pool.definition.maxDice);
   }
 
   canAddDiceToPool(pool: DicePoolInstance, character: Character): boolean {
