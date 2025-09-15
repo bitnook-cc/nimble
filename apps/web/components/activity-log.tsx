@@ -48,7 +48,7 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
             No activity yet. Roll dice or take damage to see logs!
           </p>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="space-y-2 h-[calc(100vh-16rem)] overflow-y-auto">
             {entries.map((entry) => (
               <div
                 key={entry.id}
