@@ -99,7 +99,15 @@ const savageArsenalFeatures: ClassFeature[] = [
     level: 1,
     name: "Mighty Endurance",
     description: "You can now survive an additional 4 Wounds before death.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "mighty-endurance-0",
+        type: "stat_bonus",
+        statBonus: {
+          maxWoundsBonus: { type: "fixed", value: 4}
+        }
+      }
+    ],
   },
   {
     id: "more-blood",
