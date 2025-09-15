@@ -152,7 +152,7 @@ export function WizardStepIndicator({
 
   return (
     <div className="w-full py-4">
-      <div ref={containerRef} className="overflow-x-auto scrollbar-hide">
+      <div ref={containerRef} className="px-6 overflow-x-auto scrollbar-hide">
         <div className="flex items-center justify-center min-w-max px-4 sm:px-0">
           {steps.map((step, index) => (
             <div

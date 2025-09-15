@@ -353,6 +353,7 @@ interface ResourceInstance {
 - **BackgroundService** manages background definitions with passive features
 - **ContentRepositoryService** unified storage for all custom content (classes, ancestries, backgrounds, abilities, spells)
 - **ResourceService** manages generic resource system (mana, fury, focus, etc.) with configurable reset conditions
+- **DicePoolService** manages dice pool system for storing and using rolled dice values
 - **DiceService** manages all dice rolling mechanics with advantage/disadvantage and critical hits
 - **ActivityLogService** tracks character actions, dice rolls, and resource usage
 - **AbilityService** handles ability usage, cooldowns, and roll calculations
@@ -543,7 +544,20 @@ app/page.tsx (main orchestrator)
     - Consistent visual feedback and state indicators
     - Mode-aware component rendering
 
-18. **Dice Formula System**
+18. **Dice Pool System**
+    - **Flexible Dice Pools**: Store rolled dice for later use (d4 through d100)
+    - **Visual Dice Display**: Individual dice shown with values
+    - **Pool Management**: Add dice by rolling, use specific dice from pool
+    - **Configurable Reset**: Pools can reset to zero or refill to max
+    - **Reset Conditions**: Same as resources (safe rest, encounter end, turn end, never, manual)
+    - **Max Size Configuration**: Formula-based max size (can use level, attributes)
+    - **Color Schemes & Icons**: Same visual customization as resources
+    - **Activity Logging**: All dice pool operations logged
+    - **Character Storage**: Stored in `_dicePools` array on character
+    - **Service Architecture**: DicePoolService handles all pool operations
+    - **Examples**: Berserker "Fury Dice" that build up during combat
+
+19. **Dice Formula System**
     - **Dice Notation**: Standard dice notation (e.g., `1d20`, `3d6`, `2d8+5`)
     - **Mathematical Operations**: Supports `+`, `-`, `*`, `/`, parentheses
     - **Variable Substitution**:
