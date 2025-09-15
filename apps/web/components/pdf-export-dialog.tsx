@@ -34,7 +34,9 @@ export function PDFExportDialog({
   onExport,
   isExporting = false,
 }: PDFExportDialogProps) {
-  const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">("full-page");
+  const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">(
+    "full-page",
+  );
 
   const handleExport = () => {
     // Always export as editable
@@ -60,7 +62,9 @@ export function PDFExportDialog({
             <Label className="text-sm font-medium">Page Size</Label>
             <RadioGroup
               value={template}
-              onValueChange={(value) => setTemplate(value as "full-page" | "half-page" | "detailed-page")}
+              onValueChange={(value) =>
+                setTemplate(value as "full-page" | "half-page" | "detailed-page")
+              }
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">

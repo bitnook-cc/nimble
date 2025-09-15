@@ -528,10 +528,10 @@ describe("DiceService", () => {
       expect(() => diceService.evaluateDiceFormula("STRd6")).toThrow("Invalid dice count: -1");
     });
 
-    it("should throw on formulas with no dice notation", () => {
-      expect(() => diceService.evaluateDiceFormula("2 + 3")).toThrow(
-        "No valid dice notation found",
-      );
+    it("should support formulas with no dice notation", () => {
+      const result = diceService.evaluateDiceFormula("2 + 3");
+      expect(result.displayString).toBe("2 + 3 = 5");
+      expect(result.total).toBe(5);
     });
 
     it("should throw on potentially unsafe patterns", () => {

@@ -17,8 +17,6 @@ import {
   Square,
 } from "lucide-react";
 
-import { DicePoolCards } from "./dice-pool-cards";
-
 import { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
@@ -39,6 +37,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { DicePoolCards } from "./dice-pool-cards";
 
 // Health Bar Subcomponent
 function HealthBar() {
@@ -562,7 +561,15 @@ function ResourceTracker() {
       <div className="relative w-10 h-10">
         <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
           {/* Background circle */}
-          <circle cx="20" cy="20" r="16" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-muted" />
+          <circle
+            cx="20"
+            cy="20"
+            r="16"
+            stroke="currentColor"
+            strokeWidth="3"
+            fill="transparent"
+            className="text-muted"
+          />
           {/* Progress circle */}
           <circle
             cx="20"

@@ -6,14 +6,15 @@ import {
   Attributes,
   Character,
   CharacterConfiguration,
-  TraitSelection,
   PoolFeatureTraitSelection,
   Skill,
   Skills,
   SpellSchoolTraitSelection,
   SubclassTraitSelection,
+  TraitSelection,
   UtilitySpellsTraitSelection,
 } from "../schemas/character";
+import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import {
   CharacterFeature,
   ClassFeature,
@@ -22,13 +23,13 @@ import {
 } from "../schemas/features";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
-import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import { StatBonus } from "../schemas/stat-bonus";
 import { calculateFlexibleValue } from "../types/flexible-value";
 // Import for backward compatibility singleton
 import { ContentRepositoryService } from "./content-repository-service";
-import { diceService } from "./dice-service";
 import { DicePoolService } from "./dice-pool-service";
+import { diceService } from "./dice-service";
+import { effectService } from "./effect-service";
 import { featureSelectionService } from "./feature-selection-service";
 import { FormulaEvaluatorService } from "./formula-evaluator-service";
 import { IAbilityService, IActivityLog, ICharacterService, ICharacterStorage } from "./interfaces";
@@ -276,37 +277,41 @@ export class CharacterService implements ICharacterService {
     // Handle ability roll if it has one
     if (ability.diceFormula) {
       let effectiveFormula = ability.diceFormula;
-      
+
       // Apply spell scaling if this is a spell with scaling bonus
       if (ability.type === "spell") {
         const formulaEvaluator = new FormulaEvaluatorService();
         let totalBonus = 0;
-        
+
         // Apply scaling bonus
         if (ability.scalingBonus) {
           const scalingMultiplier = this.getSpellScalingLevel();
           if (scalingMultiplier > 0) {
-            const cleanScalingBonus = ability.scalingBonus.replace(/^[+-]/, '');
+            const cleanScalingBonus = ability.scalingBonus.replace(/^[+-]/, "");
             const scalingBonusValue = formulaEvaluator.evaluateFormula(cleanScalingBonus);
             totalBonus += scalingBonusValue * scalingMultiplier;
           }
         }
-        
+
         // Apply upcast bonus if extra resources were spent
-        if (ability.upcastBonus && ability.resourceCost?.type === "fixed" && resourceAmount > ability.resourceCost.amount) {
+        if (
+          ability.upcastBonus &&
+          ability.resourceCost?.type === "fixed" &&
+          resourceAmount > ability.resourceCost.amount
+        ) {
           const extraResource = resourceAmount - ability.resourceCost.amount;
-          const cleanUpcastBonus = ability.upcastBonus.replace(/^[+-]/, '');
+          const cleanUpcastBonus = ability.upcastBonus.replace(/^[+-]/, "");
           const upcastBonusValue = formulaEvaluator.evaluateFormula(cleanUpcastBonus);
           totalBonus += upcastBonusValue * extraResource;
         }
-        
+
         // Add the total bonus to the effective formula
         if (totalBonus !== 0) {
-          const sign = totalBonus > 0 ? '+' : '';
+          const sign = totalBonus > 0 ? "+" : "";
           effectiveFormula = `${ability.diceFormula}${sign}${totalBonus}`;
         }
       }
-      
+
       // Use dice formula service for rich display
       const rollResult = diceService.evaluateDiceFormula(effectiveFormula, {
         advantageLevel: 0, // No advantage for ability rolls by default
@@ -318,7 +323,7 @@ export class CharacterService implements ICharacterService {
       let rollDescription = `${ability.name} ability roll`;
       if (ability.type === "spell") {
         const bonusBreakdown = [];
-        
+
         // Check for scaling
         if (ability.scalingBonus) {
           const scalingMultiplier = this.getSpellScalingLevel();
@@ -326,18 +331,21 @@ export class CharacterService implements ICharacterService {
             bonusBreakdown.push(`Scaled ×${scalingMultiplier}`);
           }
         }
-        
+
         // Check for upcasting
-        if (ability.resourceCost?.type === "fixed" && resourceAmount > ability.resourceCost.amount) {
+        if (
+          ability.resourceCost?.type === "fixed" &&
+          resourceAmount > ability.resourceCost.amount
+        ) {
           const extraResource = resourceAmount - ability.resourceCost.amount;
           bonusBreakdown.push(`Upcast +${extraResource}`);
         }
-        
+
         if (bonusBreakdown.length > 0) {
-          rollDescription += ` (${bonusBreakdown.join(', ')})`;
+          rollDescription += ` (${bonusBreakdown.join(", ")})`;
         }
       }
-      
+
       const rollLogEntry = this.logService.createDiceRollEntry(
         rollDescription,
         rollResult,
@@ -558,9 +566,7 @@ export class CharacterService implements ICharacterService {
     };
 
     // Add proficiencies from traits
-    const profEffects = this.getAllActiveTraits().filter(
-      (effect) => effect.type === "proficiency",
-    );
+    const profEffects = this.getAllActiveTraits().filter((effect) => effect.type === "proficiency");
 
     // Would need to implement merging logic for proficiency traits
     // For now, just return base proficiencies
@@ -618,9 +624,7 @@ export class CharacterService implements ICharacterService {
     }
 
     // 2. Add pools from traits
-    const poolEffects = this.getAllActiveTraits().filter(
-      (effect) => effect.type === "dice_pool",
-    );
+    const poolEffects = this.getAllActiveTraits().filter((effect) => effect.type === "dice_pool");
 
     for (const effect of poolEffects) {
       if ((effect as any).poolDefinition) {
@@ -641,7 +645,7 @@ export class CharacterService implements ICharacterService {
 
     const definitions = this.getDicePoolDefinitions();
     const instances: DicePoolInstance[] = [];
-    
+
     // Create a map of existing pool states from character
     const existingPools = new Map<string, DicePoolInstance>();
     for (const pool of this._character._dicePools || []) {
@@ -652,7 +656,7 @@ export class CharacterService implements ICharacterService {
     for (let i = 0; i < definitions.length; i++) {
       const definition = definitions[i];
       const existing = existingPools.get(definition.id);
-      
+
       if (existing) {
         // Use existing pool state but with potentially updated definition from traits
         instances.push({
@@ -759,6 +763,88 @@ export class CharacterService implements ICharacterService {
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
+  }
+
+  /**
+   * Spend resource amount (subtract from current)
+   */
+  async spendResource(resourceId: string, amount: number): Promise<void> {
+    if (!this._character) return;
+
+    const definition = this.getResourceDefinition(resourceId);
+    if (!definition) {
+      console.warn(`Resource ${resourceId} not found on character`);
+      return;
+    }
+
+    // Use ResourceService to spend the resource
+    this._character._resourceValues = resourceService.spendResource(
+      resourceId,
+      amount,
+      definition,
+      this._character._resourceValues || new Map(),
+    );
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+
+    // Log the resource usage
+    const newValue = this.getResourceValue(resourceId);
+    const maxValue = this.getResourceMaxValue(resourceId);
+    const logEntry = {
+      id: crypto.randomUUID(),
+      type: "resource" as const,
+      timestamp: new Date(),
+      description: `Spent ${amount} ${definition.name}`,
+      resourceId: resourceId,
+      resourceName: definition.name,
+      amount: amount,
+      action: "spent" as const,
+      currentAmount: newValue,
+      maxAmount: maxValue,
+    };
+    await this.logService.addLogEntry(logEntry);
+  }
+
+  /**
+   * Restore resource amount (add to current)
+   */
+  async restoreResource(resourceId: string, amount: number): Promise<void> {
+    if (!this._character) return;
+
+    const definition = this.getResourceDefinition(resourceId);
+    if (!definition) {
+      console.warn(`Resource ${resourceId} not found on character`);
+      return;
+    }
+
+    // Use ResourceService to restore the resource
+    this._character._resourceValues = resourceService.restoreResource(
+      resourceId,
+      amount,
+      definition,
+      this._character._resourceValues || new Map(),
+    );
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+
+    // Log the resource restoration
+    const newValue = this.getResourceValue(resourceId);
+    const maxValue = this.getResourceMaxValue(resourceId);
+    const logEntry = {
+      id: crypto.randomUUID(),
+      type: "resource" as const,
+      timestamp: new Date(),
+      description: `Restored ${amount} ${definition.name}`,
+      resourceId: resourceId,
+      resourceName: definition.name,
+      amount: amount,
+      action: "restored" as const,
+      currentAmount: newValue,
+      maxAmount: maxValue,
+    };
+    await this.logService.addLogEntry(logEntry);
   }
 
   /**
@@ -1176,11 +1262,13 @@ export class CharacterService implements ICharacterService {
         characterId: this.character.id,
         character: this.character,
       });
-      
+
       // Also emit window event for external listeners (like sync button)
-      window.dispatchEvent(new CustomEvent('character-updated', { 
-        detail: { characterId: this.character.id } 
-      }));
+      window.dispatchEvent(
+        new CustomEvent("character-updated", {
+          detail: { characterId: this.character.id },
+        }),
+      );
     }
   }
 
@@ -1795,7 +1883,20 @@ export class CharacterService implements ICharacterService {
       this.notifyCharacterChanged();
 
       // Log the ability usage (pass variableResourceAmount for upcasting calculation)
-      await this.logAbilityUsage(ability, actionsToDeduct, variableResourceAmount || resourceAmountUsed);
+      await this.logAbilityUsage(
+        ability,
+        actionsToDeduct,
+        variableResourceAmount || resourceAmountUsed,
+      );
+
+      // Apply any effects the ability has
+      if (
+        (ability.type === "action" || ability.type === "spell") &&
+        ability.effects &&
+        ability.effects.length > 0
+      ) {
+        await effectService.applyEffects(ability.effects, ability.name);
+      }
     } catch (error) {
       console.error("Failed to use ability:", error);
     }
@@ -2094,11 +2195,13 @@ export class CharacterService implements ICharacterService {
       type: "deleted",
       characterId,
     });
-    
+
     // Also emit window event for external listeners
-    window.dispatchEvent(new CustomEvent('character-deleted', { 
-      detail: { characterId } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("character-deleted", {
+        detail: { characterId },
+      }),
+    );
   }
 
   notifyCharacterCreated(character: Character): void {
@@ -2108,10 +2211,12 @@ export class CharacterService implements ICharacterService {
       characterId: character.id,
       character,
     });
-    
+
     // Also emit window event for external listeners
-    window.dispatchEvent(new CustomEvent('character-created', { 
-      detail: { characterId: character.id } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("character-created", {
+        detail: { characterId: character.id },
+      }),
+    );
   }
 }

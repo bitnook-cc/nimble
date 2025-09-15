@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 import {
   AttributeBoostTraitSelection,
   Character,
-  TraitSelection,
   PoolFeatureTraitSelection,
   SpellSchoolTraitSelection,
   SubclassTraitSelection,
+  TraitSelection,
   UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {

@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+
 import { Character, CreateCharacterData } from "../schemas/character";
 import { IStorageService } from "../services/storage-service";
 import { ICharacterRepository } from "./character-repository";

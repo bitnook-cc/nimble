@@ -65,7 +65,6 @@ export const resourceInstanceSchema = z.object({
   sortOrder: z.number().int().min(0),
 });
 
-
 // Export inferred types
 export type ResourceValue = z.infer<typeof resourceValueSchema>;
 export type ResourceResetCondition = z.infer<typeof resourceResetConditionSchema>;

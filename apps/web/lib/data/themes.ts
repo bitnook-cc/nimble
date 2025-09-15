@@ -332,11 +332,11 @@ export function getThemeFamily(themeId: string): string {
 export function findThemeForMode(currentFamily: string, isDark: boolean): Theme | undefined {
   // First try to find a theme in the same family
   const familyTheme = themes.find(
-    (t) => getThemeFamily(t.id) === currentFamily && t.isDark === isDark
+    (t) => getThemeFamily(t.id) === currentFamily && t.isDark === isDark,
   );
-  
+
   if (familyTheme) return familyTheme;
-  
+
   // Otherwise, return the first theme matching the mode
   return themes.find((t) => t.isDark === isDark);
 }

@@ -5,8 +5,8 @@ import React, { useState } from "react";
 import {
   AttributeName,
   Character,
-  TraitSelection,
   PoolFeatureTraitSelection,
+  TraitSelection,
   UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {

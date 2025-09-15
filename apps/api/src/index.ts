@@ -1,12 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import { getIronSession } from 'iron-session';
-import { sessionOptions, SessionData } from './config/session';
-import passport from './config/passport';
-import authRoutes from './routes/auth';
-import syncRoutes from './routes/sync';
-import imagesRoutes from './routes/images';
-import dotenv from 'dotenv';
+import express from "express";
+import cors from "cors";
+import { getIronSession } from "iron-session";
+import { sessionOptions, SessionData } from "./config/session";
+import passport from "./config/passport";
+import authRoutes from "./routes/auth";
+import syncRoutes from "./routes/sync";
+import imagesRoutes from "./routes/images";
+import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
@@ -25,95 +25,102 @@ app.use(async (req, res, next) => {
 app.use(passport.initialize());
 
 // CORS configuration - allow specific origins
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
   : [
-    'http://localhost:3000',
-    'http://localhost:3001', 
-    'http://localhost:3002',
-    'http://localhost:3003',
-    // Default production URLs (override with ALLOWED_ORIGINS env var)
-    'https://nimble.bitnook.cc',
-    'https://nimble-navigator.vercel.app'
-  ];
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:3002",
+      "http://localhost:3003",
+      // Default production URLs (override with ALLOWED_ORIGINS env var)
+      "https://nimble.bitnook.cc",
+      "https://nimble-navigator.vercel.app",
+    ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-    
-    // Check if the origin is in our allowed list
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // In development, allow all localhost origins
-      if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+
+      // Check if the origin is in our allowed list
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // In development, allow all localhost origins
+        if (
+          process.env.NODE_ENV !== "production" &&
+          origin.includes("localhost")
+        ) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
       }
-    }
-  },
-  credentials: true, // Allow cookies
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+    },
+    credentials: true, // Allow cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // Middleware
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (_req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+app.get("/health", (_req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 // Hello world endpoint
-app.get('/', (_req, res) => {
-  res.json({ message: 'Hello from Nimble API!' });
+app.get("/", (_req, res) => {
+  res.json({ message: "Hello from Nimble API!" });
 });
 
 // Auth routes
-app.use('/auth', authRoutes);
+app.use("/auth", authRoutes);
 
 // Sync routes
-app.use('/sync', syncRoutes);
+app.use("/sync", syncRoutes);
 
 // Images routes
-app.use('/images', imagesRoutes);
+app.use("/images", imagesRoutes);
 
 // Example API endpoint
-app.get('/hello', (req, res) => {
-  const name = req.query.name || 'World';
-  res.json({ 
+app.get("/hello", (req, res) => {
+  const name = req.query.name || "World";
+  res.json({
     message: `Hello, ${name}!`,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Protected API endpoint example
-app.get('/api/protected', async (req, res) => {
+app.get("/api/protected", async (req, res) => {
   const session = await getIronSession<SessionData>(req, res, sessionOptions);
   if (session.user) {
-    res.json({ 
-      message: 'This is a protected route',
-      user: session.user 
+    res.json({
+      message: "This is a protected route",
+      user: session.user,
     });
   } else {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: "Unauthorized" });
   }
 });
 
 // Start server only if not in serverless environment
-if (process.env.VERCEL !== '1') {
+if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {
     console.log(`✨ API server running on http://localhost:${PORT}`);
-    
+
     // Log blob storage configuration status
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      console.log('📦 Blob storage configured - image sync enabled');
+      console.log("📦 Blob storage configured - image sync enabled");
     } else {
-      console.log('⚠️  Blob storage not configured (BLOB_READ_WRITE_TOKEN missing) - image sync disabled');
-      console.log('    Images will only be stored locally in IndexedDB');
+      console.log(
+        "⚠️  Blob storage not configured (BLOB_READ_WRITE_TOKEN missing) - image sync disabled",
+      );
+      console.log("    Images will only be stored locally in IndexedDB");
     }
   });
 }

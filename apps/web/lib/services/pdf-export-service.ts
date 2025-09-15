@@ -204,13 +204,13 @@ export class PDFExportService {
         }
       } else {
         // Only log in development mode
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.error(`Field "${fieldName}" exists but is null`);
         }
       }
     } catch (error) {
       // Only log in development mode
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.error(`Could not find field "${fieldName}" (value: ${value})`);
       }
     }
@@ -230,13 +230,13 @@ export class PDFExportService {
         }
       } else {
         // Only log in development mode
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.error(`Checkbox field "${fieldName}" exists but is null`);
         }
       }
     } catch (error) {
       // Only log in development mode
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.error(`Could not find checkbox "${fieldName}"`);
       }
     }
@@ -308,7 +308,7 @@ export class PDFExportService {
 
     // Add character abilities (non-spell abilities)
     characterService.getAbilities().forEach((ability) => {
-      if (ability.type === "action" || ability.type === "freeform") {
+      if (ability.type === "action") {
         allFeatures.push(`${ability.name}: ${ability.description || "Character ability"}`);
       }
     });

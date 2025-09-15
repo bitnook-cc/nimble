@@ -1,27 +1,27 @@
 "use client";
 
 import { Settings, TrendingUp } from "lucide-react";
+import { History, Upload } from "lucide-react";
 
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { characterImageService } from "@/lib/services/character-image-service";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
+import { CharacterAvatar } from "../character-avatar";
+import { CharacterImageHistoryDialog } from "../character-image-history-dialog";
+import { CharacterImageUploadDialog } from "../character-image-upload-dialog";
 import { LevelUpGuide } from "../level-up-guide";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { CharacterAvatar } from "../character-avatar";
-import { CharacterImageUploadDialog } from "../character-image-upload-dialog";
-import { CharacterImageHistoryDialog } from "../character-image-history-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Upload, History } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface CharacterNameSectionProps {
   name: string;
@@ -60,7 +60,7 @@ export function CharacterNameSection({
     // Update the character with the new image ID
     const characterService = getCharacterService();
     await characterService.updateCharacterFields({
-      imageId: imageId
+      imageId: imageId,
     });
   };
 
@@ -103,7 +103,7 @@ export function CharacterNameSection({
               clickable={false}
             />
           )}
-          
+
           {/* Character Info */}
           <div className="flex-1 space-y-2">
             {/* Name Input with Buttons */}
@@ -135,7 +135,7 @@ export function CharacterNameSection({
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {/* Ancestry, Background, Class, Level */}
             <div className="text-sm text-muted-foreground">
               {ancestryName} • {backgroundName}

@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { PrismaClient } from '@prisma/client';
-import { AuthUser } from '@nimble/shared';
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { PrismaClient } from "@prisma/client";
+import { AuthUser } from "@nimble/shared";
 
 const prisma = new PrismaClient();
 
@@ -14,15 +14,15 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.API_URL 
+      callbackURL: process.env.API_URL
         ? `${process.env.API_URL}/auth/google/callback`
         : `http://localhost:${process.env.PORT || 3001}/auth/google/callback`,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
-        const email = profile.emails?.[0]?.value || '';
+        const email = profile.emails?.[0]?.value || "";
         const googleId = profile.id;
-        
+
         // Find or create user in database
         const dbUser = await prisma.user.upsert({
           where: { googleId },
@@ -43,7 +43,7 @@ passport.use(
             lastLoginAt: new Date(),
           },
         });
-        
+
         // Return user object with login count and timestamps
         const user: AuthUser = {
           id: dbUser.id,
@@ -55,14 +55,14 @@ passport.use(
           lastLoginAt: dbUser.lastLoginAt,
           createdAt: dbUser.createdAt,
         };
-        
+
         return done(null, user);
       } catch (error) {
-        console.error('Error in Google OAuth callback:', error);
+        console.error("Error in Google OAuth callback:", error);
         return done(error as Error, undefined);
       }
-    }
-  )
+    },
+  ),
 );
 
 // No need for serializeUser/deserializeUser with iron-session

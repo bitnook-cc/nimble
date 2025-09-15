@@ -1,5 +1,6 @@
 import { ResourceCost, SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ResourceInstance } from "@/lib/schemas/resources";
+
 import { getCharacterService } from "../services/service-factory";
 
 /**
@@ -57,12 +58,12 @@ export function getInsufficientResourceMessage(
  */
 export function formatResourceCost(resourceCost: ResourceCost): string {
   const resourceName = getCharacterService().getResourceName(resourceCost.resourceId);
-  
+
   if (resourceCost.type === "fixed") {
     return `${resourceCost.amount} ${resourceName}`;
   } else {
     // If maxAmount is not specified, show as "X+" instead of a range
-    return resourceCost.maxAmount 
+    return resourceCost.maxAmount
       ? `${resourceCost.minAmount}-${resourceCost.maxAmount} ${resourceName}`
       : `${resourceCost.minAmount}+ ${resourceName}`;
   }

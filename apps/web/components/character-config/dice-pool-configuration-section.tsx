@@ -1,20 +1,13 @@
 "use client";
 
 import { Dices, Plus, Trash2 } from "lucide-react";
+
 import { useState } from "react";
 
 import { Character } from "@/lib/schemas/character";
-import {
-  DicePoolDefinition,
-  DicePoolInstance,
-  DicePoolResetType,
-} from "@/lib/schemas/dice-pools";
 import { DiceType } from "@/lib/schemas/dice";
-import {
-  AVAILABLE_ICONS,
-  type IconCategory,
-  getIconById,
-} from "@/lib/utils/icon-utils";
+import { DicePoolDefinition, DicePoolInstance, DicePoolResetType } from "@/lib/schemas/dice-pools";
+import { AVAILABLE_ICONS, type IconCategory, getIconById } from "@/lib/utils/icon-utils";
 import { RESOURCE_COLOR_SCHEMES, getColorSchemeById } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
@@ -174,11 +167,7 @@ export function DicePoolConfigurationSection({
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">ID (read-only)</Label>
-                          <Input
-                            value={pool.definition.id}
-                            disabled
-                            className="text-sm bg-muted"
-                          />
+                          <Input value={pool.definition.id} disabled className="text-sm bg-muted" />
                         </div>
                       </div>
 
@@ -187,11 +176,7 @@ export function DicePoolConfigurationSection({
                         <Textarea
                           value={pool.definition.description || ""}
                           onChange={(e) =>
-                            updateDicePool(
-                              pool.definition.id,
-                              "description",
-                              e.target.value,
-                            )
+                            updateDicePool(pool.definition.id, "description", e.target.value)
                           }
                           rows={2}
                           className="text-sm resize-none"
@@ -204,7 +189,11 @@ export function DicePoolConfigurationSection({
                           <Select
                             value={pool.definition.diceSize.toString()}
                             onValueChange={(value) =>
-                              updateDicePool(pool.definition.id, "diceSize", parseInt(value) as DiceType)
+                              updateDicePool(
+                                pool.definition.id,
+                                "diceSize",
+                                parseInt(value) as DiceType,
+                              )
                             }
                           >
                             <SelectTrigger className="text-sm">
@@ -390,13 +379,15 @@ export function DicePoolConfigurationSection({
                         <div>
                           <p className="font-medium text-sm">{pool.definition.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            d{pool.definition.diceSize} • Max: {pool.definition.maxDice.type === "fixed" ? pool.definition.maxDice.value : "formula"} • {pool.definition.resetCondition.replace("_", " ")}
+                            d{pool.definition.diceSize} • Max:{" "}
+                            {pool.definition.maxDice.type === "fixed"
+                              ? pool.definition.maxDice.value
+                              : "formula"}{" "}
+                            • {pool.definition.resetCondition.replace("_", " ")}
                           </p>
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Click to edit
-                      </div>
+                      <div className="text-xs text-muted-foreground">Click to edit</div>
                     </div>
                   )}
                 </div>
@@ -449,7 +440,9 @@ export function DicePoolConfigurationSection({
                   <Label className="text-xs">Dice Size</Label>
                   <Select
                     value={(newDicePool.diceSize || 6).toString()}
-                    onValueChange={(value) => updateNewDicePool("diceSize", parseInt(value) as DiceType)}
+                    onValueChange={(value) =>
+                      updateNewDicePool("diceSize", parseInt(value) as DiceType)
+                    }
                   >
                     <SelectTrigger className="text-sm">
                       <SelectValue />
@@ -469,11 +462,7 @@ export function DicePoolConfigurationSection({
                   <Input
                     type="number"
                     placeholder="3"
-                    value={
-                      newDicePool.maxDice?.type === "fixed"
-                        ? newDicePool.maxDice.value
-                        : ""
-                    }
+                    value={newDicePool.maxDice?.type === "fixed" ? newDicePool.maxDice.value : ""}
                     onChange={(e) =>
                       updateNewDicePool("maxDice", {
                         type: "fixed",
@@ -577,7 +566,9 @@ export function DicePoolConfigurationSection({
                   <Label className="text-xs">Reset Type</Label>
                   <Select
                     value={newDicePool.resetType || "to_zero"}
-                    onValueChange={(value: DicePoolResetType) => updateNewDicePool("resetType", value)}
+                    onValueChange={(value: DicePoolResetType) =>
+                      updateNewDicePool("resetType", value)
+                    }
                   >
                     <SelectTrigger className="text-sm">
                       <SelectValue />
@@ -609,10 +600,9 @@ export function DicePoolConfigurationSection({
               {(!newDicePool.id || !newDicePool.name) && (
                 <p className="text-xs text-destructive">ID and Name are required</p>
               )}
-              {newDicePool.id &&
-                dicePools.some((p) => p.definition.id === newDicePool.id) && (
-                  <p className="text-xs text-destructive">Dice Pool ID already exists</p>
-                )}
+              {newDicePool.id && dicePools.some((p) => p.definition.id === newDicePool.id) && (
+                <p className="text-xs text-destructive">Dice Pool ID already exists</p>
+              )}
             </CardContent>
           </Card>
         )}

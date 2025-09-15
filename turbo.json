@@ -49,6 +49,9 @@
     "db:start-local": {
       "cache": false
     },
+    "format": {
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true,

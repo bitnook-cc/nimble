@@ -1,14 +1,15 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+
 import { useState } from "react";
 
 import { Character } from "@/lib/schemas/character";
 import {
-  ResourceValue,
   ResourceDefinition,
   ResourceResetCondition,
   ResourceResetType,
+  ResourceValue,
 } from "@/lib/schemas/resources";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
@@ -200,11 +201,7 @@ export function ResourceConfigurationSection({
                         <Textarea
                           value={resource.definition.description || ""}
                           onChange={(e) =>
-                            updateResource(
-                              resource.definition.id,
-                              "description",
-                              e.target.value,
-                            )
+                            updateResource(resource.definition.id, "description", e.target.value)
                           }
                           rows={2}
                           className="text-sm resize-none"
@@ -439,13 +436,12 @@ export function ResourceConfigurationSection({
                         <div>
                           <p className="font-medium text-sm">{resource.definition.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {resource.current}/{getFlexibleValue(resource.definition.maxValue)} • {resource.definition.resetCondition.replace("_", " ")}
+                            {resource.current}/{getFlexibleValue(resource.definition.maxValue)} •{" "}
+                            {resource.definition.resetCondition.replace("_", " ")}
                           </p>
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Click to edit
-                      </div>
+                      <div className="text-xs text-muted-foreground">Click to edit</div>
                     </div>
                   )}
                 </div>
@@ -613,11 +609,7 @@ export function ResourceConfigurationSection({
                   <Input
                     type="number"
                     placeholder="0"
-                    value={
-                      newResource.minValue?.type === "fixed"
-                        ? newResource.minValue.value
-                        : ""
-                    }
+                    value={newResource.minValue?.type === "fixed" ? newResource.minValue.value : ""}
                     onChange={(e) =>
                       updateNewResource("minValue", {
                         type: "fixed",
@@ -632,11 +624,7 @@ export function ResourceConfigurationSection({
                   <Input
                     type="number"
                     placeholder="10"
-                    value={
-                      newResource.maxValue?.type === "fixed"
-                        ? newResource.maxValue.value
-                        : ""
-                    }
+                    value={newResource.maxValue?.type === "fixed" ? newResource.maxValue.value : ""}
                     onChange={(e) =>
                       updateNewResource("maxValue", {
                         type: "fixed",
@@ -653,9 +641,7 @@ export function ResourceConfigurationSection({
                       type="number"
                       placeholder="10"
                       value={
-                        newResource.resetValue?.type === "fixed"
-                          ? newResource.resetValue.value
-                          : ""
+                        newResource.resetValue?.type === "fixed" ? newResource.resetValue.value : ""
                       }
                       onChange={(e) =>
                         updateNewResource("resetValue", {

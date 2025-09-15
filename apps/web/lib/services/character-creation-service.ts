@@ -1,8 +1,11 @@
+import { v4 as uuidv4 } from "uuid";
+import { uuid } from "zod";
+
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
-import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import { Attributes, Character, TraitSelection } from "../schemas/character";
 import { Item } from "../schemas/inventory";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import {
   createDefaultActionTracker,
   createDefaultCharacterConfiguration,
@@ -23,9 +26,7 @@ import {
   ICharacterService,
   ICharacterStorage,
 } from "./interfaces";
-import { v4 as uuidv4 } from 'uuid';
 import { ItemService } from "./item-service";
-import { uuid } from "zod";
 
 export interface QuickCreateOptions {
   name?: string; // Optional - will be generated if not provided

@@ -44,8 +44,7 @@ const chimericBoonsFeatures: ClassFeature[] = [
     id: "leader-of-the-pack",
     level: 1,
     name: "Leader of the Pack",
-    description:
-      "Advantage against fear and charm traits for yourself and allies within 6 spaces.",
+    description: "Advantage against fear and charm traits for yourself and allies within 6 spaces.",
     traits: [], // Passive feature - no mechanical traits to process
   },
   {

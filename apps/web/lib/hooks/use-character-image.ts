@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { characterImageService } from '@/lib/services/character-image-service';
+import { useCallback, useEffect, useState } from "react";
+
+import { characterImageService } from "@/lib/services/character-image-service";
 
 interface UseCharacterImageReturn {
   imageDataUrl: string | null;
@@ -31,16 +32,16 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
     try {
       // Get the latest image for this character
       const images = await characterImageService.getImageHistory(characterId);
-      
+
       if (images && images.length > 0) {
         // Get the most recent image (first in the list)
         const latestImageId = images[0].id;
         const image = await characterImageService.getImage(latestImageId);
-        
+
         if (image) {
           const profileUrl = characterImageService.createObjectURL(image.profileImage);
           const thumbnailUrl = characterImageService.createObjectURL(image.thumbnailImage);
-          
+
           // Clean up old URLs before setting new ones
           setImageDataUrl((oldUrl) => {
             if (oldUrl) characterImageService.revokeObjectURL(oldUrl);
@@ -59,8 +60,8 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
         setThumbnailDataUrl(null);
       }
     } catch (err) {
-      console.error('Failed to load character image:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load image');
+      console.error("Failed to load character image:", err);
+      setError(err instanceof Error ? err.message : "Failed to load image");
       setImageDataUrl(null);
       setThumbnailDataUrl(null);
     } finally {
@@ -69,7 +70,7 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
   }, [characterId, refreshCounter]);
 
   const refreshImage = useCallback(async () => {
-    setRefreshCounter(prev => prev + 1);
+    setRefreshCounter((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -84,10 +85,10 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
       }
     };
 
-    window.addEventListener('character-image-updated' as any, handleImageUpdate);
+    window.addEventListener("character-image-updated" as any, handleImageUpdate);
 
     return () => {
-      window.removeEventListener('character-image-updated' as any, handleImageUpdate);
+      window.removeEventListener("character-image-updated" as any, handleImageUpdate);
     };
   }, [characterId, refreshImage]);
 

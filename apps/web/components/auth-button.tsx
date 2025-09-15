@@ -1,12 +1,14 @@
 "use client";
 
-import { LogIn, LogOut, User } from "lucide-react";
-import { useEffect, useState } from "react";
 import { AuthUser } from "@nimble/shared";
+import { LogIn, LogOut, User } from "lucide-react";
+
+import { useEffect, useState } from "react";
 
 import { authService } from "@/lib/services/auth-service";
 import { syncService } from "@/lib/services/sync/sync-service";
 
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -15,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export function AuthButton() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -40,22 +41,24 @@ export function AuthButton() {
       if (response.user) {
         setUser(response.user);
         // Emit auth-changed event for other components
-        window.dispatchEvent(new CustomEvent('auth-changed', { detail: { authenticated: true } }));
-        
+        window.dispatchEvent(new CustomEvent("auth-changed", { detail: { authenticated: true } }));
+
         // Auto-sync characters after successful login
         try {
-          console.log('[Auth] Auto-syncing characters after login...');
+          console.log("[Auth] Auto-syncing characters after login...");
           const syncResult = await syncService.syncCharacters();
           if (syncResult) {
-            console.log(`[Auth] Auto-sync complete: ${syncResult.characterCount} characters synced`);
+            console.log(
+              `[Auth] Auto-sync complete: ${syncResult.characterCount} characters synced`,
+            );
           }
         } catch (syncError) {
-          console.error('[Auth] Auto-sync failed:', syncError);
+          console.error("[Auth] Auto-sync failed:", syncError);
           // Don't throw - sync failure shouldn't prevent login
         }
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       // You could show a toast notification here
     } finally {
       setLoading(false);
@@ -66,7 +69,7 @@ export function AuthButton() {
     await authService.logout();
     setUser(null);
     // Emit auth-changed event for other components
-    window.dispatchEvent(new CustomEvent('auth-changed', { detail: { authenticated: false } }));
+    window.dispatchEvent(new CustomEvent("auth-changed", { detail: { authenticated: false } }));
   };
 
   if (loading) {
@@ -92,9 +95,7 @@ export function AuthButton() {
         <Button variant="ghost" size="sm" className="p-0 hover:opacity-80 transition-opacity">
           <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-primary/50 transition-all cursor-pointer">
             <AvatarImage src={user.picture || undefined} alt={user.name} />
-            <AvatarFallback>
-              {user.name?.charAt(0)?.toUpperCase() || 'U'}
-            </AvatarFallback>
+            <AvatarFallback>{user.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

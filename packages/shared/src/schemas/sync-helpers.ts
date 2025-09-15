@@ -1,4 +1,4 @@
-import { Syncable } from './syncable';
+import { Syncable } from "./syncable";
 
 /**
  * Helper to check if one syncable entity is newer than another

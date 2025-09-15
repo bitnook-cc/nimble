@@ -1,6 +1,7 @@
 "use client";
 
 import { Monitor, Moon, Palette, Sun } from "lucide-react";
+
 import { useEffect, useState } from "react";
 
 import { getThemeFamily, themes } from "@/lib/data/themes";
@@ -17,7 +18,9 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: ThemeSelectorProps) {
-  const [currentThemeId, setCurrentThemeId] = useState(propThemeId || themeService.getCurrentThemeId());
+  const [currentThemeId, setCurrentThemeId] = useState(
+    propThemeId || themeService.getCurrentThemeId(),
+  );
   const [colorMode, setColorMode] = useState<"light" | "dark" | "system">("light");
   const [isChanging, setIsChanging] = useState(false);
 
@@ -51,13 +54,13 @@ export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: Th
     setIsChanging(true);
     await themeService.setTheme(themeId);
     setCurrentThemeId(themeId);
-    
+
     // Update color mode based on the selected theme
     const theme = themeService.getThemeById(themeId);
     if (theme) {
       setColorMode(theme.isDark ? "dark" : "light");
     }
-    
+
     onThemeChange?.();
     setIsChanging(false);
   };
@@ -88,11 +91,7 @@ export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: Th
       {/* Color Mode Selection */}
       <div className="space-y-3">
         <Label>Color Mode</Label>
-        <RadioGroup 
-          value={colorMode} 
-          onValueChange={handleColorModeChange}
-          disabled={isChanging}
-        >
+        <RadioGroup value={colorMode} onValueChange={handleColorModeChange} disabled={isChanging}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="light" id="light-mode" />
             <Label htmlFor="light-mode" className="flex items-center gap-2 cursor-pointer">
@@ -125,11 +124,7 @@ export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: Th
           <Palette className="w-4 h-4" />
           <Label htmlFor="theme-select">Theme Style</Label>
         </div>
-        <Select 
-          value={currentThemeId} 
-          onValueChange={handleThemeChange}
-          disabled={isChanging}
-        >
+        <Select value={currentThemeId} onValueChange={handleThemeChange} disabled={isChanging}>
           <SelectTrigger id="theme-select" className="w-full">
             <SelectValue placeholder="Select a theme" />
           </SelectTrigger>
@@ -145,8 +140,8 @@ export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: Th
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          {colorMode === "system" 
-            ? "Showing themes for your system preference" 
+          {colorMode === "system"
+            ? "Showing themes for your system preference"
             : `Showing ${colorMode} themes`}
         </p>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Zap, TrendingUp } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, TrendingUp, Zap } from "lucide-react";
 
 import { useState } from "react";
 
@@ -19,11 +19,11 @@ import {
   hasEnoughResourcesForSpell,
 } from "@/lib/utils/spell-utils";
 
+import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
 
 export function SpellsSection() {
   const { character, performUseAbility } = useCharacterService();
@@ -50,23 +50,24 @@ export function SpellsSection() {
   // Helper function to get effective damage formula with scaling
   const getEffectiveDamageFormula = (spell: SpellAbilityDefinition): string | null => {
     if (!spell.diceFormula) return null;
-    
+
     // If no scaling bonus or multiplier is 0, return base formula
     if (!spell.scalingBonus || spellScalingMultiplier === 0) {
       return spell.diceFormula;
     }
 
     // Build the effective formula
-    const scalingPart = spell.scalingBonus.startsWith('+') || spell.scalingBonus.startsWith('-')
-      ? spell.scalingBonus
-      : `+${spell.scalingBonus}`;
-    
+    const scalingPart =
+      spell.scalingBonus.startsWith("+") || spell.scalingBonus.startsWith("-")
+        ? spell.scalingBonus
+        : `+${spell.scalingBonus}`;
+
     // If multiplier is 1, just add the bonus once
     if (spellScalingMultiplier === 1) {
       return `${spell.diceFormula}${scalingPart}`;
     } else {
       // Extract the numeric/dice part from the scaling bonus and multiply
-      const cleanBonus = scalingPart.replace(/^[+-]/, '');
+      const cleanBonus = scalingPart.replace(/^[+-]/, "");
       return `${spell.diceFormula}+${spellScalingMultiplier}×(${cleanBonus})`;
     }
   };
@@ -162,283 +163,288 @@ export function SpellsSection() {
 
   return (
     <>
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          Spells
-          <Badge variant="secondary" className="ml-2">
-            {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`}{" "}
-            Access
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Mana Tracker */}
-        {manaResource && (
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-500" />
-                <span className="font-medium">{manaResource.definition.name}</span>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold">{manaResource.current}</div>
-                <div className="text-xs text-muted-foreground">
-                  / {getFlexibleValue(manaResource.definition.maxValue)}
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-500" />
+            Spells
+            <Badge variant="secondary" className="ml-2">
+              {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`}{" "}
+              Access
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Mana Tracker */}
+          {manaResource && (
+            <div className="border rounded-lg p-4 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-500" />
+                  <span className="font-medium">{manaResource.definition.name}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold">{manaResource.current}</div>
+                  <div className="text-xs text-muted-foreground">
+                    / {getFlexibleValue(manaResource.definition.maxValue)}
+                  </div>
                 </div>
               </div>
+              {/* Mana bar */}
+              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-200"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue)) * 100))}%`,
+                  }}
+                />
+              </div>
             </div>
-            {/* Mana bar */}
-            <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-200"
-                style={{
-                  width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue)) * 100))}%`,
-                }}
-              />
-            </div>
-          </div>
-        )}
+          )}
 
-        {Object.entries(spellsBySchool).map(([school, spells]) => {
-          const isOpen = openSchools[school] ?? true;
-          const onToggle = (open: boolean) => {
-            setOpenSchools((prev) => ({ ...prev, [school]: open }));
-          };
-          const schoolData = contentRepository.getSpellSchool(school);
-          const schoolName = schoolData?.name || school;
-          const schoolColor = schoolData?.color || "text-gray-600";
-          const SchoolIcon = schoolData?.icon ? getIconById(schoolData.icon) : Sparkles;
+          {Object.entries(spellsBySchool).map(([school, spells]) => {
+            const isOpen = openSchools[school] ?? true;
+            const onToggle = (open: boolean) => {
+              setOpenSchools((prev) => ({ ...prev, [school]: open }));
+            };
+            const schoolData = contentRepository.getSpellSchool(school);
+            const schoolName = schoolData?.name || school;
+            const schoolColor = schoolData?.color || "text-gray-600";
+            const SchoolIcon = schoolData?.icon ? getIconById(schoolData.icon) : Sparkles;
 
-          return (
-            <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                  <h3 className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}>
-                    <SchoolIcon className="w-5 h-5" />
-                    {schoolName} ({spells.length})
-                  </h3>
-                  {isOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="space-y-3 pt-2">
-                  {spells.map((spell) => {
-                    const canCast = hasEnoughResourcesForSpell(resources, spell);
-                    const insufficientMessage = getInsufficientResourceMessage(resources, spell);
+            return (
+              <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                    <h3 className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}>
+                      <SchoolIcon className="w-5 h-5" />
+                      {schoolName} ({spells.length})
+                    </h3>
+                    {isOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-3 pt-2">
+                    {spells.map((spell) => {
+                      const canCast = hasEnoughResourcesForSpell(resources, spell);
+                      const insufficientMessage = getInsufficientResourceMessage(resources, spell);
 
-                    return (
-                      <div key={spell.id} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold">{spell.name}</h4>
-                              <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {spell.category === "utility" ? "Utility" : "Combat"}
-                              </Badge>
-                            </div>
-
-                            {/* Action and Resource costs in a row */}
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {spell.actionCost !== undefined && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {formatActionCost(spell.actionCost)}
+                      return (
+                        <div key={spell.id} className="border rounded-lg p-4 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold">{spell.name}</h4>
+                                <Badge variant="outline" className={getTierColor(spell.tier)}>
+                                  {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
                                 </Badge>
-                              )}
-                              {spell.resourceCost && (
-                                <Badge
-                                  variant={canCast ? "secondary" : "destructive"}
-                                  className="text-xs"
-                                >
-                                  {formatResourceCost(spell.resourceCost)}
+                                <Badge variant="outline" className="text-xs">
+                                  {spell.category === "utility" ? "Utility" : "Combat"}
                                 </Badge>
-                              )}
-                            </div>
+                              </div>
 
-                            <p className="text-sm text-muted-foreground">{spell.description}</p>
-                            {spell.diceFormula && (
-                              <div className="text-xs text-muted-foreground">
-                                <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                  <span className="ml-2 text-green-600">
-                                    (Scaled ×{spellScalingMultiplier})
-                                  </span>
+                              {/* Action and Resource costs in a row */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {spell.actionCost !== undefined && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {formatActionCost(spell.actionCost)}
+                                  </Badge>
+                                )}
+                                {spell.resourceCost && (
+                                  <Badge
+                                    variant={canCast ? "secondary" : "destructive"}
+                                    className="text-xs"
+                                  >
+                                    {formatResourceCost(spell.resourceCost)}
+                                  </Badge>
                                 )}
                               </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2 ml-4">
-                            <Button
-                              size="sm"
-                              variant={canCast ? "outline" : "ghost"}
-                              onClick={() => handleSpellCast(spell)}
-                              disabled={!canCast}
-                              title={insufficientMessage || "Cast spell"}
-                            >
-                              <Zap className="w-4 h-4" />
-                            </Button>
-                            {spell.resourceCost && spell.upcastBonus && (
+
+                              <p className="text-sm text-muted-foreground">{spell.description}</p>
+                              {spell.diceFormula && (
+                                <div className="text-xs text-muted-foreground">
+                                  <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                  {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                    <span className="ml-2 text-green-600">
+                                      (Scaled ×{spellScalingMultiplier})
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 ml-4">
                               <Button
                                 size="sm"
                                 variant={canCast ? "outline" : "ghost"}
-                                onClick={() => handleUpcastClick(spell)}
+                                onClick={() => handleSpellCast(spell)}
                                 disabled={!canCast}
-                                title="Upcast spell for increased effect"
+                                title={insufficientMessage || "Cast spell"}
                               >
-                                <TrendingUp className="w-4 h-4" />
+                                <Zap className="w-4 h-4" />
                               </Button>
-                            )}
+                              {spell.resourceCost && spell.upcastBonus && (
+                                <Button
+                                  size="sm"
+                                  variant={canCast ? "outline" : "ghost"}
+                                  onClick={() => handleUpcastClick(spell)}
+                                  disabled={!canCast}
+                                  title="Upcast spell for increased effect"
+                                >
+                                  <TrendingUp className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          );
-        })}
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
 
-        {/* Locked Spells Section */}
-        {Object.keys(lockedSpellsBySchool).length > 0 && (
-          <div className="pt-6 border-t">
-            <Collapsible open={isLockedSectionOpen} onOpenChange={setIsLockedSectionOpen}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                  <h3
-                    className={`text-lg font-semibold flex items-center gap-2 text-muted-foreground`}
-                  >
-                    <Lock className="w-5 h-5" />
-                    Locked Spells
-                  </h3>
-                  {isLockedSectionOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="space-y-4 pt-2">
-                  {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
-                    const school = contentRepository.getSpellSchool(schoolId);
-                    const schoolName = school?.name || schoolId;
-                    const schoolColor = school?.color || "text-gray-600";
-                    const SchoolIcon = school?.icon ? getIconById(school.icon) : Sparkles;
-                    const isOpen = openLockedSchools[schoolId] ?? false;
+          {/* Locked Spells Section */}
+          {Object.keys(lockedSpellsBySchool).length > 0 && (
+            <div className="pt-6 border-t">
+              <Collapsible open={isLockedSectionOpen} onOpenChange={setIsLockedSectionOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                    <h3
+                      className={`text-lg font-semibold flex items-center gap-2 text-muted-foreground`}
+                    >
+                      <Lock className="w-5 h-5" />
+                      Locked Spells
+                    </h3>
+                    {isLockedSectionOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-4 pt-2">
+                    {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
+                      const school = contentRepository.getSpellSchool(schoolId);
+                      const schoolName = school?.name || schoolId;
+                      const schoolColor = school?.color || "text-gray-600";
+                      const SchoolIcon = school?.icon ? getIconById(school.icon) : Sparkles;
+                      const isOpen = openLockedSchools[schoolId] ?? false;
 
-                    return (
-                      <Collapsible
-                        key={schoolId}
-                        open={isOpen}
-                        onOpenChange={(open) => {
-                          setOpenLockedSchools((prev) => ({ ...prev, [schoolId]: open }));
-                        }}
-                      >
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                            <h4 className={`font-semibold flex items-center gap-2 ${schoolColor}`}>
-                              <SchoolIcon className="w-4 h-4" />
-                              {schoolName} ({spells.length} locked)
-                            </h4>
-                            {isOpen ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-3 pt-2 pl-4">
-                            {spells.map((spell) => (
-                              <div
-                                key={spell.id}
-                                className="border rounded-lg p-4 space-y-3 bg-muted/30"
+                      return (
+                        <Collapsible
+                          key={schoolId}
+                          open={isOpen}
+                          onOpenChange={(open) => {
+                            setOpenLockedSchools((prev) => ({ ...prev, [schoolId]: open }));
+                          }}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                              <h4
+                                className={`font-semibold flex items-center gap-2 ${schoolColor}`}
                               >
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2 flex-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <h5 className="font-semibold text-muted-foreground">
-                                        {spell.name}
-                                      </h5>
-                                      <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                        {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                                      </Badge>
-                                      <Badge variant="outline" className="text-xs">
-                                        {spell.category === "utility" ? "Utility" : "Combat"}
-                                      </Badge>
-                                      <Badge
-                                        variant="outline"
-                                        className="text-red-600 border-red-600"
-                                      >
-                                        Requires Tier {spell.tier} Access
-                                      </Badge>
-                                      {spell.actionCost !== undefined && (
-                                        <Badge variant="secondary" className="text-xs">
-                                          {spell.actionCost === 0
-                                            ? "Bonus Action"
-                                            : spell.actionCost === 1
-                                              ? "Action"
-                                              : `${spell.actionCost} Actions`}
+                                <SchoolIcon className="w-4 h-4" />
+                                {schoolName} ({spells.length} locked)
+                              </h4>
+                              {isOpen ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="space-y-3 pt-2 pl-4">
+                              {spells.map((spell) => (
+                                <div
+                                  key={spell.id}
+                                  className="border rounded-lg p-4 space-y-3 bg-muted/30"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="space-y-2 flex-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <h5 className="font-semibold text-muted-foreground">
+                                          {spell.name}
+                                        </h5>
+                                        <Badge
+                                          variant="outline"
+                                          className={getTierColor(spell.tier)}
+                                        >
+                                          {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
                                         </Badge>
-                                      )}
-                                      {spell.resourceCost && (
-                                        <Badge variant="secondary" className="text-xs">
-                                          {formatResourceCost(spell.resourceCost)}
+                                        <Badge variant="outline" className="text-xs">
+                                          {spell.category === "utility" ? "Utility" : "Combat"}
                                         </Badge>
-                                      )}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground/70">
-                                      {spell.description}
-                                    </p>
-                                    {spell.diceFormula && (
-                                      <div className="text-xs text-muted-foreground/70">
-                                        <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                        {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                          <span className="ml-2 text-green-600/70">
-                                            (Will scale ×{spellScalingMultiplier})
-                                          </span>
+                                        <Badge
+                                          variant="outline"
+                                          className="text-red-600 border-red-600"
+                                        >
+                                          Requires Tier {spell.tier} Access
+                                        </Badge>
+                                        {spell.actionCost !== undefined && (
+                                          <Badge variant="secondary" className="text-xs">
+                                            {spell.actionCost === 0
+                                              ? "Bonus Action"
+                                              : spell.actionCost === 1
+                                                ? "Action"
+                                                : `${spell.actionCost} Actions`}
+                                          </Badge>
+                                        )}
+                                        {spell.resourceCost && (
+                                          <Badge variant="secondary" className="text-xs">
+                                            {formatResourceCost(spell.resourceCost)}
+                                          </Badge>
                                         )}
                                       </div>
-                                    )}
+                                      <p className="text-sm text-muted-foreground/70">
+                                        {spell.description}
+                                      </p>
+                                      {spell.diceFormula && (
+                                        <div className="text-xs text-muted-foreground/70">
+                                          <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                          {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                            <span className="ml-2 text-green-600/70">
+                                              (Will scale ×{spellScalingMultiplier})
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <Lock className="w-4 h-4 text-muted-foreground ml-4" />
                                   </div>
-                                  <Lock className="w-4 h-4 text-muted-foreground ml-4" />
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  })}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-    
-    {/* Upcast Dialog */}
-    {upcastingSpell && (
-      <UpcastSpellDialog
-        spell={upcastingSpell}
-        resource={resources.find(r => 
-          r.definition.id === upcastingSpell.resourceCost?.resourceId
-        )}
-        maxSpellTier={character._spellTierAccess}
-        onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
-        onClose={() => setUpcastingSpell(null)}
-      />
-    )}
+                              ))}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Upcast Dialog */}
+      {upcastingSpell && (
+        <UpcastSpellDialog
+          spell={upcastingSpell}
+          resource={resources.find(
+            (r) => r.definition.id === upcastingSpell.resourceCost?.resourceId,
+          )}
+          maxSpellTier={character._spellTierAccess}
+          onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
+          onClose={() => setUpcastingSpell(null)}
+        />
+      )}
     </>
   );
 }

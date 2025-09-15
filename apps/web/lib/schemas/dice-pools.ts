@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 import { ICON_IDS } from "../utils/icon-utils";
-import { flexibleValueSchema } from "./flexible-value";
 import { diceTypeSchema } from "./dice";
+import { flexibleValueSchema } from "./flexible-value";
 
 // Resource reset condition schema (shared with resources)
 export const resourceResetConditionSchema = z.enum([

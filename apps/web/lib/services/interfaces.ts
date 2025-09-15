@@ -2,7 +2,6 @@ import {
   AbilityDefinition,
   ActionAbilityDefinition,
   SpellAbilityDefinition,
-  UsableAbilityDefinition,
 } from "../schemas/abilities";
 import { LogEntry } from "../schemas/activity-log";
 import { AncestryDefinition } from "../schemas/ancestry";
@@ -13,14 +12,15 @@ import {
   Attributes,
   Character,
   CharacterConfiguration,
-  TraitSelection,
   HitDice,
   PoolFeatureTraitSelection,
   Skill,
   Skills,
+  TraitSelection,
   UtilitySpellsTraitSelection,
 } from "../schemas/character";
 import { ClassDefinition, FeaturePool } from "../schemas/class";
+import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import {
   CharacterFeature,
   ClassFeature,
@@ -28,7 +28,6 @@ import {
 } from "../schemas/features";
 import { Item } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
-import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { DiceFormulaResult } from "./dice-service";
@@ -113,11 +112,11 @@ export interface IAbilityService {
     character: Character,
   ): Map<string, number>;
   checkCanUseAbility(
-    ability: ActionAbilityDefinition | SpellAbilityDefinition,
+    ability: AbilityDefinition,
     character: Character,
     variableResourceAmount?: number,
   ): boolean;
-  getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number;
+  getResourceCostAmount(ability: AbilityDefinition, variableResourceAmount?: number): number;
   calculateMaxUses(ability: ActionAbilityDefinition): number;
 }
 
@@ -182,6 +181,8 @@ export interface ICharacterService {
   getResources(): ResourceInstance[];
   getResourceValue(resourceId: string): number;
   setResourceValue(resourceId: string, value: number): Promise<void>;
+  spendResource(resourceId: string, amount: number): Promise<void>;
+  restoreResource(resourceId: string, amount: number): Promise<void>;
   getResourceMaxValue(resourceId: string): number;
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;

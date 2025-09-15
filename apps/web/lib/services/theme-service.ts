@@ -1,5 +1,6 @@
 import { findThemeForMode, getThemeFamily, themes } from "@/lib/data/themes";
 import { Theme, ThemeId } from "@/lib/types/theme";
+
 import { settingsService } from "./settings-service";
 
 export class ThemeService {
@@ -8,16 +9,16 @@ export class ThemeService {
 
   async initializeTheme(): Promise<void> {
     if (this.isInitialized || typeof window === "undefined") return;
-    
+
     this.isInitialized = true;
-    
+
     // Get theme from app settings
     const settings = await settingsService.getSettings();
     const themeId = settings.themeId || "default";
-    
+
     // Update current theme ID
     this.currentThemeId = themeId;
-    
+
     // Apply the theme
     this.applyTheme(themeId);
   }
@@ -34,12 +35,12 @@ export class ThemeService {
     // Validate theme exists, fallback to default if not
     const theme = this.getThemeById(themeId);
     const validThemeId = theme ? themeId : "default";
-    
+
     this.currentThemeId = validThemeId;
-    
+
     // Save to settings
     await settingsService.updateTheme(validThemeId);
-    
+
     // Apply the theme
     this.applyTheme(validThemeId);
   }
@@ -71,7 +72,7 @@ export class ThemeService {
 
   private applyTheme(themeId: string): void {
     const theme = this.getThemeById(themeId);
-    
+
     // Fallback to default if theme not found
     const finalTheme = theme || this.getThemeById("default");
     if (!finalTheme) return;
@@ -122,20 +123,20 @@ export class ThemeService {
   // Get light/dark themes grouped by family
   getThemesByFamily(): Map<string, { light?: Theme; dark?: Theme }> {
     const families = new Map<string, { light?: Theme; dark?: Theme }>();
-    
+
     themes.forEach((theme) => {
       const family = getThemeFamily(theme.id);
       const existing = families.get(family) || {};
-      
+
       if (theme.isDark) {
         existing.dark = theme;
       } else {
         existing.light = theme;
       }
-      
+
       families.set(family, existing);
     });
-    
+
     return families;
   }
 

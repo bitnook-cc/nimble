@@ -13,6 +13,8 @@ import {
 
 import { useState } from "react";
 
+import { EffectPreview } from "@/components/effect-preview";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
@@ -20,7 +22,6 @@ import {
   AbilityFrequency,
   ActionAbilityDefinition,
 } from "@/lib/schemas/abilities";
-import { AttributeName } from "@/lib/schemas/character";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { abilityService } from "@/lib/services/ability-service";
 import { getCharacterService } from "@/lib/services/service-factory";
@@ -98,51 +99,43 @@ export function AbilitySection() {
   const addAbility = () => {
     if (!newAbility.name.trim()) return;
 
-    const ability: AbilityDefinition =
-      newAbility.type === "freeform"
+    const ability: AbilityDefinition = {
+      id: `ability-${Date.now()}`,
+      name: newAbility.name,
+      description: newAbility.description,
+      type: "action",
+      frequency: newAbility.frequency,
+      ...(newAbility.frequency !== "at_will" && newAbility.maxUsesType
         ? {
-            id: `ability-${Date.now()}`,
-            name: newAbility.name,
-            description: newAbility.description,
-            type: "freeform",
+            maxUses:
+              newAbility.maxUsesType === "fixed"
+                ? { type: "fixed" as const, value: newAbility.maxUsesValue || 1 }
+                : {
+                    type: "formula" as const,
+                    expression: newAbility.maxUsesExpression || "DEX + WIL",
+                  },
           }
-        : {
-            id: `ability-${Date.now()}`,
-            name: newAbility.name,
-            description: newAbility.description,
-            type: "action",
-            frequency: newAbility.frequency,
-            ...(newAbility.frequency !== "at_will" && newAbility.maxUsesType
-              ? {
-                  maxUses:
-                    newAbility.maxUsesType === "fixed"
-                      ? { type: "fixed" as const, value: newAbility.maxUsesValue || 1 }
-                      : {
-                          type: "formula" as const,
-                          expression: newAbility.maxUsesExpression || "DEX + WIL",
-                        },
-                }
-              : {}),
-            ...(newAbility.actionCost ? { actionCost: newAbility.actionCost } : {}),
-            ...(newAbility.diceFormula ? { diceFormula: newAbility.diceFormula } : {}),
-            ...(newAbility.resourceCost && newAbility.resourceCost.resourceId
-              ? {
-                  resourceCost:
-                    newAbility.resourceCost.type === "fixed"
-                      ? {
-                          type: "fixed" as const,
-                          resourceId: newAbility.resourceCost.resourceId,
-                          amount: newAbility.resourceCost.amount || 1,
-                        }
-                      : {
-                          type: "variable" as const,
-                          resourceId: newAbility.resourceCost.resourceId,
-                          minAmount: newAbility.resourceCost.minAmount || 1,
-                          maxAmount: newAbility.resourceCost.maxAmount || undefined,
-                        },
-                }
-              : {}),
-          };
+        : {}),
+      ...(newAbility.actionCost ? { actionCost: newAbility.actionCost } : {}),
+      ...(newAbility.diceFormula ? { diceFormula: newAbility.diceFormula } : {}),
+      ...(newAbility.resourceCost && newAbility.resourceCost.resourceId
+        ? {
+            resourceCost:
+              newAbility.resourceCost.type === "fixed"
+                ? {
+                    type: "fixed" as const,
+                    resourceId: newAbility.resourceCost.resourceId,
+                    amount: newAbility.resourceCost.amount || 1,
+                  }
+                : {
+                    type: "variable" as const,
+                    resourceId: newAbility.resourceCost.resourceId,
+                    minAmount: newAbility.resourceCost.minAmount || 1,
+                    maxAmount: newAbility.resourceCost.maxAmount || undefined,
+                  },
+          }
+        : {}),
+    };
 
     updateAbilities([...abilities, ability]);
 
@@ -181,33 +174,6 @@ export function AbilitySection() {
   };
 
   const renderAbility = (ability: AbilityDefinition) => {
-    if (ability.type === "freeform") {
-      return (
-        <Card key={ability.id} className="mb-2">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-4 h-4 text-gray-500" />
-                  <h4 className="font-semibold">{ability.name}</h4>
-                  <Badge variant="outline">Freeform</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{ability.description}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteAbility(ability.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
     const actionAbility = ability as ActionAbilityDefinition;
     const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility) : 0;
     const currentUses = character._abilityUses.get(actionAbility.id) || 0;
@@ -303,7 +269,10 @@ export function AbilitySection() {
                         max={
                           actionAbility.resourceCost.type === "variable"
                             ? Math.min(
-                                actionAbility.resourceCost.maxAmount ?? characterService.getResourceMaxValue(actionAbility.resourceCost.resourceId),
+                                actionAbility.resourceCost.maxAmount ??
+                                  characterService.getResourceMaxValue(
+                                    actionAbility.resourceCost.resourceId,
+                                  ),
                                 resourceInfo.resource?.current || 0,
                               )
                             : resourceInfo.resource?.current || 0
@@ -325,6 +294,11 @@ export function AbilitySection() {
                     </div>
                   </div>
                 )}
+
+              {/* Effect preview */}
+              {actionAbility.effects && actionAbility.effects.length > 0 && (
+                <EffectPreview effects={actionAbility.effects} className="mb-3" />
+              )}
 
               <Button
                 variant={!canUse ? "outline" : "default"}
@@ -651,7 +625,9 @@ export function AbilitySection() {
                                           ...newAbility,
                                           resourceCost: {
                                             ...newAbility.resourceCost!,
-                                            maxAmount: e.target.value ? parseInt(e.target.value) : undefined,
+                                            maxAmount: e.target.value
+                                              ? parseInt(e.target.value)
+                                              : undefined,
                                           },
                                         })
                                       }

@@ -1,7 +1,7 @@
-import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
-import { DiceType } from "../schemas/dice";
-import { calculateFlexibleValue as evaluateFlexibleValue } from "../types/flexible-value";
 import { Character } from "../schemas/character";
+import { DiceType } from "../schemas/dice";
+import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
+import { calculateFlexibleValue as evaluateFlexibleValue } from "../types/flexible-value";
 
 export interface DicePoolServiceInterface {
   addDiceToPools(

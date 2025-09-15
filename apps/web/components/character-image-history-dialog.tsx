@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Button } from './ui/button';
-import { ScrollArea } from './ui/scroll-area';
-import { Clock, CheckCircle, Loader2 } from 'lucide-react';
-import { characterImageService, CharacterImageMetadata } from '../lib/services/character-image-service';
-import { getCharacterService } from '../lib/services/service-factory';
-import { CharacterAvatar } from './character-avatar';
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import { CheckCircle, Clock, Loader2 } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import {
+  CharacterImageMetadata,
+  characterImageService,
+} from "../lib/services/character-image-service";
+import { getCharacterService } from "../lib/services/service-factory";
+import { CharacterAvatar } from "./character-avatar";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface CharacterImageHistoryDialogProps {
   open: boolean;
@@ -37,7 +42,7 @@ export function CharacterImageHistoryDialog({
         const history = await characterImageService.getImageHistory(characterId);
         setImageHistory(history);
       } catch (error) {
-        console.error('Failed to load image history:', error);
+        console.error("Failed to load image history:", error);
       } finally {
         setIsLoading(false);
       }
@@ -50,18 +55,18 @@ export function CharacterImageHistoryDialog({
 
   const handleSelectImage = async (imageId: string) => {
     if (imageId === currentImageId) return;
-    
+
     setIsSwitching(true);
     setSelectedId(imageId);
-    
+
     try {
       const characterService = getCharacterService();
       await characterService.updateCharacterFields({
-        imageId: imageId
+        imageId: imageId,
       });
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to switch image:', error);
+      console.error("Failed to switch image:", error);
     } finally {
       setIsSwitching(false);
       setSelectedId(null);
@@ -89,23 +94,21 @@ export function CharacterImageHistoryDialog({
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : imageHistory.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No images uploaded yet
-          </div>
+          <div className="text-center py-8 text-muted-foreground">No images uploaded yet</div>
         ) : (
           <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-4">
               {imageHistory.map((image, index) => {
                 const isCurrent = image.id === currentImageId;
                 const isSelected = image.id === selectedId;
-                
+
                 return (
                   <div
                     key={image.id}
                     className={cn(
                       "flex items-center gap-4 p-4 rounded-lg border",
                       isCurrent && "border-primary bg-primary/5",
-                      !isCurrent && "border-border hover:bg-muted/50"
+                      !isCurrent && "border-border hover:bg-muted/50",
                     )}
                   >
                     <CharacterAvatar
@@ -114,7 +117,7 @@ export function CharacterImageHistoryDialog({
                       imageId={image.id}
                       size="thumbnail"
                     />
-                    
+
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Image {index + 1}</span>
@@ -126,14 +129,14 @@ export function CharacterImageHistoryDialog({
                       </div>
                       <div className="text-sm text-muted-foreground">
                         <Clock className="inline h-3 w-3 mr-1" />
-                        {format(new Date(image.createdAt), 'MMM d, yyyy h:mm a')}
+                        {format(new Date(image.createdAt), "MMM d, yyyy h:mm a")}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Profile: {formatFileSize(image.profileSize)} • 
-                        Thumbnail: {formatFileSize(image.thumbnailSize)}
+                        Profile: {formatFileSize(image.profileSize)} • Thumbnail:{" "}
+                        {formatFileSize(image.thumbnailSize)}
                       </div>
                     </div>
-                    
+
                     <Button
                       variant={isCurrent ? "secondary" : "outline"}
                       size="sm"
@@ -148,7 +151,7 @@ export function CharacterImageHistoryDialog({
                           Current
                         </>
                       ) : (
-                        'Use This'
+                        "Use This"
                       )}
                     </Button>
                   </div>
@@ -169,5 +172,5 @@ export function CharacterImageHistoryDialog({
 }
 
 function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }

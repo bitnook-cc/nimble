@@ -11,7 +11,6 @@ import type {
   Character,
   CharacterConfiguration,
   CreateCharacterData,
-  TraitSelection,
   HitDice,
   HitDieSize,
   HitPoints,
@@ -24,6 +23,7 @@ import type {
   Skills,
   SpellSchoolTraitSelection,
   SubclassTraitSelection,
+  TraitSelection,
   UtilitySpellsTraitSelection,
   Wounds,
 } from "../schemas/character";

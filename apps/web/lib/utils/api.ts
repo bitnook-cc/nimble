@@ -6,14 +6,14 @@
 
 const getApiUrl = () => {
   // Check if we're in the browser
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // In production, use the relative /api path (Vercel will rewrite it)
-    if (window.location.hostname !== 'localhost') {
-      return '/api';
+    if (window.location.hostname !== "localhost") {
+      return "/api";
     }
   }
   // In development, use the local API server
-  return 'http://localhost:3001';
+  return "http://localhost:3001";
 };
 
 export const apiUrl = getApiUrl();
@@ -21,15 +21,12 @@ export const apiUrl = getApiUrl();
 /**
  * Wrapper around fetch for API calls
  */
-export const apiFetch = async (
-  endpoint: string,
-  options?: RequestInit
-): Promise<Response> => {
+export const apiFetch = async (endpoint: string, options?: RequestInit): Promise<Response> => {
   const url = `${getApiUrl()}${endpoint}`;
   return fetch(url, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
@@ -49,12 +46,9 @@ export const apiGet = async <T = any>(endpoint: string): Promise<T> => {
 /**
  * POST request helper
  */
-export const apiPost = async <T = any>(
-  endpoint: string,
-  data?: any
-): Promise<T> => {
+export const apiPost = async <T = any>(endpoint: string, data?: any): Promise<T> => {
   const response = await apiFetch(endpoint, {
-    method: 'POST',
+    method: "POST",
     body: data ? JSON.stringify(data) : undefined,
   });
   if (!response.ok) {

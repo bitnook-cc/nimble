@@ -191,46 +191,44 @@ export function TraitSelectionsSection() {
           ))}
 
           {/* Pool Feature Selections */}
-          {availablePoolSelections.map(
-            (effect: PickFeatureFromPoolFeatureTrait, index: number) => {
-              const contentRepository = ContentRepositoryService.getInstance();
-              const pool = contentRepository.getFeaturePool(effect.poolId);
-              const remaining =
-                effect.choicesAllowed -
-                character.traitSelections.filter(
-                  (s) => s.type === "pool_feature" && s.grantedByTraitId === effect.id,
-                ).length;
+          {availablePoolSelections.map((effect: PickFeatureFromPoolFeatureTrait, index: number) => {
+            const contentRepository = ContentRepositoryService.getInstance();
+            const pool = contentRepository.getFeaturePool(effect.poolId);
+            const remaining =
+              effect.choicesAllowed -
+              character.traitSelections.filter(
+                (s) => s.type === "pool_feature" && s.grantedByTraitId === effect.id,
+              ).length;
 
-              return (
-                <div
-                  key={effect.id || `pool-${index}`}
-                  className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("pool_feature")}`}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    {getSelectionIcon("pool_feature")}
-                    <div>
-                      <div className="font-medium">Feature Pool Selection</div>
-                      <div className="text-sm text-muted-foreground">
-                        Choose from {pool?.name || effect.poolId}
-                      </div>
-                      {pool && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {remaining} selection{remaining !== 1 ? "s" : ""} remaining
-                        </div>
-                      )}
+            return (
+              <div
+                key={effect.id || `pool-${index}`}
+                className={`flex items-center justify-between p-3 rounded-lg border ${getSelectionColor("pool_feature")}`}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  {getSelectionIcon("pool_feature")}
+                  <div>
+                    <div className="font-medium">Feature Pool Selection</div>
+                    <div className="text-sm text-muted-foreground">
+                      Choose from {pool?.name || effect.poolId}
                     </div>
+                    {pool && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {remaining} selection{remaining !== 1 ? "s" : ""} remaining
+                      </div>
+                    )}
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => setSelectedPoolFeature(effect)}
-                    disabled={remaining <= 0}
-                  >
-                    Select Feature
-                  </Button>
                 </div>
-              );
-            },
-          )}
+                <Button
+                  size="sm"
+                  onClick={() => setSelectedPoolFeature(effect)}
+                  disabled={remaining <= 0}
+                >
+                  Select Feature
+                </Button>
+              </div>
+            );
+          })}
 
           {/* Spell School Selections */}
           {availableSpellSchoolSelections.map(

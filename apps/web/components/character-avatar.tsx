@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { cn } from '../lib/utils';
-import { CharacterAvatarPlaceholder } from './character-avatar-placeholder';
-import { useCharacterImage } from '../lib/hooks/use-character-image';
+import { useCharacterImage } from "../lib/hooks/use-character-image";
+import { cn } from "../lib/utils";
+import { CharacterAvatarPlaceholder } from "./character-avatar-placeholder";
 
 interface CharacterAvatarProps {
   characterId: string;
   characterName: string;
   imageId?: string;
-  size?: 'thumbnail' | 'profile';
+  size?: "thumbnail" | "profile";
   className?: string;
   onClick?: () => void;
   clickable?: boolean;
@@ -18,44 +18,44 @@ export function CharacterAvatar({
   characterId,
   characterName,
   imageId,
-  size = 'profile',
+  size = "profile",
   className,
   onClick,
   clickable = false,
 }: CharacterAvatarProps) {
   const { imageDataUrl, thumbnailDataUrl, isLoading } = useCharacterImage(characterId);
-  const imageUrl = size === 'thumbnail' ? thumbnailDataUrl : imageDataUrl;
+  const imageUrl = size === "thumbnail" ? thumbnailDataUrl : imageDataUrl;
 
-  const dimensions = size === 'thumbnail' ? 'w-[50px] h-[50px]' : 'w-[100px] h-[100px]';
+  const dimensions = size === "thumbnail" ? "w-[50px] h-[50px]" : "w-[100px] h-[100px]";
   const isClickable = clickable || !!onClick;
 
   return (
     <div
       className={cn(
         dimensions,
-        'relative overflow-hidden rounded-lg bg-gray-100 flex-shrink-0',
-        isClickable && 'cursor-pointer hover:ring-2 hover:ring-primary transition-all',
-        className
+        "relative overflow-hidden rounded-lg bg-gray-100 flex-shrink-0",
+        isClickable && "cursor-pointer hover:ring-2 hover:ring-primary transition-all",
+        className,
       )}
       onClick={onClick}
-      role={isClickable ? 'button' : undefined}
+      role={isClickable ? "button" : undefined}
       tabIndex={isClickable ? 0 : undefined}
-      onKeyDown={isClickable ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick?.();
-        }
-      } : undefined}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
       aria-label={isClickable ? `Upload image for ${characterName}` : `${characterName} avatar`}
     >
       {isLoading ? (
         <div className="w-full h-full animate-pulse bg-gray-200" />
       ) : imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={characterName}
-          className="w-full h-full object-cover"
-        />
+        <img src={imageUrl} alt={characterName} className="w-full h-full object-cover" />
       ) : (
         <CharacterAvatarPlaceholder className="w-full h-full" />
       )}

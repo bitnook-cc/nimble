@@ -2,11 +2,11 @@
 
 import { AbilitySection } from "../sections/ability-section";
 import { AttributesSection } from "../sections/attributes-section";
-import { TraitSelectionsSection } from "../sections/trait-selections-section";
+import { DicePoolSection } from "../sections/dice-pool-section";
 import { FeaturesSection } from "../sections/features-section";
 import { HitDiceSection } from "../sections/hit-dice-section";
 import { ResourceSection } from "../sections/resource-section";
-import { DicePoolSection } from "../sections/dice-pool-section";
+import { TraitSelectionsSection } from "../sections/trait-selections-section";
 
 export function CharacterTab() {
   return (

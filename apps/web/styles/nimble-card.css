@@ -21,7 +21,7 @@
   --accentColor: transparent;
   --textColor: var(--nimble-text);
   --passiveBGColor: var(--nimble-passive-bg);
-  
+
   width: min-content;
   min-width: min-content;
   position: relative;
@@ -290,7 +290,7 @@
   --borderWidth: 2px;
   --accentColor: var(--nimble-accent);
   --solidBGColor: var(--nimble-solid-bg);
-  
+
   position: relative;
   border: var(--borderWidth) solid var(--accentColor);
   border-radius: var(--backgroundEdgeWidth);
@@ -348,7 +348,7 @@
     --backgroundEdgeWidth: 6px;
     --passivesOverhang: 20px;
   }
-  
+
   .nimble-card-simple {
     --backgroundEdgeWidth: 4px;
   }

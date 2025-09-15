@@ -281,7 +281,7 @@ const shadowmancerFeatures: ClassFeature[] = [
           actionCost: 1,
           diceFormula: "1d12+KEY",
           scalingBonus: "+1d12",
-        }
+        },
       },
       {
         id: "summon-shadows-0",
@@ -296,7 +296,7 @@ const shadowmancerFeatures: ClassFeature[] = [
           tier: 0,
           category: "combat",
           actionCost: 1,
-        }
+        },
       },
     ],
   },

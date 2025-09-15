@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { AlertTriangle, Cloud, Trash2 } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
 import { Character } from "@/lib/schemas/character";
-import { syncService } from "@/lib/services/sync/sync-service";
 import { authService } from "@/lib/services/auth-service";
+import { syncService } from "@/lib/services/sync/sync-service";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Checkbox } from "./ui/checkbox";
-import { Alert, AlertDescription } from "./ui/alert";
 
 interface CharacterDeleteDialogProps {
   isOpen: boolean;
@@ -84,7 +87,8 @@ export function CharacterDeleteDialog({
           {isActiveCharacter && !isLastCharacter && (
             <Alert>
               <AlertDescription>
-                This is your currently active character. Another character will be selected automatically.
+                This is your currently active character. Another character will be selected
+                automatically.
               </AlertDescription>
             </Alert>
           )}
@@ -108,7 +112,8 @@ export function CharacterDeleteDialog({
                   </span>
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  Remove this character's backup from the cloud. The character will only exist locally until you sync again.
+                  Remove this character's backup from the cloud. The character will only exist
+                  locally until you sync again.
                 </p>
               </div>
             </div>
@@ -119,11 +124,7 @@ export function CharacterDeleteDialog({
           <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
+          <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
             {isDeleting ? (
               "Deleting..."
             ) : (

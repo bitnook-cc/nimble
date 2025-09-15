@@ -2,7 +2,6 @@ import { useCallback } from "react";
 
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { getCharacterService } from "../services/service-factory";
-import { useActivityLog } from "./use-activity-log";
 import { useCharacterService } from "./use-character-service";
 
 /**
@@ -11,67 +10,24 @@ import { useCharacterService } from "./use-character-service";
  */
 export function useResourceService() {
   const { character } = useCharacterService();
-  const { addLogEntry } = useActivityLog();
   const characterService = getCharacterService();
 
   const spendResource = useCallback(
     async (resourceId: string, amount: number) => {
       if (!character) return;
-
-      const currentValue = characterService.getResourceValue(resourceId);
-      const newValue = Math.max(0, currentValue - amount);
-      await characterService.setResourceValue(resourceId, newValue);
-
-      // Log the resource usage
-      const resource = characterService.getResourceDefinitions().find((r) => r.id === resourceId);
-      if (resource) {
-        const maxValue = characterService.getResourceMaxValue(resourceId);
-        const logEntry = {
-          id: `log-${Date.now()}`,
-          type: "resource" as const,
-          timestamp: new Date(),
-          description: `Spent ${amount} ${resource.name}`,
-          resourceId: resourceId,
-          resourceName: resource.name,
-          amount: amount,
-          action: "spent" as const,
-          currentAmount: newValue,
-          maxAmount: maxValue,
-        };
-        await addLogEntry(logEntry);
-      }
+      // Delegate to character service which handles logging
+      await characterService.spendResource(resourceId, amount);
     },
-    [character, characterService, addLogEntry],
+    [character, characterService],
   );
 
   const restoreResource = useCallback(
     async (resourceId: string, amount: number) => {
       if (!character) return;
-
-      const currentValue = characterService.getResourceValue(resourceId);
-      const maxValue = characterService.getResourceMaxValue(resourceId);
-      const newValue = Math.min(maxValue, currentValue + amount);
-      await characterService.setResourceValue(resourceId, newValue);
-
-      // Log the resource usage
-      const resource = characterService.getResourceDefinitions().find((r) => r.id === resourceId);
-      if (resource) {
-        const logEntry = {
-          id: `log-${Date.now()}`,
-          type: "resource" as const,
-          timestamp: new Date(),
-          description: `Restored ${amount} ${resource.name}`,
-          resourceId: resourceId,
-          resourceName: resource.name,
-          amount: amount,
-          action: "restored" as const,
-          currentAmount: newValue,
-          maxAmount: maxValue,
-        };
-        await addLogEntry(logEntry);
-      }
+      // Delegate to character service which handles logging
+      await characterService.restoreResource(resourceId, amount);
     },
-    [character, characterService, addLogEntry],
+    [character, characterService],
   );
 
   const setResource = useCallback(

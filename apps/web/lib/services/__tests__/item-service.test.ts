@@ -1,93 +1,94 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ItemService } from '../item-service';
-import type { 
-  RepositoryItem, 
-  RepositoryWeaponItem, 
-  RepositoryArmorItem, 
-  RepositoryConsumableItem 
-} from '@/lib/types/item-repository';
-import type { WeaponItem, ArmorItem, ConsumableItem } from '@/lib/schemas/inventory';
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// Import after mock setup
+import { ITEM_REPOSITORY } from "@/lib/data/items";
+import type { ArmorItem, ConsumableItem, WeaponItem } from "@/lib/schemas/inventory";
+import type {
+  RepositoryArmorItem,
+  RepositoryConsumableItem,
+  RepositoryItem,
+  RepositoryWeaponItem,
+} from "@/lib/types/item-repository";
+
+import { ItemService } from "../item-service";
 
 // Mock ITEM_REPOSITORY with factory function to avoid hoisting issues
-vi.mock('@/lib/data/items', () => {
+vi.mock("@/lib/data/items", () => {
   const mockItemRepository = {
     weapons: [] as any[],
     armor: [] as any[],
     freeform: [] as any[],
     consumables: [] as any[],
-    ammunition: [] as any[]
+    ammunition: [] as any[],
   };
-  
+
   return {
-    ITEM_REPOSITORY: mockItemRepository
+    ITEM_REPOSITORY: mockItemRepository,
   };
 });
 
-// Import after mock setup
-import { ITEM_REPOSITORY } from '@/lib/data/items';
-
-describe('ItemService', () => {
+describe("ItemService", () => {
   let itemService: ItemService;
 
-  const mockWeaponItem: Omit<WeaponItem, 'equipped'> = {
-    id: 'test-sword',
-    name: 'Test Sword',
-    description: 'A test weapon',
-    type: 'weapon',
-    damage: '1d8',
-    size: 1
+  const mockWeaponItem: Omit<WeaponItem, "equipped"> = {
+    id: "test-sword",
+    name: "Test Sword",
+    description: "A test weapon",
+    type: "weapon",
+    damage: "1d8",
+    size: 1,
   };
 
   const mockWeapon: RepositoryWeaponItem = {
-    category: 'mundane',
-    rarity: 'common',
-    item: mockWeaponItem
+    category: "mundane",
+    rarity: "common",
+    item: mockWeaponItem,
   };
 
-  const mockArmorItem: Omit<ArmorItem, 'equipped'> = {
-    id: 'test-armor',
-    name: 'Test Armor',
-    description: 'A test armor',
-    type: 'armor',
+  const mockArmorItem: Omit<ArmorItem, "equipped"> = {
+    id: "test-armor",
+    name: "Test Armor",
+    description: "A test armor",
+    type: "armor",
     armor: 14,
     isMainArmor: true,
-    size: 2
+    size: 2,
   };
 
   const mockArmor: RepositoryArmorItem = {
-    category: 'mundane',
-    rarity: 'common',
-    item: mockArmorItem
+    category: "mundane",
+    rarity: "common",
+    item: mockArmorItem,
   };
 
   const mockConsumableItem: ConsumableItem = {
-    id: 'test-potion',
-    name: 'Test Potion',
-    description: 'A test consumable',
-    type: 'consumable',
+    id: "test-potion",
+    name: "Test Potion",
+    description: "A test consumable",
+    type: "consumable",
     count: 3,
-    size: 1
+    size: 1,
   };
 
   const mockConsumable: RepositoryConsumableItem = {
-    category: 'mundane',
-    rarity: 'common',
-    item: mockConsumableItem
+    category: "mundane",
+    rarity: "common",
+    item: mockConsumableItem,
   };
 
-  const mockMagicalWeaponItem: Omit<WeaponItem, 'equipped'> = {
-    id: 'magic-sword',
-    name: 'Magic Sword',
-    description: 'A magical weapon',
-    type: 'weapon',
-    damage: '2d6',
-    size: 1
+  const mockMagicalWeaponItem: Omit<WeaponItem, "equipped"> = {
+    id: "magic-sword",
+    name: "Magic Sword",
+    description: "A magical weapon",
+    type: "weapon",
+    damage: "2d6",
+    size: 1,
   };
 
   const mockMagicalWeapon: RepositoryWeaponItem = {
-    category: 'magical',
-    rarity: 'rare',
-    item: mockMagicalWeaponItem
+    category: "magical",
+    rarity: "rare",
+    item: mockMagicalWeaponItem,
   };
 
   beforeEach(() => {
@@ -98,12 +99,12 @@ describe('ItemService', () => {
     ITEM_REPOSITORY.freeform = [];
     ITEM_REPOSITORY.consumables = [];
     ITEM_REPOSITORY.ammunition = [];
-    
+
     itemService = ItemService.getInstance();
   });
 
-  describe('getAllItems', () => {
-    it('should return all items from repository', () => {
+  describe("getAllItems", () => {
+    it("should return all items from repository", () => {
       ITEM_REPOSITORY.weapons = [mockWeapon] as any;
       ITEM_REPOSITORY.armor = [mockArmor] as any;
       ITEM_REPOSITORY.consumables = [mockConsumable] as any;
@@ -113,46 +114,46 @@ describe('ItemService', () => {
       expect(result).toHaveLength(3);
     });
 
-    it('should return empty array when no items exist', () => {
+    it("should return empty array when no items exist", () => {
       const result = itemService.getAllItems();
 
       expect(result).toEqual([]);
     });
   });
 
-  describe('getItemsByType', () => {
+  describe("getItemsByType", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon] as any;
       ITEM_REPOSITORY.armor = [mockArmor] as any;
       ITEM_REPOSITORY.consumables = [mockConsumable] as any;
     });
 
-    it('should return weapons when type is weapon', () => {
-      const result = itemService.getItemsByType('weapon');
+    it("should return weapons when type is weapon", () => {
+      const result = itemService.getItemsByType("weapon");
 
       expect(result).toEqual([mockWeapon]);
     });
 
-    it('should return armor when type is armor', () => {
-      const result = itemService.getItemsByType('armor');
+    it("should return armor when type is armor", () => {
+      const result = itemService.getItemsByType("armor");
 
       expect(result).toEqual([mockArmor]);
     });
 
-    it('should return consumables when type is consumable', () => {
-      const result = itemService.getItemsByType('consumable');
+    it("should return consumables when type is consumable", () => {
+      const result = itemService.getItemsByType("consumable");
 
       expect(result).toEqual([mockConsumable]);
     });
 
-    it('should return empty array for type with no items', () => {
-      const result = itemService.getItemsByType('ammunition');
+    it("should return empty array for type with no items", () => {
+      const result = itemService.getItemsByType("ammunition");
 
       expect(result).toEqual([]);
     });
   });
 
-  describe('filterItems', () => {
+  describe("filterItems", () => {
     beforeEach(() => {
       // Reset and populate mock repository with RepositoryItem structure
       ITEM_REPOSITORY.weapons = [mockWeapon, mockMagicalWeapon];
@@ -160,100 +161,100 @@ describe('ItemService', () => {
       ITEM_REPOSITORY.consumables = [mockConsumable];
     });
 
-    it('should filter by type', () => {
-      const result = itemService.filterItems({ type: 'weapon' });
+    it("should filter by type", () => {
+      const result = itemService.filterItems({ type: "weapon" });
 
       expect(result).toHaveLength(2);
-      expect(result[0].item.type).toBe('weapon');
-      expect(result[1].item.type).toBe('weapon');
+      expect(result[0].item.type).toBe("weapon");
+      expect(result[1].item.type).toBe("weapon");
     });
 
-    it('should filter by category', () => {
-      const result = itemService.filterItems({ category: 'magical' });
+    it("should filter by category", () => {
+      const result = itemService.filterItems({ category: "magical" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].category).toBe('magical');
+      expect(result[0].category).toBe("magical");
     });
 
-    it('should filter by rarity', () => {
-      const result = itemService.filterItems({ rarity: 'rare' });
+    it("should filter by rarity", () => {
+      const result = itemService.filterItems({ rarity: "rare" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].rarity).toBe('rare');
+      expect(result[0].rarity).toBe("rare");
     });
 
-    it('should filter by name', () => {
-      const result = itemService.filterItems({ name: 'magic' });
+    it("should filter by name", () => {
+      const result = itemService.filterItems({ name: "magic" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.name).toBe('Magic Sword');
+      expect(result[0].item.name).toBe("Magic Sword");
     });
 
-    it('should filter by description', () => {
-      const result = itemService.filterItems({ name: 'test weapon' });
+    it("should filter by description", () => {
+      const result = itemService.filterItems({ name: "test weapon" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.id).toBe('test-sword');
+      expect(result[0].item.id).toBe("test-sword");
     });
 
-    it('should combine multiple filters', () => {
-      const result = itemService.filterItems({ 
-        type: 'weapon',
-        category: 'magical'
+    it("should combine multiple filters", () => {
+      const result = itemService.filterItems({
+        type: "weapon",
+        category: "magical",
       });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.id).toBe('magic-sword');
+      expect(result[0].item.id).toBe("magic-sword");
     });
   });
 
-  describe('findItemById', () => {
+  describe("findItemById", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon];
       ITEM_REPOSITORY.armor = [mockArmor];
     });
 
-    it('should find item by repository ID', () => {
-      const result = itemService.findItemById('test-sword');
+    it("should find item by repository ID", () => {
+      const result = itemService.findItemById("test-sword");
 
       expect(result).toBeDefined();
-      expect(result?.item.id).toBe('test-sword');
+      expect(result?.item.id).toBe("test-sword");
     });
 
-    it('should return undefined for non-existent ID', () => {
-      const result = itemService.findItemById('non-existent');
+    it("should return undefined for non-existent ID", () => {
+      const result = itemService.findItemById("non-existent");
 
       expect(result).toBeUndefined();
     });
   });
 
-  describe('createInventoryItem', () => {
+  describe("createInventoryItem", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon];
     });
 
-    it('should create inventory item with unique ID', () => {
-      const result = itemService.createInventoryItem('test-sword');
+    it("should create inventory item with unique ID", () => {
+      const result = itemService.createInventoryItem("test-sword");
 
       expect(result).toBeDefined();
       expect(result?.id).toMatch(/^test-sword-[a-f0-9]{8}$/);
-      expect(result?.name).toBe('Test Sword');
+      expect(result?.name).toBe("Test Sword");
     });
 
-    it('should return null for non-existent repository ID', () => {
-      const result = itemService.createInventoryItem('non-existent');
+    it("should return null for non-existent repository ID", () => {
+      const result = itemService.createInventoryItem("non-existent");
 
       expect(result).toBeNull();
     });
   });
 
-  describe('getItemsByCategory', () => {
+  describe("getItemsByCategory", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon, mockMagicalWeapon];
       ITEM_REPOSITORY.armor = [mockArmor];
     });
 
-    it('should group items by category', () => {
+    it("should group items by category", () => {
       const result = itemService.getItemsByCategory();
 
       expect(result.mundane).toHaveLength(2);
@@ -261,13 +262,13 @@ describe('ItemService', () => {
     });
   });
 
-  describe('getItemsGrouped', () => {
+  describe("getItemsGrouped", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon, mockMagicalWeapon];
       ITEM_REPOSITORY.armor = [mockArmor];
     });
 
-    it('should group items by type and category', () => {
+    it("should group items by type and category", () => {
       const result = itemService.getItemsGrouped();
 
       expect(result.weapon.mundane).toHaveLength(1);
@@ -278,14 +279,14 @@ describe('ItemService', () => {
     });
   });
 
-  describe('getItemStats', () => {
+  describe("getItemStats", () => {
     beforeEach(() => {
       ITEM_REPOSITORY.weapons = [mockWeapon, mockMagicalWeapon];
       ITEM_REPOSITORY.armor = [mockArmor];
       ITEM_REPOSITORY.consumables = [mockConsumable];
     });
 
-    it('should return correct item statistics', () => {
+    it("should return correct item statistics", () => {
       const result = itemService.getItemStats();
 
       expect(result.total).toBe(4);

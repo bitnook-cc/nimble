@@ -1,19 +1,20 @@
 "use client";
 
 import { Plus } from "lucide-react";
+
 import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { DicePoolInstance } from "@/lib/schemas/dice-pools";
 import { dicePoolService } from "@/lib/services/dice-pool-service";
+import { getCharacterService } from "@/lib/services/service-factory";
+import { cn } from "@/lib/utils";
 import { getIconById } from "@/lib/utils/icon-utils";
 import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { cn } from "@/lib/utils";
 
 export function DicePoolCards() {
   const { character, updateCharacter } = useCharacterService();
@@ -24,13 +25,13 @@ export function DicePoolCards() {
   // Get dice pools from character service (includes trait-granted pools)
   const characterService = getCharacterService();
   const dicePools = character ? characterService.getDicePools() : [];
-  
+
   // Early return if no character or no dice pools
   if (!character || dicePools.length === 0) return null;
 
   const handleAddDice = async (poolId: string) => {
     const result = dicePoolService.addDiceToPools(dicePools, poolId, character);
-    
+
     if (result.rolledValue !== null) {
       const pool = dicePools.find((p: DicePoolInstance) => p.definition.id === poolId);
       if (pool) {
@@ -45,7 +46,7 @@ export function DicePoolCards() {
           timestamp: new Date(),
         });
       }
-      
+
       await updateCharacter({
         ...character,
         _dicePools: result.pools,
@@ -58,7 +59,7 @@ export function DicePoolCards() {
     if (dieIndex === null || dieIndex === undefined) return;
 
     const result = dicePoolService.useDieFromPool(dicePools, poolId, dieIndex);
-    
+
     if (result.usedValue !== null) {
       const pool = dicePools.find((p: DicePoolInstance) => p.definition.id === poolId);
       if (pool) {
@@ -72,10 +73,10 @@ export function DicePoolCards() {
           timestamp: new Date(),
         });
       }
-      
+
       // Clear selection for this pool
-      setSelectedDice(prev => ({ ...prev, [poolId]: null }));
-      
+      setSelectedDice((prev) => ({ ...prev, [poolId]: null }));
+
       await updateCharacter({
         ...character,
         _dicePools: result.pools,
@@ -84,7 +85,7 @@ export function DicePoolCards() {
   };
 
   const handleDieClick = (poolId: string, index: number) => {
-    setSelectedDice(prev => ({
+    setSelectedDice((prev) => ({
       ...prev,
       [poolId]: prev[poolId] === index ? null : index,
     }));
@@ -103,15 +104,22 @@ export function DicePoolCards() {
         const maxSize = dicePoolService.getPoolMaxSize(pool, character);
         const currentValue = dicePoolService.getPoolCurrentValue(pool);
         const canAddDice = dicePoolService.canAddDiceToPool(pool, character);
-        const hasSelectedDie = selectedDice[pool.definition.id] !== null && selectedDice[pool.definition.id] !== undefined;
+        const hasSelectedDie =
+          selectedDice[pool.definition.id] !== null &&
+          selectedDice[pool.definition.id] !== undefined;
         const Icon = getPoolIcon(pool);
-        
+
         return (
           <Card key={pool.definition.id}>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  {Icon && <Icon className="w-4 h-4" style={{ color: getResourceColor(pool.definition.colorScheme, 75) }} />}
+                  {Icon && (
+                    <Icon
+                      className="w-4 h-4"
+                      style={{ color: getResourceColor(pool.definition.colorScheme, 75) }}
+                    />
+                  )}
                   {pool.definition.name}
                 </span>
                 <span className="text-sm font-normal text-muted-foreground">
@@ -129,7 +137,7 @@ export function DicePoolCards() {
                   const dieValue = pool.currentDice[index];
                   const isSelected = selectedDice[pool.definition.id] === index;
                   const isEmpty = dieValue === undefined;
-                  
+
                   return (
                     <button
                       key={index}
@@ -137,24 +145,26 @@ export function DicePoolCards() {
                       disabled={isEmpty}
                       className={cn(
                         "w-10 h-10 rounded-lg border-2 flex items-center justify-center font-bold text-sm transition-all",
-                        isEmpty ? "cursor-not-allowed opacity-40" : "hover:scale-105 hover:shadow-md",
+                        isEmpty
+                          ? "cursor-not-allowed opacity-40"
+                          : "hover:scale-105 hover:shadow-md",
                         isSelected && !isEmpty
                           ? "ring-2 ring-primary border-primary bg-primary/10"
                           : isEmpty
-                          ? "border-dashed border-muted-foreground/30 bg-muted/20"
-                          : "border-border hover:border-primary/50"
+                            ? "border-dashed border-muted-foreground/30 bg-muted/20"
+                            : "border-border hover:border-primary/50",
                       )}
                       style={{
                         backgroundColor: isEmpty
                           ? undefined
                           : isSelected
-                          ? undefined 
-                          : getResourceColor(pool.definition.colorScheme, 75) + "20",
+                            ? undefined
+                            : getResourceColor(pool.definition.colorScheme, 75) + "20",
                         borderColor: isEmpty
                           ? undefined
                           : isSelected
-                          ? undefined
-                          : getResourceColor(pool.definition.colorScheme, 75) + "80",
+                            ? undefined
+                            : getResourceColor(pool.definition.colorScheme, 75) + "80",
                       }}
                     >
                       {!isEmpty && dieValue}
@@ -162,7 +172,7 @@ export function DicePoolCards() {
                   );
                 })}
               </div>
-              
+
               {/* Actions */}
               <div className="flex gap-2">
                 <Button
@@ -175,7 +185,7 @@ export function DicePoolCards() {
                   <Plus className="w-3 h-3" />
                   Add d{pool.definition.diceSize}
                 </Button>
-                
+
                 <Button
                   size="sm"
                   variant="default"
@@ -185,7 +195,7 @@ export function DicePoolCards() {
                   Use Selected Die
                 </Button>
               </div>
-              
+
               {/* Pool info */}
               <div className="text-xs text-muted-foreground">
                 <span>Dice Size: d{pool.definition.diceSize}</span>
@@ -194,7 +204,10 @@ export function DicePoolCards() {
                 {pool.definition.resetType && (
                   <>
                     <span className="mx-2">•</span>
-                    <span>Reset Type: {pool.definition.resetType === "to_max" ? "Fill Pool" : "Clear Pool"}</span>
+                    <span>
+                      Reset Type:{" "}
+                      {pool.definition.resetType === "to_max" ? "Fill Pool" : "Clear Pool"}
+                    </span>
                   </>
                 )}
               </div>

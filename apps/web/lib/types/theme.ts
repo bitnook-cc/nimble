@@ -1,13 +1,13 @@
-export type ThemeId = 
-  | "default" 
+export type ThemeId =
+  | "default"
   | "default-dark"
-  | "nimble" 
+  | "nimble"
   | "nimble-dark"
-  | "forest" 
+  | "forest"
   | "forest-dark"
-  | "ocean" 
+  | "ocean"
   | "ocean-dark"
-  | "sunset" 
+  | "sunset"
   | "sunset-dark"
   | "midnight";
 

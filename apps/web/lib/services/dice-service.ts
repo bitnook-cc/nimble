@@ -52,8 +52,24 @@ export class DiceService {
 
       // Step 3: Find and parse dice notation
       const diceNotation = this.findDiceNotation(substituted);
+
+      // If no dice notation found, treat as pure math expression
       if (!diceNotation) {
-        throw new Error(`No valid dice notation found in formula: ${formula}`);
+        const total = this.evaluateExpression(substituted);
+        return {
+          displayString: `${substituted} = ${total}`,
+          diceData: {
+            dice: [],
+            total,
+            isDoubleDigit: false,
+            isFumble: false,
+            advantageLevel: 0,
+            criticalHits: 0,
+          },
+          total,
+          formula,
+          substitutedFormula: hasVariables ? substituted : undefined,
+        };
       }
 
       // Step 4: Validate dice count

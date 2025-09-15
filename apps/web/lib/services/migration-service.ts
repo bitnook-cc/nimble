@@ -1,7 +1,7 @@
-import { Character } from '../schemas/character';
-import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from '../schemas/migration/constants';
-import { getMigrationsForVersionRange } from '../schemas/migration/registry';
-import { MigrationProgress, MigrationResult, MigrationError } from '../schemas/migration/types';
+import { Character } from "../schemas/character";
+import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from "../schemas/migration/constants";
+import { getMigrationsForVersionRange } from "../schemas/migration/registry";
+import { MigrationError, MigrationProgress, MigrationResult } from "../schemas/migration/types";
 
 /**
  * Service for handling character schema migrations
@@ -61,7 +61,7 @@ export class MigrationService {
    */
   async migrateCharacter(character: any): Promise<any> {
     const currentVersion = this.getCharacterVersion(character);
-    
+
     if (currentVersion >= CURRENT_SCHEMA_VERSION) {
       return character;
     }
@@ -71,7 +71,7 @@ export class MigrationService {
         `Character schema version ${currentVersion} is too old to migrate (minimum supported: ${MIN_SUPPORTED_VERSION})`,
         currentVersion,
         character.id,
-        character.name
+        character.name,
       );
     }
 
@@ -89,7 +89,7 @@ export class MigrationService {
           migration.version,
           character.id,
           character.name,
-          error instanceof Error ? error : undefined
+          error instanceof Error ? error : undefined,
         );
       }
     }
@@ -106,12 +106,12 @@ export class MigrationService {
     const totalCharacters = characters.length;
 
     // Filter characters that need migration
-    const charactersToMigrate = characters.filter(c => this.needsMigration(c));
-    
+    const charactersToMigrate = characters.filter((c) => this.needsMigration(c));
+
     if (charactersToMigrate.length === 0) {
       return {
         success: true,
-        migratedCount: 0
+        migratedCount: 0,
       };
     }
 
@@ -126,7 +126,7 @@ export class MigrationService {
 
     for (let charIndex = 0; charIndex < charactersToMigrate.length; charIndex++) {
       const character = charactersToMigrate[charIndex];
-      const characterName = character.name || 'Unknown Character';
+      const characterName = character.name || "Unknown Character";
       const currentVersion = this.getCharacterVersion(character);
       const migrations = getMigrationsForVersionRange(currentVersion, CURRENT_SCHEMA_VERSION);
 
@@ -145,7 +145,7 @@ export class MigrationService {
               currentMigration: migration.description,
               currentMigrationIndex: migIndex,
               totalMigrations: migrations.length,
-              overallProgress: Math.round((completedMigrations / totalMigrations) * 100)
+              overallProgress: Math.round((completedMigrations / totalMigrations) * 100),
             });
           }
 
@@ -161,7 +161,6 @@ export class MigrationService {
           characters[originalIndex] = migratedCharacter;
         }
         migratedCount++;
-
       } catch (error) {
         console.error(`Failed to migrate character ${characterName}:`, error);
         failedCharacters.push(character);
@@ -173,13 +172,13 @@ export class MigrationService {
         success: false,
         error: `Failed to migrate ${failedCharacters.length} character(s)`,
         failedCharacters,
-        migratedCount
+        migratedCount,
       };
     }
 
     return {
       success: true,
-      migratedCount
+      migratedCount,
     };
   }
 
@@ -193,11 +192,11 @@ export class MigrationService {
   /**
    * Trigger download of character backup
    */
-  downloadBackup(characters: any[], filename: string = 'character-backup.json') {
+  downloadBackup(characters: any[], filename: string = "character-backup.json") {
     const json = this.createBackupJson(characters);
-    const blob = new Blob([json], { type: 'application/json' });
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);

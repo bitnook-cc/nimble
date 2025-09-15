@@ -8,8 +8,8 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
   AttributeName,
-  TraitSelection,
   PoolFeatureTraitSelection,
+  TraitSelection,
   UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";

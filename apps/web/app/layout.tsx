@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { APP_CONFIG } from "@/lib/config/app-config";
 
 import "./globals.css";

@@ -221,14 +221,14 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
 
   const exportContent = (item: ContentItem, contentType: CustomContentType) => {
     const metadata = getContentTypeMetadata(contentType);
-    const itemId = 'item' in item ? (item as RepositoryItem).item.id : (item as any).id;
+    const itemId = "item" in item ? (item as RepositoryItem).item.id : (item as any).id;
     const filename = `${itemId}.json`;
-    
+
     const jsonContent = JSON.stringify(item, null, 2);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const blob = new Blob([jsonContent], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
+
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -440,7 +440,9 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-muted-foreground">{repoItem.item.id}</span>
+                                    <span className="text-muted-foreground">
+                                      {repoItem.item.id}
+                                    </span>
                                     <Button
                                       variant="ghost"
                                       size="sm"

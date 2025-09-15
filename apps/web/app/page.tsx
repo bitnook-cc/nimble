@@ -70,14 +70,14 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
-      <TopBar 
-        settings={settings} 
-        characters={characters} 
+      <TopBar
+        settings={settings}
+        characters={characters}
         onSettingsChange={handleSettingsChange}
         hasCharacter={!!character}
       />
-      
-      {(showCharacterSelection || !character) ? (
+
+      {showCharacterSelection || !character ? (
         <>
           <CharacterSelector
             fullScreen={true}
@@ -85,13 +85,13 @@ function HomeContent() {
             activeCharacterId={character?.id}
             errorMessage={loadError || undefined}
           />
-          
+
           {/* Disclaimer Footer */}
           <footer className="border-t bg-muted/30 py-3 px-4">
             <div className="container mx-auto">
               <p className="text-xs text-muted-foreground text-center">
-                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party Creator
-                License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
+                Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
               </p>
             </div>
           </footer>
@@ -107,8 +107,8 @@ function HomeContent() {
           <footer className="border-t bg-muted/30 py-3 px-4">
             <div className="container mx-auto">
               <p className="text-xs text-muted-foreground text-center">
-                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party Creator
-                License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
+                Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
               </p>
             </div>
           </footer>

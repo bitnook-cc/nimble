@@ -1,13 +1,13 @@
-import { z } from "zod";
 import { syncableSchema } from "@nimble/shared";
+import { z } from "zod";
 
 import { gameConfig } from "../config/game-config";
 import { AbilityDefinition, AbilityDefinitionSchema } from "./abilities";
+import { dicePoolInstanceSchema } from "./dice-pools";
 import { ClassFeatureSchema } from "./features";
 import { flexibleValueSchema } from "./flexible-value";
 import { Inventory, inventorySchema } from "./inventory";
 import { ResourceDefinition, ResourceValue, resourceDefinitionSchema } from "./resources";
-import { dicePoolInstanceSchema } from "./dice-pools";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 

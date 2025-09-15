@@ -1,5 +1,4 @@
 import { gameConfig } from "../config/game-config";
-import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import {
   AttributeName,
   Character,
@@ -12,6 +11,7 @@ import {
 import { ClassDefinition } from "../schemas/class";
 import { Currency } from "../schemas/currency";
 import { Inventory } from "../schemas/inventory";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 
 export const createDefaultSkills = () => {
   const defaultSkills: Record<string, any> = {};

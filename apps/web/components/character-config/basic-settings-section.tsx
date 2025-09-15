@@ -1,6 +1,7 @@
 "use client";
 
 import { Character } from "@/lib/schemas/character";
+
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 

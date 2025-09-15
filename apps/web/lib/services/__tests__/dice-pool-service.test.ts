@@ -1,18 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { DicePoolService } from "../dice-pool-service";
-import { DicePoolInstance, DicePoolDefinition } from "../../schemas/dice-pools";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { Character } from "../../schemas/character";
+import { DicePoolDefinition, DicePoolInstance } from "../../schemas/dice-pools";
+import { DicePoolService } from "../dice-pool-service";
 
 describe("DicePoolService", () => {
   let service: DicePoolService;
   let mockCharacter: Character;
-  
+
   beforeEach(() => {
     service = DicePoolService.getInstance();
-    
+
     // Mock Math.random for predictable dice rolls
     vi.spyOn(Math, "random");
-    
+
     // Create a mock character
     mockCharacter = {
       id: "test-char",
@@ -29,10 +30,10 @@ describe("DicePoolService", () => {
     it("should roll standard dice correctly", () => {
       // Mock Math.random to return 0.5 (middle value)
       vi.mocked(Math.random).mockReturnValue(0.5);
-      
+
       // d6: floor(0.5 * 6) + 1 = 3 + 1 = 4
       expect(service["rollDice"](6)).toBe(4);
-      
+
       // d20: floor(0.5 * 20) + 1 = 10 + 1 = 11
       expect(service["rollDice"](20)).toBe(11);
     });
@@ -42,7 +43,7 @@ describe("DicePoolService", () => {
       vi.mocked(Math.random)
         .mockReturnValueOnce(0.5) // tens: floor(0.5 * 4) + 1 = 2 + 1 = 3
         .mockReturnValueOnce(0.75); // ones: floor(0.75 * 4) + 1 = 3 + 1 = 4
-      
+
       // d44: tens = 3, ones = 4, result = 30 + 4 = 34
       expect(service["rollDice"](44)).toBe(34);
     });
@@ -51,7 +52,7 @@ describe("DicePoolService", () => {
       // Minimum roll (Math.random returns 0)
       vi.mocked(Math.random).mockReturnValue(0);
       expect(service["rollDice"](6)).toBe(1);
-      
+
       // Maximum roll (Math.random returns 0.999...)
       vi.mocked(Math.random).mockReturnValue(0.999);
       expect(service["rollDice"](6)).toBe(6);
@@ -60,7 +61,7 @@ describe("DicePoolService", () => {
 
   describe("addDiceToPools", () => {
     let testPool: DicePoolInstance;
-    
+
     beforeEach(() => {
       testPool = {
         definition: {
@@ -79,9 +80,9 @@ describe("DicePoolService", () => {
     it("should add a die to a pool with space", () => {
       vi.mocked(Math.random).mockReturnValue(0.5); // Roll a 4
       const pools = [testPool];
-      
+
       const result = service.addDiceToPools(pools, "test-pool", mockCharacter);
-      
+
       expect(result.rolledValue).toBe(4);
       expect(result.pools[0].currentDice).toEqual([4, 4]);
     });
@@ -89,18 +90,18 @@ describe("DicePoolService", () => {
     it("should not add a die to a full pool", () => {
       testPool.currentDice = [4, 5, 6]; // Pool is full
       const pools = [testPool];
-      
+
       const result = service.addDiceToPools(pools, "test-pool", mockCharacter);
-      
+
       expect(result.rolledValue).toBeNull();
       expect(result.pools[0].currentDice).toEqual([4, 5, 6]);
     });
 
     it("should return null for non-existent pool", () => {
       const pools = [testPool];
-      
+
       const result = service.addDiceToPools(pools, "non-existent", mockCharacter);
-      
+
       expect(result.rolledValue).toBeNull();
       expect(result.pools).toEqual(pools);
     });
@@ -108,7 +109,7 @@ describe("DicePoolService", () => {
 
   describe("useDieFromPool", () => {
     let testPool: DicePoolInstance;
-    
+
     beforeEach(() => {
       testPool = {
         definition: {
@@ -126,38 +127,38 @@ describe("DicePoolService", () => {
 
     it("should use a die from the pool", () => {
       const pools = [testPool];
-      
+
       const result = service.useDieFromPool(pools, "test-pool", 1);
-      
+
       expect(result.usedValue).toBe(5);
       expect(result.pools[0].currentDice).toEqual([4, 6]);
     });
 
     it("should handle using the first die", () => {
       const pools = [testPool];
-      
+
       const result = service.useDieFromPool(pools, "test-pool", 0);
-      
+
       expect(result.usedValue).toBe(4);
       expect(result.pools[0].currentDice).toEqual([5, 6]);
     });
 
     it("should handle using the last die", () => {
       const pools = [testPool];
-      
+
       const result = service.useDieFromPool(pools, "test-pool", 2);
-      
+
       expect(result.usedValue).toBe(6);
       expect(result.pools[0].currentDice).toEqual([4, 5]);
     });
 
     it("should return null for invalid die index", () => {
       const pools = [testPool];
-      
+
       let result = service.useDieFromPool(pools, "test-pool", -1);
       expect(result.usedValue).toBeNull();
       expect(result.pools[0].currentDice).toEqual([4, 5, 6]);
-      
+
       result = service.useDieFromPool(pools, "test-pool", 3);
       expect(result.usedValue).toBeNull();
       expect(result.pools[0].currentDice).toEqual([4, 5, 6]);
@@ -165,9 +166,9 @@ describe("DicePoolService", () => {
 
     it("should return null for non-existent pool", () => {
       const pools = [testPool];
-      
+
       const result = service.useDieFromPool(pools, "non-existent", 0);
-      
+
       expect(result.usedValue).toBeNull();
       expect(result.pools).toEqual(pools);
     });
@@ -177,7 +178,7 @@ describe("DicePoolService", () => {
     let encounterPool: DicePoolInstance;
     let turnPool: DicePoolInstance;
     let restPool: DicePoolInstance;
-    
+
     beforeEach(() => {
       encounterPool = {
         definition: {
@@ -191,7 +192,7 @@ describe("DicePoolService", () => {
         currentDice: [4, 5],
         sortOrder: 0,
       };
-      
+
       turnPool = {
         definition: {
           id: "turn-pool",
@@ -204,7 +205,7 @@ describe("DicePoolService", () => {
         currentDice: [3],
         sortOrder: 1,
       };
-      
+
       restPool = {
         definition: {
           id: "rest-pool",
@@ -221,9 +222,9 @@ describe("DicePoolService", () => {
 
     it("should reset pools with matching condition to zero", () => {
       const pools = [encounterPool, turnPool, restPool];
-      
+
       const result = service.resetDicePools(pools, "encounter_end", mockCharacter);
-      
+
       // Encounter pool should be cleared (reset to zero)
       expect(result[0].currentDice).toEqual([]);
       // Turn pool should not change
@@ -235,9 +236,9 @@ describe("DicePoolService", () => {
     it("should reset pools with matching condition to max", () => {
       vi.mocked(Math.random).mockReturnValue(0.5); // Predictable rolls
       const pools = [encounterPool, turnPool, restPool];
-      
+
       const result = service.resetDicePools(pools, "turn_end", mockCharacter);
-      
+
       // Encounter pool should not change
       expect(result[0].currentDice).toEqual([4, 5]);
       // Turn pool should be filled to max (2 dice)
@@ -262,11 +263,11 @@ describe("DicePoolService", () => {
         currentDice: [2, 3],
         sortOrder: 3,
       };
-      
+
       const pools = [encounterPool, anotherEncounterPool];
-      
+
       const result = service.resetDicePools(pools, "encounter_end", mockCharacter);
-      
+
       // Both encounter pools should be cleared
       expect(result[0].currentDice).toEqual([]);
       expect(result[1].currentDice).toEqual([]);
@@ -285,11 +286,11 @@ describe("DicePoolService", () => {
         currentDice: [11, 12],
         sortOrder: 0,
       };
-      
+
       const pools = [manualPool];
-      
+
       const result = service.resetDicePools(pools, "manual", mockCharacter);
-      
+
       expect(result[0].currentDice).toEqual([]);
     });
   });
@@ -301,7 +302,7 @@ describe("DicePoolService", () => {
         currentDice: [4, 5, 6],
         sortOrder: 0,
       };
-      
+
       expect(service.getPoolCurrentValue(pool)).toBe(15);
     });
 
@@ -311,7 +312,7 @@ describe("DicePoolService", () => {
         currentDice: [],
         sortOrder: 0,
       };
-      
+
       expect(service.getPoolCurrentValue(pool)).toBe(0);
     });
   });
@@ -325,7 +326,7 @@ describe("DicePoolService", () => {
         currentDice: [],
         sortOrder: 0,
       };
-      
+
       expect(service.getPoolMaxSize(pool, mockCharacter)).toBe(5);
     });
 
@@ -340,7 +341,7 @@ describe("DicePoolService", () => {
         currentDice: [],
         sortOrder: 0,
       };
-      
+
       expect(service.getPoolMaxSize(pool, mockCharacter)).toBe(5);
     });
   });
@@ -354,7 +355,7 @@ describe("DicePoolService", () => {
         currentDice: [4, 5],
         sortOrder: 0,
       };
-      
+
       expect(service.canAddDiceToPool(pool, mockCharacter)).toBe(true);
     });
 
@@ -366,7 +367,7 @@ describe("DicePoolService", () => {
         currentDice: [4, 5, 6],
         sortOrder: 0,
       };
-      
+
       expect(service.canAddDiceToPool(pool, mockCharacter)).toBe(false);
     });
 
@@ -378,7 +379,7 @@ describe("DicePoolService", () => {
         currentDice: [4, 5, 6], // Somehow has more dice than max
         sortOrder: 0,
       };
-      
+
       expect(service.canAddDiceToPool(pool, mockCharacter)).toBe(false);
     });
   });
@@ -387,7 +388,7 @@ describe("DicePoolService", () => {
     it("should return the same instance", () => {
       const instance1 = DicePoolService.getInstance();
       const instance2 = DicePoolService.getInstance();
-      
+
       expect(instance1).toBe(instance2);
     });
   });

@@ -1,12 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+
 import { characterSchema } from "../schemas/character";
 import { Character, CreateCharacterData } from "../schemas/character";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import { ICharacterRepository } from "../storage/character-repository";
 import { StorageBasedCharacterRepository } from "../storage/storage-based-character-repository";
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
-import { IStorageService, LocalStorageService } from "./storage-service";
 import { MigrationService } from "./migration-service";
-import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
+import { IStorageService, LocalStorageService } from "./storage-service";
 
 export class CharacterStorageService {
   private readonly characterListStorageKey = "nimble-navigator-character-list";
@@ -24,7 +25,7 @@ export class CharacterStorageService {
     // Ensure new characters have the current schema version
     const characterWithVersion = {
       ...character,
-      _schemaVersion: CURRENT_SCHEMA_VERSION
+      _schemaVersion: CURRENT_SCHEMA_VERSION,
     };
     const validated = characterSchema.parse(characterWithVersion);
     return this.repository.create(validated, id);
@@ -43,10 +44,7 @@ export class CharacterStorageService {
       const validCharacters: Character[] = [];
 
       for (const char of characters) {
-        const validatedChar = await this.validateOrRecoverCharacter(
-          char,
-          char.id || uuidv4(),
-        );
+        const validatedChar = await this.validateOrRecoverCharacter(char, char.id || uuidv4());
         if (validatedChar) {
           validCharacters.push(validatedChar);
         }
@@ -86,7 +84,7 @@ export class CharacterStorageService {
   async getCharactersNeedingMigration(): Promise<any[]> {
     try {
       const allCharacters = await this.repository.list();
-      return allCharacters.filter(char => this.migrationService.needsMigration(char));
+      return allCharacters.filter((char) => this.migrationService.needsMigration(char));
     } catch (error) {
       console.error("Failed to check for characters needing migration:", error);
       return [];
@@ -98,8 +96,10 @@ export class CharacterStorageService {
    * Used for sync operations
    */
   async replaceAllCharacters(characters: Character[]): Promise<void> {
-    console.log(`[CharacterStorage] Replacing all characters with ${characters.length} new characters`);
-    
+    console.log(
+      `[CharacterStorage] Replacing all characters with ${characters.length} new characters`,
+    );
+
     // Validate all characters first
     const validatedCharacters: Character[] = [];
     for (const char of characters) {
@@ -115,15 +115,17 @@ export class CharacterStorageService {
         }
       }
     }
-    
+
     // Clear existing characters and save the new ones
     // This is done through the repository which handles the storage
     await this.repository.clear();
     for (const char of validatedCharacters) {
       await this.repository.save(char);
     }
-    
-    console.log(`[CharacterStorage] Successfully replaced with ${validatedCharacters.length} validated characters`);
+
+    console.log(
+      `[CharacterStorage] Successfully replaced with ${validatedCharacters.length} validated characters`,
+    );
   }
 
   /**
@@ -136,8 +138,10 @@ export class CharacterStorageService {
     try {
       // First, check if the character needs migration
       if (this.migrationService.needsMigration(character)) {
-        console.info(`Character ${id} needs migration from version ${character._schemaVersion || 0} to ${CURRENT_SCHEMA_VERSION}`);
-        
+        console.info(
+          `Character ${id} needs migration from version ${character._schemaVersion || 0} to ${CURRENT_SCHEMA_VERSION}`,
+        );
+
         try {
           character = await this.migrationService.migrateCharacter(character);
           console.info(`Successfully migrated character ${id}`);
@@ -157,7 +161,7 @@ export class CharacterStorageService {
       try {
         // Attempt to recover by merging with default character template
         const recoveredCharacter = mergeWithDefaultCharacter(character, id);
-        
+
         // Ensure the recovered character has the current schema version
         recoveredCharacter._schemaVersion = CURRENT_SCHEMA_VERSION;
 

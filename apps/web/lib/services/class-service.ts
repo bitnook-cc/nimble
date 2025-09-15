@@ -2,9 +2,9 @@ import {
   AttributeBoostTraitSelection,
   AttributeName,
   Character,
-  TraitSelection,
   PoolFeatureTraitSelection,
   SubclassTraitSelection,
+  TraitSelection,
 } from "../schemas/character";
 import { ClassDefinition, FeaturePool, SubclassDefinition } from "../schemas/class";
 import {

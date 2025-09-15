@@ -119,9 +119,7 @@ export function CharacterSelector({
               key={character.id}
               variant={character.id === activeCharacterId ? "accent" : "default"}
               className={`cursor-pointer transition-all ${
-                character.id === activeCharacterId
-                  ? "scale-[1.02]"
-                  : "hover:scale-[1.01]"
+                character.id === activeCharacterId ? "scale-[1.02]" : "hover:scale-[1.01]"
               }`}
             >
               <div

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { effectsSchema } from "./effects";
 import { flexibleValueSchema } from "./flexible-value";
 
 export const ResourceCostSchema = z
@@ -27,7 +28,8 @@ export const ResourceCostSchema = z
       }),
       maxAmount: z.int().int().min(0).optional().meta({
         title: "Maximum Amount",
-        description: "Maximum amount of resource to consume (integer). If not specified, defaults to the max amount of the resource.",
+        description:
+          "Maximum amount of resource to consume (integer). If not specified, defaults to the max amount of the resource.",
       }),
     }),
   ])
@@ -46,39 +48,31 @@ export const BaseAbilityDefinitionSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().min(1),
-});
-
-export const UsableAbilityDefinitionSchema = BaseAbilityDefinitionSchema.extend({
   actionCost: z.number().int().min(0).max(5).optional(),
   resourceCost: ResourceCostSchema.optional(),
-});
-
-// Freeform ability schema
-export const FreeformAbilitySchema = BaseAbilityDefinitionSchema.extend({
-  type: z.literal("freeform"),
-});
-
-// Action ability schema
-export const ActionAbilitySchema = UsableAbilityDefinitionSchema.extend({
-  type: z.literal("action"),
-  frequency: AbilityFrequencySchema,
-  maxUses: flexibleValueSchema.optional(),
   diceFormula: z.string().optional().meta({
     title: "Dice Formula",
     description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')",
   }),
+  effects: effectsSchema.optional().meta({
+    title: "Effects",
+    description: "Effects that apply when the spell is cast",
+  }),
+});
+
+// Action ability schema
+export const ActionAbilitySchema = BaseAbilityDefinitionSchema.extend({
+  type: z.literal("action"),
+  frequency: AbilityFrequencySchema,
+  maxUses: flexibleValueSchema.optional(),
 }).meta({ title: "Action Ability", description: "Non-spell ability that characters can use" });
 
 // Spell ability schema
-export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
+export const SpellAbilitySchema = BaseAbilityDefinitionSchema.extend({
   type: z.literal("spell"),
   school: z.string().min(1),
   tier: z.number().int().min(0).max(9),
   category: z.enum(["combat", "utility"]),
-  diceFormula: z.string().optional().meta({
-    title: "Dice Formula",
-    description: "Dice formula (e.g., '1d20+5', '2d6+STR', 'STRd6')",
-  }),
   scalingBonus: z.string().optional().meta({
     title: "Scaling Bonus",
     description: "Bonus dice formula per scaling multiplier (e.g., '+5', '+1d4', '+INT')",
@@ -91,13 +85,6 @@ export const SpellAbilitySchema = UsableAbilityDefinitionSchema.extend({
 
 // Combined ability schema
 export const AbilityDefinitionSchema = z.discriminatedUnion("type", [
-  FreeformAbilitySchema,
-  ActionAbilitySchema,
-  SpellAbilitySchema,
-]);
-
-// Legacy schema for class features (includes currentUses)
-export const AbilitySchema = z.discriminatedUnion("type", [
   ActionAbilitySchema,
   SpellAbilitySchema,
 ]);
@@ -108,8 +95,6 @@ export type FixedResourceCost = Extract<ResourceCost, { type: "fixed" }>;
 export type VariableResourceCost = Extract<ResourceCost, { type: "variable" }>;
 export type AbilityFrequency = z.infer<typeof AbilityFrequencySchema>;
 export type BaseAbilityDefinition = z.infer<typeof BaseAbilityDefinitionSchema>;
-export type UsableAbilityDefinition = z.infer<typeof UsableAbilityDefinitionSchema>;
-export type FreeformAbilityDefinition = z.infer<typeof FreeformAbilitySchema>;
 export type ActionAbilityDefinition = z.infer<typeof ActionAbilitySchema>;
 export type SpellAbilityDefinition = z.infer<typeof SpellAbilitySchema>;
 export type AbilityDefinition = z.infer<typeof AbilityDefinitionSchema>;

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Syncable trait that can be mixed into other schemas
@@ -6,11 +6,13 @@ import { z } from 'zod';
  */
 export const syncableSchema = z.object({
   id: z.string().uuid(), // UUID for global uniqueness
-  timestamps: z.object({
-    createdAt: z.number().optional(), // Unix timestamp in milliseconds
-    updatedAt: z.number().optional(), // Unix timestamp in milliseconds
-    syncedAt: z.number().optional(), // Unix timestamp in milliseconds, only set by server
-  }).optional(),
+  timestamps: z
+    .object({
+      createdAt: z.number().optional(), // Unix timestamp in milliseconds
+      updatedAt: z.number().optional(), // Unix timestamp in milliseconds
+      syncedAt: z.number().optional(), // Unix timestamp in milliseconds, only set by server
+    })
+    .optional(),
 });
 
 /**

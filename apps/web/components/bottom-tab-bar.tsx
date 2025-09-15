@@ -82,8 +82,8 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
       <div className="border-t bg-muted/30 py-2 px-4 z-40">
         <div className="container mx-auto">
           <p className="text-xs text-muted-foreground text-center">
-            {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party Creator
-            License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+            {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
+            Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
           </p>
         </div>
       </div>

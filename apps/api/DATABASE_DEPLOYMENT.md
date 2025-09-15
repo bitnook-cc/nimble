@@ -7,6 +7,7 @@ The database will automatically initialize/migrate when deployed to Vercel using
 ### How It Works
 
 1. **Build Command**: `vercel-build` script in package.json runs:
+
    ```bash
    prisma generate && prisma migrate deploy && tsc
    ```
@@ -23,6 +24,7 @@ The database will automatically initialize/migrate when deployed to Vercel using
 #### Using Prisma Migrate (REQUIRED)
 
 1. Create your first migration locally:
+
    ```bash
    npx prisma migrate dev --name init
    ```
@@ -38,6 +40,7 @@ The database will automatically initialize/migrate when deployed to Vercel using
 **❌ DO NOT USE `db:push` - It causes database drift and breaks migration tracking**
 
 The `db:push` command bypasses the migration system and directly synchronizes your schema with the database. This causes:
+
 - Loss of migration history
 - Database drift between environments
 - Inability to rollback changes
@@ -63,6 +66,7 @@ When you need to update the database schema:
 1. Modify `prisma/schema.prisma`
 
 2. Create a new migration:
+
    ```bash
    npx prisma migrate dev --name describe_your_change
    ```

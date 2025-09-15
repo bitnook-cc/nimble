@@ -1,8 +1,4 @@
-import {
-  ResourceValue,
-  ResourceDefinition,
-  ResourceResetCondition,
-} from "../schemas/resources";
+import { ResourceDefinition, ResourceResetCondition, ResourceValue } from "../schemas/resources";
 import { calculateFlexibleValue } from "../types/flexible-value";
 
 /**

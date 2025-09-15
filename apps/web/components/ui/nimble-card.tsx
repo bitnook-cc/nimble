@@ -1,6 +1,8 @@
-import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
 import "@/styles/nimble-card.css";
+
+import { ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
 
 interface NimbleCardProps {
   children: ReactNode;
@@ -9,16 +11,15 @@ interface NimbleCardProps {
   style?: React.CSSProperties;
 }
 
-export function NimbleCard({
-  children,
-  className,
-  variant = "default",
-  style,
-}: NimbleCardProps) {
-  const variantClass = variant === "simple" ? "nimble-card-simple" : 
-                       variant === "accent" ? "nimble-card nimble-card-accent" :
-                       variant === "muted" ? "nimble-card nimble-card-muted" :
-                       "nimble-card";
+export function NimbleCard({ children, className, variant = "default", style }: NimbleCardProps) {
+  const variantClass =
+    variant === "simple"
+      ? "nimble-card-simple"
+      : variant === "accent"
+        ? "nimble-card nimble-card-accent"
+        : variant === "muted"
+          ? "nimble-card nimble-card-muted"
+          : "nimble-card";
 
   if (variant === "simple") {
     return (
@@ -32,10 +33,8 @@ export function NimbleCard({
   return (
     <div className={cn(variantClass, className)} style={style}>
       {/* Main content wrapper */}
-      <div className="nimble-card-content-wrapper">
-        {children}
-      </div>
-      
+      <div className="nimble-card-content-wrapper">{children}</div>
+
       {/* Border frame grid with nested background */}
       <div className="statblockBG">
         <div className="BGCorner" />
@@ -47,7 +46,7 @@ export function NimbleCard({
         <div className="BGEdgeRight" />
         <div className="BGEdgeBottom" />
         <div className="BGCenter" />
-        
+
         {/* White background grid with corner cutouts - nested inside statblockBG */}
         <div className="whiteBGClass">
           <svg className="colorBGcorner" viewBox="0 0 100 100">
@@ -57,7 +56,12 @@ export function NimbleCard({
                 <circle cx="0" cy="0" r="90" fill="black" />
               </mask>
             </defs>
-            <rect width="100%" height="100%" fill="var(--solidBGColor)" mask="url(#cornerCutout1)" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="var(--solidBGColor)"
+              mask="url(#cornerCutout1)"
+            />
           </svg>
           <svg className="colorBGcorner" viewBox="0 0 100 100">
             <defs>
@@ -66,7 +70,12 @@ export function NimbleCard({
                 <circle cx="100" cy="0" r="90" fill="black" />
               </mask>
             </defs>
-            <rect width="100%" height="100%" fill="var(--solidBGColor)" mask="url(#cornerCutout2)" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="var(--solidBGColor)"
+              mask="url(#cornerCutout2)"
+            />
           </svg>
           <svg className="colorBGcorner" viewBox="0 0 100 100">
             <defs>
@@ -75,7 +84,12 @@ export function NimbleCard({
                 <circle cx="0" cy="100" r="90" fill="black" />
               </mask>
             </defs>
-            <rect width="100%" height="100%" fill="var(--solidBGColor)" mask="url(#cornerCutout3)" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="var(--solidBGColor)"
+              mask="url(#cornerCutout3)"
+            />
           </svg>
           <svg className="colorBGcorner" viewBox="0 0 100 100">
             <defs>
@@ -84,7 +98,12 @@ export function NimbleCard({
                 <circle cx="100" cy="100" r="90" fill="black" />
               </mask>
             </defs>
-            <rect width="100%" height="100%" fill="var(--solidBGColor)" mask="url(#cornerCutout4)" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="var(--solidBGColor)"
+              mask="url(#cornerCutout4)"
+            />
           </svg>
           <div className="colorBGtop" />
           <div className="colorBGleft" />
@@ -102,10 +121,7 @@ interface NimbleCardBannerProps {
   className?: string;
 }
 
-export function NimbleCardBanner({
-  children,
-  className,
-}: NimbleCardBannerProps) {
+export function NimbleCardBanner({ children, className }: NimbleCardBannerProps) {
   return (
     <div className={cn("nimble-card-banner", className)}>
       {children}
@@ -127,15 +143,8 @@ interface NimbleCardHeaderProps {
   className?: string;
 }
 
-export function NimbleCardHeader({
-  children,
-  className,
-}: NimbleCardHeaderProps) {
-  return (
-    <div className={cn("nimble-card-header", className)}>
-      {children}
-    </div>
-  );
+export function NimbleCardHeader({ children, className }: NimbleCardHeaderProps) {
+  return <div className={cn("nimble-card-header", className)}>{children}</div>;
 }
 
 interface NimbleCardContentProps {
@@ -143,13 +152,6 @@ interface NimbleCardContentProps {
   className?: string;
 }
 
-export function NimbleCardContent({
-  children,
-  className,
-}: NimbleCardContentProps) {
-  return (
-    <div className={cn("nimble-card-content", className)}>
-      {children}
-    </div>
-  );
+export function NimbleCardContent({ children, className }: NimbleCardContentProps) {
+  return <div className={cn("nimble-card-content", className)}>{children}</div>;
 }

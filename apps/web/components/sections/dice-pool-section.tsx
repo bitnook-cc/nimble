@@ -3,8 +3,8 @@
 import { ChevronDown, ChevronRight, Dices } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
@@ -17,7 +17,7 @@ export function DicePoolSection() {
   // Get dice pools from character service (includes trait-granted pools)
   const characterService = getCharacterService();
   const dicePools = character ? characterService.getDicePools() : [];
-  
+
   // Early return if no character or no dice pools
   if (!character || dicePools.length === 0) return null;
 

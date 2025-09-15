@@ -52,9 +52,9 @@ export function AttributeSelection({
 }: AttributeSelectionProps) {
   const [selectedArray, setSelectedArray] = useState<keyof typeof STANDARD_ARRAYS>("standard");
   const contentRepository = ContentRepositoryService.getInstance();
-  
+
   // Get key attributes for the selected class
-  const keyAttributes = classId 
+  const keyAttributes = classId
     ? contentRepository.getClassDefinition(classId)?.keyAttributes || []
     : [];
 
@@ -90,13 +90,13 @@ export function AttributeSelection({
     // Intelligent distribution based on key attributes
     const newAttributes = { ...attributes };
     const availableValues = [...sortedArray];
-    const nonKeyAttributes = ATTRIBUTE_NAMES.filter(attr => !keyAttributes.includes(attr));
-    
+    const nonKeyAttributes = ATTRIBUTE_NAMES.filter((attr) => !keyAttributes.includes(attr));
+
     // Assign highest values to key attributes
     if (keyAttributes.length === 1) {
       // One key attribute gets the highest value
       newAttributes[keyAttributes[0]] = availableValues.shift()!;
-      
+
       // Distribute remaining values to non-key attributes (highest to lowest)
       nonKeyAttributes.forEach((attr, index) => {
         newAttributes[attr] = availableValues[index];
@@ -107,7 +107,7 @@ export function AttributeSelection({
       const randomIndex = Math.random() < 0.5 ? 0 : 1;
       newAttributes[keyAttributes[0]] = highestTwo[randomIndex];
       newAttributes[keyAttributes[1]] = highestTwo[1 - randomIndex];
-      
+
       // Randomly distribute remaining values to non-key attributes
       const shuffledNonKey = [...nonKeyAttributes].sort(() => Math.random() - 0.5);
       shuffledNonKey.forEach((attr, index) => {
@@ -120,7 +120,7 @@ export function AttributeSelection({
           newAttributes[attr] = availableValues.shift()!;
         }
       });
-      
+
       // Assign remaining values to non-key attributes
       nonKeyAttributes.forEach((attr) => {
         if (availableValues.length > 0) {
@@ -185,20 +185,18 @@ export function AttributeSelection({
                 ))}
               </SelectContent>
             </Select>
-            <Button 
-              onClick={assignArray} 
+            <Button
+              onClick={assignArray}
               disabled={false}
               title={
-                isArrayApplied() && keyAttributes.length > 0 
+                isArrayApplied() && keyAttributes.length > 0
                   ? "Reshuffle array values (click again for different distribution)"
-                  : keyAttributes.length > 0 
-                    ? "Intelligently distribute array values based on class key attributes" 
+                  : keyAttributes.length > 0
+                    ? "Intelligently distribute array values based on class key attributes"
                     : "Apply selected array values to attributes"
               }
             >
-              {keyAttributes.length > 0 && (
-                <Sparkles className="w-4 h-4 mr-2" />
-              )}
+              {keyAttributes.length > 0 && <Sparkles className="w-4 h-4 mr-2" />}
               {isArrayApplied() ? "Reshuffle" : "Apply Array"}
             </Button>
           </div>
@@ -220,72 +218,72 @@ export function AttributeSelection({
           {ATTRIBUTE_NAMES.map((attr) => {
             const isKeyAttribute = keyAttributes.includes(attr);
             return (
-            <div key={attr} className="flex items-center gap-4">
-              <div className="flex items-center w-32 justify-between">
-                <label 
-                  className="text-sm font-medium"
-                  title={isKeyAttribute ? 'Key attribute for this class' : undefined}
-                >
-                  {ATTRIBUTE_LABELS[attr]}
-                </label>
-                {isKeyAttribute && (
-                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                    KEY
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    onAttributeChange(
-                      attr,
-                      Math.max(gameConfig.character.attributeRange.min, attributes[attr] - 1),
-                    )
-                  }
-                  disabled={attributes[attr] <= gameConfig.character.attributeRange.min}
-                >
-                  -
-                </Button>
-                <Input
-                  type="number"
-                  value={attributes[attr]}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 0;
-                    if (
-                      value >= gameConfig.character.attributeRange.min &&
-                      value <= gameConfig.character.attributeRange.max
-                    ) {
-                      onAttributeChange(attr, value);
+              <div key={attr} className="flex items-center gap-4">
+                <div className="flex items-center w-32 justify-between">
+                  <label
+                    className="text-sm font-medium"
+                    title={isKeyAttribute ? "Key attribute for this class" : undefined}
+                  >
+                    {ATTRIBUTE_LABELS[attr]}
+                  </label>
+                  {isKeyAttribute && (
+                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                      KEY
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      onAttributeChange(
+                        attr,
+                        Math.max(gameConfig.character.attributeRange.min, attributes[attr] - 1),
+                      )
                     }
-                  }}
-                  className={`w-20 text-center ${
-                    isKeyAttribute ? 'ring-2 ring-primary ring-offset-1' : ''
-                  }`}
-                  min={gameConfig.character.attributeRange.min}
-                  max={gameConfig.character.attributeRange.max}
-                />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    onAttributeChange(
-                      attr,
-                      Math.min(gameConfig.character.attributeRange.max, attributes[attr] + 1),
-                    )
-                  }
-                  disabled={attributes[attr] >= gameConfig.character.attributeRange.max}
-                >
-                  +
-                </Button>
+                    disabled={attributes[attr] <= gameConfig.character.attributeRange.min}
+                  >
+                    -
+                  </Button>
+                  <Input
+                    type="number"
+                    value={attributes[attr]}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      if (
+                        value >= gameConfig.character.attributeRange.min &&
+                        value <= gameConfig.character.attributeRange.max
+                      ) {
+                        onAttributeChange(attr, value);
+                      }
+                    }}
+                    className={`w-20 text-center ${
+                      isKeyAttribute ? "ring-2 ring-primary ring-offset-1" : ""
+                    }`}
+                    min={gameConfig.character.attributeRange.min}
+                    max={gameConfig.character.attributeRange.max}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      onAttributeChange(
+                        attr,
+                        Math.min(gameConfig.character.attributeRange.max, attributes[attr] + 1),
+                      )
+                    }
+                    disabled={attributes[attr] >= gameConfig.character.attributeRange.max}
+                  >
+                    +
+                  </Button>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  (Range: {gameConfig.character.attributeRange.min} to{" "}
+                  {gameConfig.character.attributeRange.max})
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">
-                (Range: {gameConfig.character.attributeRange.min} to{" "}
-                {gameConfig.character.attributeRange.max})
-              </span>
-            </div>
-          );
+            );
           })}
         </CardContent>
       </Card>

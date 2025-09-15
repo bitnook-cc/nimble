@@ -8,8 +8,8 @@ import { AppSettings } from "@/lib/services/settings-service";
 
 import { AppMenu } from "./app-menu";
 import { AuthButton } from "./auth-button";
-import { SyncButton } from "./sync-button";
 import { RollPanel } from "./roll-panel";
+import { SyncButton } from "./sync-button";
 import { Button } from "./ui/button";
 
 interface TopBarProps {
@@ -81,7 +81,12 @@ function CompactAdvantageToggle() {
   );
 }
 
-export function TopBar({ settings, characters, onSettingsChange, hasCharacter = false }: TopBarProps) {
+export function TopBar({
+  settings,
+  characters,
+  onSettingsChange,
+  hasCharacter = false,
+}: TopBarProps) {
   return (
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">

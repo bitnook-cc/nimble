@@ -1,6 +1,6 @@
 /**
  * Current schema version for character data
- * 
+ *
  * Increment this when making breaking changes to the character schema
  * and create a corresponding migration in the migrations/ directory
  */

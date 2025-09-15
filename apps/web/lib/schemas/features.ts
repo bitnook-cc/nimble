@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { AbilitySchema } from "./abilities"
+import { AbilityDefinitionSchema } from "./abilities";
 import { dicePoolDefinitionSchema } from "./dice-pools";
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
@@ -34,7 +34,7 @@ const BaseFeatureTraitSchema = z.object({
 
 const AbilityFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("ability"),
-  ability: AbilitySchema,
+  ability: AbilityDefinitionSchema,
 });
 
 const AttributeBoostFeatureTraitSchema = BaseFeatureTraitSchema.extend({
@@ -215,9 +215,7 @@ export type SpellTierAccessFeatureTrait = z.infer<typeof SpellTierAccessFeatureT
 export type ResourceFeatureTrait = z.infer<typeof ResourceFeatureTraitSchema>;
 export type DicePoolFeatureTrait = z.infer<typeof DicePoolFeatureTraitSchema>;
 export type SubclassChoiceFeatureTrait = z.infer<typeof SubclassChoiceFeatureTraitSchema>;
-export type PickFeatureFromPoolFeatureTrait = z.infer<
-  typeof PickFeatureFromPoolFeatureTraitSchema
->;
+export type PickFeatureFromPoolFeatureTrait = z.infer<typeof PickFeatureFromPoolFeatureTraitSchema>;
 export type ResistanceFeatureTrait = z.infer<typeof ResistanceFeatureTraitSchema>;
 export type SpellScalingFeatureTrait = z.infer<typeof SpellScalingFeatureTraitSchema>;
 

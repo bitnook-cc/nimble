@@ -2,7 +2,6 @@ import {
   AbilityDefinition,
   ActionAbilityDefinition,
   SpellAbilityDefinition,
-  UsableAbilityDefinition,
 } from "../schemas/abilities";
 import { Character } from "../schemas/character";
 import { formulaEvaluatorService } from "./formula-evaluator-service";
@@ -50,7 +49,7 @@ export class AbilityService {
     if (ability.resourceCost && ability.resourceCost.type === "variable") {
       const resourceCost = ability.resourceCost;
       const requiredAmount = variableResourceAmount || resourceCost.minAmount;
-      
+
       // Get the actual max amount - if not specified, use the resource's max value
       const resourceMaxValue = getCharacterService().getResourceMaxValue(resourceCost.resourceId);
       const effectiveMaxAmount = resourceCost.maxAmount ?? resourceMaxValue;
@@ -101,7 +100,7 @@ export class AbilityService {
     return true;
   }
 
-  getResourceCostAmount(ability: UsableAbilityDefinition, variableResourceAmount?: number): number {
+  getResourceCostAmount(ability: AbilityDefinition, variableResourceAmount?: number): number {
     if (!ability.resourceCost) return 0;
 
     if (ability.resourceCost.type === "fixed") {

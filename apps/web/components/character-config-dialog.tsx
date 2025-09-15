@@ -2,6 +2,9 @@
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 
+import { BasicSettingsSection } from "./character-config/basic-settings-section";
+import { DicePoolConfigurationSection } from "./character-config/dice-pool-configuration-section";
+import { ResourceConfigurationSection } from "./character-config/resource-configuration-section";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -11,9 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { BasicSettingsSection } from "./character-config/basic-settings-section";
-import { ResourceConfigurationSection } from "./character-config/resource-configuration-section";
-import { DicePoolConfigurationSection } from "./character-config/dice-pool-configuration-section";
 
 interface CharacterConfigDialogProps {
   onClose: () => void;
@@ -108,16 +108,10 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
           />
 
           {/* Resource Management */}
-          <ResourceConfigurationSection
-            character={character}
-            updateCharacter={updateCharacter}
-          />
+          <ResourceConfigurationSection character={character} updateCharacter={updateCharacter} />
 
           {/* Dice Pool Management */}
-          <DicePoolConfigurationSection
-            character={character}
-            updateCharacter={updateCharacter}
-          />
+          <DicePoolConfigurationSection character={character} updateCharacter={updateCharacter} />
         </div>
 
         <DialogFooter>

@@ -8,8 +8,8 @@ import {
   Dices,
   Plus,
   Shield,
-  Sparkles,
   Sparkle,
+  Sparkles,
   TrendingUp,
   Users,
   Zap,
@@ -218,9 +218,10 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
         "Your cantrips deal additional damage",
         "Your cantrips grow stronger with enhanced damage",
         "Your cantrips become significantly more powerful",
-        "Your cantrips reach their maximum potential"
+        "Your cantrips reach their maximum potential",
       ];
-      const bonusText = multiplier === 1 ? "(+1× scaling bonus)" : `(+${multiplier}× scaling bonus)`;
+      const bonusText =
+        multiplier === 1 ? "(+1× scaling bonus)" : `(+${multiplier}× scaling bonus)`;
       return `${scalingDescriptions[multiplier - 1] || scalingDescriptions[0]} ${bonusText}`;
 
     case "resource":
@@ -238,7 +239,10 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
     case "dice_pool": {
       const poolDef = (effect as any).poolDefinition;
       if (!poolDef) return "Dice Pool";
-      const maxDice = poolDef.maxDice?.type === "fixed" ? poolDef.maxDice.value : poolDef.maxDice?.expression || "3";
+      const maxDice =
+        poolDef.maxDice?.type === "fixed"
+          ? poolDef.maxDice.value
+          : poolDef.maxDice?.expression || "3";
       const resetText = poolDef.resetCondition?.replace("_", " ") || "encounter end";
       const resetType = poolDef.resetType === "to_max" ? "fills" : "clears";
       return `${poolDef.name}: ${maxDice} × d${poolDef.diceSize} (${resetText} ${resetType})`;
@@ -285,9 +289,7 @@ export function FeatureTraitsDisplay({
           // Check if we should show selection UI for this effect
           const needsSelection = onOpenSelectionDialog && isSelectable;
           // Get all selections for this effect
-          const traitSelections = existingSelections.filter(
-            (s) => s.grantedByTraitId === traitId,
-          );
+          const traitSelections = existingSelections.filter((s) => s.grantedByTraitId === traitId);
 
           // If this is a selectable effect with selection handler, use TraitSelectionDisplay
           if (needsSelection) {
