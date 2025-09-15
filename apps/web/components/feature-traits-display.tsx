@@ -5,6 +5,7 @@ import {
   BookOpen,
   CircleDot,
   Crown,
+  Dices,
   Plus,
   Shield,
   Sparkles,
@@ -64,8 +65,8 @@ const getEffectIcon = (effectType: string) => {
       return <Users className="h-3 w-3" />;
     case "resistance":
       return <Shield className="h-3 w-3" />;
-    default:
-      return null;
+    case "dice_pool":
+      return <Dices className="h-3 w-3" />;
   }
 };
 
@@ -97,8 +98,8 @@ const getEffectLabel = (effectType: string) => {
       return "Choose Feature";
     case "resistance":
       return "Resistance";
-    default:
-      return effectType;
+    case "dice_pool":
+      return "Dice Pool";
   }
 };
 
@@ -234,8 +235,14 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
     case "resistance":
       return effect.resistances.map((r) => r.name).join(", ");
 
-    default:
-      return "Effect";
+    case "dice_pool": {
+      const poolDef = (effect as any).poolDefinition;
+      if (!poolDef) return "Dice Pool";
+      const maxDice = poolDef.maxDice?.type === "fixed" ? poolDef.maxDice.value : poolDef.maxDice?.expression || "3";
+      const resetText = poolDef.resetCondition?.replace("_", " ") || "encounter end";
+      const resetType = poolDef.resetType === "to_max" ? "fills" : "clears";
+      return `${poolDef.name}: ${maxDice} × d${poolDef.diceSize} (${resetText} ${resetType})`;
+    }
   }
 };
 

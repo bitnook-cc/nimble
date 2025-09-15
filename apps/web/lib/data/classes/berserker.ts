@@ -1,6 +1,20 @@
 import { ClassFeature } from "@/lib/schemas/features";
 
 import { ClassDefinition } from "../../schemas/class";
+import { DicePoolDefinition } from "@/lib/schemas/dice-pools";
+
+const furyDefinition: DicePoolDefinition =       {
+          id: "fury",
+          name: "Fury",
+          description: "Fury Dice granted by the Rage ability.",
+          diceSize: 4,
+          maxDice: { type: "formula", expression: "KEY"},
+          resetCondition: "encounter_end",
+          resetType: "to_zero",
+          colorScheme: "red-fury",
+          icon: "flame",
+        }
+      
 
 // Savage Arsenal abilities - Feature Pool
 const savageArsenalFeatures: ClassFeature[] = [
@@ -192,17 +206,7 @@ const berserkerFeatures: ClassFeature[] = [
       {
         id: "berserker-rage-1",
         type: "dice_pool",
-        poolDefinition: {
-          id: "fury",
-          name: "Fury",
-          description: "Fury Dice granted by the Rage ability.",
-          diceSize: 4,
-          maxDice: { type: "formula", expression: "KEY"},
-          resetCondition: "encounter_end",
-          resetType: "to_zero",
-          colorScheme: "red-fury",
-          icon: "flame",
-        }
+        poolDefinition: furyDefinition,
       }
     ],
   },
@@ -329,7 +333,16 @@ const berserkerFeatures: ClassFeature[] = [
     level: 6,
     name: "Intensifying Fury (2)",
     description: "Your Fury Dice are now d6s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "berserker-intensifying-fury-2-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...furyDefinition,
+          diceSize: 6,
+        }
+      }
+    ],
   },
   // Level 7
   {
@@ -374,7 +387,16 @@ const berserkerFeatures: ClassFeature[] = [
     level: 9,
     name: "Intensifying Fury (3)",
     description: "Your Fury Dice are now d8s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "berserker-intensifying-fury-3-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...furyDefinition,
+          diceSize: 8,
+        }
+      }
+    ],
   },
   {
     id: "berserker-secondary-stat-increase-2",
@@ -448,7 +470,16 @@ const berserkerFeatures: ClassFeature[] = [
     level: 13,
     name: "Intensifying Fury (4)",
     description: "Your Fury Dice are now d10s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+                  {
+        id: "berserker-intensifying-fury-4-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...furyDefinition,
+          diceSize: 10,
+        }
+      }
+    ],
   },
   {
     id: "berserker-secondary-stat-increase-3",
@@ -522,7 +553,16 @@ const berserkerFeatures: ClassFeature[] = [
     level: 17,
     name: "Intensifying Fury (5)",
     description: "Your Fury Dice are now d12s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "berserker-intensifying-fury-5-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...furyDefinition,
+          diceSize: 12,
+        }
+      }
+    ],
   },
   {
     id: "berserker-secondary-stat-increase-4",

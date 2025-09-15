@@ -152,35 +152,44 @@ export function DicePoolSection() {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {/* Dice display */}
+                  {/* Dice display - always show all slots */}
                   <div className="flex flex-wrap gap-2">
-                    {pool.currentDice.length === 0 ? (
-                      <span className="text-sm text-muted-foreground italic">No dice in pool</span>
-                    ) : (
-                      pool.currentDice.map((value: number, index: number) => (
+                    {Array.from({ length: maxSize }, (_, index) => {
+                      const dieValue = pool.currentDice[index];
+                      const isSelected = selectedDice[pool.definition.id] === index;
+                      const isEmpty = dieValue === undefined;
+                      
+                      return (
                         <button
                           key={index}
-                          onClick={() => handleDieClick(pool.definition.id, index)}
+                          onClick={() => !isEmpty && handleDieClick(pool.definition.id, index)}
+                          disabled={isEmpty}
                           className={cn(
                             "w-10 h-10 rounded-lg border-2 flex items-center justify-center font-bold text-sm transition-all",
-                            "hover:scale-105 hover:shadow-md",
-                            selectedDice[pool.definition.id] === index
+                            isEmpty ? "cursor-not-allowed opacity-40" : "hover:scale-105 hover:shadow-md",
+                            isSelected && !isEmpty
                               ? "ring-2 ring-primary border-primary bg-primary/10"
+                              : isEmpty
+                              ? "border-dashed border-muted-foreground/30 bg-muted/20"
                               : "border-border hover:border-primary/50"
                           )}
                           style={{
-                            backgroundColor: selectedDice[pool.definition.id] === index 
+                            backgroundColor: isEmpty
+                              ? undefined
+                              : isSelected
                               ? undefined 
                               : getResourceColor(pool.definition.colorScheme, 75) + "20",
-                            borderColor: selectedDice[pool.definition.id] === index
+                            borderColor: isEmpty
+                              ? undefined
+                              : isSelected
                               ? undefined
                               : getResourceColor(pool.definition.colorScheme, 75) + "80",
                           }}
                         >
-                          {value}
+                          {!isEmpty && dieValue}
                         </button>
-                      ))
-                    )}
+                      );
+                    })}
                   </div>
                   
                   {/* Actions */}
