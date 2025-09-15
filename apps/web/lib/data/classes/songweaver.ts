@@ -181,6 +181,7 @@ const songweaverFeatures: ClassFeature[] = [
           category: "combat",
           actionCost: 1,
           diceFormula: "1d4+INT",
+          scalingBonus: "+2",
         },
       },
     ],

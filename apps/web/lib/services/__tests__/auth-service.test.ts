@@ -45,10 +45,9 @@ describe("AuthService", () => {
 
       expect(result.user).toEqual(mockUser);
       expect(result.error).toBeUndefined();
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:3001/auth/user",
-        { credentials: "include" }
-      );
+      expect(global.fetch).toHaveBeenCalledWith("http://localhost:3001/auth/user", {
+        credentials: "include",
+      });
     });
 
     it("should return error when not authenticated (401)", async () => {
@@ -175,13 +174,10 @@ describe("AuthService", () => {
 
       await authService.logout();
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:3001/auth/logout",
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+      expect(global.fetch).toHaveBeenCalledWith("http://localhost:3001/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
       expect(mockReload).toHaveBeenCalled();
       expect((authService as any).user).toBeNull();
     });
@@ -267,7 +263,7 @@ describe("AuthService", () => {
 
       // Simulate the auth success message
       const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message"
+        (call: any) => call[0] === "message",
       )[1];
 
       await messageHandler({
@@ -281,7 +277,7 @@ describe("AuthService", () => {
       expect(mockOpen).toHaveBeenCalledWith(
         expect.stringContaining("/auth/initiate"),
         "google-auth",
-        expect.any(String)
+        expect.any(String),
       );
       expect(mockClearInterval).toHaveBeenCalledWith(123);
       expect(mockRemoveEventListener).toHaveBeenCalledWith("message", messageHandler);
@@ -297,7 +293,7 @@ describe("AuthService", () => {
 
       // Simulate the auth failed message
       const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message"
+        (call: any) => call[0] === "message",
       )[1];
 
       messageHandler({
@@ -313,7 +309,7 @@ describe("AuthService", () => {
       mockOpen.mockReturnValue(null);
 
       await expect(authService.login()).rejects.toThrow(
-        "Popup blocked. Please allow popups for this site."
+        "Popup blocked. Please allow popups for this site.",
       );
     });
 
@@ -347,7 +343,7 @@ describe("AuthService", () => {
 
       // Simulate message from different origin
       const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message"
+        (call: any) => call[0] === "message",
       )[1];
 
       messageHandler({

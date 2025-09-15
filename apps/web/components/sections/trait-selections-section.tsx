@@ -163,7 +163,10 @@ export function TraitSelectionsSection() {
           <CardTitle className="text-lg flex items-center gap-2">
             <Plus className="w-5 h-5 text-amber-600" />
             Character Selections Available
-            <Badge variant="secondary" className="bg-amber-500/10 text-amber-800 dark:text-amber-200">
+            <Badge
+              variant="secondary"
+              className="bg-amber-500/10 text-amber-800 dark:text-amber-200"
+            >
               {totalSelections}
             </Badge>
           </CardTitle>

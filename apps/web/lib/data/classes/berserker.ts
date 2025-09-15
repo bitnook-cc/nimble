@@ -104,9 +104,9 @@ const savageArsenalFeatures: ClassFeature[] = [
         id: "mighty-endurance-0",
         type: "stat_bonus",
         statBonus: {
-          maxWoundsBonus: { type: "fixed", value: 4}
-        }
-      }
+          maxWoundsBonus: { type: "fixed", value: 4 },
+        },
+      },
     ],
   },
   {

@@ -160,21 +160,6 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
       amount: 7,
     },
   },
-
-  // Tier 1 (Songweaver only)
-  {
-    id: "vicious-mockery",
-    name: "Vicious Mockery",
-    description:
-      "Cantrip, 1 Action, Single Target. Range: 12. Damage: 1d4 + INT psychic (ignoring armor). On hit: the target is haunted during their next turn. High Levels: +2 damage every 5 levels. SONGWEAVER ONLY",
-    type: "spell",
-    school: "wind",
-    tier: 0,
-    category: "combat",
-    actionCost: 1,
-    diceFormula: "1d4+INT",
-    scalingBonus: "+2",
-  },
 ];
 
 const windUtilitySpells: SpellAbilityDefinition[] = [
