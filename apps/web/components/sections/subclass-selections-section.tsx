@@ -36,7 +36,7 @@ export function SubclassSelectionsSection() {
 
   return (
     <>
-      <Card className="border-purple-200 bg-purple-50">
+      <Card className="border-purple-200 bg-purple-500/5">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <span className="text-purple-600">🎭</span>
@@ -52,7 +52,7 @@ export function SubclassSelectionsSection() {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 bg-white rounded-lg border"
+                  className="flex items-center justify-between p-3 bg-background rounded-lg border"
                 >
                   <div className="flex-1">
                     <div className="font-medium">Subclass Choice</div>

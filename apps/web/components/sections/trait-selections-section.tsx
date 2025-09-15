@@ -142,28 +142,28 @@ export function TraitSelectionsSection() {
   const getSelectionColor = (type: string) => {
     switch (type) {
       case "subclass":
-        return "border-purple-200 bg-purple-50";
+        return "border-purple-200 dark:border-purple-800 bg-purple-500/5";
       case "pool_feature":
-        return "border-orange-200 bg-orange-50";
+        return "border-orange-200 dark:border-orange-800 bg-orange-500/5";
       case "spell_school":
-        return "border-blue-200 bg-blue-50";
+        return "border-blue-200 dark:border-blue-800 bg-blue-500/5";
       case "attribute_boost":
-        return "border-green-200 bg-green-50";
+        return "border-green-200 dark:border-green-800 bg-green-500/5";
       case "utility_spells":
-        return "border-indigo-200 bg-indigo-50";
+        return "border-indigo-200 dark:border-indigo-800 bg-indigo-500/5";
       default:
-        return "border-gray-200 bg-gray-50";
+        return "border-gray-200 dark:border-gray-800 bg-gray-500/5";
     }
   };
 
   return (
     <>
-      <Card className="border-amber-200 bg-amber-50">
+      <Card className="border-amber-200 dark:border-amber-800 bg-amber-500/5">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Plus className="w-5 h-5 text-amber-600" />
             Character Selections Available
-            <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+            <Badge variant="secondary" className="bg-amber-500/10 text-amber-800 dark:text-amber-200">
               {totalSelections}
             </Badge>
           </CardTitle>
