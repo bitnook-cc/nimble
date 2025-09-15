@@ -16,9 +16,11 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "test:ui": "turbo test:ui",
-    "test:run": "turbo test:run"
+    "test:run": "turbo test:run",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "turbo": "^2.3.3"
   },
   "packageManager": "npm@10.8.2"
