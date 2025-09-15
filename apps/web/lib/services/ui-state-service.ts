@@ -9,6 +9,7 @@ export interface UIState {
     initiative: boolean;
     actionTracker: boolean;
     resources: boolean;
+    dicePools: boolean;
     attributes: boolean;
     armor: boolean;
     abilities: boolean;
@@ -119,6 +120,7 @@ export class UIStateService {
         initiative: sections.initiative ?? true,
         actionTracker: sections.actionTracker ?? true,
         resources: sections.resources ?? true,
+        dicePools: sections.dicePools ?? true,
         attributes: sections.attributes ?? true,
         armor: sections.armor ?? true,
         abilities: sections.abilities ?? true,
@@ -139,6 +141,7 @@ export class UIStateService {
         initiative: true,
         actionTracker: true,
         resources: true,
+        dicePools: true,
         attributes: true,
         armor: true,
         abilities: true,

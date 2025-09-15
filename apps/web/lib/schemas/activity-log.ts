@@ -141,6 +141,18 @@ export const itemConsumptionEntrySchema = z
   })
   .merge(baseLogEntrySchema);
 
+// Dice pool log entry schema
+export const dicePoolEntrySchema = z
+  .object({
+    type: z.literal("dice-pool"),
+    subtype: z.enum(["add", "use", "reset"]),
+    poolName: z.string().min(1),
+    diceSize: z.number().optional(),
+    value: z.number().optional(),
+    poolSize: z.number().optional(),
+  })
+  .merge(baseLogEntrySchema);
+
 // Union schema for all log entries
 export const logEntrySchema = z.discriminatedUnion("type", [
   diceRollEntrySchema,
@@ -155,6 +167,7 @@ export const logEntrySchema = z.discriminatedUnion("type", [
   resourceUsageEntrySchema,
   spellCastEntrySchema,
   itemConsumptionEntrySchema,
+  dicePoolEntrySchema,
 ]);
 
 // Export inferred types
@@ -171,6 +184,7 @@ export type MakeCampEntry = z.infer<typeof makeCampEntrySchema>;
 export type ResourceUsageEntry = z.infer<typeof resourceUsageEntrySchema>;
 export type SpellCastEntry = z.infer<typeof spellCastEntrySchema>;
 export type ItemConsumptionEntry = z.infer<typeof itemConsumptionEntrySchema>;
+export type DicePoolEntry = z.infer<typeof dicePoolEntrySchema>;
 
 export type LogEntry = z.infer<typeof logEntrySchema>;
 export type ValidatedLogEntry = LogEntry;

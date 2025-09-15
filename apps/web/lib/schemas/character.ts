@@ -7,6 +7,7 @@ import { ClassFeatureSchema } from "./features";
 import { flexibleValueSchema } from "./flexible-value";
 import { Inventory, inventorySchema } from "./inventory";
 import { ResourceDefinition, ResourceValue, resourceDefinitionSchema } from "./resources";
+import { dicePoolInstanceSchema } from "./dice-pools";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 
@@ -186,6 +187,7 @@ const characterBaseSchema = z.object({
   wounds: woundsSchema,
   _resourceDefinitions: z.array(resourceDefinitionSchema),
   _resourceValues: resourceValuesMapSchema,
+  _dicePools: z.array(dicePoolInstanceSchema).default([]),
   config: characterConfigurationSchema,
   speed: z.number().min(0),
   actionTracker: actionTrackerSchema,

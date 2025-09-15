@@ -27,6 +27,7 @@ import { calculateFlexibleValue } from "../types/flexible-value";
 // Import for backward compatibility singleton
 import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
+import { DicePoolService } from "./dice-pool-service";
 import { featureSelectionService } from "./feature-selection-service";
 import { FormulaEvaluatorService } from "./formula-evaluator-service";
 import { IAbilityService, IActivityLog, ICharacterService, ICharacterStorage } from "./interfaces";
@@ -1502,6 +1503,14 @@ export class CharacterService implements ICharacterService {
       "encounter_end",
     );
 
+    // Reset dice pools that reset on encounter end
+    const dicePoolService = DicePoolService.getInstance();
+    const resetDicePools = dicePoolService.resetDicePools(
+      this._character._dicePools || [],
+      "encounter_end",
+      this._character,
+    );
+
     this._character = {
       ...this._character,
       inEncounter: false,
@@ -1512,6 +1521,7 @@ export class CharacterService implements ICharacterService {
       },
       _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
       _resourceValues: newResourceValues,
+      _dicePools: resetDicePools,
     };
 
     await this.saveCharacter();
@@ -1571,6 +1581,14 @@ export class CharacterService implements ICharacterService {
       "turn_end",
     );
 
+    // Reset dice pools that reset on turn end
+    const dicePoolService = DicePoolService.getInstance();
+    const resetDicePools = dicePoolService.resetDicePools(
+      this._character._dicePools || [],
+      "turn_end",
+      this._character,
+    );
+
     this._character = {
       ...this._character,
       actionTracker: {
@@ -1580,6 +1598,7 @@ export class CharacterService implements ICharacterService {
       },
       _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
       _resourceValues: newResourceValues,
+      _dicePools: resetDicePools,
     };
 
     await this.saveCharacter();

@@ -1,8 +1,7 @@
 import {
-  NumericalResourceValue,
+  ResourceValue,
   ResourceDefinition,
   ResourceResetCondition,
-  ResourceValue,
 } from "../schemas/resources";
 import { calculateFlexibleValue } from "../types/flexible-value";
 
@@ -69,7 +68,7 @@ export class ResourceService {
   /**
    * Create a numerical resource value
    */
-  createNumericalValue(value: number): NumericalResourceValue {
+  createNumericalValue(value: number): ResourceValue {
     return {
       type: "numerical",
       value,

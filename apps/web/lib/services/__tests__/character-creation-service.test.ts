@@ -87,6 +87,7 @@ describe("CharacterCreationService", () => {
         wounds: { current: 0, max: 2 },
         _resourceDefinitions: [],
         _resourceValues: new Map(),
+        _dicePools: [],
         config: {
           maxWounds: 2,
           maxHitPointsFormula: "",
@@ -106,6 +107,10 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        timestamps: {
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
       } as Character;
 
       // Save character to storage
@@ -161,6 +166,7 @@ describe("CharacterCreationService", () => {
         wounds: { current: 0, max: 2 },
         _resourceDefinitions: [],
         _resourceValues: new Map(),
+        _dicePools: [],
         config: {
           maxWounds: 2,
           maxHitPointsFormula: "",
@@ -180,6 +186,10 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        timestamps: {
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
       } as Character;
 
       await characterStorageService.createCharacter(testCharacter, testCharacterId);
@@ -237,6 +247,7 @@ describe("CharacterCreationService", () => {
         wounds: { current: 0, max: 2 },
         _resourceDefinitions: [],
         _resourceValues: new Map(),
+        _dicePools: [],
         config: {
           maxWounds: 2,
           maxHitPointsFormula: "",
@@ -256,6 +267,10 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        timestamps: {
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
       } as Character;
 
       // Save to storage

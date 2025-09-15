@@ -6,6 +6,7 @@ import { TraitSelectionsSection } from "../sections/trait-selections-section";
 import { FeaturesSection } from "../sections/features-section";
 import { HitDiceSection } from "../sections/hit-dice-section";
 import { ResourceSection } from "../sections/resource-section";
+import { DicePoolSection } from "../sections/dice-pool-section";
 
 export function CharacterTab() {
   return (
@@ -15,6 +16,7 @@ export function CharacterTab() {
       <HitDiceSection />
       <AttributesSection />
       <ResourceSection />
+      <DicePoolSection />
       <AbilitySection />
       <FeaturesSection />
     </div>

@@ -254,6 +254,7 @@ export class CharacterCreationService implements ICharacterCreation {
       wounds: createDefaultWounds(config.maxWounds),
       _resourceDefinitions: [],
       _resourceValues: new Map(),
+      _dicePools: [],
       config,
       speed: gameConfig.character.defaultSpeed,
       actionTracker: createDefaultActionTracker(),

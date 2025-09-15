@@ -41,7 +41,7 @@ export function CharacterDeleteDialog({
   // Check authentication status when dialog opens
   useEffect(() => {
     if (isOpen) {
-      authService.isAuthenticated().then(setIsAuthenticated);
+      setIsAuthenticated(authService.isAuthenticated());
     }
   }, [isOpen]);
 

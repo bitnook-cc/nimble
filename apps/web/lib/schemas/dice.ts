@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Dice type schema
-const diceTypeSchema = z.union([
+export const diceTypeSchema = z.union([
   z.literal(4),
   z.literal(6),
   z.literal(8),

@@ -119,6 +119,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     _spellTierAccess: 0,
     _resourceDefinitions: [],
     _resourceValues: new Map(),
+    _dicePools: [],
     _proficiencies: createDefaultProficiencies(),
     _attributes: defaultAttributes,
     saveAdvantages: {
