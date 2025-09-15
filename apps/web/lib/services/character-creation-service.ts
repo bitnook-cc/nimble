@@ -1,6 +1,6 @@
 import { gameConfig } from "../config/game-config";
 import { genericNames } from "../config/name-config";
-import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import { Attributes, Character, TraitSelection } from "../schemas/character";
 import { Item } from "../schemas/inventory";
 import {

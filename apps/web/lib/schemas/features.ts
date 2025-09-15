@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { AbilitySchema } from "./abilities"
+import { dicePoolDefinitionSchema } from "./dice-pools";
 import { resourceDefinitionSchema } from "./resources";
 import { statBonusSchema } from "./stat-bonus";
 
@@ -101,6 +102,11 @@ const SpellScalingFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   multiplier: z.number().int().min(1).max(4),
 });
 
+const DicePoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
+  type: z.literal("dice_pool"),
+  poolDefinition: dicePoolDefinitionSchema,
+});
+
 export const FeatureTraitSchema = z.discriminatedUnion("type", [
   AbilityFeatureTraitSchema,
   AttributeBoostFeatureTraitSchema,
@@ -111,6 +117,7 @@ export const FeatureTraitSchema = z.discriminatedUnion("type", [
   UtilitySpellsFeatureTraitSchema,
   SpellTierAccessFeatureTraitSchema,
   ResourceFeatureTraitSchema,
+  DicePoolFeatureTraitSchema,
   SubclassChoiceFeatureTraitSchema,
   PickFeatureFromPoolFeatureTraitSchema,
   ResistanceFeatureTraitSchema,
@@ -128,6 +135,7 @@ export {
   UtilitySpellsFeatureTraitSchema,
   SpellTierAccessFeatureTraitSchema,
   ResourceFeatureTraitSchema,
+  DicePoolFeatureTraitSchema,
   SubclassChoiceFeatureTraitSchema,
   PickFeatureFromPoolFeatureTraitSchema,
   ResistanceFeatureTraitSchema,
@@ -184,6 +192,7 @@ export type FeatureTraitType =
   | "utility_spells"
   | "spell_tier_access"
   | "resource"
+  | "dice_pool"
   | "subclass_choice"
   | "pick_feature_from_pool"
   | "resistance"
@@ -204,6 +213,7 @@ export type SpellSchoolChoiceFeatureTrait = z.infer<typeof SpellSchoolChoiceFeat
 export type UtilitySpellsFeatureTrait = z.infer<typeof UtilitySpellsFeatureTraitSchema>;
 export type SpellTierAccessFeatureTrait = z.infer<typeof SpellTierAccessFeatureTraitSchema>;
 export type ResourceFeatureTrait = z.infer<typeof ResourceFeatureTraitSchema>;
+export type DicePoolFeatureTrait = z.infer<typeof DicePoolFeatureTraitSchema>;
 export type SubclassChoiceFeatureTrait = z.infer<typeof SubclassChoiceFeatureTraitSchema>;
 export type PickFeatureFromPoolFeatureTrait = z.infer<
   typeof PickFeatureFromPoolFeatureTraitSchema

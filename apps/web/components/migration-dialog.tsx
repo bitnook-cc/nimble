@@ -5,7 +5,7 @@ import { AlertCircle, Download, CheckCircle2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
-import { MigrationProgress, MigrationResult } from '../lib/migrations/types';
+import { MigrationProgress, MigrationResult } from '../lib/schemas/migration/types';
 import { MigrationService } from '../lib/services/migration-service';
 
 interface MigrationDialogProps {

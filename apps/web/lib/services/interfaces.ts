@@ -28,6 +28,7 @@ import {
 } from "../schemas/features";
 import { Item } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
+import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import { CreateCompleteCharacterOptions } from "../services/character-creation-service";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { DiceFormulaResult } from "./dice-service";
@@ -184,6 +185,8 @@ export interface ICharacterService {
   getResourceMaxValue(resourceId: string): number;
   getResourceMinValue(resourceId: string): number;
   getSpeed(): number;
+  getDicePoolDefinitions(): DicePoolDefinition[];
+  getDicePools(): DicePoolInstance[];
   getAvailableTraitSelections(): any; // Return type defined in feature-selection-service
 
   // Selection methods

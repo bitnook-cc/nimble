@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { DicePoolInstance } from "@/lib/schemas/dice-pools";
 import { dicePoolService } from "@/lib/services/dice-pool-service";
@@ -23,17 +24,21 @@ export function DicePoolSection() {
 
   const [selectedDice, setSelectedDice] = useState<Record<string, number | null>>({});
 
+  // Get dice pools from character service (includes trait-granted pools)
+  const characterService = getCharacterService();
+  const dicePools = character ? characterService.getDicePools() : [];
+  
   // Early return if no character or no dice pools
-  if (!character || !character._dicePools || character._dicePools.length === 0) return null;
+  if (!character || dicePools.length === 0) return null;
 
   const isOpen = uiState.collapsibleSections?.dicePools ?? true;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("dicePools", isOpen);
 
   const handleAddDice = async (poolId: string) => {
-    const result = dicePoolService.addDiceToPools(character._dicePools, poolId, character);
+    const result = dicePoolService.addDiceToPools(dicePools, poolId, character);
     
     if (result.rolledValue !== null) {
-      const pool = character._dicePools.find(p => p.definition.id === poolId);
+      const pool = dicePools.find((p: DicePoolInstance) => p.definition.id === poolId);
       if (pool) {
         addLogEntry({
           id: `dice-pool-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -58,10 +63,10 @@ export function DicePoolSection() {
     const dieIndex = selectedDice[poolId];
     if (dieIndex === null || dieIndex === undefined) return;
 
-    const result = dicePoolService.useDieFromPool(character._dicePools, poolId, dieIndex);
+    const result = dicePoolService.useDieFromPool(dicePools, poolId, dieIndex);
     
     if (result.usedValue !== null) {
-      const pool = character._dicePools.find(p => p.definition.id === poolId);
+      const pool = dicePools.find((p: DicePoolInstance) => p.definition.id === poolId);
       if (pool) {
         addLogEntry({
           id: `dice-pool-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -123,7 +128,7 @@ export function DicePoolSection() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="space-y-4 p-4">
-          {character._dicePools.map((pool) => {
+          {dicePools.map((pool: DicePoolInstance) => {
             const maxSize = dicePoolService.getPoolMaxSize(pool, character);
             const currentValue = dicePoolService.getPoolCurrentValue(pool);
             const canAddDice = dicePoolService.canAddDiceToPool(pool, character);
@@ -152,7 +157,7 @@ export function DicePoolSection() {
                     {pool.currentDice.length === 0 ? (
                       <span className="text-sm text-muted-foreground italic">No dice in pool</span>
                     ) : (
-                      pool.currentDice.map((value, index) => (
+                      pool.currentDice.map((value: number, index: number) => (
                         <button
                           key={index}
                           onClick={() => handleDieClick(pool.definition.id, index)}

@@ -6,7 +6,7 @@ import { StorageBasedCharacterRepository } from "../storage/storage-based-charac
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
 import { IStorageService, LocalStorageService } from "./storage-service";
 import { MigrationService } from "./migration-service";
-import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 
 export class CharacterStorageService {
   private readonly characterListStorageKey = "nimble-navigator-character-list";

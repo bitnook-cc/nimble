@@ -22,6 +22,7 @@ import {
 } from "../schemas/features";
 import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventory";
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
+import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import { StatBonus } from "../schemas/stat-bonus";
 import { calculateFlexibleValue } from "../types/flexible-value";
 // Import for backward compatibility singleton
@@ -600,6 +601,76 @@ export class CharacterService implements ICharacterService {
     }
 
     return Array.from(resources.values());
+  }
+
+  /**
+   * Get all dice pool definitions available to the character
+   * Includes both directly granted dice pools and dice pools from traits
+   */
+  getDicePoolDefinitions(): DicePoolDefinition[] {
+    if (!this._character) return [];
+
+    const pools = new Map<string, DicePoolDefinition>();
+
+    // 1. Add base pool definitions from character
+    for (const pool of this._character._dicePools || []) {
+      pools.set(pool.definition.id, pool.definition);
+    }
+
+    // 2. Add pools from traits
+    const poolEffects = this.getAllActiveTraits().filter(
+      (effect) => effect.type === "dice_pool",
+    );
+
+    for (const effect of poolEffects) {
+      if ((effect as any).poolDefinition) {
+        // Effects override base pools if they have the same ID
+        pools.set((effect as any).poolDefinition.id, (effect as any).poolDefinition);
+      }
+    }
+
+    return Array.from(pools.values());
+  }
+
+  /**
+   * Get all dice pools as DicePoolInstance objects with current values
+   * This merges trait-granted pools with character's stored pools
+   */
+  getDicePools(): DicePoolInstance[] {
+    if (!this._character) return [];
+
+    const definitions = this.getDicePoolDefinitions();
+    const instances: DicePoolInstance[] = [];
+    
+    // Create a map of existing pool states from character
+    const existingPools = new Map<string, DicePoolInstance>();
+    for (const pool of this._character._dicePools || []) {
+      existingPools.set(pool.definition.id, pool);
+    }
+
+    // Build instances from all definitions
+    for (let i = 0; i < definitions.length; i++) {
+      const definition = definitions[i];
+      const existing = existingPools.get(definition.id);
+      
+      if (existing) {
+        // Use existing pool state but with potentially updated definition from traits
+        instances.push({
+          definition,
+          currentDice: existing.currentDice,
+          sortOrder: existing.sortOrder ?? i + 1,
+        });
+      } else {
+        // New pool from trait - initialize empty
+        instances.push({
+          definition,
+          currentDice: [],
+          sortOrder: i + 1,
+        });
+      }
+    }
+
+    return instances;
   }
 
   /**
@@ -1506,7 +1577,7 @@ export class CharacterService implements ICharacterService {
     // Reset dice pools that reset on encounter end
     const dicePoolService = DicePoolService.getInstance();
     const resetDicePools = dicePoolService.resetDicePools(
-      this._character._dicePools || [],
+      this.getDicePools(),
       "encounter_end",
       this._character,
     );
@@ -1584,7 +1655,7 @@ export class CharacterService implements ICharacterService {
     // Reset dice pools that reset on turn end
     const dicePoolService = DicePoolService.getInstance();
     const resetDicePools = dicePoolService.resetDicePools(
-      this._character._dicePools || [],
+      this.getDicePools(),
       "turn_end",
       this._character,
     );

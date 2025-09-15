@@ -1,5 +1,5 @@
 import { gameConfig } from "../config/game-config";
-import { CURRENT_SCHEMA_VERSION } from "../migrations/constants";
+import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import {
   AttributeName,
   Character,

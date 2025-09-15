@@ -1,7 +1,7 @@
 import { Character } from '../schemas/character';
-import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from '../migrations/constants';
-import { getMigrationsForVersionRange } from '../migrations/registry';
-import { MigrationProgress, MigrationResult, MigrationError } from '../migrations/types';
+import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from '../schemas/migration/constants';
+import { getMigrationsForVersionRange } from '../schemas/migration/registry';
+import { MigrationProgress, MigrationResult, MigrationError } from '../schemas/migration/types';
 
 /**
  * Service for handling character schema migrations
