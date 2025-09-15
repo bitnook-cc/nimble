@@ -29,7 +29,8 @@ export function MigrationDialog({
     if (open && charactersToMigrate.length > 0 && !isRunning && !result) {
       runMigration();
     }
-  }, [open, charactersToMigrate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, charactersToMigrate.length]); // Only depend on length to avoid re-running on reference changes
 
   const runMigration = async () => {
     setIsRunning(true);

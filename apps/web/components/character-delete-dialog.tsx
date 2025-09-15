@@ -70,7 +70,7 @@ export function CharacterDeleteDialog({
             Delete Character
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete "{character.name}"? This action cannot be undone.
+            Are you sure you want to delete &quot;{character.name}&quot;? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -79,7 +79,7 @@ export function CharacterDeleteDialog({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                This is your last character. You'll need to create a new one after deletion.
+                This is your last character. You&apos;ll need to create a new one after deletion.
               </AlertDescription>
             </Alert>
           )}
@@ -112,7 +112,7 @@ export function CharacterDeleteDialog({
                   </span>
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  Remove this character's backup from the cloud. The character will only exist
+                  Remove this character&apos;s backup from the cloud. The character will only exist
                   locally until you sync again.
                 </p>
               </div>

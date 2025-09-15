@@ -184,6 +184,9 @@ export function CharacterImageUploadDialog({
                   aspect={aspect}
                   circularCrop={false}
                 >
+                  {/* Using native img element for react-image-crop compatibility */}
+                  {/* The crop library requires a native img element to work properly */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     ref={imgRef}
                     src={imageSrc}

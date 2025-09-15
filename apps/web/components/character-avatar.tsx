@@ -55,6 +55,9 @@ export function CharacterAvatar({
       {isLoading ? (
         <div className="w-full h-full animate-pulse bg-gray-200" />
       ) : imageUrl ? (
+        // Using native img element because imageUrl is a data URL from IndexedDB
+        // Next.js Image component doesn't work well with dynamic data URLs
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt={characterName} className="w-full h-full object-cover" />
       ) : (
         <CharacterAvatarPlaceholder className="w-full h-full" />

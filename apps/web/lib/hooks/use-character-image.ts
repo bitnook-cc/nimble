@@ -67,6 +67,8 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
     } finally {
       setIsLoading(false);
     }
+    // refreshCounter is intentionally included to trigger reload when refreshImage is called
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [characterId, refreshCounter]);
 
   const refreshImage = useCallback(async () => {
