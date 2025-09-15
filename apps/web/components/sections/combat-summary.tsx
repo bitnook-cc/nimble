@@ -17,6 +17,8 @@ import {
   Square,
 } from "lucide-react";
 
+import { DicePoolCards } from "./dice-pool-cards";
+
 import { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
@@ -772,6 +774,8 @@ export function CombatSummary() {
         <CombatStatusBar />
 
         <ResourceTracker />
+
+        <DicePoolCards />
 
         <ActionTracker />
       </div>
