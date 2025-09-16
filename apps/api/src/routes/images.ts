@@ -78,7 +78,7 @@ router.post(
       // Delete existing image if it exists
       try {
         await del(pathname);
-      } catch (error) {
+      } catch {
         // Ignore errors - image might not exist
       }
 
