@@ -4,6 +4,16 @@ import { Character, CreateCharacterData } from "../schemas/character";
 import { IStorageService } from "../services/storage-service";
 import { ICharacterRepository } from "./character-repository";
 
+// Type for serialized character (with Maps converted to objects)
+type SerializedCharacter = Omit<Character, "_abilityUses" | "_resourceValues" | "timestamps"> & {
+  _abilityUses: Record<string, unknown>;
+  _resourceValues: Record<string, unknown>;
+  timestamps?: {
+    createdAt?: number;
+    updatedAt?: number;
+  };
+};
+
 /**
  * Character repository implementation that uses the injected storage service
  * This allows us to swap between localStorage and in-memory storage for testing
@@ -24,7 +34,7 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     character.timestamps.updatedAt = Date.now();
 
     // Convert Maps to objects for serialization
-    const serializable = {
+    const serializable: SerializedCharacter = {
       ...character,
       _abilityUses:
         character._abilityUses instanceof Map
@@ -37,9 +47,9 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     };
 
     if (index >= 0) {
-      characters[index] = serializable as any;
+      characters[index] = character;
     } else {
-      characters.push(serializable as any);
+      characters.push(character);
     }
 
     this.storage.setItem(this.storageKey, JSON.stringify(characters));
@@ -55,18 +65,20 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     if (!stored) return [];
 
     try {
-      const parsed = JSON.parse(stored);
-      return parsed.map((char: any) => ({
+      const parsed = JSON.parse(stored) as SerializedCharacter[];
+      return parsed.map((char) => ({
         ...char,
-        createdAt: new Date(char.createdAt),
-        updatedAt: new Date(char.updatedAt),
+        timestamps: {
+          createdAt: char.timestamps?.createdAt || Date.now(),
+          updatedAt: char.timestamps?.updatedAt || Date.now(),
+        },
         // Convert objects back to Maps
         _abilityUses: new Map(Object.entries(char._abilityUses || {})),
         _resourceValues: new Map(
           Object.entries(char._resourceValues || {}).map(([key, value]) => {
             // Ensure the value has the correct structure
             if (typeof value === "object" && value !== null && "type" in value) {
-              return [key, value];
+              return [key, value] as [string, { type: "numerical"; value: number }];
             }
             // Handle legacy numeric values
             if (typeof value === "number") {
@@ -76,7 +88,7 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
             return [key, { type: "numerical" as const, value: 0 }];
           }),
         ),
-      }));
+      } as Character));
     } catch {
       return [];
     }

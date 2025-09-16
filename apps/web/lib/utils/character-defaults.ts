@@ -6,6 +6,8 @@ import {
   HitDice,
   HitDieSize,
   Proficiencies,
+  Skill,
+  Skills,
   Wounds,
 } from "../schemas/character";
 import { ClassDefinition } from "../schemas/class";
@@ -13,8 +15,8 @@ import { Currency } from "../schemas/currency";
 import { Inventory } from "../schemas/inventory";
 import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 
-export const createDefaultSkills = () => {
-  const defaultSkills: Record<string, any> = {};
+export const createDefaultSkills = (): Skills => {
+  const defaultSkills: Skills = {};
 
   gameConfig.skills.forEach((skill) => {
     defaultSkills[skill.name] = {
@@ -24,10 +26,7 @@ export const createDefaultSkills = () => {
     };
   });
 
-  return defaultSkills as Record<
-    string,
-    { name: string; associatedAttribute: AttributeName; modifier: number }
-  >;
+  return defaultSkills;
 };
 
 export const createDefaultCurrency = (): Currency => {
@@ -151,7 +150,10 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
  * Deep merge utility for merging partial character data with defaults
  * This ensures all required fields exist while preserving valid existing data
  */
-function deepMerge(target: any, source: any): any {
+function deepMerge<T extends Record<string, unknown>>(
+  target: T,
+  source: Partial<T>
+): T {
   const result = { ...target };
 
   for (const key in source) {
@@ -159,11 +161,16 @@ function deepMerge(target: any, source: any): any {
       if (
         typeof source[key] === "object" &&
         !Array.isArray(source[key]) &&
-        !(source[key] instanceof Date)
+        !(source[key] instanceof Date) &&
+        !(source[key] instanceof Map) &&
+        !(source[key] instanceof Set)
       ) {
-        result[key] = deepMerge(target[key] || {}, source[key]);
+        result[key] = deepMerge(
+          (target[key] || {}) as Record<string, unknown>,
+          source[key] as Record<string, unknown>
+        ) as T[Extract<keyof T, string>];
       } else {
-        result[key] = source[key];
+        result[key] = source[key] as T[Extract<keyof T, string>];
       }
     }
   }
@@ -176,7 +183,7 @@ function deepMerge(target: any, source: any): any {
  * This is used for graceful recovery from validation errors or missing fields
  */
 export const mergeWithDefaultCharacter = (
-  partialCharacter: any,
+  partialCharacter: Partial<Character>,
   characterId: string,
 ): Character => {
   const defaultTemplate = createDefaultCharacterTemplate();

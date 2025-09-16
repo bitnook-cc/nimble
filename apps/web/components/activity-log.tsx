@@ -4,6 +4,8 @@ import {
   AbilityUsageEntry,
   CatchBreathEntry,
   DamageEntry,
+  DicePoolEntry,
+  DiceRollEntry,
   HealingEntry,
   InitiativeEntry,
   ItemConsumptionEntry,
@@ -55,11 +57,11 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
                 className="flex justify-between items-center p-2 bg-muted/50 rounded text-sm"
               >
                 {entry.type === "roll" ? (
-                  <RollEntryDisplay roll={entry as any} formatTime={formatTime} />
+                  <RollEntryDisplay roll={entry as DiceRollEntry} formatTime={formatTime} />
                 ) : entry.type === "initiative" ? (
                   <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
                 ) : (
-                  <NonRollEntryDisplay entry={entry as any} />
+                  <NonRollEntryDisplay entry={entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>} />
                 )}
               </div>
             ))}
@@ -84,7 +86,8 @@ function NonRollEntryDisplay({
     | MakeCampEntry
     | ResourceUsageEntry
     | SpellCastEntry
-    | ItemConsumptionEntry;
+    | ItemConsumptionEntry
+    | DicePoolEntry;
 }) {
   const getEntryIcon = () => {
     switch (entry.type) {
@@ -108,6 +111,8 @@ function NonRollEntryDisplay({
         return "🔮";
       case "item_consumption":
         return "🧪";
+      case "dice_pool":
+        return "🎲";
       default:
         return "📝";
     }
@@ -135,6 +140,8 @@ function NonRollEntryDisplay({
         return "text-indigo-600";
       case "item_consumption":
         return "text-amber-600";
+      case "dice_pool":
+        return "text-cyan-600";
       default:
         return "text-muted-foreground";
     }
@@ -154,6 +161,8 @@ function NonRollEntryDisplay({
         return entry.action === "spent" ? `-${entry.amount}` : `+${entry.amount}`;
       case "spell_cast":
         return entry.resourceCost ? `-${entry.resourceCost.amount}` : "";
+      case "dice_pool":
+        return entry.action === "removed" ? `-${entry.amount}` : `+${entry.amount}`;
       default:
         return "";
     }

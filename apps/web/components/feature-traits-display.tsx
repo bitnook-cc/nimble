@@ -20,7 +20,13 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 import { Character, TraitSelection } from "@/lib/schemas/character";
-import { FeatureTrait, SpellSchoolFeatureTrait } from "@/lib/schemas/features";
+import {
+  AbilityFeatureTrait,
+  DicePoolFeatureTrait,
+  FeatureTrait,
+  SpellScalingFeatureTrait,
+  SpellSchoolFeatureTrait,
+} from "@/lib/schemas/features";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 
 import { TraitSelectionDisplay } from "./trait-selection-display";
@@ -213,7 +219,7 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
       return `Access to Tier ${effect.maxTier} spells`;
 
     case "spell_scaling":
-      const multiplier = (effect as any).multiplier || 1;
+      const multiplier = (effect as SpellScalingFeatureTrait).multiplier || 1;
       const scalingDescriptions = [
         "Your cantrips deal additional damage",
         "Your cantrips grow stronger with enhanced damage",
@@ -237,7 +243,8 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
       return effect.resistances.map((r) => r.name).join(", ");
 
     case "dice_pool": {
-      const poolDef = (effect as any).poolDefinition;
+      const dicePoolEffect = effect as DicePoolFeatureTrait;
+      const poolDef = dicePoolEffect.poolDefinition;
       if (!poolDef) return "Dice Pool";
       const maxDice =
         poolDef.maxDice?.type === "fixed"
@@ -334,9 +341,9 @@ export function FeatureTraitsDisplay({
           // Check if this is an ability effect that is overriding lower level versions
           let override = null;
           if (effect.type === "ability" && abilityOverrideInfo) {
-            const ability = (effect as any).ability;
-            if (ability && ability.id) {
-              override = abilityOverrideInfo.get(ability.id);
+            const abilityEffect = effect as AbilityFeatureTrait;
+            if (abilityEffect.ability && abilityEffect.ability.id) {
+              override = abilityOverrideInfo.get(abilityEffect.ability.id);
             }
           }
 

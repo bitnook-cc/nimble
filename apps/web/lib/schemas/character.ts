@@ -165,7 +165,7 @@ const resourceValuesMapSchema = z.union([
 ]);
 
 const characterBaseSchema = z.object({
-  id: z.string().min(1),
+  id: z.uuidv4(),
   name: z.string().min(1).max(50),
   ancestryId: z.string().min(1),
   backgroundId: z.string().min(1),

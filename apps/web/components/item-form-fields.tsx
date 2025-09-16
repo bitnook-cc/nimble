@@ -1,6 +1,8 @@
 "use client";
 
 import { CreateItemData } from "@/lib/types/inventory";
+import { ItemType } from "@/lib/schemas/inventory";
+import { AttributeName } from "@/lib/schemas/character";
 
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -54,7 +56,7 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
           <Label htmlFor={getId("item-type")}>Type</Label>
           <Select
             value={item.type}
-            onValueChange={(value) => onItemChange({ ...item, type: value as any })}
+            onValueChange={(value) => onItemChange({ ...item, type: value as ItemType })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -76,7 +78,7 @@ export function ItemFormFields({ item, onItemChange, idPrefix = "" }: ItemFormFi
             <Label htmlFor={getId("weapon-attribute")}>Attribute</Label>
             <Select
               value={item.attribute || ""}
-              onValueChange={(value) => onItemChange({ ...item, attribute: value as any })}
+              onValueChange={(value) => onItemChange({ ...item, attribute: value as AttributeName })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select attribute" />

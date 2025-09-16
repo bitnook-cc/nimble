@@ -151,7 +151,16 @@ export class CharacterStorageService {
         }
       }
 
-      return characterSchema.parse(character);
+      const validatedCharacter = characterSchema.parse(character);
+
+      // Save the recovered character back to storage
+      await this.repository.save(validatedCharacter);
+
+      if (validatedCharacter.id !== id) {
+        await this.repository.delete(id); // Remove old entry if ID changed during migration
+      }
+
+      return validatedCharacter;
     } catch (error) {
       console.warn(
         `Character ${id} failed validation, attempting recovery by merging with defaults:`,

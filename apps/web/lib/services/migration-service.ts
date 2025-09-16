@@ -3,6 +3,13 @@ import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from "../schemas/migrat
 import { getMigrationsForVersionRange } from "../schemas/migration/registry";
 import { MigrationError, MigrationProgress, MigrationResult } from "../schemas/migration/types";
 
+// Type for characters that may have old schema versions
+type UnmigratedCharacter = Partial<Character> & {
+  _schemaVersion?: number;
+  id?: string;
+  name?: string;
+};
+
 /**
  * Service for handling character schema migrations
  */
@@ -36,15 +43,15 @@ export class MigrationService {
   /**
    * Check if a character needs migration
    */
-  needsMigration(character: any): boolean {
-    const version = character._schemaVersion || 0;
+  needsMigration(character: UnmigratedCharacter): boolean {
+    const version = character._schemaVersion || 0; console.log('Character version:', version);
     return version < CURRENT_SCHEMA_VERSION;
   }
 
   /**
    * Check if a character can be migrated
    */
-  canMigrate(character: any): boolean {
+  canMigrate(character: UnmigratedCharacter): boolean {
     const version = character._schemaVersion || 0;
     return version >= MIN_SUPPORTED_VERSION;
   }
@@ -52,26 +59,26 @@ export class MigrationService {
   /**
    * Get the schema version of a character
    */
-  getCharacterVersion(character: any): number {
+  getCharacterVersion(character: UnmigratedCharacter): number {
     return character._schemaVersion || 0;
   }
 
   /**
    * Migrate a single character to the current schema version
    */
-  async migrateCharacter(character: any): Promise<any> {
+  async migrateCharacter(character: UnmigratedCharacter): Promise<Character> {
     const currentVersion = this.getCharacterVersion(character);
 
     if (currentVersion >= CURRENT_SCHEMA_VERSION) {
-      return character;
+      return character as Character;
     }
 
     if (currentVersion < MIN_SUPPORTED_VERSION) {
       throw new MigrationError(
         `Character schema version ${currentVersion} is too old to migrate (minimum supported: ${MIN_SUPPORTED_VERSION})`,
         currentVersion,
-        character.id,
-        character.name,
+        character.id || "unknown",
+        character.name || "Unknown Character",
       );
     }
 
@@ -87,21 +94,21 @@ export class MigrationService {
         throw new MigrationError(
           `Failed to migrate character from version ${migration.version - 1} to ${migration.version}: ${error instanceof Error ? error.message : String(error)}`,
           migration.version,
-          character.id,
-          character.name,
+          character.id || "unknown",
+          character.name || "Unknown Character",
           error instanceof Error ? error : undefined,
         );
       }
     }
 
-    return migratedCharacter;
+    return migratedCharacter as Character;
   }
 
   /**
    * Migrate multiple characters with progress tracking
    */
-  async migrateCharacters(characters: any[]): Promise<MigrationResult> {
-    const failedCharacters: any[] = [];
+  async migrateCharacters(characters: UnmigratedCharacter[]): Promise<MigrationResult> {
+    const failedCharacters: UnmigratedCharacter[] = [];
     let migratedCount = 0;
     const totalCharacters = characters.length;
 
@@ -185,14 +192,14 @@ export class MigrationService {
   /**
    * Create a downloadable JSON backup of characters
    */
-  createBackupJson(characters: any[]): string {
+  createBackupJson(characters: UnmigratedCharacter[]): string {
     return JSON.stringify(characters, null, 2);
   }
 
   /**
    * Trigger download of character backup
    */
-  downloadBackup(characters: any[], filename: string = "character-backup.json") {
+  downloadBackup(characters: UnmigratedCharacter[], filename: string = "character-backup.json") {
     const json = this.createBackupJson(characters);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);

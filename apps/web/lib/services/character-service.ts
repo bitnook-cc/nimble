@@ -1,4 +1,4 @@
-import { AbilityDefinition } from "../schemas/abilities";
+import { AbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
 import {
   ActionTracker,
   AttributeBoostTraitSelection,
@@ -16,6 +16,7 @@ import {
 } from "../schemas/character";
 import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
 import {
+  AbilityFeatureTrait,
   CharacterFeature,
   ClassFeature,
   FeatureTrait,
@@ -120,15 +121,15 @@ export class CharacterService implements ICharacterService {
     const allFeatures = this.getAllActiveFeatures();
     const abilitiesByIdAndLevel = new Map<
       string,
-      Array<{ level: number; ability: any; isManual: boolean }>
+      Array<{ level: number; ability: AbilityDefinition; isManual: boolean }>
     >();
 
     // Collect all abilities from traits grouped by ID
     for (const feature of allFeatures) {
-      const level = (feature as any).level || 0;
+      const level = (feature as ClassFeature).level || 0;
       for (const effect of feature.traits) {
         if (effect.type === "ability") {
-          const ability = (effect as any).ability;
+          const ability = (effect as AbilityFeatureTrait).ability;
           if (ability && ability.id) {
             if (!abilitiesByIdAndLevel.has(ability.id)) {
               abilitiesByIdAndLevel.set(ability.id, []);
@@ -401,7 +402,7 @@ export class CharacterService implements ICharacterService {
       const spells = contentRepository.getCombatSpellsForSchool(schoolId);
       if (spells) {
         // Filter spells by tier access
-        const accessibleSpells = spells.filter((spell: any) => spell.tier <= maxTier);
+        const accessibleSpells = spells.filter((spell: SpellAbilityDefinition) => spell.tier <= maxTier);
         allSpells.push(...accessibleSpells);
       }
     }
@@ -468,7 +469,7 @@ export class CharacterService implements ICharacterService {
       const allSchools = contentRepository.getAllSpellSchools();
       for (const school of allSchools) {
         const spells = contentRepository.getSpellsBySchool(school.id);
-        const spell = spells?.find((s: any) => s.id === spellId);
+        const spell = spells?.find((s: SpellAbilityDefinition) => s.id === spellId);
         if (spell) {
           abilities.push(spell);
           break;

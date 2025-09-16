@@ -35,7 +35,7 @@ export const apiFetch = async (endpoint: string, options?: RequestInit): Promise
 /**
  * GET request helper
  */
-export const apiGet = async <T = any>(endpoint: string): Promise<T> => {
+export const apiGet = async <T = unknown>(endpoint: string): Promise<T> => {
   const response = await apiFetch(endpoint);
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
@@ -46,7 +46,7 @@ export const apiGet = async <T = any>(endpoint: string): Promise<T> => {
 /**
  * POST request helper
  */
-export const apiPost = async <T = any>(endpoint: string, data?: any): Promise<T> => {
+export const apiPost = async <T = unknown>(endpoint: string, data?: unknown): Promise<T> => {
   const response = await apiFetch(endpoint, {
     method: "POST",
     body: data ? JSON.stringify(data) : undefined,
