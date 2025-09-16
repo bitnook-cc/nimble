@@ -81,7 +81,6 @@ describe("DiceService", () => {
         category: "normal",
         index: 2,
       });
-      expect(result.diceData?.afterExpression).toBe("+ 2");
       expect(result.diceData?.total).toBe(9);
     });
 
@@ -259,20 +258,22 @@ describe("DiceService", () => {
     });
 
     it("should handle vicious with multiple exploding crits", () => {
-      // Roll 1d6: 6 (crit) -> 6 (exploding crit) -> 2 (normal) -> 5 (vicious)
+      // Roll 1d6: 6 (crit) -> 6 (exploding crit) -> 2 (normal) -> 5 (vicious 1) -> 3 (vicious 2)
+      // Since we have 2 crits, we should get 2 vicious dice
       vi.spyOn(diceService as any, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(2) // Normal roll (stops exploding)
-        .mockReturnValueOnce(5); // Vicious die
+        .mockReturnValueOnce(5) // First vicious die (for first crit)
+        .mockReturnValueOnce(3); // Second vicious die (for second crit)
 
       const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
         vicious: true,
       });
 
-      expect(result.displayString).toBe("[6] + [6] + [2] + [5]");
-      expect(result.total).toBe(19); // 6 + 6 + 2 + 5
+      expect(result.displayString).toBe("[6] + [6] + [2] + [5] + [3]");
+      expect(result.total).toBe(22); // 6 + 6 + 2 + 5 + 3
     });
 
     it("should not add vicious die without critical", () => {
@@ -286,6 +287,30 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[3]");
       expect(result.total).toBe(3);
+    });
+
+    it("should add one vicious die per critical hit", () => {
+      // Roll 1d6 with vicious, get 3 exploding crits
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(6) // First exploding critical
+        .mockReturnValueOnce(6) // Second exploding critical
+        .mockReturnValueOnce(3) // Normal roll (stops exploding)
+        .mockReturnValueOnce(5) // First vicious die
+        .mockReturnValueOnce(4) // Second vicious die
+        .mockReturnValueOnce(2); // Third vicious die
+
+      const result = diceService.evaluateDiceFormula("1d6", {
+        allowCriticals: true,
+        vicious: true,
+      });
+
+      expect(result.displayString).toBe("[6] + [6] + [6] + [3] + [5] + [4] + [2]");
+      expect(result.total).toBe(32);
+      expect(result.diceData?.criticalHits).toBe(3);
+      // Verify we have 3 vicious dice
+      const viciousDice = result.diceData?.dice.filter((d) => d.category === "vicious");
+      expect(viciousDice).toHaveLength(3);
     });
 
     it("should handle vicious die that rolls max (but doesn't explode)", () => {
@@ -538,6 +563,140 @@ describe("DiceService", () => {
       expect(() => diceService.evaluateDiceFormula("alert('hack')")).toThrow(
         "Potentially unsafe pattern",
       );
+    });
+  });
+
+  describe("Postfix modifiers (! and v)", () => {
+    it("should handle exploding criticals with ! postfix", () => {
+      // Roll 1d6!, get a 6 (critical), then 6 again, then 3
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(6) // Exploding critical
+        .mockReturnValueOnce(3); // Normal roll
+
+      const result = diceService.evaluateDiceFormula("1d6!");
+
+      expect(result.displayString).toBe("[6] + [6] + [3]");
+      expect(result.total).toBe(15);
+      expect(result.diceData?.criticalHits).toBe(2);
+    });
+
+    it("should handle vicious with v postfix", () => {
+      // Roll 1d6v, get a 6 (critical), then 3 (normal), then 4 (vicious)
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(3) // Exploding roll
+        .mockReturnValueOnce(4); // Vicious die
+
+      const result = diceService.evaluateDiceFormula("1d6v");
+
+      expect(result.displayString).toBe("[6] + [3] + [4]");
+      expect(result.total).toBe(13);
+      expect(result.diceData?.dice[2]).toMatchObject({ value: 4, kept: true, category: "vicious" });
+    });
+
+    it("should handle combined !v postfix", () => {
+      // Roll 1d6!v, get a 6 (critical), then 6 again, then 2, then 5 and 4 (2 vicious dice)
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(6) // Exploding critical
+        .mockReturnValueOnce(2) // Normal roll
+        .mockReturnValueOnce(5) // First vicious die (for first crit)
+        .mockReturnValueOnce(4); // Second vicious die (for second crit)
+
+      const result = diceService.evaluateDiceFormula("1d6!v");
+
+      expect(result.displayString).toBe("[6] + [6] + [2] + [5] + [4]");
+      expect(result.total).toBe(23);
+      expect(result.diceData?.criticalHits).toBe(2);
+      expect(result.diceData?.dice[3]).toMatchObject({ value: 5, kept: true, category: "vicious" });
+      expect(result.diceData?.dice[4]).toMatchObject({ value: 4, kept: true, category: "vicious" });
+    });
+
+    it("should handle v! postfix (redundant but valid)", () => {
+      // v implies criticals, so v! is redundant but should work
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(3) // Exploding roll
+        .mockReturnValueOnce(4); // Vicious die
+
+      const result = diceService.evaluateDiceFormula("1d6v!");
+
+      expect(result.displayString).toBe("[6] + [3] + [4]");
+      expect(result.total).toBe(13);
+    });
+
+    it("should override allowCriticals option with ! postfix", () => {
+      // Roll 1d6! with allowCriticals: false - postfix should override
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // Initial critical
+        .mockReturnValueOnce(3); // Exploding roll
+
+      const result = diceService.evaluateDiceFormula("1d6!", { allowCriticals: false });
+
+      expect(result.displayString).toBe("[6] + [3]");
+      expect(result.total).toBe(9);
+      expect(result.diceData?.criticalHits).toBe(1);
+    });
+
+    it("should handle postfix with no critical rolled", () => {
+      // Roll 1d6! but don't get a 6
+      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(3);
+
+      const result = diceService.evaluateDiceFormula("1d6!");
+
+      expect(result.displayString).toBe("[3]");
+      expect(result.total).toBe(3);
+      expect(result.diceData?.criticalHits).toBe(0);
+    });
+
+    it("should handle postfix in complex expressions", () => {
+      // Roll 2d6! + 1d4v + 3
+      // Note: We process dice notations from right to left (reverse order)
+      // So 1d4v is rolled first, then 2d6!
+      // 1d4v gets 1 crit, so 1 vicious die. 2d6! gets 1 crit, no vicious.
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(4) // d4 (critical for 1d4v)
+        .mockReturnValueOnce(2) // Exploding roll from d4
+        .mockReturnValueOnce(3) // Vicious die for d4's crit
+        .mockReturnValueOnce(6) // First d6 (critical for 2d6!)
+        .mockReturnValueOnce(2) // Second d6
+        .mockReturnValueOnce(3); // Exploding roll from first d6
+
+      const result = diceService.evaluateDiceFormula("2d6! + 1d4v + 3");
+
+      expect(result.displayString).toBe("[6] + [2] + [3] + [4] + [2] + [3] + 3");
+      expect(result.total).toBe(23);
+    });
+
+    it("should handle postfixes with variables", () => {
+      // Roll STRd6! where STR = 3 (3 dice)
+      // Only the first die can trigger exploding crits
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(6) // First d6 (critical - triggers exploding)
+        .mockReturnValueOnce(2) // Second d6
+        .mockReturnValueOnce(3) // Third d6
+        .mockReturnValueOnce(4); // Exploding roll from first d6's critical
+
+      const result = diceService.evaluateDiceFormula("STRd6!");
+
+      expect(result.displayString).toBe("[6] + [2] + [3] + [4]");
+      expect(result.total).toBe(15);
+      expect(result.substitutedFormula).toBe("3d6!");
+    });
+
+    it("should ignore postfixes on double-digit dice", () => {
+      // Double-digit dice cannot crit or be vicious
+      vi.spyOn(diceService as any, "rollSingleDie")
+        .mockReturnValueOnce(4) // tens
+        .mockReturnValueOnce(4); // ones
+
+      const result = diceService.evaluateDiceFormula("1d44!v");
+
+      expect(result.displayString).toBe("[4] [4] = 44");
+      expect(result.total).toBe(44);
+      expect(result.diceData?.isDoubleDigit).toBe(true);
+      expect(result.diceData?.criticalHits).toBe(0);
     });
   });
 });

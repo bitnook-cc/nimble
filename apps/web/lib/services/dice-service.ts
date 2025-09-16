@@ -27,6 +27,8 @@ interface ParsedDiceNotation {
   position: number; // Position in the expression
   length: number; // Length of the matched string
   fullMatch: string; // The full matched string
+  hasExplodingCrits?: boolean; // From '!' postfix
+  isVicious?: boolean; // From 'v' postfix
 }
 
 /**
@@ -50,11 +52,11 @@ export class DiceService {
       // Step 2: Substitute variables (STR, DEX, etc.)
       const { substituted, hasVariables } = substituteVariablesForDice(cleanedFormula);
 
-      // Step 3: Find and parse dice notation
-      const diceNotation = this.findDiceNotation(substituted);
+      // Step 3: Find all dice notations
+      const diceNotations = this.findAllDiceNotations(substituted);
 
       // If no dice notation found, treat as pure math expression
-      if (!diceNotation) {
+      if (diceNotations.length === 0) {
         const total = this.evaluateExpression(substituted);
         return {
           displayString: `${substituted} = ${total}`,
@@ -72,42 +74,71 @@ export class DiceService {
         };
       }
 
-      // Step 4: Validate dice count
-      if (diceNotation.count <= 0) {
-        throw new Error(`Invalid dice count: ${diceNotation.count}. Must be positive.`);
+      // Step 4: Process all dice notations
+      let expressionWithDice = substituted;
+      let displayExpression = substituted;
+      const allDice: CategorizedDie[] = [];
+      let totalCriticalHits = 0;
+      let hasFumble = false;
+      let hasDoubleDigit = false;
+
+      // Process dice notations in reverse order to maintain correct positions
+      for (let i = diceNotations.length - 1; i >= 0; i--) {
+        const notation = diceNotations[i];
+
+        // Validate dice count
+        if (notation.count <= 0) {
+          throw new Error(`Invalid dice count: ${notation.count}. Must be positive.`);
+        }
+
+        // Apply postfix modifiers for this specific dice notation
+        const modifiedOptions = {
+          ...options,
+          // Postfix modifiers override the options
+          allowCriticals:
+            notation.hasExplodingCrits || notation.isVicious || options.allowCriticals,
+          vicious: notation.isVicious || options.vicious,
+        };
+
+        const rollResult = this.rollDiceWithOptions(notation, modifiedOptions);
+
+        // Update aggregated data
+        allDice.unshift(...rollResult.allDice);
+        totalCriticalHits += rollResult.criticalHits || 0;
+        hasFumble = hasFumble || rollResult.isFumble;
+        hasDoubleDigit = hasDoubleDigit || rollResult.isDoubleDigit || false;
+
+        // Build the dice display string
+        const diceDisplay = rollResult.isDoubleDigit
+          ? this.formatDoubleDigitDiceDisplay(rollResult.allDice, rollResult.keptSum)
+          : this.formatDiceDisplay(rollResult.allDice);
+
+        // Replace the dice notation with the sum for evaluation
+        const beforeDice = expressionWithDice.substring(0, notation.position);
+        const afterDice = expressionWithDice.substring(notation.position + notation.length);
+        expressionWithDice = beforeDice + rollResult.keptSum + afterDice;
+        displayExpression =
+          displayExpression.substring(0, notation.position) +
+          diceDisplay +
+          displayExpression.substring(notation.position + notation.length);
       }
 
-      // Step 5: Roll the dice with options
-      const rollResult = this.rollDiceWithOptions(diceNotation, options);
-
-      // Step 6: Build the expression with dice results
-      const expressionWithDice = this.buildExpressionWithDice(
-        substituted,
-        diceNotation,
-        rollResult,
-      );
-
-      // Step 7: Evaluate the mathematical expression
-      const total = this.evaluateExpression(expressionWithDice.expression);
-      const finalTotal = options.allowFumbles && rollResult.isFumble ? 0 : total;
+      // Step 5: Evaluate the mathematical expression
+      const total = this.evaluateExpression(expressionWithDice);
+      const finalTotal = options.allowFumbles && hasFumble ? 0 : total;
 
       // Create dice data for rich display
-      const beforeDice = substituted.substring(0, diceNotation.position).trim();
-      const afterDice = substituted.substring(diceNotation.position + diceNotation.length).trim();
-
       const diceData: DiceRollData = {
-        dice: rollResult.allDice,
-        beforeExpression: beforeDice || undefined,
-        afterExpression: afterDice || undefined,
+        dice: allDice,
         total: finalTotal,
-        isDoubleDigit: rollResult.isDoubleDigit,
-        isFumble: rollResult.isFumble,
+        isDoubleDigit: hasDoubleDigit,
+        isFumble: hasFumble,
         advantageLevel: options.advantageLevel || 0,
-        criticalHits: rollResult.criticalHits || 0,
+        criticalHits: totalCriticalHits,
       };
 
       return {
-        displayString: expressionWithDice.display,
+        displayString: displayExpression,
         diceData,
         total: finalTotal,
         formula,
@@ -119,33 +150,42 @@ export class DiceService {
   }
 
   /**
-   * Find and parse dice notation in the expression
+   * Find all dice notations in the expression
    */
-  private findDiceNotation(expression: string): ParsedDiceNotation | null {
-    // Updated regex to handle negative numbers before 'd'
-    const diceRegex = /(-?\d+)?d(\d+)/gi;
+  private findAllDiceNotations(expression: string): ParsedDiceNotation[] {
+    const diceRegex = /(-?\d+)?d(\d+)([!v]+)?/gi;
+    const notations: ParsedDiceNotation[] = [];
+    let match;
 
-    const match = diceRegex.exec(expression);
-    if (!match) return null;
+    while ((match = diceRegex.exec(expression)) !== null) {
+      const count = match[1] ? parseInt(match[1]) : 1;
+      const sides = parseInt(match[2]);
+      const postfixes = match[3] || "";
 
-    const count = match[1] ? parseInt(match[1]) : 1;
-    const sides = parseInt(match[2]);
+      // Parse postfixes
+      const hasExplodingCrits = postfixes.includes("!");
+      const isVicious = postfixes.includes("v");
 
-    // Validate dice type (including double-digit dice)
-    const isDoubleDigit = this.doubleDigitDiceTypes.includes(sides);
-    if (!this.validDiceTypes.includes(sides) && !isDoubleDigit) {
-      throw new Error(
-        `Invalid dice type: d${sides}. Valid types are: ${[...this.validDiceTypes, ...this.doubleDigitDiceTypes].join(", ")}`,
-      );
+      // Validate dice type (including double-digit dice)
+      const isDoubleDigit = this.doubleDigitDiceTypes.includes(sides);
+      if (!this.validDiceTypes.includes(sides) && !isDoubleDigit) {
+        throw new Error(
+          `Invalid dice type: d${sides}. Valid types are: ${[...this.validDiceTypes, ...this.doubleDigitDiceTypes].join(", ")}`,
+        );
+      }
+
+      notations.push({
+        count,
+        sides: sides as DiceType,
+        position: match.index,
+        length: match[0].length,
+        fullMatch: match[0],
+        hasExplodingCrits,
+        isVicious,
+      });
     }
 
-    return {
-      count,
-      sides: sides as DiceType,
-      position: match.index,
-      length: match[0].length,
-      fullMatch: match[0],
-    };
+    return notations;
   }
 
   /**
@@ -166,7 +206,7 @@ export class DiceService {
     const isDoubleDigit = this.doubleDigitDiceTypes.includes(notation.sides as any);
 
     if (isDoubleDigit) {
-      // Double-digit dice cannot crit or be vicious
+      // Double-digit dice cannot crit or be vicious (ignore postfixes)
       return this.rollDoubleDigitDice(notation, options);
     }
 
@@ -254,17 +294,19 @@ export class DiceService {
           }
         }
 
-        // Add vicious die if enabled (non-exploding extra die on crit)
-        if (options.vicious === true) {
-          const viciousRoll = this.rollSingleDie(notation.sides);
-          allDice.push({
-            value: viciousRoll,
-            size: notation.sides,
-            kept: true,
-            category: "vicious",
-            index: allDice.length,
-          });
-          // Note: vicious die cannot explode, so we don't check for another crit
+        // Add vicious dice if enabled (one non-exploding die per critical hit)
+        if (options.vicious === true && criticalHits > 0) {
+          for (let i = 0; i < criticalHits; i++) {
+            const viciousRoll = this.rollSingleDie(notation.sides);
+            allDice.push({
+              value: viciousRoll,
+              size: notation.sides,
+              kept: true,
+              category: "vicious",
+              index: allDice.length,
+            });
+            // Note: vicious dice cannot explode, so we don't check for crits
+          }
         }
       }
     }
@@ -372,39 +414,6 @@ export class DiceService {
       isCritical: false, // Double-digit dice cannot crit
       isFumble: false, // Double-digit dice cannot fumble
       isDoubleDigit: true,
-    };
-  }
-
-  /**
-   * Build the expression with rolled dice values
-   */
-  private buildExpressionWithDice(
-    expression: string,
-    notation: ParsedDiceNotation,
-    rollResult: {
-      allDice: CategorizedDie[];
-      keptSum: number;
-      isCritical: boolean;
-      isFumble: boolean;
-      isDoubleDigit?: boolean;
-      criticalHits?: number;
-    },
-  ): { expression: string; display: string } {
-    // Build the dice display string
-    const diceDisplay = rollResult.isDoubleDigit
-      ? this.formatDoubleDigitDiceDisplay(rollResult.allDice, rollResult.keptSum)
-      : this.formatDiceDisplay(rollResult.allDice);
-
-    // Replace the dice notation with the sum for evaluation
-    const beforeDice = expression.substring(0, notation.position);
-    const afterDice = expression.substring(notation.position + notation.length);
-
-    const evaluationExpression = beforeDice + rollResult.keptSum + afterDice;
-    const displayExpression = beforeDice + diceDisplay + afterDice;
-
-    return {
-      expression: evaluationExpression,
-      display: displayExpression,
     };
   }
 

@@ -8,7 +8,7 @@ import { getClassService } from "../services/service-factory";
 
 // Regex patterns for validation
 export const OPERATOR_REGEX = /^[+\-*/\(\)0-9\s]+$/;
-export const DICE_NOTATION_REGEX = /\b(\d+)?d(\d+)\b/gi;
+export const DICE_NOTATION_REGEX = /\b(\d+)?d(\d+)([!v]+)?\b/gi;
 
 // Dangerous patterns that should be rejected for security
 const DANGEROUS_PATTERNS = [
@@ -30,13 +30,15 @@ export function sanitizeExpression(expression: string): string {
   // Remove extra whitespace
   let cleaned = expression.replace(/\s+/g, " ").trim();
 
-  // Convert variables to uppercase while preserving 'd' in dice notation
+  // Convert variables to uppercase while preserving 'd' in dice notation and postfixes
   // First, protect dice notation by temporarily replacing it
-  const dicePattern = /(\d+)?d(\d+)/gi;
+  const dicePattern = /(\d+)?d(\d+)([!v]+)?/gi;
   const diceMatches: Array<{ match: string; index: number }> = [];
   let match;
   while ((match = dicePattern.exec(cleaned)) !== null) {
-    diceMatches.push({ match: match[0].toLowerCase(), index: match.index });
+    // Keep dice notation with lowercase 'd' and lowercase postfixes
+    const diceNotation = match[0].toLowerCase();
+    diceMatches.push({ match: diceNotation, index: match.index });
   }
 
   // Convert everything to uppercase
@@ -227,16 +229,16 @@ export function validateDiceFormula(formula: string): { valid: boolean; error?: 
     const cleaned = sanitizeExpression(formula);
 
     // Step 2: Check for dice notation (create new regex to avoid lastIndex issues)
-    const hasDice = /\b(\d+)?d(\d+)\b/gi.test(cleaned);
+    const hasDice = /\b(\d+)?d(\d+)([!v]+)?\b/gi.test(cleaned);
     if (!hasDice) {
       return {
         valid: false,
-        error: "Formula must contain at least one dice notation (e.g., 1d20, 2d6)",
+        error: "Formula must contain at least one dice notation (e.g., 1d20, 2d6, 1d6!, 1d4v)",
       };
     }
 
-    // Step 3: Validate dice types
-    const diceMatches = [...cleaned.matchAll(/\b(\d+)?d(\d+)\b/gi)];
+    // Step 3: Validate dice types and postfixes
+    const diceMatches = [...cleaned.matchAll(/\b(\d+)?d(\d+)([!v]+)?\b/gi)];
     const validDiceTypes = [4, 6, 8, 10, 12, 20, 44, 66, 88, 100];
 
     for (const match of diceMatches) {
@@ -260,8 +262,8 @@ export function validateDiceFormula(formula: string): { valid: boolean; error?: 
     // Step 4: Replace dice and variables with numbers for syntax check
     let testExpression = cleaned;
 
-    // Replace dice notation with a number
-    testExpression = testExpression.replace(/\b(\d+)?d(\d+)\b/gi, "1");
+    // Replace dice notation (including postfixes) with a number
+    testExpression = testExpression.replace(/\b(\d+)?d(\d+)([!v]+)?\b/gi, "1");
 
     // Replace known variables with numbers
     const variables = [
@@ -331,5 +333,8 @@ export function getExampleFormulas(): string[] {
     "3d6+DEX",
     "1d12+STR*2",
     "1d20+KEY",
+    "1d6!",
+    "1d4v",
+    "1d8!v",
   ];
 }
