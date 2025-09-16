@@ -131,7 +131,8 @@ router.delete(
 
       res.json({ success: true });
     } catch (error) {
-      if ((error as any).code === "P2025") {
+      // Check for Prisma not found error
+      if (error instanceof Error && 'code' in error && error.code === "P2025") {
         res.status(404).json({ error: "Character backup not found" });
         return;
       }

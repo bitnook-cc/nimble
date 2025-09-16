@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi, MockedFunction } from "vitest";
 import { CharacterSyncService } from "../character-sync-service";
 import { isNewerThan } from "@nimble/shared";
+import { PrismaClient } from "@prisma/client";
 
 // Mock Prisma Client
 vi.mock("@prisma/client", () => ({
@@ -28,9 +29,21 @@ vi.mock("../../config/server-config", () => ({
   },
 }));
 
+// Type for the mocked Prisma client
+type MockPrismaClient = {
+  characterBackup: {
+    findMany: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
+    findFirst: ReturnType<typeof vi.fn>;
+    upsert: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+  $transaction: ReturnType<typeof vi.fn>;
+};
+
 describe("CharacterSyncService", () => {
   let service: CharacterSyncService;
-  let mockPrisma: any;
+  let mockPrisma: MockPrismaClient;
 
   beforeEach(() => {
     // Create mock Prisma client
@@ -45,7 +58,7 @@ describe("CharacterSyncService", () => {
       $transaction: vi.fn(),
     };
 
-    service = new CharacterSyncService(mockPrisma as any);
+    service = new CharacterSyncService(mockPrisma as unknown as PrismaClient);
     vi.clearAllMocks();
   });
 
@@ -122,7 +135,7 @@ describe("CharacterSyncService", () => {
       );
 
       // Mock isNewerThan to say remote is newer
-      (isNewerThan as any).mockReturnValue(false);
+      (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(false);
 
       const result = await service.syncCharacters(userId, [localCharacter]);
 
@@ -165,7 +178,7 @@ describe("CharacterSyncService", () => {
       );
 
       // Mock isNewerThan to say local is newer
-      (isNewerThan as any).mockReturnValue(true);
+      (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(true);
 
       const result = await service.syncCharacters(userId, [localCharacter]);
 
@@ -256,14 +269,14 @@ describe("CharacterSyncService", () => {
         Promise.resolve(ops),
       );
 
-      const result = await service.syncCharacters(userId, characters as any);
+      const result = await service.syncCharacters(userId, characters);
 
       expect(result.characters).toHaveLength(1);
       expect(result.characters[0].id).toBe("char-1");
     });
 
     it("should handle invalid input", async () => {
-      await expect(service.syncCharacters(userId, null as any)).rejects.toThrow(
+      await expect(service.syncCharacters(userId, null as unknown as any[])).rejects.toThrow(
         "Invalid request: characters must be an array",
       );
     });

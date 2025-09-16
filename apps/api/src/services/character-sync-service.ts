@@ -1,4 +1,4 @@
-import { PrismaClient, CharacterBackup } from "@prisma/client";
+import { PrismaClient, CharacterBackup, Prisma } from "@prisma/client";
 import {
   Syncable,
   SyncResult,
@@ -72,7 +72,10 @@ export class CharacterSyncService {
 
     // Create a map for quick lookup
     const backupMap = new Map(
-      existingBackups.map((backup: CharacterBackup) => [backup.characterId, backup]),
+      existingBackups.map((backup: CharacterBackup) => [
+        backup.characterId,
+        backup,
+      ]),
     );
 
     // Process each character
@@ -97,7 +100,8 @@ export class CharacterSyncService {
       let needsUpdate = true;
 
       if (existingBackup) {
-        const backupData = (existingBackup as any).characterData as SyncCharacterData;
+        // Safely parse the JSON data from Prisma
+        const backupData = existingBackup.characterData as SyncCharacterData;
 
         // Use the shared helper to compare timestamps
         if (!isNewerThan(character, backupData)) {
@@ -131,14 +135,14 @@ export class CharacterSyncService {
               },
             },
             update: {
-              characterData: character as any,
+              characterData: character as Prisma.InputJsonValue,
               updatedAt: characterUpdatedAt,
               syncedAt: new Date(),
             },
             create: {
               userId,
               characterId,
-              characterData: character as any,
+              characterData: character as Prisma.InputJsonValue,
               updatedAt: characterUpdatedAt,
             },
           }),
