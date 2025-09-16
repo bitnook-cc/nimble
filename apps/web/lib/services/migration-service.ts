@@ -44,7 +44,8 @@ export class MigrationService {
    * Check if a character needs migration
    */
   needsMigration(character: UnmigratedCharacter): boolean {
-    const version = character._schemaVersion || 0; console.log('Character version:', version);
+    const version = character._schemaVersion || 0;
+    console.log("Character version:", version);
     return version < CURRENT_SCHEMA_VERSION;
   }
 

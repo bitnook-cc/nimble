@@ -9,14 +9,14 @@ const spellshaperPool: FeaturePool = {
   features: [
     {
       id: "dimensional-compression",
-      level: 0,
+      level: 1,
       name: "Dimensional Compression",
       description: "(1 or more mana) +4 range to a spell for each additional mana spent.",
       traits: [],
     },
     {
       id: "echo-casting",
-      level: 0,
+      level: 1,
       name: "Echo Casting",
       description:
         "(2× mana, min. 1 mana) When you cast a tiered, single-target spell, you may cast a copy of that spell on a 2nd target for free.",
@@ -24,7 +24,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "elemental-destruction",
-      level: 0,
+      level: 1,
       name: "Elemental Destruction",
       description:
         "(1 or more mana) After you hit with a spell, you may spend 1 or more mana (up to your WIL) to reroll 1 die per mana spent.",
@@ -32,7 +32,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "elemental-transmutation",
-      level: 0,
+      level: 1,
       name: "Elemental Transmutation",
       description:
         "(1 mana) Change the damage type of a spell to: Fire, Ice, Lightning, Necrotic, or Radiant.",
@@ -40,7 +40,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "extra-dimensional-vision",
-      level: 0,
+      level: 1,
       name: "Extra-Dimensional Vision",
       description:
         "(2 mana) You may ignore the line of sight requirement of a spell. Your spell will phase though barriers and obstacles to reach a target you know of within range.",
@@ -48,7 +48,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "methodical-spellweaver",
-      level: 0,
+      level: 1,
       name: "Methodical Spellweaver",
       description:
         "(-2 mana) Spend 1 additional action to reduce the mana cost of a spell by 2 (min 1).",
@@ -56,7 +56,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "precise-casting",
-      level: 0,
+      level: 1,
       name: "Precise Casting",
       description:
         "(1+ mana) Choose 1 creature per mana spent to be unaffected by a spell you cast.",
@@ -64,7 +64,7 @@ const spellshaperPool: FeaturePool = {
     },
     {
       id: "stretch-time",
-      level: 0,
+      level: 1,
       name: "Stretch Time",
       description: "(2 mana) Reduce the action cost of a spell by 1 (min 1).",
       traits: [],

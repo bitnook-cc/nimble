@@ -48,7 +48,11 @@ export function AttributeBoostSelectionDialog({
     onOpenChange(false);
   };
 
-  const attributes: AttributeName[] = ["strength", "dexterity", "intelligence", "will"];
+  // Use allowedAttributes from the effect if specified, otherwise show all attributes
+  const attributes: AttributeName[] =
+    effect.allowedAttributes && effect.allowedAttributes.length > 0
+      ? effect.allowedAttributes
+      : ["strength", "dexterity", "intelligence", "will"];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

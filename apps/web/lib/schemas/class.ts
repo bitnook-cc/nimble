@@ -178,3 +178,4 @@ export type WeaponProficiency = z.infer<typeof WeaponProficiencySchema>;
 export type FeaturePool = z.infer<typeof FeaturePoolSchema>;
 export type ClassDefinition = z.infer<typeof ClassDefinitionSchema>;
 export type SubclassDefinition = z.infer<typeof SubclassDefinitionSchema>;
+export type SpellSchoolDefinition = z.infer<typeof SpellSchoolDefinitionSchema>;

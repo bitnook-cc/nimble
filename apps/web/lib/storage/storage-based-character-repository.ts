@@ -66,29 +66,32 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
 
     try {
       const parsed = JSON.parse(stored) as SerializedCharacter[];
-      return parsed.map((char) => ({
-        ...char,
-        timestamps: {
-          createdAt: char.timestamps?.createdAt || Date.now(),
-          updatedAt: char.timestamps?.updatedAt || Date.now(),
-        },
-        // Convert objects back to Maps
-        _abilityUses: new Map(Object.entries(char._abilityUses || {})),
-        _resourceValues: new Map(
-          Object.entries(char._resourceValues || {}).map(([key, value]) => {
-            // Ensure the value has the correct structure
-            if (typeof value === "object" && value !== null && "type" in value) {
-              return [key, value] as [string, { type: "numerical"; value: number }];
-            }
-            // Handle legacy numeric values
-            if (typeof value === "number") {
-              return [key, { type: "numerical" as const, value }];
-            }
-            // Default fallback
-            return [key, { type: "numerical" as const, value: 0 }];
-          }),
-        ),
-      } as Character));
+      return parsed.map(
+        (char) =>
+          ({
+            ...char,
+            timestamps: {
+              createdAt: char.timestamps?.createdAt || Date.now(),
+              updatedAt: char.timestamps?.updatedAt || Date.now(),
+            },
+            // Convert objects back to Maps
+            _abilityUses: new Map(Object.entries(char._abilityUses || {})),
+            _resourceValues: new Map(
+              Object.entries(char._resourceValues || {}).map(([key, value]) => {
+                // Ensure the value has the correct structure
+                if (typeof value === "object" && value !== null && "type" in value) {
+                  return [key, value] as [string, { type: "numerical"; value: number }];
+                }
+                // Handle legacy numeric values
+                if (typeof value === "number") {
+                  return [key, { type: "numerical" as const, value }];
+                }
+                // Default fallback
+                return [key, { type: "numerical" as const, value: 0 }];
+              }),
+            ),
+          }) as Character,
+      );
     } catch {
       return [];
     }

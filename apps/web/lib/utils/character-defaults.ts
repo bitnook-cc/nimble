@@ -150,10 +150,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
  * Deep merge utility for merging partial character data with defaults
  * This ensures all required fields exist while preserving valid existing data
  */
-function deepMerge<T extends Record<string, unknown>>(
-  target: T,
-  source: Partial<T>
-): T {
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
   const result = { ...target };
 
   for (const key in source) {
@@ -167,7 +164,7 @@ function deepMerge<T extends Record<string, unknown>>(
       ) {
         result[key] = deepMerge(
           (target[key] || {}) as Record<string, unknown>,
-          source[key] as Record<string, unknown>
+          source[key] as Record<string, unknown>,
         ) as T[Extract<keyof T, string>];
       } else {
         result[key] = source[key] as T[Extract<keyof T, string>];

@@ -1,12 +1,12 @@
 import { JSONSchemaFaker } from "json-schema-faker";
 import { z } from "zod";
 
-import { CustomContentType } from "../types/custom-content";
-import { SCHEMA_REGISTRY } from "./schema-documentation";
-import { ClassDefinition, SubclassDefinition, SpellSchoolDefinition } from "../schemas/class";
+import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
 import { AncestryDefinition } from "../schemas/ancestry";
 import { BackgroundDefinition } from "../schemas/background";
-import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
+import { ClassDefinition, SpellSchoolDefinition, SubclassDefinition } from "../schemas/class";
+import { CustomContentType } from "../types/custom-content";
+import { SCHEMA_REGISTRY } from "./schema-documentation";
 
 // Type mapping for content types to their corresponding data types
 type ContentTypeMap = {
@@ -17,7 +17,9 @@ type ContentTypeMap = {
   [CustomContentType.BACKGROUND_DEFINITION]: BackgroundDefinition;
   [CustomContentType.ACTION_ABILITY]: ActionAbilityDefinition;
   [CustomContentType.SPELL_ABILITY]: SpellAbilityDefinition;
-  [CustomContentType.ITEM_REPOSITORY]: { items: Array<{ item: Record<string, unknown>; category: string; rarity?: string }> };
+  [CustomContentType.ITEM_REPOSITORY]: {
+    items: Array<{ item: Record<string, unknown>; category: string; rarity?: string }>;
+  };
 };
 
 type ContentData = ContentTypeMap[CustomContentType];
@@ -41,7 +43,9 @@ export class ExampleGenerator {
       const jsonSchema = z.toJSONSchema(zodSchema);
 
       // Generate fake data using json-schema-faker
-      return JSONSchemaFaker.generate(jsonSchema as Parameters<typeof JSONSchemaFaker.generate>[0]) as ContentTypeMap[T];
+      return JSONSchemaFaker.generate(
+        jsonSchema as Parameters<typeof JSONSchemaFaker.generate>[0],
+      ) as ContentTypeMap[T];
     } catch (error) {
       console.warn(`Failed to generate example for ${contentType}:`, error);
       return null;

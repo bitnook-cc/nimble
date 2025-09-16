@@ -1,10 +1,10 @@
+import { v4 as uuidv4 } from "uuid";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { human } from "../../data/ancestries/human";
 import { fearless } from "../../data/backgrounds/fearless";
 import { berserkerClass } from "../../data/classes/berserker";
 import type { Character } from "../../schemas/character";
-import { StorageBasedCharacterRepository } from "../../storage/storage-based-character-repository";
 import { CharacterCreationService } from "../character-creation-service";
 import { CharacterStorageService } from "../character-storage-service";
 import type { IAncestryService, IBackgroundService, ICharacterService } from "../interfaces";
@@ -56,7 +56,7 @@ describe("CharacterCreationService", () => {
 
   describe("applyStartingEquipment", () => {
     it("should add starting equipment to character inventory", async () => {
-      const testCharacterId = "123e4567-e89b-12d3-a456-426614174000";
+      const testCharacterId = uuidv4();
 
       // Create a test character in storage
       const testCharacter = {
@@ -135,7 +135,7 @@ describe("CharacterCreationService", () => {
     });
 
     it("should handle empty equipment list", async () => {
-      const testCharacterId = "123e4567-e89b-12d3-a456-426614174001";
+      const testCharacterId = uuidv4();
 
       // Create a test character with existing items
       const testCharacter = {
@@ -217,7 +217,7 @@ describe("CharacterCreationService", () => {
 
   describe("Storage Integration", () => {
     it("should store characters in in-memory storage", async () => {
-      const testCharacterId = "123e4567-e89b-12d3-a456-426614174002";
+      const testCharacterId = uuidv4();
 
       const testCharacter = {
         id: testCharacterId,

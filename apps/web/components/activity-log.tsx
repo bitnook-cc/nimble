@@ -61,7 +61,11 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
                 ) : entry.type === "initiative" ? (
                   <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
                 ) : (
-                  <NonRollEntryDisplay entry={entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>} />
+                  <NonRollEntryDisplay
+                    entry={
+                      entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>
+                    }
+                  />
                 )}
               </div>
             ))}
@@ -111,7 +115,7 @@ function NonRollEntryDisplay({
         return "🔮";
       case "item_consumption":
         return "🧪";
-      case "dice_pool":
+      case "dice-pool":
         return "🎲";
       default:
         return "📝";
@@ -140,7 +144,7 @@ function NonRollEntryDisplay({
         return "text-indigo-600";
       case "item_consumption":
         return "text-amber-600";
-      case "dice_pool":
+      case "dice-pool":
         return "text-cyan-600";
       default:
         return "text-muted-foreground";
@@ -161,8 +165,12 @@ function NonRollEntryDisplay({
         return entry.action === "spent" ? `-${entry.amount}` : `+${entry.amount}`;
       case "spell_cast":
         return entry.resourceCost ? `-${entry.resourceCost.amount}` : "";
-      case "dice_pool":
-        return entry.action === "removed" ? `-${entry.amount}` : `+${entry.amount}`;
+      case "dice-pool":
+        return entry.subtype === "use" && entry.value
+          ? `-${entry.value}`
+          : entry.subtype === "add" && entry.value
+            ? `+${entry.value}`
+            : "";
       default:
         return "";
     }

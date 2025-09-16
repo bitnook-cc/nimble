@@ -402,7 +402,9 @@ export class CharacterService implements ICharacterService {
       const spells = contentRepository.getCombatSpellsForSchool(schoolId);
       if (spells) {
         // Filter spells by tier access
-        const accessibleSpells = spells.filter((spell: SpellAbilityDefinition) => spell.tier <= maxTier);
+        const accessibleSpells = spells.filter(
+          (spell: SpellAbilityDefinition) => spell.tier <= maxTier,
+        );
         allSpells.push(...accessibleSpells);
       }
     }

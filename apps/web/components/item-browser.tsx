@@ -18,7 +18,13 @@ import {
 
 import { useMemo, useState } from "react";
 
-import { AmmunitionItem, ConsumableItem, ItemType, WeaponItem, ArmorItem } from "@/lib/schemas/inventory";
+import {
+  AmmunitionItem,
+  ArmorItem,
+  ConsumableItem,
+  ItemType,
+  WeaponItem,
+} from "@/lib/schemas/inventory";
 import { getItemService } from "@/lib/services/service-factory";
 import { getCharacterService } from "@/lib/services/service-factory";
 import {
@@ -390,28 +396,34 @@ export function ItemBrowser({
                                       )}
                                     {repositoryItem.item.type === "consumable" &&
                                       (repositoryItem.item as ConsumableItem).count && (
-                                        <span>Count: {(repositoryItem.item as ConsumableItem).count}</span>
+                                        <span>
+                                          Count: {(repositoryItem.item as ConsumableItem).count}
+                                        </span>
                                       )}
                                     {repositoryItem.item.type === "ammunition" &&
                                       (repositoryItem.item as AmmunitionItem).count && (
-                                        <span>Count: {(repositoryItem.item as AmmunitionItem).count}</span>
+                                        <span>
+                                          Count: {(repositoryItem.item as AmmunitionItem).count}
+                                        </span>
                                       )}
-                                    {repositoryItem.item.type === "weapon" && (() => {
-                                      const weaponItem = repositoryItem.item as WeaponItem;
-                                      return weaponItem.properties && weaponItem.properties.length > 0 ? (
-                                        <span>
-                                          Properties: {weaponItem.properties.join(", ")}
-                                        </span>
-                                      ) : null;
-                                    })()}
-                                    {repositoryItem.item.type === "armor" && (() => {
-                                      const armorItem = repositoryItem.item as ArmorItem;
-                                      return armorItem.properties && armorItem.properties.length > 0 ? (
-                                        <span>
-                                          Properties: {armorItem.properties.join(", ")}
-                                        </span>
-                                      ) : null;
-                                    })()}
+                                    {repositoryItem.item.type === "weapon" &&
+                                      (() => {
+                                        const weaponItem = repositoryItem.item as WeaponItem;
+                                        return weaponItem.properties &&
+                                          weaponItem.properties.length > 0 ? (
+                                          <span>
+                                            Properties: {weaponItem.properties.join(", ")}
+                                          </span>
+                                        ) : null;
+                                      })()}
+                                    {repositoryItem.item.type === "armor" &&
+                                      (() => {
+                                        const armorItem = repositoryItem.item as ArmorItem;
+                                        return armorItem.properties &&
+                                          armorItem.properties.length > 0 ? (
+                                          <span>Properties: {armorItem.properties.join(", ")}</span>
+                                        ) : null;
+                                      })()}
                                   </div>
                                 </div>
 
