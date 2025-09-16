@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, CharacterBackup } from "@prisma/client";
 import {
   Syncable,
   SyncResult,
@@ -63,7 +63,7 @@ export class CharacterSyncService {
     );
     console.log(
       "[Sync Server] Existing backups:",
-      existingBackups.map((b) => ({
+      existingBackups.map((b: CharacterBackup) => ({
         characterId: b.characterId,
         updatedAt: b.updatedAt.toISOString(),
         syncedAt: b.syncedAt.toISOString(),
@@ -72,7 +72,7 @@ export class CharacterSyncService {
 
     // Create a map for quick lookup
     const backupMap = new Map(
-      existingBackups.map((backup) => [backup.characterId, backup]),
+      existingBackups.map((backup: CharacterBackup) => [backup.characterId, backup]),
     );
 
     // Process each character
@@ -97,7 +97,7 @@ export class CharacterSyncService {
       let needsUpdate = true;
 
       if (existingBackup) {
-        const backupData = existingBackup.characterData as SyncCharacterData;
+        const backupData = (existingBackup as any).characterData as SyncCharacterData;
 
         // Use the shared helper to compare timestamps
         if (!isNewerThan(character, backupData)) {
