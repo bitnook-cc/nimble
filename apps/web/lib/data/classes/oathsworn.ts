@@ -510,7 +510,20 @@ const oathswornFeatures: ClassFeature[] = [
     level: 20,
     name: "Glorious Paragon",
     description: "+1 to any 2 of your stats. Defend for free whenever you Interpose.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "glorious-paragon-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "glorious-paragon-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
   {
     id: "upgraded-cantrips-4",

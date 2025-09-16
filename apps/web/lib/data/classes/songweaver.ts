@@ -673,7 +673,20 @@ const songweaverFeatures: ClassFeature[] = [
     name: "I'm So Famous!",
     description:
       "+1 to any 2 of your stats. Your Songweaver's Inspiration cannot fail (your target succeeds).",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "im-so-famous-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "im-so-famous-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
   {
     id: "upgraded-cantrips-4",

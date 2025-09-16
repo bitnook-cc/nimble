@@ -391,7 +391,20 @@ const hunterFeatures: ClassFeature[] = [
     name: "Nemesis",
     description:
       "+1 to any 2 of your stats. Your Hunter's Mark can target any number of creatures simultaneously.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "nemesis-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "nemesis-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
 ];
 

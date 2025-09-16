@@ -1,6 +1,17 @@
 import { ClassFeature } from "@/lib/schemas/features";
 
 import { ClassDefinition } from "../../schemas/class";
+import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
+
+const sneakAttackDefinition: ActionAbilityDefinition = {
+          id: "sneak-attack",
+          name: "Sneak Attack",
+          description: "(1/turn) When you crit, deal +1d6 damage.",
+          type: "action",
+          frequency: "per_turn",
+          maxUses: { type: "fixed", value: 1 },
+          diceFormula: "1d6",
+        }
 
 // Underhanded Abilities - Feature Pool
 const underhandedAbilitiesFeatures: ClassFeature[] = [
@@ -43,6 +54,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
           type: "action",
           frequency: "at_will",
           actionCost: 1,
+          diceFormula: "1d20 + INT",
         },
       },
     ],
@@ -91,7 +103,15 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
     level: 1,
     name: "Misdirection",
     description: "Gain INT armor. Whenever you Defend, you may halve the damage instead.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "misdirection-0",
+        type: "stat_bonus",
+        statBonus: {
+          armorBonus: { type: "formula", expression: "INT" },
+        },
+      }
+    ], // Passive feature - no mechanical traits to process
   },
   {
     id: "steal-tempo",
@@ -164,15 +184,7 @@ const cheatFeatures: ClassFeature[] = [
       {
         id: "cheat-sneak-attack-0",
         type: "ability",
-        ability: {
-          id: "sneak-attack",
-          name: "Sneak Attack",
-          description: "(1/turn) When you crit, deal +1d6 damage.",
-          type: "action",
-          frequency: "per_turn",
-          maxUses: { type: "fixed", value: 1 },
-          diceFormula: "1d6",
-        },
+        ability: sneakAttackDefinition,
       },
     ],
   },
@@ -212,7 +224,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 3,
     name: "Sneak Attack (2)",
     description: "Your Sneak Attack becomes 1d8.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+            {
+        id: "cheat-sneak-attack-2-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +1d8 damage.",
+          diceFormula: "1d8",
+        }
+      },
+    ],
   },
   {
     id: "cheat-thieves-cant",
@@ -322,7 +344,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 7,
     name: "Sneak Attack (3)",
     description: "Your Sneak Attack becomes 2d8.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+                  {
+        id: "cheat-sneak-attack-3-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +2d8 damage.",
+          diceFormula: "2d8",
+        }
+      },
+    ],
   },
   // Level 8
   {
@@ -359,7 +391,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 9,
     name: "Sneak Attack (4)",
     description: "Your Sneak Attack becomes 2d10.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+                  {
+        id: "cheat-sneak-attack-4-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +2d10 damage.",
+          diceFormula: "2d10",
+        }
+      },
+    ],
   },
   {
     id: "cheat-secondary-stat-increase-2",
@@ -404,7 +446,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 11,
     name: "Sneak Attack (5)",
     description: "Your Sneak Attack becomes 2d12.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+                  {
+        id: "cheat-sneak-attack-5-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +2d12 damage.",
+          diceFormula: "2d12",
+        }
+      },
+    ],
   },
   // Level 12
   {
@@ -500,7 +552,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 15,
     name: "Sneak Attack (6)",
     description: "Your Sneak Attack becomes 2d20.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+                  {
+        id: "cheat-sneak-attack-6-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +2d20 damage.",
+          diceFormula: "2d20",
+        }
+      },
+    ],
   },
   // Level 16
   {
@@ -538,7 +600,17 @@ const cheatFeatures: ClassFeature[] = [
     level: 17,
     name: "Sneak Attack (7)",
     description: "Your Sneak Attack becomes 3d20.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "cheat-sneak-attack-7-0",
+        type: "ability",
+        ability: {
+          ...sneakAttackDefinition,
+          description: "(1/turn) When you crit, deal +3d20 damage.",
+          diceFormula: "3d20",
+        }
+      },
+    ],
   },
   {
     id: "cheat-secondary-stat-increase-4",
@@ -586,7 +658,20 @@ const cheatFeatures: ClassFeature[] = [
     name: "Supreme Execution",
     description:
       "+1 to any 2 of your stats. When you attack with a blade, you do not require targets to be Distracted to trigger Vicious Opportunist.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [      
+      {
+        id: "cheat-supreme-execution-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "cheat-supreme-execution-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
 ];
 

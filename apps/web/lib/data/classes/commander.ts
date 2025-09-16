@@ -649,7 +649,20 @@ const commanderFeatures: ClassFeature[] = [
     name: "Captain of Legions",
     description:
       "+1 to any 2 of your stats. The first time each encounter you use Coordinated Strike, EVERY ally within 12 spaces gains +1 action (replaces Unparalleled Tactics).",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "commander-captain-of-legions-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "commander-captain-of-legions-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
 ];
 

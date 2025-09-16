@@ -532,7 +532,20 @@ const mageFeatures: ClassFeature[] = [
     name: "Archmage",
     description:
       "+1 to any 2 of your stats. The first tiered spell you cast each encounter costs 1 action less and 5 fewer mana.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "archmage-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "archmage-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
   {
     id: "upgraded-cantrips-4",

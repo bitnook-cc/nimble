@@ -609,7 +609,20 @@ const shepherdFeatures: ClassFeature[] = [
     level: 20,
     name: "Twilight Sage",
     description: "+1 to any 2 of your stats. Your Lifebinding Spirit rolls twice as many dice.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "twilight-sage-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "twilight-sage-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
   {
     id: "upgraded-cantrips-4",

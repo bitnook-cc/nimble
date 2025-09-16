@@ -750,7 +750,20 @@ const shadowmancerFeatures: ClassFeature[] = [
     name: "Eldritch Usurper",
     description:
       "+1 to any 2 of your stats. Whenever you summon a single shadow minion, summon 2 instead. They die only when they receive 12 or more damage at one time.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "eldritch-usurper-0",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+      {
+        id: "eldritch-usurper-1",
+        type: "attribute_boost",
+        allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
+        amount: 1,
+      },
+    ],
   },
   {
     id: "upgraded-cantrips-4",
