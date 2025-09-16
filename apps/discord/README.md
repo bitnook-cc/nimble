@@ -45,7 +45,7 @@ npm run build
 ### 4. Register Commands
 
 ```bash
-# From apps/discord-bot
+# From apps/discord
 npm run register-commands
 ```
 
@@ -84,13 +84,13 @@ This bot is configured to deploy as a standalone Vercel serverless function:
 # Install Vercel CLI if needed
 npm i -g vercel
 
-# Deploy from discord-bot directory
-cd apps/discord-bot
+# Deploy from discord directory
+cd apps/discord
 vercel
 
 # Follow prompts:
 # - Link to existing project or create new
-# - Project name: nimble-discord-bot
+# - Project name: nimble-discord
 # - Directory: ./ (current directory)
 ```
 

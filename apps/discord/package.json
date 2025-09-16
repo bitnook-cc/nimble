@@ -1,5 +1,5 @@
 {
-  "name": "@nimble/discord-bot",
+  "name": "@nimble/discord",
   "version": "1.0.0",
   "description": "Discord bot for Nimble dice rolling (HTTP interactions)",
   "main": "dist/index.js",
@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "vercel-build": "cd ../.. && npx turbo build --filter=@nimble/discord && cd apps/discord",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

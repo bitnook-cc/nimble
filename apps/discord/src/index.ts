@@ -106,7 +106,7 @@ function formatDiceResult(
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'nimble-discord-bot' });
+  res.json({ status: 'ok', service: 'nimble-discord' });
 });
 
 // Start the server
