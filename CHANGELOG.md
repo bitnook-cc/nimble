@@ -1,6 +1,6 @@
 # Changelog
 
-## January 16, 2025
+## September 16, 2025
 
 ### Added
 
@@ -12,11 +12,6 @@
   - Spell preview showing damage formula, resource costs, and scaling bonuses
   - "Browse Spells" button added to abilities section
   - Manually added spells appear in both abilities and spells tabs
-
-### Fixed
-
-- **React Hooks**: Fixed hooks order in spell browser component to comply with Rules of Hooks
-- **Null Safety**: Added proper null checks for character references in spell browser
 
 ## September 15, 2025
 
