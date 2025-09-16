@@ -246,7 +246,7 @@ export class PDFExportService {
    * Set save advantage/disadvantage checkboxes
    */
   private setSaveAdvantages(form: PDFForm, saveAdvantages: SaveAdvantageMap): void {
-    const setSaveAdvantage = (formName: String, type?: SaveAdvantageType) => {
+    const setSaveAdvantage = (formName: string, type?: SaveAdvantageType) => {
       const advantage = type === "advantage";
       const disadvantage = type === "disadvantage";
 

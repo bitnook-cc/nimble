@@ -55,7 +55,8 @@ function handleRollCommand(options: CommandOption[], res: express.Response) {
     const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
     const formula = typeof formulaValue === 'string' ? formulaValue : String(formulaValue || '');
     const advantageValue = options.find((opt) => opt.name === 'advantage')?.value;
-    const advantageLevel = typeof advantageValue === 'number' ? advantageValue : Number(advantageValue || 0);
+    const advantageLevel =
+      typeof advantageValue === 'number' ? advantageValue : Number(advantageValue || 0);
 
     // Roll the dice
     const result = diceService.evaluateDiceFormula(formula, {
