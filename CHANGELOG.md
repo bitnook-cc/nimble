@@ -1,5 +1,23 @@
 # Changelog
 
+## January 16, 2025
+
+### Added
+
+- **Spell Browser**: New comprehensive spell browser dialog for browsing and adding spells directly to character
+  - Filter spells by school, tier, and category (combat/utility)
+  - Search functionality for spell names and descriptions
+  - Visual indicators for already-known spells (grayed out)
+  - Grouped display by school and tier with collapsible sections
+  - Spell preview showing damage formula, resource costs, and scaling bonuses
+  - "Browse Spells" button added to abilities section
+  - Manually added spells appear in both abilities and spells tabs
+
+### Fixed
+
+- **React Hooks**: Fixed hooks order in spell browser component to comply with Rules of Hooks
+- **Null Safety**: Added proper null checks for character references in spell browser
+
 ## September 15, 2025
 
 ### Added
