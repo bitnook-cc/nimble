@@ -674,7 +674,7 @@ const songweaverFeatures: ClassFeature[] = [
     description:
       "+1 to any 2 of your stats. Your Songweaver's Inspiration cannot fail (your target succeeds).",
     traits: [
-            {
+      {
         id: "im-so-famous-0",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],

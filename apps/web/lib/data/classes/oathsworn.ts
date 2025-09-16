@@ -511,7 +511,7 @@ const oathswornFeatures: ClassFeature[] = [
     name: "Glorious Paragon",
     description: "+1 to any 2 of your stats. Defend for free whenever you Interpose.",
     traits: [
-            {
+      {
         id: "glorious-paragon-0",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],

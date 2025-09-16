@@ -12,7 +12,7 @@
 - ✅ Mountainheart
 - 🚧 Red Mist
 
-### 🚧 **Cheat**
+### ✅ **Cheat**
 
 - 🚧 Scoundrel
 - 🚧 Silent Blade

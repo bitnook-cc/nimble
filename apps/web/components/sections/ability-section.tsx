@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   ChevronDown,
   ChevronRight,
   Edit,
@@ -14,6 +15,7 @@ import {
 import { useState } from "react";
 
 import { EffectPreview } from "@/components/effect-preview";
+import { SpellBrowser } from "@/components/spell-browser";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
@@ -66,6 +68,7 @@ export function AbilitySection() {
   const { uiState, updateCollapsibleState } = useUIStateService();
 
   const [isAddingAbility, setIsAddingAbility] = useState(false);
+  const [isSpellBrowserOpen, setIsSpellBrowserOpen] = useState(false);
   const [editingAbility, setEditingAbility] = useState<string | null>(null);
   const [newAbility, setNewAbility] = useState<NewAbilityForm>({
     name: "",
@@ -335,382 +338,401 @@ export function AbilitySection() {
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onToggle}>
-      <Card>
-        <CollapsibleTrigger className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-500" />
-                Abilities
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">{abilities.length}</span>
-                {isOpen ? (
-                  <ChevronDown className="w-4 h-4" />
+    <>
+      <Collapsible open={isOpen} onOpenChange={onToggle}>
+        <Card>
+          <CollapsibleTrigger className="w-full">
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  Abilities
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold">{abilities.length}</span>
+                  {isOpen ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-4">
+              {/* Existing Abilities */}
+              <div className="space-y-2">
+                {abilities.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No abilities yet. Add your first ability below!
+                  </div>
                 ) : (
-                  <ChevronRight className="w-4 h-4" />
+                  abilities.map(renderAbility)
                 )}
               </div>
-            </CardTitle>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="space-y-4">
-            {/* Existing Abilities */}
-            <div className="space-y-2">
-              {abilities.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No abilities yet. Add your first ability below!
-                </div>
-              ) : (
-                abilities.map(renderAbility)
-              )}
-            </div>
 
-            {/* Add New Ability Form */}
-            {isAddingAbility ? (
-              <Card className="border-dashed">
-                <CardContent className="p-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ability-name">Ability Name</Label>
-                    <Input
-                      id="ability-name"
-                      value={newAbility.name}
-                      onChange={(e) => setNewAbility({ ...newAbility, name: e.target.value })}
-                      placeholder="Enter ability name"
-                    />
-                  </div>
+              {/* Add New Ability Form */}
+              {isAddingAbility ? (
+                <Card className="border-dashed">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ability-name">Ability Name</Label>
+                      <Input
+                        id="ability-name"
+                        value={newAbility.name}
+                        onChange={(e) => setNewAbility({ ...newAbility, name: e.target.value })}
+                        placeholder="Enter ability name"
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="ability-description">Description</Label>
-                    <Textarea
-                      id="ability-description"
-                      value={newAbility.description}
-                      onChange={(e) =>
-                        setNewAbility({ ...newAbility, description: e.target.value })
-                      }
-                      placeholder="Describe what this ability does"
-                      rows={3}
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ability-description">Description</Label>
+                      <Textarea
+                        id="ability-description"
+                        value={newAbility.description}
+                        onChange={(e) =>
+                          setNewAbility({ ...newAbility, description: e.target.value })
+                        }
+                        placeholder="Describe what this ability does"
+                        rows={3}
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="ability-type">Type</Label>
-                    <Select
-                      value={newAbility.type}
-                      onValueChange={(value: "freeform" | "action") =>
-                        setNewAbility({ ...newAbility, type: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="freeform">Freeform (Text only)</SelectItem>
-                        <SelectItem value="action">Action (Limited uses)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ability-type">Type</Label>
+                      <Select
+                        value={newAbility.type}
+                        onValueChange={(value: "freeform" | "action") =>
+                          setNewAbility({ ...newAbility, type: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="freeform">Freeform (Text only)</SelectItem>
+                          <SelectItem value="action">Action (Limited uses)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {newAbility.type === "action" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="ability-frequency">Frequency</Label>
-                        <Select
-                          value={newAbility.frequency}
-                          onValueChange={(value: AbilityFrequency) =>
-                            setNewAbility({ ...newAbility, frequency: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="per_turn">Per Turn</SelectItem>
-                            <SelectItem value="per_encounter">Per Encounter</SelectItem>
-                            <SelectItem value="per_safe_rest">Per Safe Rest</SelectItem>
-                            <SelectItem value="at_will">At Will</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {newAbility.frequency !== "at_will" && (
+                    {newAbility.type === "action" && (
+                      <>
                         <div className="space-y-2">
-                          <Label>Maximum Uses</Label>
-                          <div className="space-y-2">
-                            <Select
-                              value={newAbility.maxUsesType}
-                              onValueChange={(value: "fixed" | "formula") =>
-                                setNewAbility({ ...newAbility, maxUsesType: value })
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="fixed">Fixed Number</SelectItem>
-                                <SelectItem value="formula">Formula</SelectItem>
-                              </SelectContent>
-                            </Select>
-
-                            {newAbility.maxUsesType === "fixed" ? (
-                              <Input
-                                type="number"
-                                min="1"
-                                max="20"
-                                value={newAbility.maxUsesValue}
-                                onChange={(e) =>
-                                  setNewAbility({
-                                    ...newAbility,
-                                    maxUsesValue: parseInt(e.target.value) || 1,
-                                  })
-                                }
-                                placeholder="Number of uses"
-                              />
-                            ) : (
-                              <Input
-                                type="text"
-                                value={newAbility.maxUsesExpression}
-                                onChange={(e) =>
-                                  setNewAbility({
-                                    ...newAbility,
-                                    maxUsesExpression: e.target.value,
-                                  })
-                                }
-                                placeholder="e.g., DEX + WIL + 1"
-                              />
-                            )}
-                          </div>
+                          <Label htmlFor="ability-frequency">Frequency</Label>
+                          <Select
+                            value={newAbility.frequency}
+                            onValueChange={(value: AbilityFrequency) =>
+                              setNewAbility({ ...newAbility, frequency: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="per_turn">Per Turn</SelectItem>
+                              <SelectItem value="per_encounter">Per Encounter</SelectItem>
+                              <SelectItem value="per_safe_rest">Per Safe Rest</SelectItem>
+                              <SelectItem value="at_will">At Will</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                      )}
 
-                      {/* Action Cost */}
-                      <div className="space-y-2">
-                        <Label htmlFor="ability-action-cost">Action Cost</Label>
-                        <Input
-                          id="ability-action-cost"
-                          type="number"
-                          min="0"
-                          max="5"
-                          value={newAbility.actionCost || 0}
-                          onChange={(e) =>
-                            setNewAbility({
-                              ...newAbility,
-                              actionCost: parseInt(e.target.value) || 0,
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Resource Cost Configuration */}
-                      <div className="space-y-2">
-                        <Label>Resource Cost (Optional)</Label>
-                        <div className="space-y-3 p-3 border rounded-md">
+                        {newAbility.frequency !== "at_will" && (
                           <div className="space-y-2">
-                            <Label htmlFor="resource-id">Resource</Label>
-                            <Select
-                              value={newAbility.resourceCost?.resourceId || "none"}
-                              onValueChange={(value) =>
-                                setNewAbility({
-                                  ...newAbility,
-                                  resourceCost:
-                                    value === "none"
-                                      ? undefined
-                                      : {
-                                          type: "fixed",
-                                          resourceId: value,
-                                          amount: 1,
-                                        },
-                                })
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select resource" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">No resource cost</SelectItem>
-                                {characterService.getResources().map((resource) => (
-                                  <SelectItem
-                                    key={resource.definition.id}
-                                    value={resource.definition.id}
-                                  >
-                                    {resource.definition.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                            <Label>Maximum Uses</Label>
+                            <div className="space-y-2">
+                              <Select
+                                value={newAbility.maxUsesType}
+                                onValueChange={(value: "fixed" | "formula") =>
+                                  setNewAbility({ ...newAbility, maxUsesType: value })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="fixed">Fixed Number</SelectItem>
+                                  <SelectItem value="formula">Formula</SelectItem>
+                                </SelectContent>
+                              </Select>
 
-                          {newAbility.resourceCost && (
-                            <>
-                              <div className="space-y-2">
-                                <Label>Cost Type</Label>
-                                <Select
-                                  value={newAbility.resourceCost.type}
-                                  onValueChange={(value: "fixed" | "variable") =>
+                              {newAbility.maxUsesType === "fixed" ? (
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  max="20"
+                                  value={newAbility.maxUsesValue}
+                                  onChange={(e) =>
                                     setNewAbility({
                                       ...newAbility,
-                                      resourceCost: {
-                                        ...newAbility.resourceCost!,
-                                        type: value,
-                                        ...(value === "fixed"
-                                          ? { amount: 1 }
-                                          : { minAmount: 1, maxAmount: 5 }),
-                                      },
+                                      maxUsesValue: parseInt(e.target.value) || 1,
                                     })
                                   }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="fixed">Fixed Amount</SelectItem>
-                                    <SelectItem value="variable">Variable Amount</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
+                                  placeholder="Number of uses"
+                                />
+                              ) : (
+                                <Input
+                                  type="text"
+                                  value={newAbility.maxUsesExpression}
+                                  onChange={(e) =>
+                                    setNewAbility({
+                                      ...newAbility,
+                                      maxUsesExpression: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., DEX + WIL + 1"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
 
-                              {newAbility.resourceCost.type === "fixed" ? (
+                        {/* Action Cost */}
+                        <div className="space-y-2">
+                          <Label htmlFor="ability-action-cost">Action Cost</Label>
+                          <Input
+                            id="ability-action-cost"
+                            type="number"
+                            min="0"
+                            max="5"
+                            value={newAbility.actionCost || 0}
+                            onChange={(e) =>
+                              setNewAbility({
+                                ...newAbility,
+                                actionCost: parseInt(e.target.value) || 0,
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Resource Cost Configuration */}
+                        <div className="space-y-2">
+                          <Label>Resource Cost (Optional)</Label>
+                          <div className="space-y-3 p-3 border rounded-md">
+                            <div className="space-y-2">
+                              <Label htmlFor="resource-id">Resource</Label>
+                              <Select
+                                value={newAbility.resourceCost?.resourceId || "none"}
+                                onValueChange={(value) =>
+                                  setNewAbility({
+                                    ...newAbility,
+                                    resourceCost:
+                                      value === "none"
+                                        ? undefined
+                                        : {
+                                            type: "fixed",
+                                            resourceId: value,
+                                            amount: 1,
+                                          },
+                                  })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select resource" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">No resource cost</SelectItem>
+                                  {characterService.getResources().map((resource) => (
+                                    <SelectItem
+                                      key={resource.definition.id}
+                                      value={resource.definition.id}
+                                    >
+                                      {resource.definition.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {newAbility.resourceCost && (
+                              <>
                                 <div className="space-y-2">
-                                  <Label htmlFor="resource-amount">Amount</Label>
-                                  <Input
-                                    id="resource-amount"
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    value={newAbility.resourceCost.amount || 1}
-                                    onChange={(e) =>
+                                  <Label>Cost Type</Label>
+                                  <Select
+                                    value={newAbility.resourceCost.type}
+                                    onValueChange={(value: "fixed" | "variable") =>
                                       setNewAbility({
                                         ...newAbility,
                                         resourceCost: {
                                           ...newAbility.resourceCost!,
-                                          amount: parseInt(e.target.value) || 1,
+                                          type: value,
+                                          ...(value === "fixed"
+                                            ? { amount: 1 }
+                                            : { minAmount: 1, maxAmount: 5 }),
                                         },
                                       })
                                     }
-                                  />
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                                      <SelectItem value="variable">Variable Amount</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
-                              ) : (
-                                <div className="grid grid-cols-2 gap-2">
+
+                                {newAbility.resourceCost.type === "fixed" ? (
                                   <div className="space-y-2">
-                                    <Label htmlFor="resource-min">Min Amount</Label>
+                                    <Label htmlFor="resource-amount">Amount</Label>
                                     <Input
-                                      id="resource-min"
+                                      id="resource-amount"
                                       type="number"
                                       min="1"
                                       max="10"
-                                      value={newAbility.resourceCost.minAmount || 1}
+                                      value={newAbility.resourceCost.amount || 1}
                                       onChange={(e) =>
                                         setNewAbility({
                                           ...newAbility,
                                           resourceCost: {
                                             ...newAbility.resourceCost!,
-                                            minAmount: parseInt(e.target.value) || 1,
+                                            amount: parseInt(e.target.value) || 1,
                                           },
                                         })
                                       }
                                     />
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="resource-max">Max Amount</Label>
-                                    <Input
-                                      id="resource-max"
-                                      type="number"
-                                      min="1"
-                                      max="10"
-                                      value={newAbility.resourceCost.maxAmount || ""}
-                                      onChange={(e) =>
-                                        setNewAbility({
-                                          ...newAbility,
-                                          resourceCost: {
-                                            ...newAbility.resourceCost!,
-                                            maxAmount: e.target.value
-                                              ? parseInt(e.target.value)
-                                              : undefined,
-                                          },
-                                        })
-                                      }
-                                    />
+                                ) : (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="resource-min">Min Amount</Label>
+                                      <Input
+                                        id="resource-min"
+                                        type="number"
+                                        min="1"
+                                        max="10"
+                                        value={newAbility.resourceCost.minAmount || 1}
+                                        onChange={(e) =>
+                                          setNewAbility({
+                                            ...newAbility,
+                                            resourceCost: {
+                                              ...newAbility.resourceCost!,
+                                              minAmount: parseInt(e.target.value) || 1,
+                                            },
+                                          })
+                                        }
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="resource-max">Max Amount</Label>
+                                      <Input
+                                        id="resource-max"
+                                        type="number"
+                                        min="1"
+                                        max="10"
+                                        value={newAbility.resourceCost.maxAmount || ""}
+                                        onChange={(e) =>
+                                          setNewAbility({
+                                            ...newAbility,
+                                            resourceCost: {
+                                              ...newAbility.resourceCost!,
+                                              maxAmount: e.target.value
+                                                ? parseInt(e.target.value)
+                                                : undefined,
+                                            },
+                                          })
+                                        }
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                            </>
-                          )}
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Dice Formula Configuration */}
-                      <div className="space-y-2">
-                        <Label htmlFor="ability-dice-formula">Dice Formula (Optional)</Label>
-                        <Input
-                          id="ability-dice-formula"
-                          placeholder="e.g., 1d20+5, 2d6+STR, STRd6"
-                          value={newAbility.diceFormula || ""}
-                          onChange={(e) => {
-                            const formula = e.target.value;
-                            setNewAbility({
-                              ...newAbility,
-                              diceFormula: formula,
-                            });
+                        {/* Dice Formula Configuration */}
+                        <div className="space-y-2">
+                          <Label htmlFor="ability-dice-formula">Dice Formula (Optional)</Label>
+                          <Input
+                            id="ability-dice-formula"
+                            placeholder="e.g., 1d20+5, 2d6+STR, STRd6"
+                            value={newAbility.diceFormula || ""}
+                            onChange={(e) => {
+                              const formula = e.target.value;
+                              setNewAbility({
+                                ...newAbility,
+                                diceFormula: formula,
+                              });
 
-                            // Validate the formula if it's not empty
-                            if (formula) {
-                              const validation = validateDiceFormula(formula);
-                              if (!validation.valid) {
-                                // You could set an error state here for display
-                                console.warn("Invalid dice formula:", validation.error);
+                              // Validate the formula if it's not empty
+                              if (formula) {
+                                const validation = validateDiceFormula(formula);
+                                if (!validation.valid) {
+                                  // You could set an error state here for display
+                                  console.warn("Invalid dice formula:", validation.error);
+                                }
                               }
-                            }
-                          }}
-                        />
-                        <div className="text-xs text-muted-foreground space-y-1">
-                          <p>Examples: {getExampleFormulas().slice(0, 3).join(", ")}</p>
-                          <p>
-                            Variables:{" "}
-                            {getSupportedVariables()
-                              .filter((v) => v.length <= 3)
-                              .join(", ")}
-                          </p>
+                            }}
+                          />
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <p>Examples: {getExampleFormulas().slice(0, 3).join(", ")}</p>
+                            <p>
+                              Variables:{" "}
+                              {getSupportedVariables()
+                                .filter((v) => v.length <= 3)
+                                .join(", ")}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </>
-                  )}
+                      </>
+                    )}
 
-                  <div className="flex gap-2">
-                    <Button onClick={addAbility} disabled={!newAbility.name.trim()}>
-                      Add Ability
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsAddingAbility(false);
-                        setNewAbility({
-                          name: "",
-                          description: "",
-                          type: "freeform",
-                          frequency: "per_encounter",
-                          maxUsesType: "fixed",
-                          maxUsesValue: 1,
-                          maxUsesExpression: "DEX + WIL",
-                          actionCost: 0,
-                        });
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Button variant="outline" className="w-full" onClick={() => setIsAddingAbility(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add New Ability
-              </Button>
-            )}
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
+                    <div className="flex gap-2">
+                      <Button onClick={addAbility} disabled={!newAbility.name.trim()}>
+                        Add Ability
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsAddingAbility(false);
+                          setNewAbility({
+                            name: "",
+                            description: "",
+                            type: "freeform",
+                            frequency: "per_encounter",
+                            maxUsesType: "fixed",
+                            maxUsesValue: 1,
+                            maxUsesExpression: "DEX + WIL",
+                            actionCost: 0,
+                          });
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsAddingAbility(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add New Ability
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsSpellBrowserOpen(true)}
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Browse Spells
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      {/* Spell Browser Dialog */}
+      <SpellBrowser isOpen={isSpellBrowserOpen} onClose={() => setIsSpellBrowserOpen(false)} />
+    </>
   );
 }

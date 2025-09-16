@@ -1,17 +1,17 @@
+import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
 import { ClassFeature } from "@/lib/schemas/features";
 
 import { ClassDefinition } from "../../schemas/class";
-import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
 
 const sneakAttackDefinition: ActionAbilityDefinition = {
-          id: "sneak-attack",
-          name: "Sneak Attack",
-          description: "(1/turn) When you crit, deal +1d6 damage.",
-          type: "action",
-          frequency: "per_turn",
-          maxUses: { type: "fixed", value: 1 },
-          diceFormula: "1d6",
-        }
+  id: "sneak-attack",
+  name: "Sneak Attack",
+  description: "(1/turn) When you crit, deal +1d6 damage.",
+  type: "action",
+  frequency: "per_turn",
+  maxUses: { type: "fixed", value: 1 },
+  diceFormula: "1d6",
+};
 
 // Underhanded Abilities - Feature Pool
 const underhandedAbilitiesFeatures: ClassFeature[] = [
@@ -110,7 +110,7 @@ const underhandedAbilitiesFeatures: ClassFeature[] = [
         statBonus: {
           armorBonus: { type: "formula", expression: "INT" },
         },
-      }
+      },
     ], // Passive feature - no mechanical traits to process
   },
   {
@@ -225,14 +225,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Sneak Attack (2)",
     description: "Your Sneak Attack becomes 1d8.",
     traits: [
-            {
+      {
         id: "cheat-sneak-attack-2-0",
         type: "ability",
         ability: {
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +1d8 damage.",
           diceFormula: "1d8",
-        }
+        },
       },
     ],
   },
@@ -345,14 +345,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Sneak Attack (3)",
     description: "Your Sneak Attack becomes 2d8.",
     traits: [
-                  {
+      {
         id: "cheat-sneak-attack-3-0",
         type: "ability",
         ability: {
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +2d8 damage.",
           diceFormula: "2d8",
-        }
+        },
       },
     ],
   },
@@ -392,14 +392,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Sneak Attack (4)",
     description: "Your Sneak Attack becomes 2d10.",
     traits: [
-                  {
+      {
         id: "cheat-sneak-attack-4-0",
         type: "ability",
         ability: {
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +2d10 damage.",
           diceFormula: "2d10",
-        }
+        },
       },
     ],
   },
@@ -447,14 +447,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Sneak Attack (5)",
     description: "Your Sneak Attack becomes 2d12.",
     traits: [
-                  {
+      {
         id: "cheat-sneak-attack-5-0",
         type: "ability",
         ability: {
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +2d12 damage.",
           diceFormula: "2d12",
-        }
+        },
       },
     ],
   },
@@ -553,14 +553,14 @@ const cheatFeatures: ClassFeature[] = [
     name: "Sneak Attack (6)",
     description: "Your Sneak Attack becomes 2d20.",
     traits: [
-                  {
+      {
         id: "cheat-sneak-attack-6-0",
         type: "ability",
         ability: {
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +2d20 damage.",
           diceFormula: "2d20",
-        }
+        },
       },
     ],
   },
@@ -608,7 +608,7 @@ const cheatFeatures: ClassFeature[] = [
           ...sneakAttackDefinition,
           description: "(1/turn) When you crit, deal +3d20 damage.",
           diceFormula: "3d20",
-        }
+        },
       },
     ],
   },
@@ -658,7 +658,7 @@ const cheatFeatures: ClassFeature[] = [
     name: "Supreme Execution",
     description:
       "+1 to any 2 of your stats. When you attack with a blade, you do not require targets to be Distracted to trigger Vicious Opportunist.",
-    traits: [      
+    traits: [
       {
         id: "cheat-supreme-execution-0",
         type: "attribute_boost",

@@ -392,7 +392,7 @@ const hunterFeatures: ClassFeature[] = [
     description:
       "+1 to any 2 of your stats. Your Hunter's Mark can target any number of creatures simultaneously.",
     traits: [
-            {
+      {
         id: "nemesis-0",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],

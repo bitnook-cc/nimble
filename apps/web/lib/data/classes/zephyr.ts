@@ -591,7 +591,7 @@ const zephyrFeatures: ClassFeature[] = [
     description:
       "+1 to any 2 of your stats. +1 additional burst of speed when you roll Initiative. Permanently gain 1 action (while Dying, you have a max of 2 actions).",
     traits: [
-            {
+      {
         id: "windborne-0",
         type: "attribute_boost",
         allowedAttributes: ["strength", "dexterity", "intelligence", "will"],
