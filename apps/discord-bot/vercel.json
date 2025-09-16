@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/interactions.ts": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/interactions",
+      "destination": "/api/interactions"
+    }
+  ]
+}

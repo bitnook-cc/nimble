@@ -5,13 +5,16 @@
   "workspaces": [
     "apps/web",
     "apps/api",
-    "packages/shared"
+    "apps/discord-bot",
+    "packages/shared",
+    "packages/nimble-dice"
   ],
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "dev:web": "turbo dev --filter=@nimble/web",
     "dev:api": "turbo dev --filter=@nimble/api",
+    "dev:bot": "turbo dev --filter=@nimble/discord-bot",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",

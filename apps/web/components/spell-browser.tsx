@@ -40,7 +40,9 @@ export function SpellBrowser({ isOpen, onClose, onSpellAdd }: SpellBrowserProps)
 
   // Get spells the character already knows (from abilities array)
   const knownSpellIds = new Set(
-    character?._abilities.filter((ability) => ability.type === "spell").map((ability) => ability.id) || [],
+    character?._abilities
+      .filter((ability) => ability.type === "spell")
+      .map((ability) => ability.id) || [],
   );
 
   // Get spells the character has access to through class features

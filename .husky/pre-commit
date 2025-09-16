@@ -1,27 +1,4 @@
 #!/bin/sh
 
-# Run turbo format
-echo "🎨 Running turbo format..."
-npx turbo format
-
-# Run turbo build
-echo "🔨 Running turbo build..."
-npx turbo build
-
-# Check if build succeeded
-if [ $? -ne 0 ]; then
-  echo "❌ Build failed! Please fix errors before committing."
-  exit 1
-fi
-
-# Run tests
-echo "🧪 Running tests..."
-npm test
-
-# Check if tests succeeded
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed! Please fix failing tests before committing."
-  exit 1
-fi
-
-echo "✅ All pre-commit checks passed!"
+# Run tests for all workspaces
+npx turbo run format && npx turbo run lint && npx turbo run typecheck && npx turbo run test
