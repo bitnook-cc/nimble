@@ -10,7 +10,7 @@ import { list } from "@vercel/blob";
 import { SERVER_CONFIG } from "../config/server-config";
 
 // Type alias for clarity - any object with syncable fields
-type SyncCharacterData = Syncable & Record<string, any>;
+type SyncCharacterData = Syncable & Record<string, unknown>;
 
 export class CharacterSyncService {
   constructor(private prisma: PrismaClient) {}
@@ -80,7 +80,7 @@ export class CharacterSyncService {
 
     // Process each character
     const syncedCharacters: SyncCharacterData[] = [];
-    const operations: any[] = []; // Prisma transaction operations
+    const operations: Prisma.PrismaPromise<CharacterBackup>[] = []; // Prisma transaction operations
 
     for (const character of characters) {
       if (!character.id || !character.timestamps?.updatedAt) {

@@ -2,6 +2,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { InteractionType, InteractionResponseType, verifyKey } from 'discord-interactions';
 import { diceService } from '@nimble/dice';
 
+// Discord interaction option type
+interface CommandOption {
+  name: string;
+  value?: string | number | boolean;
+  type?: number;
+}
+
 const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -33,9 +40,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (name === 'roll') {
       const formula = options?.[0]?.value;
-      const advantageOption = options?.find((opt: any) => opt.name === 'advantage');
-      const criticalOption = options?.find((opt: any) => opt.name === 'critical');
-      const viciousOption = options?.find((opt: any) => opt.name === 'vicious');
+      const advantageOption = options?.find((opt: CommandOption) => opt.name === 'advantage');
+      const criticalOption = options?.find((opt: CommandOption) => opt.name === 'critical');
+      const viciousOption = options?.find((opt: CommandOption) => opt.name === 'vicious');
 
       if (!formula) {
         return res.status(200).json({

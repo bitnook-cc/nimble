@@ -7,6 +7,13 @@ import {
 import { diceService } from '@nimble/dice';
 import * as dotenv from 'dotenv';
 
+// Discord interaction option type
+interface CommandOption {
+  name: string;
+  value?: string | number | boolean;
+  type?: number;
+}
+
 // Load environment variables
 dotenv.config();
 
@@ -42,11 +49,13 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
 });
 
 // Handle the /roll command
-function handleRollCommand(options: any[], res: express.Response) {
+function handleRollCommand(options: CommandOption[], res: express.Response) {
   try {
     // Parse options
-    const formula = options.find((opt) => opt.name === 'formula')?.value || '';
-    const advantageLevel = options.find((opt) => opt.name === 'advantage')?.value || 0;
+    const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+    const formula = typeof formulaValue === 'string' ? formulaValue : String(formulaValue || '');
+    const advantageValue = options.find((opt) => opt.name === 'advantage')?.value;
+    const advantageLevel = typeof advantageValue === 'number' ? advantageValue : Number(advantageValue || 0);
 
     // Roll the dice
     const result = diceService.evaluateDiceFormula(formula, {

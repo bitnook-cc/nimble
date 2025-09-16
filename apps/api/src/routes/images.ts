@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { put, del, list } from "@vercel/blob";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "../config/session";
@@ -13,7 +13,11 @@ const authService = new AuthService(prisma);
 const isBlobStorageConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
 
 // Middleware to require authentication
-const requireAuth = async (req: any, res: any, next: any): Promise<void> => {
+const requireAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const session = await getIronSession<SessionData>(req, res, sessionOptions);
   if (!session.user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -32,7 +36,11 @@ const requireAuth = async (req: any, res: any, next: any): Promise<void> => {
 };
 
 // Middleware to check if blob storage is configured
-const requireBlobStorage = (_req: any, res: any, next: any): void => {
+const requireBlobStorage = (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   if (!isBlobStorageConfigured) {
     console.warn(
       "[Images API] Blob storage not configured - BLOB_READ_WRITE_TOKEN is missing",

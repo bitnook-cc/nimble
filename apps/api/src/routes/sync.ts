@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "../config/session";
@@ -14,7 +14,11 @@ const syncService = new CharacterSyncService(prisma);
 const authService = new AuthService(prisma);
 
 // Middleware to require authentication and ensure user exists in database
-const requireAuth = async (req: any, res: any, next: any): Promise<void> => {
+const requireAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const session = await getIronSession<SessionData>(req, res, sessionOptions);
   if (!session.user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -132,7 +136,7 @@ router.delete(
       res.json({ success: true });
     } catch (error) {
       // Check for Prisma not found error
-      if (error instanceof Error && 'code' in error && error.code === "P2025") {
+      if (error instanceof Error && "code" in error && error.code === "P2025") {
         res.status(404).json({ error: "Character backup not found" });
         return;
       }

@@ -87,7 +87,7 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: any) =>
+      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
         Promise.resolve(ops),
       );
 
@@ -130,12 +130,14 @@ describe("CharacterSyncService", () => {
       };
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
-      mockPrisma.$transaction.mockImplementation((ops: any) =>
+      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
         Promise.resolve(ops),
       );
 
       // Mock isNewerThan to say remote is newer
-      (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(false);
+      (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(
+        false,
+      );
 
       const result = await service.syncCharacters(userId, [localCharacter]);
 
@@ -173,7 +175,7 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: any) =>
+      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
         Promise.resolve(ops),
       );
 
@@ -217,7 +219,7 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: any) =>
+      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
         Promise.resolve(ops),
       );
 
@@ -265,7 +267,7 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: any) =>
+      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
         Promise.resolve(ops),
       );
 
@@ -276,9 +278,9 @@ describe("CharacterSyncService", () => {
     });
 
     it("should handle invalid input", async () => {
-      await expect(service.syncCharacters(userId, null as unknown as any[])).rejects.toThrow(
-        "Invalid request: characters must be an array",
-      );
+      await expect(
+        service.syncCharacters(userId, null as unknown as unknown[]),
+      ).rejects.toThrow("Invalid request: characters must be an array");
     });
   });
 

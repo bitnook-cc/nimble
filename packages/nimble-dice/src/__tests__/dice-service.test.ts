@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DiceService } from "../index";
 
+// Type for accessing private methods in tests
+type DiceServiceWithPrivates = DiceService & {
+  rollSingleDie(sides: number): number;
+};
+
 describe("DiceService", () => {
   let diceService: DiceService;
 
@@ -12,7 +17,7 @@ describe("DiceService", () => {
   describe("Basic dice formulas", () => {
     it("should evaluate a simple dice formula", () => {
       // Mock dice rolls: 2, 1, 4
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(4);
@@ -25,7 +30,10 @@ describe("DiceService", () => {
     });
 
     it("should handle d6 as 1d6", () => {
-      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(4);
+      vi.spyOn(
+        diceService as unknown as DiceServiceWithPrivates,
+        "rollSingleDie",
+      ).mockReturnValueOnce(4);
 
       const result = diceService.evaluateDiceFormula("d6 + 3");
 
@@ -35,7 +43,7 @@ describe("DiceService", () => {
 
     it("should evaluate complex expressions", () => {
       // Mock dice rolls: 3, 5
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(5);
 
@@ -49,7 +57,7 @@ describe("DiceService", () => {
   describe("Advantage and disadvantage", () => {
     it("should handle advantage correctly", () => {
       // Roll 2d6 with advantage 1 (roll 3 dice, drop lowest)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
@@ -65,7 +73,7 @@ describe("DiceService", () => {
 
     it("should handle disadvantage correctly", () => {
       // Roll 2d6 with disadvantage 1 (roll 3 dice, drop highest)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(5);
@@ -81,7 +89,7 @@ describe("DiceService", () => {
 
     it("should maintain roll order with multiple advantage", () => {
       // Roll 1d6 with advantage 2 (roll 3 dice, drop lowest 2)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(5);
@@ -99,7 +107,7 @@ describe("DiceService", () => {
   describe("Critical hits", () => {
     it("should handle exploding criticals", () => {
       // Roll 1d6, get a 6 (critical), then 6 again, then 3
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(3); // Normal roll
@@ -114,7 +122,7 @@ describe("DiceService", () => {
 
     it("should handle vicious on critical hit", () => {
       // Roll 1d6, get a 6 (critical), then 3 (normal), then 4 (vicious)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Exploding roll (not a crit, so stops)
         .mockReturnValueOnce(4); // Vicious die
@@ -130,7 +138,7 @@ describe("DiceService", () => {
 
     it("should handle vicious with multiple exploding crits", () => {
       // Roll 1d6: 6 (crit) -> 6 (exploding crit) -> 2 (normal) -> 5 (vicious 1) -> 3 (vicious 2)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(2) // Normal roll (stops exploding)
@@ -148,7 +156,10 @@ describe("DiceService", () => {
 
     it("should not add vicious die without critical", () => {
       // Roll 1d6, get a 3 (no critical)
-      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(3);
+      vi.spyOn(
+        diceService as unknown as DiceServiceWithPrivates,
+        "rollSingleDie",
+      ).mockReturnValueOnce(3);
 
       const result = diceService.evaluateDiceFormula("1d6", {
         allowCriticals: true,
@@ -162,7 +173,7 @@ describe("DiceService", () => {
     it("should check first kept die for critical with advantage", () => {
       // Roll 1d6 with advantage 1, rolls are [2, 6]
       // 2 is dropped, 6 is kept and should trigger critical
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6) // This becomes the first kept die
         .mockReturnValueOnce(4); // Exploding roll
@@ -180,7 +191,7 @@ describe("DiceService", () => {
   describe("Double-digit dice", () => {
     it("should roll d44 correctly", () => {
       // Roll d44: [3] for tens, [2] for ones = 32
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(3) // tens
         .mockReturnValueOnce(2); // ones
 
@@ -192,7 +203,7 @@ describe("DiceService", () => {
 
     it("should roll d66 correctly", () => {
       // Roll d66: [5] for tens, [4] for ones = 54
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(5) // tens
         .mockReturnValueOnce(4); // ones
 
@@ -204,7 +215,7 @@ describe("DiceService", () => {
 
     it("should roll d88 correctly", () => {
       // Roll d88: [7] for tens, [8] for ones = 78
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(7) // tens
         .mockReturnValueOnce(8); // ones
 
@@ -219,7 +230,7 @@ describe("DiceService", () => {
       // Tens: [3], [4] - keep [4] (higher)
       // Ones: [1], [2] - keep [2] (higher)
       // Result = 42
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(3) // tens die 1
         .mockReturnValueOnce(4) // tens die 2 (kept - higher)
         .mockReturnValueOnce(1) // ones die 1
@@ -238,7 +249,7 @@ describe("DiceService", () => {
       // Tens: [5], [3] - keep [3] (lower)
       // Ones: [6], [2] - keep [2] (lower)
       // Result = 32
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(5) // tens die 1
         .mockReturnValueOnce(3) // tens die 2 (kept - lower)
         .mockReturnValueOnce(6) // ones die 1
@@ -254,7 +265,7 @@ describe("DiceService", () => {
 
     it("should work in expressions", () => {
       // Roll d44: [2] [3] = 23, then add 10
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(2) // tens
         .mockReturnValueOnce(3); // ones
 
@@ -272,7 +283,7 @@ describe("DiceService", () => {
 
     it("should not allow criticals on double-digit dice", () => {
       // Roll d44: [4] [4] = 44 (max for both dice, but shouldn't crit)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(4) // tens (max for d4)
         .mockReturnValueOnce(4); // ones (max for d4)
 
@@ -311,7 +322,7 @@ describe("DiceService", () => {
   describe("Postfix modifiers (! and v)", () => {
     it("should handle exploding criticals with ! postfix", () => {
       // Roll 1d6!, get a 6 (critical), then 6 again, then 3
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(3); // Normal roll
@@ -324,7 +335,7 @@ describe("DiceService", () => {
 
     it("should handle vicious with v postfix", () => {
       // Roll 1d6v, get a 6 (critical), then 3 (normal), then 4 (vicious)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3) // Exploding roll
         .mockReturnValueOnce(4); // Vicious die
@@ -337,7 +348,7 @@ describe("DiceService", () => {
 
     it("should handle combined !v postfix", () => {
       // Roll 1d6!v, get a 6 (critical), then 6 again, then 2, then 5 and 4 (2 vicious dice)
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(6) // Exploding critical
         .mockReturnValueOnce(2) // Normal roll
@@ -352,7 +363,7 @@ describe("DiceService", () => {
 
     it("should override allowCriticals option with ! postfix", () => {
       // Roll 1d6! with allowCriticals: false - postfix should override
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(6) // Initial critical
         .mockReturnValueOnce(3); // Exploding roll
 
@@ -364,7 +375,10 @@ describe("DiceService", () => {
 
     it("should handle postfix with no critical rolled", () => {
       // Roll 1d6! but don't get a 6
-      vi.spyOn(diceService as any, "rollSingleDie").mockReturnValueOnce(3);
+      vi.spyOn(
+        diceService as unknown as DiceServiceWithPrivates,
+        "rollSingleDie",
+      ).mockReturnValueOnce(3);
 
       const result = diceService.evaluateDiceFormula("1d6!");
 
@@ -375,7 +389,7 @@ describe("DiceService", () => {
     it("should handle postfix in complex expressions", () => {
       // Roll 2d6! + 1d4v + 3
       // Processing right to left: 1d4v first, then 2d6!
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(4) // d4 (critical for 1d4v)
         .mockReturnValueOnce(2) // Exploding roll from d4
         .mockReturnValueOnce(3) // Vicious die for d4's crit
@@ -391,7 +405,7 @@ describe("DiceService", () => {
 
     it("should ignore postfixes on double-digit dice", () => {
       // Double-digit dice cannot crit or be vicious
-      vi.spyOn(diceService as any, "rollSingleDie")
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
         .mockReturnValueOnce(4) // tens
         .mockReturnValueOnce(4); // ones
 
