@@ -20,7 +20,7 @@
     "test": "turbo test",
     "test:ui": "turbo test:ui",
     "test:run": "turbo test:run",
-    "prepare": "husky"
+    "prepare": "npx husky || true"
   },
   "devDependencies": {
     "husky": "^9.1.7",

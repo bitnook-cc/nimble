@@ -16,7 +16,7 @@
     "lint:fix": "eslint src --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
-    "prepare": "husky",
+    "prepare": "npx husky || true",
     "register-commands": "tsx src/scripts/register-commands.ts"
   },
   "dependencies": {
