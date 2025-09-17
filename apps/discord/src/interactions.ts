@@ -18,7 +18,7 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
   let bodyJson: any;
 
   // Check if we're in Vercel environment (req has text() method)
-  if ('text' in req && typeof (req as any).text === 'function') {
+  if ('text' in req && typeof (req as any).text === 'function') { console.log("Vercel environment");
     // Vercel environment - use Web API methods
     rawBody = await (req as any).text();
     bodyJson = JSON.parse(rawBody);
