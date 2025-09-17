@@ -416,6 +416,135 @@ describe("DiceService", () => {
     });
   });
 
+  describe("Advantage/Disadvantage postfix notation", () => {
+    it("should handle 1d20a for single advantage", () => {
+      // Roll 1d20 with advantage (a postfix)
+      // Rolls [10], [15] - keeps [15] (higher)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(10)
+        .mockReturnValueOnce(15);
+
+      const result = diceService.evaluateDiceFormula("1d20a");
+
+      expect(result.displayString).toBe("~~[10]~~ + [15]");
+      expect(result.total).toBe(15);
+    });
+
+    it("should handle 1d20a1 for single advantage", () => {
+      // Roll 1d20 with advantage 1 (a1 postfix)
+      // Rolls [8], [12] - keeps [12] (higher)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(8)
+        .mockReturnValueOnce(12);
+
+      const result = diceService.evaluateDiceFormula("1d20a1");
+
+      expect(result.displayString).toBe("~~[8]~~ + [12]");
+      expect(result.total).toBe(12);
+    });
+
+    it("should handle 1d20a3 for triple advantage", () => {
+      // Roll 1d20 with triple advantage (a3 postfix)
+      // Rolls [5], [10], [18], [7] - keeps [18] (highest)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(10)
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce(7);
+
+      const result = diceService.evaluateDiceFormula("1d20a3");
+
+      expect(result.displayString).toBe("~~[5]~~ + ~~[10]~~ + [18] + ~~[7]~~");
+      expect(result.total).toBe(18);
+    });
+
+    it("should handle 1d20d for single disadvantage", () => {
+      // Roll 1d20 with disadvantage (d postfix)
+      // Rolls [15], [8] - keeps [8] (lower)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(15)
+        .mockReturnValueOnce(8);
+
+      const result = diceService.evaluateDiceFormula("1d20d");
+
+      expect(result.displayString).toBe("~~[15]~~ + [8]");
+      expect(result.total).toBe(8);
+    });
+
+    it("should handle 1d20d2 for double disadvantage", () => {
+      // Roll 1d20 with double disadvantage (d2 postfix)
+      // Rolls [18], [12], [6] - keeps [6] (lowest)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce(12)
+        .mockReturnValueOnce(6);
+
+      const result = diceService.evaluateDiceFormula("1d20d2");
+
+      expect(result.displayString).toBe("~~[18]~~ + ~~[12]~~ + [6]");
+      expect(result.total).toBe(6);
+    });
+
+    it("should work with modifiers like 1d20!a for advantage with exploding crits", () => {
+      // Roll 1d20 with advantage and exploding crits (a! postfix)
+      // Rolls [10], [20] - keeps [20] (higher and critical)
+      // Then explodes with [15]
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(10)
+        .mockReturnValueOnce(20) // Critical!
+        .mockReturnValueOnce(15); // Explosion
+
+      const result = diceService.evaluateDiceFormula("1d20!a", { allowCriticals: true });
+
+      expect(result.displayString).toBe("~~[10]~~ + [20] + [15]");
+      expect(result.total).toBe(35);
+    });
+
+    it("should work in complex expressions like 1d20a + 5", () => {
+      // Roll 1d20 with advantage plus modifier
+      // Rolls [7], [14] - keeps [14] (higher), then adds 5
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(7)
+        .mockReturnValueOnce(14);
+
+      const result = diceService.evaluateDiceFormula("1d20a + 5");
+
+      expect(result.displayString).toBe("~~[7]~~ + [14] + 5");
+      expect(result.total).toBe(19);
+    });
+
+    it("should handle multiple dice with postfixes", () => {
+      // Roll 2d6a with single advantage
+      // Rolls [3, 4], [5, 6] - keeps [5, 6] (higher sum)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(5);
+
+      const result = diceService.evaluateDiceFormula("2d6a");
+
+      expect(result.displayString).toBe("[4] + ~~[3]~~ + [5]");
+      expect(result.total).toBe(9);
+    });
+
+    it("should handle d44a for double-digit dice with advantage", () => {
+      // Roll d44 with advantage
+      // Tens: [2], [4] - keep [4] (higher)
+      // Ones: [1], [3] - keep [3] (higher)
+      // Result = 43
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(2) // tens die 1
+        .mockReturnValueOnce(4) // tens die 2 (kept - higher)
+        .mockReturnValueOnce(1) // ones die 1
+        .mockReturnValueOnce(3); // ones die 2 (kept - higher)
+
+      const result = diceService.evaluateDiceFormula("d44a");
+
+      expect(result.displayString).toBe("~~[2]~~ [4] ~~[1]~~ [3] = 43");
+      expect(result.total).toBe(43);
+    });
+  });
+
   describe("Real dice rolls (integration)", () => {
     it("should generate valid results with real random rolls", () => {
       // Test without mocking to ensure real dice rolling works

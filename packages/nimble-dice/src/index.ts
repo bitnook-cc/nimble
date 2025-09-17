@@ -28,7 +28,9 @@ interface ParsedDiceNotation {
   length: number;
   fullMatch: string;
   hasExplodingCrits?: boolean;
+  allDiceExplode?: boolean;
   isVicious?: boolean;
+  advantageLevel?: number; // Positive for advantage, negative for disadvantage
 }
 
 export class DiceService {
@@ -88,6 +90,7 @@ export class DiceService {
           allowCriticals:
             notation.hasExplodingCrits || notation.isVicious || options.allowCriticals,
           vicious: notation.isVicious || options.vicious,
+          explodeAll: notation.allDiceExplode || options.explodeAll,
         };
 
         const rollResult = this.rollDiceWithOptions(notation, modifiedOptions);
@@ -163,18 +166,31 @@ export class DiceService {
   }
 
   private findAllDiceNotations(expression: string): ParsedDiceNotation[] {
-    const diceRegex = /(-?\d+)?d(\d+)([!v]+)?/gi;
+    // Updated regex to capture advantage (a) and disadvantage (d) postfixes with optional numbers
+    // Pattern: [count]d[sides][!v]*[a|d][number]?
+    const diceRegex = /(-?\d+)?d(\d+)([!v]*)?([ad]\d?)?/gi;
     const notations: ParsedDiceNotation[] = [];
     let match;
 
     while ((match = diceRegex.exec(expression)) !== null) {
       const count = match[1] ? parseInt(match[1]) : 1;
       const sides = parseInt(match[2]);
-      const postfixes = match[3] || "";
+      const modifierPostfixes = match[3] || "";
+      const advantagePostfix = match[4] || "";
+      const advantageNumber = parseInt(advantagePostfix.substring(1) || "1");
 
-      // Parse postfixes
-      const hasExplodingCrits = postfixes.includes("!");
-      const isVicious = postfixes.includes("v");
+      // Parse modifiers
+      const hasExplodingCrits = modifierPostfixes.includes("!");
+      const allDiceExplode = modifierPostfixes.includes("!!");
+      const isVicious = modifierPostfixes.includes("v");
+
+      // Parse advantage/disadvantage
+      let advantageLevel = undefined;
+      if (advantagePostfix.includes("a")) {
+        advantageLevel = advantageNumber;
+      } else if (advantagePostfix.includes("d")) {
+        advantageLevel = -advantageNumber;
+      }
 
       // Validate dice type
       const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as any);
@@ -191,7 +207,9 @@ export class DiceService {
         length: match[0].length,
         fullMatch: match[0],
         hasExplodingCrits,
+        allDiceExplode,
         isVicious,
+        advantageLevel,
       });
     }
 
@@ -216,7 +234,9 @@ export class DiceService {
       return this.rollDoubleDigitDice(notation, options);
     }
 
-    const advantageLevel = options.advantageLevel || 0;
+    // Use advantage level from notation if specified, otherwise from options
+    const advantageLevel =
+      notation.advantageLevel !== undefined ? notation.advantageLevel : options.advantageLevel || 0;
     const totalDiceToRoll = notation.count + Math.abs(advantageLevel);
 
     // Roll all dice
@@ -253,13 +273,19 @@ export class DiceService {
       // Check if this is the first kept die and it's a nat 1 (fumble)
       const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
       const isFumble = isFirstKept && value === 1;
-      const isCritical = isFirstKept && value === notation.sides;
+      const isCritical = (isFirstKept || options.explodeAll) && value === notation.sides;
 
       return {
         value,
         size: notation.sides,
         kept: isKept,
-        category: (isFumble ? "fumble" : isCritical ? "critical" : isKept ? "normal" : "dropped") as DiceCategory,
+        category: (isFumble
+          ? "fumble"
+          : isCritical
+            ? "critical"
+            : isKept
+              ? "normal"
+              : "dropped") as DiceCategory,
         index,
       };
     });
@@ -272,7 +298,7 @@ export class DiceService {
 
     if (firstKeptDie) {
       isFumble = firstKeptDie.category === "fumble" && options.allowFumbles === true;
-      isCritical = options.allowCriticals === true && firstKeptDie.value === notation.sides;
+      isCritical = options.allowCriticals === true && firstKeptDie.category === "critical";
 
       // Handle exploding criticals
       if (isCritical && options.allowCriticals) {
@@ -334,7 +360,9 @@ export class DiceService {
       throw new Error(`Double-digit dice (d${notation.sides}) can only be rolled one at a time.`);
     }
 
-    const advantageLevel = options.advantageLevel || 0;
+    // Use advantage level from notation if specified, otherwise from options
+    const advantageLevel =
+      notation.advantageLevel !== undefined ? notation.advantageLevel : options.advantageLevel || 0;
     const baseDie = notation.sides === 44 ? 4 : notation.sides === 66 ? 6 : 8;
     const totalDicePerPosition = 1 + Math.abs(advantageLevel);
 
