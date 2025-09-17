@@ -2,7 +2,6 @@
   "name": "@nimble/dice",
   "version": "1.0.0",
   "description": "Shared dice rolling engine for Nimble RPG",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
