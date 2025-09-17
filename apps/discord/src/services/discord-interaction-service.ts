@@ -58,10 +58,20 @@ export class DiscordInteractionService {
     try {
       // Parse options
       const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
-      const formula = typeof formulaValue === 'string' ? formulaValue : String(formulaValue || '');
+      
+      // Enforce formula is a string
+      if (typeof formulaValue !== 'string') {
+        throw new Error('Formula must be a string');
+      }
+      const formula = formulaValue;
+      
       const advantageValue = options.find((opt) => opt.name === 'advantage')?.value;
-      const advantageLevel =
-        typeof advantageValue === 'number' ? advantageValue : Number(advantageValue || 0);
+      
+      // Enforce advantage is a number (if provided)
+      if (advantageValue !== undefined && typeof advantageValue !== 'number') {
+        throw new Error('Advantage must be a number');
+      }
+      const advantageLevel = advantageValue ?? 0;
 
       // Roll the dice
       const result = diceService.evaluateDiceFormula(formula, {

@@ -28,8 +28,8 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     rawBody = bodyBuffer.toString('utf-8');
     bodyJson = JSON.parse(rawBody);
   }
-console.log('Raw Body:', rawBody);
-console.log('Body JSON:', bodyJson);
+  console.log('Raw Body:', rawBody);
+  console.log('Body JSON:', bodyJson);
   // Verify the request came from Discord
   const signature = req.headers['x-signature-ed25519'] as string;
   const timestamp = req.headers['x-signature-timestamp'] as string;
