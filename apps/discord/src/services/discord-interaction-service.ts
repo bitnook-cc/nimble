@@ -199,7 +199,9 @@ Add the \`advantage\` parameter:
 
       switch (die.category) {
         case 'critical':
-          return `**💥${value}**`; // Bold with explosion emoji for crits
+          return `**🎯${value}**`; // Bold with target emoji for crits
+        case 'explosion':
+          return `**💥${value}**`; // Bold with explosion emoji for explosions
         case 'vicious':
           return `**⚔️${value}**`; // Bold with sword emoji for vicious
         case 'fumble':
@@ -207,7 +209,6 @@ Add the \`advantage\` parameter:
         case 'dropped':
           return `~~${value}~~`; // Strikethrough for dropped
         case 'normal':
-        default:
           return `${value}`; // Code block for normal dice
       }
     };

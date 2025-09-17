@@ -213,8 +213,8 @@ describe('DiscordInteractionService', () => {
           displayString: '[20] + [20] + [6] + 5',
           diceData: {
             dice: [
-              { value: 20, size: 20, kept: true, category: 'normal', index: 0 },
-              { value: 20, size: 20, kept: true, category: 'critical', index: 1 },
+              { value: 20, size: 20, kept: true, category: 'critical', index: 0 },
+              { value: 20, size: 20, kept: true, category: 'explosion', index: 1 },
               { value: 6, size: 6, kept: true, category: 'vicious', index: 2 },
             ],
             afterExpression: '+5',
@@ -245,7 +245,7 @@ describe('DiscordInteractionService', () => {
                 fields: expect.arrayContaining([
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '20 + **💥20** + **⚔️6** +5 = **51**',
+                    value: '**🎯20** + **💥20** + **⚔️6** +5 = **51**',
                   }),
                 ]),
               }),

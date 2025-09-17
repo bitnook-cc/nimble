@@ -15,7 +15,7 @@ export const diceTypeSchema = z.union([
 ]);
 
 // Dice category enum for categorizing dice results
-export const diceCategorySchema = z.enum(["normal", "critical", "vicious", "dropped", "fumble"]);
+export const diceCategorySchema = z.enum(["normal", "critical", "explosion", "vicious", "dropped", "fumble"]);
 
 // Schema for categorized dice data
 export const categorizedDieSchema = z.object({

@@ -253,12 +253,13 @@ export class DiceService {
       // Check if this is the first kept die and it's a nat 1 (fumble)
       const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
       const isFumble = isFirstKept && value === 1;
+      const isCritical = isFirstKept && value === notation.sides;
 
       return {
         value,
         size: notation.sides,
         kept: isKept,
-        category: (isFumble ? "fumble" : isKept ? "normal" : "dropped") as DiceCategory,
+        category: (isFumble ? "fumble" : isCritical ? "critical" : isKept ? "normal" : "dropped") as DiceCategory,
         index,
       };
     });
@@ -285,7 +286,7 @@ export class DiceService {
             value: newRoll,
             size: notation.sides,
             kept: true,
-            category: "critical" as DiceCategory,
+            category: "explosion" as DiceCategory,
             index: allDice.length,
           });
 
