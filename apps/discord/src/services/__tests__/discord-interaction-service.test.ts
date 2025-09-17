@@ -88,6 +88,17 @@ describe('DiscordInteractionService', () => {
           formula: '1d20',
           total: 18,
           displayString: '~~[10]~~ + [18]',
+          diceData: {
+            dice: [
+              { value: 10, size: 20, kept: false, category: 'dropped', index: 0 },
+              { value: 18, size: 20, kept: true, category: 'normal', index: 1 },
+            ],
+            total: 18,
+            isDoubleDigit: false,
+            isFumble: false,
+            advantageLevel: 1,
+            criticalHits: 0,
+          },
         });
 
         const result = service.handleInteraction({
@@ -135,6 +146,17 @@ describe('DiscordInteractionService', () => {
           formula: '1d20',
           total: 3,
           displayString: '[10] + ~~[3]~~',
+          diceData: {
+            dice: [
+              { value: 10, size: 20, kept: true, category: 'normal', index: 0 },
+              { value: 3, size: 20, kept: false, category: 'dropped', index: 1 },
+            ],
+            total: 3,
+            isDoubleDigit: false,
+            isFumble: false,
+            advantageLevel: -1,
+            criticalHits: 0,
+          },
         });
 
         const result = service.handleInteraction({

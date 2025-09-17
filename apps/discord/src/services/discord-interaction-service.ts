@@ -1,5 +1,5 @@
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
-import { diceService } from '@nimble/dice';
+import { diceService, type DiceRollData, type CategorizedDie } from '@nimble/dice';
 
 // Discord interaction types
 interface CommandOption {
@@ -153,54 +153,95 @@ Add the \`advantage\` parameter:
    * Create a rich embed for dice roll results
    */
   private createDiceRollEmbed(
-    result: { displayString: string; total: number; formula: string },
+    result: { displayString: string; total: number; formula: string; diceData?: DiceRollData },
     formula: string,
     advantageLevel: number,
   ): any {
-    // Parse the display string to extract dice information
-    const diceInfo = this.parseDiceDisplay(result.displayString);
-    
+    const diceData = result.diceData;
+    if (!diceData) {
+      // Fallback to simple embed if no dice data
+      return {
+        title: '🎲 Dice Roll Result',
+        color: 0x3498db,
+        fields: [
+          { name: 'Formula', value: `\`${formula}\``, inline: true },
+          { name: 'Total', value: `**${result.total}**`, inline: true },
+        ],
+        footer: { text: `Raw: ${result.displayString}` },
+      };
+    }
+
     // Determine color based on result
     let color = 0x3498db; // Default blue
-    if (formula.includes('d20')) {
+    if (diceData.isFumble) {
+      color = 0xff0000; // Red for fumble
+    } else if (diceData.criticalHits && diceData.criticalHits > 0) {
+      color = 0x00ff00; // Green for critical success
+    } else if (formula.includes('d20')) {
       // Check for natural 20 or 1 on d20 rolls
-      const firstD20 = diceInfo.find(d => !d.dropped && d.value === 20);
-      const firstD1 = diceInfo.find(d => !d.dropped && d.value === 1);
-      if (firstD20) {
-        color = 0x00ff00; // Green for critical success
-      } else if (firstD1) {
-        color = 0xff0000; // Red for critical failure
+      const firstKeptD20 = diceData.dice.find((d) => d.kept && d.size === 20);
+      if (firstKeptD20) {
+        if (firstKeptD20.value === 20) {
+          color = 0x00ff00; // Green for nat 20
+        } else if (firstKeptD20.value === 1) {
+          color = 0xff0000; // Red for nat 1
+        }
       }
     }
 
-    // Build dice breakdown field
+    // Build dice breakdown from rich data
     let diceBreakdown = '';
-    let keptDice: number[] = [];
-    let droppedDice: number[] = [];
-    let specialNotes: string[] = [];
-    
-    diceInfo.forEach((die, index) => {
-      if (die.dropped) {
-        droppedDice.push(die.value);
-      } else {
-        keptDice.push(die.value);
-        // Check for special conditions
-        if (die.exploded) {
-          specialNotes.push(`💥 Die #${index + 1} exploded! (${die.value})`);
-        }
-        if (die.vicious) {
-          specialNotes.push(`⚔️ Vicious die added! (${die.value})`);
-        }
+    const normalDice: CategorizedDie[] = [];
+    const criticalDice: CategorizedDie[] = [];
+    const viciousDice: CategorizedDie[] = [];
+    const droppedDice: CategorizedDie[] = [];
+    const fumbleDice: CategorizedDie[] = [];
+
+    // Categorize dice
+    diceData.dice.forEach((die) => {
+      switch (die.category) {
+        case 'normal':
+          normalDice.push(die);
+          break;
+        case 'critical':
+          criticalDice.push(die);
+          break;
+        case 'vicious':
+          viciousDice.push(die);
+          break;
+        case 'dropped':
+          droppedDice.push(die);
+          break;
+        case 'fumble':
+          fumbleDice.push(die);
+          break;
       }
     });
 
-    // Format kept and dropped dice
-    if (keptDice.length > 0) {
-      diceBreakdown += `**Rolled:** ${keptDice.map(v => `\`${v}\``).join(' + ')}`;
+    // Format dice display
+    const formatDice = (dice: CategorizedDie[]) => dice.map((d) => `\`${d.value}\``).join(' + ');
+    const formatDropped = (dice: CategorizedDie[]) =>
+      dice.map((d) => `~~\`${d.value}\`~~`).join(' ');
+
+    // Build breakdown string
+    const parts: string[] = [];
+    if (normalDice.length > 0) {
+      parts.push(`**Normal:** ${formatDice(normalDice)}`);
+    }
+    if (criticalDice.length > 0) {
+      parts.push(`💥 **Exploded:** ${formatDice(criticalDice)}`);
+    }
+    if (viciousDice.length > 0) {
+      parts.push(`⚔️ **Vicious:** ${formatDice(viciousDice)}`);
+    }
+    if (fumbleDice.length > 0) {
+      parts.push(`💀 **Fumble:** ${formatDice(fumbleDice)}`);
     }
     if (droppedDice.length > 0) {
-      diceBreakdown += `\n**Dropped:** ~~${droppedDice.map(v => `\`${v}\``).join(' ')}~~`;
+      parts.push(`**Dropped:** ${formatDropped(droppedDice)}`);
     }
+
+    diceBreakdown = parts.join('\n');
 
     // Build the embed
     const embed: any = {
@@ -229,7 +270,10 @@ Add the \`advantage\` parameter:
         advText = advantageLevel === 1 ? 'Advantage' : `Advantage ${advantageLevel}`;
       } else {
         advEmoji = '💀';
-        advText = Math.abs(advantageLevel) === 1 ? 'Disadvantage' : `Disadvantage ${Math.abs(advantageLevel)}`;
+        advText =
+          Math.abs(advantageLevel) === 1
+            ? 'Disadvantage'
+            : `Disadvantage ${Math.abs(advantageLevel)}`;
       }
       embed.fields.push({
         name: 'Modifier',
@@ -248,6 +292,19 @@ Add the \`advantage\` parameter:
     }
 
     // Add special notes if any
+    const specialNotes: string[] = [];
+    if (diceData.criticalHits && diceData.criticalHits > 0) {
+      specialNotes.push(
+        `🎯 ${diceData.criticalHits} critical hit${diceData.criticalHits > 1 ? 's' : ''}!`,
+      );
+    }
+    if (diceData.isFumble) {
+      specialNotes.push(`💀 Fumbled! (Natural 1)`);
+    }
+    if (diceData.isDoubleDigit) {
+      specialNotes.push(`🎲 Double-digit dice roll`);
+    }
+
     if (specialNotes.length > 0) {
       embed.fields.push({
         name: 'Special',
@@ -263,44 +320,6 @@ Add the \`advantage\` parameter:
 
     return embed;
   }
-
-  /**
-   * Parse the dice display string to extract individual die information
-   */
-  private parseDiceDisplay(displayString: string): Array<{
-    value: number;
-    dropped: boolean;
-    exploded?: boolean;
-    vicious?: boolean;
-  }> {
-    const dice: Array<{
-      value: number;
-      dropped: boolean;
-      exploded?: boolean;
-      vicious?: boolean;
-    }> = [];
-
-    // Pattern to match dice values: [n] or ~~[n]~~
-    const dicePattern = /(~~)?\[(\d+)\](~~)?/g;
-    let match;
-    
-    while ((match = dicePattern.exec(displayString)) !== null) {
-      const value = parseInt(match[2], 10);
-      const dropped = !!match[1] || !!match[3];
-      dice.push({ value, dropped });
-    }
-
-    // Check for patterns that indicate exploding or vicious dice
-    // Since the service doesn't provide this metadata directly, we infer from context
-    // Exploding dice appear after max values (e.g., d20 with 20 followed by another roll)
-    // Vicious dice appear at the end after criticals
-    
-    // This is a simplified detection - in a real implementation, we'd want the dice service
-    // to provide richer metadata about each die roll
-    
-    return dice;
-  }
-
 }
 
 // Export singleton instance

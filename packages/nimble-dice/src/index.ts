@@ -9,17 +9,16 @@
  * - Advantage/disadvantage system
  */
 
-export interface DiceFormulaOptions {
-  advantageLevel?: number; // Positive for advantage, negative for disadvantage
-  allowCriticals?: boolean; // Allow exploding criticals on max rolls
-  vicious?: boolean; // Add one extra non-exploding die on critical hits
-}
+import {
+  CategorizedDie,
+  DiceCategory,
+  DiceFormulaOptions,
+  DiceFormulaResult,
+  DiceRollData,
+} from "./schemas";
 
-export interface DiceFormulaResult {
-  displayString: string; // e.g., "[2] + ~~[1]~~ + [4] + 2"
-  total: number; // e.g., 9
-  formula: string; // Original formula for reference
-}
+// Re-export all types from schemas
+export * from "./schemas";
 
 interface ParsedDiceNotation {
   count: number;
@@ -29,14 +28,6 @@ interface ParsedDiceNotation {
   fullMatch: string;
   hasExplodingCrits?: boolean;
   isVicious?: boolean;
-}
-
-interface CategorizedDie {
-  value: number;
-  size: number;
-  kept: boolean;
-  category: "normal" | "dropped" | "critical" | "vicious" | "fumble";
-  index: number;
 }
 
 export class DiceService {
@@ -56,6 +47,14 @@ export class DiceService {
         const total = this.evaluateExpression(cleanedFormula);
         return {
           displayString: `${cleanedFormula} = ${total}`,
+          diceData: {
+            dice: [],
+            total,
+            isDoubleDigit: false,
+            isFumble: false,
+            advantageLevel: 0,
+            criticalHits: 0,
+          },
           total,
           formula,
         };
@@ -65,6 +64,9 @@ export class DiceService {
       let expressionWithDice = cleanedFormula;
       let displayExpression = cleanedFormula;
       const allDice: CategorizedDie[] = [];
+      let totalCriticalHits = 0;
+      let hasFumble = false;
+      let hasDoubleDigit = false;
 
       // Process dice notations in reverse order to maintain correct positions
       for (let i = diceNotations.length - 1; i >= 0; i--) {
@@ -87,6 +89,9 @@ export class DiceService {
 
         // Update aggregated data
         allDice.unshift(...rollResult.allDice);
+        totalCriticalHits += rollResult.criticalHits || 0;
+        hasFumble = hasFumble || rollResult.isFumble;
+        hasDoubleDigit = hasDoubleDigit || rollResult.isDoubleDigit || false;
 
         // Build the dice display string
         const diceDisplay = rollResult.isDoubleDigit
@@ -105,10 +110,22 @@ export class DiceService {
 
       // Evaluate the mathematical expression
       const total = this.evaluateExpression(expressionWithDice);
+      const finalTotal = options.allowFumbles && hasFumble ? 0 : total;
+
+      // Create dice data for rich display
+      const diceData: DiceRollData = {
+        dice: allDice,
+        total: finalTotal,
+        isDoubleDigit: hasDoubleDigit,
+        isFumble: hasFumble,
+        advantageLevel: options.advantageLevel || 0,
+        criticalHits: totalCriticalHits,
+      };
 
       return {
         displayString: displayExpression,
-        total,
+        diceData,
+        total: finalTotal,
         formula,
       };
     } catch (error) {
@@ -182,7 +199,10 @@ export class DiceService {
   ): {
     allDice: CategorizedDie[];
     keptSum: number;
+    isCritical: boolean;
+    isFumble: boolean;
     isDoubleDigit?: boolean;
+    criticalHits?: number;
   } {
     // Check if this is a double-digit die
     const isDoubleDigit = this.doubleDigitDiceTypes.includes(notation.sides);
@@ -222,58 +242,76 @@ export class DiceService {
       keptIndices = new Set(diceWithIndices.map((d) => d.index));
     }
 
-    // Build result
-    const allDice: CategorizedDie[] = rolledDice.map((value, index) => ({
-      value,
-      size: notation.sides,
-      kept: keptIndices.has(index),
-      category: keptIndices.has(index) ? "normal" : "dropped",
-      index,
-    }));
+    // Build result maintaining original roll order with categories
+    const allDice: CategorizedDie[] = rolledDice.map((value, index) => {
+      const isKept = keptIndices.has(index);
+      // Check if this is the first kept die and it's a nat 1 (fumble)
+      const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
+      const isFumble =
+        isFirstKept && value === 1 && notation.sides === 20 && options.allowFumbles === true;
 
-    // Handle criticals
+      return {
+        value,
+        size: notation.sides,
+        kept: isKept,
+        category: (isFumble ? "fumble" : isKept ? "normal" : "dropped") as DiceCategory,
+        index,
+      };
+    });
+
+    // Find the first kept die for critical/fumble checking
     const firstKeptDie = allDice.find((d) => d.kept);
-    if (firstKeptDie && options.allowCriticals && firstKeptDie.value === notation.sides) {
-      let criticalHits = 1;
-      let consecutiveCrits = 0;
-      const maxCrits = 10;
+    let isCritical = false;
+    let isFumble = false;
+    let criticalHits = 0;
 
-      while (consecutiveCrits < maxCrits) {
-        const newRoll = this.rollSingleDie(notation.sides);
-        allDice.push({
-          value: newRoll,
-          size: notation.sides,
-          kept: true,
-          category: "critical",
-          index: allDice.length,
-        });
+    if (firstKeptDie) {
+      isFumble = firstKeptDie.category === "fumble";
+      isCritical = options.allowCriticals === true && firstKeptDie.value === notation.sides;
 
-        if (newRoll === notation.sides) {
-          consecutiveCrits++;
-          criticalHits++;
-        } else {
-          break;
-        }
-      }
+      // Handle exploding criticals
+      if (isCritical && options.allowCriticals) {
+        criticalHits = 1; // Count the initial critical
+        let consecutiveCrits = 0;
+        const maxCrits = 10; // Reasonable limit to prevent infinite loops
 
-      // Add vicious dice
-      if (options.vicious && criticalHits > 0) {
-        for (let i = 0; i < criticalHits; i++) {
-          const viciousRoll = this.rollSingleDie(notation.sides);
+        while (consecutiveCrits < maxCrits) {
+          const newRoll = this.rollSingleDie(notation.sides);
           allDice.push({
-            value: viciousRoll,
+            value: newRoll,
             size: notation.sides,
             kept: true,
-            category: "vicious",
+            category: "critical" as DiceCategory,
             index: allDice.length,
           });
+
+          if (newRoll === notation.sides) {
+            consecutiveCrits++;
+            criticalHits++; // Count each exploded critical
+          } else {
+            break; // Stop rolling if we didn't get another critical
+          }
+        }
+
+        // Add vicious dice if enabled (one non-exploding die per critical hit)
+        if (options.vicious === true && criticalHits > 0) {
+          for (let i = 0; i < criticalHits; i++) {
+            const viciousRoll = this.rollSingleDie(notation.sides);
+            allDice.push({
+              value: viciousRoll,
+              size: notation.sides,
+              kept: true,
+              category: "vicious" as DiceCategory,
+              index: allDice.length,
+            });
+          }
         }
       }
     }
 
     const keptSum = allDice.filter((d) => d.kept).reduce((sum, d) => sum + d.value, 0);
 
-    return { allDice, keptSum };
+    return { allDice, keptSum, isCritical, isFumble, criticalHits };
   }
 
   private rollDoubleDigitDice(
@@ -282,7 +320,10 @@ export class DiceService {
   ): {
     allDice: CategorizedDie[];
     keptSum: number;
+    isCritical: boolean;
+    isFumble: boolean;
     isDoubleDigit: boolean;
+    criticalHits: number;
   } {
     if (notation.count !== 1) {
       throw new Error(`Double-digit dice (d${notation.sides}) can only be rolled one at a time.`);
@@ -331,7 +372,7 @@ export class DiceService {
         value,
         size: baseDie,
         kept: index === keptTensIndex,
-        category: index === keptTensIndex ? "normal" : "dropped",
+        category: (index === keptTensIndex ? "normal" : "dropped") as DiceCategory,
         index: allDice.length,
       });
     });
@@ -340,7 +381,7 @@ export class DiceService {
         value,
         size: baseDie,
         kept: index === keptOnesIndex,
-        category: index === keptOnesIndex ? "normal" : "dropped",
+        category: (index === keptOnesIndex ? "normal" : "dropped") as DiceCategory,
         index: allDice.length,
       });
     });
@@ -350,7 +391,10 @@ export class DiceService {
     return {
       allDice,
       keptSum,
+      isCritical: false,
+      isFumble: false,
       isDoubleDigit: true,
+      criticalHits: 0,
     };
   }
 
