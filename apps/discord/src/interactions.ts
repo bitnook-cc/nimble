@@ -9,6 +9,9 @@ type HandlerRequest = Request | VercelRequest;
 type HandlerResponse = Response | VercelResponse;
 
 export default async function handler(req: HandlerRequest, res: HandlerResponse) {
+
+  console.log(req.headers);
+  console.log(req.body);
   // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
