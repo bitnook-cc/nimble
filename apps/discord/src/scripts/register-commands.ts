@@ -12,7 +12,7 @@ if (!DISCORD_APP_ID || !DISCORD_BOT_TOKEN) {
   process.exit(1);
 }
 
-// Define the roll command
+// Define the commands
 const commands = [
   {
     name: 'roll',
@@ -21,16 +21,20 @@ const commands = [
       {
         type: 3, // STRING
         name: 'formula',
-        description: 'Dice formula (e.g., 2d6+5, 1d20!, 1d8v)',
+        description: 'Dice formula (e.g., 2d6+5, 1d20!, 1d8v) - use /help for more info',
         required: true,
       },
       {
         type: 4, // INTEGER
         name: 'advantage',
-        description: 'Advantage level (positive for advantage, negative for disadvantage)',
+        description: 'Positive = advantage (roll extra, keep highest), negative = disadvantage',
         required: false,
       },
     ],
+  },
+  {
+    name: 'help',
+    description: 'Learn how to use the Nimble dice bot and dice notation',
   },
 ];
 
