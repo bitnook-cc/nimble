@@ -133,6 +133,10 @@ describe('DiscordInteractionService', () => {
                     name: 'Total',
                     value: '**18**',
                   }),
+                  expect.objectContaining({
+                    name: 'Dice Breakdown',
+                    value: '( ~~10~~ ) `18` = **18**',
+                  }),
                 ]),
               }),
             ],
@@ -190,6 +194,100 @@ describe('DiscordInteractionService', () => {
                   expect.objectContaining({
                     name: 'Total',
                     value: '**3**',
+                  }),
+                ]),
+              }),
+            ],
+          },
+        });
+      });
+
+      it('should handle roll with critical and vicious dice', async () => {
+        const { diceService } = await import('@nimble/dice');
+        (diceService.evaluateDiceFormula as any).mockReturnValue({
+          formula: '1d20+5',
+          total: 51,
+          displayString: '[20] + [20] + [6] + 5',
+          diceData: {
+            dice: [
+              { value: 20, size: 20, kept: true, category: 'normal', index: 0 },
+              { value: 20, size: 20, kept: true, category: 'critical', index: 1 },
+              { value: 6, size: 6, kept: true, category: 'vicious', index: 2 },
+            ],
+            afterExpression: '+5',
+            total: 51,
+            isDoubleDigit: false,
+            isFumble: false,
+            criticalHits: 1,
+          },
+        });
+
+        const result = service.handleInteraction({
+          type: InteractionType.APPLICATION_COMMAND,
+          data: {
+            name: 'roll',
+            options: [
+              { name: 'formula', value: '1d20+5' },
+              { name: 'vicious', value: true },
+            ],
+          },
+        });
+
+        expect(result).toEqual({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embeds: [
+              expect.objectContaining({
+                title: '🎲 Dice Roll Result',
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'Dice Breakdown',
+                    value: '`20` + **💥20** + **⚔️6** +5 = **51**',
+                  }),
+                ]),
+              }),
+            ],
+          },
+        });
+      });
+
+      it('should handle roll with fumble', async () => {
+        const { diceService } = await import('@nimble/dice');
+        (diceService.evaluateDiceFormula as any).mockReturnValue({
+          formula: '1d20',
+          total: 1,
+          displayString: '[1]',
+          diceData: {
+            dice: [
+              { value: 1, size: 20, kept: true, category: 'fumble', index: 0 },
+            ],
+            total: 1,
+            isDoubleDigit: false,
+            isFumble: true,
+          },
+        });
+
+        const result = service.handleInteraction({
+          type: InteractionType.APPLICATION_COMMAND,
+          data: {
+            name: 'roll',
+            options: [
+              { name: 'formula', value: '1d20' },
+            ],
+          },
+        });
+
+        expect(result).toEqual({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embeds: [
+              expect.objectContaining({
+                title: '🎲 Dice Roll Result',
+                color: 0xff0000, // Red for fumble
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'Dice Breakdown',
+                    value: '**💀1** = **1**',
                   }),
                 ]),
               }),

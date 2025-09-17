@@ -82,24 +82,24 @@ export function DiceFormulaDisplay({
       {/* Display all dice in their original order */}
       {dice.map((die, index) => {
         const isFirstKeptDie = keptDice.length > 0 && die === keptDice[0];
-        
+
         return (
           <React.Fragment key={index}>
             {/* Add operators between kept dice */}
             {index > 0 && die.kept && dice[index - 1].kept && (
               <span className="text-gray-400 dark:text-gray-500">+</span>
             )}
-            
+
             {/* Add separator before dropped dice section */}
             {!die.kept && index > 0 && dice[index - 1].kept && (
               <span className="text-gray-500 mx-1">|</span>
             )}
-            
+
             {/* Add comma between dropped dice */}
             {!die.kept && index > 0 && !dice[index - 1].kept && (
               <span className="text-gray-400 dark:text-gray-500">,</span>
             )}
-            
+
             <DiceDisplay
               value={die.value}
               size={die.size}

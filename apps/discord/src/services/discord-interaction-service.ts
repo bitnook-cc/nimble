@@ -191,57 +191,62 @@ Add the \`advantage\` parameter:
 
     // Build dice breakdown from rich data
     let diceBreakdown = '';
-    const normalDice: CategorizedDie[] = [];
-    const criticalDice: CategorizedDie[] = [];
-    const viciousDice: CategorizedDie[] = [];
-    const droppedDice: CategorizedDie[] = [];
-    const fumbleDice: CategorizedDie[] = [];
-
-    // Categorize dice
-    diceData.dice.forEach((die) => {
+    
+    // Format dice in their original order with category-based styling
+    const formatDie = (die: CategorizedDie): string => {
+      const value = `${die.value}`;
+      
       switch (die.category) {
-        case 'normal':
-          normalDice.push(die);
-          break;
         case 'critical':
-          criticalDice.push(die);
-          break;
+          return `**💥${value}**`;  // Bold with explosion emoji for crits
         case 'vicious':
-          viciousDice.push(die);
-          break;
-        case 'dropped':
-          droppedDice.push(die);
-          break;
+          return `**⚔️${value}**`;  // Bold with sword emoji for vicious
         case 'fumble':
-          fumbleDice.push(die);
-          break;
+          return `**💀${value}**`;  // Bold with skull emoji for fumbles
+        case 'dropped':
+          return `~~${value}~~`;     // Strikethrough for dropped
+        case 'normal':
+        default:
+          return `\`${value}\``;     // Code block for normal dice
       }
+    };
+
+    // Build dice display maintaining original order
+    const diceDisplay: string[] = [];
+    let previousWasKept = false;
+    
+    diceData.dice.forEach((die, index) => {
+      if (index === 0 && !die.kept) {
+        diceDisplay.push('('); // Open parenthesis if first die is dropped
+      }
+
+      // Add separators between kept and dropped dice
+      if (index > 0) {
+        if (die.kept && previousWasKept) {
+          diceDisplay.push('+');
+        } else if (die.kept && !previousWasKept) {
+          diceDisplay.push(')');
+        } else if (!die.kept && previousWasKept) {
+          diceDisplay.push('(');
+        } else if (!die.kept && !previousWasKept) {
+          diceDisplay.push(',');
+        }
+      }
+      
+      diceDisplay.push(formatDie(die));
+      previousWasKept = die.kept;
     });
 
-    // Format dice display
-    const formatDice = (dice: CategorizedDie[]) => dice.map((d) => `\`${d.value}\``).join(' + ');
-    const formatDropped = (dice: CategorizedDie[]) =>
-      dice.map((d) => `~~\`${d.value}\`~~`).join(' ');
-
-    // Build breakdown string
-    const parts: string[] = [];
-    if (normalDice.length > 0) {
-      parts.push(`**Normal:** ${formatDice(normalDice)}`);
+    // Add before/after expressions and total
+    let fullDisplay = '';
+    if (diceData.beforeExpression) {
+      fullDisplay = diceData.beforeExpression + ' ';
     }
-    if (criticalDice.length > 0) {
-      parts.push(`💥 **Exploded:** ${formatDice(criticalDice)}`);
+    fullDisplay += diceDisplay.join(' ');
+    if (diceData.afterExpression) {
+      fullDisplay += ' ' + diceData.afterExpression;
     }
-    if (viciousDice.length > 0) {
-      parts.push(`⚔️ **Vicious:** ${formatDice(viciousDice)}`);
-    }
-    if (fumbleDice.length > 0) {
-      parts.push(`💀 **Fumble:** ${formatDice(fumbleDice)}`);
-    }
-    if (droppedDice.length > 0) {
-      parts.push(`**Dropped:** ${formatDropped(droppedDice)}`);
-    }
-
-    diceBreakdown = parts.join('\n');
+    diceBreakdown = fullDisplay + ` = **${diceData.total}**`;
 
     // Build the embed
     const embed: any = {
