@@ -1,7 +1,7 @@
 import {
-  evaluateDiceFormula as baseEvaluateDiceFormula,
   type DiceFormulaOptions,
   type DiceFormulaResult,
+  evaluateDiceFormula as baseEvaluateDiceFormula,
 } from "@nimble/dice";
 
 import { substituteVariablesForDice } from "../utils/formula-utils";
@@ -28,6 +28,7 @@ export class DiceService {
       if (hasVariables) {
         return {
           ...result,
+          formula,
           substitutedFormula: substituted,
         };
       }
