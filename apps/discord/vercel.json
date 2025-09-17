@@ -2,7 +2,7 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
   "functions": {
-    "api/interactions.ts": {
+    "api/index.js": {
       "maxDuration": 10
     }
   },
