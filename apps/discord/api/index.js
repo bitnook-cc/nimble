@@ -1,2 +1,2 @@
-// Vercel serverless function wrapper
-module.exports = require("../dist/index.js").default;
+// Vercel serverless function wrapper for ES modules
+export { default } from "../dist/index.js";
