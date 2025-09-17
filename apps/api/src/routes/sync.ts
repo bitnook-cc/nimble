@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "../config/session";
-import { CharacterSyncService } from "../services/character-sync-service";
-import { AuthService } from "../services/auth-service";
+import { sessionOptions, SessionData } from "../config/session.js";
+import { CharacterSyncService } from "../services/character-sync-service.js";
+import { AuthService } from "../services/auth-service.js";
 import { SyncErrorCode } from "@nimble/shared";
 
 const router = Router();

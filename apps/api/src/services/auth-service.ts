@@ -1,7 +1,7 @@
 import { PrismaClient, User } from "@prisma/client";
 import { IronSession } from "iron-session";
 import { AuthUser } from "@nimble/shared";
-import { SessionData } from "../config/session";
+import { SessionData } from "../config/session.js";
 
 export class AuthService {
   constructor(private prisma: PrismaClient) {}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, MockedFunction } from "vitest";
-import { CharacterSyncService } from "../character-sync-service";
+import { CharacterSyncService } from "../character-sync-service.js";
 import { isNewerThan } from "@nimble/shared";
 import { PrismaClient } from "@prisma/client";
 

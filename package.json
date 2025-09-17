@@ -18,8 +18,8 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "test:watch": "turbo test:watch",
     "test:ui": "turbo test:ui",
-    "test:run": "turbo test:run",
     "prepare": "npx husky || true"
   },
   "devDependencies": {

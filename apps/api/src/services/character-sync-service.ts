@@ -7,7 +7,7 @@ import {
   isNewerThan,
 } from "@nimble/shared";
 import { list } from "@vercel/blob";
-import { SERVER_CONFIG } from "../config/server-config";
+import { SERVER_CONFIG } from "../config/server-config.js";
 import { track } from "@vercel/analytics/server";
 
 // Type alias for clarity - any object with syncable fields

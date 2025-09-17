@@ -1,5 +1,5 @@
 import { IronSession } from "iron-session";
-import { SessionData } from "../config/session";
+import { SessionData } from "../config/session.js";
 
 declare module "express-serve-static-core" {
   interface Request {

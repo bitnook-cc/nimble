@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { put, del, list } from "@vercel/blob";
 import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "../config/session";
+import { sessionOptions, SessionData } from "../config/session.js";
 import { PrismaClient } from "@prisma/client";
-import { AuthService } from "../services/auth-service";
+import { AuthService } from "../services/auth-service.js";
 
 const router = Router();
 const prisma = new PrismaClient();

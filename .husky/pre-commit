@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # Run tests for all workspaces
-npx turbo run format && npx turbo run lint && npx turbo run typecheck && npx turbo run test
+npx turbo run format && npx turbo run typecheck && npx turbo run lint && npx turbo run test
