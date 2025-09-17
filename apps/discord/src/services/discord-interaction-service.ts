@@ -120,7 +120,7 @@ Use \`/roll formula:<dice notation>\` to roll dice.
 • **Exploding criticals:** \`1d20!\` (rerolls on max value)
 • **Vicious dice:** \`1d8v\` (adds extra die on critical)
 • **Combined:** \`1d20!v\` (both exploding and vicious)
-• **Double-digit dice:** \`1d44\`, \`1d66\`, \`1d88\`
+• **Double-digit dice:** \`d44\`, \`d66\`, \`d88\`
 • **Math operations:** \`(2d6+3)*2\`, \`1d20+5-2\`
 
 ## Advantage & Disadvantage
