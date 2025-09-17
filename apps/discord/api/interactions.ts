@@ -12,6 +12,7 @@ interface CommandOption {
 const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log(req);
   // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
