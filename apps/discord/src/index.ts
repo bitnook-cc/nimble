@@ -8,9 +8,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Use raw body for Discord signature verification
-app.use(express.raw({ type: 'application/json' }));
-
 // Discord interactions endpoint - delegate to the interactions handler
 app.post('/interactions', interactionsHandler);
 

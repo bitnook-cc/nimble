@@ -9,7 +9,6 @@ type HandlerRequest = Request | VercelRequest;
 type HandlerResponse = Response | VercelResponse;
 
 export default async function handler(req: HandlerRequest, res: HandlerResponse) {
-
   console.log(req.headers);
   console.log(req.body);
   // Only accept POST requests
@@ -17,35 +16,19 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get the raw body and parse it
-  let rawBody: string;
-  let body: any;
-
-  if ('rawBody' in req) {
-    // Vercel provides rawBody
-    rawBody = (req as any).rawBody;
-    body = req.body;
-  } else {
-    // Express with express.raw() middleware provides Buffer
-    rawBody = (req as any).body?.toString() || '';
-    try {
-      body = JSON.parse(rawBody);
-    } catch {
-      return res.status(400).json({ error: 'Invalid JSON body' });
-    }
-  }
+  const bodyJson = JSON.parse(req.body as string);
 
   // Verify the request came from Discord
   const signature = req.headers['x-signature-ed25519'] as string;
   const timestamp = req.headers['x-signature-timestamp'] as string;
 
-  const isValidRequest = verifyKey(rawBody, signature, timestamp, PUBLIC_KEY);
+  const isValidRequest = verifyKey(req.body, signature, timestamp, PUBLIC_KEY);
   if (!isValidRequest) {
     return res.status(401).json({ error: 'Invalid request signature' });
   }
 
   // Handle the interaction using the service
-  const result = discordInteractionService.handleInteraction(body);
+  const result = discordInteractionService.handleInteraction(bodyJson);
 
   // Check if it's an error response
   if ('error' in result) {

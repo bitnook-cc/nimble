@@ -38,15 +38,14 @@ describe('Discord Interactions Handler', () => {
       json: mockJson,
     };
 
-    // Setup default request (Vercel-style with rawBody)
+    // Setup default request with string body
     req = {
       method: 'POST',
       headers: {
         'x-signature-ed25519': 'mock-signature',
         'x-signature-timestamp': 'mock-timestamp',
       },
-      body: {},
-      rawBody: '{}',
+      body: '{}',
     } as any;
 
     // Set up environment variable
@@ -82,8 +81,7 @@ describe('Discord Interactions Handler', () => {
     });
 
     const body = { type: InteractionType.PING };
-    req.body = body;
-    req.rawBody = JSON.stringify(body);
+    req.body = JSON.stringify(body);
 
     await handler(req as VercelRequest, res as VercelResponse);
 
@@ -105,8 +103,7 @@ describe('Discord Interactions Handler', () => {
       type: InteractionType.APPLICATION_COMMAND,
       data: { name: 'unknown' },
     };
-    req.body = body;
-    req.rawBody = JSON.stringify(body);
+    req.body = JSON.stringify(body);
 
     await handler(req as VercelRequest, res as VercelResponse);
 
