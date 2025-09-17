@@ -16,6 +16,7 @@ import {
   DiceFormulaResult,
   DiceRollData,
 } from "./schemas";
+import { diceConfig } from "./config";
 
 // Re-export all types from schemas
 export * from "./schemas";
@@ -31,8 +32,7 @@ interface ParsedDiceNotation {
 }
 
 export class DiceService {
-  private readonly validDiceTypes = [4, 6, 8, 10, 12, 20, 100];
-  private readonly doubleDigitDiceTypes = [44, 66, 88];
+  private readonly config = diceConfig;
 
   evaluateDiceFormula(formula: string, options: DiceFormulaOptions = {}): DiceFormulaResult {
     try {
@@ -75,6 +75,11 @@ export class DiceService {
         // Validate dice count
         if (notation.count <= 0) {
           throw new Error(`Invalid dice count: ${notation.count}. Must be positive.`);
+        }
+        if (notation.count > this.config.maxDiceCount) {
+          throw new Error(
+            `Too many dice: ${notation.count}. Maximum allowed is ${this.config.maxDiceCount}.`,
+          );
         }
 
         // Apply postfix modifiers
@@ -172,10 +177,10 @@ export class DiceService {
       const isVicious = postfixes.includes("v");
 
       // Validate dice type
-      const isDoubleDigit = this.doubleDigitDiceTypes.includes(sides);
-      if (!this.validDiceTypes.includes(sides) && !isDoubleDigit) {
+      const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as any);
+      if (!this.config.validDiceTypes.includes(sides as any) && !isDoubleDigit) {
         throw new Error(
-          `Invalid dice type: d${sides}. Valid types are: ${[...this.validDiceTypes, ...this.doubleDigitDiceTypes].join(", ")}`,
+          `Invalid dice type: d${sides}. Valid types are: ${[...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].join(", ")}`,
         );
       }
 
@@ -205,7 +210,7 @@ export class DiceService {
     criticalHits?: number;
   } {
     // Check if this is a double-digit die
-    const isDoubleDigit = this.doubleDigitDiceTypes.includes(notation.sides);
+    const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(notation.sides as any);
 
     if (isDoubleDigit) {
       return this.rollDoubleDigitDice(notation, options);
@@ -273,7 +278,7 @@ export class DiceService {
       if (isCritical && options.allowCriticals) {
         criticalHits = 1; // Count the initial critical
         let consecutiveCrits = 0;
-        const maxCrits = 10; // Reasonable limit to prevent infinite loops
+        const maxCrits = this.config.maxCriticalExplosions;
 
         while (consecutiveCrits < maxCrits) {
           const newRoll = this.rollSingleDie(notation.sides);
