@@ -271,7 +271,7 @@ describe("CharacterSyncService", () => {
         Promise.resolve(ops),
       );
 
-      const result = await service.syncCharacters(userId, characters);
+      const result = await service.syncCharacters(userId, characters as any[]);
 
       expect(result.characters).toHaveLength(1);
       expect(result.characters[0].id).toBe("char-1");
@@ -279,7 +279,7 @@ describe("CharacterSyncService", () => {
 
     it("should handle invalid input", async () => {
       await expect(
-        service.syncCharacters(userId, null as unknown as unknown[]),
+        service.syncCharacters(userId, null as unknown as any[]),
       ).rejects.toThrow("Invalid request: characters must be an array");
     });
   });

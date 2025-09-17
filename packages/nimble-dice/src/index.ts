@@ -15,8 +15,8 @@ import {
   DiceFormulaOptions,
   DiceFormulaResult,
   DiceRollData,
-} from "./schemas";
-import { diceConfig } from "./config";
+} from "./schemas.js";
+import { diceConfig } from "./config.js";
 
 // Re-export all types from schemas
 export * from "./schemas";
