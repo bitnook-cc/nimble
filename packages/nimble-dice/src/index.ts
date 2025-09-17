@@ -298,31 +298,43 @@ export class DiceService {
 
     if (firstKeptDie) {
       isFumble = firstKeptDie.category === "fumble" && options.allowFumbles === true;
-      isCritical = options.allowCriticals === true && firstKeptDie.category === "critical";
+    }
 
-      // Handle exploding criticals
-      if (isCritical && options.allowCriticals) {
-        criticalHits = 1; // Count the initial critical
-        let consecutiveCrits = 0;
-        const maxCrits = this.config.maxCriticalExplosions;
+    // Handle exploding criticals
+    if (options.allowCriticals) {
+      // Determine which dice can explode
+      const criticalDice = allDice.filter(d => d.kept && d.category === "critical");
+      const diceThatExplode = options.explodeAll 
+        ? criticalDice
+        : criticalDice.slice(0, 1);
 
-        while (consecutiveCrits < maxCrits) {
-          const newRoll = this.rollSingleDie(notation.sides);
-          allDice.push({
-            value: newRoll,
-            size: notation.sides,
-            kept: true,
-            category: "explosion" as DiceCategory,
-            index: allDice.length,
-          });
+      if (diceThatExplode.length > 0) {
+        isCritical = true;
+        
+        // Process explosions for each critical die
+        diceThatExplode.forEach(_ => {
+          criticalHits++; // Count the initial critical
+          let consecutiveCrits = 0;
+          const maxCrits = this.config.maxCriticalExplosions;
 
-          if (newRoll === notation.sides) {
-            consecutiveCrits++;
-            criticalHits++; // Count each exploded critical
-          } else {
-            break; // Stop rolling if we didn't get another critical
+          while (consecutiveCrits < maxCrits) {
+            const newRoll = this.rollSingleDie(notation.sides);
+            allDice.push({
+              value: newRoll,
+              size: notation.sides,
+              kept: true,
+              category: "explosion" as DiceCategory,
+              index: allDice.length,
+            });
+
+            if (newRoll === notation.sides) {
+              consecutiveCrits++;
+              criticalHits++; // Count each exploded critical
+            } else {
+              break; // Stop rolling if we didn't get another critical
+            }
           }
-        }
+        })
 
         // Add vicious dice if enabled (one non-exploding die per critical hit)
         if (options.vicious === true && criticalHits > 0) {

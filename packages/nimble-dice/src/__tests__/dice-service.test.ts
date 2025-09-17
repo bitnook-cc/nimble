@@ -414,6 +414,48 @@ describe("DiceService", () => {
       expect(result.displayString).toBe("[4] [4] = 44");
       expect(result.total).toBe(44);
     });
+
+    it("should handle !! notation for all dice exploding", () => {
+      // Roll 4d4!! where 3 dice roll 4 (critical) and should all explode
+      // Die 1: 2 (normal)
+      // Die 2: 4 (crit) -> explodes to 3
+      // Die 3: 4 (crit) -> explodes to 4 -> explodes to 2
+      // Die 4: 1 (normal)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(2) // Die 1
+        .mockReturnValueOnce(4) // Die 2 (critical)
+        .mockReturnValueOnce(4) // Die 3 (critical)
+        .mockReturnValueOnce(1) // Die 4
+        .mockReturnValueOnce(3) // Die 2's explosion
+        .mockReturnValueOnce(4) // Die 3's first explosion (also critical)
+        .mockReturnValueOnce(2); // Die 3's second explosion
+
+      const result = diceService.evaluateDiceFormula("4d4!!");
+
+      // Expected: [2] + [4] + [4] + [1] + [3] + [4] + [2]
+      expect(result.displayString).toBe("[2] + [4] + [4] + [1] + [3] + [4] + [2]");
+      expect(result.total).toBe(20); // 2 + 4 + 4 + 1 + 3 + 4 + 2
+      expect(result.diceData?.criticalHits).toBe(3); // Three criticals total (2 initial + 1 from explosion)
+    });
+
+    it("should handle !! with vicious", () => {
+      // Roll 2d6!!v where both dice crit and explode, then add vicious dice
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(6) // Die 1 (critical)
+        .mockReturnValueOnce(6) // Die 2 (critical)
+        .mockReturnValueOnce(3) // Die 1's explosion
+        .mockReturnValueOnce(6) // Die 2's explosion (also critical)
+        .mockReturnValueOnce(2) // Die 2's second explosion
+        .mockReturnValueOnce(4) // Vicious die 1 (for first crit)
+        .mockReturnValueOnce(5) // Vicious die 2 (for second crit)
+        .mockReturnValueOnce(3); // Vicious die 3 (for third crit)
+
+      const result = diceService.evaluateDiceFormula("2d6!!v");
+
+      expect(result.displayString).toBe("[6] + [6] + [3] + [6] + [2] + [4] + [5] + [3]");
+      expect(result.total).toBe(35); // 6 + 6 + 3 + 6 + 2 + 4 + 5 + 3
+      expect(result.diceData?.criticalHits).toBe(3); // Three criticals total
+    });
   });
 
   describe("Advantage/Disadvantage postfix notation", () => {
