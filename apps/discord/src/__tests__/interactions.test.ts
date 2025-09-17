@@ -38,14 +38,14 @@ describe('Discord Interactions Handler', () => {
       json: mockJson,
     };
 
-    // Setup default request with string body
+    // Setup default request with Buffer body (mimics express.raw())
     req = {
       method: 'POST',
       headers: {
         'x-signature-ed25519': 'mock-signature',
         'x-signature-timestamp': 'mock-timestamp',
       },
-      body: '{}',
+      body: Buffer.from('{}', 'utf-8'),
     } as any;
 
     // Set up environment variable
@@ -81,7 +81,7 @@ describe('Discord Interactions Handler', () => {
     });
 
     const body = { type: InteractionType.PING };
-    req.body = JSON.stringify(body);
+    req.body = Buffer.from(JSON.stringify(body), 'utf-8');
 
     await handler(req as VercelRequest, res as VercelResponse);
 
@@ -103,7 +103,7 @@ describe('Discord Interactions Handler', () => {
       type: InteractionType.APPLICATION_COMMAND,
       data: { name: 'unknown' },
     };
-    req.body = JSON.stringify(body);
+    req.body = Buffer.from(JSON.stringify(body), 'utf-8');
 
     await handler(req as VercelRequest, res as VercelResponse);
 

@@ -23,8 +23,9 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     rawBody = await (req as any).text();
     bodyJson = JSON.parse(rawBody);
   } else {
-    // Express environment - body is already a string from our test setup
-    rawBody = req.body as string;
+    // Express environment - body is a Buffer from express.raw()
+    const bodyBuffer = req.body as Buffer;
+    rawBody = bodyBuffer.toString('utf-8');
     bodyJson = JSON.parse(rawBody);
   }
 

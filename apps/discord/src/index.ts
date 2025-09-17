@@ -8,6 +8,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// Apply appropriate middleware based on the routes
+app.use((req, res, next) => {
+  console.log("Raw Request: ", req.body, req)
+  if (req.path === '/interactions') {
+    // Use raw body parser for Discord interactions (returns Buffer)
+    express.raw({ type: 'application/json' })(req, res, next);
+  } else {
+    // Apply JSON parsing for all other endpoints
+    express.json()(req, res, next);
+  }
+});
+
 // Discord interactions endpoint - delegate to the interactions handler
 app.post('/interactions', interactionsHandler);
 
