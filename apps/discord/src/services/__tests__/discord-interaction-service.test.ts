@@ -63,14 +63,21 @@ describe('DiscordInteractionService', () => {
         expect(result).toEqual({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: expect.stringContaining('🎲 **Rolling:** `2d6+5`'),
-          },
-        });
-
-        expect(result).toEqual({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: expect.stringContaining('**Total:** **12**'),
+            embeds: [
+              expect.objectContaining({
+                title: '🎲 Dice Roll Result',
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'Formula',
+                    value: '`2d6+5`',
+                  }),
+                  expect.objectContaining({
+                    name: 'Total',
+                    value: '**12**',
+                  }),
+                ]),
+              }),
+            ],
           },
         });
       });
@@ -103,7 +110,21 @@ describe('DiscordInteractionService', () => {
         expect(result).toEqual({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: expect.stringContaining('✨ **Advantage 1**'),
+            embeds: [
+              expect.objectContaining({
+                title: '🎲 Dice Roll Result',
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'Modifier',
+                    value: '✨ Advantage',
+                  }),
+                  expect.objectContaining({
+                    name: 'Total',
+                    value: '**18**',
+                  }),
+                ]),
+              }),
+            ],
           },
         });
       });
@@ -136,7 +157,21 @@ describe('DiscordInteractionService', () => {
         expect(result).toEqual({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: expect.stringContaining('💀 **Disadvantage 1**'),
+            embeds: [
+              expect.objectContaining({
+                title: '🎲 Dice Roll Result',
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'Modifier',
+                    value: '💀 Disadvantage',
+                  }),
+                  expect.objectContaining({
+                    name: 'Total',
+                    value: '**3**',
+                  }),
+                ]),
+              }),
+            ],
           },
         });
       });
@@ -158,7 +193,7 @@ describe('DiscordInteractionService', () => {
         expect(result).toEqual({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: 'Error rolling dice: Invalid dice type: d7',
+            content: '❌ **Error rolling dice:** Invalid dice type: d7',
             flags: 64, // Ephemeral
           },
         });
