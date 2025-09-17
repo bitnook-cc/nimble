@@ -8,6 +8,7 @@ import {
 } from "@nimble/shared";
 import { list } from "@vercel/blob";
 import { SERVER_CONFIG } from "../config/server-config";
+import { track } from "@vercel/analytics/server";
 
 // Type alias for clarity - any object with syncable fields
 type SyncCharacterData = Syncable & Record<string, unknown>;
@@ -203,6 +204,16 @@ export class CharacterSyncService {
         "[Sync Server] Blob storage not configured - skipping image sync",
       );
     }
+
+    await track("character-sync", {
+      user_id: userId,
+      character_count: syncedCharacters.length,
+      image_count: images.length,
+      from_client: characters.length,
+      to_client: syncedCharacters.length,
+      operations: operations.length,
+      images: images.length,
+    });
 
     const result: SyncResult = {
       characters: syncedCharacters,

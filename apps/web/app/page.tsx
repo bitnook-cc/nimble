@@ -1,5 +1,7 @@
 "use client";
 
+import { Analytics } from "@vercel/analytics/next";
+
 import { useCallback, useEffect, useState } from "react";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -126,6 +128,7 @@ export default function Home() {
     <ErrorBoundary>
       <HomeContent />
       <ToastContainer />
+      <Analytics />
     </ErrorBoundary>
   );
 }

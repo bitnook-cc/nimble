@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@nimble/dice": "*",
+    "@vercel/analytics": "^1.5.0",
     "discord-interactions": "^4.3.0",
     "dotenv": "^17.2.2",
     "express": "^4.21.2"
@@ -37,8 +38,8 @@
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "tsx": "^4.6.2",
+    "turbo": "^2.5.6",
     "typescript": "^5.3.3",
-    "vitest": "^3.2.4",
-    "turbo": "^2.5.6"
+    "vitest": "^3.2.4"
   }
 }
