@@ -8,8 +8,8 @@
   },
   "rewrites": [
     {
-      "source": "/interactions",
-      "destination": "/api/interactions"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
