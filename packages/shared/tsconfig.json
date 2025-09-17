@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["ES2022"],
-    "module": "ESNext",
+    "module": "commonjs",
     "target": "ES2022",
     "strict": true,
     "esModuleInterop": true,
@@ -10,8 +10,10 @@
     "declaration": true,
     "declarationMap": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }
