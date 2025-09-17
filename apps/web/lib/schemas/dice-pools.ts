@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { ICON_IDS } from "../utils/icon-utils";
-import { diceTypeSchema } from "./dice";
+import { diceTypeSchema } from "@nimble/dice";
 import { flexibleValueSchema } from "./flexible-value";
 
 // Resource reset condition schema (shared with resources)

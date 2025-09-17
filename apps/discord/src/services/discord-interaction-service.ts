@@ -237,6 +237,10 @@ Add the \`advantage\` parameter:
       previousWasKept = die.kept;
     });
 
+    if (!previousWasKept) {
+      diceDisplay.push(')'); // Close parenthesis if last die was dropped
+    }
+
     // Add before/after expressions and total
     let fullDisplay = '';
     if (diceData.beforeExpression) {

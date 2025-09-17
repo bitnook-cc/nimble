@@ -1,6 +1,6 @@
 import { Character } from "../schemas/character";
-import { DiceType } from "../schemas/dice";
-import { DicePoolDefinition, DicePoolInstance } from "../schemas/dice-pools";
+import { DiceType } from "@nimble/dice";
+import { DicePoolInstance } from "../schemas/dice-pools";
 import { calculateFlexibleValue as evaluateFlexibleValue } from "../types/flexible-value";
 
 export interface DicePoolServiceInterface {

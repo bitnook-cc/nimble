@@ -1,6 +1,6 @@
 import React from "react";
 
-import { DiceCategory } from "../schemas/dice";
+import { DiceCategory } from "@nimble/dice";
 
 export interface DiceDisplayProps {
   value: number;

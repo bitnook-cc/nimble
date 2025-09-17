@@ -1,4 +1,4 @@
-import { DiceRollData } from "../schemas/dice";
+import { DiceRollData } from "@nimble/dice";
 
 export type ToastType = "success" | "error" | "warning" | "info";
 

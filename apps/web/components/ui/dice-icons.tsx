@@ -1,4 +1,4 @@
-import { DiceType } from "@/lib/schemas/dice";
+import { DiceType } from "@nimble/dice";
 
 interface DiceIconProps {
   className?: string;

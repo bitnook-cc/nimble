@@ -5,7 +5,7 @@ import { Dices, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Character } from "@/lib/schemas/character";
-import { DiceType } from "@/lib/schemas/dice";
+import { DiceType } from "@nimble/dice";
 import { DicePoolDefinition, DicePoolInstance, DicePoolResetType } from "@/lib/schemas/dice-pools";
 import { AVAILABLE_ICONS, type IconCategory, getIconById } from "@/lib/utils/icon-utils";
 import { RESOURCE_COLOR_SCHEMES, getColorSchemeById } from "@/lib/utils/resource-config";

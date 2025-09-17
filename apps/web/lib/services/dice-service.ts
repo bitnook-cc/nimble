@@ -1,4 +1,4 @@
-import { CategorizedDie, DiceCategory, DiceRollData, DiceType } from "../schemas/dice";
+import { CategorizedDie, DiceRollData, DiceType } from "@nimble/dice";
 import {
   OPERATOR_REGEX,
   safeEvaluate,

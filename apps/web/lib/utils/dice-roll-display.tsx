@@ -1,6 +1,6 @@
 import React from "react";
 
-import { DiceRollData } from "../schemas/dice";
+import { DiceRollData } from "@nimble/dice";
 import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "./dice-display-components";
 
 interface DiceRollDisplayProps {

@@ -1,18 +1,28 @@
 import { z } from "zod";
+import {
+  diceTypeSchema,
+  diceCategorySchema,
+  categorizedDieSchema,
+  diceRollDataSchema,
+  type DiceType,
+  type DiceCategory,
+  type CategorizedDie,
+  type DiceRollData,
+} from "@nimble/dice";
 
-// Dice type schema
-export const diceTypeSchema = z.union([
-  z.literal(4),
-  z.literal(6),
-  z.literal(8),
-  z.literal(10),
-  z.literal(12),
-  z.literal(20),
-  z.literal(44),
-  z.literal(66),
-  z.literal(88),
-  z.literal(100),
-]);
+// Re-export imported types for backward compatibility
+export {
+  diceTypeSchema,
+  diceCategorySchema,
+  categorizedDieSchema,
+  diceRollDataSchema,
+  type DiceType,
+  type DiceCategory,
+  type CategorizedDie,
+  type DiceRollData,
+};
+
+// Web-specific schemas that aren't in the shared package
 
 // Dice expression schema with metadata
 export const diceExpressionSchema = z
@@ -36,34 +46,6 @@ export const singleDieSchema = z.object({
   isCritical: z.boolean().optional(),
 });
 
-// Dice category enum for reuse
-export const diceCategorySchema = z.enum(["normal", "critical", "vicious", "dropped", "fumble"]);
-
-// Schema for categorized dice data
-export const categorizedDieSchema = z.object({
-  value: z.number(),
-  size: z.number(),
-  kept: z.boolean(),
-  category: diceCategorySchema,
-  index: z.number(),
-});
-
-// Schema for dice roll data
-export const diceRollDataSchema = z.object({
-  dice: z.array(categorizedDieSchema),
-  beforeExpression: z.string().optional(),
-  afterExpression: z.string().optional(),
-  total: z.number(),
-  isDoubleDigit: z.boolean().optional(),
-  isFumble: z.boolean().optional(),
-  advantageLevel: z.number().optional(),
-  criticalHits: z.number().optional(),
-});
-
-// Export inferred types
-export type DiceType = z.infer<typeof diceTypeSchema>;
+// Export web-specific types
 export type DiceExpression = z.infer<typeof diceExpressionSchema>;
 export type SingleDie = z.infer<typeof singleDieSchema>;
-export type DiceCategory = z.infer<typeof diceCategorySchema>;
-export type CategorizedDie = z.infer<typeof categorizedDieSchema>;
-export type DiceRollData = z.infer<typeof diceRollDataSchema>;

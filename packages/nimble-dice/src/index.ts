@@ -253,7 +253,7 @@ export class DiceService {
       // Check if this is the first kept die and it's a nat 1 (fumble)
       const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
       const isFumble =
-        isFirstKept && value === 1 && notation.sides === 20 && options.allowFumbles === true;
+        isFirstKept && value === 1;
 
       return {
         value,
@@ -271,7 +271,7 @@ export class DiceService {
     let criticalHits = 0;
 
     if (firstKeptDie) {
-      isFumble = firstKeptDie.category === "fumble";
+      isFumble = firstKeptDie.category === "fumble" && options.allowFumbles === true;
       isCritical = options.allowCriticals === true && firstKeptDie.value === notation.sides;
 
       // Handle exploding criticals
