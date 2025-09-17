@@ -1,7 +1,6 @@
-import { z } from "zod";
-
 // Import dice schemas from central location
 import { diceRollDataSchema } from "@nimble/dice";
+import { z } from "zod";
 
 // Base log entry schema
 export const baseLogEntrySchema = z.object({

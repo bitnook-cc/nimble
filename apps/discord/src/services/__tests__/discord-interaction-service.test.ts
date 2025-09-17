@@ -258,9 +258,7 @@ describe('DiscordInteractionService', () => {
           total: 1,
           displayString: '[1]',
           diceData: {
-            dice: [
-              { value: 1, size: 20, kept: true, category: 'fumble', index: 0 },
-            ],
+            dice: [{ value: 1, size: 20, kept: true, category: 'fumble', index: 0 }],
             total: 1,
             isDoubleDigit: false,
             isFumble: true,
@@ -271,9 +269,7 @@ describe('DiscordInteractionService', () => {
           type: InteractionType.APPLICATION_COMMAND,
           data: {
             name: 'roll',
-            options: [
-              { name: 'formula', value: '1d20' },
-            ],
+            options: [{ name: 'formula', value: '1d20' }],
           },
         });
 

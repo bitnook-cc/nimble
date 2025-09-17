@@ -1,11 +1,11 @@
 "use client";
 
+import { DiceType } from "@nimble/dice";
 import { Dices, X } from "lucide-react";
 
 import { useState } from "react";
 
 import { useActivityLog } from "@/lib/hooks/use-activity-log";
-import { DiceType } from "@nimble/dice";
 import { activityLogService } from "@/lib/services/activity-log-service";
 import { diceService } from "@/lib/services/dice-service";
 

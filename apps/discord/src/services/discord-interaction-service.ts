@@ -191,30 +191,30 @@ Add the \`advantage\` parameter:
 
     // Build dice breakdown from rich data
     let diceBreakdown = '';
-    
+
     // Format dice in their original order with category-based styling
     const formatDie = (die: CategorizedDie): string => {
       const value = `${die.value}`;
-      
+
       switch (die.category) {
         case 'critical':
-          return `**💥${value}**`;  // Bold with explosion emoji for crits
+          return `**💥${value}**`; // Bold with explosion emoji for crits
         case 'vicious':
-          return `**⚔️${value}**`;  // Bold with sword emoji for vicious
+          return `**⚔️${value}**`; // Bold with sword emoji for vicious
         case 'fumble':
-          return `**💀${value}**`;  // Bold with skull emoji for fumbles
+          return `**💀${value}**`; // Bold with skull emoji for fumbles
         case 'dropped':
-          return `~~${value}~~`;     // Strikethrough for dropped
+          return `~~${value}~~`; // Strikethrough for dropped
         case 'normal':
         default:
-          return `\`${value}\``;     // Code block for normal dice
+          return `${value}`; // Code block for normal dice
       }
     };
 
     // Build dice display maintaining original order
     const diceDisplay: string[] = [];
     let previousWasKept = false;
-    
+
     diceData.dice.forEach((die, index) => {
       if (index === 0 && !die.kept) {
         diceDisplay.push('('); // Open parenthesis if first die is dropped
@@ -232,7 +232,7 @@ Add the \`advantage\` parameter:
           diceDisplay.push(',');
         }
       }
-      
+
       diceDisplay.push(formatDie(die));
       previousWasKept = die.kept;
     });
@@ -321,11 +321,6 @@ Add the \`advantage\` parameter:
         inline: false,
       });
     }
-
-    // Add full display string as footer for transparency
-    embed.footer = {
-      text: `Raw: ${result.displayString}`,
-    };
 
     return embed;
   }

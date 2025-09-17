@@ -252,8 +252,7 @@ export class DiceService {
       const isKept = keptIndices.has(index);
       // Check if this is the first kept die and it's a nat 1 (fumble)
       const isFirstKept = isKept && [...keptIndices].sort((a, b) => a - b)[0] === index;
-      const isFumble =
-        isFirstKept && value === 1;
+      const isFumble = isFirstKept && value === 1;
 
       return {
         value,
@@ -447,4 +446,16 @@ export class DiceService {
   }
 }
 
-export const diceService = new DiceService();
+// Create a singleton instance
+const diceService = new DiceService();
+
+// Export the main function directly
+export const evaluateDiceFormula = (
+  formula: string,
+  options: DiceFormulaOptions = {},
+): DiceFormulaResult => {
+  return diceService.evaluateDiceFormula(formula, options);
+};
+
+// Also export the service instance for backward compatibility
+export { diceService };
