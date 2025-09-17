@@ -1,6 +1,6 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
-import interactionsHandler from './interactions';
+import interactionsHandler from './interactions.js';
 
 // Load environment variables
 dotenv.config();

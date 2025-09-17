@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "./config/session";
-import passport from "./config/passport";
-import authRoutes from "./routes/auth";
-import syncRoutes from "./routes/sync";
-import imagesRoutes from "./routes/images";
+import { sessionOptions, SessionData } from "./config/session.js";
+import passport from "./config/passport.js";
+import authRoutes from "./routes/auth.js";
+import syncRoutes from "./routes/sync.js";
+import imagesRoutes from "./routes/images.js";
 import dotenv from "dotenv";
 
 // Load environment variables

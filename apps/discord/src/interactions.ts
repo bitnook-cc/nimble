@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyKey } from 'discord-interactions';
-import { discordInteractionService } from './services/discord-interaction-service';
+import { discordInteractionService } from './services/discord-interaction-service.js';
 import { track } from '@vercel/analytics/server';
 
 const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
