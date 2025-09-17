@@ -9,20 +9,30 @@ type HandlerRequest = Request | VercelRequest;
 type HandlerResponse = Response | VercelResponse;
 
 export default async function handler(req: HandlerRequest, res: HandlerResponse) {
-  console.log(req.headers);
-  console.log(req.body);
   // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const bodyJson = JSON.parse(req.body as string);
+  let rawBody: string;
+  let bodyJson: any;
+
+  // Check if we're in Vercel environment (req has text() method)
+  if ('text' in req && typeof (req as any).text === 'function') {
+    // Vercel environment - use Web API methods
+    rawBody = await (req as any).text();
+    bodyJson = JSON.parse(rawBody);
+  } else {
+    // Express environment - body is already a string from our test setup
+    rawBody = req.body as string;
+    bodyJson = JSON.parse(rawBody);
+  }
 
   // Verify the request came from Discord
   const signature = req.headers['x-signature-ed25519'] as string;
   const timestamp = req.headers['x-signature-timestamp'] as string;
 
-  const isValidRequest = verifyKey(req.body, signature, timestamp, PUBLIC_KEY);
+  const isValidRequest = verifyKey(rawBody, signature, timestamp, PUBLIC_KEY);
   if (!isValidRequest) {
     return res.status(401).json({ error: 'Invalid request signature' });
   }
