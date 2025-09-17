@@ -56,7 +56,8 @@ describe('DiscordInteractionService', () => {
 
         expect(diceService.evaluateDiceFormula).toHaveBeenCalledWith('2d6+5', {
           advantageLevel: 0,
-          allowCriticals: true,
+          allowCriticals: false,
+          allowFumbles: true,
           vicious: false,
         });
 
@@ -114,7 +115,8 @@ describe('DiscordInteractionService', () => {
 
         expect(diceService.evaluateDiceFormula).toHaveBeenCalledWith('1d20', {
           advantageLevel: 1,
-          allowCriticals: true,
+          allowCriticals: false,
+          allowFumbles: true,
           vicious: false,
         });
 
@@ -176,7 +178,8 @@ describe('DiscordInteractionService', () => {
 
         expect(diceService.evaluateDiceFormula).toHaveBeenCalledWith('1d20', {
           advantageLevel: -1,
-          allowCriticals: true,
+          allowCriticals: false,
+          allowFumbles: true,
           vicious: false,
         });
 

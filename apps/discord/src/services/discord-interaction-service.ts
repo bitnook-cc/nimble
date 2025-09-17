@@ -81,7 +81,8 @@ export class DiscordInteractionService {
       // Roll the dice
       const result = diceService.evaluateDiceFormula(formula, {
         advantageLevel,
-        allowCriticals: true, // Always allow since we support ! notation
+        allowCriticals: false, // Always allow since we support ! notation
+        allowFumbles: true, // Always allow since we support natural 1s
         vicious: false, // Will be overridden by v notation if present
       });
 
