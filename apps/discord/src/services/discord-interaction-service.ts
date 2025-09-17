@@ -119,27 +119,41 @@ Use \`/roll formula:<dice notation>\` to roll dice.
 • **Basic rolls:** \`2d6\`, \`1d20\`, \`3d4+5\`
 • **With modifiers:** \`1d20+5\`, \`2d8-3\`, \`1d6+2d4+7\`
 • **Exploding criticals:** \`1d20!\` (rerolls on max value)
+• **All dice explode:** \`3d6!!\` (ALL max rolls explode, not just first)
 • **Vicious dice:** \`1d8v\` (adds extra die on critical)
-• **Combined:** \`1d20!v\` (both exploding and vicious)
+• **Combined:** \`1d20!v\` or \`2d6!!v\` (exploding + vicious)
 • **Double-digit dice:** \`d44\`, \`d66\`, \`d88\`
 • **Math operations:** \`(2d6+3)*2\`, \`1d20+5-2\`
 
 ## Advantage & Disadvantage
-Add the \`advantage\` parameter:
-• **Advantage:** \`/roll formula:1d20 advantage:1\` (rolls 2d20, keeps highest)
-• **Greater advantage:** \`/roll formula:1d20 advantage:2\` (rolls 3d20, keeps highest)
-• **Disadvantage:** \`/roll formula:1d20 advantage:-1\` (rolls 2d20, keeps lowest)
+**Option 1: Use postfix notation**
+• **Advantage:** \`1d20a\` or \`1d20a1\` (rolls 2d20, keeps highest)
+• **Multiple advantage:** \`1d20a3\` (rolls 4d20, keeps highest)
+• **Disadvantage:** \`1d20d\` or \`1d20d1\` (rolls 2d20, keeps lowest)
+• **Multiple disadvantage:** \`1d20d2\` (rolls 3d20, keeps lowest)
+
+**IMPORTANT**
+When using postfix notation, the order of operations is important. Always place the advantage/disadvantage postfix AFTER any exploding or vicious postfixes.
+
+**Option 2: Use the advantage parameter**
+• **Advantage:** \`/roll formula:1d20 advantage:1\`
+• **Disadvantage:** \`/roll formula:1d20 advantage:-1\`
 
 ## Special Notations
-• **!** = Exploding dice (reroll and add on max roll)
-• **v** = Vicious (add extra die on critical, non-exploding)
-• **Double-digit** = Rolls two dice for tens and ones (d44, d66, d88)
+• **!** = Exploding dice (first die rerolls on max)
+• **!!** = All dice explode (ALL dice reroll on max)
+• **v** = Vicious (add extra die on critical)
+• **a** = Advantage (roll extra, keep highest)
+• **d** = Disadvantage (roll extra, keep lowest)
+• **Double-digit** = Rolls two dice for tens and ones (d44, d66, d88). Note: Double-digit rolls cannot crit or explode.
 
 ## Examples
 • \`/roll formula:2d6+5\` - Roll 2d6 and add 5
-• \`/roll formula:1d20! advantage:1\` - Roll d20 with advantage and exploding crits
+• \`/roll formula:1d20!a\` - Roll d20 with advantage and exploding crits
+• \`/roll formula:4d4!!\` - Roll 4d4 where ALL 4s explode
 • \`/roll formula:3d8v\` - Roll 3d8 with vicious dice
-• \`/roll formula:1d44\` - Roll a d44 (two d4s for tens and ones)`;
+• \`/roll formula:1d20d2+5\` - Roll d20 with double disadvantage, add 5
+• \`/roll formula:d44a\` - Roll a d44 with advantage`;
 
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

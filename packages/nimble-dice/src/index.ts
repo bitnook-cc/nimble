@@ -303,16 +303,14 @@ export class DiceService {
     // Handle exploding criticals
     if (options.allowCriticals) {
       // Determine which dice can explode
-      const criticalDice = allDice.filter(d => d.kept && d.category === "critical");
-      const diceThatExplode = options.explodeAll 
-        ? criticalDice
-        : criticalDice.slice(0, 1);
+      const criticalDice = allDice.filter((d) => d.kept && d.category === "critical");
+      const diceThatExplode = options.explodeAll ? criticalDice : criticalDice.slice(0, 1);
 
       if (diceThatExplode.length > 0) {
         isCritical = true;
-        
+
         // Process explosions for each critical die
-        diceThatExplode.forEach(_ => {
+        diceThatExplode.forEach((_) => {
           criticalHits++; // Count the initial critical
           let consecutiveCrits = 0;
           const maxCrits = this.config.maxCriticalExplosions;
@@ -334,7 +332,7 @@ export class DiceService {
               break; // Stop rolling if we didn't get another critical
             }
           }
-        })
+        });
 
         // Add vicious dice if enabled (one non-exploding die per critical hit)
         if (options.vicious === true && criticalHits > 0) {
