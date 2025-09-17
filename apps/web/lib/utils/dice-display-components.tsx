@@ -71,39 +71,44 @@ export function DiceFormulaDisplay({
   total: number;
   isFumble?: boolean;
 }) {
-  // Group dice by whether they're kept or dropped for display
+  // Display dice in their original order, formatting each based on its category
   const keptDice = dice.filter((d) => d.kept);
-  const droppedDice = dice.filter((d) => !d.kept);
+  const hasDroppedDice = dice.some((d) => !d.kept);
 
   return (
     <span className="inline-flex items-center gap-1">
       {beforeDice && <span className="text-black dark:text-white font-medium">{beforeDice}</span>}
 
-      {/* Display kept dice first */}
-      {keptDice.map((die, index) => (
-        <React.Fragment key={`kept-${index}`}>
-          {index > 0 && <span className="text-gray-400 dark:text-gray-500">+</span>}
-          <DiceDisplay
-            value={die.value}
-            size={die.size}
-            category={die.category}
-            isFirst={index === 0}
-          />
-        </React.Fragment>
-      ))}
-
-      {/* Display dropped dice if any */}
-      {droppedDice.length > 0 && (
-        <>
-          {keptDice.length > 0 && <span className="text-gray-500 mx-1">|</span>}
-          {droppedDice.map((die, index) => (
-            <React.Fragment key={`dropped-${index}`}>
-              {index > 0 && <span className="text-gray-400 dark:text-gray-500">,</span>}
-              <DiceDisplay value={die.value} size={die.size} category="dropped" />
-            </React.Fragment>
-          ))}
-        </>
-      )}
+      {/* Display all dice in their original order */}
+      {dice.map((die, index) => {
+        const isFirstKeptDie = keptDice.length > 0 && die === keptDice[0];
+        
+        return (
+          <React.Fragment key={index}>
+            {/* Add operators between kept dice */}
+            {index > 0 && die.kept && dice[index - 1].kept && (
+              <span className="text-gray-400 dark:text-gray-500">+</span>
+            )}
+            
+            {/* Add separator before dropped dice section */}
+            {!die.kept && index > 0 && dice[index - 1].kept && (
+              <span className="text-gray-500 mx-1">|</span>
+            )}
+            
+            {/* Add comma between dropped dice */}
+            {!die.kept && index > 0 && !dice[index - 1].kept && (
+              <span className="text-gray-400 dark:text-gray-500">,</span>
+            )}
+            
+            <DiceDisplay
+              value={die.value}
+              size={die.size}
+              category={die.category}
+              isFirst={isFirstKeptDie}
+            />
+          </React.Fragment>
+        );
+      })}
 
       {afterDice && <span className="text-black text-gray-500 font-medium">{afterDice}</span>}
 
