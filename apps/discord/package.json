@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Discord bot for Nimble dice rolling (HTTP interactions)",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",

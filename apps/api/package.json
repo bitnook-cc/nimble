@@ -2,6 +2,7 @@
   "name": "@nimble/api",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "db:start-local": "./scripts/start-local-db.sh",
     "db:push": "prisma db push",
