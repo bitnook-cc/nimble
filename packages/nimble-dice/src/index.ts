@@ -19,7 +19,7 @@ import {
 import { diceConfig } from "./config.js";
 
 // Re-export all types from schemas
-export * from "./schemas";
+export * from "./schemas.js";
 
 interface ParsedDiceNotation {
   count: number;
