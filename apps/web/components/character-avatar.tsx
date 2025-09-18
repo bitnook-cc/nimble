@@ -8,6 +8,7 @@ interface CharacterAvatarProps {
   characterId: string;
   characterName: string;
   imageId?: string;
+  classId?: string;
   size?: "thumbnail" | "profile";
   className?: string;
   onClick?: () => void;
@@ -18,6 +19,7 @@ export function CharacterAvatar({
   characterId,
   characterName,
   imageId,
+  classId,
   size = "profile",
   className,
   onClick,
@@ -28,6 +30,26 @@ export function CharacterAvatar({
 
   const dimensions = size === "thumbnail" ? "w-[50px] h-[50px]" : "w-[100px] h-[100px]";
   const isClickable = clickable || !!onClick;
+
+  // Determine placeholder image for official classes
+  const getPlaceholderImage = () => {
+    if (!classId) return null;
+    
+    // List of official classes that have placeholder images
+    const officialClasses = [
+      'berserker', 'cheat', 'commander', 'hunter', 'mage', 
+      'oathsworn', 'shadowmancer', 'shepherd', 'songweaver', 
+      'stormshifter', 'zephyr'
+    ];
+    
+    if (officialClasses.includes(classId)) {
+      return `/placeholders/${classId}.png`;
+    }
+    
+    return null;
+  };
+
+  const placeholderImageSrc = getPlaceholderImage();
 
   return (
     <div
@@ -59,6 +81,10 @@ export function CharacterAvatar({
         // Next.js Image component doesn't work well with dynamic data URLs
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt={characterName} className="w-full h-full object-cover" />
+      ) : placeholderImageSrc ? (
+        // Use class-specific placeholder image for official classes
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={placeholderImageSrc} alt={characterName} className="w-full h-full object-cover" />
       ) : (
         <CharacterAvatarPlaceholder className="w-full h-full" />
       )}

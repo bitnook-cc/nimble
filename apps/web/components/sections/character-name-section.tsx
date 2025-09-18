@@ -78,6 +78,7 @@ export function CharacterNameSection({
                     characterId={character.id}
                     characterName={character.name}
                     imageId={character.imageId}
+                    classId={character.classId}
                     size="profile"
                     clickable={true}
                   />
@@ -99,6 +100,7 @@ export function CharacterNameSection({
               characterId={character.id}
               characterName={character.name}
               imageId={character.imageId}
+              classId={character.classId}
               size="profile"
               clickable={false}
             />
