@@ -34,18 +34,26 @@ export function CharacterAvatar({
   // Determine placeholder image for official classes
   const getPlaceholderImage = () => {
     if (!classId) return null;
-    
+
     // List of official classes that have placeholder images
     const officialClasses = [
-      'berserker', 'cheat', 'commander', 'hunter', 'mage', 
-      'oathsworn', 'shadowmancer', 'shepherd', 'songweaver', 
-      'stormshifter', 'zephyr'
+      "berserker",
+      "cheat",
+      "commander",
+      "hunter",
+      "mage",
+      "oathsworn",
+      "shadowmancer",
+      "shepherd",
+      "songweaver",
+      "stormshifter",
+      "zephyr",
     ];
-    
+
     if (officialClasses.includes(classId)) {
       return `/placeholders/${classId}.png`;
     }
-    
+
     return null;
   };
 
