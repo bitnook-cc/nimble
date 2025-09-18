@@ -1,5 +1,7 @@
 "use client";
 
+import { Share2 } from "lucide-react";
+
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
@@ -19,6 +21,7 @@ import {
 
 import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
 import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
+import { ActivitySharingDialog } from "./activity-sharing-dialog";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -37,11 +40,19 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <CardTitle>Character Log</CardTitle>
-          {entries.length > 0 && (
-            <Button variant="outline" size="sm" onClick={onClearRolls}>
-              Clear
-            </Button>
-          )}
+          <div className="flex gap-2">
+            <ActivitySharingDialog>
+              <Button variant="outline" size="sm">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </ActivitySharingDialog>
+            {entries.length > 0 && (
+              <Button variant="outline" size="sm" onClick={onClearRolls}>
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -54,19 +65,21 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
             {entries.map((entry) => (
               <div
                 key={entry.id}
-                className="flex justify-between items-center p-2 bg-muted/50 rounded text-sm"
+                className="flex justify-between items-center p-2 bg-muted/50 rounded text-sm group"
               >
-                {entry.type === "roll" ? (
-                  <RollEntryDisplay roll={entry as DiceRollEntry} formatTime={formatTime} />
-                ) : entry.type === "initiative" ? (
-                  <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
-                ) : (
-                  <NonRollEntryDisplay
-                    entry={
-                      entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>
-                    }
-                  />
-                )}
+                <div className="flex-1">
+                  {entry.type === "roll" ? (
+                    <RollEntryDisplay roll={entry as DiceRollEntry} formatTime={formatTime} />
+                  ) : entry.type === "initiative" ? (
+                    <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
+                  ) : (
+                    <NonRollEntryDisplay
+                      entry={
+                        entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>
+                      }
+                    />
+                  )}
+                </div>
               </div>
             ))}
           </div>

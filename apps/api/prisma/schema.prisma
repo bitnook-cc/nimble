@@ -23,7 +23,10 @@ model User {
   updatedAt   DateTime @updatedAt
   
   // Relations
-  characterBackups CharacterBackup[]
+  characterBackups   CharacterBackup[]
+  ownedSessions      GameSession[] @relation("GameSessionOwner")
+  sessionParticipant SessionParticipant[]
+  sharedActivityLogs SharedActivityLog[]
   
   @@index([email])
   @@index([googleId])
@@ -43,4 +46,59 @@ model CharacterBackup {
   
   @@unique([userId, characterId])
   @@index([userId, characterId])
+}
+
+// Gaming session for sharing activity logs
+model GameSession {
+  id           String   @id @default(cuid())
+  sessionName  String
+  code         String   @unique // Short join code (e.g., "FIRE123")
+  ownerId      String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  owner        User @relation("GameSessionOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  participants SessionParticipant[]
+  activityLogs SharedActivityLog[]
+  
+  @@index([code])
+  @@index([ownerId])
+}
+
+// Participants in a gaming session
+model SessionParticipant {
+  id            String   @id @default(cuid())
+  sessionId     String
+  userId        String
+  characterId   String   // Character they're playing in this session
+  characterName String   // Character name for display
+  joinedAt      DateTime @default(now())
+  lastActiveAt  DateTime @default(now())
+  
+  // Relations
+  session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+}
+
+// Shared activity log entries
+model SharedActivityLog {
+  id          String   @id @default(cuid())
+  sessionId   String
+  userId      String
+  characterId String
+  logEntry    Json     // Complete activity log entry as JSONB
+  timestamp   DateTime @default(now())
+  
+  // Relations
+  session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionId, timestamp])
+  @@index([userId])
 }

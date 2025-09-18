@@ -7,6 +7,7 @@ export const baseLogEntrySchema = z.object({
   id: z.string().min(1),
   timestamp: z.date(),
   description: z.string().min(1),
+  characterId: z.string().min(1),
 });
 
 // Dice roll log entry schema

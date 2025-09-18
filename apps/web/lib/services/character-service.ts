@@ -794,18 +794,13 @@ export class CharacterService implements ICharacterService {
     // Log the resource usage
     const newValue = this.getResourceValue(resourceId);
     const maxValue = this.getResourceMaxValue(resourceId);
-    const logEntry = {
-      id: crypto.randomUUID(),
-      type: "resource" as const,
-      timestamp: new Date(),
-      description: `Spent ${amount} ${definition.name}`,
-      resourceId: resourceId,
-      resourceName: definition.name,
-      amount: amount,
-      action: "spent" as const,
-      currentAmount: newValue,
-      maxAmount: maxValue,
-    };
+    const logEntry = this.logService.createResourceEntry(
+      definition,
+      amount,
+      "spent",
+      newValue,
+      maxValue
+    );
     await this.logService.addLogEntry(logEntry);
   }
 
@@ -835,18 +830,13 @@ export class CharacterService implements ICharacterService {
     // Log the resource restoration
     const newValue = this.getResourceValue(resourceId);
     const maxValue = this.getResourceMaxValue(resourceId);
-    const logEntry = {
-      id: crypto.randomUUID(),
-      type: "resource" as const,
-      timestamp: new Date(),
-      description: `Restored ${amount} ${definition.name}`,
-      resourceId: resourceId,
-      resourceName: definition.name,
-      amount: amount,
-      action: "restored" as const,
-      currentAmount: newValue,
-      maxAmount: maxValue,
-    };
+    const logEntry = this.logService.createResourceEntry(
+      definition,
+      amount,
+      "restored",
+      newValue,
+      maxValue
+    );
     await this.logService.addLogEntry(logEntry);
   }
 

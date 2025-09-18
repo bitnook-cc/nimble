@@ -120,22 +120,9 @@ export class EffectService implements EffectServiceInterface {
         if (value > 0) {
           // Add dice to pool
           for (let i = 0; i < value; i++) {
-            const result = dicePoolService.addDiceToPools(updatedPools, poolId, character);
+            const result = await dicePoolService.addDiceToPoolWithLogging(updatedPools, poolId, character);
             if (result.rolledValue !== null) {
               updatedPools = result.pools;
-              const poolEntry = {
-                id: crypto.randomUUID(),
-                timestamp: new Date(),
-                type: "dice-pool" as const,
-                subtype: "add" as const,
-                description: `Added d${pool.definition.diceSize} (${result.rolledValue}) to ${pool.definition.name}`,
-                poolName: pool.definition.name,
-                diceSize: pool.definition.diceSize,
-                value: result.rolledValue,
-                poolSize:
-                  result.pools.find((p) => p.definition.id === poolId)?.currentDice.length || 0,
-              };
-              activityLogService.addLogEntry(poolEntry);
             }
           }
         } else if (value < 0) {
@@ -146,21 +133,9 @@ export class EffectService implements EffectServiceInterface {
             for (let i = 0; i < toRemove; i++) {
               const dieIndex = currentPool.currentDice.length - 1 - i;
               if (dieIndex >= 0) {
-                const result = dicePoolService.useDieFromPool(updatedPools, poolId, dieIndex);
+                const result = await dicePoolService.useDieFromPoolWithLogging(updatedPools, poolId, dieIndex);
                 if (result.usedValue !== null) {
                   updatedPools = result.pools;
-                  const poolEntry = {
-                    id: crypto.randomUUID(),
-                    timestamp: new Date(),
-                    type: "dice-pool" as const,
-                    subtype: "use" as const,
-                    description: `Used ${result.usedValue} from ${pool.definition.name}`,
-                    poolName: pool.definition.name,
-                    value: result.usedValue,
-                    poolSize:
-                      result.pools.find((p) => p.definition.id === poolId)?.currentDice.length || 0,
-                  };
-                  activityLogService.addLogEntry(poolEntry);
                 }
               }
             }

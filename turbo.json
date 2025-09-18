@@ -30,7 +30,11 @@
         "BLOB_READ_WRITE_TOKEN",
         "DISCORD_APP_ID",
         "DISCORD_PUBLIC_KEY",
-        "DISCORD_BOT_TOKEN"
+        "DISCORD_BOT_TOKEN",
+        "PUSHER_APP_ID",
+        "PUSHER_KEY",
+        "PUSHER_SECRET",
+        "PUSHER_CLUSTER"
       ]
     },
     "lint": {

@@ -1,9 +1,12 @@
+import { realtime } from "@nimble/shared";
+
 import { gameConfig } from "../config/game-config";
 import { logEntrySchema } from "../schemas/activity-log";
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
   DamageEntry,
+  DicePoolEntry,
   DiceRollEntry,
   HealingEntry,
   InitiativeEntry,
@@ -14,8 +17,11 @@ import {
   SpellCastEntry,
   TempHPEntry,
 } from "../schemas/activity-log";
+import { activitySharingService } from "./activity-sharing-service";
 import { DiceFormulaResult } from "./dice-service";
+import { getCharacterService } from "./service-factory";
 import { toastService } from "./toast-service";
+import { ResourceDefinition } from "../schemas/resources";
 
 export class ActivityLogService {
   private readonly storageKey = "nimble-navigator-activity-log";
@@ -59,6 +65,27 @@ export class ActivityLogService {
     const existingEntries = await this.getLogEntries();
     const updatedEntries = [newEntry, ...existingEntries].slice(0, this.maxEntries);
     localStorage.setItem(this.storageKey, JSON.stringify(updatedEntries));
+
+    // Auto-share to session if in one and entry matches session character
+    const currentCharacter = this.getCurrentCharacter();
+    if (
+      activitySharingService.isInSession() &&
+      currentCharacter &&
+      newEntry.characterId === activitySharingService.getCurrentCharacterId()
+    ) {
+      try {
+        const sessionId = activitySharingService.getCurrentSessionId();
+        const characterId = activitySharingService.getCurrentCharacterId();
+        if (sessionId && characterId) {
+          await activitySharingService.shareActivity(sessionId, {
+            characterId,
+            logEntry: newEntry,
+          } satisfies realtime.ShareActivityRequest);
+        }
+      } catch (error) {
+        console.warn("Failed to auto-share activity log entry:", error);
+      }
+    }
 
     // Show toast notification
     this.showToastForLogEntry(newEntry);
@@ -126,6 +153,13 @@ export class ActivityLogService {
     localStorage.removeItem(this.storageKey);
   }
 
+  // Get current character from character service
+  private getCurrentCharacter() {
+    const characterService = getCharacterService();
+    return characterService.getCurrentCharacter();
+  }
+
+
   // Helper methods to create specific log entries
   createDiceRollEntry(
     description: string,
@@ -136,11 +170,17 @@ export class ActivityLogService {
       throw new Error("DiceFormulaResult must include diceData");
     }
 
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const entry: DiceRollEntry = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "roll",
       description,
+      characterId: currentCharacter.id,
       rollExpression: rollResult.substitutedFormula || rollResult.formula,
       advantageLevel: advantageLevel !== 0 ? advantageLevel : undefined,
       diceData: rollResult.diceData,
@@ -150,27 +190,44 @@ export class ActivityLogService {
   }
 
   createDamageEntry(amount: number, targetType: "hp" | "temp_hp" = "hp"): DamageEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     return {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "damage",
       description: `Took ${amount} damage${targetType === "temp_hp" ? " (temporary HP)" : ""}`,
+      characterId: currentCharacter.id,
       amount,
       targetType,
     };
   }
 
   createHealingEntry(amount: number): HealingEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     return {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "healing",
       description: `Healed ${amount} HP`,
+      characterId: currentCharacter.id,
       amount,
     };
   }
 
   createTempHPEntry(amount: number, previous?: number): TempHPEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const description =
       previous !== undefined
         ? `Gained ${amount} temporary HP (replaced ${previous})`
@@ -181,6 +238,7 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "temp_hp",
       description,
+      characterId: currentCharacter.id,
       amount,
       previous,
     };
@@ -191,11 +249,17 @@ export class ActivityLogService {
     rollExpression?: string,
     diceData?: any,
   ): InitiativeEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     return {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "initiative",
       description: `Initiative roll`,
+      characterId: currentCharacter.id,
       actionsGranted,
       rollExpression,
       diceData,
@@ -208,6 +272,11 @@ export class ActivityLogService {
     usesRemaining: number,
     maxUses: number,
   ): AbilityUsageEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const frequencyText =
       frequency === "per_turn"
         ? "per turn"
@@ -226,6 +295,7 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "ability_usage",
       description: usageText,
+      characterId: currentCharacter.id,
       abilityName,
       frequency,
       usesRemaining,
@@ -239,6 +309,11 @@ export class ActivityLogService {
     woundsRemoved: number,
     abilitiesReset: number,
   ): SafeRestEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const parts: string[] = [];
     if (healingAmount > 0) parts.push(`restored ${healingAmount} HP`);
     if (hitDiceRestored > 0) parts.push(`restored ${hitDiceRestored} hit dice`);
@@ -254,6 +329,7 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "safe_rest",
       description,
+      characterId: currentCharacter.id,
       healingAmount,
       hitDiceRestored,
       woundsRemoved,
@@ -266,6 +342,11 @@ export class ActivityLogService {
     healingAmount: number,
     abilitiesReset: number,
   ): CatchBreathEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const parts: string[] = [];
     if (hitDiceSpent > 0) parts.push(`spent ${hitDiceSpent} hit dice`);
     if (healingAmount > 0) parts.push(`restored ${healingAmount} HP`);
@@ -279,6 +360,7 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "catch_breath",
       description,
+      characterId: currentCharacter.id,
       hitDiceSpent,
       healingAmount,
       abilitiesReset,
@@ -290,6 +372,11 @@ export class ActivityLogService {
     hitDiceRestored: number,
     abilitiesReset: number,
   ): MakeCampEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const parts: string[] = [];
     if (healingAmount > 0) parts.push(`restored ${healingAmount} HP`);
     if (hitDiceRestored > 0) parts.push(`restored ${hitDiceRestored} hit dice`);
@@ -303,6 +390,7 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "make_camp",
       description,
+      characterId: currentCharacter.id,
       healingAmount,
       hitDiceRestored,
       abilitiesReset,
@@ -310,24 +398,30 @@ export class ActivityLogService {
   }
 
   createResourceEntry(
-    resourceId: string,
+    resourceDefinition: ResourceDefinition,
     amount: number,
     action: "spent" | "restored",
     currentAmount: number,
     maxAmount: number,
   ): ResourceUsageEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const description =
       action === "spent"
-        ? `Spent ${amount} ${resourceId} (${currentAmount}/${maxAmount} remaining)`
-        : `Restored ${amount} ${resourceId} (${currentAmount}/${maxAmount} current)`;
+        ? `Spent ${amount} ${resourceDefinition.name} (${currentAmount}/${maxAmount} remaining)`
+        : `Restored ${amount} ${resourceDefinition.name} (${currentAmount}/${maxAmount} current)`;
 
     return {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       type: "resource",
       description,
-      resourceId,
-      resourceName: resourceId, // Will be updated by caller if needed
+      characterId: currentCharacter.id,
+      resourceId: resourceDefinition.id,
+      resourceName: resourceDefinition.name,
       amount,
       action,
       currentAmount,
@@ -346,6 +440,11 @@ export class ActivityLogService {
       amount: number;
     },
   ): SpellCastEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
     const resourceText = resourceCost
       ? ` (cost: ${resourceCost.amount} ${resourceCost.resourceName})`
       : "";
@@ -358,11 +457,55 @@ export class ActivityLogService {
       timestamp: new Date(),
       type: "spell_cast",
       description,
+      characterId: currentCharacter.id,
       spellName,
       school,
       tier,
       resourceCost,
       actionCost,
+    };
+  }
+
+  createDicePoolEntry(
+    subtype: "add" | "use" | "reset",
+    poolName: string,
+    value?: number,
+    diceSize?: number,
+    poolSize?: number,
+  ): DicePoolEntry {
+    const currentCharacter = this.getCurrentCharacter();
+    if (!currentCharacter) {
+      throw new Error("No current character selected for log entry creation");
+    }
+
+    let description: string;
+    switch (subtype) {
+      case "add":
+        description = diceSize && value !== undefined
+          ? `Added d${diceSize} (${value}) to ${poolName}`
+          : `Added die to ${poolName}`;
+        break;
+      case "use":
+        description = value !== undefined
+          ? `Used ${value} from ${poolName}`
+          : `Used die from ${poolName}`;
+        break;
+      case "reset":
+        description = `Reset ${poolName}`;
+        break;
+    }
+
+    return {
+      id: crypto.randomUUID(),
+      timestamp: new Date(),
+      type: "dice-pool",
+      description,
+      characterId: currentCharacter.id,
+      subtype,
+      poolName,
+      diceSize,
+      value,
+      poolSize,
     };
   }
 }

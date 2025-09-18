@@ -6,6 +6,7 @@ import passport from "./config/passport.js";
 import authRoutes from "./routes/auth.js";
 import syncRoutes from "./routes/sync.js";
 import imagesRoutes from "./routes/images.js";
+import activitySharingRoutes from "./routes/activity-sharing.js";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -86,6 +87,9 @@ app.use("/sync", syncRoutes);
 // Images routes
 app.use("/images", imagesRoutes);
 
+// Activity sharing routes
+app.use("/api", activitySharingRoutes);
+
 // Example API endpoint
 app.get("/hello", (req, res) => {
   const name = req.query.name || "World";
@@ -121,6 +125,19 @@ if (process.env.VERCEL !== "1") {
         "⚠️  Blob storage not configured (BLOB_READ_WRITE_TOKEN missing) - image sync disabled",
       );
       console.log("    Images will only be stored locally in IndexedDB");
+    }
+
+    // Log Pusher configuration status
+    if (
+      process.env.PUSHER_APP_ID &&
+      process.env.PUSHER_KEY &&
+      process.env.PUSHER_SECRET
+    ) {
+      console.log("🔄 Pusher configured - activity log sharing enabled");
+    } else {
+      console.log(
+        "⚠️  Pusher not configured (PUSHER_APP_ID, PUSHER_KEY, PUSHER_SECRET missing) - activity sharing disabled",
+      );
     }
   });
 }

@@ -63,7 +63,7 @@ export interface IActivityLog {
   createDamageEntry(amount: number, targetType: "hp" | "temp_hp"): LogEntry;
   createTempHPEntry(amount: number, previousAmount?: number): LogEntry;
   createResourceEntry(
-    resourceId: string,
+    resourceDefinition: ResourceDefinition,
     amount: number,
     type: "spent" | "restored",
     currentAmount: number,

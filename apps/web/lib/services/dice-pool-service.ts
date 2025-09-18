@@ -3,6 +3,7 @@ import { DiceType } from "@nimble/dice";
 import { Character } from "../schemas/character";
 import { DicePoolInstance } from "../schemas/dice-pools";
 import { calculateFlexibleValue as evaluateFlexibleValue } from "../types/flexible-value";
+import { activityLogService } from "./activity-log-service";
 
 export interface DicePoolServiceInterface {
   addDiceToPools(
@@ -153,6 +154,78 @@ export class DicePoolService implements DicePoolServiceInterface {
   canAddDiceToPool(pool: DicePoolInstance, character: Character): boolean {
     const maxSize = this.getPoolMaxSize(pool, character);
     return pool.currentDice.length < maxSize;
+  }
+
+  // Logging versions of methods
+  async addDiceToPoolWithLogging(
+    pools: DicePoolInstance[],
+    poolId: string,
+    character: Character,
+  ): Promise<{ pools: DicePoolInstance[]; rolledValue: number | null }> {
+    const result = this.addDiceToPools(pools, poolId, character);
+    
+    if (result.rolledValue !== null) {
+      const pool = pools.find(p => p.definition.id === poolId);
+      if (pool) {
+        const poolSize = result.pools.find(p => p.definition.id === poolId)?.currentDice.length || 0;
+        const logEntry = activityLogService.createDicePoolEntry(
+          "add",
+          pool.definition.name,
+          result.rolledValue,
+          pool.definition.diceSize,
+          poolSize
+        );
+        await activityLogService.addLogEntry(logEntry);
+      }
+    }
+    
+    return result;
+  }
+
+  async useDieFromPoolWithLogging(
+    pools: DicePoolInstance[],
+    poolId: string,
+    dieIndex: number,
+  ): Promise<{ pools: DicePoolInstance[]; usedValue: number | null }> {
+    const pool = pools.find(p => p.definition.id === poolId);
+    const result = this.useDieFromPool(pools, poolId, dieIndex);
+    
+    if (result.usedValue !== null && pool) {
+      const poolSize = result.pools.find(p => p.definition.id === poolId)?.currentDice.length || 0;
+      const logEntry = activityLogService.createDicePoolEntry(
+        "use",
+        pool.definition.name,
+        result.usedValue,
+        undefined,
+        poolSize
+      );
+      await activityLogService.addLogEntry(logEntry);
+    }
+    
+    return result;
+  }
+
+  async resetDicePoolsWithLogging(
+    pools: DicePoolInstance[],
+    resetCondition: "safe_rest" | "encounter_end" | "turn_end" | "manual",
+    character: Character,
+  ): Promise<DicePoolInstance[]> {
+    const resetPools = pools.filter(
+      pool => pool.definition.resetCondition === resetCondition
+    );
+    
+    // Log reset for each pool that will be reset
+    for (const pool of resetPools) {
+      if (pool.currentDice.length > 0) {
+        const logEntry = activityLogService.createDicePoolEntry(
+          "reset",
+          pool.definition.name
+        );
+        await activityLogService.addLogEntry(logEntry);
+      }
+    }
+    
+    return this.resetDicePools(pools, resetCondition, character);
   }
 }
 
