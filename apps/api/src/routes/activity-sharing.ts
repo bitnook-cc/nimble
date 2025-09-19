@@ -4,6 +4,22 @@ import { activitySharingService } from "../services/activity-sharing-service.js"
 
 const router = Router();
 
+// List user's active sessions
+router.get("/sessions", async (req, res) => {
+  try {
+    if (!req.session?.user?.id) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    const sessionUser = req.session.user;
+
+    const sessions = await activitySharingService.listUserSessions(sessionUser.id);
+    res.json(sessions);
+  } catch (error) {
+    console.error("Error listing user sessions:", error);
+    res.status(500).json({ error: "Failed to list sessions" });
+  }
+});
+
 // Create a new gaming session
 router.post("/sessions", async (req, res) => {
   try {

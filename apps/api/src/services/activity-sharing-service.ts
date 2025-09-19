@@ -99,7 +99,7 @@ export class ActivitySharingService {
     userId: string,
     sessionCode: string,
     joinData: { characterId: string; characterName: string },
-  ): Promise<realtime.SessionParticipant> {
+  ): Promise<realtime.GameSession> {
     const { characterId, characterName } = joinData;
 
     const session = await prisma.gameSession.findUnique({
@@ -150,8 +150,6 @@ export class ActivitySharingService {
           participant: this.formatParticipantResponse(updatedParticipant),
         },
       );
-
-      return this.formatParticipantResponse(updatedParticipant);
     } else {
       // Create new participant
       const newParticipant = await prisma.sessionParticipant.create({
@@ -176,9 +174,10 @@ export class ActivitySharingService {
           participant: this.formatParticipantResponse(newParticipant),
         },
       );
-
-      return this.formatParticipantResponse(newParticipant);
     }
+
+    // Return the updated session with all participants
+    return this.getSession(session.id);
   }
 
   /**
@@ -245,6 +244,34 @@ export class ActivitySharingService {
     }
 
     return this.formatSessionResponse(session);
+  }
+
+  /**
+   * List all active sessions owned by the user
+   */
+  async listUserSessions(userId: string): Promise<realtime.GameSession[]> {
+    const sessions = await prisma.gameSession.findMany({
+      where: {
+        ownerId: userId,
+        isActive: true,
+      },
+      include: {
+        owner: {
+          select: { name: true, email: true },
+        },
+        participants: {
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
+          orderBy: { joinedAt: "asc" },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return sessions.map((session) => this.formatSessionResponse(session));
   }
 
   /**
