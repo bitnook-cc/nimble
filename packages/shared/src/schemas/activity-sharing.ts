@@ -27,6 +27,7 @@ export const gameSessionSchema = z.object({
   maxPlayers: z.number().int().positive(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  ownerId: z.string(),
   owner: userInfoSchema,
   participants: z.array(sessionParticipantSchema),
 });

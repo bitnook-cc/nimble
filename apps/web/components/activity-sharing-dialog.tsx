@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Badge } from './ui/badge';
-import { Share2, Users, Plus, LogOut, Settings, AlertCircle } from 'lucide-react';
-import { useToast } from '../lib/hooks/use-toast';
-import { useCharacterService } from '../lib/hooks/use-character-service';
-import { useActivitySharing } from '../lib/hooks/use-activity-sharing';
-import { Alert, AlertDescription } from './ui/alert';
+import { AlertCircle, LogOut, Plus, Settings, Share2, Users } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import { useActivitySharing } from "../lib/hooks/use-activity-sharing";
+import { useCharacterService } from "../lib/hooks/use-character-service";
+import { useToast } from "../lib/hooks/use-toast";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface ActivitySharingDialogProps {
   children?: React.ReactNode;
@@ -18,35 +20,35 @@ interface ActivitySharingDialogProps {
 
 export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) {
   const [open, setOpen] = useState(false);
-  const [joinCode, setJoinCode] = useState('');
-  const [sessionName, setSessionName] = useState('');
+  const [joinCode, setJoinCode] = useState("");
+  const [sessionName, setSessionName] = useState("");
   const { toast } = useToast();
   const { character } = useCharacterService();
-  const { 
-    session: currentSession, 
-    loading, 
-    error, 
-    createSession, 
-    joinSession, 
-    leaveSession, 
+  const {
+    session: currentSession,
+    loading,
+    error,
+    createSession,
+    joinSession,
+    leaveSession,
     closeSession,
-    clearError 
+    clearError,
   } = useActivitySharing();
 
   // Show toast notifications for successful operations
   useEffect(() => {
     if (currentSession && !error) {
       // Only show success message when actually joining/creating (when session appears)
-      const isNewSession = sessionName.trim() !== '' || joinCode.trim() !== '';
+      const isNewSession = sessionName.trim() !== "" || joinCode.trim() !== "";
       if (isNewSession) {
         toast({
-          title: sessionName ? 'Session Created' : 'Joined Session',
-          description: sessionName 
-            ? `Session "${currentSession.sessionName}" created with code: ${currentSession.code}`
-            : `Joined session "${currentSession.sessionName}"`,
+          title: sessionName ? "Session Created" : "Joined Session",
+          description: sessionName
+            ? `Session "${currentSession.name}" created with code: ${currentSession.code}`
+            : `Joined session "${currentSession.name}"`,
         });
-        setSessionName('');
-        setJoinCode('');
+        setSessionName("");
+        setJoinCode("");
       }
     }
   }, [currentSession, error, sessionName, joinCode, toast]);
@@ -55,9 +57,9 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
   useEffect(() => {
     if (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   }, [error, toast]);
@@ -73,22 +75,22 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
   };
 
   const handleLeaveSession = async () => {
-    const sessionName = currentSession?.sessionName;
+    const sessionName = currentSession?.name;
     await leaveSession();
     if (sessionName) {
       toast({
-        title: 'Left Session',
+        title: "Left Session",
         description: `Left session "${sessionName}"`,
       });
     }
   };
 
   const handleCloseSession = async () => {
-    const sessionName = currentSession?.sessionName;
+    const sessionName = currentSession?.name;
     await closeSession();
     if (sessionName) {
       toast({
-        title: 'Session Closed',
+        title: "Session Closed",
         description: `Session "${sessionName}" has been closed`,
       });
     }
@@ -165,10 +167,8 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
             {/* Current Session Info */}
             <div className="p-3 bg-muted rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">{currentSession.sessionName}</h3>
-                <Badge variant="secondary">
-                  {currentSession.code}
-                </Badge>
+                <h3 className="font-medium">{currentSession.name}</h3>
+                <Badge variant="secondary">{currentSession.code}</Badge>
               </div>
               <div className="text-sm text-muted-foreground">
                 {currentSession.participants.length} / {currentSession.maxPlayers} players
@@ -188,7 +188,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
                       <div className="text-sm font-medium">{participant.characterName}</div>
                       <div className="text-xs text-muted-foreground">{participant.user.name}</div>
                     </div>
-                    {participant.userId === currentSession.owner.id && (
+                    {participant.user.id === currentSession.ownerId && (
                       <Badge variant="outline" className="text-xs">
                         Owner
                       </Badge>
@@ -204,7 +204,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
                 <LogOut className="w-4 h-4 mr-2" />
                 Leave
               </Button>
-              {currentSession.owner.id === character?.id && (
+              {currentSession.ownerId === character?.id && (
                 <Button variant="destructive" onClick={handleCloseSession} disabled={loading}>
                   <Settings className="w-4 h-4 mr-2" />
                   Close Session

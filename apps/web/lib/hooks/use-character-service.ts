@@ -99,6 +99,7 @@ export function useCharacterService() {
 
     // Service methods - direct access to character operations
     updateCharacter: characterService.updateCharacter.bind(characterService),
+    updateCharacterFields: characterService.updateCharacterFields.bind(characterService),
     applyDamage: characterService.applyDamage.bind(characterService),
     applyHealing: characterService.applyHealing.bind(characterService),
     applyTemporaryHP: characterService.applyTemporaryHP.bind(characterService),

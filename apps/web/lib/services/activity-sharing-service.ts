@@ -85,9 +85,12 @@ class ActivitySharingService {
 
   // Remove participant from session (owner only)
   async removeParticipant(sessionId: string, participantId: string): Promise<{ success: boolean }> {
-    return this.apiCall<{ success: boolean }>(`/sessions/${sessionId}/participants/${participantId}`, {
-      method: "DELETE",
-    });
+    return this.apiCall<{ success: boolean }>(
+      `/sessions/${sessionId}/participants/${participantId}`,
+      {
+        method: "DELETE",
+      },
+    );
   }
 
   // Session state management

@@ -120,7 +120,11 @@ export class EffectService implements EffectServiceInterface {
         if (value > 0) {
           // Add dice to pool
           for (let i = 0; i < value; i++) {
-            const result = await dicePoolService.addDiceToPoolWithLogging(updatedPools, poolId, character);
+            const result = await dicePoolService.addDiceToPoolWithLogging(
+              updatedPools,
+              poolId,
+              character,
+            );
             if (result.rolledValue !== null) {
               updatedPools = result.pools;
             }
@@ -133,7 +137,11 @@ export class EffectService implements EffectServiceInterface {
             for (let i = 0; i < toRemove; i++) {
               const dieIndex = currentPool.currentDice.length - 1 - i;
               if (dieIndex >= 0) {
-                const result = await dicePoolService.useDieFromPoolWithLogging(updatedPools, poolId, dieIndex);
+                const result = await dicePoolService.useDieFromPoolWithLogging(
+                  updatedPools,
+                  poolId,
+                  dieIndex,
+                );
                 if (result.usedValue !== null) {
                   updatedPools = result.pools;
                 }

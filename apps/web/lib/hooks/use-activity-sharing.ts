@@ -42,78 +42,81 @@ export function useActivitySharing(): UseActivitySharingReturn {
   });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState(prev => ({ ...prev, loading }));
+    setState((prev) => ({ ...prev, loading }));
   }, []);
 
   const setError = useCallback((error: string | null) => {
-    setState(prev => ({ ...prev, error }));
+    setState((prev) => ({ ...prev, error }));
   }, []);
 
   const clearError = useCallback(() => {
     setError(null);
   }, [setError]);
 
-  const createSession = useCallback(async (sessionName: string, characterId: string) => {
-    if (!sessionName.trim()) {
-      setError('Please enter a session name');
-      return;
-    }
+  const createSession = useCallback(
+    async (sessionName: string, characterId: string) => {
+      if (!sessionName.trim()) {
+        setError("Please enter a session name");
+        return;
+      }
 
-    setLoading(true);
-    setError(null);
-    try {
-      const session = await activitySharingService.createSession({ 
-        name: sessionName
-      } satisfies realtime.CreateSessionRequest);
-      
-      setState(prev => ({
-        ...prev,
-        sessionCode: session.code,
-        characterId,
-        session,
-        loading: false,
-      }));
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to create session');
-      setLoading(false);
-    }
-  }, [setLoading, setError]);
+      setLoading(true);
+      setError(null);
+      try {
+        const session = await activitySharingService.createSession({
+          name: sessionName,
+        } satisfies realtime.CreateSessionRequest);
 
-  const joinSession = useCallback(async (joinCode: string, characterId: string, characterName: string) => {
-    if (!joinCode.trim()) {
-      setError('Please enter a join code');
-      return;
-    }
-
-    if (!characterId) {
-      setError('No character selected');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      await activitySharingService.joinSession(
-        joinCode.toUpperCase(),
-        {
+        setState((prev) => ({
+          ...prev,
+          sessionCode: session.code,
           characterId,
-          characterName
-        }
-      );
-      const session = await activitySharingService.getSession(joinCode.toUpperCase());
-      
-      setState(prev => ({
-        ...prev,
-        sessionCode: session.code,
-        characterId,
-        session,
-        loading: false,
-      }));
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to join session');
-      setLoading(false);
-    }
-  }, [setLoading, setError]);
+          session,
+          loading: false,
+        }));
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to create session");
+        setLoading(false);
+      }
+    },
+    [setLoading, setError],
+  );
+
+  const joinSession = useCallback(
+    async (joinCode: string, characterId: string, characterName: string) => {
+      if (!joinCode.trim()) {
+        setError("Please enter a join code");
+        return;
+      }
+
+      if (!characterId) {
+        setError("No character selected");
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        await activitySharingService.joinSession(joinCode.toUpperCase(), {
+          characterId,
+          characterName,
+        });
+        const session = await activitySharingService.getSession(joinCode.toUpperCase());
+
+        setState((prev) => ({
+          ...prev,
+          sessionCode: session.code,
+          characterId,
+          session,
+          loading: false,
+        }));
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to join session");
+        setLoading(false);
+      }
+    },
+    [setLoading, setError],
+  );
 
   const leaveSession = useCallback(async () => {
     if (!state.session) return;
@@ -130,7 +133,7 @@ export function useActivitySharing(): UseActivitySharingReturn {
         error: null,
       });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to leave session');
+      setError(error instanceof Error ? error.message : "Failed to leave session");
       setLoading(false);
     }
   }, [state.session, setLoading, setError]);
@@ -150,7 +153,7 @@ export function useActivitySharing(): UseActivitySharingReturn {
         error: null,
       });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to close session');
+      setError(error instanceof Error ? error.message : "Failed to close session");
       setLoading(false);
     }
   }, [state.session, setLoading, setError]);

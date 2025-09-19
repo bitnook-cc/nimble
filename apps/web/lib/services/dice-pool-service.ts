@@ -163,22 +163,23 @@ export class DicePoolService implements DicePoolServiceInterface {
     character: Character,
   ): Promise<{ pools: DicePoolInstance[]; rolledValue: number | null }> {
     const result = this.addDiceToPools(pools, poolId, character);
-    
+
     if (result.rolledValue !== null) {
-      const pool = pools.find(p => p.definition.id === poolId);
+      const pool = pools.find((p) => p.definition.id === poolId);
       if (pool) {
-        const poolSize = result.pools.find(p => p.definition.id === poolId)?.currentDice.length || 0;
+        const poolSize =
+          result.pools.find((p) => p.definition.id === poolId)?.currentDice.length || 0;
         const logEntry = activityLogService.createDicePoolEntry(
           "add",
           pool.definition.name,
           result.rolledValue,
           pool.definition.diceSize,
-          poolSize
+          poolSize,
         );
         await activityLogService.addLogEntry(logEntry);
       }
     }
-    
+
     return result;
   }
 
@@ -187,21 +188,22 @@ export class DicePoolService implements DicePoolServiceInterface {
     poolId: string,
     dieIndex: number,
   ): Promise<{ pools: DicePoolInstance[]; usedValue: number | null }> {
-    const pool = pools.find(p => p.definition.id === poolId);
+    const pool = pools.find((p) => p.definition.id === poolId);
     const result = this.useDieFromPool(pools, poolId, dieIndex);
-    
+
     if (result.usedValue !== null && pool) {
-      const poolSize = result.pools.find(p => p.definition.id === poolId)?.currentDice.length || 0;
+      const poolSize =
+        result.pools.find((p) => p.definition.id === poolId)?.currentDice.length || 0;
       const logEntry = activityLogService.createDicePoolEntry(
         "use",
         pool.definition.name,
         result.usedValue,
         undefined,
-        poolSize
+        poolSize,
       );
       await activityLogService.addLogEntry(logEntry);
     }
-    
+
     return result;
   }
 
@@ -210,21 +212,16 @@ export class DicePoolService implements DicePoolServiceInterface {
     resetCondition: "safe_rest" | "encounter_end" | "turn_end" | "manual",
     character: Character,
   ): Promise<DicePoolInstance[]> {
-    const resetPools = pools.filter(
-      pool => pool.definition.resetCondition === resetCondition
-    );
-    
+    const resetPools = pools.filter((pool) => pool.definition.resetCondition === resetCondition);
+
     // Log reset for each pool that will be reset
     for (const pool of resetPools) {
       if (pool.currentDice.length > 0) {
-        const logEntry = activityLogService.createDicePoolEntry(
-          "reset",
-          pool.definition.name
-        );
+        const logEntry = activityLogService.createDicePoolEntry("reset", pool.definition.name);
         await activityLogService.addLogEntry(logEntry);
       }
     }
-    
+
     return this.resetDicePools(pools, resetCondition, character);
   }
 }

@@ -17,11 +17,11 @@ import {
   SpellCastEntry,
   TempHPEntry,
 } from "../schemas/activity-log";
+import { ResourceDefinition } from "../schemas/resources";
 import { activitySharingService } from "./activity-sharing-service";
 import { DiceFormulaResult } from "./dice-service";
 import { getCharacterService } from "./service-factory";
 import { toastService } from "./toast-service";
-import { ResourceDefinition } from "../schemas/resources";
 
 export class ActivityLogService {
   private readonly storageKey = "nimble-navigator-activity-log";
@@ -158,7 +158,6 @@ export class ActivityLogService {
     const characterService = getCharacterService();
     return characterService.getCurrentCharacter();
   }
-
 
   // Helper methods to create specific log entries
   createDiceRollEntry(
@@ -481,14 +480,14 @@ export class ActivityLogService {
     let description: string;
     switch (subtype) {
       case "add":
-        description = diceSize && value !== undefined
-          ? `Added d${diceSize} (${value}) to ${poolName}`
-          : `Added die to ${poolName}`;
+        description =
+          diceSize && value !== undefined
+            ? `Added d${diceSize} (${value}) to ${poolName}`
+            : `Added die to ${poolName}`;
         break;
       case "use":
-        description = value !== undefined
-          ? `Used ${value} from ${poolName}`
-          : `Used die from ${poolName}`;
+        description =
+          value !== undefined ? `Used ${value} from ${poolName}` : `Used die from ${poolName}`;
         break;
       case "reset":
         description = `Reset ${poolName}`;

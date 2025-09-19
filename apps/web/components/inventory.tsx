@@ -18,6 +18,7 @@ import {
 
 import { useState } from "react";
 
+import { useCharacterService } from "@/lib/hooks/use-character-service";
 import {
   AmmunitionItem,
   ArmorItem,
@@ -50,10 +51,10 @@ import {
 interface InventoryProps {
   inventory: InventoryType;
   characterDexterity: number;
-  onUpdateInventory: (inventory: InventoryType) => void;
 }
 
-export function Inventory({ inventory, characterDexterity, onUpdateInventory }: InventoryProps) {
+export function Inventory({ inventory, characterDexterity }: InventoryProps) {
+  const { character, updateCharacterFields } = useCharacterService();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
@@ -78,7 +79,7 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
   }, 0);
   const sizePercent = inventory.maxSize > 0 ? (currentSize / inventory.maxSize) * 100 : 0;
 
-  const addItem = () => {
+  const addItem = async () => {
     if (!newItem.name.trim()) return;
 
     let item: Item;
@@ -134,19 +135,23 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       };
     }
 
-    onUpdateInventory({
-      ...inventory,
-      items: [...inventory.items, item],
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: [...inventory.items, item],
+      },
     });
 
     setNewItem({ name: "", size: 1, type: "freeform" });
     setIsAddDialogOpen(false);
   };
 
-  const removeItem = (itemId: string) => {
-    onUpdateInventory({
-      ...inventory,
-      items: inventory.items.filter((item) => item.id !== itemId),
+  const removeItem = async (itemId: string) => {
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: inventory.items.filter((item) => item.id !== itemId),
+      },
     });
   };
 
@@ -184,7 +189,7 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
     setIsEditDialogOpen(true);
   };
 
-  const saveEditItem = () => {
+  const saveEditItem = async () => {
     if (!editItem.name.trim() || !editingItemId) return;
 
     let updatedItem: Item;
@@ -244,9 +249,11 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       };
     }
 
-    onUpdateInventory({
-      ...inventory,
-      items: inventory.items.map((item) => (item.id === editingItemId ? updatedItem : item)),
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: inventory.items.map((item) => (item.id === editingItemId ? updatedItem : item)),
+      },
     });
 
     setEditItem({ name: "", size: 1, type: "freeform" });
@@ -254,7 +261,7 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
     setIsEditDialogOpen(false);
   };
 
-  const changeItemCount = (itemId: string, delta: number) => {
+  const changeItemCount = async (itemId: string, delta: number) => {
     const item = inventory.items.find((item) => item.id === itemId);
     if (!item || (item.type !== "consumable" && item.type !== "ammunition")) {
       return;
@@ -270,13 +277,17 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       return inventoryItem;
     });
 
-    onUpdateInventory({
-      ...inventory,
-      items: updatedItems,
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: updatedItems,
+      },
     });
   };
 
   const consumeItem = async (itemId: string) => {
+    if (!character) return;
+
     const item = inventory.items.find((item) => item.id === itemId);
     if (!item || (item.type !== "consumable" && item.type !== "ammunition")) {
       return;
@@ -292,6 +303,7 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       timestamp: new Date(),
       description: `Consumed ${item.name}${itemWillBeRemoved ? " (last one)" : ` (${newCount} remaining)`}`,
       type: "item_consumption" as const,
+      characterId: character.id,
       itemName: item.name,
       itemType: item.type,
       countBefore: countedItem.count,
@@ -323,13 +335,15 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       });
     }
 
-    onUpdateInventory({
-      ...inventory,
-      items: updatedItems,
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: updatedItems,
+      },
     });
   };
 
-  const toggleEquipped = (itemId: string) => {
+  const toggleEquipped = async (itemId: string) => {
     const item = inventory.items.find((item) => item.id === itemId);
     if (!item || (item.type !== "weapon" && item.type !== "armor")) {
       return;
@@ -368,9 +382,11 @@ export function Inventory({ inventory, characterDexterity, onUpdateInventory }: 
       });
     }
 
-    onUpdateInventory({
-      ...inventory,
-      items: updatedItems,
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        items: updatedItems,
+      },
     });
   };
 

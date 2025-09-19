@@ -2,11 +2,8 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-import { useCallback } from "react";
-
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Inventory as InventoryType } from "@/lib/schemas/inventory";
 
 import { Inventory } from "../inventory";
 import { Button } from "../ui/button";
@@ -14,20 +11,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 
 export function InventorySection() {
   // Get everything we need from service hooks
-  const { character, updateCharacter } = useCharacterService();
+  const { character } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-
-  const onUpdateInventory = useCallback(
-    async (inventory: InventoryType) => {
-      if (!character) return;
-      const updated = {
-        ...character,
-        inventory,
-      };
-      await updateCharacter(updated);
-    },
-    [character, updateCharacter],
-  );
 
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
@@ -49,7 +34,6 @@ export function InventorySection() {
           <Inventory
             inventory={inventory}
             characterDexterity={characterDexterity}
-            onUpdateInventory={onUpdateInventory}
           />
         </div>
       </CollapsibleContent>

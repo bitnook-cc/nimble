@@ -799,7 +799,7 @@ export class CharacterService implements ICharacterService {
       amount,
       "spent",
       newValue,
-      maxValue
+      maxValue,
     );
     await this.logService.addLogEntry(logEntry);
   }
@@ -835,7 +835,7 @@ export class CharacterService implements ICharacterService {
       amount,
       "restored",
       newValue,
-      maxValue
+      maxValue,
     );
     await this.logService.addLogEntry(logEntry);
   }
