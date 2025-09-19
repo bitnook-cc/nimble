@@ -8,7 +8,7 @@ import { SkillName } from "@/lib/schemas/character";
 import { SkillsList } from "../shared/skills-list";
 
 export function SkillsTab() {
-  const { character, updateCharacter, getSkills, getAttributes } = useCharacterService();
+  const { character, updateCharacterFields, getAttributes } = useCharacterService();
 
   const onSkillChange = useCallback(
     async (skillName: string, newValue: number) => {
@@ -18,7 +18,6 @@ export function SkillsTab() {
 
       if (newValue !== currentValue) {
         const updated = {
-          ...character,
           _skills: {
             ...character._skills,
             [skillName]: {
@@ -27,10 +26,10 @@ export function SkillsTab() {
             },
           },
         };
-        await updateCharacter(updated);
+        await updateCharacterFields(updated);
       }
     },
-    [character, updateCharacter],
+    [character, updateCharacterFields],
   );
 
   // Early return if no character (shouldn't happen in normal usage)
@@ -62,6 +61,7 @@ export function SkillsTab() {
           attributeValues={attributeValues}
           onSkillChange={onSkillChange}
           readOnly={false}
+          rollMode={true}
         />
       </div>
     </div>
