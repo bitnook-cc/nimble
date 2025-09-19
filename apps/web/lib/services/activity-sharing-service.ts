@@ -1,7 +1,18 @@
 import { realtime } from "@nimble/shared";
 import Pusher from "pusher-js";
 
-import { LogEntry } from "../schemas/activity-log";
+import { 
+  LogEntry, 
+  DiceRollEntry, 
+  InitiativeEntry, 
+  DamageEntry, 
+  HealingEntry, 
+  TempHPEntry, 
+  AbilityUsageEntry, 
+  SpellCastEntry, 
+  ResourceUsageEntry, 
+  DicePoolEntry 
+} from "../schemas/activity-log";
 import { apiFetch } from "../utils/api";
 import { toastService } from "./toast-service";
 
@@ -353,7 +364,7 @@ export class ActivitySharingService {
   // Toast notification for activity entries
   private showActivityToast(entry: SessionActivityEntry): void {
     const { characterName, userName, activityData } = entry;
-    
+
     // Don't show toasts for the current user's own activity
     if (entry.characterId === this.currentSessionState?.characterId) {
       return;
@@ -364,57 +375,57 @@ export class ActivitySharingService {
 
     switch (activityData.type) {
       case "roll":
-        const rollEntry = activityData as any;
+        const rollEntry = activityData as DiceRollEntry;
         title = `${characterName} rolled dice`;
-        description = `${rollEntry.rollExpression}: ${rollEntry.rollResult}`;
+        description = `${rollEntry.rollExpression}`;
         // Show dice roll with dice data if available
         toastService.showDiceRoll(title, rollEntry.diceData, description);
         return;
 
       case "initiative":
-        const initiativeEntry = activityData as any;
+        const initiativeEntry = activityData as InitiativeEntry;
         title = `${characterName} rolled initiative`;
-        description = `Result: ${initiativeEntry.result}`;
+        description = `Actions granted: ${initiativeEntry.actionsGranted}`;
         break;
 
       case "damage":
-        const damageEntry = activityData as any;
+        const damageEntry = activityData as DamageEntry;
         title = `${characterName} took damage`;
         description = `${damageEntry.amount} damage`;
         break;
 
       case "healing":
-        const healingEntry = activityData as any;
+        const healingEntry = activityData as HealingEntry;
         title = `${characterName} healed`;
         description = `+${healingEntry.amount} HP`;
         break;
 
       case "temp_hp":
-        const tempHpEntry = activityData as any;
+        const tempHpEntry = activityData as TempHPEntry;
         title = `${characterName} gained temporary HP`;
         description = `+${tempHpEntry.amount} temporary HP`;
         break;
 
       case "ability_usage":
-        const abilityEntry = activityData as any;
+        const abilityEntry = activityData as AbilityUsageEntry;
         title = `${characterName} used an ability`;
-        description = abilityEntry.abilityName || "Unknown ability";
+        description = abilityEntry.abilityName;
         break;
 
       case "spell_cast":
-        const spellEntry = activityData as any;
+        const spellEntry = activityData as SpellCastEntry;
         title = `${characterName} cast a spell`;
-        description = spellEntry.spellName || "Unknown spell";
+        description = spellEntry.spellName;
         break;
 
       case "resource":
-        const resourceEntry = activityData as any;
+        const resourceEntry = activityData as ResourceUsageEntry;
         title = `${characterName} used ${resourceEntry.resourceName}`;
         description = `${resourceEntry.action === "spent" ? "-" : "+"}${resourceEntry.amount}`;
         break;
 
       case "dice-pool":
-        const dicePoolEntry = activityData as any;
+        const dicePoolEntry = activityData as DicePoolEntry;
         title = `${characterName} used dice pool`;
         description = dicePoolEntry.description || "";
         break;
