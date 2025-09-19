@@ -7,29 +7,18 @@ import { useCallback } from "react";
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
 
+import { getActivitySharingService } from "../../lib/services/service-factory";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
 import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
 
-interface OnlineActivityLogProps {
-  sessionId: string;
-  sessionName: string;
-  participantCount: number;
-  maxPlayers: number;
-  onDisconnect: () => void;
-}
-
-export function OnlineActivityLog({
-  sessionId,
-  sessionName,
-  participantCount,
-  maxPlayers,
-  onDisconnect,
-}: OnlineActivityLogProps) {
+export function OnlineActivityLog() {
   // Use the activity sharing hook for all state
   const {
+    session,
+    leaveSession,
     pusherConnected: connected,
     receivedLogEntries: entries,
     receivedLogEntriesLoading: loading,
@@ -51,6 +40,8 @@ export function OnlineActivityLog({
     [formatTime],
   );
 
+  if (!session) return null;
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
@@ -58,7 +49,7 @@ export function OnlineActivityLog({
           <div className="flex items-center gap-2">
             <CardTitle>Session Activity</CardTitle>
             <Badge variant="secondary" className="text-xs">
-              {sessionName}
+              {session?.name}
             </Badge>
           </div>
           <div className="flex items-center gap-2">
@@ -81,12 +72,12 @@ export function OnlineActivityLog({
             <div className="flex items-center gap-1">
               <Users className="w-3 h-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
-                {participantCount}/{maxPlayers}
+                {session?.participants.length}/{session?.maxPlayers}
               </span>
             </div>
 
             {/* Disconnect Button */}
-            <Button variant="outline" size="sm" onClick={onDisconnect}>
+            <Button variant="outline" size="sm" onClick={leaveSession}>
               <Share2 className="w-4 h-4 mr-2" />
               Leave
             </Button>

@@ -44,7 +44,7 @@ export function RollEntryDisplay({
           )}
         </span>
 
-        {roll.diceData.criticalHits && roll.diceData.criticalHits > 0 && (
+        {roll.diceData.criticalHits !== undefined && roll.diceData.criticalHits > 0 && (
           <span className="text-yellow-600 font-semibold text-xs bg-yellow-100 dark:bg-yellow-900/30 px-2 py-0.5 rounded">
             CRIT
           </span>
@@ -53,7 +53,7 @@ export function RollEntryDisplay({
           <span className="text-destructive font-semibold text-xs bg-destructive/10 px-2 py-0.5 rounded">
             MISS
           </span>
-        )}
+        )} 
       </div>
     </div>
   );

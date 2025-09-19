@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Equal, Menu, Share2, Users } from "lucide-react";
+import { ChevronDown, ChevronUp, Equal, Share2, Users } from "lucide-react";
 
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { useAuth } from "@/lib/hooks/use-auth";

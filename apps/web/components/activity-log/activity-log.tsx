@@ -2,6 +2,7 @@
 
 import { Share2 } from "lucide-react";
 
+import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import {
   AbilityUsageEntry,
@@ -27,29 +28,17 @@ import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry"
 import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
 import { OnlineActivityLog } from "./online-activity-log";
 
-interface ActivityLogProps {
-  entries: LogEntry[];
-  onClearRolls: () => void;
-}
-
-export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
-  const { session, isInSession, leaveSession } = useActivitySharing();
+export function ActivityLog() {
+  const { session, isInSession } = useActivitySharing();
+  const { logEntries, handleClearRolls } = useActivityLog();
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   };
-  console.log("ActivityLog render", { isInSession, session });
+
   // If we're in a session, render the online activity log instead
   if (isInSession && session) {
-    return (
-      <OnlineActivityLog
-        sessionId={session.id}
-        sessionName={session.name}
-        participantCount={session.participants.length}
-        maxPlayers={session.maxPlayers}
-        onDisconnect={leaveSession}
-      />
-    );
+    return <OnlineActivityLog />;
   }
 
   return (
@@ -64,8 +53,8 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
                 Share
               </Button>
             </ActivitySharingDialog>
-            {entries.length > 0 && (
-              <Button variant="outline" size="sm" onClick={onClearRolls}>
+            {logEntries.length > 0 && (
+              <Button variant="outline" size="sm" onClick={handleClearRolls}>
                 Clear
               </Button>
             )}
@@ -73,13 +62,13 @@ export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {entries.length === 0 ? (
+        {logEntries.length === 0 ? (
           <p className="text-muted-foreground text-center py-4">
             No activity yet. Roll dice or take damage to see logs!
           </p>
         ) : (
           <div className="space-y-2 h-[calc(100vh-16rem)] overflow-y-auto">
-            {entries.map((entry) => (
+            {logEntries.map((entry) => (
               <div
                 key={entry.id}
                 className="flex justify-between items-center p-2 bg-muted/50 rounded text-sm group"

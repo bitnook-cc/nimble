@@ -4,8 +4,8 @@ import { realtime } from "@nimble/shared";
 
 import { useEffect, useState } from "react";
 
-import { getActivitySharingService } from "../services/service-factory";
 import { ActivitySharingState } from "../services/activity-sharing-service";
+import { getActivitySharingService } from "../services/service-factory";
 
 interface SessionActivityEntry {
   id: string;

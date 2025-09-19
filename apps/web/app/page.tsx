@@ -14,17 +14,14 @@ import { ToastContainer } from "@/components/toast-container";
 import { TopBar } from "@/components/top-bar";
 
 import { APP_CONFIG } from "@/lib/config/app-config";
-import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { useCharacterManagement } from "@/lib/hooks/use-character-management";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useThemeInit } from "@/lib/hooks/use-theme-init";
-import { getActivityLog } from "@/lib/services/service-factory";
 
 function HomeContent() {
   // Initialize theme after hydration
   useThemeInit();
-  // Initialize activity sharing hook (globally available)
-  useActivitySharing();
+
   // App state management
   const {
     characters,

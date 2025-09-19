@@ -85,7 +85,7 @@ export class ActivityLogService {
     const existingEntries = await this.getLogEntries();
     const updatedEntries = [newEntry, ...existingEntries].slice(0, this.maxEntries);
     localStorage.setItem(this.storageKey, JSON.stringify(updatedEntries));
-    
+
     // Update cache and notify listeners
     this.cachedEntries = updatedEntries;
     this.notifyListeners();
@@ -188,14 +188,14 @@ export class ActivityLogService {
       listener(this.cachedEntries);
     } else {
       // Load and provide initial state
-      this.getLogEntries().then(entries => listener(entries));
+      this.getLogEntries().then((entries) => listener(entries));
     }
     return () => this.listeners.delete(listener);
   }
 
   private notifyListeners(): void {
     if (this.cachedEntries) {
-      this.listeners.forEach(listener => listener(this.cachedEntries!));
+      this.listeners.forEach((listener) => listener(this.cachedEntries!));
     }
   }
 

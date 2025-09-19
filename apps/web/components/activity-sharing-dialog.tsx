@@ -71,7 +71,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
     }
   }, [error, toast]);
 
-  // Load user sessions when dialog opens
+  // Load user sessions when dialog opens and not in a session
   useEffect(() => {
     if (open && isAuthenticated && !currentSession) {
       loadUserSessions();
