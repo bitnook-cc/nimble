@@ -12,7 +12,9 @@ router.get("/sessions", async (req, res) => {
     }
     const sessionUser = req.session.user;
 
-    const sessions = await activitySharingService.listUserSessions(sessionUser.id);
+    const sessions = await activitySharingService.listUserSessions(
+      sessionUser.id,
+    );
     res.json(sessions);
   } catch (error) {
     console.error("Error listing user sessions:", error);
