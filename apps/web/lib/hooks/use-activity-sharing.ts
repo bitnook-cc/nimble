@@ -23,6 +23,10 @@ interface UseActivitySharingReturn {
   loading: boolean;
   error: string | null;
 
+  // User sessions
+  userSessions: realtime.GameSession[];
+  userSessionsLoading: boolean;
+
   // Actions
   createSession: (sessionName: string, characterId: string) => Promise<void>;
   joinSession: (joinCode: string, characterId: string, characterName: string) => Promise<void>;
@@ -30,6 +34,14 @@ interface UseActivitySharingReturn {
   closeSession: () => Promise<void>;
   updateSession: (session: realtime.GameSession) => void;
   clearError: () => void;
+
+  // User session actions
+  loadUserSessions: () => Promise<void>;
+  joinUserSession: (
+    sessionCode: string,
+    characterId: string,
+    characterName: string,
+  ) => Promise<void>;
 }
 
 export function useActivitySharing(): UseActivitySharingReturn {
@@ -40,6 +52,9 @@ export function useActivitySharing(): UseActivitySharingReturn {
     loading: false,
     error: null,
   });
+
+  const [userSessions, setUserSessions] = useState<realtime.GameSession[]>([]);
+  const [userSessionsLoading, setUserSessionsLoading] = useState(false);
 
   const setLoading = useCallback((loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -97,11 +112,10 @@ export function useActivitySharing(): UseActivitySharingReturn {
       setLoading(true);
       setError(null);
       try {
-        await activitySharingService.joinSession(joinCode.toUpperCase(), {
+        const session = await activitySharingService.joinSession(joinCode.toUpperCase(), {
           characterId,
           characterName,
         });
-        const session = await activitySharingService.getSession(joinCode.toUpperCase());
 
         setState((prev) => ({
           ...prev,
@@ -177,6 +191,48 @@ export function useActivitySharing(): UseActivitySharingReturn {
     }));
   }, []);
 
+  const loadUserSessions = useCallback(async () => {
+    setUserSessionsLoading(true);
+    try {
+      const sessions = await activitySharingService.getUserSessions();
+      setUserSessions(sessions);
+    } catch (error) {
+      console.error("Failed to load user sessions:", error);
+      // Don't show toast for this, it's not critical
+    } finally {
+      setUserSessionsLoading(false);
+    }
+  }, []);
+
+  const joinUserSession = useCallback(
+    async (sessionCode: string, characterId: string, characterName: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const session = await activitySharingService.joinUserSession(
+          sessionCode,
+          characterId,
+          characterName,
+        );
+
+        setState((prev) => ({
+          ...prev,
+          sessionCode: session.code,
+          characterId,
+          session,
+          loading: false,
+        }));
+
+        // Refresh user sessions after joining
+        await loadUserSessions();
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to join session");
+        setLoading(false);
+      }
+    },
+    [setLoading, setError, loadUserSessions],
+  );
+
   const isInSession = Boolean(state.sessionCode && state.characterId && state.session);
 
   return {
@@ -186,11 +242,15 @@ export function useActivitySharing(): UseActivitySharingReturn {
     isInSession,
     loading: state.loading,
     error: state.error,
+    userSessions,
+    userSessionsLoading,
     createSession,
     joinSession,
     leaveSession,
     closeSession,
     updateSession,
     clearError,
+    loadUserSessions,
+    joinUserSession,
   };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { realtime } from "@nimble/shared";
 import { AlertCircle, LogOut, Plus, Settings, Share2, Users } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -25,16 +26,20 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
   const [sessionName, setSessionName] = useState("");
   const { toast } = useToast();
   const { character } = useCharacterService();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const {
     session: currentSession,
     loading,
     error,
+    userSessions,
+    userSessionsLoading,
     createSession,
     joinSession,
     leaveSession,
     closeSession,
     clearError,
+    loadUserSessions,
+    joinUserSession,
   } = useActivitySharing();
 
   // Show toast notifications for successful operations
@@ -66,6 +71,18 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
     }
   }, [error, toast]);
 
+  // Load user sessions when dialog opens
+  useEffect(() => {
+    if (open && isAuthenticated && !currentSession) {
+      loadUserSessions();
+    }
+  }, [open, isAuthenticated, currentSession, loadUserSessions]);
+
+  const handleJoinUserSession = async (sessionCode: string) => {
+    if (!character) return;
+    await joinUserSession(sessionCode, character.id, character.name);
+  };
+
   const handleCreateSession = async () => {
     if (!character) return;
     await createSession(sessionName, character.id);
@@ -78,44 +95,45 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
 
   const handleLeaveSession = async () => {
     const sessionName = currentSession?.name;
-    await leaveSession();
-    if (sessionName) {
-      toast({
-        title: "Left Session",
-        description: `Left session "${sessionName}"`,
-      });
-    }
-  };
+    const isOwner = currentSession?.ownerId === user?.id;
 
-  const handleCloseSession = async () => {
-    const sessionName = currentSession?.name;
-    await closeSession();
-    if (sessionName) {
-      toast({
-        title: "Session Closed",
-        description: `Session "${sessionName}" has been closed`,
-      });
+    if (isOwner) {
+      // Owner leaving should close the session
+      await closeSession();
+      if (sessionName) {
+        toast({
+          title: "Session Closed",
+          description: `Session "${sessionName}" has been closed`,
+        });
+      }
+    } else {
+      // Regular participant leaving
+      await leaveSession();
+      if (sessionName) {
+        toast({
+          title: "Left Session",
+          description: `Left session "${sessionName}"`,
+        });
+      }
     }
   };
 
   // Show different trigger button state based on auth
   const triggerButton = children || (
-    <Button 
-      variant="outline" 
-      size="sm" 
+    <Button
+      variant="outline"
+      size="sm"
       disabled={authLoading || !isAuthenticated}
-      title={!isAuthenticated ? "Sign in to share activity logs" : undefined}
+      title={!isAuthenticated ? "Sign in to join online games" : undefined}
     >
       <Share2 className="w-4 h-4 mr-2" />
-      Share Activity
+      Join Game
     </Button>
   );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {triggerButton}
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -129,12 +147,58 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                You need to sign in to share activity logs with other players. Click the "Sign in with Google" button in the top-right corner to get started.
+                You need to sign in to share activity logs with other players. Click the "Sign in
+                with Google" button in the top-right corner to get started.
               </AlertDescription>
             </Alert>
           </div>
         ) : !currentSession ? (
           <div className="space-y-4">
+            {/* Existing Sessions */}
+            {userSessions.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <Label className="text-sm font-medium">Your Active Sessions</Label>
+                </div>
+                <div className="space-y-2">
+                  {userSessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{session.name}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {session.code}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {session.participants.length}/{session.maxPlayers} players
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handleJoinUserSession(session.code)}
+                        disabled={loading || userSessionsLoading}
+                      >
+                        Join
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Create Session */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -221,14 +285,8 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={handleLeaveSession} disabled={loading}>
                 <LogOut className="w-4 h-4 mr-2" />
-                Leave
+                {currentSession.ownerId === user?.id ? "Close Session" : "Leave"}
               </Button>
-              {currentSession.ownerId === character?.id && (
-                <Button variant="destructive" onClick={handleCloseSession} disabled={loading}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Close Session
-                </Button>
-              )}
             </div>
           </div>
         )}

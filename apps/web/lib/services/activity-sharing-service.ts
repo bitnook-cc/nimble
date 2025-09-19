@@ -9,6 +9,8 @@ interface SessionState {
 
 class ActivitySharingService {
   private currentSessionState: SessionState | null = null;
+  private userSessions: realtime.GameSession[] = [];
+  private userSessionsLoading = false;
   private async apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await apiFetch(`/api${endpoint}`, {
       ...options,
@@ -35,8 +37,8 @@ class ActivitySharingService {
   async joinSession(
     code: string,
     request: realtime.JoinSessionRequest,
-  ): Promise<realtime.SessionParticipant> {
-    return this.apiCall<realtime.SessionParticipant>(`/sessions/${code}/join`, {
+  ): Promise<realtime.GameSession> {
+    return this.apiCall<realtime.GameSession>(`/sessions/${code}/join`, {
       method: "POST",
       body: JSON.stringify(request),
     });
@@ -47,6 +49,11 @@ class ActivitySharingService {
     return this.apiCall<{ success: boolean }>(`/sessions/${sessionId}/leave`, {
       method: "POST",
     });
+  }
+
+  // List user's active sessions
+  async listUserSessions(): Promise<realtime.GameSession[]> {
+    return this.apiCall<realtime.GameSession[]>("/sessions");
   }
 
   // Get session info by code (for joining)
@@ -116,6 +123,54 @@ class ActivitySharingService {
 
   getCurrentCharacterId(): string | null {
     return this.currentSessionState?.characterId || null;
+  }
+
+  // User sessions management with caching
+  async getUserSessions(): Promise<realtime.GameSession[]> {
+    if (this.userSessionsLoading) {
+      // Return cached sessions if already loading
+      return this.userSessions;
+    }
+
+    this.userSessionsLoading = true;
+    try {
+      const sessions = await this.listUserSessions();
+      this.userSessions = sessions;
+      return sessions;
+    } finally {
+      this.userSessionsLoading = false;
+    }
+  }
+
+  getCachedUserSessions(): realtime.GameSession[] {
+    return this.userSessions;
+  }
+
+  isLoadingUserSessions(): boolean {
+    return this.userSessionsLoading;
+  }
+
+  refreshUserSessions(): Promise<realtime.GameSession[]> {
+    // Force refresh by clearing cache
+    this.userSessions = [];
+    return this.getUserSessions();
+  }
+
+  // Join existing user session by code
+  async joinUserSession(
+    sessionCode: string,
+    characterId: string,
+    characterName: string,
+  ): Promise<realtime.GameSession> {
+    const session = await this.joinSession(sessionCode, {
+      characterId,
+      characterName,
+    });
+
+    // Refresh user sessions cache after joining
+    this.refreshUserSessions();
+
+    return session;
   }
 
   getCurrentSessionId(): string | null {

@@ -18,12 +18,14 @@ import {
   SpellCastEntry,
   TempHPEntry,
 } from "@/lib/schemas/activity-log";
+import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 
 import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
 import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
-import { ActivitySharingDialog } from "./activity-sharing-dialog";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { ActivitySharingDialog } from "../activity-sharing-dialog";
+import { OnlineActivityLog } from "./online-activity-log";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface ActivityLogProps {
   entries: LogEntry[];
@@ -31,9 +33,24 @@ interface ActivityLogProps {
 }
 
 export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
+  const { session, isInSession, leaveSession } = useActivitySharing();
+  
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   };
+
+  // If we're in a session, render the online activity log instead
+  if (isInSession && session) {
+    return (
+      <OnlineActivityLog
+        sessionId={session.id}
+        sessionName={session.name}
+        participantCount={session.participants.length}
+        maxPlayers={session.maxPlayers}
+        onDisconnect={leaveSession}
+      />
+    );
+  }
 
   return (
     <Card className="w-full">
