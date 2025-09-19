@@ -629,18 +629,20 @@ function ResourceTracker() {
 
 // Combat Status Bar Subcomponent
 function CombatStatusBar() {
-  const { character, endEncounter, startEncounter } = useCharacterService();
+  const { character, endEncounter, startEncounter, getInitiative } = useCharacterService();
   const { rollInitiative } = useDiceActions();
   const { uiState } = useUIStateService();
 
   // All hooks called first, then safety check
   if (!character) return null;
 
-  const { inEncounter, _initiative: initiative, _attributes: attributes } = character;
+  const { inEncounter, _attributes: attributes } = character;
+  const initiative = getInitiative();
   const totalModifier = attributes.dexterity + initiative.modifier;
+  const totalAdvantageLevel = uiState.advantageLevel + initiative.advantage;
 
   const handleInitiativeRoll = async () => {
-    const result = await rollInitiative(totalModifier, uiState.advantageLevel);
+    const result = await rollInitiative(totalModifier, totalAdvantageLevel);
     await startEncounter(result.rollTotal);
   };
   const getHealthStatus = () => {
