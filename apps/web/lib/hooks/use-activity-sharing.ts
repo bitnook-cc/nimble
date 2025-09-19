@@ -5,6 +5,7 @@ import { realtime } from "@nimble/shared";
 import { useEffect, useState } from "react";
 
 import { getActivitySharingService } from "../services/service-factory";
+import { ActivitySharingState } from "../services/activity-sharing-service";
 
 interface SessionActivityEntry {
   id: string;
@@ -39,7 +40,6 @@ interface UseActivitySharingReturn {
   joinSession: (joinCode: string, characterId: string, characterName: string) => Promise<void>;
   leaveSession: () => Promise<void>;
   closeSession: () => Promise<void>;
-  updateSession: (session: realtime.GameSession) => void;
   clearError: () => void;
 
   // User session actions
@@ -59,16 +59,16 @@ export function useActivitySharing(): UseActivitySharingReturn {
   const activitySharingService = getActivitySharingService();
 
   // Initialize state from service
-  const initialState = {
-    sessionState: activitySharingService.getSessionState(),
-    userSessions: activitySharingService.getCachedUserSessions(),
-    userSessionsLoading: activitySharingService.isLoadingUserSessions(),
+  const initialState: ActivitySharingState = {
+    sessionState: null,
+    userSessions: [],
+    userSessionsLoading: false,
     pusherConnected: false,
-    receivedLogEntries: [] as SessionActivityEntry[],
+    receivedLogEntries: [],
     receivedLogEntriesLoading: false,
   };
 
-  const [serviceState, setServiceState] = useState(initialState);
+  const [serviceState, setServiceState] = useState<ActivitySharingState>(initialState);
 
   // Subscribe to service changes
   useEffect(() => {
@@ -174,10 +174,6 @@ export function useActivitySharing(): UseActivitySharingReturn {
     }
   };
 
-  const updateSession = (session: realtime.GameSession) => {
-    activitySharingService.updateSession(session);
-  };
-
   const loadUserSessions = async () => {
     try {
       await activitySharingService.getUserSessions();
@@ -219,7 +215,6 @@ export function useActivitySharing(): UseActivitySharingReturn {
     joinSession,
     leaveSession,
     closeSession,
-    updateSession,
     clearError,
     loadUserSessions,
     joinUserSession,

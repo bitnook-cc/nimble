@@ -15,31 +15,19 @@ export function useActivityLog(): UseActivityLogReturn {
   // Get service from factory (memoized)
   const activityLogService = useMemo(() => getActivityLog(), []);
 
-  // Subscribe to activity log updates
+  // Subscribe to activity log updates using listener pattern
   useEffect(() => {
-    const refreshLogs = async () => {
-      try {
-        const entries = await activityLogService.getLogEntries();
-        setLogEntries(entries);
-      } catch (error) {
-        console.error("Failed to refresh log entries:", error);
-      }
-    };
+    const unsubscribe = activityLogService.subscribe((entries) => {
+      setLogEntries(entries);
+    });
 
-    // Initial load and periodic refresh (simple polling)
-    refreshLogs();
-    const interval = setInterval(refreshLogs, 1000);
-
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, [activityLogService]);
 
   const addLogEntry = async (entry: LogEntry) => {
     try {
-      // Persist to storage
+      // Persist to storage - service will notify listeners automatically
       await activityLogService.addLogEntry(entry);
-
-      // Update local state
-      setLogEntries((prevEntries) => [entry, ...prevEntries.slice(0, 99)]); // Keep only 100 entries
     } catch (error) {
       console.error("Failed to add log entry:", error);
     }
@@ -47,8 +35,8 @@ export function useActivityLog(): UseActivityLogReturn {
 
   const handleClearRolls = async () => {
     try {
+      // Service will notify listeners automatically
       await activityLogService.clearLogEntries();
-      setLogEntries([]);
     } catch (error) {
       console.error("Failed to clear log entries:", error);
     }

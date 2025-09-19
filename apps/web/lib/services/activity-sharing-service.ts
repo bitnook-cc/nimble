@@ -31,7 +31,7 @@ interface SessionActivityEntry {
   timestamp: string;
 }
 
-interface ActivitySharingState {
+export interface ActivitySharingState {
   sessionState: SessionState | null;
   userSessions: realtime.GameSession[];
   userSessionsLoading: boolean;
@@ -46,6 +46,7 @@ export class ActivitySharingService {
   private currentSessionState: SessionState | null = null;
   private userSessions: realtime.GameSession[] = [];
   private userSessionsLoading = false;
+  private userSessionsLoaded = false;
   private pusher: Pusher | null = null;
   private pusherConnected = false;
   private receivedLogEntries: SessionActivityEntry[] = [];
@@ -174,30 +175,20 @@ export class ActivitySharingService {
     );
   }
 
-  // Session state management
-  setSessionState(sessionState: SessionState): void {
-    this.currentSessionState = sessionState;
-    this.notifyListeners();
-  }
-
-  clearSessionState(): void {
-    this.currentSessionState = null;
-    this.notifyListeners();
-  }
-
   getSessionState(): SessionState | null {
     return this.currentSessionState;
   }
 
-  isInSession(): boolean {
-    return this.currentSessionState !== null;
+  getReceivedLogEntries(): SessionActivityEntry[] {
+    return this.receivedLogEntries;
   }
 
-  updateSession(session: realtime.GameSession): void {
-    if (this.currentSessionState) {
-      this.currentSessionState.session = session;
-      this.notifyListeners();
-    }
+  getReceivedLogEntriesLoading(): boolean {
+    return this.receivedLogEntriesLoading;
+  }
+
+  isInSession(): boolean {
+    return this.currentSessionState !== null;
   }
 
   getCurrentSession(): realtime.GameSession | null {
@@ -210,6 +201,11 @@ export class ActivitySharingService {
 
   // User sessions management with caching
   async getUserSessions(): Promise<realtime.GameSession[]> {
+    // Return cached sessions if already loaded and not currently loading
+    if (this.userSessionsLoaded && !this.userSessionsLoading) {
+      return this.userSessions;
+    }
+
     if (this.userSessionsLoading) {
       // Return cached sessions if already loading
       return this.userSessions;
@@ -220,6 +216,7 @@ export class ActivitySharingService {
     try {
       const sessions = await this.listUserSessions();
       this.userSessions = sessions;
+      this.userSessionsLoaded = true;
       return sessions;
     } finally {
       this.userSessionsLoading = false;
@@ -236,8 +233,9 @@ export class ActivitySharingService {
   }
 
   refreshUserSessions(): Promise<realtime.GameSession[]> {
-    // Force refresh by clearing cache
+    // Force refresh by clearing cache and loaded state
     this.userSessions = [];
+    this.userSessionsLoaded = false;
     return this.getUserSessions();
   }
 
@@ -252,8 +250,8 @@ export class ActivitySharingService {
       characterName,
     });
 
-    // Refresh user sessions cache after joining (but don't await it)
-    this.refreshUserSessions();
+    // Note: No need to refresh user sessions since we're now in a session
+    // and the UI will switch to the current session view
 
     return session;
   }
@@ -278,16 +276,19 @@ export class ActivitySharingService {
 
       // Listen for connection state changes
       this.pusher.connection.bind("connected", () => {
+        console.log("Pusher connected");
         this.pusherConnected = true;
         this.notifyListeners();
       });
 
       this.pusher.connection.bind("disconnected", () => {
+        console.log("Pusher disconnected");
         this.pusherConnected = false;
         this.notifyListeners();
       });
 
-      this.pusher.connection.bind("error", () => {
+      this.pusher.connection.bind("error", (err: any) => {
+        console.log("Pusher error:", err);
         this.pusherConnected = false;
         this.notifyListeners();
       });
@@ -308,6 +309,7 @@ export class ActivitySharingService {
         };
 
         this.receivedLogEntries = [newEntry, ...this.receivedLogEntries];
+
         this.notifyListeners();
 
         // Show toast notification for new activity
@@ -443,10 +445,11 @@ export class ActivitySharingService {
   // Subscription methods
   subscribe(listener: StateChangeListener): () => void {
     this.listeners.add(listener);
+    listener(this.getSharingState()); // Initial call to provide current state
     return () => this.listeners.delete(listener);
   }
 
-  private notifyListeners(): void {
+  private getSharingState(): ActivitySharingState {
     const state: ActivitySharingState = {
       sessionState: this.currentSessionState,
       userSessions: this.userSessions,
@@ -455,6 +458,11 @@ export class ActivitySharingService {
       receivedLogEntries: this.receivedLogEntries,
       receivedLogEntriesLoading: this.receivedLogEntriesLoading,
     };
+    return state;
+  }
+
+  private notifyListeners(): void {
+    const state = this.getSharingState();
     this.listeners.forEach((listener) => listener(state));
   }
 }

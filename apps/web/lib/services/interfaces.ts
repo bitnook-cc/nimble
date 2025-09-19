@@ -54,6 +54,7 @@ export interface IActivityLog {
   getLogEntries(): Promise<LogEntry[]>;
   addLogEntry(entry: LogEntry): Promise<void>;
   clearLogEntries(): Promise<void>;
+  subscribe(listener: (entries: LogEntry[]) => void): () => void;
   createDiceRollEntry(
     description: string,
     rollResult: DiceFormulaResult,

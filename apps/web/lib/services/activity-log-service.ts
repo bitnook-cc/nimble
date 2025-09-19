@@ -23,13 +23,25 @@ import { getActivitySharingService } from "./service-factory";
 import { getCharacterService } from "./service-factory";
 import { toastService } from "./toast-service";
 
+type LogChangeListener = (entries: LogEntry[]) => void;
+
 export class ActivityLogService {
   private readonly storageKey = "nimble-navigator-activity-log";
   private readonly maxEntries = gameConfig.storage.maxRollHistory;
+  private listeners: Set<LogChangeListener> = new Set();
+  private cachedEntries: LogEntry[] | null = null;
 
   async getLogEntries(): Promise<LogEntry[]> {
+    // Return cached entries if available
+    if (this.cachedEntries) {
+      return this.cachedEntries;
+    }
+
     const stored = localStorage.getItem(this.storageKey);
-    if (!stored) return [];
+    if (!stored) {
+      this.cachedEntries = [];
+      return this.cachedEntries;
+    }
 
     try {
       const parsed = JSON.parse(stored);
@@ -53,9 +65,11 @@ export class ActivityLogService {
         localStorage.setItem(this.storageKey, JSON.stringify(validEntries));
       }
 
+      this.cachedEntries = validEntries;
       return validEntries;
     } catch {
-      return [];
+      this.cachedEntries = [];
+      return this.cachedEntries;
     }
   }
 
@@ -71,6 +85,10 @@ export class ActivityLogService {
     const existingEntries = await this.getLogEntries();
     const updatedEntries = [newEntry, ...existingEntries].slice(0, this.maxEntries);
     localStorage.setItem(this.storageKey, JSON.stringify(updatedEntries));
+    
+    // Update cache and notify listeners
+    this.cachedEntries = updatedEntries;
+    this.notifyListeners();
 
     // Auto-share to session if in one and entry matches session character
     const currentCharacter = this.getCurrentCharacter();
@@ -158,6 +176,27 @@ export class ActivityLogService {
 
   async clearLogEntries(): Promise<void> {
     localStorage.removeItem(this.storageKey);
+    this.cachedEntries = [];
+    this.notifyListeners();
+  }
+
+  // Subscription methods
+  subscribe(listener: LogChangeListener): () => void {
+    this.listeners.add(listener);
+    // Provide initial state
+    if (this.cachedEntries) {
+      listener(this.cachedEntries);
+    } else {
+      // Load and provide initial state
+      this.getLogEntries().then(entries => listener(entries));
+    }
+    return () => this.listeners.delete(listener);
+  }
+
+  private notifyListeners(): void {
+    if (this.cachedEntries) {
+      this.listeners.forEach(listener => listener(this.cachedEntries!));
+    }
   }
 
   // Get current character from character service
