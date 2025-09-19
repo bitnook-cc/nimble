@@ -27,8 +27,6 @@ export * from "./schemas.js";
 interface ParsedDiceNotation {
   count: number;
   sides: number;
-  position: number;
-  length: number;
   fullMatch: string;
   hasExplodingCrits?: boolean;
   allDiceExplode?: boolean;
@@ -466,8 +464,6 @@ export class DiceService {
     const notation: ParsedDiceNotation = {
       count: token.count,
       sides: token.sides,
-      position: 0,
-      length: 0,
       fullMatch: token.notation,
       hasExplodingCrits: options.allowCriticals,
       allDiceExplode: options.explodeAll,
@@ -625,7 +621,10 @@ export class DiceService {
 
           // Validate dice type
           const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as 44 | 66 | 88);
-          if (!this.config.validDiceTypes.includes(sides as 4 | 6 | 8 | 10 | 12 | 20 | 100) && !isDoubleDigit) {
+          if (
+            !this.config.validDiceTypes.includes(sides as 4 | 6 | 8 | 10 | 12 | 20 | 100) &&
+            !isDoubleDigit
+          ) {
             throw new Error(
               `Invalid dice type: d${sides}. Valid types are: ${[...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].join(", ")}`,
             );

@@ -96,7 +96,11 @@ export function CharacterAvatar({
       ) : (
         // Use general fallback image for custom classes or when no class
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/placeholders/fallback.png" alt={characterName} className="w-full h-full object-cover" />
+        <img
+          src="/placeholders/fallback.png"
+          alt={characterName}
+          className="w-full h-full object-cover"
+        />
       )}
     </div>
   );

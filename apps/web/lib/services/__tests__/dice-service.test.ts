@@ -63,18 +63,23 @@ describe("DiceService", () => {
         displayString: "[2] + [1] + [4] + 2",
         total: 9,
         formula: "3d6 + 2",
-        diceData: {
-          dice: [
-            { value: 2, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 1, size: 6, kept: true, category: "normal", index: 1 },
-            { value: 4, size: 6, kept: true, category: "normal", index: 2 },
-          ],
-          total: 9,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 2, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 1, size: 6, kept: true, category: "normal", index: 1 },
+                { value: 4, size: 6, kept: true, category: "normal", index: 2 },
+              ],
+              total: 9,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("3d6 + 2");
@@ -83,7 +88,7 @@ describe("DiceService", () => {
       expect(result.displayString).toBe("[2] + [1] + [4] + 2");
       expect(result.total).toBe(9);
       expect(result.formula).toBe("3d6 + 2");
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       const diceData = (diceTokens[0] as any).diceData;
       expect(diceData?.dice).toHaveLength(3);
@@ -117,23 +122,28 @@ describe("DiceService", () => {
         displayString: "([3] + [5]) * 2 + 4",
         total: 20,
         formula: "(2d6) * 2 + 4",
-        diceData: {
-          dice: [
-            { value: 3, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 5, size: 6, kept: true, category: "normal", index: 1 },
-          ],
-          total: 20,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 3, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 5, size: 6, kept: true, category: "normal", index: 1 },
+              ],
+              total: 20,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("(2d6) * 2 + 4");
 
       expect(result.total).toBe(20);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.dice).toHaveLength(2);
     });
@@ -206,28 +216,33 @@ describe("DiceService", () => {
         displayString: "~~[2]~~ + ~~[1]~~ + [4] + [5] + [5] + [6]",
         total: 20,
         formula: "2d6",
-        diceData: {
-          dice: [
-            { value: 4, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 2, size: 6, kept: false, category: "dropped", index: 1 },
-            { value: 5, size: 6, kept: true, category: "normal", index: 2 },
-            { value: 1, size: 6, kept: false, category: "dropped", index: 3 },
-            { value: 5, size: 6, kept: true, category: "normal", index: 4 },
-            { value: 6, size: 6, kept: true, category: "normal", index: 5 },
-          ],
-          total: 20,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 1,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 4, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 2, size: 6, kept: false, category: "dropped", index: 1 },
+                { value: 5, size: 6, kept: true, category: "normal", index: 2 },
+                { value: 1, size: 6, kept: false, category: "dropped", index: 3 },
+                { value: 5, size: 6, kept: true, category: "normal", index: 4 },
+                { value: 6, size: 6, kept: true, category: "normal", index: 5 },
+              ],
+              total: 20,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 1,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("2d6", { advantageLevel: 1 });
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("2d6", { advantageLevel: 1 });
       expect(result.total).toBe(20);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.advantageLevel).toBe(1);
     });
@@ -237,26 +252,31 @@ describe("DiceService", () => {
         displayString: "[2] + ~~[4]~~ + [1] + ~~[5]~~",
         total: 3,
         formula: "2d6",
-        diceData: {
-          dice: [
-            { value: 4, size: 6, kept: false, category: "dropped", index: 0 },
-            { value: 2, size: 6, kept: true, category: "normal", index: 1 },
-            { value: 5, size: 6, kept: false, category: "dropped", index: 2 },
-            { value: 1, size: 6, kept: true, category: "normal", index: 3 },
-          ],
-          total: 3,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: -1,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 4, size: 6, kept: false, category: "dropped", index: 0 },
+                { value: 2, size: 6, kept: true, category: "normal", index: 1 },
+                { value: 5, size: 6, kept: false, category: "dropped", index: 2 },
+                { value: 1, size: 6, kept: true, category: "normal", index: 3 },
+              ],
+              total: 3,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: -1,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("2d6", { advantageLevel: -1 });
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("2d6", { advantageLevel: -1 });
       expect(result.total).toBe(3);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.advantageLevel).toBe(-1);
     });
@@ -268,25 +288,30 @@ describe("DiceService", () => {
         displayString: "[6] + [6] + [3]",
         total: 15,
         formula: "1d6",
-        diceData: {
-          dice: [
-            { value: 6, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 6, size: 6, kept: true, category: "critical", index: 1 },
-            { value: 3, size: 6, kept: true, category: "critical", index: 2 },
-          ],
-          total: 15,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 2,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 6, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 6, size: 6, kept: true, category: "critical", index: 1 },
+                { value: 3, size: 6, kept: true, category: "critical", index: 2 },
+              ],
+              total: 15,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 2,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("1d6", { allowCriticals: true });
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6", { allowCriticals: true });
       expect(result.total).toBe(15);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.criticalHits).toBe(2);
     });
@@ -296,21 +321,26 @@ describe("DiceService", () => {
         displayString: "[1]",
         total: 0,
         formula: "1d20",
-        diceData: {
-          dice: [{ value: 1, size: 20, kept: true, category: "fumble", index: 0 }],
-          total: 0,
-          isDoubleDigit: false,
-          isFumble: true,
-          advantageLevel: 0,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [{ value: 1, size: 20, kept: true, category: "fumble", index: 0 }],
+              total: 0,
+              isDoubleDigit: false,
+              isFumble: true,
+              advantageLevel: 0,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("1d20", { allowFumbles: true });
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d20", { allowFumbles: true });
       expect(result.total).toBe(0);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.isFumble).toBe(true);
     });
@@ -322,24 +352,29 @@ describe("DiceService", () => {
         displayString: "[3] [2] = 32",
         total: 32,
         formula: "1d44",
-        diceData: {
-          dice: [
-            { value: 3, size: 4, kept: true, category: "normal", index: 0 },
-            { value: 2, size: 4, kept: true, category: "normal", index: 1 },
-          ],
-          total: 32,
-          isDoubleDigit: true,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 0,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 3, size: 4, kept: true, category: "normal", index: 0 },
+                { value: 2, size: 4, kept: true, category: "normal", index: 1 },
+              ],
+              total: 32,
+              isDoubleDigit: true,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 0,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("1d44");
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d44", {});
       expect(result.total).toBe(32);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.isDoubleDigit).toBe(true);
     });
@@ -395,20 +430,13 @@ describe("DiceService", () => {
         displayString: "3 + 4 = 7",
         total: 7,
         formula: "3 + 4",
-        diceData: {
-          dice: [],
-          total: 7,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 0,
-        },
+        tokens: [],
       });
 
       const result = diceService.evaluateDiceFormula("3 + 4");
 
       expect(result.total).toBe(7);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(0);
     });
   });
@@ -419,25 +447,30 @@ describe("DiceService", () => {
         displayString: "[6] + [6] + [4]",
         total: 16,
         formula: "1d6!",
-        diceData: {
-          dice: [
-            { value: 6, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 6, size: 6, kept: true, category: "critical", index: 1 },
-            { value: 4, size: 6, kept: true, category: "critical", index: 2 },
-          ],
-          total: 16,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 2,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 6, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 6, size: 6, kept: true, category: "critical", index: 1 },
+                { value: 4, size: 6, kept: true, category: "critical", index: 2 },
+              ],
+              total: 16,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 2,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("1d6!");
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6!", {});
       expect(result.total).toBe(16);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.criticalHits).toBe(2);
     });
@@ -447,24 +480,29 @@ describe("DiceService", () => {
         displayString: "[6] + [3]",
         total: 9,
         formula: "1d6v",
-        diceData: {
-          dice: [
-            { value: 6, size: 6, kept: true, category: "normal", index: 0 },
-            { value: 3, size: 6, kept: true, category: "vicious", index: 1 },
-          ],
-          total: 9,
-          isDoubleDigit: false,
-          isFumble: false,
-          advantageLevel: 0,
-          criticalHits: 1,
-        },
+        tokens: [
+          {
+            type: "dice",
+            diceData: {
+              dice: [
+                { value: 6, size: 6, kept: true, category: "normal", index: 0 },
+                { value: 3, size: 6, kept: true, category: "vicious", index: 1 },
+              ],
+              total: 9,
+              isDoubleDigit: false,
+              isFumble: false,
+              advantageLevel: 0,
+              criticalHits: 1,
+            },
+          },
+        ],
       });
 
       const result = diceService.evaluateDiceFormula("1d6v");
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6v", {});
       expect(result.total).toBe(9);
-      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
       expect((diceTokens[0] as any).diceData?.criticalHits).toBe(1);
     });
