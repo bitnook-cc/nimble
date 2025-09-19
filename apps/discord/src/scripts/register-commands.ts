@@ -34,7 +34,8 @@ const commands = [
   },
   {
     name: 'attack',
-    description: 'Make an attack roll using Nimble dice notation. Attack rolls automatically crit, miss and explode.',
+    description:
+      'Make an attack roll using Nimble dice notation. Attack rolls automatically crit, miss and explode.',
     options: [
       {
         type: 3, // STRING

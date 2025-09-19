@@ -3,6 +3,7 @@ import Pusher from "pusher-js";
 
 import { LogEntry } from "../schemas/activity-log";
 import { apiFetch } from "../utils/api";
+import { toastService } from "./toast-service";
 
 interface SessionState {
   session: realtime.GameSession;
@@ -59,11 +60,11 @@ export class ActivitySharingService {
       method: "POST",
       body: JSON.stringify(request),
     });
-    
+
     // Note: Creating a session doesn't automatically join it on the server side
     // But for better UX, we should automatically join the created session
     // This will be handled by the hook calling joinSession after createSession
-    
+
     return session;
   }
 
@@ -76,17 +77,17 @@ export class ActivitySharingService {
       method: "POST",
       body: JSON.stringify(request),
     });
-    
+
     // Set session state when successfully joining
     this.currentSessionState = {
       session,
       characterId: request.characterId,
     };
     this.notifyListeners();
-    
+
     // Initialize Pusher connection for real-time activity
     await this.initializePusher(session.id);
-    
+
     return session;
   }
 
@@ -95,14 +96,14 @@ export class ActivitySharingService {
     const result = await this.apiCall<{ success: boolean }>(`/sessions/${sessionId}/leave`, {
       method: "POST",
     });
-    
+
     // Clear session state when successfully leaving
     if (result.success) {
       this.cleanupPusher();
       this.currentSessionState = null;
       this.notifyListeners();
     }
-    
+
     return result;
   }
 
@@ -143,12 +144,12 @@ export class ActivitySharingService {
     const session = await this.apiCall<realtime.GameSession>(`/sessions/${sessionId}/close`, {
       method: "POST",
     });
-    
+
     // Clear session state when closing (since the session is now inactive)
     this.cleanupPusher();
     this.currentSessionState = null;
     this.notifyListeners();
-    
+
     return session;
   }
 
@@ -297,6 +298,9 @@ export class ActivitySharingService {
 
         this.receivedLogEntries = [newEntry, ...this.receivedLogEntries];
         this.notifyListeners();
+
+        // Show toast notification for new activity
+        this.showActivityToast(newEntry);
       });
     } catch (error) {
       console.error("Failed to initialize Pusher:", error);
@@ -344,6 +348,85 @@ export class ActivitySharingService {
     this.receivedLogEntries = [];
     this.receivedLogEntriesLoading = false;
     this.notifyListeners();
+  }
+
+  // Toast notification for activity entries
+  private showActivityToast(entry: SessionActivityEntry): void {
+    const { characterName, userName, activityData } = entry;
+    
+    // Don't show toasts for the current user's own activity
+    if (entry.characterId === this.currentSessionState?.characterId) {
+      return;
+    }
+
+    let title = "";
+    let description = "";
+
+    switch (activityData.type) {
+      case "roll":
+        const rollEntry = activityData as any;
+        title = `${characterName} rolled dice`;
+        description = `${rollEntry.rollExpression}: ${rollEntry.rollResult}`;
+        // Show dice roll with dice data if available
+        toastService.showDiceRoll(title, rollEntry.diceData, description);
+        return;
+
+      case "initiative":
+        const initiativeEntry = activityData as any;
+        title = `${characterName} rolled initiative`;
+        description = `Result: ${initiativeEntry.result}`;
+        break;
+
+      case "damage":
+        const damageEntry = activityData as any;
+        title = `${characterName} took damage`;
+        description = `${damageEntry.amount} damage`;
+        break;
+
+      case "healing":
+        const healingEntry = activityData as any;
+        title = `${characterName} healed`;
+        description = `+${healingEntry.amount} HP`;
+        break;
+
+      case "temp_hp":
+        const tempHpEntry = activityData as any;
+        title = `${characterName} gained temporary HP`;
+        description = `+${tempHpEntry.amount} temporary HP`;
+        break;
+
+      case "ability_usage":
+        const abilityEntry = activityData as any;
+        title = `${characterName} used an ability`;
+        description = abilityEntry.abilityName || "Unknown ability";
+        break;
+
+      case "spell_cast":
+        const spellEntry = activityData as any;
+        title = `${characterName} cast a spell`;
+        description = spellEntry.spellName || "Unknown spell";
+        break;
+
+      case "resource":
+        const resourceEntry = activityData as any;
+        title = `${characterName} used ${resourceEntry.resourceName}`;
+        description = `${resourceEntry.action === "spent" ? "-" : "+"}${resourceEntry.amount}`;
+        break;
+
+      case "dice-pool":
+        const dicePoolEntry = activityData as any;
+        title = `${characterName} used dice pool`;
+        description = dicePoolEntry.description || "";
+        break;
+
+      default:
+        title = `${characterName} performed an action`;
+        description = activityData.description || "";
+        break;
+    }
+
+    // Show info toast for non-dice activities
+    toastService.showInfo(title, description);
   }
 
   // Subscription methods

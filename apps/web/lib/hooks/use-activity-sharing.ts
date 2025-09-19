@@ -54,7 +54,7 @@ interface UseActivitySharingReturn {
 export function useActivitySharing(): UseActivitySharingReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Get the singleton service instance
   const activitySharingService = getActivitySharingService();
 
@@ -106,7 +106,7 @@ export function useActivitySharing(): UseActivitySharingReturn {
       const session = await activitySharingService.createSession({
         name: sessionName,
       } satisfies realtime.CreateSessionRequest);
-      
+
       // Automatically join the newly created session
       await activitySharingService.joinSession(session.code, {
         characterId,
@@ -187,15 +187,15 @@ export function useActivitySharing(): UseActivitySharingReturn {
     }
   };
 
-  const joinUserSession = async (sessionCode: string, characterId: string, characterName: string) => {
+  const joinUserSession = async (
+    sessionCode: string,
+    characterId: string,
+    characterName: string,
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      await activitySharingService.joinUserSession(
-        sessionCode,
-        characterId,
-        characterName,
-      );
+      await activitySharingService.joinUserSession(sessionCode, characterId, characterName);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to join session");
     } finally {

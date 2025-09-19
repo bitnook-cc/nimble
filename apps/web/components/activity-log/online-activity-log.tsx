@@ -4,8 +4,8 @@ import { Share2, Users, Wifi, WifiOff } from "lucide-react";
 
 import { useCallback } from "react";
 
-import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
+import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -34,7 +34,6 @@ export function OnlineActivityLog({
     receivedLogEntries: entries,
     receivedLogEntriesLoading: loading,
   } = useActivitySharing();
-
 
   const formatTime = useCallback((dateString: string) => {
     const date = new Date(dateString);
