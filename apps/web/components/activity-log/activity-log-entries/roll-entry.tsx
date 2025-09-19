@@ -53,7 +53,7 @@ export function RollEntryDisplay({
           <span className="text-destructive font-semibold text-xs bg-destructive/10 px-2 py-0.5 rounded">
             MISS
           </span>
-        )} 
+        )}
       </div>
     </div>
   );

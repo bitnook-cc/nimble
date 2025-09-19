@@ -119,7 +119,9 @@ export class DiceService {
       // Evaluate the mathematical expression
       const total = this.evaluateExpression(expressionWithDice);
       const finalTotal = options.allowFumbles && hasFumble ? 0 : total;
-
+console.log("Final evaluated total:", finalTotal);
+console.log("Expression with dice:", expressionWithDice);
+console.log("Display expression:", displayExpression);
       // Create dice data for rich display
       const diceData: DiceRollData = {
         dice: allDice,
