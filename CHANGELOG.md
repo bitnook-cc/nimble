@@ -1,5 +1,31 @@
 # Changelog
 
+## September 19, 2025
+
+### Added
+
+- **Real-time Activity Sharing**: Complete activity sharing system with live collaboration features
+  - Session management with shareable session codes  
+  - Real-time activity log updates via Pusher integration
+  - Toast notifications for incoming activity from other players
+  - Authentication-aware UI that disables sharing for unauthenticated users
+- **Enhanced Skills System**: Direct skill rolling functionality with visual improvements
+  - Added individual roll buttons for each skill
+  - Star-based visual indicators for skill proficiency levels
+- **Advanced Initiative System**: Global advantage/disadvantage integration with initiative rolls
+- **Discord Bot Enhancements**: Rich formatting for dice roll displays with emoji indicators
+
+### Changed
+
+- **Activity Log Architecture**: Refactored from polling-based to real-time subscriber pattern for better performance
+- **Skills Schema**: Updated to support separate bonus and advantage values for more granular control
+- **UI Architecture**: Eliminated prop drilling in inventory system through direct service access
+
+### Improved
+
+- **Code Quality**: Comprehensive formatting and cleanup across the codebase
+- **Real-time Performance**: Replaced inefficient polling with event-driven updates
+
 ## September 16, 2025
 
 ### Added
