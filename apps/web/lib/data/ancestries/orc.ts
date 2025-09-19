@@ -19,7 +19,7 @@ export const orc: AncestryDefinition = {
           type: "stat_bonus",
           statBonus: {
             skillBonuses: {
-              might: { type: "fixed", value: 1 },
+              might: { bonus: { type: "fixed", value: 1 } },
             },
           },
         },

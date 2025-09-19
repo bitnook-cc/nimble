@@ -85,7 +85,7 @@ export const halfling: AncestryDefinition = {
           type: "stat_bonus",
           statBonus: {
             skillBonuses: {
-              stealth: { type: "fixed", value: 1 },
+              stealth: { bonus: { type: "fixed", value: 1 } },
             },
           },
         },

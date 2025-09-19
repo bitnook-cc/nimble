@@ -87,6 +87,7 @@ export const elf: AncestryDefinition = {
           type: "stat_bonus",
           statBonus: {
             speedBonus: { type: "fixed", value: 1 },
+            initiativeBonus: { advantage: { type: "fixed", value: 1 } }
           },
         },
       ],

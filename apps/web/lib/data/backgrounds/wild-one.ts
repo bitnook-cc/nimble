@@ -17,7 +17,7 @@ export const wildOne: BackgroundDefinition = {
           type: "stat_bonus",
           statBonus: {
             skillBonuses: {
-              naturecraft: { type: "fixed", value: 1 },
+              naturecraft: { bonus: { type: "fixed", value: 1 } },
             },
           },
         },

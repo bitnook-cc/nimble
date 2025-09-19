@@ -20,7 +20,7 @@ export const fearless: BackgroundDefinition = {
           id: "fearless-quick-reflexes-0",
           type: "stat_bonus",
           statBonus: {
-            initiativeBonus: { type: "fixed", value: 1 },
+            initiativeBonus: { bonus: { type: "fixed", value: 1 } },
           },
         },
       ],

@@ -19,7 +19,7 @@ export const halfGiant: AncestryDefinition = {
           type: "stat_bonus",
           statBonus: {
             skillBonuses: {
-              might: { type: "fixed", value: 2 },
+              might: { bonus: { type: "fixed", value: 2 } },
             },
           },
         },

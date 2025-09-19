@@ -1000,7 +1000,12 @@ export class CharacterService implements ICharacterService {
       if (bonus.skillBonuses) {
         for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
           if (result[skillName] && skillBonus) {
-            result[skillName].modifier += calculateFlexibleValue(skillBonus);
+            if (skillBonus.bonus) {
+              result[skillName].modifier += calculateFlexibleValue(skillBonus.bonus);
+            }
+            if (skillBonus.advantage) {
+              result[skillName].advantage += calculateFlexibleValue(skillBonus.advantage);
+            }
           }
         }
       }
@@ -1031,7 +1036,12 @@ export class CharacterService implements ICharacterService {
     // Apply initiative bonuses
     for (const bonus of bonuses) {
       if (bonus.initiativeBonus) {
-        result.modifier += calculateFlexibleValue(bonus.initiativeBonus);
+        if (bonus.initiativeBonus.bonus) {
+          result.modifier += calculateFlexibleValue(bonus.initiativeBonus.bonus);
+        }
+        if (bonus.initiativeBonus.advantage) {
+          result.advantage += calculateFlexibleValue(bonus.initiativeBonus.advantage);
+        }
       }
     }
 
