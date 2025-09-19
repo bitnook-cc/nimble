@@ -2,6 +2,7 @@
 
 import { Share2 } from "lucide-react";
 
+import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import {
   AbilityUsageEntry,
   CatchBreathEntry,
@@ -18,14 +19,13 @@ import {
   SpellCastEntry,
   TempHPEntry,
 } from "@/lib/schemas/activity-log";
-import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 
-import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
-import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
 import { ActivitySharingDialog } from "../activity-sharing-dialog";
-import { OnlineActivityLog } from "./online-activity-log";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
+import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
+import { OnlineActivityLog } from "./online-activity-log";
 
 interface ActivityLogProps {
   entries: LogEntry[];
@@ -34,11 +34,11 @@ interface ActivityLogProps {
 
 export function ActivityLog({ entries, onClearRolls }: ActivityLogProps) {
   const { session, isInSession, leaveSession } = useActivitySharing();
-  
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   };
-
+  console.log("ActivityLog render", { isInSession, session });
   // If we're in a session, render the online activity log instead
   if (isInSession && session) {
     return (

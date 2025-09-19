@@ -1,18 +1,17 @@
 "use client";
 
-import { realtime } from "@nimble/shared";
 import { Share2, Users, Wifi, WifiOff } from "lucide-react";
-import Pusher from "pusher-js";
-import { useCallback, useEffect, useState } from "react";
 
-import { activitySharingService } from "@/lib/services/activity-sharing-service";
+import { useCallback } from "react";
+
 import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
+import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 
-import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
-import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { InitiativeEntryDisplay } from "./activity-log-entries/initiative-entry";
+import { RollEntryDisplay } from "./activity-log-entries/roll-entry";
 
 interface OnlineActivityLogProps {
   sessionId: string;
@@ -22,16 +21,6 @@ interface OnlineActivityLogProps {
   onDisconnect: () => void;
 }
 
-interface SessionActivityEntry {
-  id: string;
-  sessionId: string;
-  characterId: string;
-  characterName: string;
-  userName: string;
-  activityData: LogEntry;
-  timestamp: string;
-}
-
 export function OnlineActivityLog({
   sessionId,
   sessionName,
@@ -39,107 +28,29 @@ export function OnlineActivityLog({
   maxPlayers,
   onDisconnect,
 }: OnlineActivityLogProps) {
-  const [entries, setEntries] = useState<SessionActivityEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [connected, setConnected] = useState(false);
-  const [pusher, setPusher] = useState<Pusher | null>(null);
+  // Use the activity sharing hook for all state
+  const {
+    pusherConnected: connected,
+    receivedLogEntries: entries,
+    receivedLogEntriesLoading: loading,
+  } = useActivitySharing();
 
-  // Initialize Pusher and fetch initial data
-  useEffect(() => {
-    const initializePusher = () => {
-      try {
-        const pusherInstance = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-          cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-        });
-
-        // Subscribe to session channel
-        const channel = pusherInstance.subscribe(`session-${sessionId}`);
-
-        // Listen for connection state changes
-        pusherInstance.connection.bind("connected", () => {
-          setConnected(true);
-        });
-
-        pusherInstance.connection.bind("disconnected", () => {
-          setConnected(false);
-        });
-
-        pusherInstance.connection.bind("error", () => {
-          setConnected(false);
-        });
-
-        // Listen for new activity entries
-        channel.bind("activity-shared", (data: realtime.ActivitySharedPayload) => {
-          const newEntry: SessionActivityEntry = {
-            id: `${data.activity.characterId}-${Date.now()}`,
-            sessionId: sessionId,
-            characterId: data.activity.characterId,
-            characterName: data.activity.characterName,
-            userName: data.activity.user.name,
-            activityData: data.activity.logEntry,
-            timestamp: data.activity.timestamp,
-          };
-
-          setEntries((prev) => [newEntry, ...prev]);
-        });
-
-        setPusher(pusherInstance);
-
-        return pusherInstance;
-      } catch (error) {
-        console.error("Failed to initialize Pusher:", error);
-        setConnected(false);
-        return null;
-      }
-    };
-
-    const pusherInstance = initializePusher();
-
-    // Fetch initial activity history
-    const fetchInitialActivity = async () => {
-      try {
-        setLoading(true);
-        const response = await activitySharingService.getActivityHistory(sessionId);
-        
-        // Convert API response to SessionActivityEntry format
-        const sessionEntries: SessionActivityEntry[] = response.data.map((activity: any) => ({
-          id: activity.id,
-          sessionId: sessionId,
-          characterId: activity.characterId,
-          characterName: activity.characterName,
-          userName: activity.user.name,
-          activityData: activity.logEntry,
-          timestamp: activity.timestamp,
-        }));
-
-        setEntries(sessionEntries);
-      } catch (error) {
-        console.error("Failed to fetch activity history:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialActivity();
-
-    return () => {
-      if (pusherInstance) {
-        pusherInstance.unsubscribe(`session-${sessionId}`);
-        pusherInstance.disconnect();
-      }
-    };
-  }, [sessionId]);
 
   const formatTime = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }, []);
 
-  const formatActivityTime = useCallback((entry: SessionActivityEntry) => {
-    // Use the activity's timestamp if it has one, otherwise use our session timestamp
-    const activityTimestamp = entry.activityData.timestamp ? new Date(entry.activityData.timestamp) : new Date(entry.timestamp);
-    return formatTime(activityTimestamp.toISOString());
-  }, [formatTime]);
+  const formatActivityTime = useCallback(
+    (entry: any) => {
+      // Use the activity's timestamp if it has one, otherwise use our session timestamp
+      const activityTimestamp = entry.activityData.timestamp
+        ? new Date(entry.activityData.timestamp)
+        : new Date(entry.timestamp);
+      return formatTime(activityTimestamp.toISOString());
+    },
+    [formatTime],
+  );
 
   return (
     <Card className="w-full">
@@ -166,7 +77,7 @@ export function OnlineActivityLog({
                 </>
               )}
             </div>
-            
+
             {/* Participant Count */}
             <div className="flex items-center gap-1">
               <Users className="w-3 h-3 text-muted-foreground" />
@@ -206,20 +117,18 @@ export function OnlineActivityLog({
                       <span className="font-medium text-xs text-primary">
                         {entry.characterName}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        ({entry.userName})
-                      </span>
+                      <span className="text-xs text-muted-foreground">({entry.userName})</span>
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {formatActivityTime(entry)}
                     </span>
                   </div>
-                  
+
                   {/* Render the activity based on its type */}
                   {entry.activityData.type === "roll" ? (
-                    <RollEntryDisplay 
-                      roll={entry.activityData as any} 
-                      formatTime={(date: Date) => formatTime(date.toISOString())} 
+                    <RollEntryDisplay
+                      roll={entry.activityData as any}
+                      formatTime={(date: Date) => formatTime(date.toISOString())}
                     />
                   ) : entry.activityData.type === "initiative" ? (
                     <InitiativeEntryDisplay entry={entry.activityData as InitiativeEntry} />

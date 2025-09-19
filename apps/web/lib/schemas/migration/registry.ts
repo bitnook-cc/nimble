@@ -2,6 +2,7 @@ import { v0ToV1Migration } from "./migrations/v0-to-v1";
 import { v1ToV2Migration } from "./migrations/v1-to-v2";
 import { v2ToV3Migration } from "./migrations/v2-to-v3";
 import { v3ToV4Migration } from "./migrations/v3-to-v4";
+import { v4ToV5Migration } from "./migrations/v4-to-v5";
 import { Migration } from "./types";
 
 /**
@@ -17,6 +18,7 @@ export const migrations: Migration[] = [
   v1ToV2Migration,
   v2ToV3Migration,
   v3ToV4Migration,
+  v4ToV5Migration,
   // Add new migrations here as the schema evolves
 ];
 

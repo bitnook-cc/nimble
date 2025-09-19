@@ -33,6 +33,24 @@ const commands = [
     ],
   },
   {
+    name: 'attack',
+    description: 'Make an attack roll using Nimble dice notation. Attack rolls automatically crit, miss and explode.',
+    options: [
+      {
+        type: 3, // STRING
+        name: 'formula',
+        description: 'Dice formula (e.g., 2d6+5, 1d20!, 1d8v) - use /help for more info',
+        required: true,
+      },
+      {
+        type: 4, // INTEGER
+        name: 'advantage',
+        description: 'Positive = advantage (roll extra, keep highest), negative = disadvantage',
+        required: false,
+      },
+    ],
+  },
+  {
     name: 'help',
     description: 'Learn how to use the Nimble dice bot and dice notation',
   },

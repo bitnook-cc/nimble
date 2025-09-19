@@ -51,6 +51,7 @@ export const skillSchema = z.object({
     .int()
     .min(gameConfig.character.skillModifierRange.min)
     .max(gameConfig.character.skillModifierRange.max),
+  advantage: z.number().default(0),
 });
 
 export const hitPointsSchema = z.object({

@@ -18,8 +18,8 @@ import {
   TempHPEntry,
 } from "../schemas/activity-log";
 import { ResourceDefinition } from "../schemas/resources";
-import { activitySharingService } from "./activity-sharing-service";
 import { DiceFormulaResult } from "./dice-service";
+import { getActivitySharingService } from "./service-factory";
 import { getCharacterService } from "./service-factory";
 import { toastService } from "./toast-service";
 
@@ -74,6 +74,7 @@ export class ActivityLogService {
 
     // Auto-share to session if in one and entry matches session character
     const currentCharacter = this.getCurrentCharacter();
+    const activitySharingService = getActivitySharingService();
     if (
       activitySharingService.isInSession() &&
       currentCharacter &&

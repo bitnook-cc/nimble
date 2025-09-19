@@ -2,16 +2,18 @@
 
 import { realtime } from "@nimble/shared";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { activitySharingService } from "../services/activity-sharing-service";
+import { getActivitySharingService } from "../services/service-factory";
 
-interface ActivitySharingState {
-  sessionCode: string | null;
-  characterId: string | null;
-  session: realtime.GameSession | null;
-  loading: boolean;
-  error: string | null;
+interface SessionActivityEntry {
+  id: string;
+  sessionId: string;
+  characterId: string;
+  characterName: string;
+  userName: string;
+  activityData: any; // LogEntry type
+  timestamp: string;
 }
 
 interface UseActivitySharingReturn {
@@ -27,8 +29,13 @@ interface UseActivitySharingReturn {
   userSessions: realtime.GameSession[];
   userSessionsLoading: boolean;
 
+  // Pusher and log entries
+  pusherConnected: boolean;
+  receivedLogEntries: SessionActivityEntry[];
+  receivedLogEntriesLoading: boolean;
+
   // Actions
-  createSession: (sessionName: string, characterId: string) => Promise<void>;
+  createSession: (sessionName: string, characterId: string, characterName: string) => Promise<void>;
   joinSession: (joinCode: string, characterId: string, characterName: string) => Promise<void>;
   leaveSession: () => Promise<void>;
   closeSession: () => Promise<void>;
@@ -45,205 +52,169 @@ interface UseActivitySharingReturn {
 }
 
 export function useActivitySharing(): UseActivitySharingReturn {
-  const [state, setState] = useState<ActivitySharingState>({
-    sessionCode: null,
-    characterId: null,
-    session: null,
-    loading: false,
-    error: null,
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Get the singleton service instance
+  const activitySharingService = getActivitySharingService();
 
-  const [userSessions, setUserSessions] = useState<realtime.GameSession[]>([]);
-  const [userSessionsLoading, setUserSessionsLoading] = useState(false);
+  // Initialize state from service
+  const initialState = {
+    sessionState: activitySharingService.getSessionState(),
+    userSessions: activitySharingService.getCachedUserSessions(),
+    userSessionsLoading: activitySharingService.isLoadingUserSessions(),
+    pusherConnected: false,
+    receivedLogEntries: [] as SessionActivityEntry[],
+    receivedLogEntriesLoading: false,
+  };
 
-  const setLoading = useCallback((loading: boolean) => {
-    setState((prev) => ({ ...prev, loading }));
-  }, []);
+  const [serviceState, setServiceState] = useState(initialState);
 
-  const setError = useCallback((error: string | null) => {
-    setState((prev) => ({ ...prev, error }));
-  }, []);
+  // Subscribe to service changes
+  useEffect(() => {
+    const unsubscribe = activitySharingService.subscribe((state) => {
+      setServiceState(state);
+    });
+    return unsubscribe;
+  }, [activitySharingService]);
 
-  const clearError = useCallback(() => {
+  // Derive values from service state
+  const sessionCode = serviceState.sessionState?.session.code || null;
+  const characterId = serviceState.sessionState?.characterId || null;
+  const session = serviceState.sessionState?.session || null;
+  const isInSession = Boolean(serviceState.sessionState);
+
+  const clearError = () => {
     setError(null);
-  }, [setError]);
+  };
 
-  const createSession = useCallback(
-    async (sessionName: string, characterId: string) => {
-      if (!sessionName.trim()) {
-        setError("Please enter a session name");
-        return;
-      }
+  const createSession = async (sessionName: string, characterId: string, characterName: string) => {
+    if (!sessionName.trim()) {
+      setError("Please enter a session name");
+      return;
+    }
 
-      setLoading(true);
-      setError(null);
-      try {
-        const session = await activitySharingService.createSession({
-          name: sessionName,
-        } satisfies realtime.CreateSessionRequest);
-
-        setState((prev) => ({
-          ...prev,
-          sessionCode: session.code,
-          characterId,
-          session,
-          loading: false,
-        }));
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to create session");
-        setLoading(false);
-      }
-    },
-    [setLoading, setError],
-  );
-
-  const joinSession = useCallback(
-    async (joinCode: string, characterId: string, characterName: string) => {
-      if (!joinCode.trim()) {
-        setError("Please enter a join code");
-        return;
-      }
-
-      if (!characterId) {
-        setError("No character selected");
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-      try {
-        const session = await activitySharingService.joinSession(joinCode.toUpperCase(), {
-          characterId,
-          characterName,
-        });
-
-        setState((prev) => ({
-          ...prev,
-          sessionCode: session.code,
-          characterId,
-          session,
-          loading: false,
-        }));
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to join session");
-        setLoading(false);
-      }
-    },
-    [setLoading, setError],
-  );
-
-  const leaveSession = useCallback(async () => {
-    if (!state.session) return;
+    if (!characterId) {
+      setError("No character selected");
+      return;
+    }
 
     setLoading(true);
     setError(null);
     try {
-      await activitySharingService.leaveSession(state.session.id);
-      setState({
-        sessionCode: null,
-        characterId: null,
-        session: null,
-        loading: false,
-        error: null,
+      // Create the session
+      const session = await activitySharingService.createSession({
+        name: sessionName,
+      } satisfies realtime.CreateSessionRequest);
+      
+      // Automatically join the newly created session
+      await activitySharingService.joinSession(session.code, {
+        characterId,
+        characterName,
       });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to create and join session");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const joinSession = async (joinCode: string, characterId: string, characterName: string) => {
+    if (!joinCode.trim()) {
+      setError("Please enter a join code");
+      return;
+    }
+
+    if (!characterId) {
+      setError("No character selected");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await activitySharingService.joinSession(joinCode.toUpperCase(), {
+        characterId,
+        characterName,
+      });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to join session");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const leaveSession = async () => {
+    const sessionState = activitySharingService.getSessionState();
+    if (!sessionState) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await activitySharingService.leaveSession(sessionState.session.id);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to leave session");
+    } finally {
       setLoading(false);
     }
-  }, [state.session, setLoading, setError]);
+  };
 
-  const closeSession = useCallback(async () => {
-    if (!state.session) return;
+  const closeSession = async () => {
+    const sessionState = activitySharingService.getSessionState();
+    if (!sessionState) return;
 
     setLoading(true);
     setError(null);
     try {
-      await activitySharingService.closeSession(state.session.id);
-      setState({
-        sessionCode: null,
-        characterId: null,
-        session: null,
-        loading: false,
-        error: null,
-      });
+      await activitySharingService.closeSession(sessionState.session.id);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to close session");
+    } finally {
       setLoading(false);
     }
-  }, [state.session, setLoading, setError]);
+  };
 
-  // Sync session state with activity sharing service
-  useEffect(() => {
-    if (state.sessionCode && state.characterId && state.session) {
-      activitySharingService.setSessionState({
-        session: state.session,
-        characterId: state.characterId,
-      });
-    } else {
-      activitySharingService.clearSessionState();
-    }
-  }, [state.sessionCode, state.characterId, state.session]);
+  const updateSession = (session: realtime.GameSession) => {
+    activitySharingService.updateSession(session);
+  };
 
-  const updateSession = useCallback((session: realtime.GameSession) => {
-    setState((prev) => ({
-      ...prev,
-      session,
-    }));
-  }, []);
-
-  const loadUserSessions = useCallback(async () => {
-    setUserSessionsLoading(true);
+  const loadUserSessions = async () => {
     try {
-      const sessions = await activitySharingService.getUserSessions();
-      setUserSessions(sessions);
+      await activitySharingService.getUserSessions();
     } catch (error) {
       console.error("Failed to load user sessions:", error);
       // Don't show toast for this, it's not critical
-    } finally {
-      setUserSessionsLoading(false);
     }
-  }, []);
+  };
 
-  const joinUserSession = useCallback(
-    async (sessionCode: string, characterId: string, characterName: string) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const session = await activitySharingService.joinUserSession(
-          sessionCode,
-          characterId,
-          characterName,
-        );
-
-        setState((prev) => ({
-          ...prev,
-          sessionCode: session.code,
-          characterId,
-          session,
-          loading: false,
-        }));
-
-        // Refresh user sessions after joining
-        await loadUserSessions();
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to join session");
-        setLoading(false);
-      }
-    },
-    [setLoading, setError, loadUserSessions],
-  );
-
-  const isInSession = Boolean(state.sessionCode && state.characterId && state.session);
+  const joinUserSession = async (sessionCode: string, characterId: string, characterName: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await activitySharingService.joinUserSession(
+        sessionCode,
+        characterId,
+        characterName,
+      );
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to join session");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
-    sessionCode: state.sessionCode,
-    characterId: state.characterId,
-    session: state.session,
+    sessionCode,
+    characterId,
+    session,
     isInSession,
-    loading: state.loading,
-    error: state.error,
-    userSessions,
-    userSessionsLoading,
+    loading,
+    error,
+    userSessions: serviceState.userSessions,
+    userSessionsLoading: serviceState.userSessionsLoading,
+    pusherConnected: serviceState.pusherConnected,
+    receivedLogEntries: serviceState.receivedLogEntries,
+    receivedLogEntriesLoading: serviceState.receivedLogEntriesLoading,
     createSession,
     joinSession,
     leaveSession,

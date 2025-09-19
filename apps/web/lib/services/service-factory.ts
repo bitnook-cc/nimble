@@ -1,5 +1,6 @@
 import { abilityService } from "./ability-service";
 import { activityLogService } from "./activity-log-service";
+import { ActivitySharingService } from "./activity-sharing-service";
 import { AncestryService } from "./ancestry-service";
 import { BackgroundService } from "./background-service";
 import { CharacterCreationService } from "./character-creation-service";
@@ -98,6 +99,12 @@ export class ServiceFactory {
       true, // singleton
     );
 
+    serviceContainer.register(
+      SERVICE_KEYS.ACTIVITY_SHARING_SERVICE,
+      () => new ActivitySharingService(),
+      true, // singleton
+    );
+
     // Register services with dependency injection
     serviceContainer.register(
       SERVICE_KEYS.CHARACTER_SERVICE,
@@ -188,3 +195,5 @@ export const getContentRepository = (): ContentRepositoryService => {
   return ContentRepositoryService.getInstance(storage);
 };
 export const getItemService = (): ItemService => ItemService.getInstance();
+export const getActivitySharingService = (): ActivitySharingService =>
+  ServiceFactory.getService(SERVICE_KEYS.ACTIVITY_SHARING_SERVICE);

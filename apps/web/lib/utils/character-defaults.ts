@@ -23,6 +23,7 @@ export const createDefaultSkills = (): Skills => {
       name: skill.label,
       associatedAttribute: skill.attribute as AttributeName,
       modifier: 0,
+      advantage: 0,
     };
   });
 
@@ -57,6 +58,7 @@ export const createDefaultInitiative = () => {
     name: "Initiative",
     associatedAttribute: "dexterity" as AttributeName,
     modifier: 0,
+    advantage: 0,
   };
 };
 

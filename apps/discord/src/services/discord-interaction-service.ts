@@ -44,7 +44,11 @@ export class DiscordInteractionService {
       const { name, options } = data;
 
       if (name === 'roll' && options) {
-        return this.handleRollCommand(options);
+        return this.handleRollCommand(options, false);
+      }
+
+      if (name === 'attack' && options) {
+        return this.handleRollCommand(options, true);
       }
 
       if (name === 'help') {
@@ -59,7 +63,7 @@ export class DiscordInteractionService {
   /**
    * Handle the /roll command
    */
-  private handleRollCommand(options: CommandOption[]): InteractionResponse {
+  private handleRollCommand(options: CommandOption[], isAttack: boolean): InteractionResponse {
     try {
       // Parse options
       const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
@@ -81,7 +85,7 @@ export class DiscordInteractionService {
       // Roll the dice
       const result = diceService.evaluateDiceFormula(formula, {
         advantageLevel,
-        allowCriticals: false, // Always allow since we support ! notation
+        allowCriticals: isAttack, // Always allow since we support ! notation
         allowFumbles: true, // Always allow since we support natural 1s
         vicious: false, // Will be overridden by v notation if present
       });

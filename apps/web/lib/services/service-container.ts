@@ -53,6 +53,7 @@ export const SERVICE_KEYS = {
   CHARACTER_CREATION: "characterCreation",
   DICE_SERVICE: "diceService",
   SETTINGS_SERVICE: "settingsService",
+  ACTIVITY_SHARING_SERVICE: "activitySharingService",
 } as const;
 
 export type ServiceKey = (typeof SERVICE_KEYS)[keyof typeof SERVICE_KEYS];

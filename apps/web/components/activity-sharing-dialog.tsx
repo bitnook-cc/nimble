@@ -85,7 +85,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
 
   const handleCreateSession = async () => {
     if (!character) return;
-    await createSession(sessionName, character.id);
+    await createSession(sessionName, character.id, character.name);
   };
 
   const handleJoinSession = async () => {

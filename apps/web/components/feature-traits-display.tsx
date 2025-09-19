@@ -152,21 +152,21 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
       if (effect.statBonus.skillBonuses) {
         Object.entries(effect.statBonus.skillBonuses).forEach(([skill, skillBonus]) => {
           const parts: string[] = [];
-          
+
           if (skillBonus.bonus) {
             const formatted = formatValue(skillBonus.bonus);
             if (formatted) {
               parts.push(`${formatted} ${skill}`);
             }
           }
-          
+
           if (skillBonus.advantage) {
             const formatted = formatValue(skillBonus.advantage);
             if (formatted) {
               parts.push(`${formatted} advantage on ${skill}`);
             }
           }
-          
+
           if (parts.length > 0) {
             bonuses.push(...parts);
           }
@@ -176,21 +176,21 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
       // Combat stats
       if (effect.statBonus.initiativeBonus) {
         const parts: string[] = [];
-        
+
         if (effect.statBonus.initiativeBonus.bonus) {
           const formatted = formatValue(effect.statBonus.initiativeBonus.bonus);
           if (formatted) {
             parts.push(`${formatted} Initiative`);
           }
         }
-        
+
         if (effect.statBonus.initiativeBonus.advantage) {
           const formatted = formatValue(effect.statBonus.initiativeBonus.advantage);
           if (formatted) {
             parts.push(`${formatted} advantage on Initiative`);
           }
         }
-        
+
         if (parts.length > 0) {
           bonuses.push(...parts);
         }
