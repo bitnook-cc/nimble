@@ -1,5 +1,10 @@
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
-import { diceService, type DiceRollData, type CategorizedDie } from '@nimble/dice';
+import {
+  diceService,
+  type CategorizedDie,
+  type DiceFormulaResult,
+  type DiceTokenResult,
+} from '@nimble/dice';
 
 // Discord interaction types
 interface CommandOption {
@@ -91,7 +96,7 @@ export class DiscordInteractionService {
       });
 
       // Create rich embed for the response
-      const embed = this.createDiceRollEmbed(result, formula, advantageLevel);
+      const embed = this.createDiceRollEmbed(result, formula);
 
       return {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -171,13 +176,11 @@ When using postfix notation, the order of operations is important. Always place 
   /**
    * Create a rich embed for dice roll results
    */
-  private createDiceRollEmbed(
-    result: { displayString: string; total: number; formula: string; diceData?: DiceRollData },
-    formula: string,
-    advantageLevel: number,
-  ): any {
-    const diceData = result.diceData;
-    if (!diceData) {
+  private createDiceRollEmbed(result: DiceFormulaResult, formula: string): any {
+    // Extract all dice tokens
+    const diceTokens = result.tokens.filter((token) => token.type === 'dice') as DiceTokenResult[];
+
+    if (diceTokens.length === 0) {
       // Fallback to simple embed if no dice data
       return {
         title: '🎲 Dice Roll Result',
@@ -190,15 +193,38 @@ When using postfix notation, the order of operations is important. Always place 
       };
     }
 
-    // Determine color based on result
+    // Aggregate data from all dice tokens
+    const allDice: CategorizedDie[] = [];
+    let totalCriticalHits = 0;
+    let hasFumble = false;
+    let hasDoubleDigit = false;
+    let commonAdvantageLevel: number | null = null;
+    let hasConsistentAdvantage = true;
+
+    for (const diceToken of diceTokens) {
+      const diceData = diceToken.diceData;
+      allDice.push(...diceData.dice);
+      totalCriticalHits += diceData.criticalHits || 0;
+      hasFumble = hasFumble || diceData.isFumble || false;
+      hasDoubleDigit = hasDoubleDigit || diceData.isDoubleDigit || false;
+
+      const advantageLevel = diceData.advantageLevel || 0;
+      if (commonAdvantageLevel === null) {
+        commonAdvantageLevel = advantageLevel;
+      } else if (commonAdvantageLevel !== advantageLevel) {
+        hasConsistentAdvantage = false;
+      }
+    }
+
+    // Determine color based on aggregated result
     let color = 0x3498db; // Default blue
-    if (diceData.isFumble) {
+    if (hasFumble) {
       color = 0xff0000; // Red for fumble
-    } else if (diceData.criticalHits && diceData.criticalHits > 0) {
+    } else if (totalCriticalHits > 0) {
       color = 0x00ff00; // Green for critical success
     } else if (formula.includes('d20')) {
       // Check for natural 20 or 1 on d20 rolls
-      const firstKeptD20 = diceData.dice.find((d) => d.kept && d.size === 20);
+      const firstKeptD20 = allDice.find((d) => d.kept && d.size === 20);
       if (firstKeptD20) {
         if (firstKeptD20.value === 20) {
           color = 0x00ff00; // Green for nat 20
@@ -208,7 +234,7 @@ When using postfix notation, the order of operations is important. Always place 
       }
     }
 
-    // Build dice breakdown from rich data
+    // Build dice breakdown from rich data using tokens
     let diceBreakdown = '';
 
     // Format dice in their original order with category-based styling
@@ -227,50 +253,30 @@ When using postfix notation, the order of operations is important. Always place 
         case 'dropped':
           return `~~${value}~~`; // Strikethrough for dropped
         case 'normal':
-          return `${value}`; // Code block for normal dice
+          return `${value}`; // Normal formatting for regular dice
       }
     };
 
-    // Build dice display maintaining original order
-    const diceDisplay: string[] = [];
-    let previousWasKept = false;
+    // Build breakdown by iterating through tokens and formatting dice
+    const breakdownParts: string[] = [];
 
-    diceData.dice.forEach((die, index) => {
-      if (index === 0 && !die.kept) {
-        diceDisplay.push('('); // Open parenthesis if first die is dropped
+    for (const token of result.tokens) {
+      if (token.type === 'dice') {
+        const diceToken = token as DiceTokenResult;
+        const dice = diceToken.diceData.dice;
+
+        // Format all dice in this token
+        const tokenBreakdown = dice.map(formatDie).join(' ');
+
+        breakdownParts.push(tokenBreakdown);
+      } else if (token.type === 'static') {
+        breakdownParts.push(token.value.toString());
+      } else if (token.type === 'operator') {
+        breakdownParts.push(token.operator);
       }
-
-      // Add separators between kept and dropped dice
-      if (index > 0) {
-        if (die.kept && previousWasKept) {
-          diceDisplay.push('+');
-        } else if (die.kept && !previousWasKept) {
-          diceDisplay.push(')');
-        } else if (!die.kept && previousWasKept) {
-          diceDisplay.push('(');
-        } else if (!die.kept && !previousWasKept) {
-          diceDisplay.push(',');
-        }
-      }
-
-      diceDisplay.push(formatDie(die));
-      previousWasKept = die.kept;
-    });
-
-    if (!previousWasKept) {
-      diceDisplay.push(')'); // Close parenthesis if last die was dropped
     }
 
-    // Add before/after expressions and total
-    let fullDisplay = '';
-    if (diceData.beforeExpression) {
-      fullDisplay = diceData.beforeExpression + ' ';
-    }
-    fullDisplay += diceDisplay.join(' ');
-    if (diceData.afterExpression) {
-      fullDisplay += ' ' + diceData.afterExpression;
-    }
-    diceBreakdown = fullDisplay + ` = **${diceData.total}**`;
+    diceBreakdown = breakdownParts.join(' ');
 
     // Build the embed
     const embed: any = {
@@ -290,19 +296,17 @@ When using postfix notation, the order of operations is important. Always place 
       ],
     };
 
-    // Add advantage/disadvantage field if applicable
-    if (advantageLevel !== 0) {
+    // Add advantage/disadvantage field if applicable (only if all dice have consistent advantage)
+    if (hasConsistentAdvantage && commonAdvantageLevel !== null && commonAdvantageLevel !== 0) {
       let advText = '';
       let advEmoji = '';
-      if (advantageLevel > 0) {
+      const absAdvantageLevel = Math.abs(commonAdvantageLevel);
+      if (commonAdvantageLevel > 0) {
         advEmoji = '✨';
-        advText = advantageLevel === 1 ? 'Advantage' : `Advantage ${advantageLevel}`;
+        advText = absAdvantageLevel === 1 ? 'Advantage' : `Advantage ${absAdvantageLevel}`;
       } else {
         advEmoji = '💀';
-        advText =
-          Math.abs(advantageLevel) === 1
-            ? 'Disadvantage'
-            : `Disadvantage ${Math.abs(advantageLevel)}`;
+        advText = absAdvantageLevel === 1 ? 'Disadvantage' : `Disadvantage ${absAdvantageLevel}`;
       }
       embed.fields.push({
         name: 'Modifier',
@@ -322,15 +326,13 @@ When using postfix notation, the order of operations is important. Always place 
 
     // Add special notes if any
     const specialNotes: string[] = [];
-    if (diceData.criticalHits && diceData.criticalHits > 0) {
-      specialNotes.push(
-        `🎯 ${diceData.criticalHits} critical hit${diceData.criticalHits > 1 ? 's' : ''}!`,
-      );
+    if (totalCriticalHits > 0) {
+      specialNotes.push(`🎯 ${totalCriticalHits} critical hit${totalCriticalHits > 1 ? 's' : ''}!`);
     }
-    if (diceData.isFumble) {
+    if (hasFumble) {
       specialNotes.push(`💀 Fumbled! (Natural 1)`);
     }
-    if (diceData.isDoubleDigit) {
+    if (hasDoubleDigit) {
       specialNotes.push(`🎲 Double-digit dice roll`);
     }
 

@@ -1,3 +1,5 @@
+import { FormulaTokenResults } from "@nimble/dice";
+
 import { DiceRollEntry } from "@/lib/schemas/activity-log";
 import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "@/lib/utils/dice-display-components";
 
@@ -30,26 +32,22 @@ export function RollEntryDisplay({
 
       {/* Right side: Dice display and total */}
       <div className="flex items-center gap-2">
-        <span className="text-sm">
-          {roll.diceData.isDoubleDigit ? (
-            <DoubleDigitDiceDisplay dice={roll.diceData.dice} result={roll.diceData.total} />
-          ) : (
+        {roll.diceResult && (
+          <span className="text-sm">
             <DiceFormulaDisplay
-              dice={roll.diceData.dice}
-              beforeDice={roll.diceData.beforeExpression}
-              afterDice={roll.diceData.afterExpression}
-              total={roll.diceData.total}
-              isFumble={roll.diceData.isFumble}
+              tokens={roll.diceResult.tokens}
+              total={roll.diceResult.total}
+              isFumble={roll.diceResult.isFumble}
             />
-          )}
-        </span>
+          </span>
+        )}
 
-        {roll.diceData.criticalHits !== undefined && roll.diceData.criticalHits > 0 && (
+        {roll.diceResult?.numCriticals !== undefined && roll.diceResult.numCriticals > 0 && (
           <span className="text-yellow-600 font-semibold text-xs bg-yellow-100 dark:bg-yellow-900/30 px-2 py-0.5 rounded">
             CRIT
           </span>
         )}
-        {roll.diceData.isFumble && (
+        {roll.diceResult?.isFumble && (
           <span className="text-destructive font-semibold text-xs bg-destructive/10 px-2 py-0.5 rounded">
             MISS
           </span>

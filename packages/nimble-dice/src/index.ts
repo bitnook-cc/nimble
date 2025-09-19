@@ -14,7 +14,10 @@ import {
   DiceCategory,
   DiceFormulaOptions,
   DiceFormulaResult,
-  DiceRollData,
+  FormulaToken,
+  FormulaTokenResults,
+  DiceToken,
+  DiceTokenResult,
 } from "./schemas.js";
 import { diceConfig } from "./config.js";
 
@@ -36,108 +39,99 @@ interface ParsedDiceNotation {
 export class DiceService {
   private readonly config = diceConfig;
 
-  evaluateDiceFormula(formula: string, options: DiceFormulaOptions = {}): DiceFormulaResult {
+  /**
+   * Tokenizes a dice formula into an array of tokens for external processing
+   */
+  public tokenize(formula: string): FormulaToken[] {
+    const cleanedFormula = this.sanitizeExpression(formula);
+    return this.parseTokens(cleanedFormula);
+  }
+
+  /**
+   * Evaluates a pre-tokenized formula (after variable substitution)
+   */
+  public evaluateTokenizedFormula(
+    tokens: FormulaToken[],
+    options: DiceFormulaOptions = {},
+  ): DiceFormulaResult {
     try {
-      // Clean the formula
-      const cleanedFormula = this.sanitizeExpression(formula);
-
-      // Find all dice notations
-      const diceNotations = this.findAllDiceNotations(cleanedFormula);
-
-      // If no dice notation found, treat as pure math expression
-      if (diceNotations.length === 0) {
-        const total = this.evaluateExpression(cleanedFormula);
-        return {
-          displayString: `${cleanedFormula} = ${total}`,
-          diceData: {
-            dice: [],
-            total,
-            isDoubleDigit: false,
-            isFumble: false,
-            advantageLevel: 0,
-            criticalHits: 0,
-          },
-          total,
-          formula,
-        };
+      // Check for unsubstituted variables (when not using tokenized externally)
+      const hasUnsubstitutedVariables = tokens.some(
+        (token) => token.type === "static" && token.isVariable && token.value === 0,
+      );
+      if (hasUnsubstitutedVariables) {
+        throw new Error("Invalid characters in expression");
       }
 
-      // Process all dice notations
-      let expressionWithDice = cleanedFormula;
-      let displayExpression = cleanedFormula;
-      const allDice: CategorizedDie[] = [];
+      // Transform input tokens to result tokens
+      const resultTokens: FormulaTokenResults[] = [];
       let totalCriticalHits = 0;
       let hasFumble = false;
-      let hasDoubleDigit = false;
 
-      // Process dice notations in reverse order to maintain correct positions
-      for (let i = diceNotations.length - 1; i >= 0; i--) {
-        const notation = diceNotations[i];
+      for (const token of tokens) {
+        if (token.type === "static" || token.type === "operator") {
+          // Static and operator tokens pass through unchanged
+          resultTokens.push(token);
+        } else if (token.type === "dice") {
+          // Convert token modifiers to options
+          const tokenOptions = this.parseTokenModifiers(token.modifiers, options);
 
-        // Validate dice count
-        if (notation.count <= 0) {
-          throw new Error(`Invalid dice count: ${notation.count}. Must be positive.`);
+          // Roll the dice
+          const rollResult = this.rollDiceFromToken(token, tokenOptions);
+
+          // Create dice token result with dice data
+          const diceTokenResult: DiceTokenResult = {
+            type: "dice",
+            notation: token.notation,
+            count: token.count,
+            sides: token.sides,
+            modifiers: token.modifiers,
+            diceData: {
+              dice: rollResult.allDice,
+              total: rollResult.keptSum,
+              isDoubleDigit: rollResult.isDoubleDigit || false,
+              isFumble: rollResult.isFumble,
+              advantageLevel: tokenOptions.advantageLevel || 0,
+              criticalHits: rollResult.criticalHits || 0,
+            },
+          };
+
+          resultTokens.push(diceTokenResult);
+
+          // Aggregate for formula-level data
+          totalCriticalHits += rollResult.criticalHits || 0;
+          hasFumble = hasFumble || rollResult.isFumble;
         }
-        if (notation.count > this.config.maxDiceCount) {
-          throw new Error(
-            `Too many dice: ${notation.count}. Maximum allowed is ${this.config.maxDiceCount}.`,
-          );
-        }
-
-        // Apply postfix modifiers
-        const modifiedOptions = {
-          ...options,
-          allowCriticals:
-            notation.hasExplodingCrits || notation.isVicious || options.allowCriticals,
-          vicious: notation.isVicious || options.vicious,
-          explodeAll: notation.allDiceExplode || options.explodeAll,
-        };
-
-        const rollResult = this.rollDiceWithOptions(notation, modifiedOptions);
-
-        // Update aggregated data
-        allDice.unshift(...rollResult.allDice);
-        totalCriticalHits += rollResult.criticalHits || 0;
-        hasFumble = hasFumble || rollResult.isFumble;
-        hasDoubleDigit = hasDoubleDigit || rollResult.isDoubleDigit || false;
-
-        // Build the dice display string
-        const diceDisplay = rollResult.isDoubleDigit
-          ? this.formatDoubleDigitDiceDisplay(rollResult.allDice, rollResult.keptSum)
-          : this.formatDiceDisplay(rollResult.allDice);
-
-        // Replace the dice notation with the sum for evaluation
-        const beforeDice = expressionWithDice.substring(0, notation.position);
-        const afterDice = expressionWithDice.substring(notation.position + notation.length);
-        expressionWithDice = beforeDice + rollResult.keptSum + afterDice;
-        displayExpression =
-          displayExpression.substring(0, notation.position) +
-          diceDisplay +
-          displayExpression.substring(notation.position + notation.length);
       }
 
-      // Evaluate the mathematical expression
-      const total = this.evaluateExpression(expressionWithDice);
+      // Calculate total by evaluating the expression
+      const total = this.evaluateTokenExpression(resultTokens);
       const finalTotal = options.allowFumbles && hasFumble ? 0 : total;
-console.log("Final evaluated total:", finalTotal);
-console.log("Expression with dice:", expressionWithDice);
-console.log("Display expression:", displayExpression);
-      // Create dice data for rich display
-      const diceData: DiceRollData = {
-        dice: allDice,
-        total: finalTotal,
-        isDoubleDigit: hasDoubleDigit,
-        isFumble: hasFumble,
-        advantageLevel: options.advantageLevel || 0,
-        criticalHits: totalCriticalHits,
-      };
+
+      // Generate display string from result tokens
+      const displayString = this.generateDisplayString(resultTokens, finalTotal);
+
+      // Generate formula string from original tokens (for traceability)
+      const formula = this.generateFormulaString(tokens);
 
       return {
-        displayString: displayExpression,
-        diceData,
+        tokens: resultTokens,
+        displayString,
         total: finalTotal,
         formula,
+        numCriticals: totalCriticalHits,
+        isFumble: hasFumble,
       };
+    } catch (error) {
+      throw new Error(`Failed to evaluate tokenized formula: ${error}`);
+    }
+  }
+
+  evaluateDiceFormula(formula: string, options: DiceFormulaOptions = {}): DiceFormulaResult {
+    try {
+      // Use the tokenized approach internally
+      const tokens = this.tokenize(formula);
+      return this.evaluateTokenizedFormula(tokens, options);
     } catch (error) {
       throw new Error(`Failed to evaluate dice formula "${formula}": ${error}`);
     }
@@ -167,57 +161,6 @@ console.log("Display expression:", displayExpression);
     return cleaned;
   }
 
-  private findAllDiceNotations(expression: string): ParsedDiceNotation[] {
-    // Updated regex to capture advantage (a) and disadvantage (d) postfixes with optional numbers
-    // Pattern: [count]d[sides][!v]*[a|d][number]?
-    const diceRegex = /(-?\d+)?d(\d+)([!v]*)?([ad]\d?)?/gi;
-    const notations: ParsedDiceNotation[] = [];
-    let match;
-
-    while ((match = diceRegex.exec(expression)) !== null) {
-      const count = match[1] ? parseInt(match[1]) : 1;
-      const sides = parseInt(match[2]);
-      const modifierPostfixes = match[3] || "";
-      const advantagePostfix = match[4] || "";
-      const advantageNumber = parseInt(advantagePostfix.substring(1) || "1");
-
-      // Parse modifiers
-      const hasExplodingCrits = modifierPostfixes.includes("!");
-      const allDiceExplode = modifierPostfixes.includes("!!");
-      const isVicious = modifierPostfixes.includes("v");
-
-      // Parse advantage/disadvantage
-      let advantageLevel = undefined;
-      if (advantagePostfix.includes("a")) {
-        advantageLevel = advantageNumber;
-      } else if (advantagePostfix.includes("d")) {
-        advantageLevel = -advantageNumber;
-      }
-
-      // Validate dice type
-      const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as any);
-      if (!this.config.validDiceTypes.includes(sides as any) && !isDoubleDigit) {
-        throw new Error(
-          `Invalid dice type: d${sides}. Valid types are: ${[...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].join(", ")}`,
-        );
-      }
-
-      notations.push({
-        count,
-        sides,
-        position: match.index,
-        length: match[0].length,
-        fullMatch: match[0],
-        hasExplodingCrits,
-        allDiceExplode,
-        isVicious,
-        advantageLevel,
-      });
-    }
-
-    return notations;
-  }
-
   private rollDiceWithOptions(
     notation: ParsedDiceNotation,
     options: DiceFormulaOptions,
@@ -230,7 +173,7 @@ console.log("Display expression:", displayExpression);
     criticalHits?: number;
   } {
     // Check if this is a double-digit die
-    const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(notation.sides as any);
+    const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(notation.sides as 44 | 66 | 88);
 
     if (isDoubleDigit) {
       return this.rollDoubleDigitDice(notation, options);
@@ -485,6 +428,248 @@ console.log("Display expression:", displayExpression);
   private rollSingleDie(sides: number): number {
     return Math.floor(Math.random() * sides) + 1;
   }
+
+  /**
+   * Converts token modifiers to dice formula options
+   */
+  private parseTokenModifiers(
+    modifiers: string[],
+    baseOptions: DiceFormulaOptions,
+  ): DiceFormulaOptions {
+    const options = { ...baseOptions };
+
+    for (const modifier of modifiers) {
+      if (modifier === "!") {
+        options.allowCriticals = true;
+      } else if (modifier === "!!") {
+        options.allowCriticals = true;
+        options.explodeAll = true;
+      } else if (modifier === "v") {
+        options.vicious = true;
+        options.allowCriticals = true; // Vicious requires criticals to be enabled
+      } else if (modifier.startsWith("a")) {
+        const advantageLevel = parseInt(modifier.substring(1) || "1");
+        options.advantageLevel = advantageLevel;
+      } else if (modifier.startsWith("d")) {
+        const disadvantageLevel = parseInt(modifier.substring(1) || "1");
+        options.advantageLevel = -disadvantageLevel;
+      }
+    }
+
+    return options;
+  }
+
+  /**
+   * Rolls dice for a dice token using existing dice rolling logic
+   */
+  private rollDiceFromToken(token: DiceToken, options: DiceFormulaOptions) {
+    const notation: ParsedDiceNotation = {
+      count: token.count,
+      sides: token.sides,
+      position: 0,
+      length: 0,
+      fullMatch: token.notation,
+      hasExplodingCrits: options.allowCriticals,
+      allDiceExplode: options.explodeAll,
+      isVicious: options.vicious,
+      advantageLevel: options.advantageLevel,
+    };
+
+    return this.rollDiceWithOptions(notation, options);
+  }
+
+  /**
+   * Evaluates the mathematical expression from result tokens
+   */
+  private evaluateTokenExpression(tokens: FormulaTokenResults[]): number {
+    // Build expression string by replacing dice tokens with their totals
+    let expressionParts: string[] = [];
+
+    for (const token of tokens) {
+      if (token.type === "static") {
+        expressionParts.push(token.value.toString());
+      } else if (token.type === "dice") {
+        const total = token.diceData.total;
+        expressionParts.push(total.toString());
+      } else if (token.type === "operator") {
+        expressionParts.push(token.operator);
+      }
+    }
+
+    const expression = expressionParts.join(" ");
+    return this.evaluateExpression(expression);
+  }
+
+  /**
+   * Generates display string from result tokens
+   */
+  private generateDisplayString(tokens: FormulaTokenResults[], total: number): string {
+    const parts: string[] = [];
+    const hasDice = tokens.some((token) => token.type === "dice");
+
+    for (const token of tokens) {
+      if (token.type === "static") {
+        parts.push(token.value.toString());
+      } else if (token.type === "dice") {
+        // Generate display string for dice based on type
+        const displayString = token.diceData.isDoubleDigit
+          ? this.formatDoubleDigitDiceDisplay(token.diceData.dice, token.diceData.total)
+          : this.formatDiceDisplay(token.diceData.dice);
+        parts.push(displayString);
+      } else if (token.type === "operator") {
+        parts.push(token.operator);
+      }
+    }
+
+    // Join parts with smart spacing (no spaces around parentheses)
+    let baseString = "";
+    for (let i = 0; i < parts.length; i++) {
+      const current = parts[i];
+      const next = parts[i + 1];
+
+      baseString += current;
+
+      // Add space after current token unless:
+      // - Current is opening parenthesis
+      // - Next is closing parenthesis
+      // - Current is last token
+      if (i < parts.length - 1 && current !== "(" && next !== ")") {
+        baseString += " ";
+      }
+    }
+
+    // For formulas with no dice, include the total in the display
+    if (!hasDice) {
+      return `${baseString} = ${total}`;
+    }
+
+    return baseString;
+  }
+
+  /**
+   * Generates formula string from original tokens
+   */
+  private generateFormulaString(tokens: FormulaToken[]): string {
+    const parts: string[] = [];
+
+    for (const token of tokens) {
+      if (token.type === "static") {
+        parts.push(token.originalText);
+      } else if (token.type === "dice") {
+        const modifierStr = token.modifiers.join("");
+        parts.push(`${token.notation}${modifierStr}`);
+      } else if (token.type === "operator") {
+        parts.push(token.operator);
+      }
+    }
+
+    return parts.join(" ");
+  }
+
+  /**
+   * Parses a cleaned formula string into an array of tokens
+   */
+  private parseTokens(formula: string): FormulaToken[] {
+    const tokens: FormulaToken[] = [];
+
+    // Define subpatterns for better readability
+    const diceNotation = String.raw`(\d+)?d(\d+)([!v]*)?([ad]\d?)?`;
+    const numbers = String.raw`\d+(\.\d+)?`;
+    const variables = String.raw`[A-Z]+`;
+    const operators = String.raw`[+\-*/()]`;
+    const whitespace = String.raw`\s+`;
+
+    // Create RegExp objects for token matching
+    const diceNotationRegex = new RegExp(`^${diceNotation}$`, "i");
+    const numbersRegex = new RegExp(`^${numbers}$`);
+    const variablesRegex = new RegExp(`^${variables}$`, "i");
+    const operatorsRegex = new RegExp(`^${operators}$`);
+    const whitespaceRegex = new RegExp(`^${whitespace}$`);
+
+    // Combine all patterns with alternation (order matters!)
+    const tokenPattern = new RegExp(
+      `${diceNotation}|${numbers}|${variables}|${operators}|${whitespace}`,
+      "gi",
+    );
+
+    let match;
+    while ((match = tokenPattern.exec(formula)) !== null) {
+      const tokenText = match[0];
+
+      // Skip whitespace
+      if (whitespaceRegex.test(tokenText)) {
+        continue;
+      }
+
+      // Check if it's a dice notation
+      if (diceNotationRegex.test(tokenText)) {
+        const diceMatch = tokenText.match(diceNotationRegex);
+        if (diceMatch) {
+          const count = diceMatch[1] ? parseInt(diceMatch[1]) : 1;
+          const sides = parseInt(diceMatch[2]);
+          const modifierPostfixes = diceMatch[3] || "";
+          const advantagePostfix = diceMatch[4] || "";
+
+          // Parse modifiers
+          const modifiers: string[] = [];
+
+          if (modifierPostfixes.includes("!!")) modifiers.push("!!");
+          else if (modifierPostfixes.includes("!")) modifiers.push("!");
+          if (modifierPostfixes.includes("v")) modifiers.push("v");
+          if (advantagePostfix) modifiers.push(advantagePostfix);
+
+          // Validate dice count
+          if (count <= 0) {
+            throw new Error(`Invalid dice count: ${count}`);
+          }
+
+          // Validate dice type
+          const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as 44 | 66 | 88);
+          if (!this.config.validDiceTypes.includes(sides as 4 | 6 | 8 | 10 | 12 | 20 | 100) && !isDoubleDigit) {
+            throw new Error(
+              `Invalid dice type: d${sides}. Valid types are: ${[...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].join(", ")}`,
+            );
+          }
+
+          tokens.push({
+            type: "dice",
+            notation: `${count}d${sides}`,
+            count,
+            sides,
+            modifiers,
+          });
+        }
+      }
+      // Check if it's an operator
+      else if (operatorsRegex.test(tokenText)) {
+        tokens.push({
+          type: "operator",
+          operator: tokenText as "+" | "-" | "*" | "/" | "(" | ")",
+        });
+      }
+      // Check if it's a number
+      else if (numbersRegex.test(tokenText)) {
+        tokens.push({
+          type: "static",
+          value: parseFloat(tokenText),
+          originalText: tokenText,
+        });
+      }
+      // Check if it's a variable
+      else if (variablesRegex.test(tokenText)) {
+        tokens.push({
+          type: "static",
+          value: 0, // Placeholder value - will be substituted later
+          originalText: tokenText,
+          isVariable: true,
+        });
+      } else {
+        throw new Error(`Invalid token in formula: ${tokenText}`);
+      }
+    }
+
+    return tokens;
+  }
 }
 
 // Create a singleton instance
@@ -496,6 +681,18 @@ export const evaluateDiceFormula = (
   options: DiceFormulaOptions = {},
 ): DiceFormulaResult => {
   return diceService.evaluateDiceFormula(formula, options);
+};
+
+// Export tokenization functions
+export const tokenize = (formula: string): FormulaToken[] => {
+  return diceService.tokenize(formula);
+};
+
+export const evaluateTokenizedFormula = (
+  tokens: FormulaToken[],
+  options: DiceFormulaOptions = {},
+): DiceFormulaResult => {
+  return diceService.evaluateTokenizedFormula(tokens, options);
 };
 
 // Also export the service instance for backward compatibility

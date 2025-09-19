@@ -36,8 +36,6 @@ export const categorizedDieSchema = z.object({
 // Schema for dice roll data with rich information
 export const diceRollDataSchema = z.object({
   dice: z.array(categorizedDieSchema),
-  beforeExpression: z.string().optional(),
-  afterExpression: z.string().optional(),
   total: z.number(),
   isDoubleDigit: z.boolean().optional(),
   isFumble: z.boolean().optional(),
@@ -54,13 +52,52 @@ export const diceFormulaOptionsSchema = z.object({
   explodeAll: z.boolean().optional(),
 });
 
-// Dice formula result schema
+// Token schemas for tokenized formula evaluation
+export const staticTokenSchema = z.object({
+  type: z.literal("static"),
+  value: z.number(),
+  originalText: z.string(),
+  isVariable: z.boolean().optional(),
+});
+
+export const diceTokenSchema = z.object({
+  type: z.literal("dice"),
+  notation: z.string(),
+  count: z.number(),
+  sides: z.number(),
+  modifiers: z.array(z.string()),
+});
+
+export const operatorTokenSchema = z.object({
+  type: z.literal("operator"),
+  operator: z.enum(["+", "-", "*", "/", "(", ")"]),
+});
+
+export const formulaTokenSchema = z.discriminatedUnion("type", [
+  staticTokenSchema,
+  diceTokenSchema,
+  operatorTokenSchema,
+]);
+
+export const diceTokenResultSchema = diceTokenSchema.extend({
+  diceData: diceRollDataSchema,
+});
+
+export const formulaTokenResultsSchema = z.discriminatedUnion("type", [
+  staticTokenSchema,
+  diceTokenResultSchema,
+  operatorTokenSchema,
+]);
+
+// Updated dice formula result schema with tokens
 export const diceFormulaResultSchema = z.object({
+  tokens: z.array(formulaTokenResultsSchema),
   displayString: z.string(),
-  diceData: diceRollDataSchema.optional(),
   total: z.number(),
   formula: z.string(),
   substitutedFormula: z.string().optional(),
+  numCriticals: z.number(),
+  isFumble: z.boolean(),
 });
 
 // Export inferred types
@@ -69,4 +106,10 @@ export type DiceCategory = z.infer<typeof diceCategorySchema>;
 export type CategorizedDie = z.infer<typeof categorizedDieSchema>;
 export type DiceRollData = z.infer<typeof diceRollDataSchema>;
 export type DiceFormulaOptions = z.infer<typeof diceFormulaOptionsSchema>;
+export type StaticToken = z.infer<typeof staticTokenSchema>;
+export type DiceToken = z.infer<typeof diceTokenSchema>;
+export type OperatorToken = z.infer<typeof operatorTokenSchema>;
+export type FormulaToken = z.infer<typeof formulaTokenSchema>;
+export type DiceTokenResult = z.infer<typeof diceTokenResultSchema>;
+export type FormulaTokenResults = z.infer<typeof formulaTokenResultsSchema>;
 export type DiceFormulaResult = z.infer<typeof diceFormulaResultSchema>;

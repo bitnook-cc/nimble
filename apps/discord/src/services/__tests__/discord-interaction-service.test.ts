@@ -44,6 +44,24 @@ describe('DiscordInteractionService', () => {
           formula: '2d6+5',
           total: 12,
           displayString: '[4] + [3] + 5',
+          tokens: [
+            {
+              type: 'dice',
+              diceData: {
+                dice: [
+                  { value: 4, size: 6, kept: true, category: 'normal', index: 0 },
+                  { value: 3, size: 6, kept: true, category: 'normal', index: 1 },
+                ],
+                total: 7,
+                isDoubleDigit: false,
+                isFumble: false,
+                advantageLevel: 0,
+                criticalHits: 0,
+              },
+            },
+            { type: 'operator', operator: '+' },
+            { type: 'static', value: 5 },
+          ],
         });
 
         const result = service.handleInteraction({
@@ -89,17 +107,22 @@ describe('DiscordInteractionService', () => {
           formula: '1d20',
           total: 18,
           displayString: '~~[10]~~ + [18]',
-          diceData: {
-            dice: [
-              { value: 10, size: 20, kept: false, category: 'dropped', index: 0 },
-              { value: 18, size: 20, kept: true, category: 'normal', index: 1 },
-            ],
-            total: 18,
-            isDoubleDigit: false,
-            isFumble: false,
-            advantageLevel: 1,
-            criticalHits: 0,
-          },
+          tokens: [
+            {
+              type: 'dice',
+              diceData: {
+                dice: [
+                  { value: 10, size: 20, kept: false, category: 'dropped', index: 0 },
+                  { value: 18, size: 20, kept: true, category: 'normal', index: 1 },
+                ],
+                total: 18,
+                isDoubleDigit: false,
+                isFumble: false,
+                advantageLevel: 1,
+                criticalHits: 0,
+              },
+            },
+          ],
         });
 
         const result = service.handleInteraction({
@@ -137,7 +160,7 @@ describe('DiscordInteractionService', () => {
                   }),
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '( ~~10~~ ) 18 = **18**',
+                    value: '~~10~~ 18',
                   }),
                 ]),
               }),
@@ -152,17 +175,22 @@ describe('DiscordInteractionService', () => {
           formula: '1d20',
           total: 3,
           displayString: '[10] + ~~[3]~~',
-          diceData: {
-            dice: [
-              { value: 10, size: 20, kept: true, category: 'normal', index: 0 },
-              { value: 3, size: 20, kept: false, category: 'dropped', index: 1 },
-            ],
-            total: 3,
-            isDoubleDigit: false,
-            isFumble: false,
-            advantageLevel: -1,
-            criticalHits: 0,
-          },
+          tokens: [
+            {
+              type: 'dice',
+              diceData: {
+                dice: [
+                  { value: 10, size: 20, kept: true, category: 'normal', index: 0 },
+                  { value: 3, size: 20, kept: false, category: 'dropped', index: 1 },
+                ],
+                total: 3,
+                isDoubleDigit: false,
+                isFumble: false,
+                advantageLevel: -1,
+                criticalHits: 0,
+              },
+            },
+          ],
         });
 
         const result = service.handleInteraction({
@@ -211,18 +239,24 @@ describe('DiscordInteractionService', () => {
           formula: '1d20+5',
           total: 51,
           displayString: '[20] + [20] + [6] + 5',
-          diceData: {
-            dice: [
-              { value: 20, size: 20, kept: true, category: 'critical', index: 0 },
-              { value: 20, size: 20, kept: true, category: 'explosion', index: 1 },
-              { value: 6, size: 6, kept: true, category: 'vicious', index: 2 },
-            ],
-            afterExpression: '+5',
-            total: 51,
-            isDoubleDigit: false,
-            isFumble: false,
-            criticalHits: 1,
-          },
+          tokens: [
+            {
+              type: 'dice',
+              diceData: {
+                dice: [
+                  { value: 20, size: 20, kept: true, category: 'critical', index: 0 },
+                  { value: 20, size: 20, kept: true, category: 'explosion', index: 1 },
+                  { value: 6, size: 6, kept: true, category: 'vicious', index: 2 },
+                ],
+                total: 46,
+                isDoubleDigit: false,
+                isFumble: false,
+                criticalHits: 1,
+              },
+            },
+            { type: 'operator', operator: '+' },
+            { type: 'static', value: 5 },
+          ],
         });
 
         const result = service.handleInteraction({
@@ -245,7 +279,7 @@ describe('DiscordInteractionService', () => {
                 fields: expect.arrayContaining([
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '**🎯20** + **💥20** + **⚔️6** +5 = **51**',
+                    value: '**🎯20** **💥20** **⚔️6** + 5',
                   }),
                 ]),
               }),
@@ -260,12 +294,18 @@ describe('DiscordInteractionService', () => {
           formula: '1d20',
           total: 1,
           displayString: '[1]',
-          diceData: {
-            dice: [{ value: 1, size: 20, kept: true, category: 'fumble', index: 0 }],
-            total: 1,
-            isDoubleDigit: false,
-            isFumble: true,
-          },
+          tokens: [
+            {
+              type: 'dice',
+              diceData: {
+                dice: [{ value: 1, size: 20, kept: true, category: 'fumble', index: 0 }],
+                total: 1,
+                isDoubleDigit: false,
+                isFumble: true,
+                criticalHits: 0,
+              },
+            },
+          ],
         });
 
         const result = service.handleInteraction({
@@ -286,7 +326,7 @@ describe('DiscordInteractionService', () => {
                 fields: expect.arrayContaining([
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '**💀1** = **1**',
+                    value: '**💀1**',
                   }),
                 ]),
               }),

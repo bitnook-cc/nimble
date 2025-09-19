@@ -1,5 +1,5 @@
 // Import dice schemas from central location
-import { diceRollDataSchema } from "@nimble/dice";
+import { diceFormulaResultSchema } from "@nimble/dice";
 import { z } from "zod";
 
 // Base log entry schema
@@ -16,7 +16,7 @@ export const diceRollEntrySchema = z
     type: z.literal("roll"),
     rollExpression: z.string().min(1),
     advantageLevel: z.number().optional(),
-    diceData: diceRollDataSchema, // Required field for rich display data
+    diceResult: diceFormulaResultSchema, // Required field for rich display data
   })
   .merge(baseLogEntrySchema);
 
@@ -52,7 +52,7 @@ export const initiativeEntrySchema = z
     type: z.literal("initiative"),
     actionsGranted: z.number().positive(),
     rollExpression: z.string().optional(),
-    diceData: diceRollDataSchema.optional(), // Rich dice display data (includes total)
+    diceResult: diceFormulaResultSchema.optional(), // Rich dice display data (includes total)
   })
   .merge(baseLogEntrySchema);
 

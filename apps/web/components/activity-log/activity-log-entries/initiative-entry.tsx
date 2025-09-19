@@ -1,10 +1,12 @@
+import { FormulaTokenResults } from "@nimble/dice";
+
 import { InitiativeEntry } from "@/lib/schemas/activity-log";
 import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 
 // Component for displaying initiative entries with dice data
 export function InitiativeEntryDisplay({ entry }: { entry: InitiativeEntry }) {
   const getActionsText = () => {
-    const total = entry.diceData?.total ?? 0;
+    const total = entry.diceResult?.total ?? 0;
     if (total < 10) return "1 action";
     if (total <= 20) return "2 actions";
     return "3 actions";
@@ -22,13 +24,11 @@ export function InitiativeEntryDisplay({ entry }: { entry: InitiativeEntry }) {
 
       {/* Right side: Dice display and actions granted */}
       <div className="flex items-center gap-3">
-        {entry.diceData && (
+        {entry.diceResult && (
           <span className="text-sm">
             <DiceFormulaDisplay
-              dice={entry.diceData.dice}
-              beforeDice={entry.diceData.beforeExpression}
-              afterDice={entry.diceData.afterExpression}
-              total={entry.diceData.total}
+              tokens={entry.diceResult.tokens}
+              total={entry.diceResult.total}
               isFumble={false} // No fumbles for initiative
             />
           </span>

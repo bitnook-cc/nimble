@@ -1,4 +1,4 @@
-import { DiceCategory } from "@nimble/dice";
+import { DiceCategory, DiceTokenResult, FormulaTokenResults } from "@nimble/dice";
 
 import React from "react";
 
@@ -56,61 +56,82 @@ export function DiceDisplay({ value, size, category, isFirst = false }: DiceDisp
 }
 
 /**
- * Component to display the full dice roll formula with rich formatting
+ * Component to display the full dice roll formula with rich formatting using tokens
  */
 export function DiceFormulaDisplay({
-  dice,
-  beforeDice,
-  afterDice,
+  tokens,
   total,
   isFumble,
 }: {
-  dice: Array<{ value: number; size?: number; category: DiceCategory; kept: boolean }>;
-  beforeDice?: string;
-  afterDice?: string;
+  tokens: FormulaTokenResults[];
   total: number;
   isFumble?: boolean;
 }) {
-  // Display dice in their original order, formatting each based on its category
-  const keptDice = dice.filter((d) => d.kept);
-  const hasDroppedDice = dice.some((d) => !d.kept);
-
   return (
     <span className="inline-flex items-center gap-1">
-      {beforeDice && <span className="text-black dark:text-white font-medium">{beforeDice}</span>}
+      {tokens.map((token, tokenIndex) => {
+        if (token.type === "static") {
+          return (
+            <span
+              key={tokenIndex}
+              className="font-medium"
+              style={{ color: "var(--color-foreground)" }}
+            >
+              {token.value}
+            </span>
+          );
+        }
 
-      {/* Display all dice in their original order */}
-      {dice.map((die, index) => {
-        const isFirstKeptDie = keptDice.length > 0 && die === keptDice[0];
+        if (token.type === "operator") {
+          return (
+            <span key={tokenIndex} className="text-gray-400 dark:text-gray-500">
+              {token.operator}
+            </span>
+          );
+        }
 
-        return (
-          <React.Fragment key={index}>
-            {/* Add operators between kept dice */}
-            {index > 0 && die.kept && dice[index - 1].kept && (
-              <span className="text-gray-400 dark:text-gray-500">+</span>
-            )}
+        if (token.type === "dice") {
+          const diceToken = token as DiceTokenResult;
+          const dice = diceToken.diceData.dice;
+          const keptDice = dice.filter((d) => d.kept);
 
-            {/* Add separator before dropped dice section */}
-            {!die.kept && index > 0 && dice[index - 1].kept && (
-              <span className="text-gray-500 mx-1">|</span>
-            )}
+          return (
+            <span key={tokenIndex} className="inline-flex items-center gap-1">
+              {dice.map((die, dieIndex) => {
+                const isFirstKeptDie = keptDice.length > 0 && die === keptDice[0];
 
-            {/* Add comma between dropped dice */}
-            {!die.kept && index > 0 && !dice[index - 1].kept && (
-              <span className="text-gray-400 dark:text-gray-500">,</span>
-            )}
+                return (
+                  <React.Fragment key={`${tokenIndex}-${dieIndex}`}>
+                    {/* Add operators between kept dice */}
+                    {dieIndex > 0 && die.kept && dice[dieIndex - 1].kept && (
+                      <span className="text-gray-400 dark:text-gray-500">+</span>
+                    )}
 
-            <DiceDisplay
-              value={die.value}
-              size={die.size}
-              category={die.category}
-              isFirst={isFirstKeptDie}
-            />
-          </React.Fragment>
-        );
+                    {/* Add separator before dropped dice section */}
+                    {!die.kept && dieIndex > 0 && dice[dieIndex - 1].kept && (
+                      <span className="text-gray-500 mx-1">|</span>
+                    )}
+
+                    {/* Add comma between dropped dice */}
+                    {!die.kept && dieIndex > 0 && !dice[dieIndex - 1].kept && (
+                      <span className="text-gray-400 dark:text-gray-500">,</span>
+                    )}
+
+                    <DiceDisplay
+                      value={die.value}
+                      size={die.size}
+                      category={die.category}
+                      isFirst={isFirstKeptDie}
+                    />
+                  </React.Fragment>
+                );
+              })}
+            </span>
+          );
+        }
+
+        return null;
       })}
-
-      {afterDice && <span className="text-black text-gray-500 font-medium">{afterDice}</span>}
 
       <span className="text-gray-500 mx-1">=</span>
       <span

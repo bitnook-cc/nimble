@@ -83,8 +83,11 @@ describe("DiceService", () => {
       expect(result.displayString).toBe("[2] + [1] + [4] + 2");
       expect(result.total).toBe(9);
       expect(result.formula).toBe("3d6 + 2");
-      expect(result.diceData?.dice).toHaveLength(3);
-      expect(result.diceData?.total).toBe(9);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      const diceData = (diceTokens[0] as any).diceData;
+      expect(diceData?.dice).toHaveLength(3);
+      expect(diceData?.total).toBe(9);
     });
 
     it("should handle d6 as 1d6", () => {
@@ -130,7 +133,9 @@ describe("DiceService", () => {
       const result = diceService.evaluateDiceFormula("(2d6) * 2 + 4");
 
       expect(result.total).toBe(20);
-      expect(result.diceData?.dice).toHaveLength(2);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.dice).toHaveLength(2);
     });
   });
 
@@ -222,7 +227,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("2d6", { advantageLevel: 1 });
       expect(result.total).toBe(20);
-      expect(result.diceData?.advantageLevel).toBe(1);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.advantageLevel).toBe(1);
     });
 
     it("should handle disadvantage correctly", () => {
@@ -249,7 +256,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("2d6", { advantageLevel: -1 });
       expect(result.total).toBe(3);
-      expect(result.diceData?.advantageLevel).toBe(-1);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.advantageLevel).toBe(-1);
     });
   });
 
@@ -277,7 +286,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6", { allowCriticals: true });
       expect(result.total).toBe(15);
-      expect(result.diceData?.criticalHits).toBe(2);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.criticalHits).toBe(2);
     });
 
     it("should handle fumbles on d20", () => {
@@ -299,7 +310,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d20", { allowFumbles: true });
       expect(result.total).toBe(0);
-      expect(result.diceData?.isFumble).toBe(true);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.isFumble).toBe(true);
     });
   });
 
@@ -326,7 +339,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d44", {});
       expect(result.total).toBe(32);
-      expect(result.diceData?.isDoubleDigit).toBe(true);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.isDoubleDigit).toBe(true);
     });
   });
 
@@ -393,7 +408,8 @@ describe("DiceService", () => {
       const result = diceService.evaluateDiceFormula("3 + 4");
 
       expect(result.total).toBe(7);
-      expect(result.diceData?.dice).toHaveLength(0);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(0);
     });
   });
 
@@ -421,7 +437,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6!", {});
       expect(result.total).toBe(16);
-      expect(result.diceData?.criticalHits).toBe(2);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.criticalHits).toBe(2);
     });
 
     it("should handle vicious with v postfix", () => {
@@ -446,7 +464,9 @@ describe("DiceService", () => {
 
       expect(mockEvaluateDiceFormula).toHaveBeenCalledWith("1d6v", {});
       expect(result.total).toBe(9);
-      expect(result.diceData?.criticalHits).toBe(1);
+      const diceTokens = result.tokens.filter(t => t.type === 'dice');
+      expect(diceTokens).toHaveLength(1);
+      expect((diceTokens[0] as any).diceData?.criticalHits).toBe(1);
     });
   });
 });

@@ -381,7 +381,7 @@ export class ActivitySharingService {
         title = `${characterName} rolled dice`;
         description = `${rollEntry.rollExpression}`;
         // Show dice roll with dice data if available
-        toastService.showDiceRoll(title, rollEntry.diceData, description);
+        toastService.showDiceRoll(title, rollEntry.diceResult, description);
         return;
 
       case "initiative":

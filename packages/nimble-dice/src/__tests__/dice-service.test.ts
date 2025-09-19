@@ -388,14 +388,14 @@ describe("DiceService", () => {
 
     it("should handle postfix in complex expressions", () => {
       // Roll 2d6! + 1d4v + 3
-      // Processing right to left: 1d4v first, then 2d6!
+      // Processing left to right: 2d6! first, then 1d4v
       vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
-        .mockReturnValueOnce(4) // d4 (critical for 1d4v)
-        .mockReturnValueOnce(2) // Exploding roll from d4
-        .mockReturnValueOnce(3) // Vicious die for d4's crit
         .mockReturnValueOnce(6) // First d6 (critical for 2d6!)
         .mockReturnValueOnce(2) // Second d6
-        .mockReturnValueOnce(3); // Exploding roll from first d6
+        .mockReturnValueOnce(3) // Exploding roll from first d6
+        .mockReturnValueOnce(4) // d4 (critical for 1d4v)
+        .mockReturnValueOnce(2) // Exploding roll from d4
+        .mockReturnValueOnce(3); // Vicious die for d4's crit
 
       const result = diceService.evaluateDiceFormula("2d6! + 1d4v + 3");
 
@@ -435,7 +435,7 @@ describe("DiceService", () => {
       // Expected: [2] + [4] + [4] + [1] + [3] + [4] + [2]
       expect(result.displayString).toBe("[2] + [4] + [4] + [1] + [3] + [4] + [2]");
       expect(result.total).toBe(20); // 2 + 4 + 4 + 1 + 3 + 4 + 2
-      expect(result.diceData?.criticalHits).toBe(3); // Three criticals total (2 initial + 1 from explosion)
+      expect(result.numCriticals).toBe(3); // Three criticals total (2 initial + 1 from explosion)
     });
 
     it("should handle !! with vicious", () => {
@@ -454,7 +454,7 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("[6] + [6] + [3] + [6] + [2] + [4] + [5] + [3]");
       expect(result.total).toBe(35); // 6 + 6 + 3 + 6 + 2 + 4 + 5 + 3
-      expect(result.diceData?.criticalHits).toBe(3); // Three criticals total
+      expect(result.numCriticals).toBe(3); // Three criticals total
     });
   });
 
@@ -584,6 +584,52 @@ describe("DiceService", () => {
 
       expect(result.displayString).toBe("~~[2]~~ [4] ~~[1]~~ [3] = 43");
       expect(result.total).toBe(43);
+    });
+  });
+
+  describe("Complex mixed expressions", () => {
+    it("should handle complex formulas with multiple dice and static modifiers", () => {
+      // Test: 1 + 2d4 - 3 + 1d6 - 1
+      // Expected: 1 + [dice results] - 3 + [dice result] - 1
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(3) // First d4
+        .mockReturnValueOnce(2) // Second d4
+        .mockReturnValueOnce(5); // d6
+
+      const result = diceService.evaluateDiceFormula("1 + 2d4 - 3 + 1d6 - 1");
+
+      expect(result.displayString).toBe("1 + [3] + [2] - 3 + [5] - 1");
+      expect(result.total).toBe(7); // 1 + 3 + 2 - 3 + 5 - 1 = 7
+      expect(result.formula).toBe("1 + 2d4 - 3 + 1d6 - 1");
+    });
+
+    it("should handle mixed expressions with postfix modifiers", () => {
+      // Test: 2 + 1d6! - 1 + 1d4v
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(6) // d6 critical
+        .mockReturnValueOnce(4) // d6 explosion
+        .mockReturnValueOnce(4) // d4 critical
+        .mockReturnValueOnce(2) // d4 explosion
+        .mockReturnValueOnce(3); // d4 vicious
+
+      const result = diceService.evaluateDiceFormula("2 + 1d6! - 1 + 1d4v");
+
+      expect(result.displayString).toBe("2 + [6] + [4] - 1 + [4] + [2] + [3]");
+      expect(result.total).toBe(20); // 2 + 6 + 4 - 1 + 4 + 2 + 3 = 20
+      expect(result.numCriticals).toBe(2); // One from d6, one from d4
+    });
+
+    it("should handle complex parenthetical expressions with dice", () => {
+      // Test: (1 + 2d4) * 2 - (1d6 + 3)
+      vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
+        .mockReturnValueOnce(2) // First d4
+        .mockReturnValueOnce(3) // Second d4
+        .mockReturnValueOnce(4); // d6
+
+      const result = diceService.evaluateDiceFormula("(1 + 2d4) * 2 - (1d6 + 3)");
+
+      expect(result.displayString).toBe("(1 + [2] + [3]) * 2 - ([4] + 3)");
+      expect(result.total).toBe(5); // (1 + 2 + 3) * 2 - (4 + 3) = 12 - 7 = 5
     });
   });
 

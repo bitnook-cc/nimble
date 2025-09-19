@@ -1,4 +1,4 @@
-import { DiceRollData } from "@nimble/dice";
+import { DiceFormulaResult } from "@nimble/dice";
 
 export type ToastType = "success" | "error" | "warning" | "info";
 
@@ -7,7 +7,7 @@ export interface Toast {
   type: ToastType;
   title: string;
   description?: string;
-  diceData?: DiceRollData;
+  diceResult?: DiceFormulaResult;
   duration?: number;
 }
 
@@ -72,12 +72,12 @@ export class ToastService {
     this.addToast({ type: "info", title, description });
   }
 
-  showDiceRoll(title: string, diceData?: DiceRollData, description?: string): void {
+  showDiceRoll(title: string, diceResult?: DiceFormulaResult, description?: string): void {
     this.addToast({
       type: "info",
       title,
       description,
-      diceData,
+      diceResult,
       duration: 7000, // Slightly longer for dice rolls
     });
   }

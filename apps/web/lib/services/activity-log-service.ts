@@ -122,8 +122,8 @@ export class ActivityLogService {
     switch (entry.type) {
       case "roll":
         const rollEntry = entry as DiceRollEntry;
-        // Use toast service with dice data for consistent display
-        toastService.showDiceRoll(description, rollEntry.diceData);
+        // Use toast service with dice result for consistent display
+        toastService.showDiceRoll(description, rollEntry.diceResult);
         break;
 
       case "damage":
@@ -140,9 +140,9 @@ export class ActivityLogService {
 
       case "initiative":
         const initiativeEntry = entry as InitiativeEntry;
-        if (initiativeEntry.diceData) {
+        if (initiativeEntry.diceResult) {
           const actionsText = `${initiativeEntry.actionsGranted} ${initiativeEntry.actionsGranted === 1 ? "action" : "actions"}`;
-          toastService.showDiceRoll(`Initiative Roll (${actionsText})`, initiativeEntry.diceData);
+          toastService.showDiceRoll(`Initiative Roll (${actionsText})`, initiativeEntry.diceResult);
         } else {
           toastService.showInfo(description);
         }
@@ -211,8 +211,8 @@ export class ActivityLogService {
     rollResult: DiceFormulaResult,
     advantageLevel?: number,
   ): DiceRollEntry {
-    if (!rollResult.diceData) {
-      throw new Error("DiceFormulaResult must include diceData");
+    if (!rollResult.tokens) {
+      throw new Error("DiceFormulaResult must include tokens");
     }
 
     const currentCharacter = this.getCurrentCharacter();
@@ -228,7 +228,7 @@ export class ActivityLogService {
       characterId: currentCharacter.id,
       rollExpression: rollResult.substitutedFormula || rollResult.formula,
       advantageLevel: advantageLevel !== 0 ? advantageLevel : undefined,
-      diceData: rollResult.diceData,
+      diceResult: rollResult,
     };
 
     return entry;
@@ -292,7 +292,7 @@ export class ActivityLogService {
   createInitiativeEntry(
     actionsGranted: number,
     rollExpression?: string,
-    diceData?: any,
+    diceResult?: DiceFormulaResult,
   ): InitiativeEntry {
     const currentCharacter = this.getCurrentCharacter();
     if (!currentCharacter) {
@@ -307,7 +307,7 @@ export class ActivityLogService {
       characterId: currentCharacter.id,
       actionsGranted,
       rollExpression,
-      diceData,
+      diceResult,
     };
   }
 

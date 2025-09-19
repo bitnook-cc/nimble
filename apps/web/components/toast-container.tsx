@@ -62,19 +62,13 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
         {getIcon()}
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-sm">{toast.title}</h4>
-          {toast.diceData ? (
+          {toast.diceResult && toast.diceResult.tokens ? (
             <div className="mt-1">
-              {toast.diceData.isDoubleDigit ? (
-                <DoubleDigitDiceDisplay dice={toast.diceData.dice} result={toast.diceData.total} />
-              ) : (
-                <DiceFormulaDisplay
-                  dice={toast.diceData.dice}
-                  beforeDice={toast.diceData.beforeExpression}
-                  afterDice={toast.diceData.afterExpression}
-                  total={toast.diceData.total}
-                  isFumble={toast.diceData.isFumble}
-                />
-              )}
+              <DiceFormulaDisplay
+                tokens={toast.diceResult.tokens}
+                total={toast.diceResult.total}
+                isFumble={toast.diceResult.isFumble}
+              />
             </div>
           ) : (
             toast.description && (

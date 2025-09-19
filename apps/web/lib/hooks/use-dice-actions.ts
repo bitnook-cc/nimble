@@ -150,7 +150,7 @@ export function useDiceActions(): UseDiceActionsReturn {
         const logEntry = activityLogService.createInitiativeEntry(
           actionsGranted,
           formula,
-          rollResult.diceData,
+          rollResult,
         );
         await addLogEntry(logEntry);
 
