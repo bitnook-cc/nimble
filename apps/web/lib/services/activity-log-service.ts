@@ -39,7 +39,7 @@ export class ActivityLogService {
       }));
 
       // Validate each entry and filter out invalid ones
-      return entries.filter((entry: any) => {
+      const validEntries = entries.filter((entry: any) => {
         try {
           logEntrySchema.parse(entry);
           return true;
@@ -48,6 +48,12 @@ export class ActivityLogService {
           return false;
         }
       });
+
+      if (validEntries.length !== entries.length) {
+        localStorage.setItem(this.storageKey, JSON.stringify(validEntries));
+      }
+
+      return validEntries;
     } catch {
       return [];
     }

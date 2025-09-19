@@ -499,6 +499,7 @@ export class ActivitySharingService {
       createdAt: session.createdAt.toISOString(),
       updatedAt: session.updatedAt.toISOString(),
       owner: {
+        id: session.ownerId,
         name: session.owner.name,
       },
       participants: session.participants.map((p) =>
@@ -516,12 +517,12 @@ export class ActivitySharingService {
     return {
       id: participant.id,
       sessionId: participant.sessionId,
-      userId: participant.userId,
       characterId: participant.characterId,
       characterName: participant.characterName,
       joinedAt: participant.joinedAt.toISOString(),
       lastActiveAt: participant.lastActiveAt.toISOString(),
       user: {
+        id: participant.userId,
         name: participant.user.name,
       },
     };
@@ -536,10 +537,12 @@ export class ActivitySharingService {
   ): realtime.SharedActivityLogEntry {
     return {
       id: log.id,
-      userId: log.userId,
       characterId: log.characterId,
       characterName: characterName || "Unknown Character",
-      userName: log.user.name,
+      user: {
+        id: log.userId,
+        name: log.user.name,
+      },
       logEntry: log.logEntry,
       timestamp: log.timestamp.toISOString(),
     };

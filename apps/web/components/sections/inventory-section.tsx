@@ -31,10 +31,7 @@ export function InventorySection() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="mt-4">
-          <Inventory
-            inventory={inventory}
-            characterDexterity={characterDexterity}
-          />
+          <Inventory inventory={inventory} characterDexterity={characterDexterity} />
         </div>
       </CollapsibleContent>
     </Collapsible>

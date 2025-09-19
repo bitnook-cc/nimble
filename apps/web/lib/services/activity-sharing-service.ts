@@ -1,6 +1,6 @@
 import { realtime } from "@nimble/shared";
 
-import { apiFetch } from "../utils/api.js";
+import { apiFetch } from "../utils/api";
 
 interface SessionState {
   session: realtime.GameSession;

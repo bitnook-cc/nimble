@@ -5,6 +5,7 @@ import { AlertCircle, LogOut, Plus, Settings, Share2, Users } from "lucide-react
 import { useEffect, useState } from "react";
 
 import { useActivitySharing } from "../lib/hooks/use-activity-sharing";
+import { useAuth } from "../lib/hooks/use-auth";
 import { useCharacterService } from "../lib/hooks/use-character-service";
 import { useToast } from "../lib/hooks/use-toast";
 import { Alert, AlertDescription } from "./ui/alert";
@@ -24,6 +25,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
   const [sessionName, setSessionName] = useState("");
   const { toast } = useToast();
   const { character } = useCharacterService();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const {
     session: currentSession,
     loading,
@@ -96,15 +98,23 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
     }
   };
 
+  // Show different trigger button state based on auth
+  const triggerButton = children || (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      disabled={authLoading || !isAuthenticated}
+      title={!isAuthenticated ? "Sign in to share activity logs" : undefined}
+    >
+      <Share2 className="w-4 h-4 mr-2" />
+      Share Activity
+    </Button>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children || (
-          <Button variant="outline" size="sm">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share Activity
-          </Button>
-        )}
+        {triggerButton}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -114,7 +124,16 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
           </DialogTitle>
         </DialogHeader>
 
-        {!currentSession ? (
+        {!isAuthenticated ? (
+          <div className="space-y-4">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                You need to sign in to share activity logs with other players. Click the "Sign in with Google" button in the top-right corner to get started.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ) : !currentSession ? (
           <div className="space-y-4">
             {/* Create Session */}
             <div className="space-y-3">
