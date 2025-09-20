@@ -160,7 +160,7 @@ describe('DiscordInteractionService', () => {
                   }),
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '~~10~~ 18',
+                    value: '~~[10]~~ [18]',
                   }),
                 ]),
               }),
@@ -279,7 +279,7 @@ describe('DiscordInteractionService', () => {
                 fields: expect.arrayContaining([
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '**🎯20** **💥20** **⚔️6** + 5',
+                    value: '**🎯[20]** **💥[20]** **⚔️[6]** + 5',
                   }),
                 ]),
               }),
@@ -326,7 +326,7 @@ describe('DiscordInteractionService', () => {
                 fields: expect.arrayContaining([
                   expect.objectContaining({
                     name: 'Dice Breakdown',
-                    value: '**💀1**',
+                    value: '**💀[1]**',
                   }),
                 ]),
               }),

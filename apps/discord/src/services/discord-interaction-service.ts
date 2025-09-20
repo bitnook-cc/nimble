@@ -243,17 +243,17 @@ When using postfix notation, the order of operations is important. Always place 
 
       switch (die.category) {
         case 'critical':
-          return `**🎯${value}**`; // Bold with target emoji for crits
+          return `**🎯[${value}]**`; // Bold with target emoji for crits
         case 'explosion':
-          return `**💥${value}**`; // Bold with explosion emoji for explosions
+          return `**💥[${value}]**`; // Bold with explosion emoji for explosions
         case 'vicious':
-          return `**⚔️${value}**`; // Bold with sword emoji for vicious
+          return `**⚔️[${value}]**`; // Bold with sword emoji for vicious
         case 'fumble':
-          return `**💀${value}**`; // Bold with skull emoji for fumbles
+          return `**💀[${value}]**`; // Bold with skull emoji for fumbles
         case 'dropped':
-          return `~~${value}~~`; // Strikethrough for dropped
+          return `~~[${value}]~~`; // Strikethrough for dropped
         case 'normal':
-          return `${value}`; // Normal formatting for regular dice
+          return `[${value}]`; // Normal formatting for regular dice
       }
     };
 
