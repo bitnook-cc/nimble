@@ -5,7 +5,9 @@ import { useState } from "react";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +17,6 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface AncestryBackgroundChangeDialogProps {
   open: boolean;
@@ -39,9 +39,8 @@ export function AncestryBackgroundChangeDialog({
   const availableAncestries = contentRepository.getAllAncestries();
   const availableBackgrounds = contentRepository.getAllBackgrounds();
 
-  const hasChanges = 
-    selectedAncestryId !== currentAncestryId || 
-    selectedBackgroundId !== currentBackgroundId;
+  const hasChanges =
+    selectedAncestryId !== currentAncestryId || selectedBackgroundId !== currentBackgroundId;
 
   const handleSave = async () => {
     if (!hasChanges) {
@@ -50,14 +49,14 @@ export function AncestryBackgroundChangeDialog({
     }
 
     const characterService = getCharacterService();
-    
+
     // Update ancestry and/or background if changed
     const updates: { ancestryId?: string; backgroundId?: string } = {};
-    
+
     if (selectedAncestryId !== currentAncestryId) {
       updates.ancestryId = selectedAncestryId;
     }
-    
+
     if (selectedBackgroundId !== currentBackgroundId) {
       updates.backgroundId = selectedBackgroundId;
     }
@@ -79,7 +78,8 @@ export function AncestryBackgroundChangeDialog({
         <DialogHeader>
           <DialogTitle>Change Ancestry & Background</DialogTitle>
           <DialogDescription>
-            Update your character's ancestry and background. This will preserve your current progress.
+            Update your character's ancestry and background. This will preserve your current
+            progress.
           </DialogDescription>
         </DialogHeader>
 
@@ -108,9 +108,7 @@ export function AncestryBackgroundChangeDialog({
               <div className="space-y-4 pr-4">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold mb-1">Select Ancestry</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Choose your character's ancestry
-                  </p>
+                  <p className="text-sm text-muted-foreground">Choose your character's ancestry</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -118,8 +116,8 @@ export function AncestryBackgroundChangeDialog({
                     <Card
                       key={ancestry.id}
                       className={`cursor-pointer transition-all ${
-                        selectedAncestryId === ancestry.id 
-                          ? "ring-2 ring-primary" 
+                        selectedAncestryId === ancestry.id
+                          ? "ring-2 ring-primary"
                           : "hover:shadow-md"
                       }`}
                       onClick={() => setSelectedAncestryId(ancestry.id)}
@@ -167,8 +165,8 @@ export function AncestryBackgroundChangeDialog({
                     <Card
                       key={background.id}
                       className={`cursor-pointer transition-all ${
-                        selectedBackgroundId === background.id 
-                          ? "ring-2 ring-primary" 
+                        selectedBackgroundId === background.id
+                          ? "ring-2 ring-primary"
                           : "hover:shadow-md"
                       }`}
                       onClick={() => setSelectedBackgroundId(background.id)}
