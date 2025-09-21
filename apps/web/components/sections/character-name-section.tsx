@@ -10,6 +10,7 @@ import { characterImageService } from "@/lib/services/character-image-service";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
+import { AncestryBackgroundChangeDialog } from "../ancestry-background-change-dialog";
 import { CharacterAvatar } from "../character-avatar";
 import { CharacterImageHistoryDialog } from "../character-image-history-dialog";
 import { CharacterImageUploadDialog } from "../character-image-upload-dialog";
@@ -38,6 +39,7 @@ export function CharacterNameSection({
   const [showLevelUpGuide, setShowLevelUpGuide] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showImageHistory, setShowImageHistory] = useState(false);
+  const [showAncestryBackgroundDialog, setShowAncestryBackgroundDialog] = useState(false);
 
   if (!character) return null;
 
@@ -140,7 +142,12 @@ export function CharacterNameSection({
 
             {/* Ancestry, Background, Class, Level */}
             <div className="text-sm text-muted-foreground">
-              {ancestryName} • {backgroundName}
+              <button
+                onClick={() => setShowAncestryBackgroundDialog(true)}
+                className="hover:text-foreground transition-colors cursor-pointer underline-offset-4 hover:underline"
+              >
+                {ancestryName} • {backgroundName}
+              </button>
             </div>
             <div className="text-sm text-muted-foreground">
               {className} • Level {character.level}
@@ -173,6 +180,16 @@ export function CharacterNameSection({
           characterId={character.id}
           characterName={character.name}
           currentImageId={character.imageId}
+        />
+      )}
+
+      {/* Ancestry & Background Change Dialog */}
+      {showAncestryBackgroundDialog && (
+        <AncestryBackgroundChangeDialog
+          open={showAncestryBackgroundDialog}
+          onOpenChange={setShowAncestryBackgroundDialog}
+          currentAncestryId={character.ancestryId}
+          currentBackgroundId={character.backgroundId}
         />
       )}
     </>
