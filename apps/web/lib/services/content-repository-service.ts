@@ -34,6 +34,16 @@ export interface ContentUploadResult {
   itemsAdded?: number;
 }
 
+export interface MultiFileUploadResult {
+  success: boolean;
+  message: string;
+  results: Array<{
+    filename: string;
+    contentType: CustomContentType | null;
+    result: ContentUploadResult;
+  }>;
+}
+
 // For content management - combines school definition with spells
 export interface SpellSchoolWithSpells {
   id: string;
@@ -1127,6 +1137,177 @@ export class ContentRepositoryService {
       this.initializeFeaturePools();
     }
     return Array.from(this.featurePoolMap.values());
+  }
+
+  // Multi-file upload method
+  public uploadMultipleFiles(files: File[]): Promise<MultiFileUploadResult> {
+    return new Promise((resolve) => {
+      const results: MultiFileUploadResult["results"] = [];
+      let pendingFiles = files.length;
+      
+      if (pendingFiles === 0) {
+        resolve({
+          success: false,
+          message: "No files provided",
+          results: []
+        });
+        return;
+      }
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const content = e.target?.result as string;
+            const data = JSON.parse(content);
+            
+            // Try to detect content type
+            const contentType = this.detectContentType(data);
+            let result: ContentUploadResult;
+
+            if (!contentType) {
+              result = {
+                success: false,
+                message: "Could not determine content type from JSON structure"
+              };
+            } else {
+              // Upload using the detected content type
+              switch (contentType) {
+                case CustomContentType.CLASS_DEFINITION:
+                  result = this.uploadClasses(content);
+                  break;
+                case CustomContentType.SUBCLASS_DEFINITION:
+                  result = this.uploadSubclasses(content);
+                  break;
+                case CustomContentType.SPELL_SCHOOL_DEFINITION:
+                  result = this.uploadSpellSchools(content);
+                  break;
+                case CustomContentType.ANCESTRY_DEFINITION:
+                  result = this.uploadAncestries(content);
+                  break;
+                case CustomContentType.BACKGROUND_DEFINITION:
+                  result = this.uploadBackgrounds(content);
+                  break;
+                case CustomContentType.ACTION_ABILITY:
+                  result = this.uploadAbilities(content);
+                  break;
+                case CustomContentType.SPELL_ABILITY:
+                  result = this.uploadSpells(content);
+                  break;
+                case CustomContentType.ITEM_REPOSITORY:
+                  result = this.uploadItems(content);
+                  break;
+                default:
+                  result = {
+                    success: false,
+                    message: "Unknown content type"
+                  };
+              }
+            }
+
+            results.push({
+              filename: file.name,
+              contentType,
+              result
+            });
+
+            pendingFiles--;
+            if (pendingFiles === 0) {
+              // All files processed
+              const successfulResults = results.filter(r => r.result.success);
+              const failedResults = results.filter(r => !r.result.success);
+              
+              let message = "";
+              if (successfulResults.length > 0) {
+                const totalItemsAdded = successfulResults.reduce((sum, r) => sum + (r.result.itemsAdded || 0), 0);
+                message += `Successfully processed ${successfulResults.length} file(s) with ${totalItemsAdded} item(s) total`;
+              }
+              
+              if (failedResults.length > 0) {
+                if (message) message += ". ";
+                message += `${failedResults.length} file(s) failed to process`;
+              }
+
+              resolve({
+                success: successfulResults.length > 0,
+                message,
+                results
+              });
+            }
+          } catch (error) {
+            results.push({
+              filename: file.name,
+              contentType: null,
+              result: {
+                success: false,
+                message: "Invalid JSON format"
+              }
+            });
+
+            pendingFiles--;
+            if (pendingFiles === 0) {
+              resolve({
+                success: false,
+                message: "All files failed to process",
+                results
+              });
+            }
+          }
+        };
+        reader.readAsText(file);
+      });
+    });
+  }
+
+  private detectContentType(data: any): CustomContentType | null {
+    // Handle arrays - check the first item
+    const item = Array.isArray(data) ? data[0] : data;
+    
+    if (!item || typeof item !== 'object') {
+      return null;
+    }
+
+    // Check for item repository format (has "items" array)
+    if (data.items && Array.isArray(data.items)) {
+      return CustomContentType.ITEM_REPOSITORY;
+    }
+
+    // Check for spell school (has spells array and school-specific properties)
+    if (item.spells && Array.isArray(item.spells) && item.color && item.icon) {
+      return CustomContentType.SPELL_SCHOOL_DEFINITION;
+    }
+
+    // Check for class (has features array and hitDie)
+    if (item.features && Array.isArray(item.features) && item.hitDie) {
+      return CustomContentType.CLASS_DEFINITION;
+    }
+
+    // Check for subclass (has parentClassId)
+    if (item.parentClassId && item.features && Array.isArray(item.features)) {
+      return CustomContentType.SUBCLASS_DEFINITION;
+    }
+
+    // Check for ancestry (has size property and features)
+    if (item.size && item.features && Array.isArray(item.features)) {
+      return CustomContentType.ANCESTRY_DEFINITION;
+    }
+
+    // Check for background (has features but no size, hitDie, or parentClassId)
+    if (item.features && Array.isArray(item.features) && !item.size && !item.hitDie && !item.parentClassId) {
+      return CustomContentType.BACKGROUND_DEFINITION;
+    }
+
+    // Check for spell ability (has school and tier properties)
+    if (item.school && item.tier !== undefined) {
+      return CustomContentType.SPELL_ABILITY;
+    }
+
+    // Check for action ability (has name, description, and either frequency or roll properties, but no school/tier)
+    if (item.name && item.description && (item.frequency || item.roll) && !item.school && item.tier === undefined) {
+      return CustomContentType.ACTION_ABILITY;
+    }
+
+    return null;
   }
 
   // Utility Methods

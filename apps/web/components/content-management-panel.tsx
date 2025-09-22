@@ -29,6 +29,7 @@ import { ClassDefinition, SubclassDefinition } from "@/lib/schemas/class";
 import {
   ContentRepositoryService,
   ContentUploadResult,
+  MultiFileUploadResult,
 } from "@/lib/services/content-repository-service";
 import {
   CustomContentType,
@@ -68,6 +69,7 @@ interface ContentManagementPanelProps {
 export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPanelProps) {
   const [uploadMessage, setUploadMessage] = useState<string>("");
   const [uploadError, setUploadError] = useState<string>("");
+  const [uploadDetails, setUploadDetails] = useState<string>("");
   const [expandedSections, setExpandedSections] = useState<
     Partial<Record<CustomContentType, boolean>>
   >({});
@@ -138,6 +140,59 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
     reader.readAsText(file);
 
     // Clear the input so the same file can be uploaded again
+    event.target.value = "";
+  };
+
+  const handleMultiFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    setUploadMessage("");
+    setUploadError("");
+    setUploadDetails("");
+
+    try {
+      const result = await contentRepository.uploadMultipleFiles(files);
+      
+      if (result.success) {
+        setUploadMessage(result.message);
+        
+        // Create detailed breakdown
+        const successfulFiles = result.results.filter(r => r.result.success);
+        if (successfulFiles.length > 0) {
+          const details = successfulFiles.map(r => 
+            `• ${r.filename}: ${r.result.message} ${r.contentType ? `(detected as ${r.contentType.replace('_', ' ').toLowerCase()})` : ''}`
+          ).join('\n');
+          setUploadDetails(details);
+        }
+        
+        setTimeout(() => {
+          setUploadMessage("");
+          setUploadDetails("");
+        }, 5000);
+      } else {
+        setUploadError(result.message);
+        
+        // Show detailed error breakdown
+        const failedFiles = result.results.filter(r => !r.result.success);
+        if (failedFiles.length > 0) {
+          const details = failedFiles.map(r => 
+            `• ${r.filename}: ${r.result.message}`
+          ).join('\n');
+          setUploadDetails(details);
+        }
+        
+        setTimeout(() => {
+          setUploadError("");
+          setUploadDetails("");
+        }, 8000);
+      }
+    } catch (error) {
+      setUploadError("Failed to process files");
+      setTimeout(() => setUploadError(""), 5000);
+    }
+
+    // Clear the input
     event.target.value = "";
   };
 
@@ -288,10 +343,10 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="space-y-4">
-              {/* Upload Section */}
+              {/* Schema Help Section */}
               <div className="border rounded-lg p-4 bg-muted/30">
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm font-medium">Upload {metadata.title}</Label>
+                  <Label className="text-sm font-medium">{metadata.title} Schema</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -299,7 +354,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                     className="h-6 px-2"
                   >
                     <BookOpen className="h-3 w-3 mr-1" />
-                    Schema
+                    {showSchemaHelp[contentType] ? 'Hide' : 'Show'} Schema
                   </Button>
                 </div>
 
@@ -311,7 +366,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                       const schemaString = JSON.stringify(schema, null, 2);
 
                       return (
-                        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs">
                           <div className="font-semibold text-blue-900 mb-1">
                             {schema.title || metadata.title} Format
                           </div>
@@ -380,19 +435,6 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                   }
                   return null;
                 })()}
-
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={(e) => handleFileUpload(e, contentType)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose JSON File
-                  </Button>
-                </div>
               </div>
 
               {/* Content List */}
@@ -419,39 +461,24 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               {items.map((repoItem: any) => (
                                 <div
                                   key={repoItem.item.id}
-                                  className="flex items-center justify-between text-xs"
+                                  className="flex items-start justify-between text-xs gap-2"
                                 >
-                                  <div>
-                                    <span className="font-medium">{repoItem.item.name}</span>
-                                    {repoItem.rarity && (
-                                      <span className="text-muted-foreground ml-1">
-                                        ({repoItem.rarity})
-                                      </span>
-                                    )}
-                                    {repoItem.item.damage && (
-                                      <span className="text-muted-foreground ml-1">
-                                        {repoItem.item.damage}
-                                      </span>
-                                    )}
-                                    {repoItem.item.armor && (
-                                      <span className="text-muted-foreground ml-1">
-                                        AC {repoItem.item.armor}
-                                      </span>
-                                    )}
+                                  <div className="flex-1 min-w-0">
+                                    <span className="font-medium">{repoItem.item.name} <span className="text-muted-foreground font-normal">[{repoItem.item.id}]</span></span>
+                                    <div className="text-muted-foreground">
+                                      {repoItem.rarity && `${repoItem.rarity} • `}
+                                      {repoItem.item.damage && `${repoItem.item.damage} • `}
+                                      {repoItem.item.armor && `AC ${repoItem.item.armor}`}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-muted-foreground">
-                                      {repoItem.item.id}
-                                    </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-5 w-5 p-0"
-                                      onClick={() => exportContent(repoItem, contentType)}
-                                    >
-                                      <Download className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 flex-shrink-0"
+                                    onClick={() => exportContent(repoItem, contentType)}
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               ))}
                             </div>
@@ -478,27 +505,24 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                 {spells.map((spell) => (
                                   <div
                                     key={spell.id}
-                                    className="flex items-center justify-between text-xs"
+                                    className="flex items-start justify-between text-xs gap-2"
                                   >
-                                    <div>
-                                      <span className="font-medium">{spell.name}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="font-medium">{spell.name} <span className="text-muted-foreground font-normal">[{spell.id}]</span></span>
                                       {spell.tier && (
-                                        <span className="text-muted-foreground ml-1">
-                                          (Tier {spell.tier})
-                                        </span>
+                                        <div className="text-muted-foreground">
+                                          Tier {spell.tier}
+                                        </div>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">{spell.id}</span>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-5 w-5 p-0"
-                                        onClick={() => exportContent(spell, contentType)}
-                                      >
-                                        <Download className="h-3 w-3" />
-                                      </Button>
-                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-5 w-5 p-0 flex-shrink-0"
+                                      onClick={() => exportContent(spell, contentType)}
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </Button>
                                   </div>
                                 ))}
                               </div>
@@ -512,35 +536,32 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               return (
                                 <div
                                   key={repositoryItem.item.id || index}
-                                  className="flex items-center justify-between p-2 border rounded"
+                                  className="flex items-start justify-between p-2 border rounded gap-2"
                                 >
-                                  <div>
+                                  <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm">
-                                      {repositoryItem.item.name}
+                                      {repositoryItem.item.name} <span className="text-muted-foreground font-normal">[{repositoryItem.item.id}]</span>
                                     </div>
                                     {repositoryItem.item.description && (
-                                      <div className="text-xs text-muted-foreground truncate max-w-md">
+                                      <div className="text-xs text-muted-foreground line-clamp-2">
                                         {repositoryItem.item.description}
                                       </div>
                                     )}
                                     <div className="text-xs text-muted-foreground">
                                       {repositoryItem.category} {repositoryItem.item.type}
                                       {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
+                                      {repositoryItem.item.damage && ` • ${repositoryItem.item.damage}`}
+                                      {repositoryItem.item.armor && ` • AC ${repositoryItem.item.armor}`}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">
-                                      {repositoryItem.item.id}
-                                    </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                      onClick={() => exportContent(item, contentType)}
-                                    >
-                                      <Download className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 flex-shrink-0"
+                                    onClick={() => exportContent(item, contentType)}
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               );
                             }
@@ -550,51 +571,44 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                             return (
                               <div
                                 key={regularItem.id || index}
-                                className="flex items-center justify-between p-2 border rounded"
+                                className="flex items-start justify-between p-2 border rounded gap-2"
                               >
-                                <div>
-                                  <div className="font-medium text-sm">{regularItem.name}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-sm">{regularItem.name} <span className="text-muted-foreground font-normal">[{regularItem.id}]</span></div>
                                   {regularItem.description && (
-                                    <div className="text-xs text-muted-foreground truncate max-w-md">
+                                    <div className="text-xs text-muted-foreground line-clamp-2">
                                       {regularItem.description}
                                     </div>
                                   )}
-                                  {"spells" in regularItem && regularItem.spells && (
-                                    <div className="text-xs text-muted-foreground">
-                                      {regularItem.spells.length} spells
-                                    </div>
-                                  )}
-                                  {"size" in regularItem &&
-                                    (regularItem as AncestryDefinition).size && (
-                                      <div className="text-xs text-muted-foreground">
-                                        Size: {(regularItem as AncestryDefinition).size}
-                                      </div>
+                                  <div className="text-xs text-muted-foreground space-x-2">
+                                    {"spells" in regularItem && regularItem.spells && (
+                                      <span>{regularItem.spells.length} spells</span>
                                     )}
-                                  {"features" in regularItem &&
-                                    (regularItem as AncestryDefinition | BackgroundDefinition)
-                                      .features && (
-                                      <div className="text-xs text-muted-foreground">
-                                        {
-                                          (regularItem as AncestryDefinition | BackgroundDefinition)
-                                            .features.length
-                                        }{" "}
-                                        features
-                                      </div>
-                                    )}
+                                    {"size" in regularItem &&
+                                      (regularItem as AncestryDefinition).size && (
+                                        <span>Size: {(regularItem as AncestryDefinition).size}</span>
+                                      )}
+                                    {"features" in regularItem &&
+                                      (regularItem as AncestryDefinition | BackgroundDefinition)
+                                        .features && (
+                                        <span>
+                                          {
+                                            (regularItem as AncestryDefinition | BackgroundDefinition)
+                                              .features.length
+                                          }{" "}
+                                          features
+                                        </span>
+                                      )}
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground">
-                                    {regularItem.id}
-                                  </span>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                    onClick={() => exportContent(item, contentType)}
-                                  >
-                                    <Download className="h-3 w-3" />
-                                  </Button>
-                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 flex-shrink-0"
+                                  onClick={() => exportContent(item, contentType)}
+                                >
+                                  <Download className="h-3 w-3" />
+                                </Button>
                               </div>
                             );
                           })}
@@ -627,15 +641,54 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4">
+          {/* Multi-File Upload Section */}
+          <Card className="bg-muted/30">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-lg">Upload Content Files</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Select multiple JSON files to upload. Files will be automatically detected and sorted by content type.
+                  </p>
+                </div>
+                
+                <div className="relative max-w-xs sm:max-w-md mx-auto">
+                  <input
+                    type="file"
+                    accept=".json"
+                    multiple
+                    onChange={handleMultiFileUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Button variant="default" size="lg" className="w-full">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Choose JSON Files
+                  </Button>
+                </div>
+                
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div>Supported content types: Classes, Subclasses, Ancestries, Backgrounds, Abilities, Spells, Spell Schools, Items</div>
+                  <div>You can upload different content types together in a single operation</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Status Messages */}
           {uploadMessage && (
             <div className="p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
-              {uploadMessage}
+              <div className="font-medium">{uploadMessage}</div>
+              {uploadDetails && (
+                <div className="mt-2 text-xs whitespace-pre-line">{uploadDetails}</div>
+              )}
             </div>
           )}
           {uploadError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
-              {uploadError}
+              <div className="font-medium">{uploadError}</div>
+              {uploadDetails && (
+                <div className="mt-2 text-xs whitespace-pre-line">{uploadDetails}</div>
+              )}
             </div>
           )}
 
