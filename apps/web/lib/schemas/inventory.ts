@@ -3,6 +3,10 @@ import { z } from "zod";
 import { currencySchema } from "./currency";
 import { CharacterFeatureSchema } from "./features";
 
+// Common item property schemas
+export const itemCategorySchema = z.enum(["mundane", "magical"]);
+export const itemRaritySchema = z.enum(["common", "uncommon", "rare", "very-rare", "legendary"]);
+
 // Attribute names for weapon scaling
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
 
@@ -69,3 +73,21 @@ export type Inventory = z.infer<typeof inventorySchema>;
 
 // Additional type for equippable items
 export type EquippableItem = WeaponItem | ArmorItem;
+
+// Repository item schema - item with additional category and rarity fields
+export const repositoryItemSchema = itemSchema.and(z.object({
+  category: itemCategorySchema,
+  rarity: itemRaritySchema.optional(),
+}));
+
+// Custom item content schema for uploads
+export const customItemContentSchema = z.object({
+  items: z.array(repositoryItemSchema),
+});
+
+// Common type exports
+export type ItemCategory = z.infer<typeof itemCategorySchema>;
+export type ItemRarity = z.infer<typeof itemRaritySchema>;
+
+export type RepositoryItemSchema = z.infer<typeof repositoryItemSchema>;
+export type CustomItemContentSchema = z.infer<typeof customItemContentSchema>;

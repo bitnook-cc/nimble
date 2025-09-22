@@ -4,37 +4,43 @@ import {
   ConsumableItem,
   FreeformItem,
   Item,
+  ItemCategory,
+  ItemRarity,
   ItemType,
   WeaponItem,
 } from "@/lib/schemas/inventory";
 
-// Repository item wrapper that uses the existing item structure
-export interface RepositoryItem {
-  item: Omit<Item, "equipped">; // Repository items aren't equipped initially
-  category: "mundane" | "magical";
-  rarity?: "common" | "uncommon" | "rare" | "very-rare" | "legendary";
-}
+// Repository item combines item with category and rarity
+export type RepositoryItem = Item & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
 // Specific repository item types
-export interface RepositoryWeaponItem extends RepositoryItem {
-  item: Omit<WeaponItem, "equipped">;
-}
+export type RepositoryWeaponItem = WeaponItem & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
-export interface RepositoryArmorItem extends RepositoryItem {
-  item: Omit<ArmorItem, "equipped">;
-}
+export type RepositoryArmorItem = ArmorItem & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
-export interface RepositoryFreeformItem extends RepositoryItem {
-  item: FreeformItem;
-}
+export type RepositoryFreeformItem = FreeformItem & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
-export interface RepositoryConsumableItem extends RepositoryItem {
-  item: ConsumableItem;
-}
+export type RepositoryConsumableItem = ConsumableItem & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
-export interface RepositoryAmmunitionItem extends RepositoryItem {
-  item: AmmunitionItem;
-}
+export type RepositoryAmmunitionItem = AmmunitionItem & {
+  category: ItemCategory;
+  rarity?: ItemRarity;
+};
 
 // Item repository structure
 export interface ItemRepository {
@@ -53,7 +59,7 @@ export interface CustomItemContent {
 // Filter options for item browsing
 export interface ItemFilter {
   type?: ItemType;
-  category?: "mundane" | "magical";
-  rarity?: "common" | "uncommon" | "rare" | "very-rare" | "legendary";
+  category?: ItemCategory;
+  rarity?: ItemRarity;
   name?: string;
 }

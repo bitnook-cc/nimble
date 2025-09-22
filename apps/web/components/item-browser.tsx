@@ -100,7 +100,7 @@ export function ItemBrowser({
     const groups: Record<string, RepositoryItem[]> = {};
 
     filteredItems.forEach((item) => {
-      const key = `${item.item.type}-${item.category}`;
+      const key = `${item.type}-${item.category}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
     });
@@ -315,7 +315,7 @@ export function ItemBrowser({
                         <CardHeader className="cursor-pointer hover:bg-muted/50 pb-3">
                           <CardTitle className="flex items-center justify-between text-base">
                             <div className="flex items-center gap-2">
-                              {getTypeIcon(items[0].item.type)}
+                              {getTypeIcon(items[0].type)}
                               {groupName}
                               <Badge variant="secondary">{items.length}</Badge>
                             </div>
@@ -332,12 +332,12 @@ export function ItemBrowser({
                           <div className="grid gap-2">
                             {items.map((repositoryItem) => (
                               <div
-                                key={repositoryItem.item.id}
+                                key={repositoryItem.id}
                                 className="flex items-center justify-between p-3 border rounded hover:bg-muted/30"
                               >
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium">{repositoryItem.item.name}</span>
+                                    <span className="font-medium">{repositoryItem.name}</span>
                                     <Badge
                                       variant="outline"
                                       className={getCategoryColor(repositoryItem.category)}
@@ -356,59 +356,59 @@ export function ItemBrowser({
                                     )}
                                   </div>
 
-                                  {repositoryItem.item.description && (
+                                  {repositoryItem.description && (
                                     <p className="text-sm text-muted-foreground mb-2">
-                                      {repositoryItem.item.description}
+                                      {repositoryItem.description}
                                     </p>
                                   )}
 
                                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <span>Size: {repositoryItem.item.size}</span>
-                                    {repositoryItem.item.cost && (
+                                    <span>Size: {repositoryItem.size}</span>
+                                    {repositoryItem.cost && (
                                       <div className="flex items-center gap-1">
                                         <span>Cost:</span>
-                                        {repositoryItem.item.cost.gold && (
+                                        {repositoryItem.cost.gold && (
                                           <div className="flex items-center gap-1">
                                             <GoldCoin />
-                                            <span>{repositoryItem.item.cost.gold}</span>
+                                            <span>{repositoryItem.cost.gold}</span>
                                           </div>
                                         )}
-                                        {repositoryItem.item.cost.silver && (
+                                        {repositoryItem.cost.silver && (
                                           <div className="flex items-center gap-1">
                                             <SilverCoin />
-                                            <span>{repositoryItem.item.cost.silver}</span>
+                                            <span>{repositoryItem.cost.silver}</span>
                                           </div>
                                         )}
                                       </div>
                                     )}
-                                    {repositoryItem.item.type === "weapon" &&
-                                      (repositoryItem as RepositoryWeaponItem).item.damage && (
+                                    {repositoryItem.type === "weapon" &&
+                                      (repositoryItem as RepositoryWeaponItem).damage && (
                                         <span>
                                           Damage:{" "}
-                                          {(repositoryItem as RepositoryWeaponItem).item.damage}
+                                          {(repositoryItem as RepositoryWeaponItem).damage}
                                         </span>
                                       )}
-                                    {repositoryItem.item.type === "armor" &&
-                                      (repositoryItem as RepositoryArmorItem).item.armor && (
+                                    {repositoryItem.type === "armor" &&
+                                      (repositoryItem as RepositoryArmorItem).armor && (
                                         <span>
-                                          AC: {(repositoryItem as RepositoryArmorItem).item.armor}
+                                          AC: {(repositoryItem as RepositoryArmorItem).armor}
                                         </span>
                                       )}
-                                    {repositoryItem.item.type === "consumable" &&
-                                      (repositoryItem.item as ConsumableItem).count && (
+                                    {repositoryItem.type === "consumable" &&
+                                      (repositoryItem as ConsumableItem).count && (
                                         <span>
-                                          Count: {(repositoryItem.item as ConsumableItem).count}
+                                          Count: {(repositoryItem as ConsumableItem).count}
                                         </span>
                                       )}
-                                    {repositoryItem.item.type === "ammunition" &&
-                                      (repositoryItem.item as AmmunitionItem).count && (
+                                    {repositoryItem.type === "ammunition" &&
+                                      (repositoryItem as AmmunitionItem).count && (
                                         <span>
-                                          Count: {(repositoryItem.item as AmmunitionItem).count}
+                                          Count: {(repositoryItem as AmmunitionItem).count}
                                         </span>
                                       )}
-                                    {repositoryItem.item.type === "weapon" &&
+                                    {repositoryItem.type === "weapon" &&
                                       (() => {
-                                        const weaponItem = repositoryItem.item as WeaponItem;
+                                        const weaponItem = repositoryItem as WeaponItem;
                                         return weaponItem.properties &&
                                           weaponItem.properties.length > 0 ? (
                                           <span>
@@ -416,9 +416,9 @@ export function ItemBrowser({
                                           </span>
                                         ) : null;
                                       })()}
-                                    {repositoryItem.item.type === "armor" &&
+                                    {repositoryItem.type === "armor" &&
                                       (() => {
-                                        const armorItem = repositoryItem.item as ArmorItem;
+                                        const armorItem = repositoryItem as ArmorItem;
                                         return armorItem.properties &&
                                           armorItem.properties.length > 0 ? (
                                           <span>Properties: {armorItem.properties.join(", ")}</span>
@@ -430,15 +430,15 @@ export function ItemBrowser({
                                 <Button
                                   size="sm"
                                   variant={
-                                    multiSelect && selectedItems.includes(repositoryItem.item.id)
+                                    multiSelect && selectedItems.includes(repositoryItem.id)
                                       ? "default"
                                       : "outline"
                                   }
-                                  onClick={() => handleAddItem(repositoryItem.item.id)}
+                                  onClick={() => handleAddItem(repositoryItem.id)}
                                   className="ml-4"
                                 >
                                   {multiSelect ? (
-                                    selectedItems.includes(repositoryItem.item.id) ? (
+                                    selectedItems.includes(repositoryItem.id) ? (
                                       <>
                                         <span className="h-4 w-4 mr-1">✓</span>
                                         Selected

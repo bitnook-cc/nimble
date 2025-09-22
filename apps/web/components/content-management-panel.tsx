@@ -80,69 +80,6 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
   const contentRepository = ContentRepositoryService.getInstance();
   const customContentStats = contentRepository.getCustomContentStats();
 
-  const handleFileUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    contentType: CustomContentType,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadMessage("");
-    setUploadError("");
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const content = e.target?.result as string;
-        let result: ContentUploadResult;
-
-        switch (contentType) {
-          case CustomContentType.CLASS_DEFINITION:
-            result = contentRepository.uploadClasses(content);
-            break;
-          case CustomContentType.SUBCLASS_DEFINITION:
-            result = contentRepository.uploadSubclasses(content);
-            break;
-          case CustomContentType.SPELL_SCHOOL_DEFINITION:
-            result = contentRepository.uploadSpellSchools(content);
-            break;
-          case CustomContentType.ANCESTRY_DEFINITION:
-            result = contentRepository.uploadAncestries(content);
-            break;
-          case CustomContentType.BACKGROUND_DEFINITION:
-            result = contentRepository.uploadBackgrounds(content);
-            break;
-          case CustomContentType.ACTION_ABILITY:
-            result = contentRepository.uploadAbilities(content);
-            break;
-          case CustomContentType.SPELL_ABILITY:
-            result = contentRepository.uploadSpells(content);
-            break;
-          case CustomContentType.ITEM_REPOSITORY:
-            result = contentRepository.uploadItems(content);
-            break;
-          default:
-            result = { success: false, message: "Unknown content type" };
-        }
-
-        if (result.success) {
-          setUploadMessage(result.message);
-          setTimeout(() => setUploadMessage(""), 3000);
-        } else {
-          setUploadError(result.message);
-          setTimeout(() => setUploadError(""), 5000);
-        }
-      } catch (error) {
-        setUploadError("Invalid JSON file");
-        setTimeout(() => setUploadError(""), 5000);
-      }
-    };
-    reader.readAsText(file);
-
-    // Clear the input so the same file can be uploaded again
-    event.target.value = "";
-  };
-
   const handleMultiFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
@@ -153,35 +90,36 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
 
     try {
       const result = await contentRepository.uploadMultipleFiles(files);
-      
+
       if (result.success) {
         setUploadMessage(result.message);
-        
+
         // Create detailed breakdown
-        const successfulFiles = result.results.filter(r => r.result.success);
+        const successfulFiles = result.results.filter((r) => r.result.success);
         if (successfulFiles.length > 0) {
-          const details = successfulFiles.map(r => 
-            `• ${r.filename}: ${r.result.message} ${r.contentType ? `(detected as ${r.contentType.replace('_', ' ').toLowerCase()})` : ''}`
-          ).join('\n');
+          const details = successfulFiles
+            .map(
+              (r) =>
+                `• ${r.filename}: ${r.result.message} ${r.contentType ? `(detected as ${r.contentType.replace("_", " ").toLowerCase()})` : ""}`,
+            )
+            .join("\n");
           setUploadDetails(details);
         }
-        
+
         setTimeout(() => {
           setUploadMessage("");
           setUploadDetails("");
         }, 5000);
       } else {
         setUploadError(result.message);
-        
+
         // Show detailed error breakdown
-        const failedFiles = result.results.filter(r => !r.result.success);
+        const failedFiles = result.results.filter((r) => !r.result.success);
         if (failedFiles.length > 0) {
-          const details = failedFiles.map(r => 
-            `• ${r.filename}: ${r.result.message}`
-          ).join('\n');
+          const details = failedFiles.map((r) => `• ${r.filename}: ${r.result.message}`).join("\n");
           setUploadDetails(details);
         }
-        
+
         setTimeout(() => {
           setUploadError("");
           setUploadDetails("");
@@ -214,21 +152,21 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
 
   const getContentForType = (contentType: CustomContentType): ContentItem[] => {
     switch (contentType) {
-      case CustomContentType.CLASS_DEFINITION:
+      case CustomContentType.CLASS:
         return contentRepository.getAllClasses();
-      case CustomContentType.SUBCLASS_DEFINITION:
+      case CustomContentType.SUBCLASS:
         return contentRepository.getAllSubclasses();
-      case CustomContentType.SPELL_SCHOOL_DEFINITION:
+      case CustomContentType.SPELL_SCHOOL:
         return contentRepository.getAllSpellSchools();
-      case CustomContentType.ANCESTRY_DEFINITION:
+      case CustomContentType.ANCESTRY:
         return contentRepository.getAllAncestries();
-      case CustomContentType.BACKGROUND_DEFINITION:
+      case CustomContentType.BACKGROUND:
         return contentRepository.getAllBackgrounds();
-      case CustomContentType.ACTION_ABILITY:
+      case CustomContentType.ACTION:
         return contentRepository.getAllActionAbilities();
-      case CustomContentType.SPELL_ABILITY:
+      case CustomContentType.SPELL:
         return getAllSpells();
-      case CustomContentType.ITEM_REPOSITORY:
+      case CustomContentType.ITEM:
         return contentRepository.getAllItems();
       default:
         return [];
@@ -276,10 +214,18 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
 
   const exportContent = (item: ContentItem, contentType: CustomContentType) => {
     const metadata = getContentTypeMetadata(contentType);
-    const itemId = "item" in item ? (item as RepositoryItem).item.id : (item as any).id;
+    const itemId = (item as any).id;
     const filename = `${itemId}.json`;
 
-    const jsonContent = JSON.stringify(item, null, 2);
+    // Wrap in uploadable content format
+    const uploadableContent = {
+      contentType: contentType,
+      data: contentType === CustomContentType.ITEM 
+        ? { items: [item] } // Items need the special wrapper format
+        : item // All other content types use the item directly
+    };
+
+    const jsonContent = JSON.stringify(uploadableContent, null, 2);
     const blob = new Blob([jsonContent], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
@@ -311,21 +257,21 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                   <Badge
                     variant="secondary"
                     className={`text-white ${
-                      contentType === CustomContentType.CLASS_DEFINITION
+                      contentType === CustomContentType.CLASS
                         ? "bg-blue-600"
-                        : contentType === CustomContentType.SUBCLASS_DEFINITION
+                        : contentType === CustomContentType.SUBCLASS
                           ? "bg-green-600"
-                          : contentType === CustomContentType.SPELL_SCHOOL_DEFINITION
+                          : contentType === CustomContentType.SPELL_SCHOOL
                             ? "bg-purple-600"
-                            : contentType === CustomContentType.ANCESTRY_DEFINITION
+                            : contentType === CustomContentType.ANCESTRY
                               ? "bg-teal-600"
-                              : contentType === CustomContentType.BACKGROUND_DEFINITION
+                              : contentType === CustomContentType.BACKGROUND
                                 ? "bg-indigo-600"
-                                : contentType === CustomContentType.ACTION_ABILITY
+                                : contentType === CustomContentType.ACTION
                                   ? "bg-orange-600"
-                                  : contentType === CustomContentType.SPELL_ABILITY
+                                  : contentType === CustomContentType.SPELL
                                     ? "bg-red-600"
-                                    : contentType === CustomContentType.ITEM_REPOSITORY
+                                    : contentType === CustomContentType.ITEM
                                       ? "bg-yellow-600"
                                       : "bg-gray-600"
                     }`}
@@ -354,7 +300,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                     className="h-6 px-2"
                   >
                     <BookOpen className="h-3 w-3 mr-1" />
-                    {showSchemaHelp[contentType] ? 'Hide' : 'Show'} Schema
+                    {showSchemaHelp[contentType] ? "Hide" : "Show"} Schema
                   </Button>
                 </div>
 
@@ -366,16 +312,16 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                       const schemaString = JSON.stringify(schema, null, 2);
 
                       return (
-                        <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs">
-                          <div className="font-semibold text-blue-900 mb-1">
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded text-xs">
+                          <div className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
                             {schema.title || metadata.title} Format
                           </div>
                           {schema.description && (
-                            <div className="text-blue-800 mb-2">{schema.description}</div>
+                            <div className="text-blue-800 dark:text-blue-200 mb-2">{schema.description}</div>
                           )}
 
                           <details className="mt-2">
-                            <summary className="font-medium text-blue-900 cursor-pointer">
+                            <summary className="font-medium text-blue-900 dark:text-blue-100 cursor-pointer">
                               Example JSON
                             </summary>
                             <div className="relative">
@@ -389,14 +335,14 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               >
                                 <Copy className="h-3 w-3" />
                               </Button>
-                              <pre className="mt-1 p-2 pr-10 bg-green-100 rounded overflow-x-auto text-xs">
+                              <pre className="mt-1 p-2 pr-10 bg-green-100 dark:bg-green-950 text-green-900 dark:text-green-100 rounded overflow-x-auto text-xs">
                                 {exampleJson || "Failed to generate example"}
                               </pre>
                             </div>
                           </details>
 
                           <details className="mt-2">
-                            <summary className="font-medium text-blue-900 cursor-pointer">
+                            <summary className="font-medium text-blue-900 dark:text-blue-100 cursor-pointer">
                               JSON Schema
                             </summary>
                             <div className="relative">
@@ -410,7 +356,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               >
                                 <Copy className="h-3 w-3" />
                               </Button>
-                              <pre className="mt-1 p-2 pr-10 bg-blue-100 rounded overflow-x-auto text-xs">
+                              <pre className="mt-1 p-2 pr-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded overflow-x-auto text-xs">
                                 {schemaString}
                               </pre>
                             </div>
@@ -421,7 +367,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                               href="https://json-editor.github.io/json-editor/"
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-blue-700 hover:text-blue-900 flex items-center gap-1"
+                              className="text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 flex items-center gap-1"
                             >
                               <ExternalLink className="h-3 w-3" />
                               Use JSON Editor for easier data creation
@@ -442,12 +388,12 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Current {metadata.title}</Label>
                   <div className="space-y-1 max-h-48 overflow-y-auto">
-                    {contentType === CustomContentType.ITEM_REPOSITORY
+                    {contentType === CustomContentType.ITEM
                       ? // Group items by category and type
                         Object.entries(
                           (items as any[]).reduce((groups: Record<string, any[]>, item) => {
-                            const key = `${item.category}-${item.item.type}`;
-                            const label = `${item.category} ${item.item.type}s`;
+                            const key = `${item.category}-${item.type}`;
+                            const label = `${item.category} ${item.type}s`;
                             if (!groups[label]) groups[label] = [];
                             groups[label].push(item);
                             return groups;
@@ -460,15 +406,24 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                             <div className="space-y-1 ml-2">
                               {items.map((repoItem: any) => (
                                 <div
-                                  key={repoItem.item.id}
+                                  key={repoItem.id}
                                   className="flex items-start justify-between text-xs gap-2"
                                 >
                                   <div className="flex-1 min-w-0">
-                                    <span className="font-medium">{repoItem.item.name} <span className="text-muted-foreground font-normal">[{repoItem.item.id}]</span></span>
+                                    <span className="font-medium">
+                                      {repoItem.name}{" "}
+                                      <span className="text-muted-foreground font-normal">
+                                        [{repoItem.id}]
+                                      </span>
+                                    </span>
                                     <div className="text-muted-foreground">
                                       {repoItem.rarity && `${repoItem.rarity} • `}
-                                      {repoItem.item.damage && `${repoItem.item.damage} • `}
-                                      {repoItem.item.armor && `AC ${repoItem.item.armor}`}
+                                      {repoItem.type === "weapon" &&
+                                        (repoItem as any).damage &&
+                                        `${(repoItem as any).damage} • `}
+                                      {repoItem.type === "armor" &&
+                                        (repoItem as any).armor &&
+                                        `AC ${(repoItem as any).armor}`}
                                     </div>
                                   </div>
                                   <Button
@@ -484,7 +439,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                             </div>
                           </div>
                         ))
-                      : contentType === CustomContentType.SPELL_ABILITY
+                      : contentType === CustomContentType.SPELL
                         ? // Group spells by school
                           Object.entries(
                             (items as SpellAbilityDefinition[]).reduce(
@@ -508,7 +463,12 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                     className="flex items-start justify-between text-xs gap-2"
                                   >
                                     <div className="flex-1 min-w-0">
-                                      <span className="font-medium">{spell.name} <span className="text-muted-foreground font-normal">[{spell.id}]</span></span>
+                                      <span className="font-medium">
+                                        {spell.name}{" "}
+                                        <span className="text-muted-foreground font-normal">
+                                          [{spell.id}]
+                                        </span>
+                                      </span>
                                       {spell.tier && (
                                         <div className="text-muted-foreground">
                                           Tier {spell.tier}
@@ -531,27 +491,34 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                         : // Regular item display for non-spells
                           items.map((item, index) => {
                             // Handle repository items differently
-                            if ("item" in item) {
+                            if ("category" in item) {
                               const repositoryItem = item as RepositoryItem;
                               return (
                                 <div
-                                  key={repositoryItem.item.id || index}
+                                  key={repositoryItem.id || index}
                                   className="flex items-start justify-between p-2 border rounded gap-2"
                                 >
                                   <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm">
-                                      {repositoryItem.item.name} <span className="text-muted-foreground font-normal">[{repositoryItem.item.id}]</span>
+                                      {repositoryItem.name}{" "}
+                                      <span className="text-muted-foreground font-normal">
+                                        [{repositoryItem.id}]
+                                      </span>
                                     </div>
-                                    {repositoryItem.item.description && (
+                                    {repositoryItem.description && (
                                       <div className="text-xs text-muted-foreground line-clamp-2">
-                                        {repositoryItem.item.description}
+                                        {repositoryItem.description}
                                       </div>
                                     )}
                                     <div className="text-xs text-muted-foreground">
-                                      {repositoryItem.category} {repositoryItem.item.type}
+                                      {repositoryItem.category} {repositoryItem.type}
                                       {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
-                                      {repositoryItem.item.damage && ` • ${repositoryItem.item.damage}`}
-                                      {repositoryItem.item.armor && ` • AC ${repositoryItem.item.armor}`}
+                                      {repositoryItem.type === "weapon" &&
+                                        (repositoryItem as any).damage &&
+                                        ` • ${(repositoryItem as any).damage}`}
+                                      {repositoryItem.type === "armor" &&
+                                        (repositoryItem as any).armor &&
+                                        ` • AC ${(repositoryItem as any).armor}`}
                                     </div>
                                   </div>
                                   <Button
@@ -574,7 +541,12 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                 className="flex items-start justify-between p-2 border rounded gap-2"
                               >
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-sm">{regularItem.name} <span className="text-muted-foreground font-normal">[{regularItem.id}]</span></div>
+                                  <div className="font-medium text-sm">
+                                    {regularItem.name}{" "}
+                                    <span className="text-muted-foreground font-normal">
+                                      [{regularItem.id}]
+                                    </span>
+                                  </div>
                                   {regularItem.description && (
                                     <div className="text-xs text-muted-foreground line-clamp-2">
                                       {regularItem.description}
@@ -586,15 +558,20 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                     )}
                                     {"size" in regularItem &&
                                       (regularItem as AncestryDefinition).size && (
-                                        <span>Size: {(regularItem as AncestryDefinition).size}</span>
+                                        <span>
+                                          Size: {(regularItem as AncestryDefinition).size}
+                                        </span>
                                       )}
                                     {"features" in regularItem &&
                                       (regularItem as AncestryDefinition | BackgroundDefinition)
                                         .features && (
                                         <span>
                                           {
-                                            (regularItem as AncestryDefinition | BackgroundDefinition)
-                                              .features.length
+                                            (
+                                              regularItem as
+                                                | AncestryDefinition
+                                                | BackgroundDefinition
+                                            ).features.length
                                           }{" "}
                                           features
                                         </span>
@@ -648,10 +625,11 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                 <div className="space-y-2">
                   <h3 className="font-semibold text-lg">Upload Content Files</h3>
                   <p className="text-sm text-muted-foreground">
-                    Select multiple JSON files to upload. Files will be automatically detected and sorted by content type.
+                    Select multiple JSON files to upload. Files will be automatically detected and
+                    sorted by content type.
                   </p>
                 </div>
-                
+
                 <div className="relative max-w-xs sm:max-w-md mx-auto">
                   <input
                     type="file"
@@ -665,9 +643,12 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                     Choose JSON Files
                   </Button>
                 </div>
-                
+
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <div>Supported content types: Classes, Subclasses, Ancestries, Backgrounds, Abilities, Spells, Spell Schools, Items</div>
+                  <div>
+                    Supported content types: Classes, Subclasses, Ancestries, Backgrounds,
+                    Abilities, Spells, Spell Schools, Items
+                  </div>
                   <div>You can upload different content types together in a single operation</div>
                 </div>
               </div>
