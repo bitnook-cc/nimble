@@ -350,7 +350,7 @@ export class PDFExportService {
     if (options.includeFullInventory) {
       // Sort items by type: equippable first, then consumables/ammunition, then freeform
       const sortedItems = this.sortItemsForDisplay(items);
-      
+
       sortedItems.forEach((item) => {
         const itemDescription = this.formatItemDescription(item);
         if (itemDescription) {
@@ -359,8 +359,10 @@ export class PDFExportService {
       });
     } else {
       // Only include equipped weapons and armor with enhanced descriptions
-      const equippableItems = items.filter((item) => (item.type === "weapon" || item.type === "armor") && item.equipped);
-      
+      const equippableItems = items.filter(
+        (item) => (item.type === "weapon" || item.type === "armor") && item.equipped,
+      );
+
       equippableItems.forEach((item) => {
         const itemDescription = this.formatItemDescription(item);
         if (itemDescription) {
