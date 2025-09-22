@@ -120,6 +120,7 @@ export function useCharacterService() {
     // Dynamic stat calculation methods
     getAttributes: characterService.getAttributes.bind(characterService),
     getSkills: characterService.getSkills.bind(characterService),
+    getSkillBonuses: characterService.getSkillBonuses.bind(characterService),
     getSkillValue: characterService.getSkillValue.bind(characterService),
     getInitiative: characterService.getInitiative.bind(characterService),
     getHitDice: characterService.getHitDice.bind(characterService),

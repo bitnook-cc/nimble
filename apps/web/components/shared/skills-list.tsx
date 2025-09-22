@@ -5,7 +5,6 @@ import { Dice6, Minus, Plus, Star } from "lucide-react";
 import React from "react";
 
 import { gameConfig } from "@/lib/config/game-config";
-import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { SkillName } from "@/lib/schemas/character";
@@ -22,6 +21,7 @@ interface SkillsListProps {
   availablePoints?: number;
   readOnly?: boolean;
   rollMode?: boolean;
+  skillBonuses?: Record<string, { bonus: number; advantage: number }>;
 }
 
 export function SkillsList({
@@ -31,11 +31,11 @@ export function SkillsList({
   availablePoints,
   readOnly = false,
   rollMode = false,
+  skillBonuses,
 }: SkillsListProps) {
   const maxPerSkill = gameConfig.character.skillModifierRange.max;
   const { rollSkill } = useDiceActions();
   const { uiState } = useUIStateService();
-  const { getSkills } = useCharacterService();
 
   const getAttributeModifier = (attributeName: string) => {
     return attributeValues[attributeName] || 0;
@@ -77,14 +77,12 @@ export function SkillsList({
   const handleSkillRoll = async (skillName: string, attributeName: string) => {
     const attributeModifier = getAttributeModifier(attributeName);
 
-    // Get the computed skill modifier (includes trait bonuses)
-    const computedSkills = getSkills();
-    const computedSkill = computedSkills[skillName];
-    const totalSkillModifier = computedSkill
-      ? computedSkill.modifier
-      : skillAllocations[skillName] || 0;
+    // Calculate total skill modifier from allocation and bonuses
+    const userAllocatedPoints = skillAllocations[skillName] || 0;
+    const bonuses = skillBonuses?.[skillName] || { bonus: 0, advantage: 0 };
+    const totalSkillModifier = userAllocatedPoints + bonuses.bonus;
+    const skillAdvantage = bonuses.advantage;
 
-    const skillAdvantage = 0; // Individual skills don't have advantage, only global
     const totalAdvantageLevel = uiState.advantageLevel + skillAdvantage;
 
     await rollSkill(
@@ -133,11 +131,10 @@ export function SkillsList({
             const attributeModifier = getAttributeModifier(skill.attribute);
             const userAllocatedPoints = skillAllocations[skill.name] || 0;
 
-            // Get computed skill with trait bonuses
-            const computedSkills = getSkills();
-            const computedSkill = computedSkills[skill.name];
-            const totalSkillModifier = computedSkill ? computedSkill.modifier : userAllocatedPoints;
-            const traitBonusPoints = totalSkillModifier - userAllocatedPoints;
+            // Get total skill modifier (includes trait bonuses)
+            const bonuses = skillBonuses?.[skill.name] || { bonus: 0, advantage: 0 };
+            const totalSkillModifier = userAllocatedPoints + bonuses.bonus;
+            const traitBonusPoints = bonuses.bonus;
 
             const totalModifier = attributeModifier + totalSkillModifier;
 
