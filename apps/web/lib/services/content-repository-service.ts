@@ -1,8 +1,9 @@
+import { uploadableContentSchema } from "@/lib/schemas/uploadable-content";
+
 import { ancestryDefinitions as builtInAncestries } from "../data/ancestries/index";
 import { backgroundDefinitions as builtInBackgrounds } from "../data/backgrounds/index";
 // Built-in content imports
 import { classDefinitions as builtInClasses } from "../data/classes/index";
-import { ItemService } from "./item-service";
 import { getBuiltInSpellSchools } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
@@ -13,8 +14,8 @@ import { CustomContentType } from "../types/custom-content";
 import { CustomItemContent, RepositoryItem } from "../types/item-repository";
 import { type IconId } from "../utils/icon-utils";
 import { ContentValidationService } from "./content-validation-service";
+import { ItemService } from "./item-service";
 import { IStorageService, LocalStorageService } from "./storage-service";
-import { uploadableContentSchema } from "@/lib/schemas/uploadable-content";
 
 // Storage keys for custom content
 const STORAGE_KEYS = {
@@ -100,11 +101,11 @@ export class ContentRepositoryService {
   // Class Management
   public getAllClasses(): ClassDefinition[] {
     const customClasses = this.getCustomClasses();
-    const customIds = new Set(customClasses.map(cls => cls.id));
-    
+    const customIds = new Set(customClasses.map((cls) => cls.id));
+
     // Filter out built-in classes that are overridden by custom ones
-    const filteredBuiltIns = builtInClasses.filter(cls => !customIds.has(cls.id));
-    
+    const filteredBuiltIns = builtInClasses.filter((cls) => !customIds.has(cls.id));
+
     return [...filteredBuiltIns, ...customClasses];
   }
 
@@ -135,11 +136,11 @@ export class ContentRepositoryService {
   // Ancestry Management
   public getAllAncestries(): AncestryDefinition[] {
     const customAncestries = this.getCustomAncestries();
-    const customIds = new Set(customAncestries.map(ancestry => ancestry.id));
-    
+    const customIds = new Set(customAncestries.map((ancestry) => ancestry.id));
+
     // Filter out built-in ancestries that are overridden by custom ones
-    const filteredBuiltIns = builtInAncestries.filter(ancestry => !customIds.has(ancestry.id));
-    
+    const filteredBuiltIns = builtInAncestries.filter((ancestry) => !customIds.has(ancestry.id));
+
     return [...filteredBuiltIns, ...customAncestries];
   }
 
@@ -227,11 +228,11 @@ export class ContentRepositoryService {
   // Background Management
   public getAllBackgrounds(): BackgroundDefinition[] {
     const customBackgrounds = this.getCustomBackgrounds();
-    const customIds = new Set(customBackgrounds.map(bg => bg.id));
-    
+    const customIds = new Set(customBackgrounds.map((bg) => bg.id));
+
     // Filter out built-in backgrounds that are overridden by custom ones
-    const filteredBuiltIns = builtInBackgrounds.filter(bg => !customIds.has(bg.id));
-    
+    const filteredBuiltIns = builtInBackgrounds.filter((bg) => !customIds.has(bg.id));
+
     return [...filteredBuiltIns, ...customBackgrounds];
   }
 
@@ -321,10 +322,8 @@ export class ContentRepositoryService {
   public uploadAncestry(ancestry: AncestryDefinition): ContentUploadResult {
     const existingAncestries = this.getCustomAncestries();
     const updatedAncestries = [...existingAncestries];
-    
-    const existingIndex = updatedAncestries.findIndex(
-      (existing) => existing.id === ancestry.id,
-    );
+
+    const existingIndex = updatedAncestries.findIndex((existing) => existing.id === ancestry.id);
     if (existingIndex >= 0) {
       updatedAncestries[existingIndex] = ancestry; // Replace existing
     } else {
@@ -332,7 +331,7 @@ export class ContentRepositoryService {
     }
 
     this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(updatedAncestries));
-    
+
     return {
       success: true,
       message: `Successfully added/updated ancestry: ${ancestry.name}`,
@@ -343,10 +342,8 @@ export class ContentRepositoryService {
   public uploadBackground(background: BackgroundDefinition): ContentUploadResult {
     const existingBackgrounds = this.getCustomBackgrounds();
     const updatedBackgrounds = [...existingBackgrounds];
-    
-    const existingIndex = updatedBackgrounds.findIndex(
-      (existing) => existing.id === background.id,
-    );
+
+    const existingIndex = updatedBackgrounds.findIndex((existing) => existing.id === background.id);
     if (existingIndex >= 0) {
       updatedBackgrounds[existingIndex] = background; // Replace existing
     } else {
@@ -354,7 +351,7 @@ export class ContentRepositoryService {
     }
 
     this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(updatedBackgrounds));
-    
+
     return {
       success: true,
       message: `Successfully added/updated background: ${background.name}`,
@@ -432,11 +429,11 @@ export class ContentRepositoryService {
   // Subclass Management
   public getAllSubclasses(): SubclassDefinition[] {
     const customSubclasses = this.getCustomSubclasses();
-    const customIds = new Set(customSubclasses.map(sub => sub.id));
-    
+    const customIds = new Set(customSubclasses.map((sub) => sub.id));
+
     // Filter out built-in subclasses that are overridden by custom ones
-    const filteredBuiltIns = builtInSubclasses.filter(sub => !customIds.has(sub.id));
-    
+    const filteredBuiltIns = builtInSubclasses.filter((sub) => !customIds.has(sub.id));
+
     return [...filteredBuiltIns, ...customSubclasses];
   }
 
@@ -730,11 +727,11 @@ export class ContentRepositoryService {
     const builtInSchools = getBuiltInSpellSchools();
     const builtInSpells = builtInSchools.flatMap((school) => school.spells);
     const customSpells = this.getCustomSpells();
-    const customIds = new Set(customSpells.map(spell => spell.id));
-    
+    const customIds = new Set(customSpells.map((spell) => spell.id));
+
     // Filter out built-in spells that are overridden by custom ones
-    const filteredBuiltInSpells = builtInSpells.filter(spell => !customIds.has(spell.id));
-    
+    const filteredBuiltInSpells = builtInSpells.filter((spell) => !customIds.has(spell.id));
+
     return [...filteredBuiltInSpells, ...customSpells];
   }
 
@@ -799,16 +796,15 @@ export class ContentRepositoryService {
     const itemService = ItemService.getInstance();
     const builtInItems = itemService.getAllItems();
     const customItems = this.getCustomItems();
-    const customIds = new Set(customItems.map(item => item.id));
-    
+    const customIds = new Set(customItems.map((item) => item.id));
+
     // Filter out built-in items that are overridden by custom ones
-    const filteredBuiltInItems = builtInItems.filter(item => !customIds.has(item.id));
-    
+    const filteredBuiltInItems = builtInItems.filter((item) => !customIds.has(item.id));
+
     return [...filteredBuiltInItems, ...customItems];
   }
 
   public uploadItems(data: CustomItemContent): ContentUploadResult {
-
     const validItems = data.items;
     const existingItems = this.getCustomItems();
     const updatedItems = [...existingItems];
@@ -851,7 +847,10 @@ export class ContentRepositoryService {
         if (validation.valid && validation.data) {
           validItems.push(validation.data);
         } else {
-          console.warn(`Invalid custom item found in storage at index ${index}:`, validation.errors);
+          console.warn(
+            `Invalid custom item found in storage at index ${index}:`,
+            validation.errors,
+          );
         }
       });
 
@@ -911,7 +910,8 @@ export class ContentRepositoryService {
             if (!validation.success) {
               result = {
                 success: false,
-                message: "File does not match expected uploadable content format. Ensure your JSON includes a 'contentType' field and 'data' field with valid content.",
+                message:
+                  "File does not match expected uploadable content format. Ensure your JSON includes a 'contentType' field and 'data' field with valid content.",
               };
             } else {
               // Extract content type and data from validated structure
@@ -969,18 +969,18 @@ export class ContentRepositoryService {
                 const contentCounts: Record<string, number> = {};
                 successfulResults.forEach((r) => {
                   if (r.contentType) {
-                    const typeName = r.contentType.replace('-', ' ');
+                    const typeName = r.contentType.replace("-", " ");
                     contentCounts[typeName] = (contentCounts[typeName] || 0) + 1;
                   }
                 });
 
                 // Create detailed breakdown
                 const breakdownParts = Object.entries(contentCounts).map(
-                  ([type, count]) => `${count} ${type}${count === 1 ? '' : 's'}`
+                  ([type, count]) => `${count} ${type}${count === 1 ? "" : "s"}`,
                 );
-                
+
                 if (breakdownParts.length > 0) {
-                  message = `Successfully processed ${successfulResults.length} file(s): ${breakdownParts.join(', ')}`;
+                  message = `Successfully processed ${successfulResults.length} file(s): ${breakdownParts.join(", ")}`;
                 } else {
                   message = `Successfully processed ${successfulResults.length} file(s)`;
                 }
@@ -1021,7 +1021,6 @@ export class ContentRepositoryService {
       });
     });
   }
-
 
   // Utility Methods
   public clearAllCustomContent(): void {

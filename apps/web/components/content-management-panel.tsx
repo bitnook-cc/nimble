@@ -220,9 +220,10 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
     // Wrap in uploadable content format
     const uploadableContent = {
       contentType: contentType,
-      data: contentType === CustomContentType.ITEM 
-        ? { items: [item] } // Items need the special wrapper format
-        : item // All other content types use the item directly
+      data:
+        contentType === CustomContentType.ITEM
+          ? { items: [item] } // Items need the special wrapper format
+          : item, // All other content types use the item directly
     };
 
     const jsonContent = JSON.stringify(uploadableContent, null, 2);
@@ -317,7 +318,9 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                             {schema.title || metadata.title} Format
                           </div>
                           {schema.description && (
-                            <div className="text-blue-800 dark:text-blue-200 mb-2">{schema.description}</div>
+                            <div className="text-blue-800 dark:text-blue-200 mb-2">
+                              {schema.description}
+                            </div>
                           )}
 
                           <details className="mt-2">
