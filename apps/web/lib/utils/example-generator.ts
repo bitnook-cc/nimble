@@ -10,14 +10,14 @@ import { SCHEMA_REGISTRY } from "./schema-documentation";
 
 // Type mapping for content types to their corresponding data types
 type ContentTypeMap = {
-  [CustomContentType.CLASS_DEFINITION]: ClassDefinition;
-  [CustomContentType.SUBCLASS_DEFINITION]: SubclassDefinition;
-  [CustomContentType.SPELL_SCHOOL_DEFINITION]: SpellSchoolDefinition;
-  [CustomContentType.ANCESTRY_DEFINITION]: AncestryDefinition;
-  [CustomContentType.BACKGROUND_DEFINITION]: BackgroundDefinition;
-  [CustomContentType.ACTION_ABILITY]: ActionAbilityDefinition;
-  [CustomContentType.SPELL_ABILITY]: SpellAbilityDefinition;
-  [CustomContentType.ITEM_REPOSITORY]: {
+  [CustomContentType.CLASS]: ClassDefinition;
+  [CustomContentType.SUBCLASS]: SubclassDefinition;
+  [CustomContentType.SPELL_SCHOOL]: SpellSchoolDefinition;
+  [CustomContentType.ANCESTRY]: AncestryDefinition;
+  [CustomContentType.BACKGROUND]: BackgroundDefinition;
+  [CustomContentType.ACTION]: ActionAbilityDefinition;
+  [CustomContentType.SPELL]: SpellAbilityDefinition;
+  [CustomContentType.ITEM]: {
     items: Array<{ item: Record<string, unknown>; category: string; rarity?: string }>;
   };
 };

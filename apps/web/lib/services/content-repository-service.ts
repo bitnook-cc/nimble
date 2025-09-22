@@ -2,7 +2,7 @@ import { ancestryDefinitions as builtInAncestries } from "../data/ancestries/ind
 import { backgroundDefinitions as builtInBackgrounds } from "../data/backgrounds/index";
 // Built-in content imports
 import { classDefinitions as builtInClasses } from "../data/classes/index";
-import { ITEM_REPOSITORY } from "../data/items";
+import { ItemService } from "./item-service";
 import { getBuiltInSpellSchools } from "../data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "../data/subclasses/index";
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
@@ -14,6 +14,7 @@ import { CustomItemContent, RepositoryItem } from "../types/item-repository";
 import { type IconId } from "../utils/icon-utils";
 import { ContentValidationService } from "./content-validation-service";
 import { IStorageService, LocalStorageService } from "./storage-service";
+import { uploadableContentSchema } from "@/lib/schemas/uploadable-content";
 
 // Storage keys for custom content
 const STORAGE_KEYS = {
@@ -99,7 +100,12 @@ export class ContentRepositoryService {
   // Class Management
   public getAllClasses(): ClassDefinition[] {
     const customClasses = this.getCustomClasses();
-    return [...builtInClasses, ...customClasses];
+    const customIds = new Set(customClasses.map(cls => cls.id));
+    
+    // Filter out built-in classes that are overridden by custom ones
+    const filteredBuiltIns = builtInClasses.filter(cls => !customIds.has(cls.id));
+    
+    return [...filteredBuiltIns, ...customClasses];
   }
 
   public getClassDefinition(classId: string): ClassDefinition | null {
@@ -129,7 +135,12 @@ export class ContentRepositoryService {
   // Ancestry Management
   public getAllAncestries(): AncestryDefinition[] {
     const customAncestries = this.getCustomAncestries();
-    return [...builtInAncestries, ...customAncestries];
+    const customIds = new Set(customAncestries.map(ancestry => ancestry.id));
+    
+    // Filter out built-in ancestries that are overridden by custom ones
+    const filteredBuiltIns = builtInAncestries.filter(ancestry => !customIds.has(ancestry.id));
+    
+    return [...filteredBuiltIns, ...customAncestries];
   }
 
   public getAncestryDefinition(ancestryId: string): AncestryDefinition | null {
@@ -216,7 +227,12 @@ export class ContentRepositoryService {
   // Background Management
   public getAllBackgrounds(): BackgroundDefinition[] {
     const customBackgrounds = this.getCustomBackgrounds();
-    return [...builtInBackgrounds, ...customBackgrounds];
+    const customIds = new Set(customBackgrounds.map(bg => bg.id));
+    
+    // Filter out built-in backgrounds that are overridden by custom ones
+    const filteredBuiltIns = builtInBackgrounds.filter(bg => !customIds.has(bg.id));
+    
+    return [...filteredBuiltIns, ...customBackgrounds];
   }
 
   public getBackgroundDefinition(backgroundId: string): BackgroundDefinition | null {
@@ -302,172 +318,71 @@ export class ContentRepositoryService {
     }
   }
 
-  public uploadAncestries(ancestriesJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(ancestriesJson);
-      const ancestries = Array.isArray(data) ? data : [data];
-
-      // Validate using Zod schemas
-      const validAncestries: AncestryDefinition[] = [];
-      const errors: string[] = [];
-      ancestries.forEach((ancestry, index) => {
-        const validation = ContentValidationService.validateAncestry(ancestry);
-        if (validation.valid && validation.data) {
-          validAncestries.push(validation.data);
-        } else {
-          errors.push(
-            `Ancestry ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`,
-          );
-        }
-      });
-
-      if (validAncestries.length === 0) {
-        return {
-          success: false,
-          message: `No valid ancestry definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingAncestries = this.getCustomAncestries();
-      const updatedAncestries = [...existingAncestries];
-      validAncestries.forEach((newAncestry) => {
-        const existingIndex = updatedAncestries.findIndex(
-          (ancestry) => ancestry.id === newAncestry.id,
-        );
-        if (existingIndex >= 0) {
-          updatedAncestries[existingIndex] = newAncestry; // Replace existing
-        } else {
-          updatedAncestries.push(newAncestry); // Add new
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(updatedAncestries));
-      const message =
-        validAncestries.length === 1
-          ? `Successfully added/updated ancestry: ${validAncestries[0].name}`
-          : `Successfully added/updated ${validAncestries.length} ancestries`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validAncestries.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+  public uploadAncestry(ancestry: AncestryDefinition): ContentUploadResult {
+    const existingAncestries = this.getCustomAncestries();
+    const updatedAncestries = [...existingAncestries];
+    
+    const existingIndex = updatedAncestries.findIndex(
+      (existing) => existing.id === ancestry.id,
+    );
+    if (existingIndex >= 0) {
+      updatedAncestries[existingIndex] = ancestry; // Replace existing
+    } else {
+      updatedAncestries.push(ancestry); // Add new
     }
+
+    this.storage.setItem(STORAGE_KEYS.customAncestries, JSON.stringify(updatedAncestries));
+    
+    return {
+      success: true,
+      message: `Successfully added/updated ancestry: ${ancestry.name}`,
+      itemsAdded: 1,
+    };
   }
 
-  public uploadBackgrounds(backgroundsJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(backgroundsJson);
-      const backgrounds = Array.isArray(data) ? data : [data];
-
-      // Validate using Zod schemas
-      const validBackgrounds: BackgroundDefinition[] = [];
-      const errors: string[] = [];
-      backgrounds.forEach((background, index) => {
-        const validation = ContentValidationService.validateBackground(background);
-        if (validation.valid && validation.data) {
-          validBackgrounds.push(validation.data);
-        } else {
-          errors.push(
-            `Background ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`,
-          );
-        }
-      });
-
-      if (validBackgrounds.length === 0) {
-        return {
-          success: false,
-          message: `No valid background definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingBackgrounds = this.getCustomBackgrounds();
-      const updatedBackgrounds = [...existingBackgrounds];
-      validBackgrounds.forEach((newBackground) => {
-        const existingIndex = updatedBackgrounds.findIndex(
-          (background) => background.id === newBackground.id,
-        );
-        if (existingIndex >= 0) {
-          updatedBackgrounds[existingIndex] = newBackground; // Replace existing
-        } else {
-          updatedBackgrounds.push(newBackground); // Add new
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(updatedBackgrounds));
-      const message =
-        validBackgrounds.length === 1
-          ? `Successfully added/updated background: ${validBackgrounds[0].name}`
-          : `Successfully added/updated ${validBackgrounds.length} backgrounds`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validBackgrounds.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+  public uploadBackground(background: BackgroundDefinition): ContentUploadResult {
+    const existingBackgrounds = this.getCustomBackgrounds();
+    const updatedBackgrounds = [...existingBackgrounds];
+    
+    const existingIndex = updatedBackgrounds.findIndex(
+      (existing) => existing.id === background.id,
+    );
+    if (existingIndex >= 0) {
+      updatedBackgrounds[existingIndex] = background; // Replace existing
+    } else {
+      updatedBackgrounds.push(background); // Add new
     }
+
+    this.storage.setItem(STORAGE_KEYS.customBackgrounds, JSON.stringify(updatedBackgrounds));
+    
+    return {
+      success: true,
+      message: `Successfully added/updated background: ${background.name}`,
+      itemsAdded: 1,
+    };
   }
 
-  public uploadClasses(classesJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(classesJson);
-      const classes = Array.isArray(data) ? data : [data];
+  public uploadClass(classDefinition: ClassDefinition): ContentUploadResult {
+    const existingCustomClasses = this.getCustomClasses();
+    const updatedClasses = [...existingCustomClasses];
 
-      // Validate using Zod schemas
-      const validClasses: ClassDefinition[] = [];
-      const errors: string[] = [];
-
-      classes.forEach((cls, index) => {
-        const validation = ContentValidationService.validateClass(cls);
-        if (validation.valid && validation.data) {
-          validClasses.push(validation.data);
-        } else {
-          errors.push(`Class ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`);
-        }
-      });
-
-      if (validClasses.length === 0) {
-        return {
-          success: false,
-          message: `No valid class definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      // Store custom classes
-      const existingCustomClasses = this.getCustomClasses();
-      const updatedClasses = [...existingCustomClasses];
-
-      validClasses.forEach((newClass) => {
-        const existingIndex = updatedClasses.findIndex((cls) => cls.id === newClass.id);
-        if (existingIndex >= 0) {
-          updatedClasses[existingIndex] = newClass; // Replace existing
-        } else {
-          updatedClasses.push(newClass); // Add new
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(updatedClasses));
-
-      // Update feature pool map with new classes
-      this.updateFeaturePoolsFromCustomClasses();
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validClasses.length} class(es). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validClasses.length} class(es)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validClasses.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+    const existingIndex = updatedClasses.findIndex((cls) => cls.id === classDefinition.id);
+    if (existingIndex >= 0) {
+      updatedClasses[existingIndex] = classDefinition; // Replace existing
+    } else {
+      updatedClasses.push(classDefinition); // Add new
     }
+
+    this.storage.setItem(STORAGE_KEYS.customClasses, JSON.stringify(updatedClasses));
+
+    // Update feature pool map with new classes
+    this.updateFeaturePoolsFromCustomClasses();
+
+    return {
+      success: true,
+      message: `Successfully added/updated class: ${classDefinition.name}`,
+      itemsAdded: 1,
+    };
   }
 
   public removeCustomClass(classId: string): boolean {
@@ -517,7 +432,12 @@ export class ContentRepositoryService {
   // Subclass Management
   public getAllSubclasses(): SubclassDefinition[] {
     const customSubclasses = this.getCustomSubclasses();
-    return [...builtInSubclasses, ...customSubclasses];
+    const customIds = new Set(customSubclasses.map(sub => sub.id));
+    
+    // Filter out built-in subclasses that are overridden by custom ones
+    const filteredBuiltIns = builtInSubclasses.filter(sub => !customIds.has(sub.id));
+    
+    return [...filteredBuiltIns, ...customSubclasses];
   }
 
   public getSubclassDefinition(subclassId: string): SubclassDefinition | null {
@@ -554,60 +474,24 @@ export class ContentRepositoryService {
     return subclassDef.features.filter((feature) => feature.level <= level);
   }
 
-  public uploadSubclasses(subclassesJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(subclassesJson);
-      const subclasses = Array.isArray(data) ? data : [data];
+  public uploadSubclass(subclass: SubclassDefinition): ContentUploadResult {
+    const existingSubclasses = this.getCustomSubclasses();
+    const updatedSubclasses = [...existingSubclasses];
 
-      // Validate using Zod schemas
-      const validSubclasses: SubclassDefinition[] = [];
-      const errors: string[] = [];
-
-      subclasses.forEach((subclass, index) => {
-        const validation = ContentValidationService.validateSubclass(subclass);
-        if (validation.valid && validation.data) {
-          validSubclasses.push(validation.data);
-        } else {
-          errors.push(
-            `Subclass ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`,
-          );
-        }
-      });
-
-      if (validSubclasses.length === 0) {
-        return {
-          success: false,
-          message: `No valid subclass definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingSubclasses = this.getCustomSubclasses();
-      const updatedSubclasses = [...existingSubclasses];
-
-      validSubclasses.forEach((newSubclass) => {
-        const existingIndex = updatedSubclasses.findIndex((sub) => sub.id === newSubclass.id);
-        if (existingIndex >= 0) {
-          updatedSubclasses[existingIndex] = newSubclass;
-        } else {
-          updatedSubclasses.push(newSubclass);
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(updatedSubclasses));
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validSubclasses.length} subclass(es). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validSubclasses.length} subclass(es)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validSubclasses.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+    const existingIndex = updatedSubclasses.findIndex((sub) => sub.id === subclass.id);
+    if (existingIndex >= 0) {
+      updatedSubclasses[existingIndex] = subclass;
+    } else {
+      updatedSubclasses.push(subclass);
     }
+
+    this.storage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(updatedSubclasses));
+
+    return {
+      success: true,
+      message: `Successfully added/updated subclass: ${subclass.name}`,
+      itemsAdded: 1,
+    };
   }
 
   private getCustomSubclasses(): SubclassDefinition[] {
@@ -721,57 +605,24 @@ export class ContentRepositoryService {
     return null;
   }
 
-  public uploadSpellSchools(schoolsJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(schoolsJson);
-      const schools = Array.isArray(data) ? data : [data];
+  public uploadSpellSchool(school: SpellSchoolWithSpells): ContentUploadResult {
+    const existingSchools = this.getCustomSpellSchools();
+    const updatedSchools = [...existingSchools];
 
-      const validSchools: SpellSchoolWithSpells[] = [];
-      const errors: string[] = [];
-
-      schools.forEach((school, index) => {
-        const validation = ContentValidationService.validateSpellSchool(school);
-        if (validation.valid && validation.data) {
-          validSchools.push(validation.data);
-        } else {
-          errors.push(`School ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`);
-        }
-      });
-
-      if (validSchools.length === 0) {
-        return {
-          success: false,
-          message: `No valid spell school definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingSchools = this.getCustomSpellSchools();
-      const updatedSchools = [...existingSchools];
-
-      validSchools.forEach((newSchool) => {
-        const existingIndex = updatedSchools.findIndex((school) => school.id === newSchool.id);
-        if (existingIndex >= 0) {
-          updatedSchools[existingIndex] = newSchool;
-        } else {
-          updatedSchools.push(newSchool);
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(updatedSchools));
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validSchools.length} spell school(s). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validSchools.length} spell school(s)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validSchools.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+    const existingIndex = updatedSchools.findIndex((existing) => existing.id === school.id);
+    if (existingIndex >= 0) {
+      updatedSchools[existingIndex] = school;
+    } else {
+      updatedSchools.push(school);
     }
+
+    this.storage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(updatedSchools));
+
+    return {
+      success: true,
+      message: `Successfully added/updated spell school: ${school.name}`,
+      itemsAdded: 1,
+    };
   }
 
   private getCustomSpellSchools(): SpellSchoolWithSpells[] {
@@ -819,57 +670,24 @@ export class ContentRepositoryService {
     return allAbilities.find((ability) => ability.id === abilityId) || null;
   }
 
-  public uploadAbilities(abilitiesJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(abilitiesJson);
-      const abilities = Array.isArray(data) ? data : [data];
+  public uploadAbility(ability: ActionAbilityDefinition): ContentUploadResult {
+    const existingAbilities = this.getCustomAbilities();
+    const updatedAbilities = [...existingAbilities];
 
-      const validAbilities: ActionAbilityDefinition[] = [];
-      const errors: string[] = [];
-
-      abilities.forEach((ability, index) => {
-        const validation = ContentValidationService.validateActionAbility(ability);
-        if (validation.valid && validation.data) {
-          validAbilities.push(validation.data);
-        } else {
-          errors.push(`Ability ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`);
-        }
-      });
-
-      if (validAbilities.length === 0) {
-        return {
-          success: false,
-          message: `No valid ability definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingAbilities = this.getCustomAbilities();
-      const updatedAbilities = [...existingAbilities];
-
-      validAbilities.forEach((newAbility) => {
-        const existingIndex = updatedAbilities.findIndex((ability) => ability.id === newAbility.id);
-        if (existingIndex >= 0) {
-          updatedAbilities[existingIndex] = newAbility;
-        } else {
-          updatedAbilities.push(newAbility);
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(updatedAbilities));
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validAbilities.length} abilit(y/ies). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validAbilities.length} abilit(y/ies)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validAbilities.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+    const existingIndex = updatedAbilities.findIndex((existing) => existing.id === ability.id);
+    if (existingIndex >= 0) {
+      updatedAbilities[existingIndex] = ability;
+    } else {
+      updatedAbilities.push(ability);
     }
+
+    this.storage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(updatedAbilities));
+
+    return {
+      success: true,
+      message: `Successfully added/updated ability: ${ability.name}`,
+      itemsAdded: 1,
+    };
   }
 
   private getCustomAbilities(): ActionAbilityDefinition[] {
@@ -912,7 +730,12 @@ export class ContentRepositoryService {
     const builtInSchools = getBuiltInSpellSchools();
     const builtInSpells = builtInSchools.flatMap((school) => school.spells);
     const customSpells = this.getCustomSpells();
-    return [...builtInSpells, ...customSpells];
+    const customIds = new Set(customSpells.map(spell => spell.id));
+    
+    // Filter out built-in spells that are overridden by custom ones
+    const filteredBuiltInSpells = builtInSpells.filter(spell => !customIds.has(spell.id));
+    
+    return [...filteredBuiltInSpells, ...customSpells];
   }
 
   public getSpell(spellId: string): SpellAbilityDefinition | null {
@@ -920,57 +743,24 @@ export class ContentRepositoryService {
     return allSpells.find((spell) => spell.id === spellId) || null;
   }
 
-  public uploadSpells(spellsJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(spellsJson);
-      const spells = Array.isArray(data) ? data : [data];
+  public uploadSpell(spell: SpellAbilityDefinition): ContentUploadResult {
+    const existingSpells = this.getCustomSpells();
+    const updatedSpells = [...existingSpells];
 
-      const validSpells: SpellAbilityDefinition[] = [];
-      const errors: string[] = [];
-
-      spells.forEach((spell, index) => {
-        const validation = ContentValidationService.validateSpellAbility(spell);
-        if (validation.valid && validation.data) {
-          validSpells.push(validation.data);
-        } else {
-          errors.push(`Spell ${index + 1}: ${validation.errors?.join(", ") || "Invalid format"}`);
-        }
-      });
-
-      if (validSpells.length === 0) {
-        return {
-          success: false,
-          message: `No valid spell definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingSpells = this.getCustomSpells();
-      const updatedSpells = [...existingSpells];
-
-      validSpells.forEach((newSpell) => {
-        const existingIndex = updatedSpells.findIndex((spell) => spell.id === newSpell.id);
-        if (existingIndex >= 0) {
-          updatedSpells[existingIndex] = newSpell;
-        } else {
-          updatedSpells.push(newSpell);
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(updatedSpells));
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validSpells.length} spell(s). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validSpells.length} spell(s)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validSpells.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
+    const existingIndex = updatedSpells.findIndex((existing) => existing.id === spell.id);
+    if (existingIndex >= 0) {
+      updatedSpells[existingIndex] = spell;
+    } else {
+      updatedSpells.push(spell);
     }
+
+    this.storage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(updatedSpells));
+
+    return {
+      success: true,
+      message: `Successfully added/updated spell: ${spell.name}`,
+      itemsAdded: 1,
+    };
   }
 
   private getCustomSpells(): SpellAbilityDefinition[] {
@@ -1006,86 +796,47 @@ export class ContentRepositoryService {
 
   // Item Repository Management
   public getAllItems(): RepositoryItem[] {
-    return [
-      ...ITEM_REPOSITORY.weapons,
-      ...ITEM_REPOSITORY.armor,
-      ...ITEM_REPOSITORY.freeform,
-      ...ITEM_REPOSITORY.consumables,
-      ...ITEM_REPOSITORY.ammunition,
-      ...this.getCustomItems(),
-    ];
+    const itemService = ItemService.getInstance();
+    const builtInItems = itemService.getAllItems();
+    const customItems = this.getCustomItems();
+    const customIds = new Set(customItems.map(item => item.id));
+    
+    // Filter out built-in items that are overridden by custom ones
+    const filteredBuiltInItems = builtInItems.filter(item => !customIds.has(item.id));
+    
+    return [...filteredBuiltInItems, ...customItems];
   }
 
-  public uploadItems(itemsJson: string): ContentUploadResult {
-    try {
-      const data = JSON.parse(itemsJson);
-      const content = data as CustomItemContent;
+  public uploadItems(data: CustomItemContent): ContentUploadResult {
 
-      if (!content.items || !Array.isArray(content.items)) {
-        return {
-          success: false,
-          message: 'Invalid format: expected an object with "items" array property',
-        };
+    const validItems = data.items;
+    const existingItems = this.getCustomItems();
+    const updatedItems = [...existingItems];
+
+    validItems.forEach((newItem) => {
+      const existingIndex = updatedItems.findIndex((item) => item.id === newItem.id);
+      if (existingIndex >= 0) {
+        updatedItems[existingIndex] = newItem;
+      } else {
+        updatedItems.push(newItem);
       }
+    });
 
-      const validItems: RepositoryItem[] = [];
-      const errors: string[] = [];
+    this.storage.setItem(STORAGE_KEYS.customItems, JSON.stringify(updatedItems));
 
-      content.items.forEach((item, index) => {
-        // Basic validation for repository items
-        if (
-          item &&
-          typeof item === "object" &&
-          item.item &&
-          item.item.id &&
-          item.item.name &&
-          item.item.type &&
-          item.category &&
-          ["mundane", "magical"].includes(item.category)
-        ) {
-          validItems.push(item);
-        } else {
-          errors.push(`Item ${index + 1}: Invalid repository item format`);
-        }
-      });
+    const message =
+      validItems.length === 1
+        ? `Successfully added/updated item: ${validItems[0].name}`
+        : `Successfully added/updated ${validItems.length} item(s)`;
 
-      if (validItems.length === 0) {
-        return {
-          success: false,
-          message: `No valid item definitions found. Errors: ${errors.join("; ")}`,
-        };
-      }
-
-      const existingItems = this.getCustomItems();
-      const updatedItems = [...existingItems];
-
-      validItems.forEach((newItem) => {
-        const existingIndex = updatedItems.findIndex((item) => item.item.id === newItem.item.id);
-        if (existingIndex >= 0) {
-          updatedItems[existingIndex] = newItem;
-        } else {
-          updatedItems.push(newItem);
-        }
-      });
-
-      this.storage.setItem(STORAGE_KEYS.customItems, JSON.stringify(updatedItems));
-
-      const message =
-        errors.length > 0
-          ? `Successfully added/updated ${validItems.length} item(s). ${errors.length} invalid entries skipped.`
-          : `Successfully added/updated ${validItems.length} item(s)`;
-
-      return {
-        success: true,
-        message,
-        itemsAdded: validItems.length,
-      };
-    } catch (error) {
-      return { success: false, message: "Invalid JSON format" };
-    }
+    return {
+      success: true,
+      message,
+      itemsAdded: validItems.length,
+    };
   }
 
-  private getCustomItems(): RepositoryItem[] {
+  public getCustomItems(): RepositoryItem[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customItems);
       if (!stored) return [];
@@ -1093,22 +844,14 @@ export class ContentRepositoryService {
       const parsed = JSON.parse(stored);
       if (!Array.isArray(parsed)) return [];
 
-      // Basic validation for custom items
+      // Validate custom items using ContentValidationService
       const validItems: RepositoryItem[] = [];
       parsed.forEach((item, index) => {
-        if (
-          item &&
-          typeof item === "object" &&
-          item.item &&
-          item.item.id &&
-          item.item.name &&
-          item.item.type &&
-          item.category &&
-          ["mundane", "magical"].includes(item.category)
-        ) {
-          validItems.push(item);
+        const validation = ContentValidationService.validateRepositoryItem(item);
+        if (validation.valid && validation.data) {
+          validItems.push(validation.data);
         } else {
-          console.warn(`Invalid custom item found in storage at index ${index}:`, item);
+          console.warn(`Invalid custom item found in storage at index ${index}:`, validation.errors);
         }
       });
 
@@ -1144,12 +887,12 @@ export class ContentRepositoryService {
     return new Promise((resolve) => {
       const results: MultiFileUploadResult["results"] = [];
       let pendingFiles = files.length;
-      
+
       if (pendingFiles === 0) {
         resolve({
           success: false,
           message: "No files provided",
-          results: []
+          results: [],
         });
         return;
       }
@@ -1160,69 +903,89 @@ export class ContentRepositoryService {
           try {
             const content = e.target?.result as string;
             const data = JSON.parse(content);
-            
-            // Try to detect content type
-            const contentType = this.detectContentType(data);
+
+            // Validate with uploadable content schema
+            const validation = uploadableContentSchema.safeParse(data);
             let result: ContentUploadResult;
 
-            if (!contentType) {
+            if (!validation.success) {
               result = {
                 success: false,
-                message: "Could not determine content type from JSON structure"
+                message: "File does not match expected uploadable content format. Ensure your JSON includes a 'contentType' field and 'data' field with valid content.",
               };
             } else {
-              // Upload using the detected content type
-              switch (contentType) {
-                case CustomContentType.CLASS_DEFINITION:
-                  result = this.uploadClasses(content);
+              // Extract content type and data from validated structure
+              const uploadableContent = validation.data;
+
+              // Upload using the detected content type with typed data directly
+              switch (uploadableContent.contentType) {
+                case CustomContentType.CLASS:
+                  result = this.uploadClass(uploadableContent.data as ClassDefinition);
                   break;
-                case CustomContentType.SUBCLASS_DEFINITION:
-                  result = this.uploadSubclasses(content);
+                case CustomContentType.SUBCLASS:
+                  result = this.uploadSubclass(uploadableContent.data as SubclassDefinition);
                   break;
-                case CustomContentType.SPELL_SCHOOL_DEFINITION:
-                  result = this.uploadSpellSchools(content);
+                case CustomContentType.SPELL_SCHOOL:
+                  result = this.uploadSpellSchool(uploadableContent.data as SpellSchoolWithSpells);
                   break;
-                case CustomContentType.ANCESTRY_DEFINITION:
-                  result = this.uploadAncestries(content);
+                case CustomContentType.ANCESTRY:
+                  result = this.uploadAncestry(uploadableContent.data as AncestryDefinition);
                   break;
-                case CustomContentType.BACKGROUND_DEFINITION:
-                  result = this.uploadBackgrounds(content);
+                case CustomContentType.BACKGROUND:
+                  result = this.uploadBackground(uploadableContent.data as BackgroundDefinition);
                   break;
-                case CustomContentType.ACTION_ABILITY:
-                  result = this.uploadAbilities(content);
+                case CustomContentType.ACTION:
+                  result = this.uploadAbility(uploadableContent.data as ActionAbilityDefinition);
                   break;
-                case CustomContentType.SPELL_ABILITY:
-                  result = this.uploadSpells(content);
+                case CustomContentType.SPELL:
+                  result = this.uploadSpell(uploadableContent.data as SpellAbilityDefinition);
                   break;
-                case CustomContentType.ITEM_REPOSITORY:
-                  result = this.uploadItems(content);
+                case CustomContentType.ITEM:
+                  result = this.uploadItems(uploadableContent.data as CustomItemContent);
                   break;
                 default:
                   result = {
                     success: false,
-                    message: "Unknown content type"
+                    message: "Unknown content type",
                   };
               }
             }
 
             results.push({
               filename: file.name,
-              contentType,
-              result
+              contentType: validation.data?.contentType || null,
+              result,
             });
 
             pendingFiles--;
             if (pendingFiles === 0) {
               // All files processed
-              const successfulResults = results.filter(r => r.result.success);
-              const failedResults = results.filter(r => !r.result.success);
-              
+              const successfulResults = results.filter((r) => r.result.success);
+              const failedResults = results.filter((r) => !r.result.success);
+
               let message = "";
               if (successfulResults.length > 0) {
-                const totalItemsAdded = successfulResults.reduce((sum, r) => sum + (r.result.itemsAdded || 0), 0);
-                message += `Successfully processed ${successfulResults.length} file(s) with ${totalItemsAdded} item(s) total`;
+                // Track content by type
+                const contentCounts: Record<string, number> = {};
+                successfulResults.forEach((r) => {
+                  if (r.contentType) {
+                    const typeName = r.contentType.replace('-', ' ');
+                    contentCounts[typeName] = (contentCounts[typeName] || 0) + 1;
+                  }
+                });
+
+                // Create detailed breakdown
+                const breakdownParts = Object.entries(contentCounts).map(
+                  ([type, count]) => `${count} ${type}${count === 1 ? '' : 's'}`
+                );
+                
+                if (breakdownParts.length > 0) {
+                  message = `Successfully processed ${successfulResults.length} file(s): ${breakdownParts.join(', ')}`;
+                } else {
+                  message = `Successfully processed ${successfulResults.length} file(s)`;
+                }
               }
-              
+
               if (failedResults.length > 0) {
                 if (message) message += ". ";
                 message += `${failedResults.length} file(s) failed to process`;
@@ -1231,7 +994,7 @@ export class ContentRepositoryService {
               resolve({
                 success: successfulResults.length > 0,
                 message,
-                results
+                results,
               });
             }
           } catch (error) {
@@ -1240,8 +1003,8 @@ export class ContentRepositoryService {
               contentType: null,
               result: {
                 success: false,
-                message: "Invalid JSON format"
-              }
+                message: "Invalid JSON format",
+              },
             });
 
             pendingFiles--;
@@ -1249,7 +1012,7 @@ export class ContentRepositoryService {
               resolve({
                 success: false,
                 message: "All files failed to process",
-                results
+                results,
               });
             }
           }
@@ -1259,56 +1022,6 @@ export class ContentRepositoryService {
     });
   }
 
-  private detectContentType(data: any): CustomContentType | null {
-    // Handle arrays - check the first item
-    const item = Array.isArray(data) ? data[0] : data;
-    
-    if (!item || typeof item !== 'object') {
-      return null;
-    }
-
-    // Check for item repository format (has "items" array)
-    if (data.items && Array.isArray(data.items)) {
-      return CustomContentType.ITEM_REPOSITORY;
-    }
-
-    // Check for spell school (has spells array and school-specific properties)
-    if (item.spells && Array.isArray(item.spells) && item.color && item.icon) {
-      return CustomContentType.SPELL_SCHOOL_DEFINITION;
-    }
-
-    // Check for class (has features array and hitDie)
-    if (item.features && Array.isArray(item.features) && item.hitDie) {
-      return CustomContentType.CLASS_DEFINITION;
-    }
-
-    // Check for subclass (has parentClassId)
-    if (item.parentClassId && item.features && Array.isArray(item.features)) {
-      return CustomContentType.SUBCLASS_DEFINITION;
-    }
-
-    // Check for ancestry (has size property and features)
-    if (item.size && item.features && Array.isArray(item.features)) {
-      return CustomContentType.ANCESTRY_DEFINITION;
-    }
-
-    // Check for background (has features but no size, hitDie, or parentClassId)
-    if (item.features && Array.isArray(item.features) && !item.size && !item.hitDie && !item.parentClassId) {
-      return CustomContentType.BACKGROUND_DEFINITION;
-    }
-
-    // Check for spell ability (has school and tier properties)
-    if (item.school && item.tier !== undefined) {
-      return CustomContentType.SPELL_ABILITY;
-    }
-
-    // Check for action ability (has name, description, and either frequency or roll properties, but no school/tier)
-    if (item.name && item.description && (item.frequency || item.roll) && !item.school && item.tier === undefined) {
-      return CustomContentType.ACTION_ABILITY;
-    }
-
-    return null;
-  }
 
   // Utility Methods
   public clearAllCustomContent(): void {
@@ -1328,14 +1041,14 @@ export class ContentRepositoryService {
     const customSpells = this.getCustomSpells();
 
     return {
-      [CustomContentType.CLASS_DEFINITION]: customClasses.length,
-      [CustomContentType.SUBCLASS_DEFINITION]: this.getCustomSubclasses().length,
-      [CustomContentType.SPELL_SCHOOL_DEFINITION]: customSpellSchools.length,
-      [CustomContentType.ANCESTRY_DEFINITION]: this.getCustomAncestries().length,
-      [CustomContentType.BACKGROUND_DEFINITION]: this.getCustomBackgrounds().length,
-      [CustomContentType.ACTION_ABILITY]: this.getCustomAbilities().length,
-      [CustomContentType.SPELL_ABILITY]: customSpells.length,
-      [CustomContentType.ITEM_REPOSITORY]: this.getAllItems().length,
+      [CustomContentType.CLASS]: customClasses.length,
+      [CustomContentType.SUBCLASS]: this.getCustomSubclasses().length,
+      [CustomContentType.SPELL_SCHOOL]: customSpellSchools.length,
+      [CustomContentType.ANCESTRY]: this.getCustomAncestries().length,
+      [CustomContentType.BACKGROUND]: this.getCustomBackgrounds().length,
+      [CustomContentType.ACTION]: this.getCustomAbilities().length,
+      [CustomContentType.SPELL]: customSpells.length,
+      [CustomContentType.ITEM]: this.getCustomItems().length,
     };
   }
 }

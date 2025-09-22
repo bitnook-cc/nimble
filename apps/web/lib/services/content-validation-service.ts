@@ -16,6 +16,11 @@ import {
   SubclassDefinitionSchema,
 } from "../schemas/class";
 import { ClassDefinition, SubclassDefinition } from "../schemas/class";
+import {
+  repositoryItemSchema,
+  customItemContentSchema,
+} from "../schemas/inventory";
+import { RepositoryItem } from "../types/item-repository";
 import { SpellSchoolWithSpells } from "./content-repository-service";
 
 // Validation functions
@@ -142,6 +147,44 @@ export class ContentValidationService {
     try {
       const validatedData = BackgroundDefinitionSchema.parse(data);
       return { valid: true, data: validatedData };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return {
+          valid: false,
+          errors: error.issues.map((err) => `${err.path.join(".")}: ${err.message}`),
+        };
+      }
+      return { valid: false, errors: ["Unknown validation error"] };
+    }
+  }
+
+  static validateRepositoryItem(data: unknown): {
+    valid: boolean;
+    data?: RepositoryItem;
+    errors?: string[];
+  } {
+    try {
+      const validatedData = repositoryItemSchema.parse(data);
+      return { valid: true, data: validatedData };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return {
+          valid: false,
+          errors: error.issues.map((err) => `${err.path.join(".")}: ${err.message}`),
+        };
+      }
+      return { valid: false, errors: ["Unknown validation error"] };
+    }
+  }
+
+  static validateCustomItemContent(data: unknown): {
+    valid: boolean;
+    data?: { items: RepositoryItem[] };
+    errors?: string[];
+  } {
+    try {
+      const validatedData = customItemContentSchema.parse(data);
+      return { valid: true, data: validatedData as { items: RepositoryItem[] } };
     } catch (error) {
       if (error instanceof z.ZodError) {
         return {

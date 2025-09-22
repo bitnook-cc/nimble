@@ -4,14 +4,14 @@
 
 // Enum for custom content types that can be imported
 export enum CustomContentType {
-  CLASS_DEFINITION = "class-definition",
-  SUBCLASS_DEFINITION = "subclass-definition",
-  SPELL_SCHOOL_DEFINITION = "spell-school-definition",
-  ANCESTRY_DEFINITION = "ancestry-definition",
-  BACKGROUND_DEFINITION = "background-definition",
-  ACTION_ABILITY = "action-ability",
-  SPELL_ABILITY = "spell-ability",
-  ITEM_REPOSITORY = "item-repository",
+  CLASS = "class",
+  SUBCLASS = "subclass",
+  SPELL_SCHOOL = "spell-school",
+  ANCESTRY = "ancestry",
+  BACKGROUND = "background",
+  ACTION = "action",
+  SPELL = "spell",
+  ITEM = "item",
 }
 
 // Display metadata for each content type
@@ -23,42 +23,42 @@ export interface ContentTypeMetadata {
 
 // Content type metadata mapping
 export const CONTENT_TYPE_METADATA: Record<CustomContentType, ContentTypeMetadata> = {
-  [CustomContentType.CLASS_DEFINITION]: {
+  [CustomContentType.CLASS]: {
     title: "Classes",
     description: "Character classes with features and progression",
     icon: "Shield",
   },
-  [CustomContentType.SUBCLASS_DEFINITION]: {
+  [CustomContentType.SUBCLASS]: {
     title: "Subclasses",
     description: "Specialized paths for character classes",
     icon: "Zap",
   },
-  [CustomContentType.SPELL_SCHOOL_DEFINITION]: {
+  [CustomContentType.SPELL_SCHOOL]: {
     title: "Spell Schools",
     description: "Schools of magic with themed spells",
     icon: "Sparkles",
   },
-  [CustomContentType.ANCESTRY_DEFINITION]: {
+  [CustomContentType.ANCESTRY]: {
     title: "Ancestries",
     description: "Character ancestries with traits and features",
     icon: "Users",
   },
-  [CustomContentType.BACKGROUND_DEFINITION]: {
+  [CustomContentType.BACKGROUND]: {
     title: "Backgrounds",
     description: "Character backgrounds with passive features",
     icon: "BookOpen",
   },
-  [CustomContentType.ACTION_ABILITY]: {
+  [CustomContentType.ACTION]: {
     title: "Abilities",
     description: "Non-spell abilities with resource costs",
     icon: "FileText",
   },
-  [CustomContentType.SPELL_ABILITY]: {
+  [CustomContentType.SPELL]: {
     title: "Spells",
     description: "Magical spells with tiers and schools",
     icon: "Wand2",
   },
-  [CustomContentType.ITEM_REPOSITORY]: {
+  [CustomContentType.ITEM]: {
     title: "Items",
     description: "Weapons, armor, consumables, and equipment",
     icon: "Package",

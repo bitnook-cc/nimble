@@ -56,7 +56,7 @@ export class ItemService {
     let items = this.getAllItems();
 
     if (filter.type) {
-      items = items.filter((item) => item.item.type === filter.type);
+      items = items.filter((item) => item.type === filter.type);
     }
 
     if (filter.category) {
@@ -71,8 +71,8 @@ export class ItemService {
       const searchTerm = filter.name.toLowerCase();
       items = items.filter(
         (item) =>
-          item.item.name.toLowerCase().includes(searchTerm) ||
-          (item.item.description && item.item.description.toLowerCase().includes(searchTerm)),
+          item.name.toLowerCase().includes(searchTerm) ||
+          (item.description && item.description.toLowerCase().includes(searchTerm)),
       );
     }
 
@@ -83,7 +83,7 @@ export class ItemService {
    * Find a specific item by its repository ID
    */
   public findItemById(repositoryId: string): RepositoryItem | undefined {
-    return this.getAllItems().find((item) => item.item.id === repositoryId);
+    return this.getAllItems().find((item) => item.id === repositoryId);
   }
 
   /**
@@ -101,7 +101,7 @@ export class ItemService {
 
     // Create the inventory item with the unique ID
     const inventoryItem: Item = {
-      ...repositoryItem.item,
+      ...repositoryItem,
       id: uniqueId,
     } as Item;
 

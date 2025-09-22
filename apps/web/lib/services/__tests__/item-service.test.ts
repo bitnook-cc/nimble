@@ -30,22 +30,18 @@ vi.mock("@/lib/data/items", () => {
 describe("ItemService", () => {
   let itemService: ItemService;
 
-  const mockWeaponItem: Omit<WeaponItem, "equipped"> = {
+  const mockWeapon: RepositoryWeaponItem = {
     id: "test-sword",
     name: "Test Sword",
     description: "A test weapon",
     type: "weapon",
     damage: "1d8",
     size: 1,
-  };
-
-  const mockWeapon: RepositoryWeaponItem = {
     category: "mundane",
     rarity: "common",
-    item: mockWeaponItem,
   };
 
-  const mockArmorItem: Omit<ArmorItem, "equipped"> = {
+  const mockArmor: RepositoryArmorItem = {
     id: "test-armor",
     name: "Test Armor",
     description: "A test armor",
@@ -53,42 +49,30 @@ describe("ItemService", () => {
     armor: 14,
     isMainArmor: true,
     size: 2,
-  };
-
-  const mockArmor: RepositoryArmorItem = {
     category: "mundane",
     rarity: "common",
-    item: mockArmorItem,
   };
 
-  const mockConsumableItem: ConsumableItem = {
+  const mockConsumable: RepositoryConsumableItem = {
     id: "test-potion",
     name: "Test Potion",
     description: "A test consumable",
     type: "consumable",
     count: 3,
     size: 1,
-  };
-
-  const mockConsumable: RepositoryConsumableItem = {
     category: "mundane",
     rarity: "common",
-    item: mockConsumableItem,
   };
 
-  const mockMagicalWeaponItem: Omit<WeaponItem, "equipped"> = {
+  const mockMagicalWeapon: RepositoryWeaponItem = {
     id: "magic-sword",
     name: "Magic Sword",
     description: "A magical weapon",
     type: "weapon",
     damage: "2d6",
     size: 1,
-  };
-
-  const mockMagicalWeapon: RepositoryWeaponItem = {
     category: "magical",
     rarity: "rare",
-    item: mockMagicalWeaponItem,
   };
 
   beforeEach(() => {
@@ -165,8 +149,8 @@ describe("ItemService", () => {
       const result = itemService.filterItems({ type: "weapon" });
 
       expect(result).toHaveLength(2);
-      expect(result[0].item.type).toBe("weapon");
-      expect(result[1].item.type).toBe("weapon");
+      expect(result[0].type).toBe("weapon");
+      expect(result[1].type).toBe("weapon");
     });
 
     it("should filter by category", () => {
@@ -187,14 +171,14 @@ describe("ItemService", () => {
       const result = itemService.filterItems({ name: "magic" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.name).toBe("Magic Sword");
+      expect(result[0].name).toBe("Magic Sword");
     });
 
     it("should filter by description", () => {
       const result = itemService.filterItems({ name: "test weapon" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.id).toBe("test-sword");
+      expect(result[0].id).toBe("test-sword");
     });
 
     it("should combine multiple filters", () => {
@@ -204,7 +188,7 @@ describe("ItemService", () => {
       });
 
       expect(result).toHaveLength(1);
-      expect(result[0].item.id).toBe("magic-sword");
+      expect(result[0].id).toBe("magic-sword");
     });
   });
 
@@ -218,7 +202,7 @@ describe("ItemService", () => {
       const result = itemService.findItemById("test-sword");
 
       expect(result).toBeDefined();
-      expect(result?.item.id).toBe("test-sword");
+      expect(result?.id).toBe("test-sword");
     });
 
     it("should return undefined for non-existent ID", () => {

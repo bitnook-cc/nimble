@@ -3,7 +3,6 @@ import { RepositoryWeaponItem } from "../../types/item-repository";
 export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
   // Melee Weapons
   {
-    item: {
       id: "dagger",
       name: "Dagger",
       type: "weapon",
@@ -14,11 +13,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Light", "Thrown 4"],
       cost: { gold: 3 },
       description: "A short blade perfect for close combat or throwing.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "sickle",
       name: "Sickle",
       type: "weapon",
@@ -30,11 +27,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Vicious"],
       cost: { gold: 10 },
       description: "A curved farming blade that can cause devastating wounds.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "club-mace",
       name: "Club/Mace",
       type: "weapon",
@@ -45,11 +40,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: [],
       cost: { gold: 2 },
       description: "A simple but effective bludgeoning weapon.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "hand-axe",
       name: "Hand Axe",
       type: "weapon",
@@ -60,11 +53,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Thrown 4"],
       cost: { gold: 8 },
       description: "A small axe balanced for both melee and throwing.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "shortsword",
       name: "Short Sword",
       type: "weapon",
@@ -75,11 +66,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Light"],
       cost: { gold: 10 },
       description: "A versatile one-handed blade favored by rogues and dualists.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "rapier",
       name: "Rapier",
       type: "weapon",
@@ -90,11 +79,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: [],
       cost: { gold: 60 },
       description: "A slender, sharp-pointed sword used for thrusting attacks.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "staff",
       name: "Staff",
       type: "weapon",
@@ -105,11 +92,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed"],
       cost: { gold: 8 },
       description: "A long wooden staff, simple but effective in trained hands.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "longsword",
       name: "Longsword",
       type: "weapon",
@@ -120,11 +105,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed (1-handed: Req. 2 STR)"],
       cost: { gold: 60 },
       description: "A classic knightly blade, reliable in both one and two hands.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "battleaxe",
       name: "Battleaxe",
       type: "weapon",
@@ -135,11 +118,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed"],
       cost: { gold: 30 },
       description: "A broad-bladed axe designed for heavy strikes in battle.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "pole-hammer",
       name: "Pole Hammer",
       type: "weapon",
@@ -150,11 +131,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Reach 2"],
       cost: { gold: 60 },
       description: "A long-handled hammer with extended reach.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "glaive",
       name: "Glaive",
       type: "weapon",
@@ -165,11 +144,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Reach 2"],
       cost: { gold: 60 },
       description: "A polearm with a curved blade mounted on a long shaft.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "spear",
       name: "Spear",
       type: "weapon",
@@ -180,11 +157,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Reach 2"],
       cost: { gold: 60 },
       description: "A long wooden shaft with a sharp metal point.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "greatmaul",
       name: "Greatmaul",
       type: "weapon",
@@ -195,11 +170,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed (Req. 2 STR)"],
       cost: { gold: 80 },
       description: "A massive two-handed hammer that delivers crushing blows.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "greataxe",
       name: "Greataxe",
       type: "weapon",
@@ -210,11 +183,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed (Req. 2 STR)"],
       cost: { gold: 100 },
       description: "A massive axe that cleaves through enemies with devastating force.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "greatsword",
       name: "Greatsword",
       type: "weapon",
@@ -225,12 +196,10 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed (Req. 2 STR)"],
       cost: { gold: 120 },
       description: "A massive two-handed sword that cleaves through enemies.",
-    },
     category: "mundane",
   },
   // Ranged Weapons
   {
-    item: {
       id: "sling",
       name: "Sling",
       type: "weapon",
@@ -242,11 +211,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       vicious: true,
       cost: { gold: 4 },
       description: "A simple leather pouch on cords for hurling stones with surprising force.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "javelins",
       name: "Javelins",
       type: "weapon",
@@ -257,11 +224,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Range 8", "Stack of 4"],
       cost: { gold: 20 },
       description: "Light throwing spears designed for ranged combat.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "throwing-hammers",
       name: "Throwing Hammers",
       type: "weapon",
@@ -272,11 +237,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["Range 4", "Stack of 3"],
       cost: { gold: 25 },
       description: "Balanced hammers designed for throwing at enemies.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "shortbow",
       name: "Shortbow",
       type: "weapon",
@@ -287,11 +250,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Range 12"],
       cost: { gold: 25 },
       description: "A compact bow suitable for hunters and scouts.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "longbow",
       name: "Longbow",
       type: "weapon",
@@ -302,11 +263,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Range 16 (Req. 1 STR)"],
       cost: { gold: 30 },
       description: "A powerful bow with exceptional range and accuracy.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "crossbow",
       name: "Crossbow",
       type: "weapon",
@@ -317,11 +276,9 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Load: 1 action", "Range 8"],
       cost: { gold: 60 },
       description: "A mechanical bow that trades speed for devastating power.",
-    },
     category: "mundane",
   },
   {
-    item: {
       id: "handheld-ballista",
       name: "Handheld Ballista",
       type: "weapon",
@@ -332,14 +289,12 @@ export const MUNDANE_WEAPONS: RepositoryWeaponItem[] = [
       properties: ["2-handed", "Load: 2 actions", "Range 8 (Req. 2 STR)"],
       cost: { gold: 120 },
       description: "A massive crossbow that fires ballista bolts with tremendous force.",
-    },
     category: "mundane",
   },
 ];
 
 export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
   {
-    item: {
       id: "flamebrand",
       name: "Flamebrand",
       type: "weapon",
@@ -349,12 +304,10 @@ export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
       damageType: "Slashing",
       properties: ["2-handed (1-handed: Req. 2 STR)", "Magic", "Fire damage"],
       description: "A longsword wreathed in eternal flames that never burn the wielder.",
-    },
     category: "magical",
     rarity: "rare",
   },
   {
-    item: {
       id: "frostbite",
       name: "Frostbite",
       type: "weapon",
@@ -364,12 +317,10 @@ export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
       damageType: "Piercing",
       properties: ["Light", "Magic", "Cold damage"],
       description: "A crystalline dagger that leaves trails of frost with each strike.",
-    },
     category: "magical",
     rarity: "uncommon",
   },
   {
-    item: {
       id: "thunderstrike",
       name: "Thunderstrike Maul",
       type: "weapon",
@@ -379,12 +330,10 @@ export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
       damageType: "Bludgeoning",
       properties: ["2-handed (Req. 2 STR)", "Magic", "Thunder damage"],
       description: "A massive maul that crashes like thunder with each devastating blow.",
-    },
     category: "magical",
     rarity: "very-rare",
   },
   {
-    item: {
       id: "shadowpiercer",
       name: "Shadowpiercer",
       type: "weapon",
@@ -394,12 +343,10 @@ export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
       damageType: "Piercing",
       properties: ["2-handed", "Range 16", "Magic", "Necrotic damage"],
       description: "A longbow carved from shadowwood that fires arrows of pure darkness.",
-    },
     category: "magical",
     rarity: "rare",
   },
   {
-    item: {
       id: "dragonslayer",
       name: "Dragonslayer Greatsword",
       type: "weapon",
@@ -409,7 +356,6 @@ export const MAGICAL_WEAPONS: RepositoryWeaponItem[] = [
       damageType: "Slashing",
       properties: ["2-handed (Req. 2 STR)", "Magic", "Dragon Bane"],
       description: "A legendary blade forged from dragon scales, humming with ancient power.",
-    },
     category: "magical",
     rarity: "legendary",
   },
