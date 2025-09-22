@@ -5,6 +5,7 @@ import { Download, FileText } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 export interface PDFExportOptions {
   template: "full-page" | "half-page" | "detailed-page";
   editable: boolean;
+  includeFullInventory: boolean;
 }
 
 interface PDFExportDialogProps {
@@ -37,10 +39,11 @@ export function PDFExportDialog({
   const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">(
     "full-page",
   );
+  const [includeFullInventory, setIncludeFullInventory] = useState(false);
 
   const handleExport = () => {
     // Always export as editable
-    onExport({ template, editable: true });
+    onExport({ template, editable: true, includeFullInventory });
   };
 
   return (
@@ -89,6 +92,22 @@ export function PDFExportDialog({
                 </Label>
               </div>
             </RadioGroup>
+          </div>
+
+          {/* Inventory Options */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Inventory</Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="full-inventory"
+                checked={includeFullInventory}
+                onCheckedChange={(checked) => setIncludeFullInventory(checked === true)}
+              />
+              <Label htmlFor="full-inventory" className="text-sm">
+                Include full inventory
+                <span className="text-muted-foreground ml-1">(All items including unequipped)</span>
+              </Label>
+            </div>
           </div>
         </div>
 
