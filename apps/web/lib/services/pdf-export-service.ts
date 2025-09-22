@@ -13,6 +13,7 @@ import {
 export interface PDFExportOptions {
   template: "full-page" | "half-page" | "detailed-page";
   editable: boolean;
+  includeFullInventory: boolean;
 }
 
 export class PDFExportService {
@@ -52,7 +53,11 @@ export class PDFExportService {
   async exportCharacterToPDF(
     character: Character,
     characterService: ICharacterService,
-    options: PDFExportOptions = { template: "full-page", editable: true },
+    options: PDFExportOptions = {
+      template: "full-page",
+      editable: true,
+      includeFullInventory: false,
+    },
   ): Promise<void> {
     try {
       // Load the template PDF based on selected template
@@ -313,14 +318,8 @@ export class PDFExportService {
       }
     });
 
-    // Add equipped items with special properties
-    character.inventory.items
-      .filter((item) => (item.type === "weapon" || item.type === "armor") && item.equipped)
-      .forEach((item) => {
-        if (item.description) {
-          allFeatures.push(`${item.name}: ${item.description}`);
-        }
-      });
+    // Add inventory items based on options
+    this.addInventoryToFeatures(character, options, allFeatures);
 
     // Distribute features across columns (2 for half-page, 3 for full-page and detailed-page)
     const columnCount = options.template === "half-page" ? 2 : 3;
@@ -334,6 +333,121 @@ export class PDFExportService {
       const columnText = columnFeatures.join("\n\n");
       this.setTextField(form, `Body - Column ${col}`, columnText);
     }
+  }
+
+  /**
+   * Add inventory items to the features list based on export options
+   */
+  private addInventoryToFeatures(
+    character: Character,
+    options: PDFExportOptions,
+    allFeatures: string[],
+  ): void {
+    const items = character.inventory.items;
+
+    allFeatures.push("=== INVENTORY ===");
+
+    if (options.includeFullInventory) {
+      // Include all items when full inventory is enabled
+      items.forEach((item) => {
+        const itemDescription = this.formatItemDescription(item);
+        if (itemDescription) {
+          allFeatures.push(itemDescription);
+        }
+      });
+    } else {
+      // Only include equipped weapons and armor with enhanced descriptions
+      items
+        .filter((item) => (item.type === "weapon" || item.type === "armor") && item.equipped)
+        .forEach((item) => {
+          const itemDescription = this.formatItemDescription(item);
+          if (itemDescription) {
+            allFeatures.push(itemDescription);
+          }
+        });
+    }
+  }
+
+  /**
+   * Format an item description with all relevant details
+   */
+  private formatItemDescription(item: any): string | null {
+    const parts: string[] = [item.name];
+
+    if (item.type === "weapon") {
+      // Add damage formula
+      if (item.damage) {
+        parts.push(`Damage: ${item.damage}`);
+      }
+
+      // Add damage type
+      if (item.damageType) {
+        parts.push(`Type: ${item.damageType}`);
+      }
+
+      // Add vicious property
+      if (item.vicious) {
+        parts.push("Vicious");
+      }
+
+      // Add weapon properties
+      if (item.properties && item.properties.length > 0) {
+        parts.push(`Properties: ${item.properties.join(", ")}`);
+      }
+    } else if (item.type === "armor") {
+      // Add armor value
+      if (typeof item.armor === "number") {
+        parts.push(`Armor: +${item.armor}`);
+      }
+
+      // Add max dex bonus
+      if (typeof item.maxDexBonus === "number") {
+        parts.push(`Max Dex: +${item.maxDexBonus}`);
+      }
+
+      // Add armor type
+      if (item.isMainArmor) {
+        parts.push("Main Armor");
+      } else {
+        parts.push("Supplementary Armor");
+      }
+
+      // Add armor properties
+      if (item.properties && item.properties.length > 0) {
+        parts.push(`Properties: ${item.properties.join(", ")}`);
+      }
+    } else if (item.type === "consumable" || item.type === "ammunition") {
+      // Add count for consumables and ammunition
+      if (typeof item.count === "number") {
+        parts.push(`Count: ${item.count}`);
+      }
+    }
+
+    // Add equipped status for full inventory
+    if (item.type === "weapon" || item.type === "armor") {
+      if (item.equipped) {
+        parts.push("(Equipped)");
+      } else {
+        parts.push("(Unequipped)");
+      }
+    }
+
+    // Add description if it exists
+    if (item.description) {
+      parts.push(item.description);
+    }
+
+    // Return formatted string if we have more than just the name, or if there's a description
+    if (parts.length > 1 || item.description) {
+      return parts.join(" - ");
+    }
+
+    // For freeform items, include even if just name
+    if (item.type === "freeform") {
+      return item.name;
+    }
+
+    return null;
   }
 }
 
