@@ -1,16 +1,16 @@
 import { z } from "zod";
 
-import { CustomContentType } from "../types/custom-content";
 import {
-  uploadableClassSchema,
-  uploadableSubclassSchema,
-  uploadableSpellSchoolSchema,
+  uploadableActionAbilitySchema,
   uploadableAncestrySchema,
   uploadableBackgroundSchema,
-  uploadableActionAbilitySchema,
-  uploadableSpellAbilitySchema,
+  uploadableClassSchema,
   uploadableItemRepositorySchema,
+  uploadableSpellAbilitySchema,
+  uploadableSpellSchoolSchema,
+  uploadableSubclassSchema,
 } from "../schemas/uploadable-content";
+import { CustomContentType } from "../types/custom-content";
 
 // Registry of supported uploadable schemas for custom import
 export const SCHEMA_REGISTRY: Record<CustomContentType, z.ZodSchema> = {

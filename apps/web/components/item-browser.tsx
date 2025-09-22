@@ -384,8 +384,7 @@ export function ItemBrowser({
                                     {repositoryItem.type === "weapon" &&
                                       (repositoryItem as RepositoryWeaponItem).damage && (
                                         <span>
-                                          Damage:{" "}
-                                          {(repositoryItem as RepositoryWeaponItem).damage}
+                                          Damage: {(repositoryItem as RepositoryWeaponItem).damage}
                                         </span>
                                       )}
                                     {repositoryItem.type === "armor" &&

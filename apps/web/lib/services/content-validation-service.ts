@@ -16,10 +16,7 @@ import {
   SubclassDefinitionSchema,
 } from "../schemas/class";
 import { ClassDefinition, SubclassDefinition } from "../schemas/class";
-import {
-  repositoryItemSchema,
-  customItemContentSchema,
-} from "../schemas/inventory";
+import { customItemContentSchema, repositoryItemSchema } from "../schemas/inventory";
 import { RepositoryItem } from "../types/item-repository";
 import { SpellSchoolWithSpells } from "./content-repository-service";
 

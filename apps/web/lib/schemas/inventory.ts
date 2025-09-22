@@ -75,10 +75,12 @@ export type Inventory = z.infer<typeof inventorySchema>;
 export type EquippableItem = WeaponItem | ArmorItem;
 
 // Repository item schema - item with additional category and rarity fields
-export const repositoryItemSchema = itemSchema.and(z.object({
-  category: itemCategorySchema,
-  rarity: itemRaritySchema.optional(),
-}));
+export const repositoryItemSchema = itemSchema.and(
+  z.object({
+    category: itemCategorySchema,
+    rarity: itemRaritySchema.optional(),
+  }),
+);
 
 // Custom item content schema for uploads
 export const customItemContentSchema = z.object({

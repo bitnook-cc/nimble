@@ -351,8 +351,13 @@ describe("ContentRepositoryService", () => {
       if (items.length > 0) {
         // Items should have either direct properties or nested item properties
         const item = items[0];
-        const hasDirectName = 'name' in item;
-        const hasNestedItem = 'item' in item && item.item && typeof item.item === 'object' && item.item !== null && 'name' in item.item;
+        const hasDirectName = "name" in item;
+        const hasNestedItem =
+          "item" in item &&
+          item.item &&
+          typeof item.item === "object" &&
+          item.item !== null &&
+          "name" in item.item;
         expect(hasDirectName || hasNestedItem).toBe(true);
       }
     });

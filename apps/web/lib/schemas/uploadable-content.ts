@@ -1,12 +1,14 @@
 import { z } from "zod";
+
+import { CustomContentType } from "@/lib/types/custom-content";
+
+import { ActionAbilitySchema, SpellAbilitySchema } from "./abilities";
+import { AncestryDefinitionSchema } from "./ancestry";
+import { BackgroundDefinitionSchema } from "./background";
 import { ClassDefinitionSchema } from "./class";
 import { SubclassDefinitionSchema } from "./class";
 import { SpellSchoolDefinitionSchema } from "./class";
-import { AncestryDefinitionSchema } from "./ancestry";
-import { BackgroundDefinitionSchema } from "./background";
-import { ActionAbilitySchema, SpellAbilitySchema } from "./abilities";
 import { repositoryItemSchema } from "./inventory";
-import { CustomContentType } from "@/lib/types/custom-content";
 
 // Base uploadable wrapper schema
 const uploadableBaseSchema = z.object({
