@@ -981,27 +981,26 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
-   * Get computed skills with bonuses applied
+   * Get skill bonuses from traits and effects
    */
-  getSkills(): Skills {
+  getSkillBonuses(): Record<string, { bonus: number; advantage: number }> {
     if (!this._character) throw new Error("No character loaded");
 
-    const baseSkills = this._character._skills;
     const bonuses = this.getAllStatBonuses();
-    const result: Skills = {};
+    const result: Record<string, { bonus: number; advantage: number }> = {};
 
-    // Start with base skills
-    for (const [skillName, skill] of Object.entries(baseSkills)) {
-      result[skillName] = { ...skill };
+    // Initialize all skills with zero bonuses
+    for (const skillName of Object.keys(this._character._skills)) {
+      result[skillName] = { bonus: 0, advantage: 0 };
     }
 
-    // Apply skill bonuses
+    // Apply skill bonuses from traits
     for (const bonus of bonuses) {
       if (bonus.skillBonuses) {
         for (const [skillName, skillBonus] of Object.entries(bonus.skillBonuses)) {
           if (result[skillName] && skillBonus) {
             if (skillBonus.bonus) {
-              result[skillName].modifier += calculateFlexibleValue(skillBonus.bonus);
+              result[skillName].bonus += calculateFlexibleValue(skillBonus.bonus);
             }
             if (skillBonus.advantage) {
               result[skillName].advantage += calculateFlexibleValue(skillBonus.advantage);
@@ -1009,6 +1008,29 @@ export class CharacterService implements ICharacterService {
           }
         }
       }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get computed skills with bonuses applied
+   */
+  getSkills(): Skills {
+    if (!this._character) throw new Error("No character loaded");
+
+    const baseSkills = this._character._skills;
+    const skillBonuses = this.getSkillBonuses();
+    const result: Skills = {};
+
+    // Start with base skills and apply bonuses
+    for (const [skillName, skill] of Object.entries(baseSkills)) {
+      const bonus = skillBonuses[skillName] || { bonus: 0, advantage: 0 };
+      result[skillName] = {
+        ...skill,
+        modifier: skill.modifier + bonus.bonus,
+        advantage: skill.advantage + bonus.advantage,
+      };
     }
 
     return result;

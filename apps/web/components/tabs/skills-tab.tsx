@@ -8,7 +8,8 @@ import { SkillName } from "@/lib/schemas/character";
 import { SkillsList } from "../shared/skills-list";
 
 export function SkillsTab() {
-  const { character, updateCharacterFields, getAttributes } = useCharacterService();
+  const { character, updateCharacterFields, getAttributes, getSkillBonuses } =
+    useCharacterService();
 
   const onSkillChange = useCallback(
     async (skillName: string, newValue: number) => {
@@ -38,6 +39,9 @@ export function SkillsTab() {
   // Get computed attributes for the skills list
   const computedAttributes = getAttributes();
 
+  // Get skill bonuses (includes trait bonuses)
+  const skillBonuses = getSkillBonuses();
+
   // Convert character skills to the format expected by SkillsList
   const skillAllocations: Record<string, number> = {};
   Object.keys(character._skills).forEach((skillName) => {
@@ -62,6 +66,7 @@ export function SkillsTab() {
           onSkillChange={onSkillChange}
           readOnly={false}
           rollMode={true}
+          skillBonuses={skillBonuses}
         />
       </div>
     </div>

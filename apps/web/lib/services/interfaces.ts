@@ -171,6 +171,7 @@ export interface ICharacterService {
   // Dynamic stat calculation methods
   getAttributes(): Attributes;
   getSkills(): Skills;
+  getSkillBonuses(): Record<string, { bonus: number; advantage: number }>;
   getSkillValue(skillName: string): Skill | null;
   getInitiative(): Skill;
   getHitDice(): HitDice;

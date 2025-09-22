@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SkillsList } from "@/components/shared/skills-list";
 
 import { gameConfig } from "@/lib/config/game-config";
+import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { Character } from "@/lib/schemas/character";
 
 interface SkillsStepProps {
@@ -28,13 +29,11 @@ export function SkillsStep({
 }: SkillsStepProps) {
   const [newAllocations, setNewAllocations] = useState<Record<string, number>>({});
 
+  const { getSkillBonuses } = useCharacterService();
+
   // Initialize with zeros for new allocations
   useEffect(() => {
-    const initialAllocations: Record<string, number> = {};
-    gameConfig.skills.forEach((skill) => {
-      initialAllocations[skill.name] = 0;
-    });
-    setNewAllocations(initialAllocations);
+    setNewAllocations(skillAllocations);
   }, []);
 
   const skillPointsToAllocate = levelsToGain; // 1 skill point per level
@@ -139,6 +138,7 @@ export function SkillsStep({
             attributeValues={getAttributeValues()}
             onSkillChange={handleSkillChange}
             availablePoints={getRemainingPoints()}
+            skillBonuses={getSkillBonuses()}
           />
         </CardContent>
       </Card>
