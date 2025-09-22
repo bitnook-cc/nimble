@@ -348,8 +348,10 @@ export class PDFExportService {
     allFeatures.push("=== INVENTORY ===");
 
     if (options.includeFullInventory) {
-      // Include all items when full inventory is enabled
-      items.forEach((item) => {
+      // Sort items by type: equippable first, then consumables/ammunition, then freeform
+      const sortedItems = this.sortItemsForDisplay(items);
+      
+      sortedItems.forEach((item) => {
         const itemDescription = this.formatItemDescription(item);
         if (itemDescription) {
           allFeatures.push(itemDescription);
@@ -357,22 +359,65 @@ export class PDFExportService {
       });
     } else {
       // Only include equipped weapons and armor with enhanced descriptions
-      items
-        .filter((item) => (item.type === "weapon" || item.type === "armor") && item.equipped)
-        .forEach((item) => {
-          const itemDescription = this.formatItemDescription(item);
-          if (itemDescription) {
-            allFeatures.push(itemDescription);
-          }
-        });
+      const equippableItems = items.filter((item) => (item.type === "weapon" || item.type === "armor") && item.equipped);
+      
+      equippableItems.forEach((item) => {
+        const itemDescription = this.formatItemDescription(item);
+        if (itemDescription) {
+          allFeatures.push(itemDescription);
+        }
+      });
     }
+  }
+
+  /**
+   * Sort items for display: equippable first, then consumables/ammunition, then freeform
+   */
+  private sortItemsForDisplay(items: any[]): any[] {
+    const equippable: any[] = [];
+    const consumable: any[] = [];
+    const freeform: any[] = [];
+
+    items.forEach((item) => {
+      if (item.type === "weapon" || item.type === "armor") {
+        equippable.push(item);
+      } else if (item.type === "consumable" || item.type === "ammunition") {
+        consumable.push(item);
+      } else if (item.type === "freeform") {
+        freeform.push(item);
+      }
+    });
+
+    return [...equippable, ...consumable, ...freeform];
   }
 
   /**
    * Format an item description with all relevant details
    */
   private formatItemDescription(item: any): string | null {
-    const parts: string[] = [item.name];
+    let prefix = "";
+    const parts: string[] = [];
+    const checkBox = "O ";
+
+    // Add checkbox boxes for different item types
+    if (item.type === "weapon" || item.type === "armor") {
+      // Single checkbox for equippable items
+      prefix = checkBox;
+      parts.push(item.name);
+    } else if (item.type === "consumable" || item.type === "ammunition") {
+      // Multiple boxes for consumables based on count
+      const count = typeof item.count === "number" ? item.count : 1;
+      if (count <= 5) {
+        prefix = checkBox.repeat(count);
+        parts.push(item.name);
+      } else {
+        prefix = checkBox.repeat(5);
+        parts.push(`${item.name} (${count})`);
+      }
+    } else {
+      // No checkbox for freeform items
+      parts.push(item.name);
+    }
 
     if (item.type === "weapon") {
       // Add damage formula
@@ -416,14 +461,9 @@ export class PDFExportService {
       if (item.properties && item.properties.length > 0) {
         parts.push(`Properties: ${item.properties.join(", ")}`);
       }
-    } else if (item.type === "consumable" || item.type === "ammunition") {
-      // Add count for consumables and ammunition
-      if (typeof item.count === "number") {
-        parts.push(`Count: ${item.count}`);
-      }
     }
 
-    // Add equipped status for full inventory
+    // Add equipped status for equippable items (only when showing full inventory)
     if (item.type === "weapon" || item.type === "armor") {
       if (item.equipped) {
         parts.push("(Equipped)");
@@ -437,14 +477,9 @@ export class PDFExportService {
       parts.push(item.description);
     }
 
-    // Return formatted string if we have more than just the name, or if there's a description
-    if (parts.length > 1 || item.description) {
-      return parts.join(" - ");
-    }
-
-    // For freeform items, include even if just name
-    if (item.type === "freeform") {
-      return item.name;
+    // Return formatted string if we have content
+    if (parts.length > 0) {
+      return prefix + parts.join(" - ");
     }
 
     return null;
