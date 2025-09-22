@@ -19,8 +19,13 @@ export function DiceDisplay({ value, size, category, isFirst = false }: DiceDisp
     switch (category) {
       case "critical":
         return {
+          className: "font-bold text-green-600 dark:text-green-500",
+          tooltip: `Critical ${diceType}: ${value}`,
+        };
+      case "explosion":
+        return {
           className: "font-bold text-orange-600 dark:text-orange-500",
-          tooltip: `Critical ${diceType} (exploded): ${value}`,
+          tooltip: `Explosion ${diceType} (exploded): ${value}`,
         };
       case "vicious":
         return {
