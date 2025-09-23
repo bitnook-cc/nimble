@@ -121,10 +121,7 @@ export function SubclassSelectionDialog({
                           {subclass.features.length !== 1 ? "s" : ""}
                         </div>
                         <div className="mt-1">
-                          Features at levels:{" "}
-                          {subclass.features
-                            .map((f) => f.level)
-                            .join(", ")}
+                          Features at levels: {subclass.features.map((f) => f.level).join(", ")}
                         </div>
                       </div>
                     )}
