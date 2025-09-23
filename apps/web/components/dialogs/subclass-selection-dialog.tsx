@@ -124,7 +124,6 @@ export function SubclassSelectionDialog({
                           Features at levels:{" "}
                           {subclass.features
                             .map((f) => f.level)
-                            .sort()
                             .join(", ")}
                         </div>
                       </div>
