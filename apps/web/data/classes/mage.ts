@@ -1,6 +1,5 @@
-import { ClassFeature } from "@/lib/schemas/features";
-
 import { ClassDefinition, FeaturePool } from "@/lib/schemas/class";
+import { ClassFeature } from "@/lib/schemas/features";
 
 const spellshaperPool: FeaturePool = {
   id: "spellshaper",

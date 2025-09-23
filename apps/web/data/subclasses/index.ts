@@ -1,5 +1,6 @@
 // Import all subclass definitions for the main subclasses object
 import { SubclassDefinition } from "@/lib/schemas/class";
+
 import { berserkerMountainheart } from "./berserker-mountainheart";
 import { berserkerRedMist } from "./berserker-red-mist";
 import { cheatScoundrel } from "./cheat-scoundrel";

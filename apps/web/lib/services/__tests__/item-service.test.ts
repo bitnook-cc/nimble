@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
 // Import after mock setup
 import { ITEM_REPOSITORY } from "@/data/items";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { ArmorItem, ConsumableItem, WeaponItem } from "@/lib/schemas/inventory";
 import type {
   RepositoryArmorItem,

@@ -1,7 +1,6 @@
 import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
-import { ClassFeature } from "@/lib/schemas/features";
-
 import { ClassDefinition } from "@/lib/schemas/class";
+import { ClassFeature } from "@/lib/schemas/features";
 
 const sneakAttackDefinition: ActionAbilityDefinition = {
   id: "sneak-attack",

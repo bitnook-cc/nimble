@@ -1,8 +1,7 @@
 import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
+import { ClassDefinition } from "@/lib/schemas/class";
 import { DicePoolDefinition } from "@/lib/schemas/dice-pools";
 import { ClassFeature } from "@/lib/schemas/features";
-
-import { ClassDefinition } from "@/lib/schemas/class";
 
 const furyDefinition: DicePoolDefinition = {
   id: "fury",

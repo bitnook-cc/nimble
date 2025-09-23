@@ -1,11 +1,12 @@
-import { uploadableContentSchema } from "@/lib/schemas/uploadable-content";
-
 import { ancestryDefinitions as builtInAncestries } from "@/data/ancestries/index";
 import { backgroundDefinitions as builtInBackgrounds } from "@/data/backgrounds/index";
 // Built-in content imports
 import { classDefinitions as builtInClasses } from "@/data/classes/index";
 import { getBuiltInSpellSchools } from "@/data/spell-schools/index";
 import { subclassDefinitions as builtInSubclasses } from "@/data/subclasses/index";
+
+import { uploadableContentSchema } from "@/lib/schemas/uploadable-content";
+
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "../schemas/abilities";
 import { AncestryDefinition } from "../schemas/ancestry";
 import { BackgroundDefinition } from "../schemas/background";
