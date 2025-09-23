@@ -20,8 +20,14 @@ export const mageControl: SubclassDefinition = {
           ability: {
             id: "force-of-will",
             name: "Force of Will - Demand Control",
-            description:
-              "Choose 1 option from the Control Table: I INSIST (Cast a cantrip for free, ignoring all disadvantage, it cannot miss), ELEMENTAL AFFLICTION (A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition), NO (Choose a creature, it cannot harm a creature of your choice during its next turn), LOSE CONTROL (Do ALL of the above, but the GM chooses each time).",
+            description: `Choose 1 option from the **Control Table**:
+
+| Option | Effect |
+|--------|--------|
+| **I INSIST** | Cast a cantrip for free, ignoring all disadvantage, it cannot miss |
+| **ELEMENTAL AFFLICTION** | A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition |
+| **NO** | Choose a creature, it cannot harm a creature of your choice during its next turn |
+| **LOSE CONTROL** | Do ALL of the above, but the GM chooses each time |`,
             type: "action",
             frequency: "at_will",
             maxUses: { type: "fixed", value: 1 },
@@ -33,8 +39,16 @@ export const mageControl: SubclassDefinition = {
       id: "control-table",
       level: 3,
       name: "Control Table",
-      description:
-        "Magic is Dangerous. You can stitch its fraying edges together to your own benefit... for a time.\n\n• I INSIST: Cast a cantrip for free, ignoring all disadvantage, it cannot miss.\n• ELEMENTAL AFFLICTION: A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition.\n• NO: Choose a creature, it cannot harm a creature of your choice during its next turn.\n• LOSE CONTROL: Do ALL of the above, but the GM chooses each time.",
+      description: `Magic is Dangerous. You can stitch its fraying edges together to your own benefit... for a time.
+
+| Option | Effect |
+|--------|--------|
+| **I INSIST** | Cast a cantrip for free, ignoring all disadvantage, it cannot miss |
+| **ELEMENTAL AFFLICTION** | A creature of your choice within 12 spaces gains the Charged, Smoldering, or Slowed condition |
+| **NO** | Choose a creature, it cannot harm a creature of your choice during its next turn |
+| **LOSE CONTROL** | Do ALL of the above, but the GM chooses each time |
+
+> **Note:** Options reset when you roll initiative or when you have chosen all options once.`,
       traits: [], // Passive feature - no mechanical traits to process
     },
     {
