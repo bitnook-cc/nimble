@@ -4,6 +4,7 @@ import React from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 import { CharacterFeature, ClassFeature } from "@/lib/schemas/features";
 
@@ -47,7 +48,9 @@ export function FeatureCard({ feature, source, sourceLabel, level, children }: F
             {sourceLabel}
           </Badge>
         </div>
-        <CardDescription className="text-sm">{feature.description}</CardDescription>
+        <CardDescription className="text-sm">
+          <MarkdownRenderer content={feature.description} />
+        </CardDescription>
       </CardHeader>
       {children && <CardContent className="pt-0">{children}</CardContent>}
     </Card>

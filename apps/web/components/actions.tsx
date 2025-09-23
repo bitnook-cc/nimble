@@ -12,6 +12,7 @@ import { getEquippedWeapons } from "@/lib/utils/equipment";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { MarkdownRenderer } from "./ui/markdown-renderer";
 
 // Action types defined inline since actions.ts doesn't exist
 type Action = WeaponAction | AbilityAction;
@@ -225,7 +226,7 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-center text-sm">
-                      <div className="text-muted-foreground mb-2">{ability.description}</div>
+                      <MarkdownRenderer content={ability.description} className="mb-2 text-center" />
 
                       {ability.diceFormula && (
                         <div className="mb-2 p-2 bg-muted/50 rounded text-sm">

@@ -34,8 +34,9 @@ const spellshaperPool: FeaturePool = {
       id: "elemental-transmutation",
       level: 1,
       name: "Elemental Transmutation",
-      description:
-        "(1 mana) Change the damage type of a spell to: Fire, Ice, Lightning, Necrotic, or Radiant.",
+      description: `*(1 mana)* Change the damage type of a spell to one of the following: Fire, Ice, Lightning, Necrotic, or Radiant.
+
+> **Note:** The spell retains all other properties and only the damage type changes.`,
       traits: [],
     },
     {

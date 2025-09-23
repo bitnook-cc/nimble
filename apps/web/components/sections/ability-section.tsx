@@ -16,6 +16,7 @@ import { useState } from "react";
 
 import { EffectPreview } from "@/components/effect-preview";
 import { SpellBrowser } from "@/components/spell-browser";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
@@ -248,7 +249,7 @@ export function AbilitySection() {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground mb-2">{ability.description}</p>
+              <MarkdownRenderer content={ability.description} className="mb-2" />
               {actionAbility.diceFormula && (
                 <div className="mb-3 p-2 bg-muted/50 rounded text-sm">
                   <strong>Roll:</strong> {actionAbility.diceFormula}
