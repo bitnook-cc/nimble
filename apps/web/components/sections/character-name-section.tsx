@@ -124,10 +124,11 @@ export function CharacterNameSection({
                 size="sm"
                 onClick={handleLevelUp}
                 disabled={character.level >= 20}
-                className="h-10 w-10 p-0 shrink-0"
+                className="h-10 px-3 shrink-0"
                 title={character.level >= 20 ? "Maximum level reached" : "Open Level Up Guide"}
               >
-                <TrendingUp className="h-4 w-4" />
+                <TrendingUp className="h-4 w-4 mr-1" />
+                Level up
               </Button>
               <Button
                 variant="ghost"
