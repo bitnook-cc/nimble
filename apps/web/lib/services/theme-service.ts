@@ -1,4 +1,4 @@
-import { findThemeForMode, getThemeFamily, themes } from "@/lib/data/themes";
+import { findThemeForMode, getThemeFamily, themes } from "@/data/themes";
 import { Theme, ThemeId } from "@/lib/types/theme";
 
 import { settingsService } from "./settings-service";

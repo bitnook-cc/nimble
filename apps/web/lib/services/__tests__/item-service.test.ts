@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Import after mock setup
-import { ITEM_REPOSITORY } from "@/lib/data/items";
+import { ITEM_REPOSITORY } from "@/data/items";
 import type { ArmorItem, ConsumableItem, WeaponItem } from "@/lib/schemas/inventory";
 import type {
   RepositoryArmorItem,
@@ -13,7 +13,7 @@ import type {
 import { ItemService } from "../item-service";
 
 // Mock ITEM_REPOSITORY with factory function to avoid hoisting issues
-vi.mock("@/lib/data/items", () => {
+vi.mock("@/data/items", () => {
   const mockItemRepository = {
     weapons: [] as any[],
     armor: [] as any[],
