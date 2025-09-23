@@ -14,9 +14,10 @@ import {
 
 import { useState } from "react";
 
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
+
 import { EffectPreview } from "@/components/effect-preview";
 import { SpellBrowser } from "@/components/spell-browser";
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
@@ -93,6 +94,12 @@ export function AbilitySection() {
   const characterService = getCharacterService();
   const allAbilities = characterService.getAbilities();
   const abilities = allAbilities.filter((ability) => ability.type !== "spell");
+
+  // Helper function to determine if an ability is manually added (and therefore deletable)
+  const isManuallyAddedAbility = (abilityId: string): boolean => {
+    // Check if the ability is in the character's _abilities array (manually added)
+    return character?._abilities.some(ability => ability.id === abilityId) ?? false;
+  };
 
   const handleUseAbility = async (abilityId: string, variableAmount?: number) => {
     if (!character) return;
@@ -324,14 +331,16 @@ export function AbilitySection() {
                     : "Use Ability"}
               </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => deleteAbility(ability.id)}
-              className="text-red-500 hover:text-red-700"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            {isManuallyAddedAbility(ability.id) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteAbility(ability.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
