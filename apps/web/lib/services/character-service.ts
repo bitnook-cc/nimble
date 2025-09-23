@@ -424,16 +424,16 @@ export class CharacterService implements ICharacterService {
       { ability: AbilityDefinition; priority: number; level: number }
     >();
 
-    // 1. Get abilities from traits (non-spell abilities) with level tracking
+    // 1. Get abilities from traits (including spell abilities) with level tracking
     const allFeatures = this.getAllActiveFeatures();
     for (const feature of allFeatures) {
       const level = (feature as any).level || 0; // ClassFeature has level, others default to 0
       for (const effect of feature.traits) {
         if (effect.type === "ability") {
           const ability = (effect as any).ability;
-          if (ability && ability.type !== "spell") {
+          if (ability) {
             const existing = abilitiesWithPriority.get(ability.id);
-            // Priority 1000 + level for effect-granted abilities
+            // Priority 1000 + level for trait-granted abilities
             const priority = 1000 + level;
             if (!existing || priority > existing.priority) {
               abilitiesWithPriority.set(ability.id, { ability, priority, level });
@@ -451,43 +451,37 @@ export class CharacterService implements ICharacterService {
       }
     }
 
-    // Collect the final abilities list
-    const abilities: AbilityDefinition[] = Array.from(abilitiesWithPriority.values()).map(
-      (item) => item.ability,
-    );
-
-    // 3. Get spells from spell schools
+    // 3. Get spells from spell schools (priority 100)
     const schoolSpells = this.getSpellsFromSchools();
-    abilities.push(...schoolSpells);
+    for (const spell of schoolSpells) {
+      if (spell.id && !abilitiesWithPriority.has(spell.id)) {
+        abilitiesWithPriority.set(spell.id, { ability: spell, priority: 100, level: 0 });
+      }
+    }
 
-    // 4. Get selected utility spells
+    // 4. Get selected utility spells (priority 200)
     const utilitySpellIds = this.getSelectedUtilitySpellIds();
     const contentRepository = ContentRepositoryService.getInstance();
 
     for (const spellId of utilitySpellIds) {
-      // Utility spells would need to be looked up by ID
-      // This would require ContentRepository to have a getSpellById method
-      // For now, we'll need to search through all schools
-      const allSchools = contentRepository.getAllSpellSchools();
-      for (const school of allSchools) {
-        const spells = contentRepository.getSpellsBySchool(school.id);
-        const spell = spells?.find((s: SpellAbilityDefinition) => s.id === spellId);
-        if (spell) {
-          abilities.push(spell);
-          break;
+      if (!abilitiesWithPriority.has(spellId)) {
+        // Utility spells would need to be looked up by ID
+        // This would require ContentRepository to have a getSpellById method
+        // For now, we'll need to search through all schools
+        const allSchools = contentRepository.getAllSpellSchools();
+        for (const school of allSchools) {
+          const spells = contentRepository.getSpellsBySchool(school.id);
+          const spell = spells?.find((s: SpellAbilityDefinition) => s.id === spellId);
+          if (spell) {
+            abilitiesWithPriority.set(spell.id, { ability: spell, priority: 200, level: 0 });
+            break;
+          }
         }
       }
     }
 
-    // Remove duplicates for spells (in case same spell comes from multiple sources)
-    const uniqueAbilities = new Map<string, AbilityDefinition>();
-    for (const ability of abilities) {
-      if (ability.id && !uniqueAbilities.has(ability.id)) {
-        uniqueAbilities.set(ability.id, ability);
-      }
-    }
-
-    return Array.from(uniqueAbilities.values());
+    // Collect the final abilities list (priority system ensures manual > trait > utility > school)
+    return Array.from(abilitiesWithPriority.values()).map((item) => item.ability);
   }
 
   /**
