@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { human } from "../../data/ancestries/human";
-import { fearless } from "../../data/backgrounds/fearless";
-import { berserkerClass } from "../../data/classes/berserker";
+import { human } from "@/data/ancestries/human";
+import { fearless } from "@/data/backgrounds/fearless";
+import { berserkerClass } from "@/data/classes/berserker";
 import type { Character } from "../../schemas/character";
 import { CharacterCreationService } from "../character-creation-service";
 import { CharacterStorageService } from "../character-storage-service";
