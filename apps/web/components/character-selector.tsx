@@ -7,6 +7,7 @@ import { useState } from "react";
 import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { Character } from "@/lib/schemas/character";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { syncService } from "@/lib/services/sync/sync-service";
 
 import { CharacterCreateForm } from "./character-create-form";
@@ -15,7 +16,6 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { NimbleCard, NimbleCardBanner } from "./ui/nimble-card";
 
 interface CharacterSelectorProps {
   isOpen?: boolean;
@@ -37,6 +37,18 @@ export function CharacterSelector({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteDialogCharacter, setDeleteDialogCharacter] = useState<Character | null>(null);
   const { switchCharacter, deleteCharacter } = useCharacterService();
+
+  const getCharacterDetails = (character: Character) => {
+    const contentRepo = ContentRepositoryService.getInstance();
+    const ancestry = contentRepo.getAncestryDefinition(character.ancestryId);
+    const classDefinition = contentRepo.getClassDefinition(character.classId);
+    
+    return {
+      ancestryName: ancestry?.name || "Unknown Ancestry",
+      className: classDefinition?.name || "Unknown Class",
+      level: character.level
+    };
+  };
 
   const handleCreateCharacter = () => {
     setShowCreateForm(false);
@@ -114,59 +126,70 @@ export function CharacterSelector({
             No characters found. Create your first character above!
           </div>
         ) : (
-          sortedCharacters.map((character) => (
-            <NimbleCard
-              key={character.id}
-              variant={character.id === activeCharacterId ? "accent" : "default"}
-              className={`cursor-pointer transition-all ${
-                character.id === activeCharacterId ? "scale-[1.02]" : "hover:scale-[1.01]"
-              }`}
-            >
-              <div
-                onClick={() => {
-                  if (character.id !== activeCharacterId) {
-                    switchCharacter(character.id);
-                    onClose?.();
-                  }
-                }}
+          sortedCharacters.map((character) => {
+            const details = getCharacterDetails(character);
+            const isActive = character.id === activeCharacterId;
+            
+            return (
+              <Card
+                key={character.id}
+                className={`cursor-pointer transition-all ${
+                  isActive 
+                    ? "ring-2 ring-primary scale-[1.02]" 
+                    : "hover:scale-[1.01] hover:shadow-md"
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="shrink-0">
-                      <User className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-medium truncate">
-                        {character.name}
-                        {character.id === activeCharacterId && (
-                          <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                            Active
-                          </span>
-                        )}
-                      </h3>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {formatLastPlayed(new Date(character.timestamps?.updatedAt || Date.now()))}
+                <CardContent className="p-4">
+                  <div
+                    onClick={() => {
+                      if (!isActive) {
+                        switchCharacter(character.id);
+                        onClose?.();
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="shrink-0">
+                          <User className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-medium truncate">
+                            {character.name}
+                            {isActive && (
+                              <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                                Active
+                              </span>
+                            )}
+                          </h3>
+                          <div className="text-sm text-muted-foreground">
+                            Level {details.level} {details.ancestryName} {details.className}
+                          </div>
+                          <div className="flex items-center text-xs text-muted-foreground">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {formatLastPlayed(new Date(character.timestamps?.updatedAt || Date.now()))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteDialog(character);
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  <div className="shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(character);
-                      }}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </NimbleCard>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>
