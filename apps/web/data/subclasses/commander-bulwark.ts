@@ -1,6 +1,5 @@
-import { ClassFeature } from "@/lib/schemas/features";
-
 import { SubclassDefinition } from "@/lib/schemas/class";
+import { ClassFeature } from "@/lib/schemas/features";
 
 const bulwarkFeatures: ClassFeature[] = [
   // Level 3

@@ -1,5 +1,6 @@
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { SpellSchoolWithSpells } from "@/lib/services/content-repository-service";
+
 import { fireSchoolSpells, fireSpellSchool } from "./fire";
 import { iceSchoolSpells, iceSpellSchool } from "./ice";
 import { lightningSchoolSpells, lightningSpellSchool } from "./lightning";

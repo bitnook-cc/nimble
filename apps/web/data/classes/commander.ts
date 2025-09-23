@@ -1,6 +1,5 @@
-import { ClassFeature } from "@/lib/schemas/features";
-
 import { ClassDefinition } from "@/lib/schemas/class";
+import { ClassFeature } from "@/lib/schemas/features";
 
 // Commander's Orders - Feature Pool
 const commandersOrdersFeatures: ClassFeature[] = [

@@ -1,5 +1,6 @@
 // Import all class definitions for the main classes object
 import { ClassDefinition } from "@/lib/schemas/class";
+
 import { berserkerClass as berserker } from "./berserker";
 import { cheatClass as cheat } from "./cheat";
 import { commanderClass as commander } from "./commander";
