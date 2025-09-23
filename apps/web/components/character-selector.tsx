@@ -12,6 +12,8 @@ import { syncService } from "@/lib/services/sync/sync-service";
 
 import { CharacterCreateForm } from "./character-create-form";
 import { CharacterDeleteDialog } from "./character-delete-dialog";
+import { CharacterExportButton } from "./character-export-button";
+import { CharacterImportButton } from "./character-import-button";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -52,6 +54,10 @@ export function CharacterSelector({
 
   const handleCreateCharacter = () => {
     setShowCreateForm(false);
+  };
+
+  const handleImportSuccess = () => {
+    // Character list will automatically update via character service events
   };
 
   const handleCancelCreate = () => {
@@ -106,10 +112,13 @@ export function CharacterSelector({
       )}
       {/* Create New Character Section */}
       {!showCreateForm ? (
-        <Button variant="outline" onClick={() => setShowCreateForm(true)} className="w-full">
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Character
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowCreateForm(true)} className="flex-1">
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Character
+          </Button>
+          <CharacterImportButton onImportSuccess={handleImportSuccess} />
+        </div>
       ) : (
         <CharacterCreateForm
           onComplete={handleCreateCharacter}
@@ -173,7 +182,8 @@ export function CharacterSelector({
                           </div>
                         </div>
                       </div>
-                      <div className="shrink-0">
+                      <div className="shrink-0 flex gap-1">
+                        <CharacterExportButton character={character} />
                         <Button
                           variant="ghost"
                           size="sm"
