@@ -226,7 +226,10 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-center text-sm">
-                      <MarkdownRenderer content={ability.description} className="mb-2 text-center" />
+                      <MarkdownRenderer
+                        content={ability.description}
+                        className="mb-2 text-center"
+                      />
 
                       {ability.diceFormula && (
                         <div className="mb-2 p-2 bg-muted/50 rounded text-sm">

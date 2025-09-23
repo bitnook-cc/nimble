@@ -251,7 +251,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["strength", "will"],
         amount: 1,
       },
     ],
@@ -265,7 +265,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "dexterity"],
         amount: 1,
       },
     ],
@@ -354,7 +354,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["strength", "will"],
         amount: 1,
       },
     ],
@@ -382,7 +382,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "dexterity"],
         amount: 1,
       },
     ],
@@ -457,7 +457,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["strength", "will"],
         amount: 1,
       },
     ],
@@ -485,7 +485,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "dexterity"],
         amount: 1,
       },
     ],
@@ -545,7 +545,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["strength", "will"],
         amount: 1,
       },
     ],
@@ -579,7 +579,7 @@ const shepherdFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "dexterity"],
         amount: 1,
       },
     ],
