@@ -98,7 +98,7 @@ export function AbilitySection() {
   // Helper function to determine if an ability is manually added (and therefore deletable)
   const isManuallyAddedAbility = (abilityId: string): boolean => {
     // Check if the ability is in the character's _abilities array (manually added)
-    return character?._abilities.some(ability => ability.id === abilityId) ?? false;
+    return character?._abilities.some((ability) => ability.id === abilityId) ?? false;
   };
 
   const handleUseAbility = async (abilityId: string, variableAmount?: number) => {

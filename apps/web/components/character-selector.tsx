@@ -42,11 +42,11 @@ export function CharacterSelector({
     const contentRepo = ContentRepositoryService.getInstance();
     const ancestry = contentRepo.getAncestryDefinition(character.ancestryId);
     const classDefinition = contentRepo.getClassDefinition(character.classId);
-    
+
     return {
       ancestryName: ancestry?.name || "Unknown Ancestry",
       className: classDefinition?.name || "Unknown Class",
-      level: character.level
+      level: character.level,
     };
   };
 
@@ -129,13 +129,13 @@ export function CharacterSelector({
           sortedCharacters.map((character) => {
             const details = getCharacterDetails(character);
             const isActive = character.id === activeCharacterId;
-            
+
             return (
               <Card
                 key={character.id}
                 className={`cursor-pointer transition-all ${
-                  isActive 
-                    ? "ring-2 ring-primary scale-[1.02]" 
+                  isActive
+                    ? "ring-2 ring-primary scale-[1.02]"
                     : "hover:scale-[1.01] hover:shadow-md"
                 }`}
               >
@@ -167,7 +167,9 @@ export function CharacterSelector({
                           </div>
                           <div className="flex items-center text-xs text-muted-foreground">
                             <Clock className="w-3 h-3 mr-1" />
-                            {formatLastPlayed(new Date(character.timestamps?.updatedAt || Date.now()))}
+                            {formatLastPlayed(
+                              new Date(character.timestamps?.updatedAt || Date.now()),
+                            )}
                           </div>
                         </div>
                       </div>
