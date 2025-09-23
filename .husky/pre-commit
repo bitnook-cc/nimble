@@ -1,4 +1,22 @@
 #!/bin/sh
 
-# Run tests for all workspaces
-npx turbo run format && npx turbo run typecheck && npx turbo run lint && npx turbo run test
+# Run format first
+echo "🎨 Formatting code..."
+npx turbo run format
+
+# Stage any files that were formatted
+echo "📝 Staging formatted files..."
+git add -A
+
+# Check if there are still unstaged changes
+if ! git diff --quiet; then
+  echo "❌ Error: Working directory is dirty after formatting!"
+  echo "Please review and stage any remaining changes manually."
+  exit 1
+fi
+
+# Run remaining checks
+echo "🔍 Running type checks, linting, and tests..."
+npx turbo run typecheck && npx turbo run lint && npx turbo run test
+
+echo "✅ All pre-commit checks passed!"
