@@ -11,6 +11,7 @@ interface BasicSettingsSectionProps {
   updateMaxHP: (value: string) => Promise<void>;
   updateInitiativeModifier: (value: string) => Promise<void>;
   updateMaxInventorySize: (value: string) => Promise<void>;
+  updateSkillPointsConfig: (field: string, value: string) => Promise<void>;
 }
 
 export function BasicSettingsSection({
@@ -19,6 +20,7 @@ export function BasicSettingsSection({
   updateMaxHP,
   updateInitiativeModifier,
   updateMaxInventorySize,
+  updateSkillPointsConfig,
 }: BasicSettingsSectionProps) {
   return (
     <>
@@ -107,6 +109,51 @@ export function BasicSettingsSection({
             {character.config.maxInventorySize} + {character._attributes.strength} (strength) ={" "}
             {character.config.maxInventorySize + character._attributes.strength} slots.
           </p>
+        </div>
+      </div>
+
+      {/* Skill Points Configuration */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium">Skill Points Configuration</h4>
+
+        {/* Starting Points */}
+        <div className="space-y-2">
+          <Label htmlFor="starting-points" className="text-sm font-medium">
+            Starting Skill Points
+          </Label>
+          <div className="space-y-1">
+            <Input
+              id="starting-points"
+              type="number"
+              min="1"
+              max="20"
+              value={character.config.skillPoints.startingPoints}
+              onChange={(e) => updateSkillPointsConfig("startingPoints", e.target.value)}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">Skill points available at level 1.</p>
+          </div>
+        </div>
+
+        {/* Points Per Level */}
+        <div className="space-y-2">
+          <Label htmlFor="points-per-level" className="text-sm font-medium">
+            Points Per Level
+          </Label>
+          <div className="space-y-1">
+            <Input
+              id="points-per-level"
+              type="number"
+              min="0"
+              max="10"
+              value={character.config.skillPoints.pointsPerLevel}
+              onChange={(e) => updateSkillPointsConfig("pointsPerLevel", e.target.value)}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">
+              Additional skill points gained per level after 1st.
+            </p>
+          </div>
         </div>
       </div>
     </>

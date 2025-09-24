@@ -31,19 +31,30 @@ export function SkillsStep({
 
   const { getSkillBonuses } = useCharacterService();
 
-  // Initialize with zeros for new allocations
+  // Initialize with current character skill modifiers
   useEffect(() => {
-    setNewAllocations(skillAllocations);
-  }, []);
+    const currentAllocations: Record<string, number> = {};
+    gameConfig.skills.forEach((skill) => {
+      currentAllocations[skill.name] = getCurrentSkillValue(skill.name);
+    });
+    setNewAllocations(currentAllocations);
+  }, [character]);
 
-  const skillPointsToAllocate = levelsToGain; // 1 skill point per level
+  // Calculate total skill points for new level
+  const totalSkillPointsForNewLevel =
+    character.config.skillPoints.startingPoints +
+    (character.level + levelsToGain - 1) * character.config.skillPoints.pointsPerLevel;
 
   const getTotalAllocatedPoints = () => {
     return Object.values(newAllocations).reduce((sum, points) => sum + points, 0);
   };
 
-  const getRemainingPoints = () => {
-    return skillPointsToAllocate - getTotalAllocatedPoints();
+  const getAvailablePoints = () => {
+    return totalSkillPointsForNewLevel - getTotalAllocatedPoints();
+  };
+
+  const isOverAllocated = () => {
+    return getTotalAllocatedPoints() > totalSkillPointsForNewLevel;
   };
 
   const getCurrentSkillValue = (skillName: string) => {
@@ -60,61 +71,64 @@ export function SkillsStep({
     };
   };
 
-  // Create combined allocations for display (current + new)
+  // Get current allocations (newAllocations now contains the total values)
   const getCombinedAllocations = () => {
-    const combined: Record<string, number> = {};
-    gameConfig.skills.forEach((skill) => {
-      const current = getCurrentSkillValue(skill.name);
-      const newPoints = newAllocations[skill.name] || 0;
-      combined[skill.name] = current + newPoints;
-    });
-    return combined;
+    return newAllocations;
   };
 
   const handleSkillChange = (skillName: string, newTotalValue: number) => {
-    const currentValue = getCurrentSkillValue(skillName);
-    const newPointsToAdd = newTotalValue - currentValue;
-
     // Make sure we don't exceed max skill value
     if (newTotalValue > gameConfig.character.skillModifierRange.max) return;
 
-    // Calculate if we have enough points
-    const currentNewPoints = newAllocations[skillName] || 0;
-    const pointDiff = newPointsToAdd - currentNewPoints;
-
-    if (pointDiff > 0 && getRemainingPoints() < pointDiff) return;
-
-    const updated = { ...newAllocations, [skillName]: newPointsToAdd };
+    const updated = { ...newAllocations, [skillName]: newTotalValue };
     setNewAllocations(updated);
-    onSkillAllocationsChange(updated);
+
+    // Calculate the changes to pass to parent (how many new points each skill got)
+    const changes: Record<string, number> = {};
+    gameConfig.skills.forEach((skill) => {
+      const currentValue = getCurrentSkillValue(skill.name);
+      const newValue = updated[skill.name] || 0;
+      changes[skill.name] = newValue - currentValue;
+    });
+    onSkillAllocationsChange(changes);
   };
 
   const resetAllocations = () => {
     const reset: Record<string, number> = {};
+    const resetChanges: Record<string, number> = {};
     gameConfig.skills.forEach((skill) => {
-      reset[skill.name] = 0;
+      const currentValue = getCurrentSkillValue(skill.name);
+      reset[skill.name] = currentValue;
+      resetChanges[skill.name] = 0; // No changes from current
     });
     setNewAllocations(reset);
-    onSkillAllocationsChange(reset);
+    onSkillAllocationsChange(resetChanges);
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Allocate Skill Points</h3>
-        <p className="text-sm text-muted-foreground">
-          You gain 1 skill point per level ({levelsToGain} {levelsToGain === 1 ? "point" : "points"}{" "}
-          total)
-        </p>
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">
+            Allocate your character's skill points for level {character.level + levelsToGain}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Total available: {totalSkillPointsForNewLevel} skill points (
+            {character.config.skillPoints.startingPoints} starting +{" "}
+            {(character.level + levelsToGain - 1) * character.config.skillPoints.pointsPerLevel}{" "}
+            from levels)
+          </p>
+        </div>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <CardTitle className="text-base">Points Available:</CardTitle>
-              <Badge variant={getRemainingPoints() === 0 ? "default" : "secondary"}>
-                {getRemainingPoints()} / {skillPointsToAllocate}
+              <CardTitle className="text-base">Available Points:</CardTitle>
+              <Badge variant={isOverAllocated() ? "destructive" : "default"}>
+                {getAvailablePoints()} remaining
               </Badge>
               <div className="text-xs text-muted-foreground hidden sm:block">
                 Attribute + Points = Total
@@ -124,7 +138,13 @@ export function SkillsStep({
               onClick={resetAllocations}
               variant="outline"
               size="sm"
-              disabled={getTotalAllocatedPoints() === 0}
+              disabled={
+                !gameConfig.skills.some((skill) => {
+                  const currentValue = getCurrentSkillValue(skill.name);
+                  const newValue = newAllocations[skill.name] || 0;
+                  return newValue !== currentValue;
+                })
+              }
               className="h-7 px-2 text-xs"
             >
               <RotateCcw className="w-3 h-3 mr-1" />
@@ -137,33 +157,47 @@ export function SkillsStep({
             skillAllocations={getCombinedAllocations()}
             attributeValues={getAttributeValues()}
             onSkillChange={handleSkillChange}
-            availablePoints={getRemainingPoints()}
+            availablePoints={getAvailablePoints()}
             skillBonuses={getSkillBonuses()}
           />
         </CardContent>
       </Card>
 
-      {/* Show which skills are getting new points */}
-      {getTotalAllocatedPoints() > 0 && (
-        <Card className="bg-muted/50">
-          <CardContent className="pt-4">
-            <p className="text-sm font-medium mb-2">New Skill Points:</p>
-            <div className="space-y-1">
-              {gameConfig.skills.map((skill) => {
-                const newPoints = newAllocations[skill.name];
-                if (newPoints > 0) {
-                  return (
-                    <div key={skill.name} className="text-sm text-muted-foreground">
-                      • {skill.label}: +{newPoints} {newPoints === 1 ? "point" : "points"}
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Show which skills are getting changes */}
+      {(() => {
+        const hasChanges = gameConfig.skills.some((skill) => {
+          const currentValue = getCurrentSkillValue(skill.name);
+          const newValue = newAllocations[skill.name] || 0;
+          return newValue !== currentValue;
+        });
+
+        return (
+          hasChanges && (
+            <Card className="bg-muted/50">
+              <CardContent className="pt-4">
+                <p className="text-sm font-medium mb-2">Skill Point Changes:</p>
+                <div className="space-y-1">
+                  {gameConfig.skills.map((skill) => {
+                    const currentValue = getCurrentSkillValue(skill.name);
+                    const newValue = newAllocations[skill.name] || 0;
+                    const change = newValue - currentValue;
+
+                    if (change !== 0) {
+                      return (
+                        <div key={skill.name} className="text-sm text-muted-foreground">
+                          • {skill.label}: {change > 0 ? "+" : ""}
+                          {change} points
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )
+        );
+      })()}
     </div>
   );
 }
