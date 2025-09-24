@@ -4,6 +4,7 @@ import { useCallback } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { SkillName } from "@/lib/schemas/character";
+import { getSkillPointInfo } from "@/lib/utils/skill-points";
 
 import { SkillsList } from "../shared/skills-list";
 
@@ -42,6 +43,9 @@ export function SkillsTab() {
   // Get skill bonuses (includes trait bonuses)
   const skillBonuses = getSkillBonuses();
 
+  // Get skill point info
+  const skillPointInfo = getSkillPointInfo(character);
+
   // Convert character skills to the format expected by SkillsList
   const skillAllocations: Record<string, number> = {};
   Object.keys(character._skills).forEach((skillName) => {
@@ -59,7 +63,19 @@ export function SkillsTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-4">Skills</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Skills</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Skill Points:</span>
+            <span
+              className={`text-sm font-medium ${
+                skillPointInfo.isOverAllocated ? "text-red-500" : "text-foreground"
+              }`}
+            >
+              {skillPointInfo.totalAllocated}/{skillPointInfo.totalAvailable}
+            </span>
+          </div>
+        </div>
         <SkillsList
           skillAllocations={skillAllocations}
           attributeValues={attributeValues}

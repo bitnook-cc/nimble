@@ -90,6 +90,10 @@ export const createDefaultCharacterConfiguration = (): CharacterConfiguration =>
   return {
     maxWounds: 6,
     maxInventorySize: 10,
+    skillPoints: {
+      startingPoints: 4,
+      pointsPerLevel: 1,
+    },
   };
 };
 

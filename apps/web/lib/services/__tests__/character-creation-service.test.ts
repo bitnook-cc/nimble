@@ -89,10 +89,11 @@ describe("CharacterCreationService", () => {
         _dicePools: [],
         config: {
           maxWounds: 2,
-          maxHitPointsFormula: "",
-          weaponSizeLimit: 2,
           maxInventorySize: 10,
-          customResources: [],
+          skillPoints: {
+            startingPoints: 4,
+            pointsPerLevel: 1,
+          },
         },
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },
@@ -167,10 +168,11 @@ describe("CharacterCreationService", () => {
         _dicePools: [],
         config: {
           maxWounds: 2,
-          maxHitPointsFormula: "",
-          weaponSizeLimit: 2,
           maxInventorySize: 10,
-          customResources: [],
+          skillPoints: {
+            startingPoints: 4,
+            pointsPerLevel: 1,
+          },
         },
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },
@@ -247,10 +249,11 @@ describe("CharacterCreationService", () => {
         _dicePools: [],
         config: {
           maxWounds: 2,
-          maxHitPointsFormula: "",
-          weaponSizeLimit: 2,
           maxInventorySize: 10,
-          customResources: [],
+          skillPoints: {
+            startingPoints: 4,
+            pointsPerLevel: 1,
+          },
         },
         speed: 30,
         actionTracker: { current: 3, base: 3, bonus: 0 },

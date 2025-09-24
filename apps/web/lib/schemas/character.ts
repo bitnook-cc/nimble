@@ -88,6 +88,15 @@ const resourceValueSchema = numericalResourceValueSchema; // Extensible for futu
 export const characterConfigurationSchema = z.object({
   maxWounds: z.int().min(1),
   maxInventorySize: z.int().min(1),
+  skillPoints: z
+    .object({
+      startingPoints: z.int().min(1).default(4),
+      pointsPerLevel: z.int().min(0).default(1),
+    })
+    .default({
+      startingPoints: 4,
+      pointsPerLevel: 1,
+    }),
 });
 
 const armorProficiencySchema = z.discriminatedUnion("type", [

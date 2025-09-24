@@ -75,6 +75,23 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     await updateCharacter(updatedCharacter);
   };
 
+  const updateSkillPointsConfig = async (field: string, value: string) => {
+    const numValue = parseInt(value) || 0;
+    const skillPointValue = Math.max(0, numValue);
+
+    const updatedCharacter = {
+      ...character,
+      config: {
+        ...character.config,
+        skillPoints: {
+          ...character.config.skillPoints,
+          [field]: skillPointValue,
+        },
+      },
+    };
+    await updateCharacter(updatedCharacter);
+  };
+
   const updateInitiativeModifier = async (value: string) => {
     const numValue = parseInt(value) || 0;
     const modifier = Math.max(-10, Math.min(10, numValue));
@@ -105,6 +122,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
             updateMaxHP={updateMaxHP}
             updateInitiativeModifier={updateInitiativeModifier}
             updateMaxInventorySize={updateMaxInventorySize}
+            updateSkillPointsConfig={updateSkillPointsConfig}
           />
 
           {/* Resource Management */}
