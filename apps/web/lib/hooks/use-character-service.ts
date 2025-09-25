@@ -114,6 +114,7 @@ export function useCharacterService() {
     performMakeCamp: characterService.performMakeCamp.bind(characterService),
     performAttack: characterService.performAttack.bind(characterService),
     performUseAbility: characterService.performUseAbility.bind(characterService),
+    refreshAbility: characterService.refreshAbility.bind(characterService),
     updateCharacterConfiguration:
       characterService.updateCharacterConfiguration.bind(characterService),
 

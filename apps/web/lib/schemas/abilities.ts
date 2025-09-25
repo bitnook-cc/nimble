@@ -41,6 +41,7 @@ export const AbilityFrequencySchema = z.enum([
   "per_encounter",
   "per_safe_rest",
   "at_will",
+  "manual",
 ]);
 
 // Base ability schemas

@@ -7,6 +7,7 @@ import {
   Edit,
   FileText,
   Plus,
+  RefreshCw,
   Sparkles,
   Trash2,
   Zap,
@@ -66,7 +67,7 @@ interface NewAbilityForm {
 
 export function AbilitySection() {
   // Get everything we need from service hooks
-  const { character, updateAbilities, performUseAbility } = useCharacterService();
+  const { character, updateAbilities, performUseAbility, refreshAbility } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
 
   const [isAddingAbility, setIsAddingAbility] = useState(false);
@@ -105,6 +106,12 @@ export function AbilitySection() {
     if (!character) return;
 
     await performUseAbility(abilityId, variableAmount);
+  };
+
+  const handleRefreshAbility = async (abilityId: string) => {
+    if (!character) return;
+
+    await refreshAbility(abilityId);
   };
 
   const addAbility = () => {
@@ -173,12 +180,14 @@ export function AbilitySection() {
       per_encounter: "bg-blue-100 text-blue-800",
       per_safe_rest: "bg-orange-100 text-orange-800",
       at_will: "bg-purple-100 text-purple-800",
+      manual: "bg-yellow-100 text-yellow-800",
     };
     const labels = {
       per_turn: "Per Turn",
       per_encounter: "Per Encounter",
       per_safe_rest: "Per Safe Rest",
       at_will: "At Will",
+      manual: "Manual",
     };
 
     return <Badge className={colors[frequency]}>{labels[frequency]}</Badge>;
@@ -311,25 +320,37 @@ export function AbilitySection() {
                 <EffectPreview effects={actionAbility.effects} className="mb-3" />
               )}
 
-              <Button
-                variant={!canUse ? "outline" : "default"}
-                size="sm"
-                onClick={() =>
-                  handleUseAbility(
-                    ability.id,
-                    actionAbility.resourceCost?.type === "variable"
-                      ? variableResourceAmount
-                      : undefined,
-                  )
-                }
-                disabled={!canUse}
-              >
-                {isUsed
-                  ? "Used"
-                  : !resourceInfo.canAfford
-                    ? `Need ${resourceInfo.resourceName}`
-                    : "Use Ability"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant={!canUse ? "outline" : "default"}
+                  size="sm"
+                  onClick={() =>
+                    handleUseAbility(
+                      ability.id,
+                      actionAbility.resourceCost?.type === "variable"
+                        ? variableResourceAmount
+                        : undefined,
+                    )
+                  }
+                  disabled={!canUse}
+                >
+                  {isUsed
+                    ? "Used"
+                    : !resourceInfo.canAfford
+                      ? `Need ${resourceInfo.resourceName}`
+                      : "Use Ability"}
+                </Button>
+                {actionAbility.frequency === "manual" && actionAbility.maxUses && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRefreshAbility(ability.id)}
+                    title="Refresh ability uses"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
             {isManuallyAddedAbility(ability.id) && (
               <Button
@@ -445,6 +466,7 @@ export function AbilitySection() {
                               <SelectItem value="per_encounter">Per Encounter</SelectItem>
                               <SelectItem value="per_safe_rest">Per Safe Rest</SelectItem>
                               <SelectItem value="at_will">At Will</SelectItem>
+                              <SelectItem value="manual">Manual</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
