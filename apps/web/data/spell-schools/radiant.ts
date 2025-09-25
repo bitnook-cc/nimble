@@ -161,34 +161,37 @@ const radiantSchoolSpells: SpellAbilityDefinition[] = [
 
 const radiantUtilitySpells: SpellAbilityDefinition[] = [
   {
-    id: "augury",
-    name: "Augury",
-    type: "spell",
-    school: "radiant",
-    tier: 0,
-    category: "utility",
-    description:
-      "You receive an omen from your deity about the results of a specific course of action that you plan to take within the next 30 minutes. The GM offers: Weal (good), Woe (bad), Weal & Woe (both), or Silence (neither). Once you cast this spell, you cannot cast it again for 24 hours.",
-  },
-  {
     id: "light",
     name: "Light",
     type: "spell",
     school: "radiant",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Imbue a target you touch with bright light for 1 hour. The light illuminates a 6×6 space area. If the target is hostile, you must make a successful spell attack against them.",
+      "Cause an item to brightly glow as a torch with radiant light for as long as you hold it.",
   },
   {
-    id: "purifying-flame",
-    name: "Purifying Flame",
+    id: "beautify",
+    name: "Beautify",
     type: "spell",
     school: "radiant",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Touch a volume of food and/or water that fits in a 1×1×1 space cube to purify it, removing all poison and disease.",
+      "Clean stains or repair a small tear/break in a non-magical item, or conjure tiny beautiful things: flowers, butterflies, etc.",
+  },
+  {
+    id: "bond-of-peace",
+    name: "Bond of Peace",
+    type: "spell",
+    school: "radiant",
+    tier: 0,
+    category: "utility",
+    actionCost: 1,
+    description: `**Bond.** Telepathically communicate simple thoughts or feelings with a friendly creature you can see. OR:  
+      **Peace.** Imbue your spoken words with calming magic, granting advantage on any check made to soothe anger or fear in creatures who can hear you.`,
   },
 ];
 
