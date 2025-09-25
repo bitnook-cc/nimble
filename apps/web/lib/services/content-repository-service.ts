@@ -594,13 +594,7 @@ export class ContentRepositoryService {
     if (customSpell) return customSpell;
 
     // Then search through all schools
-    const allSchools = this.getAllSpellSchools();
-    for (const school of allSchools) {
-      const spell = school.spells.find((s) => s.id === spellId);
-      if (spell) return spell;
-    }
-
-    return null;
+    return this.getAllSpells().find((s) => s.id === spellId) || null;
   }
 
   public uploadSpellSchool(school: SpellSchoolWithSpells): ContentUploadResult {
@@ -725,13 +719,13 @@ export class ContentRepositoryService {
   // Spell Management (separate from abilities)
   public getAllSpells(): SpellAbilityDefinition[] {
     // Get all spells from all built-in schools
-    const builtInSchools = getBuiltInSpellSchools();
-    const builtInSpells = builtInSchools.flatMap((school) => school.spells);
+    const spellSchools = this.getAllSpellSchools();
+    const spellsFromSchools = spellSchools.flatMap((school) => school.spells);
     const customSpells = this.getCustomSpells();
     const customIds = new Set(customSpells.map((spell) => spell.id));
 
     // Filter out built-in spells that are overridden by custom ones
-    const filteredBuiltInSpells = builtInSpells.filter((spell) => !customIds.has(spell.id));
+    const filteredBuiltInSpells = spellsFromSchools.filter((spell) => !customIds.has(spell.id));
 
     return [...filteredBuiltInSpells, ...customSpells];
   }

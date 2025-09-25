@@ -103,8 +103,8 @@ export function SpellBrowser({ isOpen, onClose, onSpellAdd }: SpellBrowserProps)
     return groups;
   }, [filteredSpells]);
 
-  // Get unique schools from all spells
-  const availableSchools = Array.from(new Set(allSpells.map((spell) => spell.school))).sort();
+  // Get all spell schools (both built-in and custom) - includes schools without spells
+  const allSpellSchools = contentRepository.getAllSpellSchools();
 
   // Get unique tiers from all spells
   const availableTiers = Array.from(new Set(allSpells.map((spell) => spell.tier))).sort(
@@ -215,9 +215,9 @@ export function SpellBrowser({ isOpen, onClose, onSpellAdd }: SpellBrowserProps)
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Schools</SelectItem>
-                  {availableSchools.map((school) => (
-                    <SelectItem key={school} value={school}>
-                      {school.charAt(0).toUpperCase() + school.slice(1).replace(/-/g, " ")}
+                  {allSpellSchools.map((school) => (
+                    <SelectItem key={school.id} value={school.id}>
+                      {school.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
