@@ -25,8 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function SpellsSection() {
-  const { character, performUseAbility } = useCharacterService();
-  const { uiState, updateCollapsibleState } = useUIStateService();
+  const { character, performUseAbility, getSpellTierAccess } = useCharacterService();
   const [openSchools, setOpenSchools] = useState<Record<string, boolean>>({});
   const [openLockedSchools, setOpenLockedSchools] = useState<Record<string, boolean>>({});
 
@@ -45,6 +44,8 @@ export function SpellsSection() {
 
   // Get spell scaling multiplier
   const spellScalingMultiplier = characterService.getSpellScalingLevel();
+
+  const spellTierAccess = getSpellTierAccess();
 
   // Helper function to get effective damage formula with scaling
   const getEffectiveDamageFormula = (spell: SpellAbilityDefinition): string | null => {
@@ -89,7 +90,7 @@ export function SpellsSection() {
     characterSpellSchools.forEach((schoolId) => {
       const allSpells = contentRepository.getSpellsBySchool(schoolId);
       // Include tier 0 spells when checking what's available vs locked
-      const lockedSpells = allSpells.filter((spell) => spell.tier > character._spellTierAccess);
+      const lockedSpells = allSpells.filter((spell) => spell.tier > spellTierAccess);
 
       if (lockedSpells.length > 0) {
         lockedSpellsBySchool[schoolId] = lockedSpells;
@@ -168,8 +169,7 @@ export function SpellsSection() {
             <Sparkles className="w-5 h-5 text-purple-500" />
             Spells
             <Badge variant="secondary" className="ml-2">
-              {character._spellTierAccess === 0 ? "Cantrip" : `Tier ${character._spellTierAccess}`}{" "}
-              Access
+              {spellTierAccess === 0 ? "Cantrip" : `Tier ${spellTierAccess}`} Access
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -439,7 +439,7 @@ export function SpellsSection() {
           resource={resources.find(
             (r) => r.definition.id === upcastingSpell.resourceCost?.resourceId,
           )}
-          maxSpellTier={character._spellTierAccess}
+          maxSpellTier={spellTierAccess}
           onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
           onClose={() => setUpcastingSpell(null)}
         />
