@@ -1,6 +1,6 @@
 "use client";
 
-import { Sword, Zap } from "lucide-react";
+import { RefreshCw, Sword, Zap } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
@@ -37,7 +37,8 @@ interface ActionsProps {
 }
 
 export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
-  const { performAttack, performUseAbility, getAbilities, getResources } = useCharacterService();
+  const { performAttack, performUseAbility, refreshAbility, getAbilities, getResources } =
+    useCharacterService();
   const abilities = getAbilities();
   const weapons = getEquippedWeapons(character.inventory.items);
   const actionAbilities = abilities.filter(
@@ -82,18 +83,28 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
     }
   };
 
+  const handleRefreshAbility = async (abilityId: string) => {
+    try {
+      await refreshAbility(abilityId);
+    } catch (error) {
+      console.error("Failed to refresh ability:", error);
+    }
+  };
+
   const getFrequencyBadge = (frequency: AbilityFrequency) => {
     const colors = {
       per_turn: "bg-green-100 text-green-800",
       per_encounter: "bg-blue-100 text-blue-800",
       per_safe_rest: "bg-orange-100 text-orange-800",
       at_will: "bg-purple-100 text-purple-800",
+      manual: "bg-yellow-100 text-yellow-800",
     };
     const labels = {
       per_turn: "Per Turn",
       per_encounter: "Per Encounter",
       per_safe_rest: "Per Safe Rest",
       at_will: "At Will",
+      manual: "Manual",
     };
 
     return <Badge className={colors[frequency]}>{labels[frequency]}</Badge>;
@@ -267,22 +278,34 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
                       </div>
                     </div>
 
-                    <Button
-                      variant={isDisabled ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => handleUseAbility(ability)}
-                      disabled={isDisabled}
-                      className="w-full"
-                    >
-                      <Zap className="w-4 h-4 mr-2" />
-                      {isUsed
-                        ? "Used"
-                        : insufficientActions
-                          ? "No Actions"
-                          : !resourceInfo.canAfford
-                            ? `Need ${resourceInfo.resourceName}`
-                            : "Use Ability"}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={isDisabled ? "outline" : "default"}
+                        size="sm"
+                        onClick={() => handleUseAbility(ability)}
+                        disabled={isDisabled}
+                        className="flex-1"
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        {isUsed
+                          ? "Used"
+                          : insufficientActions
+                            ? "No Actions"
+                            : !resourceInfo.canAfford
+                              ? `Need ${resourceInfo.resourceName}`
+                              : "Use Ability"}
+                      </Button>
+                      {ability.frequency === "manual" && ability.maxUses && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRefreshAbility(ability.id)}
+                          title="Refresh ability uses"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
