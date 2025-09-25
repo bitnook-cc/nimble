@@ -132,6 +132,15 @@ export class AbilityService {
   }
 
   /**
+   * Manually refresh a specific ability (reset its uses to 0)
+   */
+  refreshAbility(character: Character, abilityId: string): Map<string, number> {
+    const newUses = new Map(character._abilityUses);
+    newUses.set(abilityId, 0);
+    return newUses;
+  }
+
+  /**
    * Add a new ability to the abilities collection
    */
   addAbility(abilities: AbilityDefinition[], newAbility: AbilityDefinition): AbilityDefinition[] {

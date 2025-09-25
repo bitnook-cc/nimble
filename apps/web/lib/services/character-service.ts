@@ -1922,6 +1922,21 @@ export class CharacterService implements ICharacterService {
   }
 
   /**
+   * Refresh a manual ability (reset its uses to 0)
+   */
+  async refreshAbility(abilityId: string): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      _abilityUses: this.abilityService.refreshAbility(this._character, abilityId),
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
    * Generic character update method (for other properties)
    */
   async updateCharacterFields(updates: Partial<Character>): Promise<void> {
