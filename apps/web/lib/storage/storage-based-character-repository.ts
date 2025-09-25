@@ -24,8 +24,8 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   constructor(private storage: IStorageService) {}
 
   async save(character: Character): Promise<void> {
-    const characters = await this.list();
-    const index = characters.findIndex((c) => c.id === character.id);
+    const serializedCharacters = await this.getSerializedCharacters();
+    const index = serializedCharacters.findIndex((c) => c.id === character.id);
 
     // Update timestamp
     if (!character.timestamps) {
@@ -33,26 +33,16 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     }
     character.timestamps.updatedAt = Date.now();
 
-    // Convert Maps to objects for serialization
-    const serializable: SerializedCharacter = {
-      ...character,
-      _abilityUses:
-        character._abilityUses instanceof Map
-          ? Object.fromEntries(character._abilityUses)
-          : character._abilityUses,
-      _resourceValues:
-        character._resourceValues instanceof Map
-          ? Object.fromEntries(character._resourceValues)
-          : character._resourceValues,
-    };
+    // Convert to serializable format
+    const serializable = this.serializeCharacter(character);
 
     if (index >= 0) {
-      characters[index] = character;
+      serializedCharacters[index] = serializable;
     } else {
-      characters.push(character);
+      serializedCharacters.push(serializable);
     }
 
-    this.storage.setItem(this.storageKey, JSON.stringify(characters));
+    await this.saveSerializedCharacters(serializedCharacters);
   }
 
   async load(id: string): Promise<Character | null> {
@@ -61,46 +51,14 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   }
 
   async list(): Promise<Character[]> {
-    const stored = this.storage.getItem(this.storageKey);
-    if (!stored) return [];
-
-    try {
-      const parsed = JSON.parse(stored) as SerializedCharacter[];
-      return parsed.map(
-        (char) =>
-          ({
-            ...char,
-            timestamps: {
-              createdAt: char.timestamps?.createdAt || Date.now(),
-              updatedAt: char.timestamps?.updatedAt || Date.now(),
-            },
-            // Convert objects back to Maps
-            _abilityUses: new Map(Object.entries(char._abilityUses || {})),
-            _resourceValues: new Map(
-              Object.entries(char._resourceValues || {}).map(([key, value]) => {
-                // Ensure the value has the correct structure
-                if (typeof value === "object" && value !== null && "type" in value) {
-                  return [key, value] as [string, { type: "numerical"; value: number }];
-                }
-                // Handle legacy numeric values
-                if (typeof value === "number") {
-                  return [key, { type: "numerical" as const, value }];
-                }
-                // Default fallback
-                return [key, { type: "numerical" as const, value: 0 }];
-              }),
-            ),
-          }) as Character,
-      );
-    } catch {
-      return [];
-    }
+    const serializedCharacters = await this.getSerializedCharacters();
+    return serializedCharacters.map((char) => this.deserializeCharacter(char));
   }
 
   async delete(id: string): Promise<void> {
-    const characters = await this.list();
-    const filtered = characters.filter((c) => c.id !== id);
-    this.storage.setItem(this.storageKey, JSON.stringify(filtered));
+    const serializedCharacters = await this.getSerializedCharacters();
+    const filtered = serializedCharacters.filter((c) => c.id !== id);
+    await this.saveSerializedCharacters(filtered);
   }
 
   async create(data: CreateCharacterData, id?: string): Promise<Character> {
@@ -118,6 +76,79 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   }
 
   async clear(): Promise<void> {
-    this.storage.setItem(this.storageKey, JSON.stringify([]));
+    await this.saveSerializedCharacters([]);
+  }
+
+  /**
+   * Private method to get raw serialized characters from storage
+   */
+  private async getSerializedCharacters(): Promise<SerializedCharacter[]> {
+    const stored = this.storage.getItem(this.storageKey);
+    if (!stored) return [];
+
+    try {
+      return JSON.parse(stored) as SerializedCharacter[];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Private method to save serialized characters to storage
+   */
+  private async saveSerializedCharacters(characters: SerializedCharacter[]): Promise<void> {
+    this.storage.setItem(this.storageKey, JSON.stringify(characters));
+  }
+
+  /**
+   * Private method to convert Character to SerializedCharacter
+   */
+  private serializeCharacter(character: Character): SerializedCharacter {
+    return {
+      ...character,
+      _abilityUses:
+        character._abilityUses instanceof Map
+          ? Object.fromEntries(character._abilityUses)
+          : character._abilityUses,
+      _resourceValues:
+        character._resourceValues instanceof Map
+          ? Object.fromEntries(character._resourceValues)
+          : character._resourceValues,
+    };
+  }
+
+  /**
+   * Private method to convert SerializedCharacter to Character
+   */
+  private deserializeCharacter(char: SerializedCharacter): Character {
+    return {
+      ...char,
+      timestamps: {
+        createdAt: char.timestamps?.createdAt || Date.now(),
+        updatedAt: char.timestamps?.updatedAt || Date.now(),
+      },
+      // Convert objects back to Maps, handling both correct serialization and legacy formats
+      _abilityUses: new Map(
+        char._abilityUses instanceof Map
+          ? char._abilityUses // Already a Map (shouldn't happen but defensive)
+          : Object.entries(char._abilityUses || {}).filter(
+              ([key, value]) => key && value !== undefined && value !== null,
+            ),
+      ),
+      _resourceValues: new Map(
+        Object.entries(char._resourceValues || {}).map(([key, value]) => {
+          // Ensure the value has the correct structure
+          if (typeof value === "object" && value !== null && "type" in value) {
+            return [key, value] as [string, { type: "numerical"; value: number }];
+          }
+          // Handle legacy numeric values
+          if (typeof value === "number") {
+            return [key, { type: "numerical" as const, value }];
+          }
+          // Default fallback
+          return [key, { type: "numerical" as const, value: 0 }];
+        }),
+      ),
+    } as Character;
   }
 }
