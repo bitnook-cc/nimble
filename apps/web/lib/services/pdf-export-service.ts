@@ -1,8 +1,8 @@
 import { PDFDocument, PDFForm } from "pdf-lib";
 
 import { Character, SaveAdvantageMap, SaveAdvantageType } from "../schemas/character";
+import { CharacterService } from "./character-service";
 import { ContentRepositoryService } from "./content-repository-service";
-import { ICharacterService } from "./interfaces";
 import {
   getAncestryService,
   getBackgroundService,
@@ -52,7 +52,7 @@ export class PDFExportService {
    */
   async exportCharacterToPDF(
     character: Character,
-    characterService: ICharacterService,
+    characterService: CharacterService,
     options: PDFExportOptions = {
       template: "full-page",
       editable: true,

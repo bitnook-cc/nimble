@@ -2,13 +2,12 @@ import { BackgroundDefinition } from "../schemas/background";
 import { Character } from "../schemas/character";
 import { CharacterFeature } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
-import { IBackgroundService } from "./interfaces";
 
 /**
  * Background Service with Dependency Injection
  * Manages background features and traits without tight coupling
  */
-export class BackgroundService implements IBackgroundService {
+export class BackgroundService {
   private contentRepository: ContentRepositoryService;
 
   constructor() {

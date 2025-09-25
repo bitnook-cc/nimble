@@ -1,5 +1,5 @@
-import { abilityService } from "./ability-service";
-import { activityLogService } from "./activity-log-service";
+import { AbilityService, abilityService } from "./ability-service";
+import { ActivityLogService, activityLogService } from "./activity-log-service";
 import { ActivitySharingService } from "./activity-sharing-service";
 import { AncestryService } from "./ancestry-service";
 import { BackgroundService } from "./background-service";
@@ -12,16 +12,7 @@ import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
 // Import types for external services
 import type { DiceService } from "./dice-service";
-import {
-  IAbilityService,
-  IActivityLog,
-  IAncestryService,
-  IBackgroundService,
-  ICharacterCreation,
-  ICharacterService,
-  ICharacterStorage,
-  IClassService,
-} from "./interfaces";
+import { ICharacterCreation, ICharacterStorage } from "./interfaces";
 import { ItemService } from "./item-service";
 import { SERVICE_KEYS, serviceContainer } from "./service-container";
 import { settingsService } from "./settings-service";
@@ -170,19 +161,19 @@ export class ServiceFactory {
 // Convenience functions for getting services with proper types
 export const getStorageService = (): IStorageService =>
   ServiceFactory.getService(SERVICE_KEYS.STORAGE);
-export const getCharacterService = (): ICharacterService =>
+export const getCharacterService = (): CharacterService =>
   ServiceFactory.getService(SERVICE_KEYS.CHARACTER_SERVICE);
 export const getCharacterStorage = (): ICharacterStorage =>
   ServiceFactory.getService(SERVICE_KEYS.CHARACTER_STORAGE);
-export const getActivityLog = (): IActivityLog =>
+export const getActivityLog = (): ActivityLogService =>
   ServiceFactory.getService(SERVICE_KEYS.ACTIVITY_LOG);
-export const getAbilityService = (): IAbilityService =>
+export const getAbilityService = (): AbilityService =>
   ServiceFactory.getService(SERVICE_KEYS.ABILITY_SERVICE);
-export const getClassService = (): IClassService =>
+export const getClassService = (): ClassService =>
   ServiceFactory.getService(SERVICE_KEYS.CLASS_SERVICE);
-export const getAncestryService = (): IAncestryService =>
+export const getAncestryService = (): AncestryService =>
   ServiceFactory.getService(SERVICE_KEYS.ANCESTRY_SERVICE);
-export const getBackgroundService = (): IBackgroundService =>
+export const getBackgroundService = (): BackgroundService =>
   ServiceFactory.getService(SERVICE_KEYS.BACKGROUND_SERVICE);
 export const getCharacterCreation = (): ICharacterCreation =>
   ServiceFactory.getService(SERVICE_KEYS.CHARACTER_CREATION);

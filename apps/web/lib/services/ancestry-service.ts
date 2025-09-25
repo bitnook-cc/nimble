@@ -2,13 +2,12 @@ import { AncestryDefinition } from "../schemas/ancestry";
 import { Character } from "../schemas/character";
 import { CharacterFeature } from "../schemas/features";
 import { ContentRepositoryService } from "./content-repository-service";
-import { IAncestryService, ICharacterService, ICharacterStorage } from "./interfaces";
 
 /**
  * Ancestry Service with Dependency Injection
  * Manages ancestry features and traits without tight coupling
  */
-export class AncestryService implements IAncestryService {
+export class AncestryService {
   private contentRepository: ContentRepositoryService;
 
   constructor() {

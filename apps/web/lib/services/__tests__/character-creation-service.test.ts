@@ -5,17 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
+import { AncestryService } from "../ancestry-service";
+import { BackgroundService } from "../background-service";
 import { CharacterCreationService } from "../character-creation-service";
+import { CharacterService } from "../character-service";
 import { CharacterStorageService } from "../character-storage-service";
-import type { IAncestryService, IBackgroundService, ICharacterService } from "../interfaces";
 import { InMemoryStorageService } from "../storage-service";
 
 describe("CharacterCreationService", () => {
   let characterCreationService: CharacterCreationService;
   let characterStorageService: CharacterStorageService;
-  let mockCharacterService: ICharacterService;
-  let mockAncestryService: IAncestryService;
-  let mockBackgroundService: IBackgroundService;
+  let mockCharacterService: CharacterService;
+  let mockAncestryService: AncestryService;
+  let mockBackgroundService: BackgroundService;
   let inMemoryStorage: InMemoryStorageService;
 
   beforeEach(() => {
