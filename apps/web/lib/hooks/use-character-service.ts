@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Character } from "../schemas/character";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { getCharacterService } from "../services/service-factory";
+import { getSpellTierColor } from "../utils/spell-utils";
 import { useToastService } from "./use-toast-service";
 
 /**
@@ -130,6 +131,7 @@ export function useCharacterService() {
     getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
     getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
     getSpeed: characterService.getSpeed.bind(characterService),
+    getSpellTierAccess: characterService.getSpellTierAccess.bind(characterService),
     getSpellSchools: characterService.getSpellSchools.bind(characterService),
     getAbilities: characterService.getAbilities.bind(characterService),
     getResources: characterService.getResources.bind(characterService),
