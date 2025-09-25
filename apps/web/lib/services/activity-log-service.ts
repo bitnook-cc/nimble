@@ -313,7 +313,7 @@ export class ActivityLogService {
 
   createAbilityUsageEntry(
     abilityName: string,
-    frequency: "per_turn" | "per_encounter" | "per_safe_rest" | "at_will",
+    frequency: "per_turn" | "per_encounter" | "per_safe_rest" | "at_will" | "manual",
     usesRemaining: number,
     maxUses: number,
   ): AbilityUsageEntry {
@@ -322,14 +322,20 @@ export class ActivityLogService {
       throw new Error("No current character selected for log entry creation");
     }
 
-    const frequencyText =
-      frequency === "per_turn"
-        ? "per turn"
-        : frequency === "per_encounter"
-          ? "per encounter"
-          : frequency === "per_safe_rest"
-            ? "per safe rest"
-            : "at will";
+    const frequencyText = (() => {
+      switch (frequency) {
+        case "per_turn":
+          return "per turn";
+        case "per_encounter":
+          return "per encounter";
+        case "per_safe_rest":
+          return "per safe rest";
+        case "manual":
+          return "manual refresh";
+        case "at_will":
+          return "at will";
+      }
+    })();
     const usageText =
       frequency === "at_will"
         ? `Used ${abilityName} (${frequencyText})`

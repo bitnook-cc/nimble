@@ -61,7 +61,7 @@ export const abilityUsageEntrySchema = z
   .object({
     type: z.literal("ability_usage"),
     abilityName: z.string().min(1),
-    frequency: z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will"]),
+    frequency: z.enum(["per_turn", "per_encounter", "per_safe_rest", "at_will", "manual"]),
     usesRemaining: z.number().min(0),
     maxUses: z.number().min(0),
   })
