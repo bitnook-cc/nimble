@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
+import { ResourceInstance } from "../schemas/resources";
 import { getCharacterService } from "../services/service-factory";
 import { useCharacterService } from "./use-character-service";
 

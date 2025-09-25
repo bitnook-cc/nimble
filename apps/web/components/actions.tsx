@@ -4,7 +4,7 @@ import { RefreshCw, Sword, Zap } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
-import { AttributeName, Character } from "@/lib/schemas/character";
+import { Character } from "@/lib/schemas/character";
 import { WeaponItem } from "@/lib/schemas/inventory";
 import { abilityService } from "@/lib/services/ability-service";
 import { getEquippedWeapons } from "@/lib/utils/equipment";

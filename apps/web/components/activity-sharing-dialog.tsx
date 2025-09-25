@@ -1,7 +1,6 @@
 "use client";
 
-import { realtime } from "@nimble/shared";
-import { AlertCircle, LogOut, Plus, Settings, Share2, Users } from "lucide-react";
+import { AlertCircle, LogOut, Plus, Share2, Users } from "lucide-react";
 
 import { useEffect, useState } from "react";
 

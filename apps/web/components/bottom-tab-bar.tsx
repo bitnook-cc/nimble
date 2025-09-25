@@ -2,8 +2,6 @@
 
 import { Package, ScrollText, Sparkles, Sword, Target, User } from "lucide-react";
 
-import { useState } from "react";
-
 import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getCharacterService } from "@/lib/services/service-factory";

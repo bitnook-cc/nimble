@@ -7,22 +7,9 @@ import React, { useState } from "react";
 import { WizardDialog } from "@/components/wizard/wizard-dialog";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { AttributeName, TraitSelection } from "@/lib/schemas/character";
+import { TraitSelection } from "@/lib/schemas/character";
+import { ClassFeature } from "@/lib/schemas/features";
 import {
-  AbilityFeatureTrait,
-  AttributeBoostFeatureTrait,
-  ClassFeature,
-  PickFeatureFromPoolFeatureTrait,
-  ResourceFeatureTrait,
-  SpellSchoolChoiceFeatureTrait,
-  SpellSchoolFeatureTrait,
-  SpellTierAccessFeatureTrait,
-  SubclassChoiceFeatureTrait,
-  UtilitySpellsFeatureTrait,
-} from "@/lib/schemas/features";
-import { resourceService } from "@/lib/services/resource-service";
-import {
-  getCharacterService,
   getClassService,
   getContentRepository,
   getDiceService,

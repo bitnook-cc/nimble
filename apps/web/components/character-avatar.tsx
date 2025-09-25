@@ -2,7 +2,6 @@
 
 import { useCharacterImage } from "../lib/hooks/use-character-image";
 import { cn } from "../lib/utils";
-import { CharacterAvatarPlaceholder } from "./character-avatar-placeholder";
 
 interface CharacterAvatarProps {
   characterId: string;
@@ -87,15 +86,15 @@ export function CharacterAvatar({
       ) : imageUrl ? (
         // Using native img element because imageUrl is a data URL from IndexedDB
         // Next.js Image component doesn't work well with dynamic data URLs
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img src={imageUrl} alt={characterName} className="w-full h-full object-cover" />
       ) : placeholderImageSrc ? (
         // Use class-specific placeholder image for official classes
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img src={placeholderImageSrc} alt={characterName} className="w-full h-full object-cover" />
       ) : (
         // Use general fallback image for custom classes or when no class
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img
           src="/placeholders/fallback.png"
           alt={characterName}

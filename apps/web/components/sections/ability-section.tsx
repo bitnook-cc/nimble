@@ -4,8 +4,6 @@ import {
   BookOpen,
   ChevronDown,
   ChevronRight,
-  Edit,
-  FileText,
   Plus,
   RefreshCw,
   Sparkles,

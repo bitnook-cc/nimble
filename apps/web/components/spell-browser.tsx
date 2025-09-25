@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Plus, Search, Sparkles, Star, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Plus, Search, Sparkles } from "lucide-react";
 
 import { useMemo, useState } from "react";
 

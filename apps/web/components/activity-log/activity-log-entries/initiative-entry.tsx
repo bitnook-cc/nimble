@@ -1,5 +1,3 @@
-import { FormulaTokenResults } from "@nimble/dice";
-
 import { InitiativeEntry } from "@/lib/schemas/activity-log";
 import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 

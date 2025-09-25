@@ -12,7 +12,6 @@ import {
 } from "@/lib/schemas/character";
 import {
   AttributeBoostFeatureTrait,
-  FeatureTrait,
   PickFeatureFromPoolFeatureTrait,
   SpellSchoolChoiceFeatureTrait,
   SubclassChoiceFeatureTrait,
@@ -21,7 +20,6 @@ import {
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getCharacterService, getClassService } from "@/lib/services/service-factory";
-import { getIconById } from "@/lib/utils/icon-utils";
 
 import { AttributeBoostSelectionDialog } from "../dialogs/attribute-boost-selection-dialog";
 import { FeaturePoolSelectionDialog } from "../dialogs/feature-pool-selection-dialog";

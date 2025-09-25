@@ -2,18 +2,12 @@
 
 import { AlertTriangle, ChevronDown, ChevronRight, Heart, Skull } from "lucide-react";
 
-import { useCallback, useState } from "react";
-
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Character, Wounds } from "@/lib/schemas/character";
-import { getCharacterService } from "@/lib/services/service-factory";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 
 export function WoundsSection() {
   // Get everything we need from service hooks

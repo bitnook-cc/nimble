@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { useToastService } from "@/lib/hooks/use-toast-service";
 import { Toast } from "@/lib/services/toast-service";
-import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "@/lib/utils/dice-display-components";
+import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 
 export function ToastContainer() {
   const { toasts, removeToast } = useToastService();

@@ -4,11 +4,7 @@ import { ChevronDown, ChevronRight, Shield, Shirt } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import {
-  getEquippedArmor,
-  getEquippedMainArmor,
-  getEquippedSupplementaryArmor,
-} from "@/lib/utils/equipment";
+import { getEquippedArmor, getEquippedMainArmor } from "@/lib/utils/equipment";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";

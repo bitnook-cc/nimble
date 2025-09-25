@@ -14,7 +14,6 @@ import {
   UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {
-  AttributeBoostFeatureTrait,
   FeatureTrait,
   PickFeatureFromPoolFeatureTrait,
   SpellSchoolChoiceFeatureTrait,

@@ -34,6 +34,14 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', '*.config.js', 'vitest.config.ts'],
+    ignores: [
+      'dist/**', 
+      'node_modules/**', 
+      '*.config.js', 
+      'vitest.config.ts',
+      '**/__tests__/**',
+      '**/*.test.{js,ts}',
+      '**/*.spec.{js,ts}',
+    ],
   },
 ];
