@@ -26,11 +26,7 @@ import { AncestryDefinition } from "@/lib/schemas/ancestry";
 import { BackgroundDefinition } from "@/lib/schemas/background";
 import { SpellSchoolDefinitionSchema } from "@/lib/schemas/class";
 import { ClassDefinition, SubclassDefinition } from "@/lib/schemas/class";
-import {
-  ContentRepositoryService,
-  ContentUploadResult,
-  MultiFileUploadResult,
-} from "@/lib/services/content-repository-service";
+import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import {
   CustomContentType,
   getAllContentTypes,
@@ -38,10 +34,7 @@ import {
 } from "@/lib/types/custom-content";
 import { RepositoryItem } from "@/lib/types/item-repository";
 import { ExampleGenerator } from "@/lib/utils/example-generator";
-import {
-  getAllSchemaDocumentation,
-  getSchemaDocumentation,
-} from "@/lib/utils/schema-documentation";
+import { getSchemaDocumentation } from "@/lib/utils/schema-documentation";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";

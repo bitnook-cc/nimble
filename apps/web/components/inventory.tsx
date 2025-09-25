@@ -2,7 +2,6 @@
 
 import {
   Beaker,
-  Crown,
   Edit2,
   Minus,
   Package,
@@ -29,8 +28,6 @@ import {
 } from "@/lib/schemas/inventory";
 import { CreateItemData } from "@/lib/types/inventory";
 import {
-  canEquipArmor,
-  canEquipWeapon,
   equipMainArmorWithReplacement,
   getEquipmentValidationMessage,
 } from "@/lib/utils/equipment";

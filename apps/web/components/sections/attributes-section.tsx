@@ -9,7 +9,6 @@ import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { AttributeName, SaveAdvantageType } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { combineAdvantages } from "@/lib/utils/advantage";
 
 import { Button } from "../ui/button";

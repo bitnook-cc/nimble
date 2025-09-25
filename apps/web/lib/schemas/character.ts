@@ -22,9 +22,6 @@ const saveAdvantageMapSchema = z
   })
   .default({});
 
-// Type alias for backward compatibility and semantic clarity
-const abilityUsesSchema = flexibleValueSchema;
-
 export const attributeSchema = z.object({
   strength: z
     .int()

@@ -2,13 +2,9 @@
 
 import { ChevronDown, ChevronRight, Minus, Plus, RotateCcw, Swords } from "lucide-react";
 
-import { useState } from "react";
-
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Character } from "@/lib/schemas/character";
 
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";

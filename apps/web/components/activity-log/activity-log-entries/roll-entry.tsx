@@ -1,7 +1,5 @@
-import { FormulaTokenResults } from "@nimble/dice";
-
 import { DiceRollEntry } from "@/lib/schemas/activity-log";
-import { DiceFormulaDisplay, DoubleDigitDiceDisplay } from "@/lib/utils/dice-display-components";
+import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 
 // Component for displaying roll entries
 export function RollEntryDisplay({

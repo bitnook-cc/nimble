@@ -7,7 +7,6 @@ import { useCallback } from "react";
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
 
-import { getActivitySharingService } from "../../lib/services/service-factory";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

@@ -5,9 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import React from "react";
 
-import { ContentRepositoryService } from "@/lib/services/content-repository-service";
-import { InMemoryStorageService } from "@/lib/services/storage-service";
-
 import { CharacterCreateForm } from "../character-create-form";
 
 // Mock the services

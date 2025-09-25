@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Coins } from "lucide-react";
+import { ArrowLeft, ArrowRight, Coins } from "lucide-react";
 
 import { useCharacterService } from "../../lib/hooks/use-character-service";
 import { Button } from "../ui/button";

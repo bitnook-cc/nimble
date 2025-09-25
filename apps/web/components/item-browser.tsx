@@ -13,7 +13,6 @@ import {
   Star,
   Sword,
   Target,
-  Zap,
 } from "lucide-react";
 
 import { useMemo, useState } from "react";

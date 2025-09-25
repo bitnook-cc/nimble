@@ -95,6 +95,9 @@ export default [
       'postcss.config.mjs',
       'tailwind.config.ts',
       'next.config.ts',
+      '**/__tests__/**',
+      '**/*.test.{js,jsx,ts,tsx}',
+      '**/*.spec.{js,jsx,ts,tsx}',
     ],
   },
 ];

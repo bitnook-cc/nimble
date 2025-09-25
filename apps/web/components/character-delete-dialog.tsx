@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 import { Character } from "@/lib/schemas/character";
 import { authService } from "@/lib/services/auth-service";
-import { syncService } from "@/lib/services/sync/sync-service";
 
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";

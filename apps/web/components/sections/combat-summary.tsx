@@ -28,14 +28,7 @@ import { getResourceColor } from "@/lib/utils/resource-config";
 
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { DicePoolCards } from "./dice-pool-cards";
 

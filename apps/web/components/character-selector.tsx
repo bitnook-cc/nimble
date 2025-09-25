@@ -16,7 +16,7 @@ import { CharacterExportButton } from "./character-export-button";
 import { CharacterImportButton } from "./character-import-button";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface CharacterSelectorProps {

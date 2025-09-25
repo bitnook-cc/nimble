@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { Character } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";

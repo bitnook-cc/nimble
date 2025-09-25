@@ -19,7 +19,6 @@ import {
   SubclassChoiceFeatureTrait,
   UtilitySpellsFeatureTrait,
 } from "@/lib/schemas/features";
-import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
 import { AttributeBoostSelectionDialog } from "./dialogs/attribute-boost-selection-dialog";

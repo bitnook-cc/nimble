@@ -6,8 +6,7 @@ import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
-import { Character, HitDice, HitDieSize } from "@/lib/schemas/character";
-import { getCharacterService } from "@/lib/services/service-factory";
+import { HitDieSize } from "@/lib/schemas/character";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

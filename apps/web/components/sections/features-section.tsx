@@ -1,13 +1,10 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Unlock } from "lucide-react";
-
-import { useState } from "react";
+import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
-  AttributeName,
   PoolFeatureTraitSelection,
   TraitSelection,
   UtilitySpellsTraitSelection,
