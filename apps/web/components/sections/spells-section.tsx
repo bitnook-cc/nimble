@@ -23,6 +23,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { MarkdownRenderer } from "../ui/markdown-renderer";
 
 export function SpellsSection() {
   const { character, performUseAbility, getSpellTierAccess } = useCharacterService();
@@ -263,7 +264,10 @@ export function SpellsSection() {
                                 )}
                               </div>
 
-                              <p className="text-sm text-muted-foreground">{spell.description}</p>
+                              <MarkdownRenderer
+                                content={spell.description}
+                                className="text-sm text-muted-foreground prose-p:mb-1"
+                              />
                               {spell.diceFormula && (
                                 <div className="text-xs text-muted-foreground">
                                   <span>Damage: {getEffectiveDamageFormula(spell)}</span>
@@ -401,9 +405,10 @@ export function SpellsSection() {
                                           </Badge>
                                         )}
                                       </div>
-                                      <p className="text-sm text-muted-foreground/70">
-                                        {spell.description}
-                                      </p>
+                                      <MarkdownRenderer
+                                        content={spell.description}
+                                        className="text-sm text-muted-foreground/70 prose-p:mb-1"
+                                      />
                                       {spell.diceFormula && (
                                         <div className="text-xs text-muted-foreground/70">
                                           <span>Damage: {getEffectiveDamageFormula(spell)}</span>

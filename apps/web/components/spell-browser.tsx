@@ -15,6 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { MarkdownRenderer } from "./ui/markdown-renderer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface SpellBrowserProps {
@@ -330,9 +331,12 @@ export function SpellBrowser({ isOpen, onClose, onSpellAdd }: SpellBrowserProps)
                                       {known && <Badge variant="secondary">Known</Badge>}
                                     </div>
 
-                                    <p className="text-sm text-muted-foreground mb-2">
-                                      {spell.description}
-                                    </p>
+                                    <div className="mb-2">
+                                      <MarkdownRenderer
+                                        content={spell.description}
+                                        className="text-sm text-muted-foreground prose-p:mb-1"
+                                      />
+                                    </div>
 
                                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                                       {spell.diceFormula && (
