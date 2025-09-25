@@ -13,15 +13,15 @@ import {
   PickFeatureFromPoolFeatureTrait,
   SubclassChoiceFeatureTrait,
 } from "../schemas/features";
+import { CharacterService } from "./character-service";
 import { ContentRepositoryService } from "./content-repository-service";
-import { ICharacterService, IClassService } from "./interfaces";
 
 /**
  * Class Service with Dependency Injection
  * Manages class features and progression without tight coupling
  */
-export class ClassService implements IClassService {
-  constructor(private characterService: ICharacterService) {}
+export class ClassService {
+  constructor(private characterService: CharacterService) {}
 
   /**
    * Get the class definition for a character

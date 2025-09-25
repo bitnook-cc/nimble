@@ -4,7 +4,8 @@ import { Character } from "@/lib/schemas/character";
 import { apiUrl } from "@/lib/utils/api";
 
 import { authService } from "../auth-service";
-import { ICharacterService, ICharacterStorage } from "../interfaces";
+import { CharacterService } from "../character-service";
+import { ICharacterStorage } from "../interfaces";
 import { SERVICE_KEYS } from "../service-container";
 import { ServiceFactory } from "../service-factory";
 import { imageSyncService } from "./image-sync-service";
@@ -13,7 +14,7 @@ class SyncService {
   private static instance: SyncService;
   private apiUrl: string;
   private characterStorage: ICharacterStorage;
-  private characterService: ICharacterService;
+  private characterService: CharacterService;
   private lastSyncedCharacters: Map<string, string> = new Map(); // characterId -> JSON hash
   private lastSyncTime: Date | null = null;
   private hasUnsyncedChanges: boolean = false;
@@ -25,7 +26,7 @@ class SyncService {
     this.characterStorage = ServiceFactory.getService<ICharacterStorage>(
       SERVICE_KEYS.CHARACTER_STORAGE,
     );
-    this.characterService = ServiceFactory.getService<ICharacterService>(
+    this.characterService = ServiceFactory.getService<CharacterService>(
       SERVICE_KEYS.CHARACTER_SERVICE,
     );
 

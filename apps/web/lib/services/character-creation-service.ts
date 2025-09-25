@@ -17,14 +17,11 @@ import {
   createDefaultWounds,
 } from "../utils/character-defaults";
 import { NameGenerator } from "../utils/name-generator";
+import { AncestryService } from "./ancestry-service";
+import { BackgroundService } from "./background-service";
+import { CharacterService } from "./character-service";
 import { ContentRepositoryService } from "./content-repository-service";
-import {
-  IAncestryService,
-  IBackgroundService,
-  ICharacterCreation,
-  ICharacterService,
-  ICharacterStorage,
-} from "./interfaces";
+import { ICharacterCreation, ICharacterStorage } from "./interfaces";
 import { ItemService } from "./item-service";
 
 export interface QuickCreateOptions {
@@ -57,9 +54,9 @@ export class CharacterCreationService implements ICharacterCreation {
 
   constructor(
     private characterStorage: ICharacterStorage,
-    private characterService: ICharacterService,
-    private ancestryService: IAncestryService,
-    private backgroundService: IBackgroundService,
+    private characterService: CharacterService,
+    private ancestryService: AncestryService,
+    private backgroundService: BackgroundService,
   ) {
     this.contentRepository = ContentRepositoryService.getInstance();
     this.itemService = ItemService.getInstance();

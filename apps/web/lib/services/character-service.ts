@@ -26,6 +26,8 @@ import { ArmorItem, EquippableItem, Item, WeaponItem } from "../schemas/inventor
 import { ResourceDefinition, ResourceInstance } from "../schemas/resources";
 import { StatBonus } from "../schemas/stat-bonus";
 import { calculateFlexibleValue } from "../types/flexible-value";
+import { AbilityService } from "./ability-service";
+import { ActivityLogService } from "./activity-log-service";
 // Import for backward compatibility singleton
 import { ContentRepositoryService } from "./content-repository-service";
 import { DicePoolService } from "./dice-pool-service";
@@ -33,7 +35,7 @@ import { diceService } from "./dice-service";
 import { effectService } from "./effect-service";
 import { featureSelectionService } from "./feature-selection-service";
 import { FormulaEvaluatorService } from "./formula-evaluator-service";
-import { IAbilityService, IActivityLog, ICharacterService, ICharacterStorage } from "./interfaces";
+import { ICharacterStorage } from "./interfaces";
 import { resourceService } from "./resource-service";
 import {
   getAncestryService,
@@ -55,14 +57,14 @@ export interface CharacterEvent {
  * Character Service with Dependency Injection
  * Manages character state without tight coupling to concrete implementations
  */
-export class CharacterService implements ICharacterService {
+export class CharacterService {
   private _character: Character | null = null;
   private eventListeners: Map<CharacterEventType, ((event: CharacterEvent) => void)[]> = new Map();
 
   constructor(
     private storageService: ICharacterStorage,
-    private logService: IActivityLog,
-    private abilityService: IAbilityService,
+    private logService: ActivityLogService,
+    private abilityService: AbilityService,
   ) {}
 
   // Public getter for character
