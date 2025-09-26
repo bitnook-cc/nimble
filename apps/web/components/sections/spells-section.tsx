@@ -24,11 +24,13 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { MarkdownRenderer } from "../ui/markdown-renderer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export function SpellsSection() {
   const { character, performUseAbility, getSpellTierAccess } = useCharacterService();
   const [openSchools, setOpenSchools] = useState<Record<string, boolean>>({});
   const [openLockedSchools, setOpenLockedSchools] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<"combat" | "utility">("combat");
 
   const contentRepository = ContentRepositoryService.getInstance();
   const [isLockedSectionOpen, setIsLockedSectionOpen] = useState<boolean>(false);
@@ -84,14 +86,16 @@ export function SpellsSection() {
   // Get all spell schools the character has access to
   const characterSpellSchools = characterService.getSpellSchools();
 
-  // Get all locked spells by school
+  // Get all locked spells by school for the active tab
   const getLockedSpellsBySchool = () => {
     const lockedSpellsBySchool: Record<string, SpellAbilityDefinition[]> = {};
 
     characterSpellSchools.forEach((schoolId) => {
       const allSpells = contentRepository.getSpellsBySchool(schoolId);
       // Include tier 0 spells when checking what's available vs locked
-      const lockedSpells = allSpells.filter((spell) => spell.tier > spellTierAccess);
+      let lockedSpells = allSpells.filter(
+        (spell) => spell.tier > spellTierAccess && spell.category === activeTab,
+      );
 
       if (lockedSpells.length > 0) {
         lockedSpellsBySchool[schoolId] = lockedSpells;
@@ -121,8 +125,13 @@ export function SpellsSection() {
     );
   }
 
+  // Filter spells by active tab (category)
+  const filteredSpellAbilities = spellAbilities.filter((spell) => {
+    return spell.category === activeTab;
+  });
+
   // Group spells by school
-  const spellsBySchool = spellAbilities.reduce(
+  const spellsBySchool = filteredSpellAbilities.reduce(
     (acc, spell) => {
       if (!acc[spell.school]) {
         acc[spell.school] = [];
@@ -202,238 +211,261 @@ export function SpellsSection() {
             </div>
           )}
 
-          {Object.entries(spellsBySchool).map(([school, spells]) => {
-            const isOpen = openSchools[school] ?? true;
-            const onToggle = (open: boolean) => {
-              setOpenSchools((prev) => ({ ...prev, [school]: open }));
-            };
-            const schoolData = contentRepository.getSpellSchool(school);
-            const schoolName = schoolData?.name || school;
-            const schoolColor = schoolData?.color || "text-gray-600";
-            const SchoolIcon = schoolData?.icon ? getIconById(schoolData.icon) : Sparkles;
+          {/* Spell Tabs */}
+          <Tabs
+            value={activeTab}
+            onValueChange={(value: string) => setActiveTab(value as "combat" | "utility")}
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="combat">Combat</TabsTrigger>
+              <TabsTrigger value="utility">Utility</TabsTrigger>
+            </TabsList>
 
-            return (
-              <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                    <h3 className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}>
-                      <SchoolIcon className="w-5 h-5" />
-                      {schoolName} ({spells.length})
-                    </h3>
-                    {isOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="space-y-3 pt-2">
-                    {spells.map((spell) => {
-                      const canCast = hasEnoughResourcesForSpell(resources, spell);
-                      const insufficientMessage = getInsufficientResourceMessage(resources, spell);
+            <TabsContent value={activeTab} className="space-y-6 mt-4">
+              {Object.entries(spellsBySchool).map(([school, spells]) => {
+                const isOpen = openSchools[school] ?? true;
+                const onToggle = (open: boolean) => {
+                  setOpenSchools((prev) => ({ ...prev, [school]: open }));
+                };
+                const schoolData = contentRepository.getSpellSchool(school);
+                const schoolName = schoolData?.name || school;
+                const schoolColor = schoolData?.color || "text-gray-600";
+                const SchoolIcon = schoolData?.icon ? getIconById(schoolData.icon) : Sparkles;
 
-                      return (
-                        <div key={spell.id} className="border rounded-lg p-4 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-2 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold">{spell.name}</h4>
-                                <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                  {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  {spell.category === "utility" ? "Utility" : "Combat"}
-                                </Badge>
-                              </div>
-
-                              {/* Action and Resource costs in a row */}
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {spell.actionCost !== undefined && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {formatActionCost(spell.actionCost)}
-                                  </Badge>
-                                )}
-                                {spell.resourceCost && (
-                                  <Badge
-                                    variant={canCast ? "secondary" : "destructive"}
-                                    className="text-xs"
-                                  >
-                                    {formatResourceCost(spell.resourceCost)}
-                                  </Badge>
-                                )}
-                              </div>
-
-                              <MarkdownRenderer
-                                content={spell.description}
-                                className="text-sm text-muted-foreground prose-p:mb-1"
-                              />
-                              {spell.diceFormula && (
-                                <div className="text-xs text-muted-foreground">
-                                  <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                  {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                    <span className="ml-2 text-green-600">
-                                      (Scaled ×{spellScalingMultiplier})
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex gap-2 ml-4">
-                              <Button
-                                size="sm"
-                                variant={canCast ? "outline" : "ghost"}
-                                onClick={() => handleSpellCast(spell)}
-                                disabled={!canCast}
-                                title={insufficientMessage || "Cast spell"}
-                              >
-                                <Zap className="w-4 h-4" />
-                              </Button>
-                              {spell.resourceCost && spell.upcastBonus && (
-                                <Button
-                                  size="sm"
-                                  variant={canCast ? "outline" : "ghost"}
-                                  onClick={() => handleUpcastClick(spell)}
-                                  disabled={!canCast}
-                                  title="Upcast spell for increased effect"
-                                >
-                                  <TrendingUp className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            );
-          })}
-
-          {/* Locked Spells Section */}
-          {Object.keys(lockedSpellsBySchool).length > 0 && (
-            <div className="pt-6 border-t">
-              <Collapsible open={isLockedSectionOpen} onOpenChange={setIsLockedSectionOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                    <h3
-                      className={`text-lg font-semibold flex items-center gap-2 text-muted-foreground`}
-                    >
-                      <Lock className="w-5 h-5" />
-                      Locked Spells
-                    </h3>
-                    {isLockedSectionOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="space-y-4 pt-2">
-                    {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
-                      const school = contentRepository.getSpellSchool(schoolId);
-                      const schoolName = school?.name || schoolId;
-                      const schoolColor = school?.color || "text-gray-600";
-                      const SchoolIcon = school?.icon ? getIconById(school.icon) : Sparkles;
-                      const isOpen = openLockedSchools[schoolId] ?? false;
-
-                      return (
-                        <Collapsible
-                          key={schoolId}
-                          open={isOpen}
-                          onOpenChange={(open) => {
-                            setOpenLockedSchools((prev) => ({ ...prev, [schoolId]: open }));
-                          }}
+                return (
+                  <Collapsible key={school} open={isOpen} onOpenChange={onToggle}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                        <h3
+                          className={`text-lg font-semibold flex items-center gap-2 ${schoolColor}`}
                         >
-                          <CollapsibleTrigger asChild>
-                            <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-                              <h4
-                                className={`font-semibold flex items-center gap-2 ${schoolColor}`}
-                              >
-                                <SchoolIcon className="w-4 h-4" />
-                                {schoolName} ({spells.length} locked)
-                              </h4>
-                              {isOpen ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div className="space-y-3 pt-2 pl-4">
-                              {spells.map((spell) => (
-                                <div
-                                  key={spell.id}
-                                  className="border rounded-lg p-4 space-y-3 bg-muted/30"
-                                >
-                                  <div className="flex items-start justify-between">
-                                    <div className="space-y-2 flex-1">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <h5 className="font-semibold text-muted-foreground">
-                                          {spell.name}
-                                        </h5>
-                                        <Badge
-                                          variant="outline"
-                                          className={getTierColor(spell.tier)}
-                                        >
-                                          {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                                        </Badge>
-                                        <Badge variant="outline" className="text-xs">
-                                          {spell.category === "utility" ? "Utility" : "Combat"}
-                                        </Badge>
-                                        <Badge
-                                          variant="outline"
-                                          className="text-red-600 border-red-600"
-                                        >
-                                          Requires Tier {spell.tier} Access
-                                        </Badge>
-                                        {spell.actionCost !== undefined && (
-                                          <Badge variant="secondary" className="text-xs">
-                                            {spell.actionCost === 0
-                                              ? "Bonus Action"
-                                              : spell.actionCost === 1
-                                                ? "Action"
-                                                : `${spell.actionCost} Actions`}
-                                          </Badge>
-                                        )}
-                                        {spell.resourceCost && (
-                                          <Badge variant="secondary" className="text-xs">
-                                            {formatResourceCost(spell.resourceCost)}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      <MarkdownRenderer
-                                        content={spell.description}
-                                        className="text-sm text-muted-foreground/70 prose-p:mb-1"
-                                      />
-                                      {spell.diceFormula && (
-                                        <div className="text-xs text-muted-foreground/70">
-                                          <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                          {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                            <span className="ml-2 text-green-600/70">
-                                              (Will scale ×{spellScalingMultiplier})
-                                            </span>
-                                          )}
-                                        </div>
+                          <SchoolIcon className="w-5 h-5" />
+                          {schoolName} ({spells.length})
+                        </h3>
+                        {isOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="space-y-3 pt-2">
+                        {spells.map((spell) => {
+                          const canCast = hasEnoughResourcesForSpell(resources, spell);
+                          const insufficientMessage = getInsufficientResourceMessage(
+                            resources,
+                            spell,
+                          );
+
+                          return (
+                            <div key={spell.id} className="border rounded-lg p-4 space-y-3">
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-2 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold">{spell.name}</h4>
+                                    <Badge variant="outline" className={getTierColor(spell.tier)}>
+                                      {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs">
+                                      {spell.category === "utility" ? "Utility" : "Combat"}
+                                    </Badge>
+                                  </div>
+
+                                  {/* Action and Resource costs in a row */}
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    {spell.actionCost !== undefined && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        {formatActionCost(spell.actionCost)}
+                                      </Badge>
+                                    )}
+                                    {spell.resourceCost && (
+                                      <Badge
+                                        variant={canCast ? "secondary" : "destructive"}
+                                        className="text-xs"
+                                      >
+                                        {formatResourceCost(spell.resourceCost)}
+                                      </Badge>
+                                    )}
+                                  </div>
+
+                                  <MarkdownRenderer
+                                    content={spell.description}
+                                    className="text-sm text-muted-foreground prose-p:mb-1"
+                                  />
+                                  {spell.diceFormula && (
+                                    <div className="text-xs text-muted-foreground">
+                                      <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                      {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                        <span className="ml-2 text-green-600">
+                                          (Scaled ×{spellScalingMultiplier})
+                                        </span>
                                       )}
                                     </div>
-                                    <Lock className="w-4 h-4 text-muted-foreground ml-4" />
-                                  </div>
+                                  )}
                                 </div>
-                              ))}
+                                <div className="flex gap-2 ml-4">
+                                  <Button
+                                    size="sm"
+                                    variant={canCast ? "outline" : "ghost"}
+                                    onClick={() => handleSpellCast(spell)}
+                                    disabled={!canCast}
+                                    title={insufficientMessage || "Cast spell"}
+                                  >
+                                    <Zap className="w-4 h-4" />
+                                  </Button>
+                                  {spell.resourceCost && spell.upcastBonus && (
+                                    <Button
+                                      size="sm"
+                                      variant={canCast ? "outline" : "ghost"}
+                                      onClick={() => handleUpcastClick(spell)}
+                                      disabled={!canCast}
+                                      title="Upcast spell for increased effect"
+                                    >
+                                      <TrendingUp className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      );
-                    })}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          )}
+                          );
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
+
+              {/* Locked Spells Section */}
+              {Object.keys(lockedSpellsBySchool).length > 0 && (
+                <div className="pt-6 border-t">
+                  <Collapsible open={isLockedSectionOpen} onOpenChange={setIsLockedSectionOpen}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                        <h3
+                          className={`text-lg font-semibold flex items-center gap-2 text-muted-foreground`}
+                        >
+                          <Lock className="w-5 h-5" />
+                          Locked Spells
+                        </h3>
+                        {isLockedSectionOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="space-y-4 pt-2">
+                        {Object.entries(lockedSpellsBySchool).map(([schoolId, spells]) => {
+                          const school = contentRepository.getSpellSchool(schoolId);
+                          const schoolName = school?.name || schoolId;
+                          const schoolColor = school?.color || "text-gray-600";
+                          const SchoolIcon = school?.icon ? getIconById(school.icon) : Sparkles;
+                          const isOpen = openLockedSchools[schoolId] ?? false;
+
+                          return (
+                            <Collapsible
+                              key={schoolId}
+                              open={isOpen}
+                              onOpenChange={(open) => {
+                                setOpenLockedSchools((prev) => ({ ...prev, [schoolId]: open }));
+                              }}
+                            >
+                              <CollapsibleTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  className="w-full justify-between p-4 h-auto"
+                                >
+                                  <h4
+                                    className={`font-semibold flex items-center gap-2 ${schoolColor}`}
+                                  >
+                                    <SchoolIcon className="w-4 h-4" />
+                                    {schoolName} ({spells.length} locked)
+                                  </h4>
+                                  {isOpen ? (
+                                    <ChevronDown className="h-4 w-4" />
+                                  ) : (
+                                    <ChevronRight className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <div className="space-y-3 pt-2 pl-4">
+                                  {spells.map((spell) => (
+                                    <div
+                                      key={spell.id}
+                                      className="border rounded-lg p-4 space-y-3 bg-muted/30"
+                                    >
+                                      <div className="flex items-start justify-between">
+                                        <div className="space-y-2 flex-1">
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            <h5 className="font-semibold text-muted-foreground">
+                                              {spell.name}
+                                            </h5>
+                                            <Badge
+                                              variant="outline"
+                                              className={getTierColor(spell.tier)}
+                                            >
+                                              {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                                            </Badge>
+                                            <Badge variant="outline" className="text-xs">
+                                              {spell.category === "utility" ? "Utility" : "Combat"}
+                                            </Badge>
+                                            <Badge
+                                              variant="outline"
+                                              className="text-red-600 border-red-600"
+                                            >
+                                              Requires Tier {spell.tier} Access
+                                            </Badge>
+                                            {spell.actionCost !== undefined && (
+                                              <Badge variant="secondary" className="text-xs">
+                                                {spell.actionCost === 0
+                                                  ? "Bonus Action"
+                                                  : spell.actionCost === 1
+                                                    ? "Action"
+                                                    : `${spell.actionCost} Actions`}
+                                              </Badge>
+                                            )}
+                                            {spell.resourceCost && (
+                                              <Badge variant="secondary" className="text-xs">
+                                                {formatResourceCost(spell.resourceCost)}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <MarkdownRenderer
+                                            content={spell.description}
+                                            className="text-sm text-muted-foreground/70 prose-p:mb-1"
+                                          />
+                                          {spell.diceFormula && (
+                                            <div className="text-xs text-muted-foreground/70">
+                                              <span>
+                                                Damage: {getEffectiveDamageFormula(spell)}
+                                              </span>
+                                              {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                                <span className="ml-2 text-green-600/70">
+                                                  (Will scale ×{spellScalingMultiplier})
+                                                </span>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                        <Lock className="w-4 h-4 text-muted-foreground ml-4" />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          );
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
