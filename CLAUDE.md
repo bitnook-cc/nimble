@@ -8,6 +8,7 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 - **`apps/web`**: Next.js 14 web application (main character sheet app)
 - **`apps/api`**: Express.js REST API server (port 3001)
+- **`apps/vault`**: Astro Starlight documentation site for Nimble RPG rules and content
 
 ### Express API Server
 
@@ -29,6 +30,20 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
     - `GET /images/characters/:characterId/avatar` - Get character avatar URL
     - `DELETE /images/characters/:characterId/avatar` - Delete character avatar
     - `GET /images/characters/avatars` - List all user's character avatars
+
+### Nimble RPG Vault Documentation Site
+
+- **Location**: `apps/vault/`
+- **Framework**: Astro with Starlight documentation theme
+- **Port**: 4321 (auto-selects if in use)
+- **Content**: Complete Nimble RPG rules, lore, and reference materials
+- **Features**:
+  - 450+ markdown files organized into categories
+  - Responsive fantasy-themed design with parchment background
+  - Beaufort Pro Heavy fonts for headlines, Avenir Next Condensed for body text
+  - Collapsed sidebar sections with fantasy emojis (⚔️ Heroes, ✨ Magic, etc.)
+  - Auto-generated navigation from markdown file structure
+  - Search functionality and mobile-responsive layout
 
 ## Database Configuration
 
@@ -109,6 +124,7 @@ DATABASE_URL="postgres://user:pass@host/database?sslmode=require"
 npm run dev           # Run all apps in development mode
 npm run dev:web       # Run only web app
 npm run dev:api       # Run only API server
+npm run dev:vault     # Run only vault documentation site
 
 # Build
 npm run build         # Build all apps
@@ -127,6 +143,7 @@ npm run test:run      # Run tests once (CI mode)
 # Run specific tasks with filters
 npx turbo dev --filter=@nimble/web
 npx turbo dev --filter=@nimble/api
+npx turbo dev --filter=@nimble/vault
 npx turbo build --filter=@nimble/web
 
 # Dry run to see what would be executed
@@ -603,7 +620,8 @@ app/page.tsx (main orchestrator)
 /Users/six/prototype/nimble/
 ├── apps/
 │   ├── web/         # Next.js web application
-│   └── api/         # Express.js API server
+│   ├── api/         # Express.js API server
+│   └── vault/       # Astro Starlight documentation site
 ├── packages/        # Shared packages (if any)
 ├── turbo.json       # Turborepo configuration
 ├── package.json     # Root package.json with workspaces
