@@ -1,0 +1,31 @@
+---
+title: Chaos Magic Table
+---
+
+# Chaos Magic Table
+
+
+Unless otherwise noted, ongoing effects last for up to 1 minute or until Chaos is triggered again.
+
+| ROLL | NAME                       | EFFECT                                                                                                                                                                                                                     |
+| ---- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | **Elemental Eruption**     | Creatures within 6 spaces of you must make a DEX save or take INT d10 fire damage on a failure, half on save. You fail the save.                                                                                           |
+| 2    | **Backfire**               | Suffer 1 Wound. The spell you just cast also targets you (or an enemy if it was a beneficial spell).                                                                                                                       |
+| 3    | **Aww, Nuts!**             | You polymorph into a cute squirrel until you take damage. Your TOP priority is to find acorns (squirrels can’t cast spells).                                                                                               |
+| 4    | **Summon Aetherlings**     | At the end of each of your turns, summon INT hostile aetherling minions adjacent to you that act immediately after you (size: d6).                                                                                         |
+| 5    | **Graviturgical Grace**    | A random enemy is pulled adjacent to you at the end of each of your turns.                                                                                                                                                 |
+| 6    | **Liquefy Legs**           | You fall Prone, cannot stand, and your speed becomes 0 while out of water.                                                                                                                                                 |
+| 7    | **Elemental Entanglement** | An enemy controls 1 Action for you at the start of each of your turns.                                                                                                                                                     |
+| 8    | **Ethereal Cocoon**        | You are enveloped in a magical cocoon until the end of your next turn. You fall Prone, are unable to move or speak, and are immune to damage. You must spend all of your Actions casting cantrips at the nearest creature. |
+| 9    | **Manastorm**              | The last spell you cast is cast again for free, against a random target.                                                                                                                                                   |
+| 10   | **Reality Warp**           | Everywhere around you within 6 spaces is difficult terrain.                                                                                                                                                                |
+| 11   | **Displacement**           | Teleport. 1d4:<br>**1.** The worst place! (GM's choice)<br>**2.** UP! 6 spaces (3d6 falling damage)<br>**3.** Player’s choice, 6 spaces<br>**4.** Player’s choice, 12 spaces                                               |
+| 12   | **Chaos Step**             | Swap places with any creature you can see.                                                                                                                                                                                 |
+| 13   | **Mindfire**               | The dumbest enemy within 16 spaces takes INT d6 psychic damage (ignoring armor), and gains the Smoldering condition.                                                                                                       |
+| 14   | **Emerge Beautiful**       | You sprout butterfly wings from your back; gain a flying speed.                                                                                                                                                            |
+| 15   | **Unbiggen**               | Your size is halved. Gain advantage on Stealth checks, and attacks against you are made with disadvantage.                                                                                                                 |
+| 16   | **Embiggen**               | Your size is doubled. Gain INT d10 Temp HP and advantage on STR saves instead of disadvantage.                                                                                                                             |
+| 17   | **Awakening**              | A 3rd eye appears on your forehead. Gain advantage on the Assess action and all attacks.                                                                                                                                   |
+| 18   | **Diamond Skin**           | Multiply your Armor by INT; you can Defend for free each round.                                                                                                                                                            |
+| 19   | **Mighty Mana**            | Your spells (including the one that triggered this effect) are empowered and are cast as if you spent 2 additional mana on them (ignoring your natural max).                                                               |
+| 20   | **Elemental Overload**     | Enemies within 12 spaces of you take INT d8 lightning damage. You regain INT mana at the end of your turns (this mana expires at the end of combat if unused).                                                             |

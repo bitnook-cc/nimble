@@ -6,6 +6,7 @@
     "apps/web",
     "apps/api",
     "apps/discord",
+    "apps/vault",
     "packages/shared",
     "packages/nimble-dice"
   ],
@@ -15,6 +16,7 @@
     "dev:web": "turbo dev --filter=@nimble/web",
     "dev:api": "turbo dev --filter=@nimble/api",
     "dev:discord": "turbo dev --filter=@nimble/discord",
+    "dev:vault": "turbo dev --filter=@nimble/vault",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
