@@ -7,38 +7,48 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Nimble RPG Vault',
+			description: 'Complete documentation and reference for the Nimble RPG system',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }
 			],
+			customCss: [
+				'./src/styles/custom.css',
+			],
 			sidebar: [
 				{
-					label: 'Welcome',
+					label: '📖 Getting Started',
 					items: [
-						{ label: 'Introduction', slug: 'index' },
+						{ label: 'Welcome to Nimble', slug: 'index' },
 					],
 				},
 				{
-					label: 'Heroes',
+					label: '⚔️ Heroes',
+					collapsed: true,
 					autogenerate: { directory: 'Heroes' },
 				},
 				{
-					label: 'Magic',
+					label: '✨ Magic',
+					collapsed: true,
 					autogenerate: { directory: 'Magic' },
 				},
 				{
-					label: 'Items',
+					label: '🛡️ Items & Equipment',
+					collapsed: true,
 					autogenerate: { directory: 'Items' },
 				},
 				{
-					label: 'Foes',
+					label: '👹 Foes & Monsters',
+					collapsed: true,
 					autogenerate: { directory: 'Foes' },
 				},
 				{
-					label: 'System',
+					label: '⚙️ Game System',
+					collapsed: true,
 					autogenerate: { directory: 'System' },
 				},
 				{
-					label: 'Homebrew (Optional)',
+					label: '🏠 Homebrew Content',
+					collapsed: true,
 					autogenerate: { directory: 'Homebrew (Optional)' },
 				},
 			],

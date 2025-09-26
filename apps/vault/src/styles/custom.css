@@ -1,0 +1,41 @@
+/* Simple Nimble RPG Theme - Minimal styling with fonts and parchment background */
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap');
+
+:root {
+  /* Simple parchment background */
+  --sl-color-bg: #f4f1e8;
+  --sl-color-bg-nav: #f4f1e8;
+  --sl-color-bg-sidebar: #f4f1e8;
+  
+  /* Black text for visibility */
+  --sl-color-text: #000000;
+}
+
+/* Typography - Beaufort Pro Heavy fallback to Cinzel for headlines */
+h1, h2, h3, h4, h5, h6,
+.site-title,
+.sidebar-content .top-level > li > a,
+.sidebar-content .group-label {
+  font-family: 'Beaufort Pro Heavy', 'Cinzel', Georgia, serif !important;
+  color: #000000 !important;
+}
+
+/* Body text - Avenir Next Condensed fallback */
+body, p, li, td, th, .content-panel {
+  font-family: 'Avenir Next Condensed', 'Avenir Next', system-ui, sans-serif !important;
+}
+
+/* Navigation text - ensure black color */
+.sidebar-content a,
+nav a,
+.header a {
+  color: #000000 !important;
+}
+
+/* Override .large class to use black text */
+.large {
+  color: #000000 !important;
+}
