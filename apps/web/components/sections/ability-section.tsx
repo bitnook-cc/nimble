@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Sparkles,
   Trash2,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ import {
   AbilityDefinition,
   AbilityFrequency,
   ActionAbilityDefinition,
+  SpellAbilityDefinition,
 } from "@/lib/schemas/abilities";
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { abilityService } from "@/lib/services/ability-service";
@@ -41,6 +43,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 
 interface NewAbilityForm {
@@ -82,6 +85,7 @@ export function AbilitySection() {
     actionCost: 0,
   });
   const [variableResourceAmount, setVariableResourceAmount] = useState<number>(1);
+  const [activeTab, setActiveTab] = useState<"abilities" | "spells">("abilities");
 
   // Early return if no character (shouldn't happen in normal usage)
   if (!character) return null;
@@ -89,10 +93,13 @@ export function AbilitySection() {
   const isOpen = uiState.collapsibleSections.abilities;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("abilities", isOpen);
 
-  // Filter out spell abilities - they have their own spells tab
+  // Get all abilities and separate into action abilities and spells
   const characterService = getCharacterService();
   const allAbilities = characterService.getAbilities();
-  const abilities = allAbilities.filter((ability) => ability.type !== "spell");
+  const actionAbilities = allAbilities.filter((ability) => ability.type !== "spell");
+  const manualSpells = allAbilities.filter(
+    (ability) => ability.type === "spell",
+  ) as SpellAbilityDefinition[];
 
   // Helper function to determine if an ability is manually added (and therefore deletable)
   const isManuallyAddedAbility = (abilityId: string): boolean => {
@@ -153,7 +160,7 @@ export function AbilitySection() {
         : {}),
     };
 
-    updateAbilities([...abilities, ability]);
+    updateAbilities([...actionAbilities, ability]);
 
     setNewAbility({
       name: "",
@@ -169,7 +176,7 @@ export function AbilitySection() {
   };
 
   const deleteAbility = (abilityId: string) => {
-    updateAbilities(abilities.filter((ability) => ability.id !== abilityId));
+    updateAbilities(allAbilities.filter((ability) => ability.id !== abilityId));
   };
 
   const getFrequencyBadge = (frequency: AbilityFrequency) => {
@@ -189,6 +196,119 @@ export function AbilitySection() {
     };
 
     return <Badge className={colors[frequency]}>{labels[frequency]}</Badge>;
+  };
+
+  const renderSpell = (spell: SpellAbilityDefinition) => {
+    // Check if spell has resource requirements and if we have enough resources
+    const getResourceInfo = () => {
+      if (!spell.resourceCost) return { canAfford: true, resourceName: null };
+
+      const resources = characterService.getResources();
+      const resource = resources.find((r) => r.definition.id === spell.resourceCost!.resourceId);
+      if (!resource) return { canAfford: false, resourceName: spell.resourceCost.resourceId };
+
+      const requiredAmount =
+        spell.resourceCost.type === "fixed"
+          ? spell.resourceCost.amount
+          : spell.resourceCost.minAmount;
+
+      return {
+        canAfford: resource.current >= requiredAmount,
+        resourceName: resource.definition.name,
+        resource: resource,
+      };
+    };
+
+    const resourceInfo = getResourceInfo();
+    const canUse = resourceInfo.canAfford;
+
+    const getTierColor = (tier: number) => {
+      if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
+      if (tier <= 3) return "bg-blue-100 text-blue-800 border-blue-200";
+      if (tier <= 6) return "bg-purple-100 text-purple-800 border-purple-200";
+      return "bg-red-100 text-red-800 border-red-200";
+    };
+
+    return (
+      <Card key={spell.id} className={`mb-2 ${!canUse ? "opacity-50" : ""}`}>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <Sparkles className="w-4 h-4 text-purple-500" />
+                <h4 className="font-semibold">{spell.name}</h4>
+                <Badge variant="outline" className={getTierColor(spell.tier)}>
+                  {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {spell.category === "utility" ? "Utility" : "Combat"}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {spell.school}
+                </Badge>
+                {spell.actionCost && spell.actionCost > 0 && (
+                  <Badge variant="outline" className="text-orange-600">
+                    {spell.actionCost} action{spell.actionCost > 1 ? "s" : ""}
+                  </Badge>
+                )}
+                {spell.resourceCost && (
+                  <Badge
+                    variant="outline"
+                    className={resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}
+                  >
+                    {spell.resourceCost.type === "fixed"
+                      ? `${spell.resourceCost.amount} ${resourceInfo.resourceName}`
+                      : spell.resourceCost.maxAmount
+                        ? `${spell.resourceCost.minAmount}-${spell.resourceCost.maxAmount} ${resourceInfo.resourceName}`
+                        : `${spell.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
+                  </Badge>
+                )}
+              </div>
+              <MarkdownRenderer content={spell.description} className="mb-2" />
+              {spell.diceFormula && (
+                <div className="mb-3 p-2 bg-muted/50 rounded text-sm">
+                  <strong>Damage:</strong> {spell.diceFormula}
+                  {spell.scalingBonus && (
+                    <span className="text-green-600 ml-2">(Scaling: {spell.scalingBonus})</span>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  variant={!canUse ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => handleUseAbility(spell.id)}
+                  disabled={!canUse}
+                >
+                  {!resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast Spell"}
+                </Button>
+                {spell.resourceCost && spell.upcastBonus && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!canUse}
+                    title="Upcast spell for increased effect"
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            {isManuallyAddedAbility(spell.id) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteAbility(spell.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   const renderAbility = (ability: AbilityDefinition) => {
@@ -375,10 +495,12 @@ export function AbilitySection() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-500" />
-                  Abilities
+                  Abilities & Spells
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold">{abilities.length}</span>
+                  <span className="text-lg font-bold">
+                    {actionAbilities.length + manualSpells.length}
+                  </span>
                   {isOpen ? (
                     <ChevronDown className="w-4 h-4" />
                   ) : (
@@ -390,16 +512,44 @@ export function AbilitySection() {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="space-y-4">
-              {/* Existing Abilities */}
-              <div className="space-y-2">
-                {abilities.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No abilities yet. Add your first ability below!
-                  </div>
-                ) : (
-                  abilities.map(renderAbility)
-                )}
-              </div>
+              {/* Tab interface for abilities and spells */}
+              {actionAbilities.length === 0 && manualSpells.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No abilities or spells yet. Add your first one below!
+                </div>
+              ) : (
+                <Tabs
+                  value={activeTab}
+                  onValueChange={(value) => setActiveTab(value as "abilities" | "spells")}
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="abilities">
+                      Abilities ({actionAbilities.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="spells">Spells ({manualSpells.length})</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="abilities" className="space-y-2 mt-4">
+                    {actionAbilities.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No action abilities yet. Add your first ability below!
+                      </div>
+                    ) : (
+                      actionAbilities.map(renderAbility)
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="spells" className="space-y-2 mt-4">
+                    {manualSpells.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No manually granted spells yet. Use the spell browser to add some!
+                      </div>
+                    ) : (
+                      manualSpells.map(renderSpell)
+                    )}
+                  </TabsContent>
+                </Tabs>
+              )}
 
               {/* Add New Ability Form */}
               {isAddingAbility ? (
