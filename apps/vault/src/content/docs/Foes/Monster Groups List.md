@@ -1,4 +1,9 @@
-Monster Groups List
+---
+title: Monster Groups List
+---
+
+# Monster Groups List
+
 
 - Bandits
 - Cultists & Horrors

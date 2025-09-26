@@ -1,4 +1,9 @@
-Legendary Monsters List
+---
+title: Legendary Monsters List
+---
+
+# Legendary Monsters List
+
 
 - Pudge the Blunderer
 - Kelebek & Poppy
