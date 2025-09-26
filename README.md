@@ -1,6 +1,11 @@
 # Nimble Navigator
 
-A comprehensive digital character sheet application for the Nimble RPG system. Navigate your adventures with ease using this intuitive character management tool. Built as a Turborepo monorepo with Next.js, Express.js, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence and optional Google authentication.
+A comprehensive digital character sheet application for the Nimble RPG system. Navigate your adventures with ease using this intuitive character management tool. Built as a Turborepo monorepo with Next.js, Express.js, Astro Starlight, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence and optional Google authentication.
+
+**Features three main applications:**
+- **Character Sheet App** - Digital character management and dice rolling
+- **API Server** - Authentication and cloud sync backend  
+- **RPG Vault** - Complete Nimble RPG documentation and rules reference
 
 ![Nimble Navigator Preview](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
@@ -8,6 +13,16 @@ A comprehensive digital character sheet application for the Nimble RPG system. N
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0+-38bdf8)
 
 ## 🚀 Recent Updates
+
+### Nimble RPG Vault Documentation Site (September 2025)
+
+- **Complete Rules Reference** - 450+ markdown files with comprehensive Nimble RPG documentation
+- **Astro Starlight Framework** - Fast, searchable documentation site with beautiful presentation
+- **Fantasy Theme** - Custom parchment background with Beaufort Pro Heavy and Avenir Next Condensed fonts
+- **Organized Sidebar** - Categorized sections for Heroes, Magic, Items, Foes, Game System, and Homebrew content
+- **Mobile Responsive** - Optimized for desktop and mobile reading
+- **Search Functionality** - Built-in search across all content
+- **Auto-Generated Navigation** - Sidebar automatically generated from markdown file structure
 
 ### Character Image System with Cloud Sync (January 2025)
 
@@ -129,14 +144,17 @@ npm install
 # 1. Copy apps/api/.env.example to apps/api/.env
 # 2. Add your Google OAuth credentials (see apps/api/README.md for setup)
 
-# Start development servers (both web and API)
+# Start development servers (all apps)
 npm run dev
 
 # Or run them separately:
-npm run dev:web  # Web app only (port 3000)
-npm run dev:api  # API server only (port 3001)
+npm run dev:web    # Character sheet app (port 3000)
+npm run dev:api    # API server (port 3001)
+npm run dev:vault  # Documentation site (port 4321)
 
-# Open your browser to http://localhost:3000
+# Open your browser to:
+# - Character Sheet: http://localhost:3000
+# - Documentation: http://localhost:4321
 ```
 
 ### Build for Production
@@ -201,7 +219,7 @@ npm start
 - **Build System**: Turborepo for efficient monorepo management
 - **Workspaces**: npm workspaces for dependency management
 
-### Frontend (apps/web)
+### Character Sheet App (apps/web)
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS + shadcn/ui components
@@ -209,28 +227,37 @@ npm start
 - **Storage**: Local Storage with repository abstraction
 - **Icons**: Lucide React icons
 
-### Backend (apps/api)
+### API Server (apps/api)
 - **Framework**: Express.js REST API
 - **Authentication**: Passport.js with Google OAuth 2.0
 - **Session Management**: express-session with secure cookies
 - **Environment**: dotenv for configuration
 - **Development**: tsx for TypeScript execution
 
+### Documentation Site (apps/vault)
+- **Framework**: Astro with Starlight theme
+- **Content**: 450+ Markdown files with frontmatter
+- **Styling**: Custom CSS with fantasy theme
+- **Fonts**: Beaufort Pro Heavy + Avenir Next Condensed
+- **Features**: Search, responsive design, auto-generated navigation
+
 ## 🔧 Development
 
 ### Available Scripts
 
 #### Monorepo Root
-- `npm run dev` - Start all development servers (web + API)
-- `npm run dev:web` - Start only web development server
-- `npm run dev:api` - Start only API development server
+- `npm run dev` - Start all development servers (web + API + vault)
+- `npm run dev:web` - Start only character sheet app
+- `npm run dev:api` - Start only API server
+- `npm run dev:vault` - Start only documentation site
 - `npm run build` - Build all apps for production
 - `npm run lint` - Run ESLint checks on all workspaces
 - `npm run typecheck` - Run TypeScript type checking
 
 #### Individual Apps
-- `npx turbo dev --filter=@nimble/web` - Run web app only
+- `npx turbo dev --filter=@nimble/web` - Run character sheet app only
 - `npx turbo dev --filter=@nimble/api` - Run API server only
+- `npx turbo dev --filter=@nimble/vault` - Run documentation site only
 
 ### Code Quality
 
