@@ -139,9 +139,10 @@ export function SkillsList({
             const totalModifier = attributeModifier + totalSkillModifier;
 
             return (
-              <Card key={skill.name} className="h-fit">
+              <Card key={skill.name} className="h-fit @container">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
+                  {/* Responsive layout based on card width: horizontal when card is wide enough, vertical when narrow */}
+                  <div className="flex flex-col @[260px]:flex-row @[260px]:items-center @[260px]:justify-between gap-2 @[260px]:gap-0">
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium truncate">{skill.label}</div>
                       <div className="text-xs text-muted-foreground capitalize">
@@ -152,7 +153,7 @@ export function SkillsList({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 ml-2 shrink-0">
+                    <div className="flex items-center gap-1 @[260px]:ml-2 shrink-0">
                       {/* Star icons for skill points */}
                       <div className="flex items-center gap-0.5 mr-1">
                         {renderStars(userAllocatedPoints)}
