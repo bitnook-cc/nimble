@@ -16,7 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 export function SavingThrowsSection() {
-  const { character, updateCharacter } = useCharacterService();
+  const { character, updateCharacter, getAttributes } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   const { rollSave } = useDiceActions();
 
@@ -44,13 +44,14 @@ export function SavingThrowsSection() {
     (attributeName: AttributeName) => {
       if (!character) return;
 
-      const attributeValue = character._attributes[attributeName];
+      const computedAttributes = getAttributes();
+      const attributeValue = computedAttributes[attributeName];
       const saveAdvantage = character.saveAdvantages?.[attributeName] || "normal";
       const combinedAdvantage = combineAdvantages(advantageLevel, saveAdvantage);
 
       rollSave(attributeName, attributeValue, combinedAdvantage);
     },
-    [character, rollSave, advantageLevel],
+    [character, rollSave, advantageLevel, getAttributes],
   );
 
   const formatModifier = (value: number): string => {
@@ -81,6 +82,7 @@ export function SavingThrowsSection() {
 
   if (!character) return null;
 
+  const computedAttributes = getAttributes();
   const attributes: Array<{ name: AttributeName; label: string }> = [
     { name: "strength", label: "Str" },
     { name: "dexterity", label: "Dex" },
@@ -110,7 +112,7 @@ export function SavingThrowsSection() {
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-2">
                 {attributes.map(({ name, label }) => {
-                  const value = character._attributes[name];
+                  const value = computedAttributes[name];
                   const saveAdvantage = character.saveAdvantages?.[name] || "normal";
                   const combinedAdvantage = combineAdvantages(advantageLevel, saveAdvantage);
 
