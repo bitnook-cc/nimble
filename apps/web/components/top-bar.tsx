@@ -27,10 +27,14 @@ function SessionStatus() {
   const { session, isInSession } = useActivitySharing();
   const { user, isAuthenticated } = useAuth();
 
-  if (!isAuthenticated || !isInSession || !session) {
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (!isInSession || !session) {
     return (
       <ActivitySharingDialog>
-        <Button variant="outline" size="sm" disabled={!isAuthenticated}>
+        <Button variant="outline" size="sm">
           <Share2 className="w-4 h-4 mr-2" />
           Join Game
         </Button>

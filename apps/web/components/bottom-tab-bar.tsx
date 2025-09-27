@@ -51,8 +51,8 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
       className="fixed bottom-0 left-0 right-0 bg-background border-t z-50"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="w-full px-2 sm:px-4">
-        <div className="flex justify-around items-center h-16 max-w-(--breakpoint-sm) mx-auto">
+      <div className="w-full overflow-x-auto px-2 sm:px-4">
+        <div className="flex items-center h-16 gap-1 min-w-max sm:justify-around sm:max-w-none sm:min-w-0 mx-auto">
           {visibleTabs.map((tab) => {
             const IconComponent = tab.icon;
             const isActive = activeTab === tab.id;
@@ -63,7 +63,7 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => onTabChange(tab.id)}
-                className={`flex flex-col items-center gap-1 h-12 px-1 sm:px-2 min-w-0 flex-1 max-w-20 ${
+                className={`flex flex-col items-center gap-1 h-12 px-3 sm:px-2 min-w-[60px] sm:min-w-0 sm:flex-1 sm:max-w-20 shrink-0 ${
                   isActive
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-foreground"

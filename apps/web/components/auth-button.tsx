@@ -83,8 +83,8 @@ export function AuthButton() {
   if (!user) {
     return (
       <Button variant="outline" size="sm" onClick={handleLogin}>
-        <LogIn className="w-4 h-4 mr-2" />
-        Sign in with Google
+        <LogIn className="w-4 h-4 sm:mr-2" />
+        <span className="hidden sm:inline">Sign in with Google</span>
       </Button>
     );
   }

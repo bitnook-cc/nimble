@@ -6,6 +6,7 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { SkillName } from "@/lib/schemas/character";
 import { getSkillPointInfo } from "@/lib/utils/skill-points";
 
+import { CompactAttributesSection } from "../sections/compact-attributes-section";
 import { SkillsList } from "../shared/skills-list";
 
 export function SkillsTab() {
@@ -62,6 +63,7 @@ export function SkillsTab() {
 
   return (
     <div className="space-y-6">
+      <CompactAttributesSection />
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Skills</h2>
