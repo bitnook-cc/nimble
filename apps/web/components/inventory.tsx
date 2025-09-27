@@ -18,6 +18,8 @@ import {
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useDiceActions } from "@/lib/hooks/use-dice-actions";
+import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
   AmmunitionItem,
   ArmorItem,
@@ -52,6 +54,8 @@ interface InventoryProps {
 
 export function Inventory({ inventory, characterDexterity }: InventoryProps) {
   const { character, updateCharacterFields } = useCharacterService();
+  const { attack } = useDiceActions();
+  const { uiState } = useUIStateService();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
@@ -340,6 +344,17 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
     });
   };
 
+  const handleWeaponAttack = async (weapon: WeaponItem) => {
+    if (!character || !weapon.damage || !weapon.attribute) return;
+
+    // Get the character's attribute modifier
+    const attributeModifier =
+      character._attributes[weapon.attribute as keyof typeof character._attributes];
+
+    // Call the attack function
+    await attack(weapon.name, weapon.damage, attributeModifier, uiState.advantageLevel);
+  };
+
   const toggleEquipped = async (itemId: string) => {
     const item = inventory.items.find((item) => item.id === itemId);
     if (!item || (item.type !== "weapon" && item.type !== "armor")) {
@@ -598,6 +613,17 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                   <div className="flex flex-col items-end space-y-2">
                     {/* Main action buttons row */}
                     <div className="flex items-center space-x-2">
+                      {item.type === "weapon" && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleWeaponAttack(item as WeaponItem)}
+                          className="h-8 w-8 p-0"
+                          disabled={!item.damage || !item.attribute}
+                        >
+                          <Sword className="w-4 h-4" />
+                        </Button>
+                      )}
                       {(item.type === "weapon" || item.type === "armor") && (
                         <Button
                           variant={item.equipped ? "default" : "outline"}
