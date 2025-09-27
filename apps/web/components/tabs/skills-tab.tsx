@@ -64,7 +64,7 @@ export function SkillsTab() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Explore</h2>
+          <h2 className="text-xl font-semibold">Skills</h2>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Skill Points:</span>
             <span
