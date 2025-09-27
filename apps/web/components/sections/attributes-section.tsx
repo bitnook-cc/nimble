@@ -126,61 +126,65 @@ export function AttributesSection() {
     const computedValue = computedAttributes[attributeName];
     const saveAdvantage = character.saveAdvantages?.[attributeName] || "normal";
     const hasBonus = baseValue !== computedValue;
+    const bonus = computedValue - baseValue;
 
     return (
       <Card
         key={attributeName}
         className={`${isKeyAttribute ? "ring-2 ring-primary" : ""} relative`}
       >
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-1 pt-3 px-3 relative">
           <CardTitle
-            className={`text-center text-sm ${isKeyAttribute ? "font-bold underline" : ""}`}
+            className={`text-sm text-center ${isKeyAttribute ? "font-bold underline" : ""}`}
           >
             {displayName}
           </CardTitle>
-          {/* Save advantage indicator positioned above the title */}
-          <div className="absolute -top-1 right-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => cycleSaveAdvantage(attributeName)}
-                  className="h-4 w-4 p-0 hover:bg-transparent"
-                >
-                  {getSaveAdvantageIcon(saveAdvantage)}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{getSaveAdvantageTooltip(saveAdvantage, displayName)}</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => cycleSaveAdvantage(attributeName)}
+                className="absolute top-1 right-1 h-5 w-5 p-0 hover:bg-transparent"
+              >
+                {getSaveAdvantageIcon(saveAdvantage)}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{getSaveAdvantageTooltip(saveAdvantage, displayName)}</p>
+            </TooltipContent>
+          </Tooltip>
         </CardHeader>
-        <CardContent className="space-y-1">
-          <div className="relative">
+        <CardContent className="space-y-2 flex flex-col items-center pt-0 pb-3 px-3">
+          {/* Value display and input */}
+          <div className="flex items-center gap-2">
             <Input
               type="number"
               min="-2"
               max="10"
               value={baseValue}
               onChange={(e) => onAttributeChange(attributeName, e.target.value)}
-              className="text-center text-lg font-bold h-8"
+              className="w-12 h-7 text-center text-sm font-mono border-2 px-1"
             />
             {hasBonus && (
-              <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">
-                {computedValue}
-              </div>
+              <>
+                <span className="text-sm">+</span>
+                <span className="text-sm font-mono text-blue-600">{bonus}</span>
+                <span className="text-sm">=</span>
+                <span className="text-sm font-mono font-bold">{computedValue}</span>
+              </>
             )}
           </div>
-          <div className="flex gap-1">
+
+          {/* Action buttons */}
+          <div className="flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => rollAttribute(attributeName, computedValue, advantageLevel)}
-                  className="flex-1 h-7 px-2"
+                  className="h-8 w-8 p-1"
                 >
                   <Dice6 className="w-3 h-3" />
                 </Button>
@@ -189,6 +193,11 @@ export function AttributesSection() {
                 <p>
                   Roll {displayName} ({computedValue})
                 </p>
+                {advantageLevel !== 0 && (
+                  <p className="text-xs">
+                    {advantageLevel > 0 ? "With advantage" : "With disadvantage"}
+                  </p>
+                )}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -203,7 +212,7 @@ export function AttributesSection() {
                       combineAdvantages(advantageLevel, saveAdvantage),
                     )
                   }
-                  className="flex-1 h-7 px-2"
+                  className="h-8 w-8 p-1"
                 >
                   <Shield className="w-3 h-3" />
                 </Button>
@@ -212,6 +221,13 @@ export function AttributesSection() {
                 <p>
                   Save {displayName} ({computedValue})
                 </p>
+                {combineAdvantages(advantageLevel, saveAdvantage) !== 0 && (
+                  <p className="text-xs">
+                    {combineAdvantages(advantageLevel, saveAdvantage) > 0
+                      ? "With advantage"
+                      : "With disadvantage"}
+                  </p>
+                )}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -239,7 +255,7 @@ export function AttributesSection() {
             {renderAttribute("will", "Will")}
           </div>
           {keyAttributes.length > 0 && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-4 text-center">
               Key attributes for {characterClass?.name}:{" "}
               <span className="font-semibold underline">{keyAttributes.join(", ")}</span>
             </p>
