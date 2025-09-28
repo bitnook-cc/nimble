@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Run E2E tests before pushing
+echo "🧪 Running E2E tests before push..."
+npx turbo run test:e2e --filter=@nimble/web
+
+if [ $? -ne 0 ]; then
+  echo "❌ E2E tests failed! Push aborted."
+  echo "Please fix the failing tests before pushing."
+  exit 1
+fi
+
+echo "✅ All E2E tests passed! Proceeding with push..."

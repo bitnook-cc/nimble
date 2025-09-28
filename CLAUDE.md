@@ -760,7 +760,9 @@ npx turbo test --filter=@nimble/web
 
 ### Testing
 
-The project uses **Vitest** for testing with the following conventions:
+The project uses **Vitest** for unit testing and **Playwright** for end-to-end testing:
+
+#### Unit Testing (Vitest)
 
 - **Test Location**: Tests are placed in `__tests__` folders within service directories
 - **Test Naming**: Test files use `.test.ts` extension (e.g., `dice-formula-service.test.ts`)
@@ -768,10 +770,65 @@ The project uses **Vitest** for testing with the following conventions:
 - **Test Structure**: Tests use describe/it blocks with clear descriptions
 - **Coverage**: Tests focus on service logic, edge cases, and error handling
 
-#### Test Examples
-
+**Test Examples:**
 - `dice-formula-service.test.ts`: Tests dice rolling formulas, variable substitution, advantage/disadvantage, criticals, and double-digit dice
 - `flexible-value.test.ts`: Tests formula evaluation with attribute and level substitution
+
+#### End-to-End Testing (Playwright)
+
+- **Location**: E2E tests are in `apps/web/e2e/` directory
+- **Framework**: Playwright with multi-browser support (Chrome, Firefox, Safari, Mobile)
+- **Test Utils**: Centralized `CharacterTestUtils` class for common user interactions
+- **Test Scenarios**: Character creation, dice rolling, tab navigation, equipment management, health/resources
+
+**Available E2E Commands:**
+```bash
+# Run E2E tests
+npm run test:e2e
+
+# Run with visual UI
+npm run test:e2e:ui
+
+# Debug mode (step through tests)
+npm run test:e2e:debug
+
+# View test reports
+npm run test:e2e:report
+```
+
+**Test Utilities:**
+- `CharacterTestUtils` provides reusable methods for character creation, dice rolling, health management, and UI navigation
+- Robust element detection with multiple fallback patterns
+- Configurable timeouts and error handling
+
+### Git Hooks (Husky)
+
+The project uses **Husky** for automated Git hooks to ensure code quality:
+
+#### Pre-commit Hook (`.husky/pre-commit`)
+Runs automatically before each commit:
+- **Format**: Code formatting with Prettier
+- **Stage**: Auto-stage formatted files
+- **Type Check**: TypeScript type checking
+- **Lint**: ESLint validation
+- **Unit Tests**: Vitest test suite
+
+#### Pre-push Hook (`.husky/pre-push`)
+Runs automatically before each push:
+- **E2E Tests**: Full Playwright test suite
+- **Push Protection**: Blocks push if E2E tests fail
+
+**Hook Commands:**
+```bash
+# Hooks run automatically, but you can test them manually:
+./.husky/pre-commit    # Test pre-commit hook
+./.husky/pre-push      # Test pre-push hook
+```
+
+**Git Workflow:**
+1. Make changes and commit (triggers pre-commit hook)
+2. Push changes (triggers pre-push hook with E2E tests)
+3. Both hooks must pass for the operation to complete
 
 ### Storage & Configuration
 
