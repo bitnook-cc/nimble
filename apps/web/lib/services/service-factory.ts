@@ -175,7 +175,7 @@ export const getAncestryService = (): AncestryService =>
   ServiceFactory.getService(SERVICE_KEYS.ANCESTRY_SERVICE);
 export const getBackgroundService = (): BackgroundService =>
   ServiceFactory.getService(SERVICE_KEYS.BACKGROUND_SERVICE);
-export const getCharacterCreation = (): ICharacterCreation =>
+export const getCharacterCreation = (): CharacterCreationService =>
   ServiceFactory.getService(SERVICE_KEYS.CHARACTER_CREATION);
 export const getDiceService = (): DiceService =>
   ServiceFactory.getService(SERVICE_KEYS.DICE_SERVICE);
