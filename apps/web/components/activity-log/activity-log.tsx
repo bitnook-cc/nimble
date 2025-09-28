@@ -10,6 +10,7 @@ import {
   DamageEntry,
   DicePoolEntry,
   DiceRollEntry,
+  FreeformActionEntry,
   HealingEntry,
   InitiativeEntry,
   ItemConsumptionEntry,
@@ -78,10 +79,20 @@ export function ActivityLog() {
                     <RollEntryDisplay roll={entry as DiceRollEntry} formatTime={formatTime} />
                   ) : entry.type === "initiative" ? (
                     <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
+                  ) : entry.type === "freeform" ? (
+                    <div className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground/70">
+                        {formatTime(entry.timestamp)}
+                      </span>{" "}
+                      {entry.description}
+                    </div>
                   ) : (
                     <NonRollEntryDisplay
                       entry={
-                        entry as Exclude<LogEntry, DiceRollEntry | InitiativeEntry | DicePoolEntry>
+                        entry as Exclude<
+                          LogEntry,
+                          DiceRollEntry | InitiativeEntry | DicePoolEntry | FreeformActionEntry
+                        >
                       }
                     />
                   )}

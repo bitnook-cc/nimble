@@ -153,6 +153,14 @@ export const dicePoolEntrySchema = z
   })
   .merge(baseLogEntrySchema);
 
+// Freeform action log entry schema
+export const freeformActionEntrySchema = z
+  .object({
+    type: z.literal("freeform"),
+    actionType: z.string().min(1), // e.g., "move", "assess", "general"
+  })
+  .merge(baseLogEntrySchema);
+
 // Union schema for all log entries
 export const logEntrySchema = z.discriminatedUnion("type", [
   diceRollEntrySchema,
@@ -168,6 +176,7 @@ export const logEntrySchema = z.discriminatedUnion("type", [
   spellCastEntrySchema,
   itemConsumptionEntrySchema,
   dicePoolEntrySchema,
+  freeformActionEntrySchema,
 ]);
 
 // Export inferred types
@@ -185,6 +194,7 @@ export type ResourceUsageEntry = z.infer<typeof resourceUsageEntrySchema>;
 export type SpellCastEntry = z.infer<typeof spellCastEntrySchema>;
 export type ItemConsumptionEntry = z.infer<typeof itemConsumptionEntrySchema>;
 export type DicePoolEntry = z.infer<typeof dicePoolEntrySchema>;
+export type FreeformActionEntry = z.infer<typeof freeformActionEntrySchema>;
 
 export type LogEntry = z.infer<typeof logEntrySchema>;
 export type ValidatedLogEntry = LogEntry;

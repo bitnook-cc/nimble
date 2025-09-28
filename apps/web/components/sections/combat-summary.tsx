@@ -31,6 +31,7 @@ import { Card, CardContent } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { DicePoolCards } from "./dice-pool-cards";
+import { GeneralActionsRow } from "./general-actions-row";
 
 // Health Bar Subcomponent
 function HealthBar() {
@@ -780,6 +781,8 @@ export function CombatSummary() {
         <DicePoolCards />
 
         <ActionTracker />
+
+        <GeneralActionsRow />
       </div>
     </TooltipProvider>
   );
