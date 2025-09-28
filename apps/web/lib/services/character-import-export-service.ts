@@ -103,6 +103,9 @@ export class CharacterImportExportService {
       // Create clean JSON without any potential circular references
       const exportData = {
         ...character,
+        // Convert Maps to Objects for JSON serialization
+        _resourceValues: Object.fromEntries(character._resourceValues),
+        _abilityUses: Object.fromEntries(character._abilityUses),
         // Timestamps are already numbers (Unix milliseconds), no conversion needed
       };
 
