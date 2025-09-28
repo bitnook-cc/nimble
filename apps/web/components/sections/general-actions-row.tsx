@@ -38,7 +38,7 @@ export function GeneralActionsRow() {
     (item): item is WeaponItem => item.type === "weapon" && (item.equipped ?? false),
   );
 
-  const useAction = () => {
+  const consumeAction = () => {
     if (canUseAction) {
       updateActionTracker({
         ...character.actionTracker,
@@ -49,7 +49,7 @@ export function GeneralActionsRow() {
 
   const handleMove = async () => {
     if (!canUseAction) return;
-    useAction();
+    consumeAction();
     await addLogEntry({
       id: uuidv4(),
       type: "freeform",
@@ -85,7 +85,7 @@ export function GeneralActionsRow() {
   const performAttack = async (weapon: WeaponItem) => {
     if (!canUseAction) return;
 
-    useAction();
+    consumeAction();
     const attributeModifier = character._attributes.strength; // TODO: Could be dexterity for finesse weapons
     await attack(weapon.name, weapon.damage || "1d6", attributeModifier, uiState.advantageLevel);
     setShowWeaponDialog(false);
@@ -115,7 +115,7 @@ export function GeneralActionsRow() {
   const performAssessAction = async (action: AssessSubAction, skill?: SkillName) => {
     if (!canUseAction) return;
 
-    useAction();
+    consumeAction();
 
     if (action === "ask_question" && skill) {
       const skillData = character._skills[skill];
@@ -242,7 +242,7 @@ export function GeneralActionsRow() {
                 variant="outline"
                 className="w-full justify-start"
                 onClick={async () => {
-                  useAction();
+                  consumeAction();
                   await performUseAbility(spell.id);
                   setShowSpellDialog(false);
                 }}
