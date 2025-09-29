@@ -11,13 +11,7 @@ export function createNimbleJWT(userId: string, userTags: UserTag[]): string {
     sub: userId,
     iss: 'nimble-portal',
     aud: ['vault', 'monsters', 'dice'],
-    tags: userTags.map(t => t.tag_name),
-    tag_expires: userTags.reduce((acc, t) => {
-      if (t.expires_at) {
-        acc[t.tag_name] = new Date(t.expires_at).getTime() / 1000
-      }
-      return acc
-    }, {} as Record<string, number>),
+    tags: userTags,
     exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hour expiry
     iat: Math.floor(Date.now() / 1000),
   }
