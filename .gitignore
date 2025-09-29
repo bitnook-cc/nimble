@@ -136,7 +136,3 @@ jspm_packages/
 
 # Supabase CLI
 .temp
-# Vault content - local only
-apps/vault/data-backup/
-apps/vault/src/content/docs/
-apps/vault/data/
