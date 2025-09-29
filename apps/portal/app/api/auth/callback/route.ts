@@ -33,40 +33,20 @@ export async function GET(request: NextRequest) {
     }
     
     if (!error && data.user) {
-      // Get profile ID from user connection (new schema)
-      let profileId: string | null = null
-      let userTags: UserTag[] = []
+      console.log('User authenticated successfully:', {
+        userId: data.user.id,
+        email: data.user.email,
+        identities: data.user.identities?.length || 0,
+        appMetadata: data.user.app_metadata,
+        userMetadata: data.user.user_metadata
+      })
       
-      try {
-        // Get profile and tags in a single query with join
-        const { data: connectionData } = await supabase
-          .from('user_connections')
-          .select(`
-            profile_id,
-            user_profiles!inner(id, email, display_name),
-            user_tags(tag_name, granted_at, expires_at, metadata)
-          `)
-          .eq('auth_user_id', data.user.id)
-          .single()
-        
-        if (connectionData) {
-          profileId = connectionData.profile_id
-          
-          // Extract tags from the join result
-          if (connectionData.user_tags) {
-            userTags = connectionData.user_tags.filter(tag => 
-              !tag.expires_at || new Date(tag.expires_at) > new Date()
-            ) as UserTag[]
-          }
-        }
-      } catch (err) {
-        // Profile/tags might not exist yet, continue with empty tags
-        console.warn('Could not fetch profile or user tags (tables may not exist):', err)
-      }
+      // Use Supabase's built-in user system - no custom tables needed!
+      // Get user tags from app_metadata (managed by database functions/triggers)
+      const userTags = (data.user.app_metadata?.tags || []) as UserTag[]
       
-      // Create custom JWT with tags (empty array if no tags found)
-      // Use profile ID as the subject if available, otherwise fallback to auth user ID
-      const nimbleToken = createNimbleJWT(profileId || data.user.id, userTags)
+      // Create custom JWT with the stable Supabase user ID
+      const nimbleToken = createNimbleJWT(data.user.id, userTags)
       
       // Set the JWT cookie using Next.js cookies API
       const cookieStore = await cookies()
