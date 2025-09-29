@@ -1,7 +1,26 @@
 #!/bin/sh
 
-# Run E2E tests before pushing
+# Check if there are changes to the web app
+echo "🔍 Checking for changes to web app..."
+
+# Get the remote branch name (handles both origin/main and upstream/main)
+remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/main")
+
+# Check if there are changes in apps/web/ directory since the last push
+web_changes=$(git diff --name-only HEAD $remote_branch -- apps/web/ 2>/dev/null)
+
+if [ -z "$web_changes" ]; then
+  echo "📝 No changes detected in apps/web/ directory"
+  echo "⏭️  Skipping E2E tests"
+  echo "✅ Proceeding with push..."
+  exit 0
+fi
+
+echo "📝 Changes detected in apps/web/ directory:"
+echo "$web_changes"
+echo ""
 echo "🧪 Running E2E tests before push..."
+
 npx turbo run test:e2e --filter=@nimble/web
 
 if [ $? -ne 0 ]; then
