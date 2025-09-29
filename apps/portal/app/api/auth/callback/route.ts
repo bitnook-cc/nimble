@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
-import { createNimbleJWT } from '@/lib/auth/jwt'
+import { createNimbleJWTForPortal } from '@/lib/auth/jwt'
 import { UserTag } from '@/types/auth'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       }
       
       // Create custom JWT with the stable Supabase user ID
-      const nimbleToken = createNimbleJWT(data.user.id, userTags)
+      const nimbleToken = createNimbleJWTForPortal(data.user.id, userTags)
       
       // Set the JWT cookie using Next.js cookies API
       const cookieStore = await cookies()

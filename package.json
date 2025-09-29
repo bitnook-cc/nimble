@@ -10,6 +10,7 @@
     "apps/portal",
     "packages/shared",
     "packages/shared-config",
+    "packages/shared-auth",
     "packages/nimble-dice"
   ],
   "scripts": {

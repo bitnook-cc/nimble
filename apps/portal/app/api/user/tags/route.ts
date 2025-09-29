@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { verifyNimbleJWT } from '@/lib/auth/jwt'
+import { verifyNimbleJWTForPortal } from '@/lib/auth/jwt'
 
 export async function GET(request: NextRequest) {
   const cookie = request.cookies.get('nimble-auth')
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const auth = verifyNimbleJWT(cookie.value)
+  const auth = verifyNimbleJWTForPortal(cookie.value)
   if (!auth) {
     return Response.json(
       { 

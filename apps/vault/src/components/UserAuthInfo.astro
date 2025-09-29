@@ -1,0 +1,81 @@
+---
+import { getAuthFromCookieSafe } from '../lib/auth'
+
+const authInfo = getAuthFromCookieSafe(Astro.request.headers.get('cookie'))
+---
+
+{authInfo ? (
+  <div class="auth-info">
+    <div class="auth-status">
+      ✅ <strong>Authenticated</strong>
+    </div>
+    <div class="user-details">
+      <div><strong>User ID:</strong> {authInfo.userId}</div>
+      {authInfo.userTags && authInfo.userTags.length > 0 && (
+        <div class="user-tags">
+          <strong>Tags:</strong>
+          {authInfo.userTags.map(tag => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+) : (
+  <div class="auth-info">
+    <div class="auth-status">
+      ❌ <strong>Not authenticated</strong>
+    </div>
+    <div class="auth-prompt">
+      <a href="https://nimble.game" class="login-link">Login via Portal</a>
+    </div>
+  </div>
+)}
+
+<style>
+  .auth-info {
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+  }
+  
+  .auth-status {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .user-details {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .user-tags {
+    margin-top: 0.5rem;
+  }
+  
+  .tag {
+    display: inline-block;
+    background: #007acc;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .login-link {
+    color: #007acc;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  
+  .auth-prompt {
+    margin-top: 0.5rem;
+  }
+</style>
