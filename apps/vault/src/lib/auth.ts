@@ -2,28 +2,48 @@ import { verifyNimbleJWT } from '@nimble/shared-auth'
 import type { NimbleJWT } from '@nimble/shared-auth'
 
 export function getAuthFromCookie(cookieHeader: string | null): NimbleJWT | null {
-  if (!cookieHeader) return null
+  console.log('[auth] getAuthFromCookie called with:', cookieHeader)
+  
+  if (!cookieHeader) {
+    console.log('[auth] No cookie header provided')
+    return null
+  }
   
   // Parse nimble-auth cookie
   const cookies = cookieHeader.split(';').map(c => c.trim())
-  const nimbleAuthCookie = cookies.find(c => c.startsWith('nimble-auth='))
+  console.log('[auth] Parsed cookies:', cookies)
   
-  if (!nimbleAuthCookie) return null
+  const nimbleAuthCookie = cookies.find(c => c.startsWith('nimble-auth='))
+  console.log('[auth] Found nimble-auth cookie:', nimbleAuthCookie)
+  
+  if (!nimbleAuthCookie) {
+    console.log('[auth] No nimble-auth cookie found')
+    return null
+  }
   
   const token = nimbleAuthCookie.split('=')[1]
-  if (!token) return null
+  console.log('[auth] Extracted token:', token ? `${token.substring(0, 20)}...` : 'null')
+  
+  if (!token) {
+    console.log('[auth] No token in cookie')
+    return null
+  }
   
   // Verify JWT using public key
   const publicKey = import.meta.env.NIMBLE_JWT_PUBLIC_KEY
   if (!publicKey) {
-    console.warn('NIMBLE_JWT_PUBLIC_KEY not configured in vault')
+    console.warn('[auth] NIMBLE_JWT_PUBLIC_KEY not configured in vault')
     return null
   }
   
+  console.log('[auth] Public key available, verifying JWT...')
+  
   try {
-    return verifyNimbleJWT(token, publicKey)
+    const result = verifyNimbleJWT(token, publicKey)
+    console.log('[auth] JWT verification successful:', result)
+    return result
   } catch (error) {
-    console.error('JWT verification failed:', error)
+    console.error('[auth] JWT verification failed:', error)
     return null
   }
 }

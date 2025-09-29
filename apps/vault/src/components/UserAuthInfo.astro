@@ -1,9 +1,15 @@
 ---
 import { getAuthFromCookieSafe } from '../lib/auth'
 
-const authInfo = getAuthFromCookieSafe(Astro.request.headers.get('cookie'))
----
+// Debug logging
+console.log('[UserAuthInfo] All request headers:', Object.fromEntries(Astro.request.headers.entries()))
+const cookieHeader = Astro.request.headers.get('cookie')
+console.log('[UserAuthInfo] Cookie header:', cookieHeader)
 
+const authInfo = getAuthFromCookieSafe(cookieHeader)
+console.log('[UserAuthInfo] Auth result:', authInfo ? `Authenticated user ${authInfo.userId}` : 'Not authenticated')
+---
+{console.log('[UserAuthInfo] Auth result:', authInfo ? `Authenticated user ${authInfo.userId}` : 'Not authenticated')}
 {authInfo ? (
   <div class="auth-info">
     <div class="auth-status">
@@ -27,7 +33,7 @@ const authInfo = getAuthFromCookieSafe(Astro.request.headers.get('cookie'))
       ❌ <strong>Not authenticated</strong>
     </div>
     <div class="auth-prompt">
-      <a href="https://nimble.game" class="login-link">Login via Portal</a>
+      <a href="https://nimble-tools.vercel.app" class="login-link">Login via Portal</a>
     </div>
   </div>
 )}

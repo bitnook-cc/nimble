@@ -1,9 +1,13 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import mdx from '@astrojs/mdx';
+import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+	output: 'server',
+	adapter: vercel(),
 	integrations: [
 		starlight({
 			title: 'Nimble RPG Vault',
@@ -18,40 +22,21 @@ export default defineConfig({
 				{
 					label: '📖 Getting Started',
 					items: [
-						{ label: 'Welcome to Nimble', slug: 'index' },
+						{ label: 'Welcome to the Nimble Vault', slug: 'index' },
 					],
 				},
 				{
-					label: '⚔️ Heroes',
-					collapsed: true,
-					autogenerate: { directory: 'Heroes' },
+					label: '🌍 Public Content',
+					collapsed: false,
+					autogenerate: { directory: 'public' },
 				},
 				{
-					label: '✨ Magic',
+					label: '🔒 Patron Content',
 					collapsed: true,
-					autogenerate: { directory: 'Magic' },
-				},
-				{
-					label: '🛡️ Items & Equipment',
-					collapsed: true,
-					autogenerate: { directory: 'Items' },
-				},
-				{
-					label: '👹 Foes & Monsters',
-					collapsed: true,
-					autogenerate: { directory: 'Foes' },
-				},
-				{
-					label: '⚙️ Game System',
-					collapsed: true,
-					autogenerate: { directory: 'System' },
-				},
-				{
-					label: '🏠 Homebrew Content',
-					collapsed: true,
-					autogenerate: { directory: 'Homebrew (Optional)' },
+					autogenerate: { directory: 'patreon' },
 				},
 			],
 		}),
+		mdx(),
 	],
 });

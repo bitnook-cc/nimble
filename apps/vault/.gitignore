@@ -21,5 +21,4 @@ pnpm-debug.log*
 .DS_Store
 
 # External vault content (fetched at build time)
-src/content/
 temp-vault-content/

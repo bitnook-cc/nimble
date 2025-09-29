@@ -29,6 +29,10 @@ function fetchContent() {
   try {
     log('Starting vault content fetch...');
     
+    // Content sync is disabled - using placeholder content
+    log('Content sync disabled - using placeholder content structure');
+    return;
+    
     // Clean up any existing temp directory
     cleanupTemp();
     
