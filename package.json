@@ -7,7 +7,9 @@
     "apps/api",
     "apps/discord",
     "apps/vault",
+    "apps/portal",
     "packages/shared",
+    "packages/shared-config",
     "packages/nimble-dice"
   ],
   "scripts": {
@@ -17,6 +19,7 @@
     "dev:api": "turbo dev --filter=@nimble/api",
     "dev:discord": "turbo dev --filter=@nimble/discord",
     "dev:vault": "turbo dev --filter=@nimble/vault",
+    "dev:portal": "turbo dev --filter=@nimble/portal",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
