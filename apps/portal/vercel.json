@@ -12,10 +12,5 @@
       "source": "/dice/:path*",
       "destination": "https://nimble-dice.vercel.app/:path*"
     }
-  ],
-  "env": {
-    "VAULT_APP_URL": "@vault-app-url",
-    "CHARACTERS_APP_URL": "@characters-app-url", 
-    "DICE_APP_URL": "@dice-app-url"
-  }
+  ]
 }
