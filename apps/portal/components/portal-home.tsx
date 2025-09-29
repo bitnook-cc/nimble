@@ -93,7 +93,7 @@ const tools: ToolCard[] = [
 ]
 
 export function PortalHome({ user }: { user: User }) {
-  const [userTags, setUserTags] = useState<string[]>([])
+  const userTags = (user.app_metadata?.tags || []) as string[]
 
   const handleLogout = async () => {
     try {
@@ -251,6 +251,23 @@ export function PortalHome({ user }: { user: User }) {
             <div className="flex justify-between">
               <span className="text-slate-600">Account Type:</span>
               <span className="text-slate-900">Free</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">User Tags:</span>
+              <div className="flex flex-wrap gap-1">
+                {userTags.length > 0 ? (
+                  userTags.map((tag) => (
+                    <span 
+                      key={tag}
+                      className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-slate-500 text-sm">None</span>
+                )}
+              </div>
             </div>
           </div>
         </div>

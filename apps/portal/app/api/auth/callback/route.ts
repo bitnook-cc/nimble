@@ -43,7 +43,37 @@ export async function GET(request: NextRequest) {
       
       // Use Supabase's built-in user system - no custom tables needed!
       // Get user tags from app_metadata (managed by database functions/triggers)
-      const userTags = (data.user.app_metadata?.tags || []) as UserTag[]
+      let userTags = (data.user.app_metadata?.tags || []) as UserTag[]
+      
+      // Assign "test" tag to all users if they don't have it
+      if (!userTags.includes('test')) {
+        userTags = ['test', ...userTags]
+        
+        // Update user metadata with test tag (requires service role key)
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          try {
+            const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+            const serviceSupabase = createServiceClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.SUPABASE_SERVICE_ROLE_KEY!
+            )
+            
+            await serviceSupabase.auth.admin.updateUserById(data.user.id, {
+              app_metadata: {
+                ...data.user.app_metadata,
+                tags: userTags
+              }
+            })
+            
+            console.log('Added test tag to user:', data.user.id)
+          } catch (updateError) {
+            console.error('Failed to update user tags:', updateError)
+            // Don't fail authentication if tag update fails
+          }
+        } else {
+          console.warn('SUPABASE_SERVICE_ROLE_KEY not configured, cannot update user tags')
+        }
+      }
       
       // Create custom JWT with the stable Supabase user ID
       const nimbleToken = createNimbleJWT(data.user.id, userTags)
