@@ -21,7 +21,9 @@
     "DISCORD_CLIENT_ID",
     "DISCORD_CLIENT_SECRET",
     "PATREON_CLIENT_ID",
-    "PATREON_CLIENT_SECRET"
+    "PATREON_CLIENT_SECRET",
+    "VAULT_CONTENT_REPO",
+    "VAULT_CONTENT_BRANCH"
   ],
   "tasks": {
     "build": {
@@ -58,7 +60,9 @@
         "DISCORD_CLIENT_ID",
         "DISCORD_CLIENT_SECRET",
         "PATREON_CLIENT_ID",
-        "PATREON_CLIENT_SECRET"
+        "PATREON_CLIENT_SECRET",
+        "VAULT_CONTENT_REPO",
+        "VAULT_CONTENT_BRANCH"
       ]
     },
     "lint": {
@@ -105,7 +109,9 @@
         "DISCORD_CLIENT_ID",
         "DISCORD_CLIENT_SECRET",
         "PATREON_CLIENT_ID",
-        "PATREON_CLIENT_SECRET"
+        "PATREON_CLIENT_SECRET",
+        "VAULT_CONTENT_REPO",
+        "VAULT_CONTENT_BRANCH"
       ]
     }
   }

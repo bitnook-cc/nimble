@@ -11,8 +11,26 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/'
 
   if (code) {
+    console.log('Auth callback processing:', {
+      code: code ? 'present' : 'missing',
+      origin,
+      next,
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+      NODE_ENV: process.env.NODE_ENV
+    })
+    
     const supabase = await createClient()
     const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (error) {
+      console.error('Supabase auth exchange failed:', {
+        error: error.message,
+        code: error.status,
+        origin,
+        next,
+        timestamp: new Date().toISOString()
+      })
+    }
     
     if (!error && data.user) {
       // Get profile ID from user connection (new schema)
@@ -65,11 +83,27 @@ export async function GET(request: NextRequest) {
         maxAge: 86400 // 24 hours
       })
       
-      // Use Next.js redirect instead of Response.redirect
-      redirect(`${next}`)
+      // Use Next.js redirect with proper URL validation
+      // Ensure we don't redirect to external domains in production
+      const redirectPath = next.startsWith('/') ? next : '/'
+      redirect(redirectPath)
     }
   }
 
+  // Log detailed error information before redirecting
+  console.error('Authentication callback failed:', {
+    code: code ? 'present' : 'missing',
+    origin,
+    next,
+    searchParams: Object.fromEntries(searchParams.entries()),
+    userAgent: request.headers.get('user-agent'),
+    timestamp: new Date().toISOString(),
+    env: {
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+      NODE_ENV: process.env.NODE_ENV
+    }
+  })
+  
   // Return the user to an error page with instructions
   redirect('/auth/auth-code-error')
 }
