@@ -1,49 +1,90 @@
-# Starlight Starter Kit: Basics
+# Nimble RPG Vault
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+A comprehensive documentation site for the Nimble RPG system, built with Astro and Starlight.
 
+## External Content System
+
+This vault uses an external content system to keep sensitive RPG content in a separate private repository while maintaining the public codebase.
+
+### How It Works
+
+1. **External Repository**: RPG content is stored in `/Users/six/prototype/nimble-vault` (private repository)
+2. **Build-time Fetching**: Content is automatically fetched before dev and build commands
+3. **Git Exclusion**: Fetched content is excluded from the main repository via `.gitignore`
+4. **Fallback System**: If content fetch fails, placeholder content is generated
+
+### Content Structure
+
+The external repository should contain:
 ```
-npm create astro@latest -- --template starlight
+nimble-vault/
+└── vault-content/
+    └── content/
+        └── docs/
+            ├── Heroes/           # Character creation, classes, ancestries
+            ├── Magic/            # Spells, schools, magical items
+            ├── Items/            # Equipment, weapons, armor
+            ├── Foes/             # Monsters, creatures, NPCs
+            ├── System/           # Game rules, mechanics
+            └── Homebrew (Optional)/ # Optional content
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Development Commands
 
-## 🚀 Project Structure
+```bash
+# Fetch content manually
+npm run fetch-content
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+# Start development (auto-fetches content)
+npm run dev
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+# Build for production (auto-fetches content)
+npm run build
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+### Configuration
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+Content fetching is configured via environment variables:
 
-Static assets, like favicons, can be placed in the `public/` directory.
+```bash
+# Repository location (default: local path)
+VAULT_CONTENT_REPO=/Users/six/prototype/nimble-vault
 
-## 🧞 Commands
+# For remote repositories:
+# VAULT_CONTENT_REPO=git@github.com:your-org/nimble-vault-content.git
 
-All commands are run from the root of the project, from a terminal:
+# Branch to fetch (default: main)
+VAULT_CONTENT_BRANCH=main
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+### Production Deployment
 
-## 👀 Want to learn more?
+For production deployments:
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+1. **Private Repository Access**: Ensure the deployment environment can access the private content repository
+2. **Environment Variables**: Set `VAULT_CONTENT_REPO` to the appropriate repository URL
+3. **Authentication**: Configure Git credentials for private repository access
+4. **Build Process**: Content is automatically fetched during the build process
+
+### Local Development
+
+For local development:
+1. Content is fetched from the local private repository
+2. Changes to content in the private repo are reflected after running `npm run fetch-content`
+3. The fetch process is automatically triggered before dev and build commands
+
+### Features
+
+- **Fantasy Theme**: Parchment background with fantasy-appropriate fonts
+- **Responsive Design**: Mobile-friendly layout with collapsible navigation
+- **Search Functionality**: Built-in search across all content
+- **Auto-generated Navigation**: Sidebar automatically generated from content structure
+- **Fast Performance**: Static site generation with Astro
+
+### Technical Details
+
+- **Framework**: Astro with Starlight documentation theme
+- **Content Format**: Markdown with frontmatter
+- **Styling**: Custom CSS with fantasy theme
+- **Search**: Built-in Starlight search functionality
+- **Navigation**: Auto-generated from directory structure

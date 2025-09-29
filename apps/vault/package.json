@@ -3,8 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "fetch-content": "node scripts/fetch-content.js",
+    "predev": "npm run fetch-content",
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "npm run fetch-content",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
