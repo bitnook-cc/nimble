@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "turbo run build",
   "outputDirectory": "dist",
-  "devCommand": "npm run dev",
+  "devCommand": "turbo run dev",
   "installCommand": "npm install"
 }
