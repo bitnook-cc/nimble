@@ -15,22 +15,52 @@ export async function GET(request: NextRequest) {
     const { error, data } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error && data.user) {
-      // Fetch user tags from database
-      const { data: userTags } = await supabase
-        .from('user_tags')
-        .select('*')
-        .eq('user_id', data.user.id)
+      // Get profile ID from user connection (new schema)
+      let profileId: string | null = null
+      let userTags: UserTag[] = []
       
-      // Create custom JWT with tags
-      const nimbleToken = createNimbleJWT(data.user.id, userTags as UserTag[] || [])
+      try {
+        // Get profile and tags in a single query with join
+        const { data: connectionData } = await supabase
+          .from('user_connections')
+          .select(`
+            profile_id,
+            user_profiles!inner(id, email, display_name),
+            user_tags(tag_name, granted_at, expires_at, metadata)
+          `)
+          .eq('auth_user_id', data.user.id)
+          .single()
+        
+        if (connectionData) {
+          profileId = connectionData.profile_id
+          
+          // Extract tags from the join result
+          if (connectionData.user_tags) {
+            userTags = connectionData.user_tags.filter(tag => 
+              !tag.expires_at || new Date(tag.expires_at) > new Date()
+            ) as UserTag[]
+          }
+        }
+      } catch (err) {
+        // Profile/tags might not exist yet, continue with empty tags
+        console.warn('Could not fetch profile or user tags (tables may not exist):', err)
+      }
+      
+      // Create custom JWT with tags (empty array if no tags found)
+      // Use profile ID as the subject if available, otherwise fallback to auth user ID
+      const nimbleToken = createNimbleJWT(profileId || data.user.id, userTags)
       
       // Set the JWT cookie using Next.js cookies API
       const cookieStore = await cookies()
+      const cookieDomain = process.env.NODE_ENV === 'production' 
+        ? process.env.COOKIE_DOMAIN || '.nimble.game'
+        : 'localhost'
+      
       cookieStore.set('nimble-auth', nimbleToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        domain: process.env.NODE_ENV === 'production' ? '.nimble.game' : 'localhost',
+        domain: cookieDomain,
         path: '/',
         maxAge: 86400 // 24 hours
       })
