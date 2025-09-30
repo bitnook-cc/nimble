@@ -1,0 +1,86 @@
+[
+  {
+    "title": "Advanced Combat Rules",
+    "description": "Detailed combat mechanics for experienced players",
+    "category": "combat",
+    "order": 5,
+    "tags": [
+      "advanced",
+      "combat",
+      "tactics"
+    ],
+    "access": [
+      "patron",
+      "premium"
+    ],
+    "slug": "patron/advanced-rules",
+    "content": "const{Fragment:n,jsx:e,jsxs:i}=arguments[0];function _createMdxContent(t){const r={h1:\"h1\",h2:\"h2\",h3:\"h3\",li:\"li\",ol:\"ol\",p:\"p\",strong:\"strong\",ul:\"ul\",...t.components};return i(n,{children:[e(r.h1,{children:\"Advanced Combat Rules\"}),\"\\n\",e(r.p,{children:\"These optional rules add depth and tactical complexity to Nimble RPG combat encounters.\"}),\"\\n\",e(r.h2,{children:\"Initiative Variants\"}),\"\\n\",e(r.h3,{children:\"Group Initiative\"}),\"\\n\",e(r.p,{children:\"Instead of individual initiative, roll once for each side:\"}),\"\\n\",i(r.ul,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Player Characters\"}),\": Highest Dexterity + Initiative bonus\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"NPCs\"}),\": GM rolls for the group\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Mixed Groups\"}),\": Each faction rolls separately\"]}),\"\\n\"]}),\"\\n\",e(r.h3,{children:\"Phased Initiative\"}),\"\\n\",e(r.p,{children:\"Combat proceeds in phases:\"}),\"\\n\",i(r.ol,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Declaration Phase\"}),\": All players declare intended actions\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Fast Actions Phase\"}),\": Dexterity 3+ characters act\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Standard Actions Phase\"}),\": All remaining characters act\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Slow Actions Phase\"}),\": Complex actions resolve\"]}),\"\\n\"]}),\"\\n\",e(r.h2,{children:\"Advanced Action Economy\"}),\"\\n\",e(r.h3,{children:\"Reaction Actions\"}),\"\\n\",e(r.p,{children:\"Characters can take reactions outside their turn:\"}),\"\\n\",i(r.ul,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Opportunity Attacks\"}),\": When enemies move past you\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Counterspells\"}),\": Interrupt enemy spellcasting\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Defensive Stances\"}),\": Reduce incoming damage\"]}),\"\\n\"]}),\"\\n\",e(r.h3,{children:\"Extended Actions\"}),\"\\n\",e(r.p,{children:\"Some activities require multiple turns:\"}),\"\\n\",i(r.ul,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Rituals\"}),\": Complex magical workings\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Crafting\"}),\": Creating items during downtime\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Investigation\"}),\": Detailed examination of scenes\"]}),\"\\n\"]}),\"\\n\",e(r.h2,{children:\"Tactical Positioning\"}),\"\\n\",e(r.h3,{children:\"Flanking\"}),\"\\n\",e(r.p,{children:\"When attacking an enemy engaged by an ally:\"}),\"\\n\",i(r.ul,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Advantage\"}),\": Gain advantage on attack rolls\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Positioning\"}),\": Requires tactical movement\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Counter-flanking\"}),\": Smart enemies will attempt the same\"]}),\"\\n\"]}),\"\\n\",e(r.h3,{children:\"Cover and Concealment\"}),\"\\n\",e(r.p,{children:\"Environmental factors affect combat:\"}),\"\\n\",i(r.ul,{children:[\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Light Cover\"}),\": +1 to defense\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Heavy Cover\"}),\": +3 to defense\"]}),\"\\n\",i(r.li,{children:[e(r.strong,{children:\"Concealment\"}),\": Disadvantage to enemy attacks\"]}),\"\\n\"]}),\"\\n\",e(r.h2,{children:\"Master-Level Techniques\"}),\"\\n\",e(r.p,{children:\"These techniques are available to characters with exceptional training or natural talent.\"})]})}return{default:function(n={}){const{wrapper:i}=n.components||{};return i?e(i,{...n,children:e(_createMdxContent,{...n})}):_createMdxContent(n)}};",
+    "toc": [
+      {
+        "title": "Advanced Combat Rules",
+        "url": "#advanced-combat-rules",
+        "items": [
+          {
+            "title": "Initiative Variants",
+            "url": "#initiative-variants",
+            "items": [
+              {
+                "title": "Group Initiative",
+                "url": "#group-initiative",
+                "items": []
+              },
+              {
+                "title": "Phased Initiative",
+                "url": "#phased-initiative",
+                "items": []
+              }
+            ]
+          },
+          {
+            "title": "Advanced Action Economy",
+            "url": "#advanced-action-economy",
+            "items": [
+              {
+                "title": "Reaction Actions",
+                "url": "#reaction-actions",
+                "items": []
+              },
+              {
+                "title": "Extended Actions",
+                "url": "#extended-actions",
+                "items": []
+              }
+            ]
+          },
+          {
+            "title": "Tactical Positioning",
+            "url": "#tactical-positioning",
+            "items": [
+              {
+                "title": "Flanking",
+                "url": "#flanking",
+                "items": []
+              },
+              {
+                "title": "Cover and Concealment",
+                "url": "#cover-and-concealment",
+                "items": []
+              }
+            ]
+          },
+          {
+            "title": "Master-Level Techniques",
+            "url": "#master-level-techniques",
+            "items": []
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "readingTime": 1,
+      "wordCount": 192
+    },
+    "permalink": "/patron/patron/advanced-rules",
+    "readingTime": 1
+  }
+]
