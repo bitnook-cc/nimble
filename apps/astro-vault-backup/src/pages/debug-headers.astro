@@ -1,0 +1,112 @@
+---
+export const prerender = false;
+
+// Get all headers and request info
+const headers = Object.fromEntries(Astro.request.headers.entries());
+const cookieHeader = Astro.request.headers.get('cookie');
+const requestUrl = Astro.request.url;
+const requestMethod = Astro.request.method;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Headers - Nimble Vault</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #58a6ff;
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            color: #7c3aed;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        pre {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+        .highlight {
+            color: #ffa657;
+            font-weight: bold;
+        }
+        .value {
+            color: #a5d6ff;
+        }
+        .back-link {
+            display: inline-block;
+            color: #58a6ff;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid #58a6ff;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            background: #58a6ff;
+            color: #0d1117;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Vault Home</a>
+        
+        <h1>🔍 Request Headers Debug</h1>
+        <p>This page shows all request headers and cookies sent to the Nimble Vault.</p>
+
+        <div class="section">
+            <h2>📋 Request Information</h2>
+            <p><span class="highlight">URL:</span> <span class="value">{requestUrl}</span></p>
+            <p><span class="highlight">Method:</span> <span class="value">{requestMethod}</span></p>
+            <p><span class="highlight">Timestamp:</span> <span class="value">{new Date().toISOString()}</span></p>
+        </div>
+
+        <div class="section">
+            <h2>🍪 Cookie Header</h2>
+            <pre>{cookieHeader || 'No cookies found'}</pre>
+        </div>
+
+        <div class="section">
+            <h2>📡 All Request Headers</h2>
+            <pre>{JSON.stringify(headers, null, 2)}</pre>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Environment Info</h2>
+            <p><span class="highlight">Node Environment:</span> <span class="value">{import.meta.env.NODE_ENV || 'undefined'}</span></p>
+            <p><span class="highlight">Mode:</span> <span class="value">{import.meta.env.MODE || 'undefined'}</span></p>
+            <p><span class="highlight">Base URL:</span> <span class="value">{import.meta.env.BASE_URL || 'undefined'}</span></p>
+        </div>
+    </div>
+</body>
+</html>

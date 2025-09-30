@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
-import { createNimbleJWTForPortal } from '@/lib/auth/jwt'
 import { UserTag } from '@/types/auth'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function GET(request: NextRequest) {
@@ -75,26 +73,8 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      // Create custom JWT with the stable Supabase user ID
-      const nimbleToken = createNimbleJWTForPortal(data.user.id, userTags)
-      
-      // Set the JWT cookie using Next.js cookies API
-      const cookieStore = await cookies()
-      const cookieDomain = process.env.NODE_ENV === 'production' 
-        ? process.env.COOKIE_DOMAIN || '.nimble.game'
-        : 'localhost'
-      
-      cookieStore.set('nimble-auth', nimbleToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        domain: cookieDomain,
-        path: '/',
-        maxAge: 86400 // 24 hours
-      })
-      
       // Use Next.js redirect with proper URL validation
-      // Ensure we don't redirect to external domains in production
+      // Ensure we don't redirect to external domains in production  
       const redirectPath = next.startsWith('/') ? next : '/'
       redirect(redirectPath)
     }

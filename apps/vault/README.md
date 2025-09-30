@@ -1,90 +1,113 @@
 # Nimble RPG Vault
 
-A comprehensive documentation site for the Nimble RPG system, built with Astro and Starlight.
+The Nimble RPG Vault is a Next.js application that provides comprehensive documentation and reference materials for the Nimble tabletop role-playing game system.
 
-## External Content System
+## Features
 
-This vault uses an external content system to keep sensitive RPG content in a separate private repository while maintaining the public codebase.
+- **Authentication Integration**: JWT-based authentication with the Nimble Portal
+- **Comprehensive Documentation**: Complete rules, lore, and reference materials
+- **Responsive Design**: Mobile-friendly interface using shadcn/ui components
+- **Debug Logging**: Extensive authentication debugging for development
 
-### How It Works
+## Development Setup
 
-1. **External Repository**: RPG content is stored in `/Users/six/prototype/nimble-vault` (private repository)
-2. **Build-time Fetching**: Content is automatically fetched before dev and build commands
-3. **Git Exclusion**: Fetched content is excluded from the main repository via `.gitignore`
-4. **Fallback System**: If content fetch fails, placeholder content is generated
+### Prerequisites
 
-### Content Structure
+- Node.js 18+
+- Access to the same Supabase project as the Nimble Portal
 
-The external repository should contain:
-```
-nimble-vault/
-└── vault-content/
-    └── content/
-        └── docs/
-            ├── Heroes/           # Character creation, classes, ancestries
-            ├── Magic/            # Spells, schools, magical items
-            ├── Items/            # Equipment, weapons, armor
-            ├── Foes/             # Monsters, creatures, NPCs
-            ├── System/           # Game rules, mechanics
-            └── Homebrew (Optional)/ # Optional content
-```
+### Environment Configuration
 
-### Development Commands
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure Supabase settings in `.env`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key-here
+   ```
+
+   Get these values from your Supabase project dashboard: Settings → API
+
+### Running the Application
 
 ```bash
-# Fetch content manually
-npm run fetch-content
+# Install dependencies
+npm install
 
-# Start development (auto-fetches content)
+# Start development server
 npm run dev
-
-# Build for production (auto-fetches content)
-npm run build
 ```
 
-### Configuration
+The vault will be available at http://localhost:4321
 
-Content fetching is configured via environment variables:
+## Authentication Flow
+
+The vault uses Supabase sessions shared with the Nimble Portal for authentication:
+
+1. **User logs in** via Portal (http://localhost:4000) using Supabase Auth
+2. **Portal creates Supabase session** with secure access tokens
+3. **Session tokens shared** across localhost domains via browser storage
+4. **Vault verifies session** using Supabase client with shared project credentials
+5. **Authentication status** displayed in top navigation bar with real-time updates
+
+### Authentication API
+
+- **`GET /api/auth/verify`** - Verifies Supabase session and returns user info
+  - Returns 401 if no valid session
+  - Returns 500 if Supabase not configured
+  - Returns 200 with user data if authenticated
+
+## Development Commands
 
 ```bash
-# Repository location (default: local path)
-VAULT_CONTENT_REPO=/Users/six/prototype/nimble-vault
-
-# For remote repositories:
-# VAULT_CONTENT_REPO=git@github.com:your-org/nimble-vault-content.git
-
-# Branch to fetch (default: main)
-VAULT_CONTENT_BRANCH=main
+npm run dev        # Start development server with Turbopack
+npm run build      # Build for production
+npm run start      # Start production server
+npm run lint       # Run ESLint
+npm run typecheck  # Run TypeScript type checking
 ```
 
-### Production Deployment
+## Architecture
 
-For production deployments:
+- **Framework**: Next.js 15 with App Router
+- **UI Library**: shadcn/ui with Tailwind CSS
+- **Authentication**: JWT verification using @nimble/shared-auth
+- **Port**: 4321 (configured in package.json)
 
-1. **Private Repository Access**: Ensure the deployment environment can access the private content repository
-2. **Environment Variables**: Set `VAULT_CONTENT_REPO` to the appropriate repository URL
-3. **Authentication**: Configure Git credentials for private repository access
-4. **Build Process**: Content is automatically fetched during the build process
+## Troubleshooting
 
-### Local Development
+### "Authentication not configured" Error
 
-For local development:
-1. Content is fetched from the local private repository
-2. Changes to content in the private repo are reflected after running `npm run fetch-content`
-3. The fetch process is automatically triggered before dev and build commands
+This means the Supabase environment variables are not set. Ensure:
 
-### Features
+1. You have copied `.env.example` to `.env`
+2. `NEXT_PUBLIC_SUPABASE_URL` is set to your Supabase project URL
+3. `NEXT_PUBLIC_SUPABASE_ANON_KEY` is set to your Supabase anonymous public key
+4. Both variables match the Portal's Supabase configuration
 
-- **Fantasy Theme**: Parchment background with fantasy-appropriate fonts
-- **Responsive Design**: Mobile-friendly layout with collapsible navigation
-- **Search Functionality**: Built-in search across all content
-- **Auto-generated Navigation**: Sidebar automatically generated from content structure
-- **Fast Performance**: Static site generation with Astro
+### Authentication Not Working
 
-### Technical Details
+Supabase sessions are shared across localhost ports by default. If authentication isn't working:
 
-- **Framework**: Astro with Starlight documentation theme
-- **Content Format**: Markdown with frontmatter
-- **Styling**: Custom CSS with fantasy theme
-- **Search**: Built-in Starlight search functionality
-- **Navigation**: Auto-generated from directory structure
+1. Check browser developer tools for Supabase session data
+2. Verify the Portal and Vault use the same Supabase project
+3. Check console logs for authentication debug messages
+4. Ensure both apps have identical Supabase configuration
+
+### Debug Logging
+
+The vault includes extensive debug logging for authentication:
+
+```javascript
+// Client-side logs (browser console)
+[TopNav] Checking Supabase auth status...
+[TopNav] Supabase user found: {...}
+
+// Server-side logs (terminal)
+[Auth API] Received auth verification request
+[Auth API] Authorization header present: true/false
+[Auth API] Supabase user verified: {...}
+```

@@ -1,0 +1,26 @@
+{
+  "name": "@nimble/vault",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "fetch-content": "node scripts/fetch-content.js",
+    "predev": "npm run fetch-content",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "prebuild": "npm run fetch-content",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.6",
+    "@astrojs/starlight": "^0.36.0",
+    "@astrojs/vercel": "^8.2.8",
+    "@nimble/shared-auth": "^1.0.0",
+    "@vercel/node": "^2.3.0",
+    "astro": "^5.6.1",
+    "sharp": "^0.34.2",
+    "vitest": "3.2.4",
+    "zod": "^3.25.76"
+  }
+}

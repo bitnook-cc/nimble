@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  },
+    eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
@@ -8,4 +12,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
