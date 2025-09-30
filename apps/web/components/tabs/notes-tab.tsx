@@ -107,7 +107,12 @@ function SortableNote({
               <div className="flex items-center gap-1">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      aria-label="Note options"
+                    >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -143,6 +148,8 @@ function SortableNote({
                       value={editTitle}
                       onChange={(e) => onEditTitleChange(e.target.value)}
                       maxLength={100}
+                      placeholder="Title"
+                      aria-label="Note title"
                     />
                   </div>
                   <div>
@@ -152,6 +159,8 @@ function SortableNote({
                       maxLength={gameConfig.notes.maxContentLength}
                       rows={6}
                       className="font-mono text-sm"
+                      placeholder="Content (Markdown supported)"
+                      aria-label="Note content"
                     />
                     <div className="text-xs text-muted-foreground mt-1">
                       {editContent.length} / {gameConfig.notes.maxContentLength} characters
