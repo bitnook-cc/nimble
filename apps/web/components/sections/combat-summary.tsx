@@ -738,6 +738,7 @@ function CombatStatusBar() {
                       size="sm"
                       onClick={handleInitiativeRoll}
                       className="h-8 px-2 text-xs"
+                      aria-label="Roll Initiative"
                     >
                       <span className="mr-1">
                         {totalModifier > 0 ? "+" : ""}

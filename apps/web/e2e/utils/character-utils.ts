@@ -144,8 +144,12 @@ export class CharacterTestUtils {
     const rollButton = await this.getFirstVisibleButton(rollPatterns, timeout);
     await rollButton.click();
 
-    // Wait for roll result to appear
-    await expect(this.page.getByText(/rolled|result|d20|damage/i)).toBeVisible({ timeout: 3000 });
+    // Wait for roll result to appear in activity log - look for heading to avoid ambiguity
+    await expect(
+      this.page.getByRole("heading", { name: /roll|attack|check/i }).first(),
+    ).toBeVisible({
+      timeout: 3000,
+    });
   }
 
   /**
@@ -156,8 +160,8 @@ export class CharacterTestUtils {
     await expect(initiativeButton).toBeVisible();
     await initiativeButton.click();
 
-    // Check for initiative result or encounter state change
-    await expect(this.page.getByText(/rolled|result|encounter|initiative/i)).toBeVisible({
+    // Check for initiative result in activity log - look for the heading specifically
+    await expect(this.page.getByRole("heading", { name: /initiative roll/i })).toBeVisible({
       timeout: 3000,
     });
   }
@@ -183,7 +187,7 @@ export class CharacterTestUtils {
     await expect(actionButton).toBeVisible();
     await actionButton.click();
 
-    // Verify HP indicator is still visible (health management worked)
-    await expect(this.page.getByText(/hp|hit points|health/i)).toBeVisible();
+    // Verify HP indicator is visible - be more specific to avoid matching multiple elements
+    await expect(this.page.getByText(/^\d+\/\d+ HP$/)).toBeVisible();
   }
 }

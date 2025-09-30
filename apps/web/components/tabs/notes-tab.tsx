@@ -17,7 +17,16 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, GripVertical, MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  GripVertical,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import remarkGfm from "remark-gfm";
 
 import { useState } from "react";
@@ -85,7 +94,12 @@ function SortableNote({
         <Card>
           <CardHeader className="p-4">
             <div className="flex items-center justify-between gap-2">
-              <CollapsibleTrigger className="flex-1 text-left">
+              <CollapsibleTrigger className="flex-1 text-left flex items-center gap-2">
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${
+                    isOpen ? "" : "-rotate-90"
+                  }`}
+                />
                 <CardTitle className="text-lg hover:text-primary transition-colors">
                   {note.title}
                 </CardTitle>
