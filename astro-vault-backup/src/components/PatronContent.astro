@@ -1,0 +1,123 @@
+---
+import { getAuthFromRequestSafe } from '../lib/auth'
+
+const authInfo = await getAuthFromRequestSafe(Astro.request)
+const hasPatronAccess = authInfo?.hasPatronAccess || false
+---
+
+{hasPatronAccess ? (
+  <div class="patron-content">
+    <slot />
+  </div>
+) : (
+  <div class="patron-required">
+    <div class="access-required-banner">
+      <h3>🔒 Patron Content</h3>
+      <p>This content is exclusive to Patreon supporters.</p>
+      <div class="access-actions">
+        <a href="https://patreon.com/nimble-rpg" class="patron-cta" target="_blank" rel="noopener">
+          <strong>Become a Patron</strong>
+        </a>
+        <span class="or-divider">or</span>
+        <a href="/auth/login" class="login-link">Sign In</a>
+      </div>
+      <p class="benefit-text">
+        Support the development of Nimble and unlock exclusive content, advanced rules, and premium adventures!
+      </p>
+    </div>
+  </div>
+)}
+
+<style>
+  .patron-content {
+    /* Style for authenticated patron content */
+  }
+
+  .patron-required {
+    margin: 2rem 0;
+  }
+
+  .access-required-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.1);
+  }
+
+  .access-required-banner h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    color: #ffd700;
+  }
+
+  .access-required-banner p {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .access-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .patron-cta {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  }
+
+  .patron-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    text-decoration: none;
+  }
+
+  .or-divider {
+    color: #ffd700;
+    font-weight: bold;
+    opacity: 0.8;
+  }
+
+  .login-link {
+    color: #ffd700;
+    text-decoration: underline;
+    font-weight: bold;
+    transition: opacity 0.2s;
+  }
+
+  .login-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  .benefit-text {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-top: 1.5rem !important;
+    font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    .access-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .or-divider {
+      margin: 0.5rem 0;
+    }
+  }
+</style>
