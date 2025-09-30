@@ -6,6 +6,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+	base: process.env.NODE_ENV === 'production' ? '/vault' : '/',
 	output: 'server',
 	adapter: vercel(),
 	integrations: [
