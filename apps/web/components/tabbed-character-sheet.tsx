@@ -12,6 +12,7 @@ import { CharacterTab } from "./tabs/character-tab";
 import { CombatTab } from "./tabs/combat-tab";
 import { EquipmentTab } from "./tabs/equipment-tab";
 import { LogTab } from "./tabs/log-tab";
+import { NotesTab } from "./tabs/notes-tab";
 import { SkillsTab } from "./tabs/skills-tab";
 import { SpellsTab } from "./tabs/spells-tab";
 
@@ -45,6 +46,8 @@ export function TabbedCharacterSheet() {
         return <CharacterTab />;
       case "equipment":
         return <EquipmentTab />;
+      case "notes":
+        return <NotesTab />;
       case "spells":
         return <SpellsTab />;
       case "log":

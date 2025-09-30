@@ -1,0 +1,209 @@
+# Page snapshot
+
+```yaml
+- generic:
+    - main:
+        - generic:
+            - generic:
+                - generic:
+                    - button:
+                        - img
+                    - button:
+                        - img
+                        - generic: Sign in with Google
+                - generic:
+                    - generic:
+                        - generic: Normal
+                        - generic:
+                            - button:
+                                - img
+                            - button [disabled]:
+                                - img
+                            - button:
+                                - img
+                    - button:
+                        - img
+        - generic:
+            - generic:
+                - generic:
+                    - generic:
+                        - button:
+                            - img
+                    - generic:
+                        - generic:
+                            - textbox: Grib Sneakfoot
+                            - button:
+                                - img
+                                - text: Level up
+                            - button:
+                                - img
+                        - generic:
+                            - button: Goblin • At Home Underground
+                        - generic: The Cheat • Level 1
+            - generic:
+                - generic:
+                    - generic:
+                        - generic:
+                            - generic:
+                                - generic:
+                                    - generic:
+                                        - generic:
+                                            - img
+                                            - generic: Combat Summary
+                                        - generic:
+                                            - generic: Healthy - Ready
+                                    - generic:
+                                        - generic:
+                                            - generic: 10/10 HP
+                                            - generic: 100%
+                                    - generic:
+                                        - generic:
+                                            - button:
+                                                - img
+                                                - text: Damage
+                                            - button [disabled]:
+                                                - img
+                                                - text: Healing
+                                            - button:
+                                                - img
+                                                - text: Temp HP
+                                    - generic:
+                                        - generic:
+                                            - generic: Wounds
+                                            - generic:
+                                                - generic:
+                                                    - button:
+                                                        - img
+                                                    - button:
+                                                        - img
+                                                    - button:
+                                                        - img
+                                                    - button:
+                                                        - img
+                                                    - button:
+                                                        - img
+                                                    - button:
+                                                        - img
+                                        - generic:
+                                            - generic: Initiative
+                                            - generic:
+                                                - button:
+                                                    - generic: "+2"
+                                                    - img
+                        - generic:
+                            - generic:
+                                - generic:
+                                    - generic:
+                                        - generic: Saving Throws
+                                        - generic:
+                                            - img
+                                - generic:
+                                    - generic:
+                                        - generic:
+                                            - generic:
+                                                - generic:
+                                                    - generic: Str
+                                                    - generic: "-1"
+                                                - generic:
+                                                    - button:
+                                                        - img
+                                            - generic:
+                                                - generic:
+                                                    - generic: Dex
+                                                    - generic: "+2"
+                                                    - generic: ↑
+                                                - generic:
+                                                    - button:
+                                                        - img
+                                            - generic:
+                                                - generic:
+                                                    - generic: Int
+                                                    - generic: "+2"
+                                                - generic:
+                                                    - button:
+                                                        - img
+                                            - generic:
+                                                - generic:
+                                                    - generic: Will
+                                                    - generic: "+0"
+                                                    - generic: ↓
+                                                - generic:
+                                                    - button:
+                                                        - img
+                        - generic:
+                            - heading [level=2]: Actions
+                            - generic:
+                                - generic:
+                                    - heading [level=3]:
+                                        - img
+                                        - text: Abilities
+                                    - generic:
+                                        - generic:
+                                            - generic:
+                                                - generic:
+                                                    - img
+                                                    - text: Sneak Attack
+                                            - generic:
+                                                - generic:
+                                                    - generic:
+                                                        - paragraph: (1/turn) When you crit, deal +1d6 damage.
+                                                    - generic:
+                                                        - strong: "Roll:"
+                                                        - text: 1d6
+                                                    - generic:
+                                                        - generic: Per Turn
+                                                        - generic: 1 / 1 remaining
+                                                - generic:
+                                                    - button:
+                                                        - img
+                                                        - text: Use Ability
+                - generic:
+                    - generic:
+                        - generic:
+                            - button:
+                                - img
+                                - generic: Combat
+                            - button:
+                                - img
+                                - generic: Explore
+                            - button:
+                                - img
+                                - generic: Character
+                            - button:
+                                - img
+                                - generic: Equipment
+                            - button:
+                                - img
+                                - generic: Log
+                    - generic:
+                        - generic:
+                            - paragraph: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+                - generic:
+                    - generic:
+                        - paragraph: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+        - generic:
+            - generic:
+                - paragraph: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+    - button "Open Next.js Dev Tools" [ref=e6] [cursor=pointer]:
+        - img [ref=e7] [cursor=pointer]
+    - alert
+    - dialog "Apply Damage" [ref=e12]:
+        - generic [ref=e13]:
+            - heading "Apply Damage" [level=2] [ref=e14]:
+                - img [ref=e15]
+                - text: Apply Damage
+            - paragraph [ref=e18]: View a detailed summary of your combat abilities, weapons, and defenses.
+        - generic [ref=e19]:
+            - generic [ref=e20]:
+                - button "-5" [active] [ref=e21]
+                - button "-1" [ref=e22]
+                - spinbutton [ref=e23]: "1"
+                - button "+1" [ref=e24]
+                - button "+5" [ref=e25]
+            - button "Apply Damage" [ref=e26]:
+                - img
+                - generic [ref=e27]: Apply Damage
+        - button "Close" [ref=e28]:
+            - img [ref=e29]
+            - generic [ref=e31]: Close
+```

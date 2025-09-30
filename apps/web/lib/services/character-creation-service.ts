@@ -258,6 +258,7 @@ export class CharacterCreationService implements ICharacterCreation {
       inEncounter: false,
       inventory,
       traitSelections,
+      notes: [],
       timestamps: {
         createdAt: Date.now(),
         updatedAt: Date.now(),

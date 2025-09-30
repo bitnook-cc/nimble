@@ -1,4 +1,4 @@
-export type TabType = "combat" | "skills" | "character" | "equipment" | "spells" | "log";
+export type TabType = "combat" | "skills" | "character" | "equipment" | "notes" | "spells" | "log";
 
 export interface UIState {
   collapsibleSections: {

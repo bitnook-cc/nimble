@@ -24,17 +24,17 @@
                     - img
         - generic [ref=e16]:
             - generic [ref=e18]:
-                - button "Upload image for Wildborn" [ref=e20] [cursor=pointer]:
-                    - img "Wildborn" [ref=e21] [cursor=pointer]
+                - button "Upload image for Whiskersdash" [ref=e20] [cursor=pointer]:
+                    - img "Whiskersdash" [ref=e21] [cursor=pointer]
                 - generic [ref=e22]:
                     - generic [ref=e23]:
-                        - textbox "Character Name" [ref=e24]: Wildborn
+                        - textbox "Character Name" [ref=e24]: Whiskersdash
                         - button "Level up" [ref=e25]:
                             - img
                             - text: Level up
                         - button "Character Configuration" [ref=e26]:
                             - img
-                    - button "Wyrdling • Acrobat" [ref=e28] [cursor=pointer]
+                    - button "Bunbun • Tradesman/Artisan" [ref=e28] [cursor=pointer]
                     - generic [ref=e29]: The Cheat • Level 1
             - generic [ref=e30]:
                 - generic [ref=e32]:
@@ -127,31 +127,48 @@
                                             - text: 1d6
                                         - generic [ref=e140]:
                                             - generic [ref=e141]: Per Turn
-                                            - generic [ref=e142]: 1 / 1 remaining
-                                    - button "Use Ability" [ref=e144]:
-                                        - img
-                                        - text: Use Ability
-                - generic [ref=e145]:
-                    - generic [ref=e147]:
-                        - button "Combat" [ref=e148]:
+                                            - generic [ref=e142]: 0 / 1 remaining
+                                    - generic [ref=e143]:
+                                        - button "Used" [disabled]:
+                                            - img
+                                            - text: Used
+                - generic [ref=e144]:
+                    - generic [ref=e146]:
+                        - button "Combat" [ref=e147]:
                             - img
-                            - generic [ref=e149]: Combat
-                        - button "Explore" [ref=e150]:
+                            - generic [ref=e148]: Combat
+                        - button "Explore" [ref=e149]:
                             - img
-                            - generic [ref=e151]: Explore
-                        - button "Character" [ref=e152]:
+                            - generic [ref=e150]: Explore
+                        - button "Character" [ref=e151]:
                             - img
-                            - generic [ref=e153]: Character
-                        - button "Equipment" [ref=e154]:
+                            - generic [ref=e152]: Character
+                        - button "Equipment" [ref=e153]:
                             - img
-                            - generic [ref=e155]: Equipment
-                        - button "Log" [ref=e156]:
+                            - generic [ref=e154]: Equipment
+                        - button "Log" [ref=e155]:
                             - img
-                            - generic [ref=e157]: Log
-                    - paragraph [ref=e160]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-                - paragraph [ref=e163]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-        - paragraph [ref=e166]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-    - button "Open Next.js Dev Tools" [ref=e172] [cursor=pointer]:
-        - img [ref=e173] [cursor=pointer]
-    - alert [ref=e178]
+                            - generic [ref=e156]: Log
+                    - paragraph [ref=e159]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+                - paragraph [ref=e162]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+        - paragraph [ref=e165]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+    - button "Open Next.js Dev Tools" [ref=e171] [cursor=pointer]:
+        - img [ref=e172] [cursor=pointer]
+    - alert [ref=e177]
+    - generic [ref=e178]:
+        - generic [ref=e180]:
+            - img [ref=e181]
+            - heading "Used Sneak Attack (per turn) - 1/1 remaining" [level=4] [ref=e184]
+            - button [ref=e185]:
+                - img
+        - generic [ref=e187]:
+            - img [ref=e188]
+            - generic [ref=e190]:
+                - heading "Sneak Attack ability roll" [level=4] [ref=e191]
+                - generic [ref=e193]:
+                    - 'generic "Rolled d6: 5" [ref=e195]': "[5]"
+                    - generic [ref=e196]: =
+                    - generic [ref=e197]: "5"
+            - button [ref=e198]:
+                - img
 ```

@@ -31,6 +31,10 @@ export interface GameConfig {
   equipment: {
     maxWeaponSize: number;
   };
+  notes: {
+    maxNotes: number;
+    maxContentLength: number;
+  };
   defaults: {
     classId: string;
     ancestryId: string;
@@ -75,6 +79,10 @@ export const gameConfig: GameConfig = {
   },
   equipment: {
     maxWeaponSize: 2,
+  },
+  notes: {
+    maxNotes: 20,
+    maxContentLength: 1000,
   },
   defaults: {
     classId: "cheat",

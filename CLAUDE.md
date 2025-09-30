@@ -581,7 +581,21 @@ app/page.tsx (main orchestrator)
     - Consistent visual feedback and state indicators
     - Mode-aware component rendering
 
-18. **Dice Pool System**
+18. **Notes System**
+    - **Markdown Support**: Full markdown rendering with GitHub-flavored markdown (tables, strikethrough, etc.)
+    - **CRUD Operations**: Create, read, update, and delete notes stored on the character
+    - **Drag-and-Drop Reordering**: Notes can be reordered by dragging the grip handle
+    - **Collapsible Cards**: Each note is a collapsible card that expands to show content
+    - **Inline Editing**: Edit note title and content directly in the interface
+    - **Character Limits**: Configurable max notes (default: 20) and max content length (default: 1000 characters)
+    - **Sort Order Persistence**: Notes maintain their order across sessions
+    - **Auto-Expand**: New notes automatically expand when created, all notes expanded by default
+    - **Action Menu**: Edit and delete actions hidden in a dropdown menu for cleaner UI
+    - **Character Storage**: Notes stored in `notes` array on character with sortOrder index
+    - **Service Architecture**: NoteService handles all note operations using CharacterService
+    - **Tab Integration**: Dedicated Notes tab in bottom navigation between Equipment and Log
+
+19. **Dice Pool System**
     - **Flexible Dice Pools**: Store rolled dice for later use (d4 through d100)
     - **Visual Dice Display**: Individual dice shown with values
     - **Pool Management**: Add dice by rolling, use specific dice from pool
@@ -594,7 +608,7 @@ app/page.tsx (main orchestrator)
     - **Service Architecture**: DicePoolService handles all pool operations
     - **Examples**: Berserker "Fury Dice" that build up during combat
 
-19. **Dice Formula System**
+20. **Dice Formula System**
     - **Dice Notation**: Standard dice notation (e.g., `1d20`, `3d6`, `2d8+5`)
     - **Mathematical Operations**: Supports `+`, `-`, `*`, `/`, parentheses
     - **Variable Substitution**:

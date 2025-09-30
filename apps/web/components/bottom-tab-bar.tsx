@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, Package, ScrollText, Sparkles, Sword, User } from "lucide-react";
+import { Compass, FileText, Package, ScrollText, Sparkles, Sword, User } from "lucide-react";
 
 import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
@@ -26,6 +26,7 @@ const tabs: TabDefinition[] = [
   { id: "skills", label: "Explore", icon: Compass },
   { id: "character", label: "Character", icon: User },
   { id: "equipment", label: "Equipment", icon: Package },
+  { id: "notes", label: "Notes", icon: FileText },
   { id: "log", label: "Log", icon: ScrollText },
 ];
 

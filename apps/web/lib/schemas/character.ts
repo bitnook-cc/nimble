@@ -7,6 +7,7 @@ import { dicePoolInstanceSchema } from "./dice-pools";
 import { ClassFeatureSchema } from "./features";
 import { flexibleValueSchema } from "./flexible-value";
 import { Inventory, inventorySchema } from "./inventory";
+import { noteSchema } from "./note";
 import { ResourceDefinition, ResourceValue, resourceDefinitionSchema } from "./resources";
 
 const attributeNameSchema = z.enum(["strength", "dexterity", "intelligence", "will"]);
@@ -201,6 +202,7 @@ const characterBaseSchema = z.object({
   inEncounter: z.boolean(),
   inventory: inventorySchema,
   imageId: z.string().uuid().optional(),
+  notes: z.array(noteSchema).default([]),
 });
 
 // Extend the base schema with syncable fields

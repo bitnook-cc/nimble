@@ -24,17 +24,17 @@
                     - img
         - generic [ref=e16]:
             - generic [ref=e18]:
-                - button "Upload image for Wildhoof" [ref=e20] [cursor=pointer]:
-                    - img "Wildhoof" [ref=e21] [cursor=pointer]
+                - button "Upload image for Yarsha Blood" [ref=e20] [cursor=pointer]:
+                    - img "Yarsha Blood" [ref=e21] [cursor=pointer]
                 - generic [ref=e22]:
                     - generic [ref=e23]:
-                        - textbox "Character Name" [ref=e24]: Wildhoof
+                        - textbox "Character Name" [ref=e24]: Yarsha Blood
                         - button "Level up" [ref=e25]:
                             - img
                             - text: Level up
                         - button "Character Configuration" [ref=e26]:
                             - img
-                    - button "Minotaur/Beastfolk • Raised by Goblins" [ref=e28] [cursor=pointer]
+                    - button "Orc • Academy Dropout" [ref=e28] [cursor=pointer]
                     - generic [ref=e29]: The Cheat • Level 1
             - generic [ref=e30]:
                 - generic [ref=e32]:
@@ -86,7 +86,7 @@
                             - generic [ref=e125]:
                                 - generic [ref=e126]:
                                     - generic [ref=e127]: Str
-                                    - generic [ref=e128]: "+0"
+                                    - generic [ref=e128]: "-1"
                                 - button [ref=e130]:
                                     - img
                             - generic [ref=e131]:
@@ -105,7 +105,7 @@
                             - generic [ref=e144]:
                                 - generic [ref=e145]:
                                     - generic [ref=e146]: Will
-                                    - generic [ref=e147]: "-1"
+                                    - generic [ref=e147]: "+0"
                                     - generic [ref=e148]: ↓
                                 - button [ref=e150]:
                                     - img
@@ -127,31 +127,48 @@
                                             - text: 1d6
                                         - generic [ref=e170]:
                                             - generic [ref=e171]: Per Turn
-                                            - generic [ref=e172]: 1 / 1 remaining
-                                    - button "Use Ability" [ref=e174]:
-                                        - img
-                                        - text: Use Ability
-                - generic [ref=e175]:
-                    - generic [ref=e177]:
-                        - button "Combat" [ref=e178]:
+                                            - generic [ref=e172]: 0 / 1 remaining
+                                    - generic [ref=e173]:
+                                        - button "Used" [disabled]:
+                                            - img
+                                            - text: Used
+                - generic [ref=e174]:
+                    - generic [ref=e176]:
+                        - button "Combat" [ref=e177]:
                             - img
-                            - generic [ref=e179]: Combat
-                        - button "Explore" [ref=e180]:
+                            - generic [ref=e178]: Combat
+                        - button "Explore" [ref=e179]:
                             - img
-                            - generic [ref=e181]: Explore
-                        - button "Character" [ref=e182]:
+                            - generic [ref=e180]: Explore
+                        - button "Character" [ref=e181]:
                             - img
-                            - generic [ref=e183]: Character
-                        - button "Equipment" [ref=e184]:
+                            - generic [ref=e182]: Character
+                        - button "Equipment" [ref=e183]:
                             - img
-                            - generic [ref=e185]: Equipment
-                        - button "Log" [ref=e186]:
+                            - generic [ref=e184]: Equipment
+                        - button "Log" [ref=e185]:
                             - img
-                            - generic [ref=e187]: Log
-                    - paragraph [ref=e190]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-                - paragraph [ref=e193]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-        - paragraph [ref=e196]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-    - button "Open Next.js Dev Tools" [ref=e202] [cursor=pointer]:
-        - img [ref=e203] [cursor=pointer]
-    - alert [ref=e207]
+                            - generic [ref=e186]: Log
+                    - paragraph [ref=e189]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+                - paragraph [ref=e192]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+        - paragraph [ref=e195]: Nimble Sheets is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
+    - button "Open Next.js Dev Tools" [ref=e201] [cursor=pointer]:
+        - img [ref=e202] [cursor=pointer]
+    - alert [ref=e206]
+    - generic [ref=e207]:
+        - generic [ref=e209]:
+            - img [ref=e210]
+            - heading "Used Sneak Attack (per turn) - 1/1 remaining" [level=4] [ref=e215]
+            - button [ref=e216]:
+                - img
+        - generic [ref=e218]:
+            - img [ref=e219]
+            - generic [ref=e223]:
+                - heading "Sneak Attack ability roll" [level=4] [ref=e224]
+                - generic [ref=e226]:
+                    - 'generic "Rolled d6: 5" [ref=e228]': "[5]"
+                    - generic [ref=e229]: =
+                    - generic [ref=e230]: "5"
+            - button [ref=e231]:
+                - img
 ```
