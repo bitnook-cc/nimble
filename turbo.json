@@ -85,6 +85,9 @@
     "test:run": {
       "dependsOn": ["^test:run"]
     },
+    "test:e2e": {
+      "cache": false
+    },
     "db:start-local": {
       "cache": false
     },
