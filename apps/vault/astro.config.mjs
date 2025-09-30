@@ -8,7 +8,10 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
 	base: process.env.NODE_ENV === 'production' ? '/vault' : '/',
 	output: 'server',
-	adapter: vercel(),
+	adapter: vercel({
+		webAnalytics: { enabled: true },
+	}
+	),
 	integrations: [
 		starlight({
 			title: 'Nimble RPG Vault',
