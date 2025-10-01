@@ -439,7 +439,7 @@ function ActionTracker() {
     });
   };
 
-  const useActionTo = (targetIndex: number) => {
+  const consumeActionsTo = (targetIndex: number) => {
     // Set current actions to targetIndex (use all actions after and including this one)
     updateActionTracker({
       ...actionTracker,
@@ -485,10 +485,10 @@ function ActionTracker() {
       hexagons.push(
         <button
           key={i}
-          onClick={() => (isAvailable ? useActionTo(i) : restoreAction(i))}
+          onClick={() => (isAvailable ? consumeActionsTo(i) : restoreAction(i))}
           onMouseEnter={() => setHoveredIndex(i)}
           onMouseLeave={() => setHoveredIndex(null)}
-          className={`relative w-10 h-10 flex items-center justify-center transition-all duration-100 ${
+          className={`relative w-8 h-8 flex items-center justify-center transition-all duration-100 ${
             isThisHovered ? "scale-110" : ""
           }`}
           title={
@@ -527,47 +527,31 @@ function ActionTracker() {
     <Card className="border">
       <CardContent className="p-3">
         <div className="flex items-center justify-between">
-          {/* Action Hexagons */}
-          <div className="flex items-center gap-2">
+          {/* Action Circles */}
+          <div className="flex items-center gap-1">
             <span className="text-sm font-medium text-muted-foreground mr-2">Actions:</span>
-            <div className="flex items-center gap-1 flex-wrap">{getActionHexagons()}</div>
+            <div className="flex items-center gap-1 flex-wrap">
+              {getActionHexagons()}
+              {/* Add Action Button */}
+              <button
+                onClick={addBonusAction}
+                className="relative w-8 h-8 flex items-center justify-center transition-all duration-100 hover:scale-110"
+                title="Grant additional action"
+              >
+                {/* Grey outlined circle */}
+                <div className="absolute inset-0 rounded-full border-2 border-gray-400 bg-transparent transition-all duration-100 hover:border-gray-500 hover:shadow-md" />
+                {/* Plus icon */}
+                <Plus className="relative z-10 w-4 h-4 text-gray-500 transition-all duration-100 hover:text-gray-600" />
+              </button>
+            </div>
           </div>
 
           {/* Action Controls */}
           <div className="flex items-center gap-2">
-            <Button
-              onClick={addBonusAction}
-              variant="outline"
-              size="sm"
-              className="text-xs h-7"
-              title="Grant additional action"
-            >
-              <Plus className="w-3 h-3" />
-            </Button>
-            <Button onClick={endTurn} variant="default" size="sm" className="text-xs h-7">
-              <RotateCcw className="w-3 h-3 mr-1" />
+            <Button onClick={endTurn} variant="default" size="sm" className="text-xs">
+              <RotateCcw className="w-3 h-3" />
               End Turn
             </Button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                  <HelpCircle className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className="text-xs">
-                  <p>
-                    <strong>Initiative Rules:</strong>
-                  </p>
-                  <p>&lt;10: 1 action • 10-20: 2 actions • &gt;20: 3 actions</p>
-                  <p>
-                    <span className="text-green-600">Green</span> = base,{" "}
-                    <span className="text-blue-600">Blue</span> = bonus
-                  </p>
-                  <p>Click to use/restore actions</p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
           </div>
         </div>
       </CardContent>
@@ -797,7 +781,7 @@ function CombatStatusBar() {
                 </Tooltip>
               ) : (
                 <Button variant="destructive" size="sm" onClick={endEncounter} className="text-xs">
-                  <Square className="w-3 h-3 mr-1" />
+                  <Square className="w-3 h-3" />
                   End Combat
                 </Button>
               )}

@@ -159,13 +159,13 @@ export function GeneralActionsRow() {
 
   return (
     <>
-      <div className="flex gap-2 justify-stretch mt-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
         <Button
           variant="outline"
           size="default"
           onClick={handleMove}
           disabled={!canUseAction}
-          className="text-sm h-10 flex-1"
+          className="text-sm h-10"
         >
           <ArrowRight className="w-4 h-4 mr-1" />
           Move
@@ -176,7 +176,7 @@ export function GeneralActionsRow() {
           size="default"
           onClick={handleAttack}
           disabled={!canUseAction}
-          className="text-sm h-10 flex-1"
+          className="text-sm h-10"
         >
           <Swords className="w-4 h-4 mr-1" />
           Attack
@@ -187,7 +187,7 @@ export function GeneralActionsRow() {
           size="default"
           onClick={handleCastSpell}
           disabled={!canUseAction || spellAbilities.length === 0}
-          className="text-sm h-10 flex-1"
+          className="text-sm h-10"
         >
           <Wand2 className="w-4 h-4 mr-1" />
           Cast a Spell
@@ -198,7 +198,7 @@ export function GeneralActionsRow() {
           size="default"
           onClick={handleAssess}
           disabled={!canUseAction}
-          className="text-sm h-10 flex-1"
+          className="text-sm h-10"
         >
           <Eye className="w-4 h-4 mr-1" />
           Assess
