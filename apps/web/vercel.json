@@ -1,7 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "turbo run build --filter=@nimble/web",
   "installCommand": "npm install",
-  "framework": null,
+  "framework": "nextjs",
   "outputDirectory": "out",
   "rewrites": [
     {
