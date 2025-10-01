@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 
-import { APP_CONFIG } from "@/lib/config/app-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
 import { BottomTabBar } from "./bottom-tab-bar";
+import { LicenseDisclaimer } from "./license-disclaimer";
 import { CharacterTab } from "./tabs/character-tab";
 import { CombatTab } from "./tabs/combat-tab";
 import { EquipmentTab } from "./tabs/equipment-tab";
@@ -59,20 +59,14 @@ export function TabbedCharacterSheet() {
 
   return (
     <div className="relative">
-      {/* Content area with bottom padding for tab bar and footer */}
-      <div className="pb-32 sm:pb-36 min-h-[calc(100vh-8rem)]">{renderActiveTab()}</div>
+      {/* Content area with bottom padding for tab bar */}
+      <div className="pb-20 sm:pb-24 min-h-[calc(100vh-8rem)]">{renderActiveTab()}</div>
 
-      {/* Bottom tab navigation */}
+      {/* Bottom tab navigation - sticky at bottom */}
       <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
-      {/* Disclaimer Footer */}
-      <div className="fixed bottom-14 sm:bottom-16 left-0 right-0 border-t bg-muted/30 py-2 px-4 z-40">
-        <div className="container mx-auto">
-          <p className="text-xs text-muted-foreground text-center">
-            {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
-            Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-          </p>
-        </div>
-      </div>
+
+      {/* Disclaimer Footer - appears below sticky nav when scrolled to bottom */}
+      <LicenseDisclaimer />
     </div>
   );
 }

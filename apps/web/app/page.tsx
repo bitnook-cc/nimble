@@ -8,6 +8,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { CharacterConfigDialog } from "@/components/character-config-dialog";
 import { CharacterHeader } from "@/components/character-header";
 import { CharacterSelector } from "@/components/character-selector";
+import { LicenseDisclaimer } from "@/components/license-disclaimer";
 import { LoadingScreen } from "@/components/loading-screen";
 import { TabbedCharacterSheet } from "@/components/tabbed-character-sheet";
 import { ToastContainer } from "@/components/toast-container";
@@ -90,14 +91,7 @@ function HomeContent() {
           />
 
           {/* Disclaimer Footer */}
-          <footer className="border-t bg-muted/30 py-3 px-4">
-            <div className="container mx-auto">
-              <p className="text-xs text-muted-foreground text-center">
-                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
-                Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-              </p>
-            </div>
-          </footer>
+          <LicenseDisclaimer />
         </>
       ) : (
         <>
@@ -105,16 +99,6 @@ function HomeContent() {
             <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
             <TabbedCharacterSheet />
           </div>
-
-          {/* Disclaimer Footer */}
-          <footer className="border-t bg-muted/30 py-3 px-4">
-            <div className="container mx-auto">
-              <p className="text-xs text-muted-foreground text-center">
-                {APP_CONFIG.APP_NAME} is an independent product published under the Nimble 3rd Party
-                Creator License and is not affiliated with Nimble Co. Nimble © 2025 Nimble Co.
-              </p>
-            </div>
-          </footer>
 
           {/* Character Config Dialog */}
           {showConfigDialog && <CharacterConfigDialog onClose={onCloseConfig} />}
