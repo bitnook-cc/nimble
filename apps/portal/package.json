@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nimble/shared-auth": "*",
+    "@nimble/shared-auth": "^1.0.0",
+    "@nimble/shared-config": "^1.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/postcss": "^4.1.12",
@@ -26,7 +27,6 @@
     "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
-    "@nimble/shared-config": "*",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.15",
