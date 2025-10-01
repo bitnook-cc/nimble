@@ -65,13 +65,15 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
   return (
     <>
       {/* Content area with container */}
-      <div className="container mx-auto py-6 px-4 space-y-6 flex-1">
-        <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
-        <div className="pb-20 sm:pb-24">{renderActiveTab()}</div>
-      </div>
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto py-6 px-4 space-y-6">
+          <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
+          <div>{renderActiveTab()}</div>
+        </div>
 
-      {/* Bottom tab navigation with disclaimer - tab bar sticky, disclaimer scrolls */}
-      <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
+        {/* Bottom tab navigation with disclaimer - tab bar sticky, disclaimer scrolls */}
+        <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
+      </div>
     </>
   );
 }

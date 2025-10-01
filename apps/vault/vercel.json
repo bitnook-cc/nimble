@@ -1,0 +1,5 @@
+{
+  "buildCommand": "turbo run build --filter=@nimble/vault",
+  "installCommand": "npm install",
+  "outputDirectory": "out"
+}

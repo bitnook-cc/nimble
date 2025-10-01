@@ -73,7 +73,7 @@ function HomeContent() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col">
+    <main className="h-screen bg-background flex flex-col overflow-hidden">
       <TopBar
         settings={settings}
         characters={characters}
