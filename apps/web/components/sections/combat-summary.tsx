@@ -15,9 +15,10 @@ import {
   Skull,
   Sparkles,
   Square,
+  Swords,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
@@ -422,19 +423,28 @@ function QuickActionsBar() {
 // Action Tracker Subcomponent
 function ActionTracker() {
   const { character, updateActionTracker, endTurn: serviceEndTurn } = useCharacterService();
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
 
   // All hooks called first, then safety check
   if (!character || !character.inEncounter) return null;
 
   const { actionTracker } = character;
+  const totalActions = actionTracker.base + actionTracker.bonus;
 
-  const useAction = () => {
-    if (actionTracker.current > 0) {
-      updateActionTracker({
-        ...actionTracker,
-        current: actionTracker.current - 1,
-      });
-    }
+  const restoreAction = (targetIndex: number) => {
+    // Set current actions to targetIndex + 1 (restore all actions up to and including this one)
+    updateActionTracker({
+      ...actionTracker,
+      current: targetIndex + 1,
+    });
+  };
+
+  const useActionTo = (targetIndex: number) => {
+    // Set current actions to targetIndex (use all actions after and including this one)
+    updateActionTracker({
+      ...actionTracker,
+      current: targetIndex,
+    });
   };
 
   const addBonusAction = () => {
@@ -448,47 +458,79 @@ function ActionTracker() {
   const endTurn = () => {
     serviceEndTurn();
   };
-  const getActionDots = () => {
-    const dots = [];
-    const totalActions = actionTracker.base + actionTracker.bonus;
 
+  const getActionHexagons = () => {
+    const hexagons = [];
     for (let i = 0; i < totalActions; i++) {
       const isBonus = i >= actionTracker.base;
       const isAvailable = i < actionTracker.current;
+      const isHovered = hoveredIndex !== null;
 
-      dots.push(
-        <Button
+      // Determine if this action would be available after the hovered action is clicked
+      let wouldBeAvailable = isAvailable;
+      if (hoveredIndex !== null) {
+        const hoveredIsAvailable = hoveredIndex < actionTracker.current;
+        if (hoveredIsAvailable) {
+          // Clicking an available action uses it and all after it
+          wouldBeAvailable = i < hoveredIndex;
+        } else {
+          // Clicking an unavailable action restores it and all before it
+          wouldBeAvailable = i <= hoveredIndex;
+        }
+      }
+
+      const isThisHovered = hoveredIndex === i;
+      const showPreview = isHovered && wouldBeAvailable !== isAvailable;
+
+      hexagons.push(
+        <button
           key={i}
-          variant="ghost"
-          size="sm"
-          className={`w-8 h-8 p-0 rounded-full ${
-            isAvailable
-              ? isBonus
-                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                : "bg-green-500 hover:bg-green-600 text-white"
-              : isBonus
-                ? "bg-gray-200 hover:bg-gray-300 text-gray-500"
-                : "bg-muted hover:bg-muted/80 text-muted-foreground"
+          onClick={() => (isAvailable ? useActionTo(i) : restoreAction(i))}
+          onMouseEnter={() => setHoveredIndex(i)}
+          onMouseLeave={() => setHoveredIndex(null)}
+          className={`relative w-10 h-10 flex items-center justify-center transition-all duration-100 ${
+            isThisHovered ? "scale-110" : ""
           }`}
-          onClick={isAvailable ? useAction : undefined}
-          disabled={!isAvailable}
-          title={`${isBonus ? "Bonus" : "Base"} Action ${isAvailable ? "(Click to use)" : "(Used)"}`}
+          title={
+            isAvailable
+              ? `Click to use ${isBonus ? "bonus " : ""}action`
+              : `Click to restore ${isBonus ? "bonus " : ""}action`
+          }
         >
-          <Circle className="w-4 h-4" fill="currentColor" />
-        </Button>,
+          {/* Circle */}
+          <div
+            className={`absolute inset-0 rounded-full border-2 transition-all duration-100 ${
+              isAvailable
+                ? isBonus
+                  ? "bg-blue-500 border-blue-600"
+                  : "bg-green-500 border-green-600"
+                : isBonus
+                  ? "bg-gray-200 border-blue-300"
+                  : "bg-gray-200 border-gray-400"
+            } ${showPreview ? (wouldBeAvailable ? "opacity-60" : "opacity-40") : ""} ${
+              isThisHovered ? (isAvailable ? "shadow-md" : "shadow-lg") : ""
+            }`}
+          />
+          {/* Icon */}
+          <Swords
+            className={`relative z-10 w-4 h-4 transition-all duration-100 ${
+              isAvailable ? "text-white" : isBonus ? "text-blue-400" : "text-gray-400"
+            } ${isThisHovered ? "scale-110" : ""} ${showPreview ? "opacity-60" : ""}`}
+          />
+        </button>,
       );
     }
-    return dots;
+    return hexagons;
   };
 
   return (
     <Card className="border">
       <CardContent className="p-3">
         <div className="flex items-center justify-between">
-          {/* Action Dots */}
+          {/* Action Hexagons */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-muted-foreground mr-2">Actions:</span>
-            <div className="flex items-center gap-1">{getActionDots()}</div>
+            <div className="flex items-center gap-1 flex-wrap">{getActionHexagons()}</div>
           </div>
 
           {/* Action Controls */}
@@ -519,10 +561,10 @@ function ActionTracker() {
                   </p>
                   <p>&lt;10: 1 action • 10-20: 2 actions • &gt;20: 3 actions</p>
                   <p>
-                    <span className="text-green-600">Green</span> = base actions,{" "}
-                    <span className="text-blue-600">Blue</span> = bonus actions
+                    <span className="text-green-600">Green</span> = base,{" "}
+                    <span className="text-blue-600">Blue</span> = bonus
                   </p>
-                  <p>Click actions to use them</p>
+                  <p>Click to use/restore actions</p>
                 </div>
               </TooltipContent>
             </Tooltip>
