@@ -1,8 +1,8 @@
 ---
-import { getAuthFromCookieSafe } from '../lib/auth'
+import { getAuthFromRequestSafe } from '../lib/auth'
 
-const authInfo = getAuthFromCookieSafe(Astro.request.headers.get('cookie'))
-const hasPatronAccess = authInfo?.tags?.includes('patreon-patron') || false
+const authInfo = await getAuthFromRequestSafe(Astro.request)
+const hasPatronAccess = authInfo?.hasPatronAccess || false
 ---
 
 {hasPatronAccess ? (

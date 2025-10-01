@@ -16,9 +16,9 @@ export default defineConfig({
 		starlight({
 			title: 'Nimble RPG Vault',
 			description: 'Complete documentation and reference for the Nimble RPG system',
-			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }
-			],
+			components: {
+				SocialIcons: './src/components/HeaderAuthStatus.astro',
+			},
 			customCss: [
 				'./src/styles/custom.css',
 			],
