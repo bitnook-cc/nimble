@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 
 import { genericNames } from "@/lib/config/name-config";
 import { AncestryDefinition } from "@/lib/schemas/ancestry";
@@ -9,7 +9,9 @@ import { NameGenerator } from "@/lib/utils/name-generator";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Collapsible, CollapsibleContent } from "../ui/collapsible";
 import { Input } from "../ui/input";
+import { MarkdownRenderer } from "../ui/markdown-renderer";
 
 interface AncestrySelectionProps {
   availableAncestries: AncestryDefinition[];
@@ -26,6 +28,10 @@ export function AncestrySelection({
   onAncestrySelect,
   onNameChange,
 }: AncestrySelectionProps) {
+  const handleAncestrySelect = (ancestryId: string) => {
+    onAncestrySelect(ancestryId);
+  };
+
   const handleSuggestName = () => {
     if (selectedAncestryId) {
       const ancestry = availableAncestries.find((a) => a.id === selectedAncestryId);
@@ -90,34 +96,76 @@ export function AncestrySelection({
       <div>
         <h3 className="text-base font-semibold mb-2">Ancestry</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {availableAncestries.map((ancestry: AncestryDefinition) => (
-            <Card
-              key={ancestry.id}
-              className={`cursor-pointer transition-all ${
-                selectedAncestryId === ancestry.id ? "ring-2 ring-primary" : "hover:shadow-md"
-              }`}
-              onClick={() => onAncestrySelect(ancestry.id)}
-            >
-              <CardHeader className="pb-1 pt-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">{ancestry.name}</CardTitle>
-                  {selectedAncestryId === ancestry.id && (
-                    <Badge className="ml-1 text-xs px-1">Selected</Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-xs text-muted-foreground mb-2 line-clamp-2 break-words">
-                  {ancestry.description}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant="outline" className="text-xs capitalize px-1 py-0">
-                    {ancestry.size}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {availableAncestries.map((ancestry: AncestryDefinition) => {
+            const isSelected = selectedAncestryId === ancestry.id;
+
+            return (
+              <Card
+                key={ancestry.id}
+                className={`cursor-pointer transition-all ${
+                  isSelected
+                    ? "ring-2 ring-primary bg-primary/5"
+                    : "hover:shadow-md hover:bg-muted/50"
+                }`}
+                onClick={() => handleAncestrySelect(ancestry.id)}
+              >
+                <Collapsible open={isSelected}>
+                  <CardHeader className="pb-2 pt-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 mb-1">
+                          <CardTitle className="text-sm">{ancestry.name}</CardTitle>
+                          <Badge variant="outline" className="text-xs capitalize px-1 py-0">
+                            {ancestry.size}
+                          </Badge>
+                        </div>
+                        {!isSelected && (
+                          <div className="text-xs text-muted-foreground line-clamp-2 break-words">
+                            <MarkdownRenderer content={ancestry.description} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          {isSelected ? (
+                            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0">
+                      <div className="border-t pt-2 space-y-2">
+                        <div className="text-sm text-muted-foreground break-words">
+                          <MarkdownRenderer content={ancestry.description} />
+                        </div>
+                        {ancestry.features && ancestry.features.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1">Starting Features</h4>
+                            <div className="space-y-1">
+                              {ancestry.features.map((feature, idx) => (
+                                <div key={idx} className="text-xs">
+                                  <span className="font-medium">{feature.name}</span>
+                                  {feature.description && (
+                                    <div className="text-muted-foreground prose prose-sm max-w-none">
+                                      <MarkdownRenderer content={feature.description} />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Collapsible>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
