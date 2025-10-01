@@ -95,10 +95,7 @@ function HomeContent() {
         </>
       ) : (
         <>
-          <div className="container mx-auto py-6 px-4 space-y-6 flex-1">
-            <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
-            <TabbedCharacterSheet />
-          </div>
+          <TabbedCharacterSheet onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
 
           {/* Character Config Dialog */}
           {showConfigDialog && <CharacterConfigDialog onClose={onCloseConfig} />}

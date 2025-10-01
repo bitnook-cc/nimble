@@ -7,7 +7,7 @@ import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
 import { BottomTabBar } from "./bottom-tab-bar";
-import { LicenseDisclaimer } from "./license-disclaimer";
+import { CharacterHeader } from "./character-header";
 import { CharacterTab } from "./tabs/character-tab";
 import { CombatTab } from "./tabs/combat-tab";
 import { EquipmentTab } from "./tabs/equipment-tab";
@@ -16,7 +16,12 @@ import { NotesTab } from "./tabs/notes-tab";
 import { SkillsTab } from "./tabs/skills-tab";
 import { SpellsTab } from "./tabs/spells-tab";
 
-export function TabbedCharacterSheet() {
+interface TabbedCharacterSheetProps {
+  onNameChange: (name: string) => void;
+  onOpenConfig: () => void;
+}
+
+export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedCharacterSheetProps) {
   const { uiState, updateActiveTab } = useUIStateService();
   const { character } = useCharacterService();
   const activeTab = uiState.activeTab;
@@ -58,15 +63,15 @@ export function TabbedCharacterSheet() {
   };
 
   return (
-    <div className="relative">
-      {/* Content area with bottom padding for tab bar */}
-      <div className="pb-20 sm:pb-24 min-h-[calc(100vh-8rem)]">{renderActiveTab()}</div>
+    <>
+      {/* Content area with container */}
+      <div className="container mx-auto py-6 px-4 space-y-6 flex-1">
+        <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
+        <div className="pb-20 sm:pb-24">{renderActiveTab()}</div>
+      </div>
 
-      {/* Bottom tab navigation - sticky at bottom */}
+      {/* Bottom tab navigation with disclaimer - tab bar sticky, disclaimer scrolls */}
       <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
-
-      {/* Disclaimer Footer - appears below sticky nav when scrolled to bottom */}
-      <LicenseDisclaimer />
-    </div>
+    </>
   );
 }
