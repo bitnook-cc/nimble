@@ -3,7 +3,7 @@
   "buildCommand": "turbo run build --filter=@nimble/portal",
   "installCommand": "npm install",
   "framework": null,
-  "outputDirectory": "out",
+  "outputDirectory": ".next",
   "rewrites": [
     {
       "source": "/vault/:path*",
