@@ -242,7 +242,6 @@ export function GeneralActionsRow() {
                 variant="outline"
                 className="w-full justify-start"
                 onClick={async () => {
-                  consumeAction();
                   await performUseAbility(spell.id);
                   setShowSpellDialog(false);
                 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw, Sword, Zap } from "lucide-react";
+import { RefreshCw, Sword, Swords, Zap } from "lucide-react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
@@ -126,59 +126,59 @@ export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
       {weapons.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Sword className="w-5 h-5" />
+            <Swords className="w-5 h-5" />
             Weapons
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {weapons.map((weapon) => {
-              const weaponActionCost = 1; // Weapons always cost 1 action
-              const insufficientActions =
-                character.inEncounter && character.actionTracker.current < weaponActionCost;
-              const isDisabled = insufficientActions;
+          <Card>
+            <CardContent className="p-0">
+              {weapons.map((weapon, index) => {
+                const weaponActionCost = 1; // Weapons always cost 1 action
+                const insufficientActions =
+                  character.inEncounter && character.actionTracker.current < weaponActionCost;
+                const isDisabled = insufficientActions;
 
-              return (
-                <Card key={weapon.id} className={insufficientActions ? "opacity-50" : ""}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-center text-base flex items-center justify-center gap-2">
-                      <Sword className="w-4 h-4" />
-                      {weapon.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="text-center text-sm">
-                      <div className="text-muted-foreground">{weapon.damage}</div>
-                      {weapon.properties && weapon.properties.length > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {weapon.properties.join(", ")}
+                return (
+                  <div
+                    key={weapon.id}
+                    className={`p-3 hover:bg-muted/50 transition-colors ${
+                      index > 0 ? "border-t" : ""
+                    } ${insufficientActions ? "opacity-50" : ""}`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-start space-x-3 flex-1 min-w-0">
+                        <div className="shrink-0 mt-1">
+                          <Sword className="w-4 h-4 text-muted-foreground" />
                         </div>
-                      )}
-                      {character.inEncounter && (
-                        <div className="flex justify-center mt-2">
-                          <Badge
-                            variant="outline"
-                            className={insufficientActions ? "text-red-600" : ""}
-                          >
-                            1 action
-                          </Badge>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium">{weapon.name}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {weapon.damage}
+                            {weapon.properties && weapon.properties.length > 0 && (
+                              <span> • {weapon.properties.join(", ")}</span>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
+                      <div className="shrink-0">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleAttack(weapon)}
+                          disabled={isDisabled}
+                          className="h-8"
+                        >
+                          <Sword className="w-3 h-3 sm:mr-2" />
+                          <span className="hidden sm:inline">
+                            {insufficientActions ? "No Actions" : "Attack"}
+                          </span>
+                        </Button>
+                      </div>
                     </div>
-
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleAttack(weapon)}
-                      disabled={isDisabled}
-                      className="w-full"
-                    >
-                      <Sword className="w-4 h-4 mr-2" />
-                      {insufficientActions ? "No Actions" : "Attack"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
         </div>
       )}
 
