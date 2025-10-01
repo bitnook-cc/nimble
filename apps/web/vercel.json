@@ -3,7 +3,7 @@
   "buildCommand": "turbo run build --filter=@nimble/web",
   "installCommand": "npm install",
   "framework": null,
-  "outputDirectory": "apps/web/out",
+  "outputDirectory": "out",
   "rewrites": [
     {
       "source": "/api/:path*",
