@@ -58,6 +58,7 @@ export const inventorySchema = z.object({
   maxSize: z.int().min(0),
   items: z.array(itemSchema),
   currency: currencySchema,
+  itemOrder: z.array(z.string()).optional(), // Optional array of item IDs for custom sort order
 });
 
 // Export inferred types

@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { CharacterTestUtils } from "./utils/character-utils";
 
@@ -42,4 +42,9 @@ test.describe("Equipment and Inventory", () => {
       }
     });
   });
+
+  // TODO: Re-enable inventory sorting tests once we have proper character creation with classes
+  // test.skip("inventory sorting and reordering", async ({ page }) => {
+  //   ...
+  // });
 });

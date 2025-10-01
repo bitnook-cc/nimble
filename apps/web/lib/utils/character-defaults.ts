@@ -42,6 +42,7 @@ export const createDefaultInventory = (strength: number = 0): Inventory => {
     maxSize: gameConfig.character.skillModifierRange.max - 2 + strength, // Using max inventory size from game config indirectly
     items: [],
     currency: createDefaultCurrency(),
+    itemOrder: [],
   };
 };
 

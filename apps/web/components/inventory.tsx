@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  ArrowDownAZ,
   Beaker,
   Edit2,
+  GripVertical,
   Minus,
   Package,
   Plus,
@@ -46,6 +48,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface InventoryProps {
   inventory: InventoryType;
@@ -60,6 +68,8 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
   const [newItem, setNewItem] = useState<CreateItemData>({
     name: "",
     size: 1,
@@ -70,6 +80,39 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
     size: 1,
     type: "freeform",
   });
+
+  // Get sorted items based on itemOrder array
+  const getSortedItems = () => {
+    if (!inventory.itemOrder || inventory.itemOrder.length === 0) {
+      return inventory.items;
+    }
+
+    // Create a map for quick lookup
+    const itemMap = new Map(inventory.items.map((item) => [item.id, item]));
+
+    // Build sorted array based on itemOrder, then append any items not in the order
+    const orderedItems: Item[] = [];
+    const orderedIds = new Set(inventory.itemOrder);
+
+    // Add items in the specified order
+    for (const id of inventory.itemOrder) {
+      const item = itemMap.get(id);
+      if (item) {
+        orderedItems.push(item);
+      }
+    }
+
+    // Add any items not in the order (new items)
+    for (const item of inventory.items) {
+      if (!orderedIds.has(item.id)) {
+        orderedItems.push(item);
+      }
+    }
+
+    return orderedItems;
+  };
+
+  const sortedItems = getSortedItems();
 
   const currentSize = inventory.items.reduce((total, item) => {
     // Exclude equipped weapons and armor from inventory size calculation
@@ -355,6 +398,97 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
     await attack(weapon.name, weapon.damage, attributeModifier, uiState.advantageLevel);
   };
 
+  const handleDragStart = (itemId: string) => {
+    setDraggedItemId(itemId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    setDragOverItemId(itemId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItemId(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetItemId: string | null) => {
+    e.preventDefault();
+    setDragOverItemId(null);
+
+    if (!draggedItemId || draggedItemId === targetItemId) {
+      setDraggedItemId(null);
+      return;
+    }
+
+    // Create new order array
+    const currentOrder = inventory.itemOrder || inventory.items.map((i) => i.id);
+    const newOrder = [...currentOrder];
+
+    // Ensure dragged item is in the order array
+    if (!newOrder.includes(draggedItemId)) {
+      newOrder.push(draggedItemId);
+    }
+
+    // Remove dragged item from current position
+    const draggedIndex = newOrder.indexOf(draggedItemId);
+    newOrder.splice(draggedIndex, 1);
+
+    if (targetItemId === null) {
+      // Drop at the end
+      newOrder.push(draggedItemId);
+    } else {
+      // Ensure target item is in the order array
+      if (!newOrder.includes(targetItemId)) {
+        newOrder.push(targetItemId);
+      }
+
+      // Insert at target position
+      const newTargetIndex = newOrder.indexOf(targetItemId);
+      newOrder.splice(newTargetIndex, 0, draggedItemId);
+    }
+
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        itemOrder: newOrder,
+      },
+    });
+
+    setDraggedItemId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemId(null);
+    setDragOverItemId(null);
+  };
+
+  const sortItems = async (sortBy: "name" | "type") => {
+    const sorted = [...inventory.items].sort((a, b) => {
+      if (sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else {
+        // Sort by type with custom order, then by name within type
+        const typeOrder = ["weapon", "armor", "consumable", "ammunition", "freeform"];
+        const aTypeIndex = typeOrder.indexOf(a.type);
+        const bTypeIndex = typeOrder.indexOf(b.type);
+
+        if (aTypeIndex !== bTypeIndex) {
+          return aTypeIndex - bTypeIndex;
+        }
+
+        // Same type, sort by name
+        return a.name.localeCompare(b.name);
+      }
+    });
+
+    await updateCharacterFields({
+      inventory: {
+        ...inventory,
+        itemOrder: sorted.map((item) => item.id),
+      },
+    });
+  };
+
   const toggleEquipped = async (itemId: string) => {
     const item = inventory.items.find((item) => item.id === itemId);
     if (!item || (item.type !== "weapon" && item.type !== "armor")) {
@@ -423,10 +557,13 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
       case "weapon":
         return (
           <div className="text-xs text-muted-foreground mt-1">
-            {item.attribute && <div>Attribute: {item.attribute.slice(0, 3).toUpperCase()}</div>}
-            {item.damage && <div>Damage: {item.damage}</div>}
-            {item.properties && item.properties.length > 0 && (
-              <div>Properties: {item.properties.join(", ")}</div>
+            {item.damage && (
+              <div>
+                Damage: {item.damage}
+                {item.properties && item.properties.length > 0 && (
+                  <span className="ml-2">• {item.properties.join(", ")}</span>
+                )}
+              </div>
             )}
           </div>
         );
@@ -438,27 +575,44 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
         const totalArmorValue = baseArmor + actualDexBonus;
 
         return (
-          <div className="text-xs text-muted-foreground mt-1 space-y-1">
+          <div className="text-xs text-muted-foreground mt-1">
             {armor.isMainArmor && (
-              <div className="flex items-center gap-1 text-primary">
+              <div className="flex items-center gap-1 text-primary flex-wrap">
                 <Shirt className="w-3 h-3" />
                 <span className="font-medium">Main Armor</span>
+                <span>
+                  • Armor: {baseArmor}
+                  {characterDexterity > 0 && maxDexBonus > 0 && (
+                    <span className="text-green-600">
+                      {" "}
+                      + {actualDexBonus} dex = {totalArmorValue}
+                    </span>
+                  )}
+                  {maxDexBonus < Infinity && (
+                    <span className="text-blue-600 ml-1">(max dex: {maxDexBonus})</span>
+                  )}
+                </span>
+                {armor.properties && armor.properties.length > 0 && (
+                  <span>• {armor.properties.join(", ")}</span>
+                )}
               </div>
             )}
-            <div>
-              Armor: {baseArmor}
-              {characterDexterity > 0 && maxDexBonus > 0 && (
-                <span className="text-green-600">
-                  {" "}
-                  + {actualDexBonus} dex = {totalArmorValue}
-                </span>
-              )}
-              {maxDexBonus < Infinity && (
-                <span className="text-blue-600 ml-1">(max dex: {maxDexBonus})</span>
-              )}
-            </div>
-            {armor.properties && armor.properties.length > 0 && (
-              <div>Properties: {armor.properties.join(", ")}</div>
+            {!armor.isMainArmor && (
+              <div>
+                Armor: {baseArmor}
+                {characterDexterity > 0 && maxDexBonus > 0 && (
+                  <span className="text-green-600">
+                    {" "}
+                    + {actualDexBonus} dex = {totalArmorValue}
+                  </span>
+                )}
+                {maxDexBonus < Infinity && (
+                  <span className="text-blue-600 ml-1">(max dex: {maxDexBonus})</span>
+                )}
+                {armor.properties && armor.properties.length > 0 && (
+                  <span className="ml-2">• {armor.properties.join(", ")}</span>
+                )}
+              </div>
             )}
           </div>
         );
@@ -518,6 +672,19 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
           </Button>
         </div>
 
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline">
+              <ArrowDownAZ className="w-4 h-4 mr-2" />
+              Sort
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => sortItems("name")}>Sort by Name</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => sortItems("type")}>Sort by Type</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* Edit Item Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent>
@@ -573,128 +740,159 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
       )}
 
       {/* Items List */}
-      <div className="space-y-2">
-        {inventory.items.length === 0 ? (
-          <Card>
-            <CardContent className="p-6 text-center text-muted-foreground">
+      <Card>
+        <CardContent className="p-0">
+          {sortedItems.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
               No items in inventory. Click &ldquo;Add Item&rdquo; to get started.
-            </CardContent>
-          </Card>
-        ) : (
-          inventory.items.map((item) => (
-            <Card key={item.id}>
-              <CardContent className="p-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3">
-                    <div className="shrink-0 mt-1 flex flex-col items-center">
-                      {getItemIcon(item)}
-                      {/* Visual size indicators - vertical squares */}
-                      <div className="flex flex-col gap-0.5 mt-1">
-                        {Array.from({ length: item.size }, (_, i) => (
-                          <div
-                            key={i}
-                            className="w-2 h-2 bg-muted border border-muted-foreground/20 rounded-sm"
-                          />
-                        ))}
+            </div>
+          ) : (
+            <div>
+              {sortedItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  draggable
+                  onDragStart={() => handleDragStart(item.id)}
+                  onDragOver={(e) => handleDragOver(e, item.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, item.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`p-3 hover:bg-muted/50 transition-colors ${
+                    index > 0 ? "border-t" : ""
+                  } ${dragOverItemId === item.id ? "bg-muted border-t-2 border-primary" : ""} ${
+                    draggedItemId === item.id ? "opacity-50" : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
+                      <div className="shrink-0 mt-1 cursor-grab active:cursor-grabbing">
+                        <GripVertical className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <div className="shrink-0 mt-1 flex flex-col items-center">
+                        {getItemIcon(item)}
+                        {/* Visual size indicators - vertical squares */}
+                        <div className="flex flex-col gap-0.5 mt-1">
+                          {Array.from({ length: item.size }, (_, i) => (
+                            <div
+                              key={i}
+                              className="w-2 h-2 bg-muted border border-muted-foreground/20 rounded-sm"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">{item.name}</span>
+                        </div>
+                        {renderItemDetails(item)}
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex flex-col items-end space-y-2 shrink-0">
+                      {/* Main action buttons row */}
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium">{item.name}</span>
+                        {item.type === "weapon" && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleWeaponAttack(item as WeaponItem)}
+                            className="h-8 w-8 p-0"
+                            disabled={!item.damage || !item.attribute}
+                          >
+                            <Sword className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {(item.type === "weapon" || item.type === "armor") && (
+                          <Button
+                            variant={item.equipped ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => toggleEquipped(item.id)}
+                            className={item.equipped ? "text-white" : ""}
+                          >
+                            {item.equipped ? "Equipped" : "Equip"}
+                          </Button>
+                        )}
+                        {item.type === "consumable" && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => consumeItem(item.id)}
+                            className="h-8 px-2"
+                          >
+                            <Zap className="w-3 h-3 mr-1" />
+                            Use
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEditItem(item)}
+                          className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(item.id)}
+                          className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <div className="mt-1">
-                        <span className="text-xs bg-muted px-2 py-1 rounded capitalize">
-                          {item.type}
-                        </span>
-                      </div>
-                      {renderItemDetails(item)}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    {/* Main action buttons row */}
-                    <div className="flex items-center space-x-2">
-                      {item.type === "weapon" && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleWeaponAttack(item as WeaponItem)}
-                          className="h-8 w-8 p-0"
-                          disabled={!item.damage || !item.attribute}
-                        >
-                          <Sword className="w-4 h-4" />
-                        </Button>
-                      )}
-                      {(item.type === "weapon" || item.type === "armor") && (
-                        <Button
-                          variant={item.equipped ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => toggleEquipped(item.id)}
-                          className={item.equipped ? "text-white" : ""}
-                        >
-                          {item.equipped ? "Equipped" : "Equip"}
-                        </Button>
-                      )}
-                      {item.type === "consumable" && (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => consumeItem(item.id)}
-                          className="h-8 px-2"
-                        >
-                          <Zap className="w-3 h-3 mr-1" />
-                          Use
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEditItem(item)}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(item.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
 
-                    {/* Count controls row for consumables and ammunition */}
-                    {(item.type === "consumable" || item.type === "ammunition") && (
-                      <div className="flex items-center space-x-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => changeItemCount(item.id, -1)}
-                          disabled={(item as ConsumableItem | AmmunitionItem).count <= 1}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="text-sm font-medium min-w-[2rem] text-center">
-                          {(item as ConsumableItem | AmmunitionItem).count}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => changeItemCount(item.id, 1)}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    )}
+                      {/* Count controls row for consumables and ammunition */}
+                      {(item.type === "consumable" || item.type === "ammunition") && (
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => changeItemCount(item.id, -1)}
+                            disabled={(item as ConsumableItem | AmmunitionItem).count <= 1}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                          <span className="text-sm font-medium min-w-[2rem] text-center">
+                            {(item as ConsumableItem | AmmunitionItem).count}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => changeItemCount(item.id, 1)}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+              ))}
+              {/* Drop zone at the bottom - only visible when dragging */}
+              {draggedItemId && (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverItemId("bottom");
+                  }}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, null)}
+                  className={`p-3 border-t transition-colors ${
+                    dragOverItemId === "bottom"
+                      ? "bg-primary/10 border-t-2 border-primary"
+                      : "bg-muted/50 border-dashed"
+                  }`}
+                >
+                  <div className="text-center text-xs text-muted-foreground">
+                    Drop here to move to bottom
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Item Browser */}
       <ItemBrowser isOpen={isItemBrowserOpen} onClose={() => setIsItemBrowserOpen(false)} />
