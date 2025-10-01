@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "turbo run build --filter=@nimble/portal",
   "installCommand": "npm install",
-  "framework": null,
+  "framework": "nextjs",
   "outputDirectory": ".next",
   "rewrites": [
     {
