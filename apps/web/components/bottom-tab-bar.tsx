@@ -54,9 +54,9 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
         className="sticky bottom-0 left-0 right-0 w-full bg-background border-t z-50"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        {/* Centered container matching top bar width */}
+        {/* Centered container matching top bar width - scrollable tabs */}
         <div className="container mx-auto px-4">
-          <div className="flex items-center h-16 gap-1 justify-around">
+          <div className="flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide">
             {visibleTabs.map((tab) => {
               const IconComponent = tab.icon;
               const isActive = activeTab === tab.id;
@@ -67,14 +67,16 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => onTabChange(tab.id)}
-                  className={`flex flex-col items-center gap-1 h-12 px-3 sm:px-2 min-w-[60px] sm:min-w-0 flex-1 max-w-20 ${
+                  className={`flex flex-col items-center gap-1 h-12 px-3 min-w-[60px] shrink-0 ${
                     isActive
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                  <span className="text-xs font-medium leading-tight truncate">{tab.label}</span>
+                  <span className="text-xs font-medium leading-tight whitespace-nowrap">
+                    {tab.label}
+                  </span>
                 </Button>
               );
             })}
