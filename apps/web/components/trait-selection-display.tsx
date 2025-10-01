@@ -26,7 +26,6 @@ import { Button } from "./ui/button";
 
 interface TraitSelectionDisplayProps {
   effect: FeatureTrait;
-  traitId: string;
   existingSelections: TraitSelection[]; // Always pass all selections for this effect
   onOpenDialog: (effect: FeatureTrait) => void;
   character?: Character;
@@ -39,7 +38,6 @@ interface TraitSelectionDisplayProps {
  */
 export function TraitSelectionDisplay({
   effect,
-  traitId,
   existingSelections,
   onOpenDialog,
   character,
@@ -155,7 +153,7 @@ export function TraitSelectionDisplay({
         const contentRepository = ContentRepositoryService.getInstance();
         const subclass = contentRepository.getSubclassDefinition(subclassSelection.subclassId);
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Check className="w-4 h-4 text-green-600" />
             <span className="text-sm font-medium">
               {subclass?.name || subclassSelection.subclassId}
@@ -182,12 +180,12 @@ export function TraitSelectionDisplay({
         return (
           <div className="space-y-1">
             {poolSelections.map((selection, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+              <div key={idx} className="flex items-center gap-2 flex-wrap">
                 <Check className="w-4 h-4 text-green-600" />
                 <span className="text-sm">{selection.feature.name}</span>
               </div>
             ))}
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-2 mt-1 flex-wrap">
               {remaining > 0 && (
                 <Button
                   size="sm"
@@ -224,7 +222,7 @@ export function TraitSelectionDisplay({
 
         return (
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="space-y-1">
                 {schoolSelections.map((selection, idx) => {
                   const school = contentRepository
@@ -232,7 +230,7 @@ export function TraitSelectionDisplay({
                     .find((s) => s.id === selection.schoolId);
                   const SchoolIcon = school ? getIconById(school.icon) : null;
                   return (
-                    <div key={idx} className="flex items-center gap-2">
+                    <div key={idx} className="flex items-center gap-2 flex-wrap">
                       <Check className="w-4 h-4 text-green-600" />
                       {SchoolIcon && <SchoolIcon className={`w-4 h-4 ${school?.color}`} />}
                       <span className="text-sm">{school?.name || selection.schoolId}</span>
@@ -267,7 +265,7 @@ export function TraitSelectionDisplay({
       case "attribute_boost": {
         const boostSelection = firstSelection as AttributeBoostTraitSelection;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Check className="w-4 h-4 text-green-600" />
             <span className="text-sm font-medium">
               {boostSelection.attribute.charAt(0).toUpperCase() + boostSelection.attribute.slice(1)}{" "}
@@ -292,7 +290,7 @@ export function TraitSelectionDisplay({
         if (spellCount > 0) {
           return (
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className="space-y-1">
                   {spellSelections.map((selection, idx) => {
                     // Check if this is a full_school selection (no spellId, just schoolId)
@@ -300,7 +298,7 @@ export function TraitSelectionDisplay({
                       const school = contentRepository.getSpellSchool(selection.schoolId);
                       const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
                       return (
-                        <div key={idx} className="flex items-center gap-2">
+                        <div key={idx} className="flex items-center gap-2 flex-wrap">
                           <Check className="w-4 h-4 text-green-600" />
                           {SchoolIcon && (
                             <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />
@@ -318,7 +316,7 @@ export function TraitSelectionDisplay({
                     const school = spell ? contentRepository.getSpellSchool(spell.school) : null;
                     const SchoolIcon = school ? getIconById(school.icon) : null;
                     return (
-                      <div key={idx} className="flex items-center gap-2">
+                      <div key={idx} className="flex items-center gap-2 flex-wrap">
                         <Check className="w-4 h-4 text-green-600" />
                         {SchoolIcon && (
                           <SchoolIcon className={`w-4 h-4`} style={{ color: school?.color }} />

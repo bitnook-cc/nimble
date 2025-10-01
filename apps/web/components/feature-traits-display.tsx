@@ -333,37 +333,37 @@ export function FeatureTraitsDisplay({
           // If this is a selectable effect with selection handler, use TraitSelectionDisplay
           if (needsSelection) {
             return (
-              <div key={traitId} className="flex items-center gap-2 p-2 rounded-md border bg-card">
-                <div className="flex items-center gap-1">
-                  {getEffectIcon(effect.type)}
-                  <Badge variant="secondary" className="text-xs">
-                    {getEffectLabel(effect.type)}
-                  </Badge>
-                </div>
-                <div className="flex-1">
+              <div key={traitId} className="p-2 rounded-md border bg-card">
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1">
+                    {getEffectIcon(effect.type)}
+                    <Badge variant="secondary" className="text-xs">
+                      {getEffectLabel(effect.type)}
+                    </Badge>
+                  </div>
                   {traitSelections.length > 0 ? (
                     // Show the selection instead of the description
-                    <TraitSelectionDisplay
-                      effect={effect}
-                      traitId={traitId}
-                      existingSelections={traitSelections}
-                      onOpenDialog={onOpenSelectionDialog}
-                      character={character}
-                      autoOpen={false}
-                    />
-                  ) : (
-                    // Show the description with a selection button
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{formatEffectDescription(effect)}</span>
+                    <div className="flex-1 min-w-0">
                       <TraitSelectionDisplay
                         effect={effect}
-                        traitId={traitId}
                         existingSelections={traitSelections}
                         onOpenDialog={onOpenSelectionDialog}
                         character={character}
                         autoOpen={false}
                       />
                     </div>
+                  ) : (
+                    // Show the description with a selection button
+                    <>
+                      <span className="text-sm flex-1">{formatEffectDescription(effect)}</span>
+                      <TraitSelectionDisplay
+                        effect={effect}
+                        existingSelections={traitSelections}
+                        onOpenDialog={onOpenSelectionDialog}
+                        character={character}
+                        autoOpen={false}
+                      />
+                    </>
                   )}
                 </div>
               </div>
