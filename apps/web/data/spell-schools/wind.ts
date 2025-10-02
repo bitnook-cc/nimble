@@ -164,34 +164,37 @@ const windSchoolSpells: SpellAbilityDefinition[] = [
 
 const windUtilitySpells: SpellAbilityDefinition[] = [
   {
-    id: "storm-warning",
-    name: "Storm Warning",
+    id: "wind-whisper",
+    name: "Wind Whisper",
     type: "spell",
     school: "wind",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "You feel the weather patterns around you for the next 8 hours. If severe weather looms, you gain an impression of the storm's arrival time and intensity.",
+      "You whisper a message into the wind and it will be secretly carried to a specified target within 100 miles/160 km.",
   },
   {
-    id: "windcraft",
-    name: "Windcraft",
+    id: "helpful-gust",
+    name: "Helpful Gust",
     type: "spell",
     school: "wind",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Control the wind within 3 spaces of you, creating gusts or silence. Create any smell, sound, or small illusion that could believably be carried by wind. You can also perfectly mimic any voice or sound you've heard.",
+      "**Reach:** 6. Gently move a Tiny unheld item within Reach in any direction. OR: Generate an illusory scent.",
   },
   {
-    id: "flight",
-    name: "Flight",
+    id: "feather-fall",
+    name: "Feather Fall",
     type: "spell",
     school: "wind",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Grant yourself a flying speed of 2 for up to 10 minutes (requires concentration). Your speed drops to 0 if you are wearing armor or encumbered by heavy objects.",
+      "**Reach:** 6. **Reaction:** When a creature falls, cause them to gently float to the ground, unharmed.",
   },
 ];
 

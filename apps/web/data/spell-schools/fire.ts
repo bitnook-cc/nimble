@@ -162,34 +162,35 @@ const fireSchoolSpells: SpellAbilityDefinition[] = [
 
 const fireUtilitySpells: SpellAbilityDefinition[] = [
   {
-    id: "burning-light",
-    name: "Burning Light",
+    id: "firebrand",
+    name: "Firebrand",
     type: "spell",
     school: "fire",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Ignite an object you can see with a flame the size of a campfire. This does not damage the object. The flame lasts for 1 hour and cannot catch things on fire.",
+      "Touch a surface and secretly mark it with a symbol or brief message. Speaking a chosen command word while nearby reveals it.",
   },
   {
-    id: "flamecraft",
-    name: "Flamecraft",
+    id: "firestep",
+    name: "Firestep",
     type: "spell",
     school: "fire",
     tier: 0,
     category: "utility",
-    description:
-      "Control any flame up to the size of a campfire within 4 spaces. Move the flame anywhere within Range. Double or halve its intensity. Change its colors. Snuff it out. Or, shape it into any form.",
+    description: "Casting Time: 1 min. Teleport to a fire source you can see.",
   },
   {
-    id: "ring-of-warmth",
-    name: "Ring of Warmth",
+    id: "kindle",
+    name: "Kindle",
     type: "spell",
     school: "fire",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Create a 6 × 6 space bubble of warmth that shields you and your allies from cold for 1 hour. OR: Instantly dry one Medium-size or smaller object or creature.",
+      "**Conjure** a minor visual illusion. OR: **Ignite** a small, unheld item within Range 6.",
   },
 ];
 

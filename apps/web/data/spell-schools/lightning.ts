@@ -181,18 +181,19 @@ const lightningUtilitySpells: SpellAbilityDefinition[] = [
     school: "lightning",
     tier: 0,
     category: "utility",
-    description:
-      "Mark a ground location near you as a beacon. When you move, you crackle with electrical energy and leave a trail of lightning behind you. While you have a beacon active, you can use a Bonus Action to instantly teleport to your beacon, granting a static shock to everyone adjacent to you (harmless, but annoying). When you cast this spell again, the beacon moves.",
+    actionCost: 1,
+    description: "**Range:** 4. Teleport to a metal object.",
   },
   {
-    id: "shocking-stories",
-    name: "Shocking Stories",
+    id: "tempests-command",
+    name: "Tempest's Command",
     type: "spell",
     school: "lightning",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Touch a creature or object near you. Instantly be shocked by a vision of one of its most dramatic stories. This may be its greatest accomplishment, its grimmest failure, the moment it was created, the deepest love it's held, and so on.",
+      "**Dispel** a minor magical effect, or temporarily suppress a stronger one (the more powerful an enchantment, the shorter the duration). OR: **Voice of Thunder.** Your eyes glow and your voice is amplified to a booming, thunder-like volume for 1 min.",
   },
 ];
 

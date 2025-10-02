@@ -183,8 +183,9 @@ const iceUtilitySpells: SpellAbilityDefinition[] = [
     school: "ice",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Harmlessly freeze, thaw, or move a bath-sized amount of water near you. OR: Conjure a sheet of opaque, mirror-like, or transparent ice the size of a window or small door.",
+      "**Chill.** Harmlessly freeze, thaw, or move a bath-sized amount of water near you. OR: **Craft.** Conjure a sheet of opaque, mirror-like, or transparent ice the size of a window or small door.",
   },
   {
     id: "wintry-scrying",

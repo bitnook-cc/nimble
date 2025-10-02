@@ -171,34 +171,36 @@ const necroticSchoolSpells: SpellAbilityDefinition[] = [
 
 const necroticUtilitySpells: SpellAbilityDefinition[] = [
   {
-    id: "reaper-sight",
-    name: "Reaper Sight",
+    id: "gravecraft",
+    name: "Gravecraft",
     type: "spell",
     school: "necrotic",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "For 10 minutes, you can see life force. Living creatures glow with vitality, undead emanate dark energy, and you can see the recently deceased (within 1 day). You can also determine if a creature is near death (less than half HP).",
+      "**Gravemark.** Action: Soil a surface with blood, filth, or other disgusting things. OR: **Gravework.** Casting time 1 minute: Shape/move a body-sized plot of earth.",
   },
   {
-    id: "whispers-of-the-grave",
-    name: "Whispers of the Grave",
+    id: "false-face",
+    name: "False Face",
     type: "spell",
     school: "necrotic",
     tier: 0,
     category: "utility",
     description:
-      "You may ask a single question to a corpse that has been dead for less than 1 week. The corpse provides a brief, cryptic answer based on what it knew in life. A corpse can only ever answer 1 question.",
+      "Change your appearance to look like someone else for 10 minutes. Requires a piece of them.",
   },
   {
-    id: "read-the-bones",
-    name: "Read the Bones",
+    id: "thought-leech",
+    name: "Thought Leech",
     type: "spell",
     school: "necrotic",
     tier: 0,
     category: "utility",
+    actionCost: 1,
     description:
-      "Read the surface thoughts of a creature within Reach. Creatures can sense you doing this and may not like it.",
+      "**Reach:** 6. Read the surface thoughts of a creature within Reach. Creatures can sense you doing this and may not like it.",
   },
 ];
 
