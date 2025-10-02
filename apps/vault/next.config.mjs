@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Standard Next.js configuration (removed static export to support API routes)
-  // Use asset prefix instead of basePath to avoid redirect loops when accessed via portal rewrite
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
 
   // Disable linting during build
   eslint: {
@@ -19,6 +21,20 @@ const nextConfig = {
         loaders: ['@next/mdx-loader'],
       },
     },
+  },
+  async rewrites() {
+    // Only rewrite if basePath is configured
+    if (!process.env.NEXT_PUBLIC_BASE_PATH) {
+      return [];
+    }
+
+    return [
+      {
+        source: "/:path((?!vault).*)*",
+        destination: `${process.env.NEXT_PUBLIC_BASE_PATH}/:path*`,
+        basePath: false,
+      },
+    ];
   },
 }
 
