@@ -22,20 +22,6 @@ const nextConfig = {
       },
     },
   },
-  async rewrites() {
-    // Only rewrite if basePath is configured
-    if (!process.env.NEXT_PUBLIC_BASE_PATH) {
-      return [];
-    }
-
-    return [
-      {
-        source: "/:path((?!vault).*)*",
-        destination: `${process.env.NEXT_PUBLIC_BASE_PATH}/:path*`,
-        basePath: false,
-      },
-    ];
-  },
 }
 
 export default nextConfig
