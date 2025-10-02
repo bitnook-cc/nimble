@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { docs, patron, type Doc, type PatronContent } from '#site/content'
+import { docs, patron, type Doc } from '#site/content'
 
 export default function HomePage() {
   const recentDocs = docs.slice(0, 3)
@@ -52,7 +52,7 @@ export default function HomePage() {
                   Start your journey with our comprehensive getting started guide.
                 </p>
                 <Link
-                  href="/docs/getting-started"
+                  href="/docs/public/getting-started"
                   className="
                     inline-block bg-primary text-white px-4 py-2 rounded-md
                     hover:bg-primary/90 transition-colors
@@ -67,7 +67,7 @@ export default function HomePage() {
                   Jump into character creation and build your first hero.
                 </p>
                 <Link
-                  href="/docs/character-creation"
+                  href="/docs/public/character-creation"
                   className="
                     inline-block bg-secondary text-foreground px-4 py-2 rounded-md border border-border
                     hover:bg-accent transition-colors

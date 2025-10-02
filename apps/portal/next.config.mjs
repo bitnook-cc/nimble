@@ -9,7 +9,7 @@ const nextConfig = {
 
     const vaultUrl = isDevelopment
       ? 'http://localhost:4321'
-      : 'https://nimble-vault.vercel.app';
+      : 'https://nimble-vault.vercel.app/vault';
 
     return [
       {
