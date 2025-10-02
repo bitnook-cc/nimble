@@ -96,13 +96,13 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
   }
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-amber-50 to-amber-100 border-r border-amber-200 h-screen overflow-y-auto">
-      <div className="p-4 border-b border-amber-200">
-        <h2 className="text-xl font-bold text-amber-900 flex items-center gap-2">
+    <aside className="w-64 bg-gradient-to-b from-card to-secondary border-r border-border h-screen overflow-y-auto">
+      <div className="p-4 border-b border-border">
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
           <BookOpen size={20} />
           Nimble Vault
         </h2>
-        <p className="text-sm text-amber-700 mt-1">RPG Knowledge Base</p>
+        <p className="text-sm text-muted-foreground mt-1">RPG Knowledge Base</p>
       </div>
 
       <nav className="p-4">
@@ -110,12 +110,12 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
           <div key={category} className="mb-4">
             <button
               onClick={() => toggleCategory(category)}
-              className="w-full flex items-center justify-between p-2 text-left text-amber-900 hover:bg-amber-200 rounded-md transition-colors"
+              className="w-full flex items-center justify-between p-2 text-left text-foreground hover:bg-accent rounded-md transition-colors"
             >
               <span className="flex items-center gap-2 font-medium">
                 <span>{getCategoryIcon(category)}</span>
                 {formatCategoryName(category)}
-                <span className="text-xs text-amber-600">({items.length})</span>
+                <span className="text-xs text-muted-foreground">({items.length})</span>
               </span>
               {expandedCategories.has(category) ? (
                 <ChevronDown size={16} />
@@ -133,14 +133,14 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
                       className={`
                         flex items-center gap-2 p-2 text-sm rounded-md transition-colors
                         ${currentPath === item.permalink
-                          ? 'bg-amber-300 text-amber-900 font-medium'
-                          : 'text-amber-800 hover:bg-amber-200'
+                          ? 'bg-primary text-foreground font-medium'
+                          : 'text-foreground hover:bg-accent'
                         }
                       `}
                     >
                       <span className="flex-1">{item.title}</span>
                       {hasRestrictedAccess(item.access) && (
-                        <Lock size={12} className="text-amber-600" />
+                        <Lock size={12} className="text-muted-foreground" />
                       )}
                     </Link>
                   </li>
@@ -151,7 +151,7 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
         ))}
 
         {Object.keys(groupedContent).length === 0 && (
-          <div className="text-center text-amber-600 mt-8">
+          <div className="text-center text-muted-foreground mt-8">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
             <p>No accessible content found</p>
             <p className="text-xs mt-2">Check your permissions</p>
@@ -159,12 +159,12 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
         )}
       </nav>
 
-      <div className="p-4 mt-auto border-t border-amber-200">
-        <div className="text-xs text-amber-600">
+      <div className="p-4 mt-auto border-t border-border">
+        <div className="text-xs text-muted-foreground">
           <p>Access Level:</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {userTags.map(tag => (
-              <span key={tag} className="bg-amber-200 px-2 py-1 rounded text-amber-800">
+              <span key={tag} className="bg-accent px-2 py-1 rounded text-foreground">
                 {tag}
               </span>
             ))}

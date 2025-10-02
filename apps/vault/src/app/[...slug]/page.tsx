@@ -45,7 +45,7 @@ export default async function ContentPage({ params }: PageProps) {
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-amber-600 mb-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <span>{contentItem.section}</span>
           {contentItem.subsection && (
             <>
@@ -55,14 +55,14 @@ export default async function ContentPage({ params }: PageProps) {
           )}
         </div>
         {frontmatter.description && (
-          <p className="text-amber-700 text-lg mb-4">{frontmatter.description}</p>
+          <p className="text-muted-foreground text-lg mb-4">{frontmatter.description}</p>
         )}
         {frontmatter.tags && frontmatter.tags.length > 0 && (
           <div className="flex gap-2 mb-4">
             {frontmatter.tags.map((tag: string) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-full"
+                className="px-2 py-1 bg-secondary text-foreground text-xs rounded-full"
               >
                 {tag}
               </span>

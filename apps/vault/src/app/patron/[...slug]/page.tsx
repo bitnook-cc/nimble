@@ -15,7 +15,7 @@ function TocItem({ item, depth = 0 }: { item: TocEntry; depth?: number }) {
       <li style={{ marginLeft: `${depth * 1}rem` }}>
         <a
           href={`#${item.url.slice(1)}`}
-          className="text-amber-700 hover:text-amber-900 transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors"
         >
           {item.title}
         </a>
@@ -78,17 +78,17 @@ export default async function PatronPage({ params }: PatronPageProps) {
   if (!hasAccess) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg border border-amber-200 shadow-sm p-8 text-center">
-          <Lock size={48} className="mx-auto mb-4 text-amber-600" />
-          <h1 className="text-2xl font-bold text-amber-900 mb-4">Premium Content</h1>
-          <p className="text-amber-700 mb-6">
+        <div className="bg-white rounded-lg border border-border shadow-sm p-8 text-center">
+          <Lock size={48} className="mx-auto mb-4 text-muted-foreground" />
+          <h1 className="text-2xl font-bold text-foreground mb-4">Premium Content</h1>
+          <p className="text-muted-foreground mb-6">
             This content is available to patrons and premium subscribers only.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="bg-amber-600 text-white px-6 py-2 rounded-md hover:bg-amber-700 transition-colors">
+            <button className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors">
               Become a Patron
             </button>
-            <button className="bg-amber-100 text-amber-800 px-6 py-2 rounded-md border border-amber-300 hover:bg-amber-200 transition-colors">
+            <button className="bg-secondary text-foreground px-6 py-2 rounded-md border border-border hover:bg-accent transition-colors">
               Learn More
             </button>
           </div>
@@ -100,30 +100,30 @@ export default async function PatronPage({ params }: PatronPageProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-amber-600 mb-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Lock size={14} />
           <span className="capitalize">{content.category?.replace('-', ' ') || 'Premium'}</span>
           <span>•</span>
           <span>{content.readingTime} min read</span>
-          <span className="bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs">
+          <span className="bg-accent text-foreground px-2 py-1 rounded text-xs">
             Premium
           </span>
         </div>
-        <h1 className="text-4xl font-bold text-amber-900 mb-4">{content.title}</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-4">{content.title}</h1>
         {content.description && (
-          <p className="text-xl text-amber-700">{content.description}</p>
+          <p className="text-xl text-muted-foreground">{content.description}</p>
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-amber-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <article className="prose prose-amber max-w-none p-8">
           <MDXContent code={content.content} />
         </article>
       </div>
 
       {content.toc && content.toc.length > 0 && (
-        <aside className="mt-8 bg-amber-50 rounded-lg p-6 border border-amber-200">
-          <h2 className="text-lg font-semibold text-amber-900 mb-4">Table of Contents</h2>
+        <aside className="mt-8 bg-card rounded-lg p-6 border border-border">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Table of Contents</h2>
           <nav>
             <ul className="space-y-2">
               {content.toc.map((item, index) => (

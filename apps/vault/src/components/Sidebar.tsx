@@ -36,10 +36,10 @@ export function Sidebar({ navigation }: SidebarProps) {
   }
 
   return (
-    <nav className="w-64 bg-amber-50 border-r border-amber-200 h-screen overflow-y-auto">
+    <nav className="w-64 bg-card border-r border-border h-screen overflow-y-auto">
       <div className="p-4">
         <Link href="/" className="block">
-          <h1 className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors">
+          <h1 className="text-xl font-bold text-foreground hover:text-muted-foreground transition-colors">
             📚 Nimble Vault
           </h1>
         </Link>
@@ -56,8 +56,8 @@ export function Sidebar({ navigation }: SidebarProps) {
                 onClick={() => toggleSection(section.slug)}
                 disabled={!hasContent}
                 className={`w-full px-4 py-2 text-left text-sm font-semibold flex items-center justify-between
-                  ${hasContent ? 'hover:bg-amber-100 cursor-pointer' : 'cursor-default'}
-                  ${isActive(section.slug) ? 'bg-amber-100 text-amber-900' : 'text-amber-800'}
+                  ${hasContent ? 'hover:bg-accent cursor-pointer' : 'cursor-default'}
+                  ${isActive(section.slug) ? 'bg-accent text-foreground' : 'text-foreground'}
                 `}
               >
                 <span className="flex items-center gap-2">
@@ -72,18 +72,18 @@ export function Sidebar({ navigation }: SidebarProps) {
               </button>
 
               {!isCollapsed && hasContent && (
-                <div className="ml-2 border-l border-amber-200">
+                <div className="ml-2 border-l border-border">
                   {/* Direct section items */}
                   {section.items.map((item: any) => (
                     <Link
                       key={item.slug}
                       href={`/${item.slug}`}
-                      className={`block px-4 py-1 text-sm hover:bg-amber-100 transition-colors
-                        ${isActive(item.slug) ? 'bg-amber-100 text-amber-900 font-medium' : 'text-amber-700'}
+                      className={`block px-4 py-1 text-sm hover:bg-accent transition-colors
+                        ${isActive(item.slug) ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground'}
                       `}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-1 h-1 bg-amber-400 rounded-full"></span>
+                        <span className="w-1 h-1 bg-primary rounded-full"></span>
                         <span>{item.title}</span>
                       </div>
                     </Link>
@@ -92,19 +92,19 @@ export function Sidebar({ navigation }: SidebarProps) {
                   {/* Subsections */}
                   {section.subsections.map((subsection: any) => (
                     <div key={subsection.slug} className="mt-2">
-                      <div className="px-4 py-1 text-xs font-medium text-amber-600 uppercase tracking-wide">
+                      <div className="px-4 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                         {subsection.name}
                       </div>
                       {subsection.items.map((item: any) => (
                         <Link
                           key={item.slug}
                           href={`/${item.slug}`}
-                          className={`block px-6 py-1 text-sm hover:bg-amber-100 transition-colors
-                            ${isActive(item.slug) ? 'bg-amber-100 text-amber-900 font-medium' : 'text-amber-700'}
+                          className={`block px-6 py-1 text-sm hover:bg-accent transition-colors
+                            ${isActive(item.slug) ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground'}
                           `}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="w-1 h-1 bg-amber-300 rounded-full"></span>
+                            <span className="w-1 h-1 bg-primary rounded-full"></span>
                             <span>{item.title}</span>
                           </div>
                         </Link>

@@ -22,10 +22,10 @@ export default function RootLayout({
           <div className="flex flex-1">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-              <div className="bg-white border-b border-amber-200 p-4 flex items-center justify-between">
+              <div className="bg-white border-b border-border p-4 flex items-center justify-between">
                 <SearchBar />
               </div>
-              <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-amber-50 to-amber-100">
+              <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-card to-secondary">
                 {children}
               </main>
             </div>

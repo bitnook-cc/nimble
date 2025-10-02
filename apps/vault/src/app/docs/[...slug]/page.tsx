@@ -50,33 +50,33 @@ export default async function DocsPage({ params }: DocsPageProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-amber-600 mb-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <span className="capitalize">{doc.category?.replace('-', ' ') || 'General'}</span>
           <span>•</span>
           <span>{doc.readingTime} min read</span>
         </div>
-        <h1 className="text-4xl font-bold text-amber-900 mb-4">{doc.title}</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-4">{doc.title}</h1>
         {doc.description && (
-          <p className="text-xl text-amber-700">{doc.description}</p>
+          <p className="text-xl text-muted-foreground">{doc.description}</p>
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-amber-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <article className="prose prose-amber max-w-none p-8">
           <MDXContent code={doc.content} />
         </article>
       </div>
 
       {doc.toc && doc.toc.length > 0 && (
-        <aside className="mt-8 bg-amber-50 rounded-lg p-6 border border-amber-200">
-          <h2 className="text-lg font-semibold text-amber-900 mb-4">Table of Contents</h2>
+        <aside className="mt-8 bg-card rounded-lg p-6 border border-border">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Table of Contents</h2>
           <nav>
             <ul className="space-y-2">
               {doc.toc.map((item: any, index: number) => (
                 <li key={index} style={{ marginLeft: `${(item.depth - 1) * 1}rem` }}>
                   <a
                     href={`#${item.url.slice(1)}`}
-                    className="text-amber-700 hover:text-amber-900 transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {item.title}
                   </a>
