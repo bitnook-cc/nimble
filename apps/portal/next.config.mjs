@@ -8,7 +8,7 @@ const nextConfig = {
     return [
       {
         source: "/vault/:path*",
-        destination: "https://nimble-vault.vercel.app/:path*",
+        destination: "https://nimble-vault.vercel.app/vault/:path*",
       },
       {
         source: "/characters/:path*",
