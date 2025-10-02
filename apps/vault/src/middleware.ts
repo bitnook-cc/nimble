@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
   // (though Next.js typically strips basePath before middleware)
   if (basePath !== basePathConfig) {
     const url = request.nextUrl.clone()
-    url.pathname = `${basePath}${pathname}`
+    url.pathname = `${basePathConfig}${pathname}`
     console.log('[Middleware] Rewriting', pathname, 'to', url.pathname)
     return NextResponse.rewrite(url)
   }
