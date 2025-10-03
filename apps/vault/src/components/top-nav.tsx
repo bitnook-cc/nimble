@@ -24,14 +24,10 @@ export function TopNav() {
       async (event, session) => {
         console.log('[TopNav] Auth state changed:', event, !!session)
         if (session?.user) {
-          // Automatically add 'premium' tag to all logged-in users
-          const userTags = session.user.app_metadata?.tags || []
-          const tagsWithPremium = userTags.includes('premium') ? userTags : [...userTags, 'premium']
-
           setUser({
             id: session.user.id,
             email: session.user.email,
-            tags: tagsWithPremium
+            tags: session.user.app_metadata?.tags || []
           })
         } else {
           setUser(null)
@@ -66,14 +62,10 @@ export function TopNav() {
           last_sign_in_at: session.user.last_sign_in_at
         })
 
-        // Automatically add 'premium' tag to all logged-in users
-        const userTags = session.user.app_metadata?.tags || []
-        const tagsWithPremium = userTags.includes('premium') ? userTags : [...userTags, 'premium']
-
         setUser({
           id: session.user.id,
           email: session.user.email,
-          tags: tagsWithPremium
+          tags: session.user.app_metadata?.tags || []
         })
       } else {
         console.log('[TopNav] No Supabase session found')

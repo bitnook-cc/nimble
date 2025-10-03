@@ -36,9 +36,7 @@ export async function getUserTags(): Promise<string[]> {
     return []
   }
 
-  // Automatically add 'premium' tag to all logged-in users
-  const userTags = session.user.app_metadata?.tags || []
-  return userTags.includes('premium') ? userTags : [...userTags, 'premium']
+  return session.user.app_metadata?.tags || []
 }
 
 export async function hasTag(tag: string): Promise<boolean> {

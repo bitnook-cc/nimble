@@ -42,10 +42,19 @@ export async function GET(request: NextRequest) {
       // Use Supabase's built-in user system - no custom tables needed!
       // Get user tags from app_metadata (managed by database functions/triggers)
       let userTags = (data.user.app_metadata?.tags || []) as UserTag[]
-      
-      // Assign "test" tag to all users if they don't have it
+
+      // Assign default tags to all users if they don't have them
+      let tagsUpdated = false
       if (!userTags.includes('test')) {
         userTags = ['test', ...userTags]
+        tagsUpdated = true
+      }
+      if (!userTags.includes('premium')) {
+        userTags = ['premium', ...userTags]
+        tagsUpdated = true
+      }
+
+      if (tagsUpdated) {
         
         // Update user metadata with test tag (requires service role key)
         if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -62,8 +71,8 @@ export async function GET(request: NextRequest) {
                 tags: userTags
               }
             })
-            
-            console.log('Added test tag to user:', data.user.id)
+
+            console.log('Added default tags to user:', data.user.id, userTags)
           } catch (updateError) {
             console.error('Failed to update user tags:', updateError)
             // Don't fail authentication if tag update fails
