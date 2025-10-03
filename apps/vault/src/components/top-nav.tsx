@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { getPortalUrl } from '@/lib/portal-url'
 
 interface User {
   id: string
@@ -23,10 +24,14 @@ export function TopNav() {
       async (event, session) => {
         console.log('[TopNav] Auth state changed:', event, !!session)
         if (session?.user) {
+          // Automatically add 'premium' tag to all logged-in users
+          const userTags = session.user.app_metadata?.tags || []
+          const tagsWithPremium = userTags.includes('premium') ? userTags : [...userTags, 'premium']
+
           setUser({
             id: session.user.id,
             email: session.user.email,
-            tags: session.user.app_metadata?.tags || []
+            tags: tagsWithPremium
           })
         } else {
           setUser(null)
@@ -60,11 +65,15 @@ export function TopNav() {
           email: session.user.email,
           last_sign_in_at: session.user.last_sign_in_at
         })
-        
+
+        // Automatically add 'premium' tag to all logged-in users
+        const userTags = session.user.app_metadata?.tags || []
+        const tagsWithPremium = userTags.includes('premium') ? userTags : [...userTags, 'premium']
+
         setUser({
           id: session.user.id,
           email: session.user.email,
-          tags: session.user.app_metadata?.tags || []
+          tags: tagsWithPremium
         })
       } else {
         console.log('[TopNav] No Supabase session found')
@@ -78,7 +87,7 @@ export function TopNav() {
 
   const handleLogin = () => {
     // Redirect to portal login
-    window.location.href = 'http://localhost:4000'
+    window.location.href = getPortalUrl()
   }
 
   const handleLogout = async () => {

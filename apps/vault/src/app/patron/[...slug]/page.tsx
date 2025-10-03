@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { patron, type PatronContent } from '#site/content'
 import { MDXContent } from '@/components/mdx-content'
 import { Lock } from 'lucide-react'
+import { hasTag } from '@/lib/supabase/server'
+import { getPortalUrl } from '@/lib/portal-url'
 
 interface TocEntry {
   title: string
@@ -72,25 +74,28 @@ export default async function PatronPage({ params }: PatronPageProps) {
     notFound()
   }
 
-  // TODO: In a real app, check user authentication and subscription status here
-  const hasAccess = true // For demo purposes
+  // Check if user has premium access
+  const hasPremiumAccess = await hasTag('premium')
 
-  if (!hasAccess) {
+  if (!hasPremiumAccess) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg border border-border shadow-sm p-8 text-center">
-          <Lock size={48} className="mx-auto mb-4 text-muted-foreground" />
-          <h1 className="text-2xl font-bold text-foreground mb-4">Premium Content</h1>
-          <p className="text-muted-foreground mb-6">
-            This content is available to patrons and premium subscribers only.
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="bg-white rounded-lg border border-border shadow-sm p-12 text-center">
+          <Lock size={64} className="mx-auto mb-6 text-amber-600" />
+          <h1 className="text-3xl font-bold text-foreground mb-4">Premium Content</h1>
+          <p className="text-muted-foreground text-lg mb-2">
+            This content is available to premium members only.
+          </p>
+          <p className="text-muted-foreground mb-8">
+            Sign in to access advanced rules, exclusive content, and more.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors">
-              Become a Patron
-            </button>
-            <button className="bg-secondary text-foreground px-6 py-2 rounded-md border border-border hover:bg-accent transition-colors">
-              Learn More
-            </button>
+            <a
+              href={getPortalUrl()}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
+            >
+              Sign In to Access
+            </a>
           </div>
         </div>
       </div>
