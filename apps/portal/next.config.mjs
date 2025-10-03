@@ -16,6 +16,10 @@ const nextConfig = {
         source: "/vault/",
         destination: `${vaultUrl}/`,
       },
+            {
+        source: "/vault/_next/:path*/",
+        destination: `${vaultUrl}/_next/:path*/`,
+      },
       {
         source: "/vault/:path*/",
         destination: `${vaultUrl}/:path*/`,
