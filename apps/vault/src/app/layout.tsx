@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Sidebar } from '@/components/navigation/Sidebar'
+import { SidebarWrapper } from '@/components/navigation/SidebarWrapper'
 import { SearchBar } from '@/components/search/SearchBar'
 import { TopNav } from '@/components/top-nav'
 
@@ -20,7 +20,7 @@ export default function RootLayout({
         <div className="flex h-screen flex-col">
           <TopNav />
           <div className="flex flex-1">
-            <Sidebar />
+            <SidebarWrapper />
             <div className="flex-1 flex flex-col">
               <div className="bg-white border-b border-border p-4 flex items-center justify-between">
                 <SearchBar />
