@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { patron, type PatronContent } from '#site/content'
 import { MDXContent } from '@/components/mdx-content'
 import { Lock } from 'lucide-react'
-import { hasTag } from '@/lib/supabase/server'
+import { hasPremiumAccess } from '@/lib/access'
 import { getPortalUrl } from '@/lib/portal-url'
 
 interface TocEntry {
@@ -75,9 +75,9 @@ export default async function PatronPage({ params }: PatronPageProps) {
   }
 
   // Check if user has premium access
-  const hasPremiumAccess = await hasTag('premium')
+  const hasAccess = await hasPremiumAccess()
 
-  if (!hasPremiumAccess) {
+  if (!hasAccess) {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="bg-white rounded-lg border border-border shadow-sm p-12 text-center">

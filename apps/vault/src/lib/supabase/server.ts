@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+/**
+ * Create a Supabase server client for server-side operations
+ * Handles cookie management for SSR authentication
+ */
 export async function createClient() {
   const cookieStore = await cookies()
 
@@ -26,20 +30,4 @@ export async function createClient() {
       },
     }
   )
-}
-
-export async function getUserTags(): Promise<string[]> {
-  const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session?.user) {
-    return []
-  }
-
-  return session.user.app_metadata?.tags || []
-}
-
-export async function hasTag(tag: string): Promise<boolean> {
-  const tags = await getUserTags()
-  return tags.includes(tag)
 }
