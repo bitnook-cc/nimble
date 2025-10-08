@@ -50,16 +50,6 @@ const STEPS = [
   // More steps to come: 'abilities', 'review'
 ];
 
-// Helper function to determine primary feature type from traits
-function getPrimaryFeatureType(feature: ClassFeature): string {
-  if (feature.traits.length === 0) {
-    return "passive_feature";
-  }
-
-  // Return the first effect type as the primary type
-  return feature.traits[0].type;
-}
-
 export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
   const { character, updateCharacter } = useCharacterService();
   const [currentStep, setCurrentStep] = useState(0);
@@ -80,9 +70,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
   // Early return if no character loaded (after all hooks)
   if (!character) return null;
 
-  // Get class definition for hit die size
-  const classDefinition = contentRepo.getClassDefinition(character.classId);
-  const hitDieSize = classDefinition?.hitDieSize || 8;
+  const hitDieSize = character._hitDice.size;
 
   const handleNext = () => {
     if (currentStep === 0) {

@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export function HitDiceSection() {
   // Get everything we need from service hooks
-  const { character, performSafeRest, performCatchBreath, performMakeCamp, updateCharacter } =
+  const { character, performSafeRest, performCatchBreath, performMakeCamp, updateCharacterFields } =
     useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
 
@@ -25,7 +25,7 @@ export function HitDiceSection() {
   const [editValues, setEditValues] = useState({
     level: character?.level || 1,
     hitDieSize: character?._hitDice.size || 6,
-    currentHitDice: character?._hitDice.current || 1,
+    currentHitDice: character?._hitDice.current || character?.level || 1,
   });
 
   // Early return if no character (shouldn't happen in normal usage)
@@ -35,16 +35,16 @@ export function HitDiceSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("hitDice", isOpen);
 
   const handleSave = () => {
+    console.log(editValues);
     const updatedCharacter = {
-      ...character,
       level: editValues.level,
-      hitDice: {
+      _hitDice: {
         size: editValues.hitDieSize,
         current: editValues.currentHitDice,
         max: editValues.level, // Max hit dice always equals level
       },
     };
-    updateCharacter(updatedCharacter);
+    updateCharacterFields(updatedCharacter);
     setIsEditing(false);
   };
 
