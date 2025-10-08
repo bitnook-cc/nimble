@@ -262,10 +262,9 @@ export function FeatureList({
       )}
 
       {/* Spell School Selection Dialog */}
-      {selectedSpellSchoolChoiceEffect && character && (
+      {selectedSpellSchoolChoiceEffect && (
         <SpellSchoolSelectionDialog
           effect={selectedSpellSchoolChoiceEffect}
-          character={character}
           open={!!selectedSpellSchoolChoiceEffect}
           onOpenChange={(open) => {
             if (!open) {

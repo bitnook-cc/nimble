@@ -16,14 +16,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { Character } from "@/lib/schemas/character";
 import { SpellSchoolChoiceFeatureTrait } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getIconById } from "@/lib/utils/icon-utils";
 
 interface SpellSchoolSelectionDialogProps {
   effect: SpellSchoolChoiceFeatureTrait;
-  character: Character;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (schoolId: string) => void;
@@ -33,7 +31,6 @@ interface SpellSchoolSelectionDialogProps {
 
 export function SpellSchoolSelectionDialog({
   effect,
-  character,
   open,
   onOpenChange,
   onConfirm,
@@ -61,10 +58,15 @@ export function SpellSchoolSelectionDialog({
 
   // Get available schools
   const getAvailableSchools = () => {
-    const allSchools = contentRepository.getAllSpellSchools();
+    let schools = contentRepository.getAllSpellSchools();
+
+    // Filter by effect's availableSchools if specified
+    if (effect.availableSchools && effect.availableSchools.length > 0) {
+      schools = schools.filter((school) => effect.availableSchools!.includes(school.id));
+    }
 
     // Filter out already selected schools (but keep the current one if editing)
-    return allSchools.filter(
+    return schools.filter(
       (school) => !existingSchools.includes(school.id) || school.id === existingSelection,
     );
   };

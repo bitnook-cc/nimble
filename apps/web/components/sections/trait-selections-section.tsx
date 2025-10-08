@@ -410,7 +410,6 @@ export function TraitSelectionsSection() {
       {selectedSpellSchoolChoice && (
         <SpellSchoolSelectionDialog
           effect={selectedSpellSchoolChoice}
-          character={character}
           open={!!selectedSpellSchoolChoice}
           onOpenChange={(open) => {
             if (!open) {
