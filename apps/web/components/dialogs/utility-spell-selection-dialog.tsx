@@ -107,6 +107,17 @@ export function UtilitySpellSelectionDialog({
   const allAvailableSpells: SpellAbilityDefinition[] =
     featureSelectionService.getAvailableUtilitySpells(effect, character);
 
+  // Get schools already selected by OTHER utility spell features (in full_school mode)
+  const otherUtilitySchoolSelections = character.traitSelections
+    .filter((s) => s.type === "utility_spells" && s.grantedByTraitId !== effect.id && !s.spellId)
+    .map((s) => (s.type === "utility_spells" ? s.schoolId : ""))
+    .filter((id) => id !== "");
+
+  // Filter out already selected schools (but keep the current selection if editing)
+  const filteredSchools = availableSchools.filter(
+    (schoolId) => !otherUtilitySchoolSelections.includes(schoolId) || schoolId === selectedSchoolId,
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
@@ -124,7 +135,7 @@ export function UtilitySpellSelectionDialog({
           <div className="space-y-4">
             {isFullSchoolMode
               ? // Full school mode - show school selection
-                availableSchools.map((schoolId) => {
+                filteredSchools.map((schoolId) => {
                   const school = contentRepository.getSpellSchool(schoolId);
                   const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
                   const schoolSpells = allAvailableSpells.filter(
