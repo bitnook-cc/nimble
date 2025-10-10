@@ -29,17 +29,4 @@ EOF
 echo "📦 Initializing and updating submodules..."
 git submodule update --init --recursive
 
-# Create symlink to vault content
-echo "🔗 Creating symlink to premium content..."
-if [ -d "apps/vault/external/vault-content" ]; then
-  # Remove existing symlink if it exists
-  rm -f apps/vault/content/premium
-
-  # Create symlink named "premium" pointing to the vault content
-  ln -s ../external/vault-content apps/vault/content/premium
-  echo "✅ Premium content symlink created successfully!"
-else
-  echo "⚠️  Warning: vault-content directory not found in submodule"
-fi
-
 echo "✅ Submodule workaround completed successfully!"
