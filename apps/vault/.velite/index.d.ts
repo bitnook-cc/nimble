@@ -7,5 +7,5 @@ type Collections = typeof __vc.collections
 export type Doc = Collections['docs']['schema']['_output']
 export declare const docs: Doc[]
 
-export type PatronContent = Collections['patron']['schema']['_output']
-export declare const patron: PatronContent[]
+export type PremiumContent = Collections['premium']['schema']['_output']
+export declare const premium: PremiumContent[]

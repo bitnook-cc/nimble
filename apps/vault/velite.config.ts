@@ -41,15 +41,15 @@ export default defineConfig({
         }))
     },
 
-    // Premium content - requires authentication (from private submodule)
-    premium: {
-      name: 'PremiumContent',
+    // Patron/Premium content - requires authentication (from private submodule)
+    patron: {
+      name: 'PatronContent',
       pattern: ['premium/**/*.md', 'premium/**/*.mdx'],
       schema: contentSchema
         .transform((data) => ({
           ...data,
-          access: data.access.length > 0 ? data.access : ['premium'],
-          permalink: `/premium/${data.slug}`,
+          access: data.access.length > 0 ? data.access : ['patron'],
+          permalink: `/patron/${data.slug}`,
           readingTime: Math.ceil(data.content.split(' ').length / 200),
         }))
     }
