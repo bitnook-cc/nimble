@@ -10,10 +10,15 @@ export default defineConfig({
     clean: true
   },
   collections: {
-    // Public content - accessible to all users
+    // Public content - accessible to all users (from submodule)
     docs: {
       name: 'Doc',
-      pattern: ['public/**/*.md', 'public/**/*.mdx'],
+      pattern: [
+        'public/**/*.md',
+        'public/**/*.mdx',
+        '../external/vault-content/vault-content/content/docs/**/*.md',
+        '../external/vault-content/vault-content/content/docs/**/*.mdx'
+      ],
       schema: s
         .object({
           title: s.string().max(99),

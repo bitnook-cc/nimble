@@ -1,0 +1,3 @@
+[submodule "apps/vault/external/vault-content"]
+	path = apps/vault/external/vault-content
+	url = git@github-personal:bitnook-cc/nimble-vault.git
