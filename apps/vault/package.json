@@ -11,7 +11,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "content:build": "velite build",
-    "content:dev": "velite build --watch"
+    "content:dev": "velite build --watch",
+    "content:update": "cd external/vault-content && git pull && cd ../.. && git add external/vault-content && echo '\n✅ Vault content updated! Now commit and push:\n   git commit -m \"Update vault content\"\n   git push\n'"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
