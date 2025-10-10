@@ -31,8 +31,8 @@ git submodule update --init --recursive
 
 # Copy vault content to the app's content directory
 echo "📋 Copying vault content to apps/vault/content..."
-if [ -d "apps/vault/external/vault-content/vault-content" ]; then
-  cp -r apps/vault/external/vault-content/vault-content/* apps/vault/content/
+if [ -d "apps/vault/external/vault-content" ]; then
+  cp -r apps/vault/external/vault-content/* apps/vault/content/
   echo "✅ Vault content copied successfully!"
 else
   echo "⚠️  Warning: vault-content directory not found in submodule"
