@@ -86,7 +86,7 @@ export default function HomePage() {
           <ContentTreeView
             items={allContent}
             title="All Available Documents"
-            expandAll={false}
+            expandAll={true}
           />
         </section>
 

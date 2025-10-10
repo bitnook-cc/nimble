@@ -38,67 +38,64 @@ export function ContentTreeView({
 
   // Build tree structure from slugs
   const buildTree = (contentItems: ContentItem[]): TreeNode[] => {
-    const root: Map<string, TreeNode> = new Map()
+    const root: TreeNode = {
+      name: '',
+      path: '',
+      children: [],
+      isFolder: true,
+    }
 
     contentItems.forEach((item) => {
       const parts = item.slug.split('/')
-      let currentMap = root
+      let currentNode = root
       let currentPath = ''
 
       parts.forEach((part, index) => {
         currentPath = currentPath ? `${currentPath}/${part}` : part
         const isLeaf = index === parts.length - 1
 
-        if (!currentMap.has(part)) {
-          const node: TreeNode = {
+        // Find or create child node
+        let childNode = currentNode.children.find((child) => child.name === part)
+
+        if (!childNode) {
+          childNode = {
             name: part,
             path: currentPath,
             children: [],
             isFolder: !isLeaf,
             ...(isLeaf && { item }),
           }
-          currentMap.set(part, node)
+          currentNode.children.push(childNode)
         }
 
+        // Move to the child node for next iteration
         if (!isLeaf) {
-          const node = currentMap.get(part)!
-          if (!node.children) node.children = []
-
-          // Convert children array to map for next iteration
-          const childMap = new Map<string, TreeNode>()
-          node.children.forEach((child) => childMap.set(child.name, child))
-          currentMap = childMap
+          currentNode = childNode
         }
       })
     })
 
-    // Convert map to sorted array
-    const sortNodes = (nodes: Map<string, TreeNode>): TreeNode[] => {
-      return Array.from(nodes.values())
-        .map((node) => ({
-          ...node,
-          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : [],
-        }))
+    // Sort children recursively
+    const sortChildrenRecursively = (node: TreeNode): TreeNode => {
+      const sortedChildren = node.children
+        .map((child) => sortChildrenRecursively(child))
         .sort((a, b) => {
+          // Folders first, then files
           if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
+          // Then alphabetically
           return a.name.localeCompare(b.name)
         })
+
+      return {
+        ...node,
+        children: sortedChildren,
+      }
     }
 
-    const sortChildrenRecursively = (children: TreeNode[]): TreeNode[] => {
-      return children
-        .map((node) => ({
-          ...node,
-          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : [],
-        }))
-        .sort((a, b) => {
-          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-          return a.name.localeCompare(b.name)
-        })
-    }
-
-    return sortNodes(root)
+    const sortedRoot = sortChildrenRecursively(root)
+    return sortedRoot.children
   }
+
 
   const tree = buildTree(items)
 
