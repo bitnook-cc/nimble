@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # Vercel Private Submodule Workaround
-# Adapted from: https://github.com/beeinger/vercel-private-submodule
-# This script temporarily rewrites .gitmodules to use HTTPS with token authentication,
-# clones the submodules, then restores the original .gitmodules
+# Creates a temporary .gitmodules with HTTPS authentication to clone private submodules
 
 set -e  # Exit on error
 
@@ -18,22 +16,16 @@ fi
 # Navigate to repo root (script runs from apps/vault/)
 cd ../..
 
-# Backup original .gitmodules
-echo "📋 Backing up .gitmodules..."
-cp .gitmodules .gitmodules.bak
-
-# Replace git@ URLs with https:// URLs containing the token
-echo "🔄 Rewriting .gitmodules with authentication token..."
-sed -i.tmp "s|git@github.com:|https://${CONTENT_REPOSITORY_TOKEN}@github.com/|g" .gitmodules
-sed -i.tmp "s|git@github-personal:|https://${CONTENT_REPOSITORY_TOKEN}@github.com/|g" .gitmodules
-rm -f .gitmodules.tmp
+# Create .gitmodules with HTTPS authentication
+echo "📝 Creating .gitmodules with authentication..."
+cat > .gitmodules << EOF
+[submodule "apps/vault/external/vault-content"]
+	path = apps/vault/external/vault-content
+	url = https://${CONTENT_REPOSITORY_TOKEN}@github.com/bitnook-cc/nimble-content.git
+EOF
 
 # Initialize and update submodules
 echo "📦 Initializing and updating submodules..."
 git submodule update --init --recursive
-
-# Restore original .gitmodules
-echo "♻️  Restoring original .gitmodules..."
-mv .gitmodules.bak .gitmodules
 
 echo "✅ Submodule workaround completed successfully!"
