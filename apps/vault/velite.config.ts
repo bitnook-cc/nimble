@@ -1,5 +1,20 @@
 import { defineConfig, s } from 'velite'
 
+// Shared content schema for both public and premium content
+const contentSchema = s
+  .object({
+    title: s.string().max(99),
+    description: s.string().max(999).optional(),
+    category: s.string().optional(),
+    order: s.number().default(0),
+    tags: s.array(s.string()).default([]),
+    access: s.array(s.string()).default([]),
+    slug: s.path(),
+    content: s.mdx(),
+    toc: s.toc(),
+    metadata: s.metadata(),
+  })
+
 export default defineConfig({
   root: './content',
   output: {
@@ -10,55 +25,31 @@ export default defineConfig({
     clean: true
   },
   collections: {
-    // Public content - accessible to all users (from submodule)
+    // Public content - accessible to all users
     docs: {
       name: 'Doc',
       pattern: [
         'public/**/*.md',
-        'public/**/*.mdx',
-        '../external/vault-content/vault-content/content/docs/**/*.md',
-        '../external/vault-content/vault-content/content/docs/**/*.mdx'
+        'public/**/*.mdx'
       ],
-      schema: s
-        .object({
-          title: s.string().max(99),
-          description: s.string().max(999).optional(),
-          category: s.string().optional(),
-          order: s.number().default(0),
-          tags: s.array(s.string()).default([]),
-          access: s.array(s.string()).default(['public']),
-          slug: s.path(),
-          content: s.mdx(),
-          toc: s.toc(),
-          metadata: s.metadata(),
-        })
+      schema: contentSchema
         .transform((data) => ({
           ...data,
+          access: data.access.length > 0 ? data.access : ['public'],
           permalink: `/docs/${data.slug}`,
           readingTime: Math.ceil(data.content.split(' ').length / 200), // Rough reading time
         }))
     },
-    
-    // Patron/Premium content - requires authentication
-    patron: {
-      name: 'PatronContent',
-      pattern: ['patron/**/*.md', 'patron/**/*.mdx'],
-      schema: s
-        .object({
-          title: s.string().max(99),
-          description: s.string().max(999).optional(),
-          category: s.string().optional(),
-          order: s.number().default(0),
-          tags: s.array(s.string()).default([]),
-          access: s.array(s.string()).default(['patron']),
-          slug: s.path(),
-          content: s.mdx(),
-          toc: s.toc(),
-          metadata: s.metadata(),
-        })
+
+    // Premium content - requires authentication (from private submodule)
+    premium: {
+      name: 'PremiumContent',
+      pattern: ['premium/**/*.md', 'premium/**/*.mdx'],
+      schema: contentSchema
         .transform((data) => ({
           ...data,
-          permalink: `/patron/${data.slug}`,
+          access: data.access.length > 0 ? data.access : ['premium'],
+          permalink: `/premium/${data.slug}`,
           readingTime: Math.ceil(data.content.split(' ').length / 200),
         }))
     }
