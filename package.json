@@ -26,7 +26,8 @@
     "test": "turbo test",
     "test:watch": "turbo test:watch",
     "test:ui": "turbo test:ui",
-    "prepare": "npx husky || true"
+    "prepare": "npx husky || true",
+    "vercel-install": "./vercel-submodule-workaround.sh && npm install --legacy-peer-deps"
   },
   "devDependencies": {
     "husky": "^9.1.7",
