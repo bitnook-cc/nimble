@@ -29,11 +29,15 @@ EOF
 echo "📦 Initializing and updating submodules..."
 git submodule update --init --recursive
 
-# Copy vault content to the app's content directory
-echo "📋 Copying vault content to apps/vault/content..."
+# Create symlink to vault content
+echo "🔗 Creating symlink to premium content..."
 if [ -d "apps/vault/external/vault-content" ]; then
-  cp -r apps/vault/external/vault-content/* apps/vault/content/
-  echo "✅ Vault content copied successfully!"
+  # Remove existing symlink if it exists
+  rm -f apps/vault/content/premium
+
+  # Create symlink named "premium" pointing to the vault content
+  ln -s ../external/vault-content apps/vault/content/premium
+  echo "✅ Premium content symlink created successfully!"
 else
   echo "⚠️  Warning: vault-content directory not found in submodule"
 fi
