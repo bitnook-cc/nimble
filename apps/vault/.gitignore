@@ -39,7 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# vault content is managed as a git submodule
-# if submodule is not initialized, builds will skip this content
-/external/
