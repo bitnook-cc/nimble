@@ -15,6 +15,9 @@ if [ -z "$CONTENT_REPOSITORY_TOKEN" ]; then
   exit 1
 fi
 
+# Navigate to repo root (script runs from apps/vault/)
+cd ../..
+
 # Backup original .gitmodules
 echo "📋 Backing up .gitmodules..."
 cp .gitmodules .gitmodules.bak
@@ -22,6 +25,7 @@ cp .gitmodules .gitmodules.bak
 # Replace git@ URLs with https:// URLs containing the token
 echo "🔄 Rewriting .gitmodules with authentication token..."
 sed -i.tmp "s|git@github.com:|https://${CONTENT_REPOSITORY_TOKEN}@github.com/|g" .gitmodules
+sed -i.tmp "s|git@github-personal:|https://${CONTENT_REPOSITORY_TOKEN}@github.com/|g" .gitmodules
 rm -f .gitmodules.tmp
 
 # Initialize and update submodules

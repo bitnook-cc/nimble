@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "content:build": "velite build",
     "content:dev": "velite build --watch",
-    "content:update": "cd external/vault-content && git pull && cd ../../../.. && git add apps/vault/external/vault-content && echo '\n✅ Vault content updated! Now commit and push:\n   git commit -m \"Update vault content\"\n   git push\n'"
+    "content:update": "cd external/vault-content && git pull && cd ../../../.. && git add apps/vault/external/vault-content && echo '\n✅ Vault content updated! Now commit and push:\n   git commit -m \"Update vault content\"\n   git push\n'",
+    "vercel-install": "./vercel-submodule-workaround.sh && npm install"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
