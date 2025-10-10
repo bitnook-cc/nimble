@@ -1,19 +1,9 @@
 import { defineConfig, s } from 'velite'
+import { getContentSchema } from './external/vault-content/velite-schema.js'
 
 // Shared content schema for both public and premium content
-const contentSchema = s
-  .object({
-    title: s.string().max(99),
-    description: s.string().max(999).optional(),
-    category: s.string().optional(),
-    order: s.number().default(0),
-    tags: s.array(s.string()).default([]),
-    access: s.array(s.string()).default([]),
-    slug: s.path(),
-    content: s.mdx(),
-    toc: s.toc(),
-    metadata: s.metadata(),
-  })
+// Schema definition is maintained in the vault-content repository
+const contentSchema = getContentSchema(s)
 
 export default defineConfig({
   root: './content',
@@ -33,7 +23,7 @@ export default defineConfig({
         'public/**/*.mdx'
       ],
       schema: contentSchema
-        .transform((data) => ({
+        .transform((data: any) => ({
           ...data,
           access: data.access.length > 0 ? data.access : ['public'],
           permalink: `/docs/${data.slug}`,
@@ -46,7 +36,7 @@ export default defineConfig({
       name: 'PatronContent',
       pattern: ['premium/**/*.md', 'premium/**/*.mdx'],
       schema: contentSchema
-        .transform((data) => ({
+        .transform((data: any) => ({
           ...data,
           access: data.access.length > 0 ? data.access : ['patron'],
           permalink: `/patron/${data.slug}`,

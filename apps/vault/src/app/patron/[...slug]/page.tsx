@@ -131,7 +131,7 @@ export default async function PatronPage({ params }: PatronPageProps) {
           <h2 className="text-lg font-semibold text-foreground mb-4">Table of Contents</h2>
           <nav>
             <ul className="space-y-2">
-              {content.toc.map((item, index) => (
+              {content.toc.map((item: TocEntry, index: number) => (
                 <TocItem key={index} item={item} depth={0} />
               ))}
             </ul>
