@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { docs, patron, type Doc } from '#site/content'
+import { ContentTreeView } from '@/components/ContentTreeView'
 
 export default function HomePage() {
   const recentDocs = docs.slice(0, 3)
   const featuredContent = [...docs, ...patron].slice(0, 6)
+  const allContent = [...docs, ...patron]
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -81,7 +83,15 @@ export default function HomePage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-foreground mb-6">Browse Content</h2>
+          <ContentTreeView
+            items={allContent}
+            title="All Available Documents"
+            expandAll={false}
+          />
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Featured Content</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredContent.map((item) => (
               <Link
