@@ -1,20 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, ChevronRight, BookOpen, Lock } from 'lucide-react'
+import { ChevronDown, ChevronRight, BookOpen, Lock, Folder, FileText } from 'lucide-react'
 import { docs, patron } from '#site/content'
 
 interface NavigationItem {
   title: string
   permalink: string
-  category?: string
+  slug: string
   access: string[]
   order: number
 }
 
-interface CategoryGroup {
-  [category: string]: NavigationItem[]
+interface TreeNode {
+  name: string
+  path: string
+  children: TreeNode[]
+  item?: NavigationItem
+  isFolder: boolean
 }
 
 interface SidebarProps {
@@ -23,21 +27,21 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['basics']))
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]))
 
   // Combine and organize all content
   const allContent: NavigationItem[] = [
     ...docs.map(doc => ({
       title: doc.title,
       permalink: doc.permalink,
-      category: doc.category || 'uncategorized',
+      slug: doc.slug,
       access: doc.access,
       order: doc.order
     })),
     ...patron.map(item => ({
       title: item.title,
       permalink: item.permalink,
-      category: item.category || 'advanced',
+      slug: item.slug,
       access: item.access,
       order: item.order
     }))
@@ -48,51 +52,157 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
     item.access.some(access => userTags.includes(access) || access === 'public')
   )
 
-  // Group by category and sort
-  const groupedContent: CategoryGroup = accessibleContent.reduce((acc, item) => {
-    const category = item.category || 'uncategorized'
-    if (!acc[category]) acc[category] = []
-    acc[category].push(item)
-    return acc
-  }, {} as CategoryGroup)
+  // Build tree structure from slugs
+  const buildTree = (items: NavigationItem[]): TreeNode[] => {
+    const root: Map<string, TreeNode> = new Map()
 
-  // Sort items within each category
-  Object.keys(groupedContent).forEach(category => {
-    groupedContent[category].sort((a, b) => a.order - b.order || a.title.localeCompare(b.title))
-  })
+    items.forEach(item => {
+      const parts = item.slug.split('/')
+      let currentMap = root
+      let currentPath = ''
 
-  const toggleCategory = (category: string) => {
-    const newExpanded = new Set(expandedCategories)
-    if (newExpanded.has(category)) {
-      newExpanded.delete(category)
+      parts.forEach((part, index) => {
+        currentPath = currentPath ? `${currentPath}/${part}` : part
+        const isLeaf = index === parts.length - 1
+
+        if (!currentMap.has(part)) {
+          const node: TreeNode = {
+            name: part,
+            path: currentPath,
+            children: [],
+            isFolder: !isLeaf,
+            ...(isLeaf && { item })
+          }
+          currentMap.set(part, node)
+        }
+
+        if (!isLeaf) {
+          const node = currentMap.get(part)!
+          if (!node.children) node.children = []
+
+          // Convert children array to map for next iteration
+          const childMap = new Map<string, TreeNode>()
+          node.children.forEach(child => childMap.set(child.name, child))
+          currentMap = childMap
+        }
+      })
+    })
+
+    // Convert map to sorted array
+    const sortNodes = (nodes: Map<string, TreeNode>): TreeNode[] => {
+      return Array.from(nodes.values())
+        .map(node => ({
+          ...node,
+          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : []
+        }))
+        .sort((a, b) => {
+          // Folders first, then files
+          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
+          // Then by order if items exist
+          if (a.item && b.item) return a.item.order - b.item.order
+          // Then alphabetically
+          return a.name.localeCompare(b.name)
+        })
+    }
+
+    const sortChildrenRecursively = (children: TreeNode[]): TreeNode[] => {
+      return children
+        .map(node => ({
+          ...node,
+          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : []
+        }))
+        .sort((a, b) => {
+          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
+          if (a.item && b.item) return a.item.order - b.item.order
+          return a.name.localeCompare(b.name)
+        })
+    }
+
+    return sortNodes(root)
+  }
+
+  const tree = buildTree(accessibleContent)
+
+  const togglePath = (path: string) => {
+    const newExpanded = new Set(expandedPaths)
+    if (newExpanded.has(path)) {
+      newExpanded.delete(path)
     } else {
-      newExpanded.add(category)
+      newExpanded.add(path)
     }
-    setExpandedCategories(newExpanded)
-  }
-
-  const getCategoryIcon = (category: string) => {
-    const iconMap: { [key: string]: string } = {
-      basics: '📚',
-      'character-creation': '👤',
-      combat: '⚔️',
-      magic: '✨',
-      equipment: '🛡️',
-      advanced: '🔥',
-      uncategorized: '📄'
-    }
-    return iconMap[category] || '📄'
-  }
-
-  const formatCategoryName = (category: string) => {
-    return category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+    setExpandedPaths(newExpanded)
   }
 
   const hasRestrictedAccess = (access: string[]) => {
     return access.some(tag => tag !== 'public')
+  }
+
+  const formatName = (name: string) => {
+    // Remove file extensions and clean up
+    return name
+      .replace(/\.(md|mdx)$/, '')
+      .replace(/[-_]/g, ' ')
+  }
+
+  const renderTreeNode = (node: TreeNode, depth: number = 0): React.ReactElement => {
+    const isExpanded = expandedPaths.has(node.path)
+    const hasChildren = node.children && node.children.length > 0
+
+    if (node.isFolder) {
+      return (
+        <div key={node.path} className="mb-1">
+          <button
+            onClick={() => togglePath(node.path)}
+            className="w-full flex items-center gap-2 p-2 text-left text-foreground hover:bg-accent rounded-md transition-colors text-sm"
+            style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
+          >
+            {hasChildren && (
+              isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+            )}
+            <Folder size={14} className="text-muted-foreground" />
+            <span className="font-medium">{formatName(node.name)}</span>
+            {hasChildren && (
+              <span className="text-xs text-muted-foreground ml-auto">
+                ({node.children.length})
+              </span>
+            )}
+          </button>
+
+          {isExpanded && hasChildren && (
+            <div className="mt-1">
+              {node.children.map(child => renderTreeNode(child, depth + 1))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // Leaf node (actual content item)
+    if (node.item) {
+      return (
+        <div key={node.path}>
+          <Link
+            href={node.item.permalink}
+            className={`
+              flex items-center gap-2 p-2 text-sm rounded-md transition-colors
+              ${currentPath === node.item.permalink
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'text-foreground hover:bg-accent'
+              }
+            `}
+            style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
+          >
+            <FileText size={14} className="text-muted-foreground flex-shrink-0" />
+            <span className="flex-1 truncate">{node.item.title}</span>
+            {hasRestrictedAccess(node.item.access) && (
+              <Lock size={12} className="text-muted-foreground flex-shrink-0" />
+            )}
+          </Link>
+        </div>
+      )
+    }
+
+    return <></>
   }
 
   return (
@@ -106,51 +216,9 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
       </div>
 
       <nav className="p-4">
-        {Object.entries(groupedContent).map(([category, items]) => (
-          <div key={category} className="mb-4">
-            <button
-              onClick={() => toggleCategory(category)}
-              className="w-full flex items-center justify-between p-2 text-left text-foreground hover:bg-accent rounded-md transition-colors"
-            >
-              <span className="flex items-center gap-2 font-medium">
-                <span>{getCategoryIcon(category)}</span>
-                {formatCategoryName(category)}
-                <span className="text-xs text-muted-foreground">({items.length})</span>
-              </span>
-              {expandedCategories.has(category) ? (
-                <ChevronDown size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              )}
-            </button>
-
-            {expandedCategories.has(category) && (
-              <ul className="ml-4 mt-2 space-y-1">
-                {items.map((item) => (
-                  <li key={item.permalink}>
-                    <Link
-                      href={item.permalink}
-                      className={`
-                        flex items-center gap-2 p-2 text-sm rounded-md transition-colors
-                        ${currentPath === item.permalink
-                          ? 'bg-primary text-foreground font-medium'
-                          : 'text-foreground hover:bg-accent'
-                        }
-                      `}
-                    >
-                      <span className="flex-1">{item.title}</span>
-                      {hasRestrictedAccess(item.access) && (
-                        <Lock size={12} className="text-muted-foreground" />
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-
-        {Object.keys(groupedContent).length === 0 && (
+        {tree.length > 0 ? (
+          tree.map(node => renderTreeNode(node, 0))
+        ) : (
           <div className="text-center text-muted-foreground mt-8">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
             <p>No accessible content found</p>

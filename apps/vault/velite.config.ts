@@ -38,8 +38,8 @@ export default defineConfig({
       schema: contentSchema
         .transform((data: any) => ({
           ...data,
-          access: data.access.length > 0 ? data.access : ['patron'],
-          permalink: `/patron/${data.slug}`,
+          access: data.access.length > 0 ? data.access : ['test'],
+          permalink: `/${data.slug}`,
           readingTime: Math.ceil(data.content.split(' ').length / 200),
         }))
     }
