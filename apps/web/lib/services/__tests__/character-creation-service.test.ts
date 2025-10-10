@@ -109,6 +109,7 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        notes: [],
         timestamps: {
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -188,6 +189,7 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        notes: [],
         timestamps: {
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -269,6 +271,7 @@ describe("CharacterCreationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         saveAdvantages: {},
+        notes: [],
         timestamps: {
           createdAt: Date.now(),
           updatedAt: Date.now(),
