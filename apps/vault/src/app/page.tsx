@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import { docs, patron, type Doc } from '#site/content'
 import { ContentTreeView } from '@/components/ContentTreeView'
-import docsTree from '../../.velite/docs-tree.json'
-import patronTree from '../../.velite/patron-tree.json'
+import { docsTree, patronTree, allTrees } from '../../.velite/trees.js'
 
 export default function HomePage() {
   const recentDocs = docs.slice(0, 3)
   const featuredContent = [...docs, ...patron].slice(0, 6)
 
-  // Combine both trees
+  // Combine both trees - can also use Object.values(allTrees).flat()
   const combinedTree = [...docsTree, ...patronTree]
 
   return (

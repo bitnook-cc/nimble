@@ -2,6 +2,19 @@ import { defineConfig, s } from 'velite'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 
+// Normalize strings for URL-safe paths
+function slugify(str: string): string {
+  return str
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters except word chars, spaces, and hyphens
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+}
+
 // Shared content schema for both public and premium content
 // Schema definition is maintained in the vault-content repository
 const contentSchema = s.object({
@@ -19,7 +32,8 @@ const contentSchema = s.object({
 
 // Tree node structure
 interface TreeNode {
-  name: string
+  name: string // Slugified name for URLs
+  displayName?: string // Original name for display
   path: string
   children: TreeNode[]
   item?: {
@@ -30,8 +44,21 @@ interface TreeNode {
   }
 }
 
-// Build tree structure from content items
-function buildTree(items: Array<{ title: string; permalink: string; slug: string; access: string[] }>): TreeNode[] {
+// Build tree structure from content items with original slugs for display name reconstruction
+function buildTree(items: Array<{ title: string; permalink: string; slug: string; access: string[] }>, originalItems?: Array<{ slug: string }>): TreeNode[] {
+  // Create a map of slugified path to original path parts
+  const pathMap = new Map<string, string>()
+  if (originalItems) {
+    originalItems.forEach((origItem) => {
+      const origParts = origItem.slug.split('/')
+      const slugParts = origParts.map(slugify)
+      origParts.forEach((origPart, idx) => {
+        const slugPath = slugParts.slice(0, idx + 1).join('/')
+        pathMap.set(slugPath, origPart)
+      })
+    })
+  }
+
   const root: TreeNode = {
     name: '',
     path: '',
@@ -48,12 +75,14 @@ function buildTree(items: Array<{ title: string; permalink: string; slug: string
       const isLeaf = index === parts.length - 1
 
       // Find or create child node
-      let childNode = currentNode.children.find((child) => child.name === part)
+      let childNode = currentNode.children.find((child) => child.path === currentPath)
 
       if (!childNode) {
+        const displayName = pathMap.get(currentPath) || part
         childNode = {
-          name: part,
-          path: currentPath,
+          name: part, // Slugified name
+          displayName: displayName, // Original name for display
+          path: currentPath, // Already slugified in transform
           children: [],
           ...(isLeaf && { item }),
         }
@@ -106,12 +135,18 @@ export default defineConfig({
         'public/**/*.mdx'
       ],
       schema: contentSchema
-        .transform((data) => ({
-          ...data,
-          access: data.access.length > 0 ? data.access : ['public'],
-          permalink: `/docs/${data.slug}`,
-          readingTime: Math.ceil(data.content.split(' ').length / 200), // Rough reading time
-        }))
+        .transform((data) => {
+          const originalSlug = data.slug
+          const slugifiedPath = data.slug.split('/').map(slugify).join('/')
+          return {
+            ...data,
+            originalSlug,
+            slug: slugifiedPath,
+            access: data.access.length > 0 ? data.access : ['public'],
+            permalink: `/docs/${slugifiedPath}`,
+            readingTime: Math.ceil(data.content.split(' ').length / 200), // Rough reading time
+          }
+        })
     },
 
     // Patron/Premium content - requires authentication (from private submodule)
@@ -119,12 +154,18 @@ export default defineConfig({
       name: 'PatronContent',
       pattern: ['premium/**/*.md', 'premium/**/*.mdx'],
       schema: contentSchema
-        .transform((data) => ({
-          ...data,
-          access: data.access.length > 0 ? data.access : ['test'],
-          permalink: `/${data.slug}`,
-          readingTime: Math.ceil(data.content.split(' ').length / 200),
-        }))
+        .transform((data) => {
+          const originalSlug = data.slug
+          const slugifiedPath = data.slug.split('/').map(slugify).join('/')
+          return {
+            ...data,
+            originalSlug,
+            slug: slugifiedPath,
+            access: data.access.length > 0 ? data.access : ['test'],
+            permalink: `/${slugifiedPath}`,
+            readingTime: Math.ceil(data.content.split(' ').length / 200),
+          }
+        })
     }
   },
   
@@ -137,41 +178,82 @@ export default defineConfig({
   // Build navigation trees after all collections are processed
   complete: (data) => {
     console.log('[VELITE] Building navigation trees...')
-
-    // Build tree for docs collection
-    const docsItems = data.docs.map((doc: any) => ({
-      title: doc.title,
-      permalink: doc.permalink,
-      slug: doc.slug,
-      access: doc.access,
-    }))
-    const docsTree = buildTree(docsItems)
-
-    // Build tree for patron collection
-    const patronItems = data.patron.map((item: any) => ({
-      title: item.title,
-      permalink: item.permalink,
-      slug: item.slug,
-      access: item.access,
-    }))
-    const patronTree = buildTree(patronItems)
-
-    // Write trees to separate files
     const outputDir = join(process.cwd(), '.velite')
 
+    const collectionNames: string[] = []
+
+    // Dynamically iterate over all collections
+    Object.entries(data).forEach(([collectionName, collection]) => {
+      if (Array.isArray(collection) && collection.length > 0) {
+        const items = collection.map((item: any) => ({
+          title: item.title,
+          permalink: item.permalink,
+          slug: item.slug,
+          access: item.access,
+        }))
+        const originalItems = collection.map((item: any) => ({
+          slug: item.originalSlug || item.slug
+        }))
+        const tree = buildTree(items, originalItems)
+
+        writeFileSync(
+          join(outputDir, `${collectionName}-tree.json`),
+          JSON.stringify(tree, null, 2),
+          'utf-8'
+        )
+
+        collectionNames.push(collectionName)
+        console.log(`[VELITE] ✅ Built ${collectionName} tree: ${items.length} items`)
+      }
+    })
+
+    // Generate trees.js export file
+    const treesExports = collectionNames.map(name =>
+      `export { default as ${name}Tree } from './${name}-tree.json'`
+    ).join('\n')
+
+    const allTreesImports = collectionNames.map(name =>
+      `import ${name}TreeData from './${name}-tree.json'`
+    ).join('\n')
+
+    const allTreesExport = `\nexport const allTrees = {\n${collectionNames.map(name =>
+      `  ${name}: ${name}TreeData`
+    ).join(',\n')}\n}`
+
     writeFileSync(
-      join(outputDir, 'docs-tree.json'),
-      JSON.stringify(docsTree, null, 2),
+      join(outputDir, 'trees.js'),
+      `// This file is generated by Velite\n\n${allTreesImports}\n\n${treesExports}${allTreesExport}\n`,
       'utf-8'
     )
 
+    // Generate trees.d.ts type definitions
+    const treeType = `export interface TreeNode {
+  name: string
+  displayName?: string
+  path: string
+  children: TreeNode[]
+  item?: {
+    title: string
+    permalink: string
+    slug: string
+    access: string[]
+  }
+}`
+
+    const treeExports = collectionNames.map(name =>
+      `export declare const ${name}Tree: TreeNode[]`
+    ).join('\n')
+
+    const allTreesType = `\nexport declare const allTrees: {\n${collectionNames.map(name =>
+      `  ${name}: TreeNode[]`
+    ).join('\n')}\n}`
+
     writeFileSync(
-      join(outputDir, 'patron-tree.json'),
-      JSON.stringify(patronTree, null, 2),
+      join(outputDir, 'trees.d.ts'),
+      `// This file is generated by Velite\n\n${treeType}\n\n${treeExports}${allTreesType}\n`,
       'utf-8'
     )
 
-    console.log(`[VELITE] ✅ Built docs tree: ${docsItems.length} items`)
-    console.log(`[VELITE] ✅ Built patron tree: ${patronItems.length} items`)
+    console.log('[VELITE] ✅ Generated trees.js and trees.d.ts')
   }
 })

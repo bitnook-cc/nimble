@@ -3,20 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, Folder, FileText, Lock } from 'lucide-react'
-
-interface ContentItem {
-  title: string
-  permalink: string
-  slug: string
-  access: string[]
-}
-
-interface TreeNode {
-  name: string
-  path: string
-  children: TreeNode[]
-  item?: ContentItem
-}
+import type { TreeNode } from '#site/trees'
 
 interface ContentTreeViewProps {
   tree: TreeNode[]
@@ -53,9 +40,11 @@ export function ContentTreeView({
     return name.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ')
   }
 
+  const getDisplayName = (node: TreeNode) => {
+    return node.displayName || formatName(node.name)
+  }
+
   const renderTreeNode = (node: TreeNode, depth: number = 0): React.ReactElement => {
-    console.log(node.path, depth, node.children)
-    
     const isExpanded = expandedPaths.has(node.path)
     const hasChildren = node.children && node.children.length > 0
 
@@ -70,7 +59,7 @@ export function ContentTreeView({
             {hasChildren &&
               (isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
             <Folder size={16} className="text-primary" />
-            <span className="font-medium text-foreground">{formatName(node.name)}</span>
+            <span className="font-medium text-foreground">{getDisplayName(node)}</span>
             {hasChildren && (
               <span className="text-xs text-muted-foreground ml-auto">
                 ({node.children.length})
@@ -78,9 +67,9 @@ export function ContentTreeView({
             )}
           </button>
 
-          {(
+          {isExpanded && (
             <div className="mt-1">
-              {node.children.map((child) => {console.log("Rendering child...", child); return renderTreeNode(child, depth + 1)})}
+              {node.children.map((child) => renderTreeNode(child, depth + 1))}
             </div>
           )}
         </div>
