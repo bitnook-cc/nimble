@@ -16,88 +16,24 @@ interface TreeNode {
   path: string
   children: TreeNode[]
   item?: ContentItem
-  isFolder: boolean
 }
 
 interface ContentTreeViewProps {
-  items: ContentItem[]
+  tree: TreeNode[]
   userTags?: string[]
   title?: string
   expandAll?: boolean
 }
 
 export function ContentTreeView({
-  items,
+  tree,
   userTags = ['public'],
   title = 'Content Directory',
   expandAll = false,
 }: ContentTreeViewProps) {
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
-    new Set(expandAll ? getAllPaths(items) : [])
+    new Set(expandAll ? getAllPaths(tree) : [])
   )
-
-  // Build tree structure from slugs
-  const buildTree = (contentItems: ContentItem[]): TreeNode[] => {
-    const root: TreeNode = {
-      name: '',
-      path: '',
-      children: [],
-      isFolder: true,
-    }
-
-    contentItems.forEach((item) => {
-      const parts = item.slug.split('/')
-      let currentNode = root
-      let currentPath = ''
-
-      parts.forEach((part, index) => {
-        currentPath = currentPath ? `${currentPath}/${part}` : part
-        const isLeaf = index === parts.length - 1
-
-        // Find or create child node
-        let childNode = currentNode.children.find((child) => child.name === part)
-
-        if (!childNode) {
-          childNode = {
-            name: part,
-            path: currentPath,
-            children: [],
-            isFolder: !isLeaf,
-            ...(isLeaf && { item }),
-          }
-          currentNode.children.push(childNode)
-        }
-
-        // Move to the child node for next iteration
-        if (!isLeaf) {
-          currentNode = childNode
-        }
-      })
-    })
-
-    // Sort children recursively
-    const sortChildrenRecursively = (node: TreeNode): TreeNode => {
-      const sortedChildren = node.children
-        .map((child) => sortChildrenRecursively(child))
-        .sort((a, b) => {
-          // Folders first, then files
-          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-          // Then alphabetically
-          return a.name.localeCompare(b.name)
-        })
-
-      return {
-        ...node,
-        children: sortedChildren,
-      }
-    }
-
-    const sortedRoot = sortChildrenRecursively(root)
-    return sortedRoot.children
-  }
-
-
-  const tree = buildTree(items)
 
   const togglePath = (path: string) => {
     const newExpanded = new Set(expandedPaths)
@@ -118,10 +54,12 @@ export function ContentTreeView({
   }
 
   const renderTreeNode = (node: TreeNode, depth: number = 0): React.ReactElement => {
+    console.log(node.path, depth, node.children)
+    
     const isExpanded = expandedPaths.has(node.path)
     const hasChildren = node.children && node.children.length > 0
 
-    if (node.isFolder) {
+    if (hasChildren) {
       return (
         <div key={node.path} className="mb-1">
           <button
@@ -140,9 +78,9 @@ export function ContentTreeView({
             )}
           </button>
 
-          {isExpanded && hasChildren && (
+          {(
             <div className="mt-1">
-              {node.children.map((child) => renderTreeNode(child, depth + 1))}
+              {node.children.map((child) => {console.log("Rendering child...", child); return renderTreeNode(child, depth + 1)})}
             </div>
           )}
         </div>
@@ -170,7 +108,7 @@ export function ContentTreeView({
       )
     }
 
-    return <></>
+    return <div key={node.path}>No item found</div>
   }
 
   return (
@@ -187,25 +125,35 @@ export function ContentTreeView({
         )}
       </div>
       <div className="mt-4 text-xs text-muted-foreground">
-        <span>Total documents: {items.length}</span>
+        <span>Total documents: {countLeafNodes(tree)}</span>
       </div>
     </div>
   )
 }
 
-// Helper function to get all paths for expand all
-function getAllPaths(items: ContentItem[]): string[] {
-  const paths = new Set<string>()
-  items.forEach((item) => {
-    const parts = item.slug.split('/')
-    let currentPath = ''
-    parts.forEach((part, index) => {
-      currentPath = currentPath ? `${currentPath}/${part}` : part
-      if (index < parts.length - 1) {
-        // Only add folder paths
-        paths.add(currentPath)
-      }
-    })
+// Helper function to count leaf nodes (actual documents)
+function countLeafNodes(nodes: TreeNode[]): number {
+  let count = 0
+  nodes.forEach((node) => {
+    if (node.item) {
+      count++
+    }
+    if (node.children && node.children.length > 0) {
+      count += countLeafNodes(node.children)
+    }
   })
-  return Array.from(paths)
+  return count
+}
+
+// Helper function to get all folder paths for expand all
+function getAllPaths(nodes: TreeNode[]): string[] {
+  const paths: string[] = []
+  const traverse = (node: TreeNode) => {
+    if (node.children && node.children.length > 0) {
+      paths.push(node.path)
+      node.children.forEach(traverse)
+    }
+  }
+  nodes.forEach(traverse)
+  return paths
 }

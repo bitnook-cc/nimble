@@ -4,14 +4,8 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const basePathConfig = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
-  console.log('[Middleware] Request URL:', request.url)
-  console.log('[Middleware] Request pathname:', request.nextUrl.pathname)
-  console.log('[Middleware] Request basepath:', request.nextUrl.basePath)
-  console.log('[Middleware] basePath:', basePathConfig)
-
   // Only apply middleware if basePath is configured
   if (!basePathConfig) {
-    console.log('[Middleware] No basePath configured, passing through')
     return NextResponse.next()
   }
 
@@ -28,10 +22,8 @@ export function middleware(request: NextRequest) {
   if (basePath !== basePathConfig) {
     const url = request.nextUrl.clone()
     url.pathname = `${basePathConfig}${pathname}`
-    console.log('[Middleware] Rewriting', pathname, 'to', url.pathname)
     return NextResponse.rewrite(url)
   }
 
-  console.log('[Middleware] Path already has basePath, passing through')
   return NextResponse.next()
 }
