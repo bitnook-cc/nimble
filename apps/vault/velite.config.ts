@@ -137,12 +137,11 @@ export default defineConfig({
           // Remove 'public/' prefix from the slug
           const cleanedSlug = data.slug.replace(/^public\//, '')
           const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
-          // Remove access property for public content
-          const { access, ...rest } = data
           return {
-            ...rest,
+            ...data,
             originalSlug,
             slug: slugifiedPath,
+            access: [] as string[], // Public content has no access restrictions (empty array)
             permalink: `/${slugifiedPath}`,
             readingTime: Math.ceil(data.content.split(' ').length / 200),
           }

@@ -111,7 +111,7 @@ export default function HomePage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-foreground line-clamp-2">{item.title}</h4>
-                  {'access' in item && item.access?.includes('patron') && (
+                  {item.access && item.access.includes('patron') && (
                     <span className="text-xs bg-accent text-foreground px-2 py-1 rounded">
                       Premium
                     </span>

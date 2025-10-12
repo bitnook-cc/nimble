@@ -8,7 +8,7 @@ const nextConfig = {
 
   // Disable linting during build
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   // Enable TypeScript checking again
   typescript: {

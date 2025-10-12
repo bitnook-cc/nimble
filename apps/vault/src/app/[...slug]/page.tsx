@@ -67,7 +67,7 @@ export default async function ContentPage({ params }: ContentPageProps) {
   }
 
   // Check if user has access to this content
-  const hasAccess = await isContentAccessible('access' in content ? content.access : undefined)
+  const hasAccess = await isContentAccessible(content.access)
 
   if (!hasAccess) {
     // Redirect to portal login with return URL
