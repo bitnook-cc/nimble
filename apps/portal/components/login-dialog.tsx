@@ -13,11 +13,16 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  const handleLogin = async (provider: 'google' | 'discord') => {
+  const handleLogin = async (provider: 'google' | 'discord' | 'patreon') => {
     setIsLoading(provider)
     setShowSuccess(false)
     try {
-      const response = await fetch('/api/auth/login', {
+      // Patreon uses custom endpoint
+      const endpoint = provider === 'patreon'
+        ? '/api/auth/patreon/login'
+        : '/api/auth/login'
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider }),
@@ -121,24 +126,6 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
                 Continue with Discord
               </button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-slate-500">Coming Soon</span>
-                </div>
-              </div>
-
-              <button
-                disabled={true}
-                className="w-full flex items-center justify-center px-4 py-3 border border-slate-300 rounded-md shadow-sm bg-slate-100 text-sm font-medium text-slate-400 cursor-not-allowed"
-              >
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.999 24c2.766 0 5.001-2.24 5.001-5.003 0-2.766-2.235-5.007-5.001-5.007-2.769 0-5.006 2.241-5.006 5.007C9.993 21.76 12.23 24 14.999 24zM5.604 18.471c-.059.293-.059.59 0 .883.12.585.474 1.11.99 1.47.516.36 1.152.52 1.785.448.633-.072 1.222-.378 1.655-.86.432-.482.677-1.104.687-1.748.01-.644-.223-1.273-.653-1.768-.43-.495-1.012-.815-1.642-.9-.63-.085-1.27.063-1.799.417-.529.354-.906.857-1.058 1.414l-.959-.583a3.78 3.78 0 0 1 1.403-1.876 3.666 3.666 0 0 1 2.387-.554c.836.113 1.601.507 2.178 1.123.577.616.925 1.412.991 2.267.066.855-.168 1.709-.665 2.43-.497.721-1.224 1.257-2.07 1.526-.846.269-1.758.257-2.598-.034-.84-.291-1.553-.846-2.031-1.581-.014-.022-.027-.044-.04-.067L5.58 18.426l.024.045z"/>
-                </svg>
-                Continue with Patreon
-              </button>
             </div>
 
             <div className="mt-6 text-center">

@@ -37,7 +37,11 @@ export function Header({ user }: HeaderProps) {
                   <div className="text-sm text-slate-600">
                     Welcome, {user.email}
                   </div>
-                  <button className="p-2 text-slate-400 hover:text-slate-600">
+                  <button
+                    onClick={() => window.location.href = '/settings'}
+                    className="p-2 text-slate-400 hover:text-slate-600"
+                    title="Settings"
+                  >
                     <Settings className="w-5 h-5" />
                   </button>
                   <button
