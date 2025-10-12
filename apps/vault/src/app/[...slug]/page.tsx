@@ -1,122 +1,108 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
-import { getContentBySlug, getAllContent } from '@/lib/content'
-import type { ContentItem } from '@/lib/content-types'
+import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
+import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
+import { MDXContent } from '@/components/mdx-content'
 
-// Import MDX components
-import { StatBlock } from '@/components/mdx/StatBlock'
-import { ClassFeature } from '@/components/mdx/ClassFeature'
-import { LocationCard } from '@/components/mdx/LocationCard'
-import { WorldMap } from '@/components/mdx/WorldMap'
-import { MonsterStat } from '@/components/mdx/MonsterStat'
-import { AbilityBlock } from '@/components/mdx/AbilityBlock'
-
-const components = {
-  StatBlock,
-  ClassFeature,
-  LocationCard,
-  WorldMap,
-  MonsterStat,
-  AbilityBlock,
-}
-
-interface PageProps {
+interface ContentPageProps {
   params: Promise<{
     slug: string[]
   }>
 }
 
-export default async function ContentPage({ params }: PageProps) {
-  const { slug: slugArray } = await params
-  const slug = slugArray.join('/')
-  const contentItem = getContentBySlug(slug)
+type AnyContent = PublicContent | PatronContent | PurchasedContent
 
-  if (!contentItem) {
+function getContentFromParams(params: { slug: string[] }): AnyContent | null {
+  const slug = params?.slug?.join('/')
+
+  // Search in all collections
+  const allContent = [
+    ...publicContent,
+    ...patronContent,
+    ...purchasedContent
+  ]
+
+  const content = allContent.find((item: AnyContent) => item.slug === slug)
+
+  if (!content) {
+    return null
+  }
+
+  return content
+}
+
+export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
+  const allContent = [
+    ...publicContent,
+    ...patronContent,
+    ...purchasedContent
+  ]
+
+  return allContent.map((item: AnyContent) => ({
+    slug: item.slug.split('/'),
+  }))
+}
+
+export async function generateMetadata({ params }: ContentPageProps) {
+  const resolvedParams = await params
+  const content = getContentFromParams(resolvedParams)
+
+  if (!content) {
+    return {}
+  }
+
+  return {
+    title: content.title,
+    description: content.description,
+  }
+}
+
+export default async function ContentPage({ params }: ContentPageProps) {
+  const resolvedParams = await params
+  const content = getContentFromParams(resolvedParams)
+
+  if (!content) {
     notFound()
   }
 
-  // Read and parse the MDX file
-  const fileContent = fs.readFileSync(contentItem.fullPath, 'utf-8')
-  const { content, data: frontmatter } = matter(fileContent)
-
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-          <span>{contentItem.section}</span>
-          {contentItem.subsection && (
-            <>
-              <span>›</span>
-              <span>{contentItem.subsection}</span>
-            </>
-          )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <span className="capitalize">{content.category?.replace('-', ' ') || 'General'}</span>
+          <span>•</span>
+          <span>{content.readingTime} min read</span>
         </div>
-        {frontmatter.description && (
-          <p className="text-muted-foreground text-lg mb-4">{frontmatter.description}</p>
-        )}
-        {frontmatter.tags && frontmatter.tags.length > 0 && (
-          <div className="flex gap-2 mb-4">
-            {frontmatter.tags.map((tag: string) => (
-              <span
-                key={tag}
-                className="px-2 py-1 bg-secondary text-foreground text-xs rounded-full"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+        <h1 className="text-4xl font-bold text-foreground mb-4">{content.title}</h1>
+        {content.description && (
+          <p className="text-xl text-muted-foreground">{content.description}</p>
         )}
       </div>
 
-      <article className="prose prose-amber max-w-none">
-        <MDXRemote source={content} components={components} />
-      </article>
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+        <article className="prose prose-amber max-w-none p-8">
+          <MDXContent code={content.content} />
+        </article>
+      </div>
+
+      {content.toc && content.toc.length > 0 && (
+        <aside className="mt-8 bg-card rounded-lg p-6 border border-border">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Table of Contents</h2>
+          <nav>
+            <ul className="space-y-2">
+              {content.toc.map((item: any, index: number) => (
+                <li key={index} style={{ marginLeft: `${(item.depth - 1) * 1}rem` }}>
+                  <a
+                    href={`#${item.url.slice(1)}`}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      )}
     </div>
   )
-}
-
-// Generate static paths for all content
-export async function generateStaticParams() {
-  const allContent = getAllContent()
-  const paths: { slug: string[] }[] = []
-
-  for (const section of allContent) {
-    // Add section items
-    for (const item of section.items) {
-      paths.push({ slug: item.slug.split('/') })
-    }
-
-    // Add subsection items
-    for (const subsection of section.subsections) {
-      for (const item of subsection.items) {
-        paths.push({ slug: item.slug.split('/') })
-      }
-    }
-  }
-
-  return paths
-}
-
-// Generate metadata for each page
-export async function generateMetadata({ params }: PageProps) {
-  const { slug: slugArray } = await params
-  const slug = slugArray.join('/')
-  const contentItem = getContentBySlug(slug)
-
-  if (!contentItem) {
-    return {
-      title: 'Page Not Found',
-    }
-  }
-
-  const fileContent = fs.readFileSync(contentItem.fullPath, 'utf-8')
-  const { data: frontmatter } = matter(fileContent)
-
-  return {
-    title: `${contentItem.title} | Nimble RPG Vault`,
-    description: frontmatter.description || contentItem.description,
-  }
 }

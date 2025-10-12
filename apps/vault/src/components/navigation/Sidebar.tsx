@@ -3,125 +3,48 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, BookOpen, Lock, Folder, FileText } from 'lucide-react'
-import { docs, patron } from '#site/content'
-
-interface NavigationItem {
-  title: string
-  permalink: string
-  slug: string
-  access: string[]
-  order: number
-}
-
-interface TreeNode {
-  name: string
-  path: string
-  children: TreeNode[]
-  item?: NavigationItem
-  isFolder: boolean
-}
+import { publicTree, patronTree, purchasedTree, type TreeNode } from '#site/trees'
 
 interface SidebarProps {
   currentPath?: string
   userTags?: string[]
 }
 
-export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProps) {
+export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]))
 
-  // Combine and organize all content
-  const allContent: NavigationItem[] = [
-    ...docs.map(doc => ({
-      title: doc.title,
-      permalink: doc.permalink,
-      slug: doc.slug,
-      access: doc.access,
-      order: doc.order
-    })),
-    ...patron.map(item => ({
-      title: item.title,
-      permalink: item.permalink,
-      slug: item.slug,
-      access: item.access,
-      order: item.order
-    }))
-  ]
-
-  // Filter content based on user access
-  const accessibleContent = allContent.filter(item =>
-    item.access.some(access => userTags.includes(access) || access === 'public')
+  // Combine all trees and filter by user access
+  const allTreesArray = [publicTree, patronTree, purchasedTree].flat()
+  const combinedTree = allTreesArray.filter((node) =>
+    filterTreeByAccess(node, userTags)
   )
 
-  // Build tree structure from slugs
-  const buildTree = (items: NavigationItem[]): TreeNode[] => {
-    const root: Map<string, TreeNode> = new Map()
-
-    items.forEach(item => {
-      const parts = item.slug.split('/')
-      let currentMap = root
-      let currentPath = ''
-
-      parts.forEach((part, index) => {
-        currentPath = currentPath ? `${currentPath}/${part}` : part
-        const isLeaf = index === parts.length - 1
-
-        if (!currentMap.has(part)) {
-          const node: TreeNode = {
-            name: part,
-            path: currentPath,
-            children: [],
-            isFolder: !isLeaf,
-            ...(isLeaf && { item })
-          }
-          currentMap.set(part, node)
-        }
-
-        if (!isLeaf) {
-          const node = currentMap.get(part)!
-          if (!node.children) node.children = []
-
-          // Convert children array to map for next iteration
-          const childMap = new Map<string, TreeNode>()
-          node.children.forEach(child => childMap.set(child.name, child))
-          currentMap = childMap
-        }
-      })
-    })
-
-    // Convert map to sorted array
-    const sortNodes = (nodes: Map<string, TreeNode>): TreeNode[] => {
-      return Array.from(nodes.values())
-        .map(node => ({
-          ...node,
-          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : []
-        }))
-        .sort((a, b) => {
-          // Folders first, then files
-          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-          // Then by order if items exist
-          if (a.item && b.item) return a.item.order - b.item.order
-          // Then alphabetically
-          return a.name.localeCompare(b.name)
-        })
+  // Recursively filter tree nodes by access
+  function filterTreeByAccess(node: TreeNode, tags: string[]): boolean {
+    // If user has 'test' tag, they can see everything
+    if (tags.includes('test')) {
+      return true
     }
 
-    const sortChildrenRecursively = (children: TreeNode[]): TreeNode[] => {
-      return children
-        .map(node => ({
-          ...node,
-          children: node.children.length > 0 ? sortChildrenRecursively(node.children) : []
-        }))
-        .sort((a, b) => {
-          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-          if (a.item && b.item) return a.item.order - b.item.order
-          return a.name.localeCompare(b.name)
-        })
+    // If it's a leaf node with an item, check access
+    if (node.item) {
+      // Public content has no access array, so it's always visible
+      if (!node.item.access || node.item.access.length === 0) {
+        return true
+      }
+      // Check if user has any of the required access tags
+      return node.item.access.some(access => tags.includes(access))
     }
 
-    return sortNodes(root)
+    // If it's a folder, recursively filter children
+    if (node.children && node.children.length > 0) {
+      const filteredChildren = node.children.filter(child => filterTreeByAccess(child, tags))
+      // Keep folder if it has any accessible children
+      return filteredChildren.length > 0
+    }
+
+    return false
   }
-
-  const tree = buildTree(accessibleContent)
 
   const togglePath = (path: string) => {
     const newExpanded = new Set(expandedPaths)
@@ -133,8 +56,13 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
     setExpandedPaths(newExpanded)
   }
 
-  const hasRestrictedAccess = (access: string[]) => {
-    return access.some(tag => tag !== 'public')
+  const hasRestrictedAccess = (access?: string[]) => {
+    // No access array means public content
+    if (!access || access.length === 0) {
+      return false
+    }
+    // Content with access array is restricted
+    return true
   }
 
   const formatName = (name: string) => {
@@ -144,11 +72,16 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
       .replace(/[-_]/g, ' ')
   }
 
+  const getDisplayName = (node: TreeNode) => {
+    return node.displayName || formatName(node.name)
+  }
+
   const renderTreeNode = (node: TreeNode, depth: number = 0): React.ReactElement => {
     const isExpanded = expandedPaths.has(node.path)
     const hasChildren = node.children && node.children.length > 0
 
-    if (node.isFolder) {
+    // Folder node
+    if (hasChildren) {
       return (
         <div key={node.path} className="mb-1">
           <button
@@ -156,19 +89,15 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
             className="w-full flex items-center gap-2 p-2 text-left text-foreground hover:bg-accent rounded-md transition-colors text-sm"
             style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
           >
-            {hasChildren && (
-              isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
-            )}
+            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             <Folder size={14} className="text-muted-foreground" />
-            <span className="font-medium">{formatName(node.name)}</span>
-            {hasChildren && (
-              <span className="text-xs text-muted-foreground ml-auto">
-                ({node.children.length})
-              </span>
-            )}
+            <span className="font-medium">{getDisplayName(node)}</span>
+            <span className="text-xs text-muted-foreground ml-auto">
+              ({node.children.length})
+            </span>
           </button>
 
-          {isExpanded && hasChildren && (
+          {isExpanded && (
             <div className="mt-1">
               {node.children.map(child => renderTreeNode(child, depth + 1))}
             </div>
@@ -216,8 +145,8 @@ export function Sidebar({ currentPath = '', userTags = ['public'] }: SidebarProp
       </div>
 
       <nav className="p-4">
-        {tree.length > 0 ? (
-          tree.map(node => renderTreeNode(node, 0))
+        {combinedTree.length > 0 ? (
+          combinedTree.map(node => renderTreeNode(node, 0))
         ) : (
           <div className="text-center text-muted-foreground mt-8">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />

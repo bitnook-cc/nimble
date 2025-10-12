@@ -40,12 +40,12 @@ interface TreeNode {
     title: string
     permalink: string
     slug: string
-    access: string[]
+    access?: string[]
   }
 }
 
 // Build tree structure from content items with original slugs for display name reconstruction
-function buildTree(items: Array<{ title: string; permalink: string; slug: string; access: string[] }>, originalItems?: Array<{ slug: string }>): TreeNode[] {
+function buildTree(items: Array<{ title: string; permalink: string; slug: string; access?: string[] }>, originalItems?: Array<{ slug: string }>): TreeNode[] {
   // Create a map of slugified path to original path parts
   const pathMap = new Map<string, string>()
   if (originalItems) {
@@ -127,41 +127,69 @@ export default defineConfig({
     clean: true
   },
   collections: {
-    // Public content - accessible to all users
-    docs: {
-      name: 'Doc',
-      pattern: [
-        'public/**/*.md',
-        'public/**/*.mdx'
-      ],
+    // Public content - accessible to all users (no authentication required)
+    public: {
+      name: 'PublicContent',
+      pattern: ['public/**/*.md', 'public/**/*.mdx'],
       schema: contentSchema
         .transform((data) => {
           const originalSlug = data.slug
-          const slugifiedPath = data.slug.split('/').map(slugify).join('/')
+          // Remove 'public/' prefix from the slug
+          const cleanedSlug = data.slug.replace(/^public\//, '')
+          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
+          // Remove access property for public content
+          const { access, ...rest } = data
           return {
-            ...data,
+            ...rest,
             originalSlug,
             slug: slugifiedPath,
-            access: data.access.length > 0 ? data.access : ['public'],
-            permalink: `/docs/${slugifiedPath}`,
-            readingTime: Math.ceil(data.content.split(' ').length / 200), // Rough reading time
+            permalink: `/${slugifiedPath}`,
+            readingTime: Math.ceil(data.content.split(' ').length / 200),
           }
         })
     },
 
-    // Patron/Premium content - requires authentication (from private submodule)
+    // Patron content - requires patron tier access
     patron: {
       name: 'PatronContent',
-      pattern: ['premium/**/*.md', 'premium/**/*.mdx'],
+      pattern: ['patron/**/*.md', 'patron/**/*.mdx'],
       schema: contentSchema
         .transform((data) => {
           const originalSlug = data.slug
-          const slugifiedPath = data.slug.split('/').map(slugify).join('/')
+          // Remove 'patron/' prefix from the slug
+          const cleanedSlug = data.slug.replace(/^patron\//, '')
+          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
           return {
             ...data,
             originalSlug,
             slug: slugifiedPath,
-            access: data.access.length > 0 ? data.access : ['test'],
+            access: ['patron', 'test'],
+            permalink: `/${slugifiedPath}`,
+            readingTime: Math.ceil(data.content.split(' ').length / 200),
+          }
+        })
+    },
+
+    // Purchased content - requires specific purchase tags (e.g., 'core-books')
+    purchased: {
+      name: 'PurchasedContent',
+      pattern: ['purchased/**/*.md', 'purchased/**/*.mdx'],
+      schema: contentSchema
+        .transform((data) => {
+          const originalSlug = data.slug
+          // Remove 'purchased/' prefix from the slug
+          const cleanedSlug = data.slug.replace(/^purchased\//, '')
+          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
+
+          // Extract the product tag from the path (e.g., 'core-books' from 'purchased/core-books/...')
+          const productMatch = data.slug.match(/^purchased\/([^\/]+)/)
+          const productTag = productMatch ? productMatch[1] : 'purchased'
+
+          return {
+            ...data,
+            originalSlug,
+            slug: slugifiedPath,
+            access: [productTag, 'test'],
             permalink: `/${slugifiedPath}`,
             readingTime: Math.ceil(data.content.split(' ').length / 200),
           }
@@ -185,12 +213,15 @@ export default defineConfig({
     // Dynamically iterate over all collections
     Object.entries(data).forEach(([collectionName, collection]) => {
       if (Array.isArray(collection) && collection.length > 0) {
-        const items = collection.map((item: any) => ({
-          title: item.title,
-          permalink: item.permalink,
-          slug: item.slug,
-          access: item.access,
-        }))
+        const items = collection.map((item: any) => {
+          const baseItem = {
+            title: item.title,
+            permalink: item.permalink,
+            slug: item.slug,
+          }
+          // Only include access if it exists
+          return item.access ? { ...baseItem, access: item.access } : baseItem
+        })
         const originalItems = collection.map((item: any) => ({
           slug: item.originalSlug || item.slug
         }))
@@ -236,7 +267,7 @@ export default defineConfig({
     title: string
     permalink: string
     slug: string
-    access: string[]
+    access?: string[]
   }
 }`
 

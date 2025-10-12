@@ -1,11 +1,12 @@
 import { getUserTags } from './access'
-import { docs, patron, type Doc, type PatronContent } from '#site/content'
+import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
+import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
 
 export interface AccessibleContent {
   title: string
   permalink: string
   category?: string
-  access: string[]
+  access?: string[]
   order: number
   description?: string
   readingTime?: number
@@ -14,11 +15,16 @@ export interface AccessibleContent {
 /**
  * Check if a content item is accessible to the current user
  */
-export async function isContentAccessible(accessTags: string[]): Promise<boolean> {
+export async function isContentAccessible(accessTags?: string[]): Promise<boolean> {
   const userTags = await getUserTags()
 
-  // Public content is always accessible
-  if (accessTags.includes('public')) {
+  // Test tag can see everything
+  if (userTags.includes('test')) {
+    return true
+  }
+
+  // Public content (no access tags) is always accessible
+  if (!accessTags || accessTags.length === 0) {
     return true
   }
 
@@ -29,14 +35,23 @@ export async function isContentAccessible(accessTags: string[]): Promise<boolean
 /**
  * Filter content based on user's access tags
  */
-export async function filterAccessibleContent<T extends { access: string[] }>(
+export async function filterAccessibleContent<T extends { access?: string[] }>(
   content: T[]
 ): Promise<T[]> {
   const userTags = await getUserTags()
 
-  return content.filter(item =>
-    item.access.some(access => userTags.includes(access) || access === 'public')
-  )
+  return content.filter(item => {
+    // Test tag can see everything
+    if (userTags.includes('test')) {
+      return true
+    }
+    // Public content (no access) is visible to everyone
+    if (!item.access || item.access.length === 0) {
+      return true
+    }
+    // Check if user has any required tags
+    return item.access.some(access => userTags.includes(access))
+  })
 }
 
 /**
@@ -46,19 +61,28 @@ export async function getAllAccessibleContent(): Promise<AccessibleContent[]> {
   const userTags = await getUserTags()
 
   const allContent: AccessibleContent[] = [
-    ...docs.map(doc => ({
+    ...publicContent.map(doc => ({
       title: doc.title,
       permalink: doc.permalink,
       category: doc.category || 'uncategorized',
-      access: doc.access,
+      access: undefined, // Public content has no access restrictions
       order: doc.order,
       description: doc.description,
       readingTime: doc.readingTime
     })),
-    ...patron.map(item => ({
+    ...patronContent.map(item => ({
       title: item.title,
       permalink: item.permalink,
-      category: item.category || 'advanced',
+      category: item.category || 'patron',
+      access: item.access,
+      order: item.order,
+      description: item.description,
+      readingTime: item.readingTime
+    })),
+    ...purchasedContent.map(item => ({
+      title: item.title,
+      permalink: item.permalink,
+      category: item.category || 'purchased',
       access: item.access,
       order: item.order,
       description: item.description,
@@ -67,21 +91,38 @@ export async function getAllAccessibleContent(): Promise<AccessibleContent[]> {
   ]
 
   // Filter content based on user access
-  return allContent.filter(item =>
-    item.access.some(access => userTags.includes(access) || access === 'public')
-  )
+  return allContent.filter(item => {
+    // Test tag can see everything
+    if (userTags.includes('test')) {
+      return true
+    }
+    // Public content is visible to everyone
+    if (!item.access || item.access.length === 0) {
+      return true
+    }
+    // Check if user has required tags
+    return item.access.some(access => userTags.includes(access))
+  })
 }
 
 /**
- * Get accessible docs (public content)
+ * Get accessible public content
  */
-export async function getAccessibleDocs(): Promise<Doc[]> {
-  return filterAccessibleContent(docs)
+export async function getAccessiblePublicContent(): Promise<PublicContent[]> {
+  // Public content has no access restrictions, so just return all
+  return publicContent
 }
 
 /**
- * Get accessible patron content (premium content)
+ * Get accessible patron content
  */
 export async function getAccessiblePatronContent(): Promise<PatronContent[]> {
-  return filterAccessibleContent(patron)
+  return filterAccessibleContent(patronContent)
+}
+
+/**
+ * Get accessible purchased content
+ */
+export async function getAccessiblePurchasedContent(): Promise<PurchasedContent[]> {
+  return filterAccessibleContent(purchasedContent)
 }

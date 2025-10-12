@@ -32,8 +32,11 @@ export function ContentTreeView({
     setExpandedPaths(newExpanded)
   }
 
-  const hasRestrictedAccess = (access: string[]) => {
-    return access.some((tag) => tag !== 'public')
+  const hasRestrictedAccess = (access?: string[]) => {
+    if (!access || access.length === 0) {
+      return false
+    }
+    return true
   }
 
   const formatName = (name: string) => {

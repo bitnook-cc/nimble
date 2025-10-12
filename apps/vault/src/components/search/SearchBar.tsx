@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
-import { docs, patron } from '#site/content'
+import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
 
 interface SearchResult {
   title: string
   permalink: string
   category?: string
   description?: string
-  access: string[]
+  access?: string[]
 }
 
 interface SearchBarProps {
@@ -17,7 +17,7 @@ interface SearchBarProps {
   onResultSelect?: (result: SearchResult) => void
 }
 
-export function SearchBar({ userTags = ['public'], onResultSelect }: SearchBarProps) {
+export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -26,14 +26,21 @@ export function SearchBar({ userTags = ['public'], onResultSelect }: SearchBarPr
 
   // Combine all content for searching
   const allContent: SearchResult[] = [
-    ...docs.map(doc => ({
+    ...publicContent.map(doc => ({
       title: doc.title,
       permalink: doc.permalink,
       category: doc.category,
       description: doc.description,
-      access: doc.access
+      access: undefined // Public content has no access restrictions
     })),
-    ...patron.map(item => ({
+    ...patronContent.map(item => ({
+      title: item.title,
+      permalink: item.permalink,
+      category: item.category,
+      description: item.description,
+      access: item.access
+    })),
+    ...purchasedContent.map(item => ({
       title: item.title,
       permalink: item.permalink,
       category: item.category,
@@ -43,9 +50,18 @@ export function SearchBar({ userTags = ['public'], onResultSelect }: SearchBarPr
   ]
 
   // Filter content based on user access
-  const accessibleContent = allContent.filter(item =>
-    item.access.some(access => userTags.includes(access) || access === 'public')
-  )
+  const accessibleContent = allContent.filter(item => {
+    // Test tag can see everything
+    if (userTags.includes('test')) {
+      return true
+    }
+    // Public content (no access array or undefined) is visible to everyone
+    if (!item.access) {
+      return true
+    }
+    // Check if user has any of the required tags
+    return item.access.some(access => userTags.includes(access))
+  })
 
   const performSearch = (searchQuery: string) => {
     if (!searchQuery.trim()) {

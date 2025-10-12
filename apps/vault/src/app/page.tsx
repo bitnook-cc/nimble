@@ -1,14 +1,17 @@
 import Link from 'next/link'
-import { docs, patron, type Doc } from '#site/content'
+import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
+import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
 import { ContentTreeView } from '@/components/ContentTreeView'
-import { docsTree, patronTree, allTrees } from '../../.velite/trees.js'
+import { publicTree, patronTree, purchasedTree, allTrees } from '#site/trees'
+
+type AnyContent = PublicContent | PatronContent | PurchasedContent
 
 export default function HomePage() {
-  const recentDocs = docs.slice(0, 3)
-  const featuredContent = [...docs, ...patron].slice(0, 6)
+  const recentDocs = publicContent.slice(0, 3)
+  const featuredContent: AnyContent[] = [...publicContent, ...patronContent, ...purchasedContent].slice(0, 6)
 
-  // Combine both trees - can also use Object.values(allTrees).flat()
-  const combinedTree = [...docsTree, ...patronTree]
+  // Combine all trees
+  const combinedTree = [...publicTree, ...patronTree, ...purchasedTree]
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -25,7 +28,7 @@ export default function HomePage() {
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">Recent Additions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {recentDocs.map((doc: Doc) => (
+            {recentDocs.map((doc: PublicContent) => (
               <Link
                 key={doc.slug}
                 href={doc.permalink}
@@ -57,7 +60,7 @@ export default function HomePage() {
                   Start your journey with our comprehensive getting started guide.
                 </p>
                 <Link
-                  href="/docs/public/getting-started"
+                  href="/quickstart/01-introduction"
                   className="
                     inline-block bg-primary text-white px-4 py-2 rounded-md
                     hover:bg-primary/90 transition-colors
@@ -72,7 +75,7 @@ export default function HomePage() {
                   Jump into character creation and build your first hero.
                 </p>
                 <Link
-                  href="/docs/public/character-creation"
+                  href="/quickstart/02-combat-and-actions"
                   className="
                     inline-block bg-secondary text-foreground px-4 py-2 rounded-md border border-border
                     hover:bg-accent transition-colors
@@ -108,7 +111,7 @@ export default function HomePage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-foreground line-clamp-2">{item.title}</h4>
-                  {item.access.includes('patron') && (
+                  {'access' in item && item.access?.includes('patron') && (
                     <span className="text-xs bg-accent text-foreground px-2 py-1 rounded">
                       Premium
                     </span>
