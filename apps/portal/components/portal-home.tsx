@@ -1,15 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { 
-  Dice6, 
-  FileText, 
-  Users, 
-  Calendar, 
-  BookOpen, 
-  Settings,
-  LogOut,
+import {
+  Dice6,
+  FileText,
+  Users,
+  Calendar,
+  BookOpen,
   ChevronRight,
   Sparkles,
   Sword,
@@ -95,15 +92,6 @@ const tools: ToolCard[] = [
 export function PortalHome({ user }: { user: User }) {
   const userTags = (user.app_metadata?.tags || []) as string[]
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      window.location.reload()
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }
-
   const getStatusBadge = (status: ToolCard['status']) => {
     switch (status) {
       case 'available':
@@ -133,8 +121,8 @@ export function PortalHome({ user }: { user: User }) {
       if (tool.id === 'rules-vault') {
         // In development, redirect to vault dev server (port 4321)
         // In production, redirect to /vault path
-        const vaultUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:4321' 
+        const vaultUrl = process.env.NODE_ENV === 'development'
+          ? 'http://localhost:4321'
           : '/vault'
         window.location.href = vaultUrl
       } else {
@@ -144,34 +132,7 @@ export function PortalHome({ user }: { user: User }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-slate-900">Nimble</h1>
-              <span className="ml-2 text-sm text-slate-500">Portal</span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-slate-600">
-                Welcome, {user.email}
-              </div>
-              <button className="p-2 text-slate-400 hover:text-slate-600">
-                <Settings className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="p-2 text-slate-400 hover:text-slate-600"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div>
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">

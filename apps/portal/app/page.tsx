@@ -3,7 +3,9 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { PortalHome } from '@/components/portal-home'
-import { LoginPage } from '@/components/login-page'
+import { LandingPage } from '@/components/landing-page'
+import { Header } from '@/components/header'
+import { LoginSuccessToast } from '@/components/login-success-toast'
 import { ErrorBoundary } from '@/components/error-boundary'
 
 export default async function HomePage() {
@@ -18,7 +20,9 @@ export default async function HomePage() {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-slate-600"></div>
           </div>
         }>
-          {user ? <PortalHome user={user} /> : <LoginPage />}
+          <Header user={user} />
+          {user ? <PortalHome user={user} /> : <LandingPage />}
+          <LoginSuccessToast />
         </Suspense>
         <Analytics />
       </div>

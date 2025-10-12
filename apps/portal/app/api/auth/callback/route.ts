@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
       }
       
       // Use Next.js redirect with proper URL validation
-      // Ensure we don't redirect to external domains in production  
+      // Ensure we don't redirect to external domains in production
       const redirectPath = next.startsWith('/') ? next : '/'
-      redirect(redirectPath)
+      redirect(`${redirectPath}?login=success`)
     }
   }
 
