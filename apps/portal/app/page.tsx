@@ -7,10 +7,22 @@ import { LandingPage } from '@/components/landing-page'
 import { Header } from '@/components/header'
 import { LoginSuccessToast } from '@/components/login-success-toast'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { redirect } from 'next/navigation'
 
-export default async function HomePage() {
+interface HomePageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const params = await searchParams
+  const returnTo = typeof params.returnTo === 'string' ? params.returnTo : undefined
+
+  // If user is authenticated and there's a returnTo URL, redirect them
+  if (user && returnTo) {
+    redirect(returnTo)
+  }
 
   return (
     <ErrorBoundary>
@@ -21,7 +33,7 @@ export default async function HomePage() {
           </div>
         }>
           <Header user={user} />
-          {user ? <PortalHome user={user} /> : <LandingPage />}
+          {user ? <PortalHome user={user} /> : <LandingPage returnTo={returnTo} />}
           <LoginSuccessToast />
         </Suspense>
         <Analytics />

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import {
   Dice6,
   FileText,
@@ -11,6 +12,7 @@ import {
   ChevronRight,
   Sparkles
 } from 'lucide-react'
+import { LoginDialog } from './login-dialog'
 
 interface ToolCard {
   id: string
@@ -20,6 +22,10 @@ interface ToolCard {
   href: string
   status: 'available' | 'coming-soon' | 'placeholder'
   tags?: string[]
+}
+
+interface LandingPageProps {
+  returnTo?: string
 }
 
 const tools: ToolCard[] = [
@@ -88,7 +94,16 @@ const tools: ToolCard[] = [
   }
 ]
 
-export function LandingPage() {
+export function LandingPage({ returnTo }: LandingPageProps) {
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+
+  // Auto-open login dialog if returnTo is present
+  useEffect(() => {
+    if (returnTo) {
+      setShowLoginDialog(true)
+    }
+  }, [returnTo])
+
   const getStatusBadge = (status: ToolCard['status']) => {
     switch (status) {
       case 'available':
@@ -129,15 +144,30 @@ export function LandingPage() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">
-          Your Gaming Toolkit
-        </h2>
-        <p className="text-lg text-slate-600">
-          Everything you need to play and run Nimble RPG campaigns.
-        </p>
-      </div>
+    <>
+      <LoginDialog
+        isOpen={showLoginDialog}
+        onClose={() => setShowLoginDialog(false)}
+        returnTo={returnTo}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {returnTo && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-900 text-sm">
+              <strong>Login Required:</strong> You need to sign in to access this content.
+            </p>
+          </div>
+        )}
+
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            Your Gaming Toolkit
+          </h2>
+          <p className="text-lg text-slate-600">
+            Everything you need to play and run Nimble RPG campaigns.
+          </p>
+        </div>
 
       {/* Tools Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,5 +222,6 @@ export function LandingPage() {
         ))}
       </div>
     </main>
+    </>
   )
 }

@@ -1,7 +1,9 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
 import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
 import { MDXContent } from '@/components/mdx-content'
+import { isContentAccessible } from '@/lib/content-access'
+import { getPortalUrl } from '@/lib/portal-url'
 
 interface ContentPageProps {
   params: Promise<{
@@ -62,6 +64,16 @@ export default async function ContentPage({ params }: ContentPageProps) {
 
   if (!content) {
     notFound()
+  }
+
+  // Check if user has access to this content
+  const hasAccess = await isContentAccessible(content.access)
+
+  if (!hasAccess) {
+    // Redirect to portal login with return URL
+    const portalUrl = getPortalUrl()
+    const returnUrl = encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4321'}/${content.slug}`)
+    redirect(`${portalUrl}?returnTo=${returnUrl}`)
   }
 
   return (

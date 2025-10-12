@@ -7,9 +7,10 @@ import { Spinner } from './ui/spinner'
 interface LoginDialogProps {
   isOpen: boolean
   onClose: () => void
+  returnTo?: string
 }
 
-export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
+export function LoginDialog({ isOpen, onClose, returnTo }: LoginDialogProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
@@ -25,7 +26,7 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider }),
+        body: JSON.stringify({ provider, returnTo }),
       })
 
       const { url, error } = await response.json()
