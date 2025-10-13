@@ -39,39 +39,34 @@ export async function GET(request: NextRequest) {
         userMetadata: data.user.user_metadata
       })
       
-      // Whitelist of email addresses that get premium access
-      const WHITELISTED_EMAILS = [
-        'msix@hopper.com',
-        'angryflamingo@gmail.com',
-        'games@six.or.at',
-        'evandiaz@gmail.com'
-      ]
+      // Load admin user IDs from environment variable
+      const adminUserIdsString = process.env.ADMIN_USER_IDS || ''
+      const ADMIN_USER_IDS = adminUserIdsString
+        .split(',')
+        .map(id => id.trim())
+        .filter(id => id.length > 0)
 
       // Use Supabase's built-in user system - no custom tables needed!
       // Get user tags from app_metadata (managed by database functions/triggers)
       let userTags = (data.user.app_metadata?.tags || []) as UserTag[]
 
-      // Check if user is whitelisted
-      const isWhitelisted = data.user.email && WHITELISTED_EMAILS.includes(data.user.email.toLowerCase())
+      // Check if user is an admin
+      const isAdmin = ADMIN_USER_IDS.includes(data.user.id)
 
-      // Only assign tags to whitelisted users
+      // Only assign admin tags to admin users
       let tagsUpdated = false
-      if (isWhitelisted) {
+      if (isAdmin) {
         if (!userTags.includes('test')) {
           userTags = ['test', ...userTags]
           tagsUpdated = true
         }
-        if (!userTags.includes('premium')) {
-          userTags = ['premium', ...userTags]
-          tagsUpdated = true
-        }
-        if (!userTags.includes('patron')) {
-          userTags = ['patron', ...userTags]
+        if (!userTags.includes('admin')) {
+          userTags = ['admin', ...userTags]
           tagsUpdated = true
         }
       } else {
-        // Non-whitelisted users get no tags (remove any existing premium tags)
-        const allowedTags = userTags.filter(tag => !['test', 'premium', 'patron'].includes(tag))
+        // Non-admin users: remove admin tags if they exist
+        const allowedTags = userTags.filter(tag => !['test', 'admin'].includes(tag))
         if (allowedTags.length !== userTags.length) {
           userTags = allowedTags
           tagsUpdated = true
@@ -98,7 +93,7 @@ export async function GET(request: NextRequest) {
             console.log('Updated user tags:', {
               userId: data.user.id,
               email: data.user.email,
-              isWhitelisted,
+              isAdmin,
               tags: userTags
             })
           } catch (updateError) {

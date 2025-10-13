@@ -27,7 +27,8 @@
     "PATREON_CLIENT_ID",
     "PATREON_CLIENT_SECRET",
     "VAULT_CONTENT_REPO",
-    "VAULT_CONTENT_BRANCH"
+    "VAULT_CONTENT_BRANCH",
+    "ADMIN_USER_IDS"
   ],
   "tasks": {
     "build": {
@@ -70,7 +71,8 @@
         "PATREON_CLIENT_ID",
         "PATREON_CLIENT_SECRET",
         "VAULT_CONTENT_REPO",
-        "VAULT_CONTENT_BRANCH"
+        "VAULT_CONTENT_BRANCH",
+        "ADMIN_USER_IDS"
       ]
     },
     "lint": {
@@ -126,7 +128,8 @@
         "PATREON_CLIENT_ID",
         "PATREON_CLIENT_SECRET",
         "VAULT_CONTENT_REPO",
-        "VAULT_CONTENT_BRANCH"
+        "VAULT_CONTENT_BRANCH",
+        "ADMIN_USER_IDS"
       ]
     }
   }

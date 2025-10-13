@@ -114,41 +114,21 @@ export async function GET(request: NextRequest) {
       redirect('/auth/auth-code-error')
     }
 
-    // Whitelist of email addresses that get premium access
-    const WHITELISTED_EMAILS = [
-      'msix@hopper.com',
-      'angryflamingo@gmail.com',
-      'games@six.or.at',
-      'evandiaz@gmail.com'
-    ]
+    // Store Patreon membership data for future use
+    const patreonTags: string[] = ['patreon']
 
-    // Determine user tags based on Patreon membership and whitelist
-    const userTags: string[] = []
+    // Check if user has active membership
+    const memberships = userData.included?.filter(item => item.type === 'member') || []
+    const activeMembership = memberships.find(
+      m => m.attributes.patron_status === 'active_patron'
+    )
 
-    // Check if user is whitelisted (using current user's email, not Patreon email)
-    const supabase = await createClient()
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
-    const isWhitelisted = currentUser?.email && WHITELISTED_EMAILS.includes(currentUser.email.toLowerCase())
-
-    // Only add tags if user is whitelisted
-    if (isWhitelisted) {
-      userTags.push('patreon')
-
-      // Check if user has active membership
-      const memberships = userData.included?.filter(item => item.type === 'member') || []
-      const activeMembership = memberships.find(
-        m => m.attributes.patron_status === 'active_patron'
-      )
-
-      if (activeMembership) {
-        userTags.push('premium')
-
-        // Add tier-based tags based on entitled amount
-        const entitledCents = activeMembership.attributes.currently_entitled_amount_cents || 0
-        if (entitledCents >= 1000) userTags.push('patreon-tier-3') // $10+
-        else if (entitledCents >= 500) userTags.push('patreon-tier-2') // $5+
-        else if (entitledCents >= 100) userTags.push('patreon-tier-1') // $1+
-      }
+    if (activeMembership) {
+      // Add tier-based tags based on entitled amount
+      const entitledCents = activeMembership.attributes.currently_entitled_amount_cents || 0
+      if (entitledCents >= 1000) patreonTags.push('patreon-tier-3') // $10+
+      else if (entitledCents >= 500) patreonTags.push('patreon-tier-2') // $5+
+      else if (entitledCents >= 100) patreonTags.push('patreon-tier-1') // $1+
     }
 
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -176,7 +156,7 @@ export async function GET(request: NextRequest) {
 
     // Merge existing tags with new Patreon tags
     const existingTags = (existingUser.app_metadata?.tags || []) as string[]
-    const mergedTags = Array.from(new Set([...existingTags, ...userTags]))
+    const mergedTags = Array.from(new Set([...existingTags, ...patreonTags]))
 
     // Update the current user with Patreon data
     await serviceSupabase.auth.admin.updateUserById(userId, {
@@ -201,7 +181,7 @@ export async function GET(request: NextRequest) {
       userId,
       patreonEmail: patreonUser.attributes.email,
       currentEmail: existingUser.email,
-      isWhitelisted,
+      patreonTags,
       mergedTags,
       providers: Array.from(new Set([...existingProviders, 'patreon'])),
     })
