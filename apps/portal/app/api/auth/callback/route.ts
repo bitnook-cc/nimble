@@ -39,24 +39,47 @@ export async function GET(request: NextRequest) {
         userMetadata: data.user.user_metadata
       })
       
+      // Whitelist of email addresses that get premium access
+      const WHITELISTED_EMAILS = [
+        'msix@hopper.com',
+        'angryflamingo@gmail.com',
+        'games@six.or.at',
+        'evandiaz@gmail.com'
+      ]
+
       // Use Supabase's built-in user system - no custom tables needed!
       // Get user tags from app_metadata (managed by database functions/triggers)
       let userTags = (data.user.app_metadata?.tags || []) as UserTag[]
 
-      // Assign default tags to all users if they don't have them
+      // Check if user is whitelisted
+      const isWhitelisted = data.user.email && WHITELISTED_EMAILS.includes(data.user.email.toLowerCase())
+
+      // Only assign tags to whitelisted users
       let tagsUpdated = false
-      if (!userTags.includes('test')) {
-        userTags = ['test', ...userTags]
-        tagsUpdated = true
-      }
-      if (!userTags.includes('premium')) {
-        userTags = ['premium', ...userTags]
-        tagsUpdated = true
+      if (isWhitelisted) {
+        if (!userTags.includes('test')) {
+          userTags = ['test', ...userTags]
+          tagsUpdated = true
+        }
+        if (!userTags.includes('premium')) {
+          userTags = ['premium', ...userTags]
+          tagsUpdated = true
+        }
+        if (!userTags.includes('patron')) {
+          userTags = ['patron', ...userTags]
+          tagsUpdated = true
+        }
+      } else {
+        // Non-whitelisted users get no tags (remove any existing premium tags)
+        const allowedTags = userTags.filter(tag => !['test', 'premium', 'patron'].includes(tag))
+        if (allowedTags.length !== userTags.length) {
+          userTags = allowedTags
+          tagsUpdated = true
+        }
       }
 
       if (tagsUpdated) {
-        
-        // Update user metadata with test tag (requires service role key)
+        // Update user metadata with tags (requires service role key)
         if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
           try {
             const { createClient: createServiceClient } = await import('@supabase/supabase-js')
@@ -64,7 +87,7 @@ export async function GET(request: NextRequest) {
               process.env.NEXT_PUBLIC_SUPABASE_URL!,
               process.env.SUPABASE_SERVICE_ROLE_KEY!
             )
-            
+
             await serviceSupabase.auth.admin.updateUserById(data.user.id, {
               app_metadata: {
                 ...data.user.app_metadata,
@@ -72,7 +95,12 @@ export async function GET(request: NextRequest) {
               }
             })
 
-            console.log('Added default tags to user:', data.user.id, userTags)
+            console.log('Updated user tags:', {
+              userId: data.user.id,
+              email: data.user.email,
+              isWhitelisted,
+              tags: userTags
+            })
           } catch (updateError) {
             console.error('Failed to update user tags:', updateError)
             // Don't fail authentication if tag update fails
