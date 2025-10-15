@@ -8,6 +8,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { CharacterConfigDialog } from "@/components/character-config-dialog";
 import { CharacterHeader } from "@/components/character-header";
 import { CharacterSelector } from "@/components/character-selector";
+import { GameSessionToast } from "@/components/game-session-toast";
 import { LicenseDisclaimer } from "@/components/license-disclaimer";
 import { LoadingScreen } from "@/components/loading-screen";
 import { TabbedCharacterSheet } from "@/components/tabbed-character-sheet";
@@ -80,6 +81,9 @@ function HomeContent() {
         onSettingsChange={handleSettingsChange}
         hasCharacter={!!character}
       />
+
+      {/* Game Session Toast - Persistent overlay */}
+      {character && <GameSessionToast />}
 
       {showCharacterSelection || !character ? (
         <>

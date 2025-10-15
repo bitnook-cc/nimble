@@ -1,14 +1,17 @@
 "use client";
 
-import { Database, Download, Menu, Plus, Settings, Users } from "lucide-react";
+import { Database, Download, Menu, Plus, Settings, Share2, Users } from "lucide-react";
 
 import { useState } from "react";
 
+import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { Character } from "@/lib/schemas/character";
 import { pdfExportService } from "@/lib/services/pdf-export-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { AppSettings } from "@/lib/services/settings-service";
 
+import { ActivitySharingDialog } from "./activity-sharing-dialog";
 import { CharacterCreateForm } from "./character-create-form";
 import { CharacterSelector } from "./character-selector";
 import { ContentManagementPanel } from "./content-management-panel";
@@ -31,11 +34,14 @@ interface AppMenuProps {
 }
 
 export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps) {
+  const { isAuthenticated } = useAuth();
+  const { isInSession } = useActivitySharing();
   const [showSettings, setShowSettings] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
   const [showContentManagement, setShowContentManagement] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
+  const [showActivitySharing, setShowActivitySharing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const handleShowPDFExport = () => {
@@ -90,6 +96,18 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
             Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setShowActivitySharing(true)}
+            disabled={!isAuthenticated || isInSession}
+            className={!isAuthenticated ? "opacity-50" : ""}
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Play with Friends
+            {!isAuthenticated && (
+              <span className="ml-auto text-xs text-muted-foreground">(Login)</span>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setShowCreateCharacter(true)}>
             <Plus className="w-4 h-4 mr-2" />
             New Character
@@ -139,6 +157,11 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
         onClose={() => setShowPDFExport(false)}
         onExport={handlePDFExport}
         isExporting={isExporting}
+      />
+
+      <ActivitySharingDialog
+        isOpen={showActivitySharing}
+        onClose={() => setShowActivitySharing(false)}
       />
     </>
   );

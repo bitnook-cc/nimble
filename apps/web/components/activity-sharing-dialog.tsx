@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, LogOut, Plus, Share2, Users } from "lucide-react";
+import { AlertCircle, Copy, LogOut, Plus, Share2, Users } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -17,10 +17,14 @@ import { Label } from "./ui/label";
 
 interface ActivitySharingDialogProps {
   children?: React.ReactNode;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) {
-  const [open, setOpen] = useState(false);
+export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySharingDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isOpen !== undefined ? isOpen : internalOpen;
+  const setOpen = onClose !== undefined ? (value: boolean) => !value && onClose() : setInternalOpen;
   const [joinCode, setJoinCode] = useState("");
   const [sessionName, setSessionName] = useState("");
   const { toast } = useToast();
@@ -132,7 +136,7 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+      {children && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -250,7 +254,25 @@ export function ActivitySharingDialog({ children }: ActivitySharingDialogProps) 
             <div className="p-3 bg-muted rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">{currentSession.name}</h3>
-                <Badge variant="secondary">{currentSession.code}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="font-mono">
+                    {currentSession.code}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(currentSession.code);
+                      toast({
+                        title: "Code copied!",
+                        description: `Join code "${currentSession.code}" copied to clipboard`,
+                      });
+                    }}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
               <div className="text-sm text-muted-foreground">
                 {currentSession.participants.length} / {currentSession.maxPlayers} players
