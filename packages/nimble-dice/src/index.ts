@@ -479,7 +479,7 @@ export class DiceService {
    */
   private evaluateTokenExpression(tokens: FormulaTokenResults[]): number {
     // Build expression string by replacing dice tokens with their totals
-    let expressionParts: string[] = [];
+    const expressionParts: string[] = [];
 
     for (const token of tokens) {
       if (token.type === "static") {
