@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -7,9 +9,9 @@ export default function NotFound() {
         <p className="text-muted-foreground">
           This page could not be found on the Nimble Portal.
         </p>
-        <a href="/" className="inline-block mt-4 text-primary hover:underline">
+        <Link href="/" className="inline-block mt-4 text-primary hover:underline">
           Return to Home
-        </a>
+        </Link>
       </div>
     </div>
   );

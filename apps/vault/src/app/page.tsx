@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
 import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
 import { ContentTreeView } from '@/components/ContentTreeView'
-import { publicTree, patronTree, purchasedTree, allTrees } from '#site/trees'
+import { publicTree, patronTree, purchasedTree } from '#site/trees'
 
 type AnyContent = PublicContent | PatronContent | PurchasedContent
 

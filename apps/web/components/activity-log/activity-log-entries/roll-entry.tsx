@@ -2,13 +2,7 @@ import { DiceRollEntry } from "@/lib/schemas/activity-log";
 import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 
 // Component for displaying roll entries
-export function RollEntryDisplay({
-  roll,
-  formatTime,
-}: {
-  roll: DiceRollEntry;
-  formatTime: (date: Date) => string;
-}) {
+export function RollEntryDisplay({ roll }: { roll: DiceRollEntry }) {
   return (
     <div className="flex items-center justify-between w-full">
       {/* Left side: Description and Formula */}

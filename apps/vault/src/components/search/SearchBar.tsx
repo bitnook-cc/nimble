@@ -194,7 +194,7 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
           bg-white border border-border rounded-lg shadow-lg
           p-4 text-center text-muted-foreground z-50
         ">
-          No results found for "{query}"
+          No results found for &quot;{query}&quot;
         </div>
       )}
     </div>

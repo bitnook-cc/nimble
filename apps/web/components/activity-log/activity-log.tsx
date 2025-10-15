@@ -76,7 +76,7 @@ export function ActivityLog() {
               >
                 <div className="flex-1">
                   {entry.type === "roll" ? (
-                    <RollEntryDisplay roll={entry as DiceRollEntry} formatTime={formatTime} />
+                    <RollEntryDisplay roll={entry as DiceRollEntry} />
                   ) : entry.type === "initiative" ? (
                     <InitiativeEntryDisplay entry={entry as InitiativeEntry} />
                   ) : entry.type === "freeform" ? (

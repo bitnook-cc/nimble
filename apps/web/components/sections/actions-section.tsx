@@ -9,7 +9,6 @@ import { Actions } from "../actions";
 export function ActionsSection() {
   // Get everything we need from service hooks
   const { character } = useCharacterService();
-  const { attack } = useDiceActions();
   const { uiState } = useUIStateService();
 
   // Early return if no character (shouldn't happen in normal usage)
@@ -20,7 +19,7 @@ export function ActionsSection() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Actions</h2>
-      <Actions character={character} onAttack={attack} advantageLevel={advantageLevel} />
+      <Actions character={character} advantageLevel={advantageLevel} />
     </div>
   );
 }

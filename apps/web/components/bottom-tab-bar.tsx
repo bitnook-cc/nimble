@@ -2,7 +2,7 @@
 
 import { Compass, FileText, Package, ScrollText, Sparkles, Sword, User } from "lucide-react";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getCharacterService } from "@/lib/services/service-factory";
@@ -36,6 +36,7 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
   const { character } = useCharacterService();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
+  const [needsScroll, setNeedsScroll] = useState(false);
 
   // Filter tabs based on character capabilities
   const visibleTabs = tabs.filter((tab) => {
@@ -51,24 +52,43 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
     return true;
   });
 
+  // Check if scrolling is needed on mount and when tabs change
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const checkScroll = () => {
+        setNeedsScroll(container.scrollWidth > container.clientWidth);
+      };
+      checkScroll();
+      window.addEventListener("resize", checkScroll);
+      return () => window.removeEventListener("resize", checkScroll);
+    }
+  }, [visibleTabs.length]);
+
   // Auto-scroll to active tab button when it changes
   useEffect(() => {
-    if (activeButtonRef.current && scrollContainerRef.current) {
+    if (activeButtonRef.current && scrollContainerRef.current && needsScroll) {
       const button = activeButtonRef.current;
       const container = scrollContainerRef.current;
 
-      // Calculate the scroll position to center the active button
+      // Get the button's position relative to its container
       const buttonLeft = button.offsetLeft;
       const buttonWidth = button.offsetWidth;
-      const containerWidth = container.offsetWidth;
-      const scrollLeft = buttonLeft - containerWidth / 2 + buttonWidth / 2;
+      const containerClientWidth = container.clientWidth;
+
+      // Calculate scroll position to center the button in the viewport
+      const targetScrollLeft = buttonLeft - containerClientWidth / 2 + buttonWidth / 2;
+
+      // Clamp to valid scroll range
+      const maxScroll = container.scrollWidth - containerClientWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
       container.scrollTo({
-        left: scrollLeft,
+        left: clampedScrollLeft,
         behavior: "smooth",
       });
     }
-  }, [activeTab]);
+  }, [activeTab, needsScroll]);
 
   return (
     <>
@@ -81,7 +101,9 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
         <div className="container mx-auto px-4">
           <div
             ref={scrollContainerRef}
-            className="flex items-center justify-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide"
+            className={`flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide ${
+              needsScroll ? "justify-start" : "justify-center"
+            }`}
           >
             {visibleTabs.map((tab) => {
               const IconComponent = tab.icon;

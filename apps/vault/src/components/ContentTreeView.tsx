@@ -14,7 +14,7 @@ interface ContentTreeViewProps {
 
 export function ContentTreeView({
   tree,
-  userTags = ['public'],
+  userTags: _userTags = ['public'],
   title = 'Content Directory',
   expandAll = false,
 }: ContentTreeViewProps) {

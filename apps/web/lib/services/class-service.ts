@@ -338,7 +338,7 @@ export class ClassService {
     };
 
     // Update character (traits will be applied dynamically)
-    let finalCharacter = updatedCharacter;
+    const finalCharacter = updatedCharacter;
 
     await this.characterService.updateCharacter(finalCharacter);
     return finalCharacter;

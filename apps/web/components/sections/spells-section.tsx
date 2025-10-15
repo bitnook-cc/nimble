@@ -109,7 +109,7 @@ export function SpellsSection() {
     characterSpellSchools.forEach((schoolId) => {
       const allSpells = contentRepository.getSpellsBySchool(schoolId);
       // Include tier 0 spells when checking what's available vs locked
-      let lockedSpells = allSpells.filter(
+      const lockedSpells = allSpells.filter(
         (spell) => spell.tier > spellTierAccess && spell.category === activeTab,
       );
 

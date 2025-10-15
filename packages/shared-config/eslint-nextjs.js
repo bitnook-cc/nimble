@@ -34,6 +34,11 @@ export default tseslint.config(
       "@typescript-eslint/triple-slash-reference": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
+      "react/no-unescaped-entities": "warn",
+      "no-case-declarations": "warn",
+      "no-useless-escape": "warn",
+      "no-prototype-builtins": "warn",
+      "react/no-unknown-property": "warn",
     },
     settings: {
       react: {

@@ -85,10 +85,7 @@ export class PDFExportService {
       // Get character data
       const contentRepository = ContentRepositoryService.getInstance();
       const characterClass = contentRepository.getClassDefinition(character.classId);
-      const subclassId = characterService.getSubclassId();
-      const subclass = subclassId ? contentRepository.getSubclassDefinition(subclassId) : null;
       const ancestry = contentRepository.getAncestryDefinition(character.ancestryId);
-      const background = contentRepository.getBackgroundDefinition(character.backgroundId);
       const attributes = characterService.getAttributes();
       const skills = characterService.getSkills();
       const initiative = characterService.getInitiative();

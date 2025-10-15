@@ -14,29 +14,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { MarkdownRenderer } from "./ui/markdown-renderer";
 
-// Action types defined inline since actions.ts doesn't exist
-type Action = WeaponAction | AbilityAction;
-interface WeaponAction {
-  type: "weapon";
-  weapon: WeaponItem;
-}
-interface AbilityAction {
-  type: "ability";
-  ability: ActionAbilityDefinition;
-}
-
 interface ActionsProps {
   character: Character;
-  onAttack: (
-    weaponName: string,
-    damage: string,
-    attributeModifier: number,
-    advantageLevel: number,
-  ) => void;
   advantageLevel: number;
 }
 
-export function Actions({ character, onAttack, advantageLevel }: ActionsProps) {
+export function Actions({ character, advantageLevel }: ActionsProps) {
   const { performAttack, performUseAbility, refreshAbility, getAbilities, getResources } =
     useCharacterService();
   const abilities = getAbilities();

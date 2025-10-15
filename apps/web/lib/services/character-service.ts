@@ -1049,7 +1049,7 @@ export class CharacterService {
     const baseInitiative = this._character._initiative;
     const bonuses = this.getAllStatBonuses();
 
-    let result: Skill = { ...baseInitiative };
+    const result: Skill = { ...baseInitiative };
 
     // Apply initiative bonuses
     for (const bonus of bonuses) {
@@ -1075,7 +1075,7 @@ export class CharacterService {
     const baseHitDice = this._character._hitDice;
     const bonuses = this.getAllStatBonuses();
 
-    let result = { ...baseHitDice };
+    const result = { ...baseHitDice };
 
     // Apply hit dice bonuses
     for (const bonus of bonuses) {
@@ -1974,7 +1974,7 @@ export class CharacterService {
   async updateCharacterConfiguration(config: CharacterConfiguration): Promise<void> {
     if (!this._character) return;
 
-    let updatedCharacter = {
+    const updatedCharacter = {
       ...this._character,
       config,
       wounds: {

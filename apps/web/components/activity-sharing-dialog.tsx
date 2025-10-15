@@ -40,7 +40,7 @@ export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySha
     joinSession,
     leaveSession,
     closeSession,
-    clearError,
+    clearError: _clearError,
     loadUserSessions,
     joinUserSession,
   } = useActivitySharing();

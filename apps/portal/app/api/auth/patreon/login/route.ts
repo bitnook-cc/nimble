@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const clientId = process.env.PATREON_CLIENT_ID
   const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/patreon/callback`
 

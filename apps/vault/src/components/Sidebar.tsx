@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ navigation }: SidebarProps) {
-  const [isMounted, setIsMounted] = useState(false)
+  const [_isMounted, setIsMounted] = useState(false)
   const [currentPath, setCurrentPath] = useState('/')
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
   

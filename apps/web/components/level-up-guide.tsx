@@ -153,7 +153,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
       });
 
       // Prepare feature-related updates
-      let traitSelections: TraitSelection[] = [...(character.traitSelections || [])];
+      const traitSelections: TraitSelection[] = [...(character.traitSelections || [])];
 
       // Process feature selections
       const classService = getClassService();

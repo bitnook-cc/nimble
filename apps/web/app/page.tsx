@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { CharacterConfigDialog } from "@/components/character-config-dialog";
-import { CharacterHeader } from "@/components/character-header";
 import { CharacterSelector } from "@/components/character-selector";
 import { GameSessionToast } from "@/components/game-session-toast";
 import { LicenseDisclaimer } from "@/components/license-disclaimer";

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const supabase = await createClient()
   await supabase.auth.signOut()
 
