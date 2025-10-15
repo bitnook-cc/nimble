@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useSwipeNavigation } from "@/lib/hooks/use-swipe-navigation";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { getCharacterService } from "@/lib/services/service-factory";
+import { TabType } from "@/lib/services/ui-state-service";
 
 import { BottomTabBar } from "./bottom-tab-bar";
 import { CharacterHeader } from "./character-header";
@@ -34,6 +36,55 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
     character._spellTierAccess >= 0 &&
     characterService.getAbilities().some((ability) => ability.type === "spell");
 
+  // Build tab order dynamically based on spell access
+  const tabOrder = useMemo<TabType[]>(() => {
+    const tabs: TabType[] = ["combat", "skills", "character", "equipment", "notes"];
+    if (hasSpellAccess) {
+      tabs.splice(1, 0, "spells"); // Insert spells after combat
+    }
+    tabs.push("log");
+    return tabs;
+  }, [hasSpellAccess]);
+
+  // Get current tab index
+  const currentTabIndex = tabOrder.indexOf(activeTab);
+
+  // Track if transition was triggered by swipe (vs button click)
+  const [isSwipeTransition, setIsSwipeTransition] = useState(false);
+
+  // Swipe navigation handlers
+  const handleSwipeLeft = useCallback(() => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    if (currentIndex < tabOrder.length - 1) {
+      setIsSwipeTransition(true);
+      updateActiveTab(tabOrder[currentIndex + 1]);
+    }
+  }, [activeTab, tabOrder, updateActiveTab]);
+
+  const handleSwipeRight = useCallback(() => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    if (currentIndex > 0) {
+      setIsSwipeTransition(true);
+      updateActiveTab(tabOrder[currentIndex - 1]);
+    }
+  }, [activeTab, tabOrder, updateActiveTab]);
+
+  // Initialize swipe navigation
+  const { isSwiping, swipeOffset } = useSwipeNavigation({
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight,
+    minSwipeDistance: 50,
+    preventScroll: true,
+  });
+
+  // Reset swipe transition flag after animation completes
+  useEffect(() => {
+    if (isSwipeTransition) {
+      const timer = setTimeout(() => setIsSwipeTransition(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isSwipeTransition]);
+
   // Auto-switch away from spells tab if character loses spell access
   useEffect(() => {
     if (activeTab === "spells" && !hasSpellAccess) {
@@ -41,8 +92,8 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
     }
   }, [activeTab, hasSpellAccess, updateActiveTab]);
 
-  const renderActiveTab = () => {
-    switch (activeTab) {
+  const renderTab = (tab: TabType) => {
+    switch (tab) {
       case "combat":
         return <CombatTab />;
       case "skills":
@@ -62,13 +113,46 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
     }
   };
 
+  // Calculate carousel transform based on active tab index
+  const getCarouselTransform = () => {
+    // Base position: shift left by (currentTabIndex * 100%)
+    const baseOffset = -currentTabIndex * 100;
+
+    if (isSwiping) {
+      // During swipe, add the swipe offset as percentage of screen width
+      const swipeOffsetPercent = (swipeOffset / window.innerWidth) * 100;
+      return `translateX(${baseOffset + swipeOffsetPercent}%)`;
+    }
+
+    // Normal state: just show the active tab
+    return `translateX(${baseOffset}%)`;
+  };
+
   return (
     <>
       {/* Content area with container */}
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-6 px-4 space-y-6 min-h-[calc(100vh-3.5rem-4rem)]">
           <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
-          <div>{renderActiveTab()}</div>
+
+          {/* Carousel container with overflow hidden */}
+          <div className="relative overflow-hidden">
+            <div
+              className="flex"
+              style={{
+                transform: getCarouselTransform(),
+                // Fast animation for all transitions (200ms feels instant but smooth)
+                transition: isSwiping ? "none" : "transform 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              {/* Render all tabs in order - carousel will translate to show active one */}
+              {tabOrder.map((tab) => (
+                <div key={tab} className="w-full flex-shrink-0">
+                  {renderTab(tab)}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bottom tab navigation with disclaimer - tab bar sticky, disclaimer scrolls */}
