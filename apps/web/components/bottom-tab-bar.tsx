@@ -81,7 +81,7 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
         <div className="container mx-auto px-4">
           <div
             ref={scrollContainerRef}
-            className="flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide"
+            className="flex items-center justify-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide"
           >
             {visibleTabs.map((tab) => {
               const IconComponent = tab.icon;
