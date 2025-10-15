@@ -136,9 +136,9 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
           <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
 
           {/* Carousel container with overflow hidden */}
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden -mx-4">
             <div
-              className="flex"
+              className="flex items-start"
               style={{
                 transform: getCarouselTransform(),
                 // Fast animation for all transitions (200ms feels instant but smooth)
@@ -146,11 +146,18 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
               }}
             >
               {/* Render all tabs in order - carousel will translate to show active one */}
-              {tabOrder.map((tab) => (
-                <div key={tab} className="w-full flex-shrink-0">
-                  {renderTab(tab)}
-                </div>
-              ))}
+              {tabOrder.map((tab, index) => {
+                // Only show active tab, or adjacent tabs during swipe/transition
+                const isActive = index === currentTabIndex;
+                const isAdjacent = Math.abs(index - currentTabIndex) === 1;
+                const shouldRender = isActive || (isAdjacent && (isSwiping || isSwipeTransition));
+
+                return (
+                  <div key={tab} className="w-full flex-shrink-0 px-4">
+                    {shouldRender ? renderTab(tab) : <div />}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

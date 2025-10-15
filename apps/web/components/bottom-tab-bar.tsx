@@ -2,6 +2,8 @@
 
 import { Compass, FileText, Package, ScrollText, Sparkles, Sword, User } from "lucide-react";
 
+import { useEffect, useRef } from "react";
+
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { TabType } from "@/lib/services/ui-state-service";
@@ -32,6 +34,8 @@ const tabs: TabDefinition[] = [
 
 export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
   const { character } = useCharacterService();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const activeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Filter tabs based on character capabilities
   const visibleTabs = tabs.filter((tab) => {
@@ -47,6 +51,25 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
     return true;
   });
 
+  // Auto-scroll to active tab button when it changes
+  useEffect(() => {
+    if (activeButtonRef.current && scrollContainerRef.current) {
+      const button = activeButtonRef.current;
+      const container = scrollContainerRef.current;
+
+      // Calculate the scroll position to center the active button
+      const buttonLeft = button.offsetLeft;
+      const buttonWidth = button.offsetWidth;
+      const containerWidth = container.offsetWidth;
+      const scrollLeft = buttonLeft - containerWidth / 2 + buttonWidth / 2;
+
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+    }
+  }, [activeTab]);
+
   return (
     <>
       {/* Sticky navigation bar - full width */}
@@ -56,7 +79,10 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
       >
         {/* Centered container matching top bar width - scrollable tabs */}
         <div className="container mx-auto px-4">
-          <div className="flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide">
+          <div
+            ref={scrollContainerRef}
+            className="flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide"
+          >
             {visibleTabs.map((tab) => {
               const IconComponent = tab.icon;
               const isActive = activeTab === tab.id;
@@ -64,6 +90,7 @@ export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
               return (
                 <Button
                   key={tab.id}
+                  ref={isActive ? activeButtonRef : null}
                   variant="ghost"
                   size="sm"
                   onClick={() => onTabChange(tab.id)}
