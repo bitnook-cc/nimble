@@ -181,26 +181,51 @@ export class FeatureSelectionService {
   /**
    * Get available spell schools for utility spell selection
    * Falls back to all character schools if not specified
+   * Filters out schools already selected in full_school mode by other effects
+   * @param effect - The utility spell feature trait
+   * @param character - The character
+   * @param existingSelections - All existing utility spell selections (for level-up guide)
    */
   getAvailableSchoolsForUtilitySpells(
     effect: UtilitySpellsFeatureTrait,
     character: Character,
+    existingSelections: UtilitySpellsTraitSelection[] = [],
   ): string[] {
+    let schools: string[];
+
     if (effect.schools && effect.schools.length > 0) {
-      return effect.schools;
+      schools = effect.schools;
+    } else {
+      // Fall back to all character's spell schools
+      const characterService = getCharacterService();
+      schools = characterService.getSpellSchools();
     }
 
-    // Fall back to all character's spell schools
+    // Filter out schools already selected in full_school mode by OTHER effects
     const characterService = getCharacterService();
-    return characterService.getSpellSchools();
+    const otherSelections = existingSelections.filter((s) => s.grantedByTraitId !== effect.id);
+    const knownSchools = characterService.getKnownUtilitySchools(otherSelections);
+
+    return schools.filter((schoolId) => !knownSchools.includes(schoolId));
   }
 
   /**
-   * Get available utility spells for selection
+   * Get available utility spells for selection, filtered to exclude already selected spells
+   * @param effect - The utility spell feature trait
+   * @param character - The character
+   * @param existingSelections - All existing utility spell selections (for level-up guide)
    */
-  getAvailableUtilitySpells(effect: UtilitySpellsFeatureTrait, character: Character) {
+  getAvailableUtilitySpells(
+    effect: UtilitySpellsFeatureTrait,
+    character: Character,
+    existingSelections: UtilitySpellsTraitSelection[] = [],
+  ) {
     const contentRepository = ContentRepositoryService.getInstance();
-    const availableSchools = this.getAvailableSchoolsForUtilitySpells(effect, character);
+    const availableSchools = this.getAvailableSchoolsForUtilitySpells(
+      effect,
+      character,
+      existingSelections,
+    );
 
     const allSpells = availableSchools.flatMap((schoolId) => {
       const spells = contentRepository.getUtilitySpellsForSchool(schoolId);
@@ -218,7 +243,14 @@ export class FeatureSelectionService {
       }
     }
 
-    return Array.from(uniqueSpells.values());
+    const allUniqueSpells = Array.from(uniqueSpells.values());
+
+    // Filter out already selected spells from OTHER effects
+    const characterService = getCharacterService();
+    const otherSelections = existingSelections.filter((s) => s.grantedByTraitId !== effect.id);
+    const knownSpellIds = characterService.getKnownUtilitySpells(otherSelections);
+
+    return allUniqueSpells.filter((spell) => !knownSpellIds.includes(spell.id));
   }
 
   /**

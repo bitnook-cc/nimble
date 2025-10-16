@@ -938,6 +938,52 @@ export class CharacterService {
   }
 
   /**
+   * Get all known utility spells, optionally including pending selections
+   * Uses getAbilities() to ensure consistent with actual character abilities
+   * @param pendingSelections - Pending selections from level-up guide or dialog
+   * @returns Array of spell IDs that are known or will be known
+   */
+  getKnownUtilitySpells(pendingSelections: UtilitySpellsTraitSelection[] = []): string[] {
+    // Get current utility spells from abilities
+    const currentSpells = this.getAbilities()
+      .filter((ability) => ability.type === "spell" && ability.category === "utility")
+      .map((ability) => ability.id);
+
+    // Add pending spell selections (individual spells only, not full_school)
+    const pendingSpellIds = pendingSelections
+      .filter((s) => s.spellId) // Only individual spell selections
+      .map((s) => s.spellId!)
+      .filter((id) => id !== "");
+
+    // Combine and deduplicate
+    return [...new Set([...currentSpells, ...pendingSpellIds])];
+  }
+
+  /**
+   * Get all utility spell schools that are fully granted (full_school mode)
+   * @param pendingSelections - Pending selections from level-up guide or dialog
+   * @returns Array of school IDs that grant all utility spells
+   */
+  getKnownUtilitySchools(pendingSelections: UtilitySpellsTraitSelection[] = []): string[] {
+    if (!this._character) return [];
+
+    // Get current full_school selections
+    const currentSchools = this._character.traitSelections
+      .filter((s) => s.type === "utility_spells" && !s.spellId)
+      .map((s) => (s.type === "utility_spells" ? s.schoolId : ""))
+      .filter((id) => id !== "");
+
+    // Add pending full_school selections
+    const pendingSchools = pendingSelections
+      .filter((s) => !s.spellId) // full_school mode selections
+      .map((s) => s.schoolId)
+      .filter((id) => id !== "");
+
+    // Combine and deduplicate
+    return [...new Set([...currentSchools, ...pendingSchools])];
+  }
+
+  /**
    * Get computed attributes with bonuses applied
    */
   getAttributes(): Attributes {

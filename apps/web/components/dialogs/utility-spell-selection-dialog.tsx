@@ -99,24 +99,14 @@ export function UtilitySpellSelectionDialog({
   const availableSchools = featureSelectionService.getAvailableSchoolsForUtilitySpells(
     effect,
     character,
+    existingSelections,
   );
   const totalSpellCount = featureSelectionService.getUtilitySpellSelectionCount(
     effect,
     availableSchools,
   );
   const allAvailableSpells: SpellAbilityDefinition[] =
-    featureSelectionService.getAvailableUtilitySpells(effect, character);
-
-  // Get schools already selected by OTHER utility spell features (in full_school mode)
-  const otherUtilitySchoolSelections = character.traitSelections
-    .filter((s) => s.type === "utility_spells" && s.grantedByTraitId !== effect.id && !s.spellId)
-    .map((s) => (s.type === "utility_spells" ? s.schoolId : ""))
-    .filter((id) => id !== "");
-
-  // Filter out already selected schools (but keep the current selection if editing)
-  const filteredSchools = availableSchools.filter(
-    (schoolId) => !otherUtilitySchoolSelections.includes(schoolId) || schoolId === selectedSchoolId,
-  );
+    featureSelectionService.getAvailableUtilitySpells(effect, character, existingSelections);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -135,7 +125,7 @@ export function UtilitySpellSelectionDialog({
           <div className="space-y-4">
             {isFullSchoolMode
               ? // Full school mode - show school selection
-                filteredSchools.map((schoolId) => {
+                availableSchools.map((schoolId) => {
                   const school = contentRepository.getSpellSchool(schoolId);
                   const SchoolIcon = school?.icon ? getIconById(school.icon) : null;
                   const schoolSpells = allAvailableSpells.filter(
@@ -198,12 +188,6 @@ export function UtilitySpellSelectionDialog({
                   const numberOfSpells = effect.numberOfSpells || 1;
                   const isPerSchoolMode = effect.selectionMode === "per_school";
 
-                  // Get all already-selected utility spells from OTHER traits
-                  const otherUtilitySpellSelections = character.traitSelections
-                    .filter((s) => s.type === "utility_spells" && s.grantedByTraitId !== effect.id)
-                    .map((s) => (s.type === "utility_spells" && s.spellId ? s.spellId : ""))
-                    .filter((id) => id !== "");
-
                   // Group spells by school
                   return availableSchools.map((schoolId) => {
                     const schoolSpells = allAvailableSpells.filter(
@@ -245,25 +229,17 @@ export function UtilitySpellSelectionDialog({
                         </div>
                         <div className="space-y-2 pl-6">
                           {schoolSpells.map((spell) => {
-                            const isAlreadySelected = otherUtilitySpellSelections.includes(
-                              spell.id,
-                            );
                             const isSelected = !!utilitySpellSelection.find(
                               (s) => s.id === spell.id,
                             );
-                            // Can't select if already selected by another effect
                             // Can't select new spells if school is at limit (but can deselect)
-                            const canSelect = !isAlreadySelected && (isSelected || !schoolAtLimit);
+                            const canSelect = isSelected || !schoolAtLimit;
 
                             return (
                               <div
                                 key={spell.id}
                                 className={`flex items-start space-x-3 p-3 border rounded-lg ${
-                                  isAlreadySelected
-                                    ? "bg-muted/50 opacity-60"
-                                    : schoolAtLimit && !isSelected
-                                      ? "opacity-50"
-                                      : ""
+                                  schoolAtLimit && !isSelected ? "opacity-50" : ""
                                 }`}
                               >
                                 <Checkbox
@@ -282,14 +258,7 @@ export function UtilitySpellSelectionDialog({
                                   disabled={!canSelect}
                                 />
                                 <div className="flex-1">
-                                  <div className="font-medium">
-                                    {spell.name}
-                                    {isAlreadySelected && (
-                                      <Badge variant="secondary" className="ml-2 text-xs">
-                                        Already Selected
-                                      </Badge>
-                                    )}
-                                  </div>
+                                  <div className="font-medium">{spell.name}</div>
                                   <div className="text-sm text-muted-foreground">
                                     {spell.description}
                                   </div>
