@@ -292,7 +292,7 @@ export function validateDiceFormula(formula: string): { valid: boolean; error?: 
     try {
       safeEvaluate(testExpression);
     } catch (error) {
-      return { valid: false, error: "Invalid mathematical expression syntax" };
+      return { valid: false, error: `Invalid mathematical expression syntax: ${error}` };
     }
 
     return { valid: true };

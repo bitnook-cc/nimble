@@ -6,7 +6,6 @@ import {
   HitDice,
   HitDieSize,
   Proficiencies,
-  Skill,
   Skills,
   Wounds,
 } from "../schemas/character";

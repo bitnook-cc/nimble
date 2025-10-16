@@ -110,7 +110,6 @@ export class MigrationService {
   async migrateCharacters(characters: UnmigratedCharacter[]): Promise<MigrationResult> {
     const failedCharacters: UnmigratedCharacter[] = [];
     let migratedCount = 0;
-    const totalCharacters = characters.length;
 
     // Filter characters that need migration
     const charactersToMigrate = characters.filter((c) => this.needsMigration(c));

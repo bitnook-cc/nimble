@@ -213,7 +213,7 @@ export class PDFExportService {
     } catch (error) {
       // Only log in development mode
       if (process.env.NODE_ENV === "development") {
-        console.error(`Could not find field "${fieldName}" (value: ${value})`);
+        console.error(`Could not find field "${fieldName}" (value: ${value}) - ${error}`);
       }
     }
   }
@@ -239,7 +239,7 @@ export class PDFExportService {
     } catch (error) {
       // Only log in development mode
       if (process.env.NODE_ENV === "development") {
-        console.error(`Could not find checkbox "${fieldName}"`);
+        console.error(`Could not find checkbox "${fieldName}": ${error}`);
       }
     }
   }
@@ -270,7 +270,6 @@ export class PDFExportService {
     character: Character,
     options: PDFExportOptions,
   ): void {
-    const contentRepository = ContentRepositoryService.getInstance();
     const classService = getClassService();
     const ancestryService = getAncestryService();
     const backgroundService = getBackgroundService();

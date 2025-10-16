@@ -12,7 +12,7 @@ import { ContentRepositoryService } from "./content-repository-service";
 import { diceService } from "./dice-service";
 // Import types for external services
 import type { DiceService } from "./dice-service";
-import { ICharacterCreation, ICharacterStorage } from "./interfaces";
+import { ICharacterStorage } from "./interfaces";
 import { ItemService } from "./item-service";
 import { SERVICE_KEYS, serviceContainer } from "./service-container";
 import { settingsService } from "./settings-service";
@@ -116,13 +116,13 @@ export class ServiceFactory {
 
     serviceContainer.register(
       SERVICE_KEYS.ANCESTRY_SERVICE,
-      (container) => new AncestryService(),
+      (_container) => new AncestryService(),
       true, // singleton
     );
 
     serviceContainer.register(
       SERVICE_KEYS.BACKGROUND_SERVICE,
-      (container) => new BackgroundService(),
+      (_container) => new BackgroundService(),
       true, // singleton
     );
 

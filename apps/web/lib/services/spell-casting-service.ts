@@ -1,5 +1,4 @@
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { Character } from "@/lib/types/character";
 
 // Import casting method handlers
 import { ManaCastingHandler } from "./casting-methods/mana-casting";

@@ -67,9 +67,7 @@ class SyncService {
 
   private createCharacterHash(character: Character): string {
     // Create a hash of the character data for change detection
-    // We exclude the id from the hash since we track by id
-    const { id, ...characterData } = character;
-    return JSON.stringify(characterData);
+    return JSON.stringify(character);
   }
 
   /**
