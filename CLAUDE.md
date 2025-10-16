@@ -1,4 +1,4 @@
-# Nimble Navigator - Turborepo Monorepo
+# Sidekick - Turborepo Monorepo
 
 ## Repository Structure
 
@@ -6,7 +6,7 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Applications
 
-- **`apps/web`**: Next.js 14 web application (main character sheet app)
+- **`apps/web`**: Next.js 14 web application (Sidekick character sheet app)
 - **`apps/api`**: Express.js REST API server (port 3001)
 - **`apps/vault`**: Astro Starlight documentation site for Nimble RPG rules and content
 - **`apps/portal`**: Next.js 15 authentication portal with Supabase integration
@@ -170,7 +170,7 @@ npx turbo build --filter=@nimble/web
 npx turbo build --dry-run
 ```
 
-# Nimble Navigator - Application Design
+# Sidekick - Application Design
 
 ## Recent Major Changes
 
@@ -287,7 +287,7 @@ Completed a major refactor changing from single "trait" per feature to multiple 
 
 ## Overview
 
-Nimble Navigator: A comprehensive digital character sheet application for the Nimble RPG system, built as a web application with offline-first architecture and local storage persistence. The app provides a clean, mobile-responsive interface for managing characters, rolling dice, tracking equipment, and managing combat encounters with full support for temporary HP, saving throws, and equipment management.
+Sidekick: A companion app for the Nimble TTRPG. A comprehensive digital character sheet application built as a web application with offline-first architecture and local storage persistence. The app provides a clean, mobile-responsive interface for managing characters, rolling dice, tracking equipment, and managing combat encounters with full support for temporary HP, saving throws, and equipment management.
 
 ## Technology Stack
 
@@ -878,7 +878,7 @@ The mobile application is a Capacitor wrapper located in `../nimble-mobile/` tha
 
 #### Mobile Setup
 
-- **App Name**: "Nimble Navigator"
+- **App Name**: "Sidekick"
 - **Bundle ID**: `com.nimble.mobile`
 - **Web Directory**: `../nimble/out` (Next.js static export)
 - **Platforms**: iOS and Android with native project files

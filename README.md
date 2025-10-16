@@ -1,13 +1,13 @@
-# Nimble Navigator
+# Sidekick
 
-A comprehensive digital character sheet application for the Nimble RPG system. Navigate your adventures with ease using this intuitive character management tool. Built as a Turborepo monorepo with Next.js, Express.js, Astro Starlight, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence and optional Google authentication.
+A companion app for the Nimble TTRPG. A comprehensive digital character sheet application for the Nimble RPG system. Built as a Turborepo monorepo with Next.js, Express.js, Astro Starlight, TypeScript, and Tailwind CSS, featuring offline-first architecture with local storage persistence and optional Google authentication.
 
 **Features three main applications:**
 - **Character Sheet App** - Digital character management and dice rolling
 - **API Server** - Authentication and cloud sync backend  
 - **RPG Vault** - Complete Nimble RPG documentation and rules reference
 
-![Nimble Navigator Preview](https://img.shields.io/badge/Status-Complete-brightgreen)
+![Sidekick Preview](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-14.0+-black)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0+-38bdf8)
@@ -289,7 +289,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🎲 Nimble RPG
 
-Nimble Navigator is designed for the Nimble RPG system. For game rules and additional resources, visit the official Nimble RPG website.
+Sidekick is designed for the Nimble RPG system. For game rules and additional resources, visit the official Nimble RPG website.
 
 ---
 

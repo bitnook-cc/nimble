@@ -19,9 +19,36 @@ type SerializedCharacter = Omit<Character, "_abilityUses" | "_resourceValues" | 
  * This allows us to swap between localStorage and in-memory storage for testing
  */
 export class StorageBasedCharacterRepository implements ICharacterRepository {
-  private readonly storageKey = "nimble-navigator-characters";
+  private readonly storageKey = "sheets-characters";
+  private readonly oldStorageKeys = ["nimble-navigator-characters"];
 
-  constructor(private storage: IStorageService) {}
+  constructor(private storage: IStorageService) {
+    this.migrateFromOldKeys();
+  }
+
+  /**
+   * Migrate data from old storage keys to new key
+   */
+  private migrateFromOldKeys(): void {
+    // Check if new key already has data
+    const existingData = this.storage.getItem(this.storageKey);
+    if (existingData) {
+      return; // Already migrated or has data
+    }
+
+    // Try to find data in old keys
+    for (const oldKey of this.oldStorageKeys) {
+      const oldData = this.storage.getItem(oldKey);
+      if (oldData) {
+        // Copy to new key
+        this.storage.setItem(this.storageKey, oldData);
+        // Remove old key
+        this.storage.removeItem(oldKey);
+        console.log(`Migrated character data from ${oldKey} to ${this.storageKey}`);
+        return;
+      }
+    }
+  }
 
   async save(character: Character): Promise<void> {
     const serializedCharacters = await this.getSerializedCharacters();

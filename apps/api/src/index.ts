@@ -75,7 +75,7 @@ app.get("/health", (_req, res) => {
 
 // Hello world endpoint
 app.get("/", (_req, res) => {
-  res.json({ message: "Hello from Nimble API!" });
+  res.json({ message: "Welcome to the Sidekick API" });
 });
 
 // Auth routes

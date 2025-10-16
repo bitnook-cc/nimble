@@ -26,10 +26,44 @@ import { toastService } from "./toast-service";
 type LogChangeListener = (entries: LogEntry[]) => void;
 
 export class ActivityLogService {
-  private readonly storageKey = "nimble-navigator-activity-log";
+  private readonly storageKey = "sheets-activity-log";
+  private readonly oldStorageKeys = ["nimble-navigator-activity-log"];
   private readonly maxEntries = gameConfig.storage.maxRollHistory;
   private listeners: Set<LogChangeListener> = new Set();
   private cachedEntries: LogEntry[] | null = null;
+
+  constructor() {
+    this.migrateFromOldKeys();
+  }
+
+  /**
+   * Migrate data from old storage keys to new key
+   */
+  private migrateFromOldKeys(): void {
+    // Only run in browser environment
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
+
+    // Check if new key already has data
+    const existingData = localStorage.getItem(this.storageKey);
+    if (existingData) {
+      return; // Already migrated or has data
+    }
+
+    // Try to find data in old keys
+    for (const oldKey of this.oldStorageKeys) {
+      const oldData = localStorage.getItem(oldKey);
+      if (oldData) {
+        // Copy to new key
+        localStorage.setItem(this.storageKey, oldData);
+        // Remove old key
+        localStorage.removeItem(oldKey);
+        console.log(`Migrated activity log data from ${oldKey} to ${this.storageKey}`);
+        return;
+      }
+    }
+  }
 
   async getLogEntries(): Promise<LogEntry[]> {
     // Return cached entries if available

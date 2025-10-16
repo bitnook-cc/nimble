@@ -1,6 +1,6 @@
-# Getting Started with Nimble Navigator
+# Getting Started with Sidekick
 
-This guide will help you set up and run the Nimble Navigator monorepo locally.
+This guide will help you set up and run the Sidekick monorepo locally.
 
 ## Prerequisites
 
@@ -186,13 +186,13 @@ npx turbo dev --filter=@nimble/web
 ### Check Portal App
 
 1. Open `http://localhost:3000`
-2. You should see the Nimble Navigator landing page
+2. You should see the Sidekick landing page
 3. Click "Login" and try authenticating with Google/Discord (if configured)
 
 ### Check API Server
 
 1. Open `http://localhost:3001`
-2. You should see: `"Welcome to the Nimble Navigator API"`
+2. You should see: `"Welcome to the Sidekick API"`
 3. Check health endpoint: `http://localhost:3001/health`
 
 ### Check Vault Documentation

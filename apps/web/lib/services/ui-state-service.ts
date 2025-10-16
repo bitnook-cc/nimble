@@ -20,9 +20,43 @@ export interface UIState {
 }
 
 export class UIStateService {
-  private readonly storageKey = "nimble-navigator-ui-state";
+  private readonly storageKey = "sheets-ui-state";
+  private readonly oldStorageKeys = ["nimble-navigator-ui-state"];
   private _uiState: UIState | null = null;
   private uiStateListeners: ((uiState: UIState) => void)[] = [];
+
+  constructor() {
+    this.migrateFromOldKeys();
+  }
+
+  /**
+   * Migrate data from old storage keys to new key
+   */
+  private migrateFromOldKeys(): void {
+    // Only run in browser environment
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
+
+    // Check if new key already has data
+    const existingData = localStorage.getItem(this.storageKey);
+    if (existingData) {
+      return; // Already migrated or has data
+    }
+
+    // Try to find data in old keys
+    for (const oldKey of this.oldStorageKeys) {
+      const oldData = localStorage.getItem(oldKey);
+      if (oldData) {
+        // Copy to new key
+        localStorage.setItem(this.storageKey, oldData);
+        // Remove old key
+        localStorage.removeItem(oldKey);
+        console.log(`Migrated UI state data from ${oldKey} to ${this.storageKey}`);
+        return;
+      }
+    }
+  }
 
   // Public getter for UI state
   get uiState(): UIState | null {
