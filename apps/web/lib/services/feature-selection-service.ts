@@ -139,20 +139,43 @@ export class FeatureSelectionService {
 
   /**
    * Get the total number of utility spells to select for an effect
+   * @param effect - The utility spell feature trait
+   * @param availableSchools - Already filtered list of available schools
+   * @param availableSpells - Already filtered list of available spells (optional, for accurate counts)
    */
   getUtilitySpellSelectionCount(
     effect: UtilitySpellsFeatureTrait,
     availableSchools: string[],
+    availableSpells?: SpellAbilityDefinition[],
   ): number {
     if (effect.selectionMode === "per_school") {
       const spellsPerSchool = effect.numberOfSpells || 1;
+
+      // If we have the actual available spells, calculate based on what's really available
+      if (availableSpells && availableSpells.length > 0) {
+        let totalAvailable = 0;
+
+        for (const schoolId of availableSchools) {
+          const schoolSpells = availableSpells.filter((s) => s.school === schoolId);
+          // Can only select up to the number of spells available in this school
+          totalAvailable += Math.min(schoolSpells.length, spellsPerSchool);
+        }
+
+        return totalAvailable;
+      }
+
+      // Fallback to simple calculation if we don't have available spells
       return availableSchools.length * spellsPerSchool;
     } else if (effect.selectionMode === "full_school") {
       // full_school mode: user selects one school
       return 1;
     } else {
-      // "total" mode
-      return effect.totalSpells || 1;
+      // "total" mode: user selects N spells total, but can't select more than available
+      const requested = effect.totalSpells || 1;
+      if (availableSpells) {
+        return Math.min(requested, availableSpells.length);
+      }
+      return requested;
     }
   }
 

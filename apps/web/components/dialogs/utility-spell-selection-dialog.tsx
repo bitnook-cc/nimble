@@ -101,12 +101,13 @@ export function UtilitySpellSelectionDialog({
     character,
     existingSelections,
   );
+  const allAvailableSpells: SpellAbilityDefinition[] =
+    featureSelectionService.getAvailableUtilitySpells(effect, character, existingSelections);
   const totalSpellCount = featureSelectionService.getUtilitySpellSelectionCount(
     effect,
     availableSchools,
+    allAvailableSpells,
   );
-  const allAvailableSpells: SpellAbilityDefinition[] =
-    featureSelectionService.getAvailableUtilitySpells(effect, character, existingSelections);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
