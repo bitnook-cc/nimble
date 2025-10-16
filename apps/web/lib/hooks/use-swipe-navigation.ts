@@ -22,6 +22,7 @@ export function useSwipeNavigation({
   const touchStartY = useRef<number>(0);
   const touchCurrentX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
+  const hasCommittedToSwipe = useRef<boolean>(false);
   const [swipeState, setSwipeState] = useState<SwipeState>({
     isSwiping: false,
     swipeOffset: 0,
@@ -32,6 +33,7 @@ export function useSwipeNavigation({
     touchStartY.current = e.touches[0].clientY;
     touchCurrentX.current = e.touches[0].clientX;
     isDragging.current = false;
+    hasCommittedToSwipe.current = false;
   }, []);
 
   const handleTouchMove = useCallback(
@@ -42,17 +44,25 @@ export function useSwipeNavigation({
       const deltaX = touchCurrentX.current - touchStartX.current;
       const deltaY = e.touches[0].clientY - touchStartY.current;
 
-      // Determine if this is a horizontal swipe (more horizontal than vertical movement)
-      if (!isDragging.current && Math.abs(deltaX) > Math.abs(deltaY)) {
-        isDragging.current = true;
-        setSwipeState({ isSwiping: true, swipeOffset: deltaX });
+      // Need more horizontal movement to commit to horizontal swipe
+      const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY) * 1.5;
+
+      // Once we've determined this is a horizontal swipe, commit to it
+      if (!hasCommittedToSwipe.current && Math.abs(deltaX) > 10) {
+        hasCommittedToSwipe.current = isHorizontalSwipe;
       }
 
-      // If we're in a horizontal swipe, prevent vertical scrolling
-      if (isDragging.current) {
-        if (preventScroll) {
+      // If this is a committed horizontal swipe
+      if (hasCommittedToSwipe.current) {
+        if (!isDragging.current) {
+          isDragging.current = true;
+        }
+
+        // Prevent vertical scroll during horizontal swipe
+        if (preventScroll && Math.abs(deltaX) > 5) {
           e.preventDefault();
         }
+
         setSwipeState({ isSwiping: true, swipeOffset: deltaX });
       }
     },
@@ -62,6 +72,10 @@ export function useSwipeNavigation({
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) {
       setSwipeState({ isSwiping: false, swipeOffset: 0 });
+      touchStartX.current = 0;
+      touchStartY.current = 0;
+      touchCurrentX.current = 0;
+      hasCommittedToSwipe.current = false;
       return;
     }
 
@@ -81,20 +95,22 @@ export function useSwipeNavigation({
     touchStartY.current = 0;
     touchCurrentX.current = 0;
     isDragging.current = false;
+    hasCommittedToSwipe.current = false;
     setSwipeState({ isSwiping: false, swipeOffset: 0 });
   }, [minSwipeDistance, onSwipeLeft, onSwipeRight]);
 
   useEffect(() => {
-    const element = document.body;
+    // Use window instead of document.body for better event capture
+    const element = window;
 
-    element.addEventListener("touchstart", handleTouchStart, { passive: true });
-    element.addEventListener("touchmove", handleTouchMove, { passive: false });
-    element.addEventListener("touchend", handleTouchEnd, { passive: true });
+    element.addEventListener("touchstart", handleTouchStart as EventListener, { passive: true });
+    element.addEventListener("touchmove", handleTouchMove as EventListener, { passive: false });
+    element.addEventListener("touchend", handleTouchEnd as EventListener, { passive: true });
 
     return () => {
-      element.removeEventListener("touchstart", handleTouchStart);
-      element.removeEventListener("touchmove", handleTouchMove);
-      element.removeEventListener("touchend", handleTouchEnd);
+      element.removeEventListener("touchstart", handleTouchStart as EventListener);
+      element.removeEventListener("touchmove", handleTouchMove as EventListener);
+      element.removeEventListener("touchend", handleTouchEnd as EventListener);
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
