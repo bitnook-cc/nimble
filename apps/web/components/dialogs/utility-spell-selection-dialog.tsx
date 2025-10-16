@@ -42,7 +42,11 @@ export function UtilitySpellSelectionDialog({
   const [utilitySpellSelection, setUtilitySpellSelection] = useState<SpellAbilityDefinition[]>([]);
   const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
   const contentRepository = ContentRepositoryService.getInstance();
-  const isEditMode = existingSelections.length > 0;
+  // Only consider it edit mode if there are selections for THIS effect
+  const currentEffectSelections = existingSelections.filter(
+    (s) => s.grantedByTraitId === effect.id,
+  );
+  const isEditMode = currentEffectSelections.length > 0;
   const isFullSchoolMode = effect.selectionMode === "full_school";
 
   // Initialize selection when dialog opens
@@ -51,11 +55,11 @@ export function UtilitySpellSelectionDialog({
       if (isFullSchoolMode) {
         // For full_school mode, check if there's an existing school selection
         const existingSchool =
-          existingSelections.length > 0 ? existingSelections[0].schoolId : null;
+          currentEffectSelections.length > 0 ? currentEffectSelections[0].schoolId : null;
         setSelectedSchoolId(existingSchool);
       } else {
         // For other modes, get existing spell selections
-        const existingSpells = existingSelections
+        const existingSpells = currentEffectSelections
           .map((s) => (s.spellId ? contentRepository.getSpellById(s.spellId) : null))
           .filter((s) => s !== null);
         setUtilitySpellSelection(existingSpells);
@@ -65,7 +69,8 @@ export function UtilitySpellSelectionDialog({
       setUtilitySpellSelection([]);
       setSelectedSchoolId(null);
     }
-  }, [open, existingSelections, contentRepository, isFullSchoolMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, effect.id]);
 
   const handleConfirm = () => {
     if (isFullSchoolMode) {
