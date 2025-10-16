@@ -64,9 +64,6 @@ export function FeatureList({
     useState<AttributeBoostFeatureTrait | null>(null);
   const [selectedUtilitySpellsEffect, setSelectedUtilitySpellsEffect] =
     useState<UtilitySpellsFeatureTrait | null>(null);
-  const [existingUtilitySpellSelections, setExistingUtilitySpellSelections] = useState<
-    UtilitySpellsTraitSelection[]
-  >([]);
   const [existingAttributeSelection, setExistingAttributeSelection] = useState<
     AttributeName | undefined
   >();
@@ -109,11 +106,6 @@ export function FeatureList({
         break;
       case "utility_spells":
         setSelectedUtilitySpellsEffect(effect);
-        // Check if there are existing selections for this effect
-        const existingUtilitySelections = existingSelections.filter(
-          (s) => s.type === "utility_spells" && s.grantedByTraitId === effect.id,
-        ) as UtilitySpellsTraitSelection[];
-        setExistingUtilitySpellSelections(existingUtilitySelections);
         break;
     }
   };
@@ -303,11 +295,14 @@ export function FeatureList({
           onOpenChange={(open) => {
             if (!open) {
               setSelectedUtilitySpellsEffect(null);
-              setExistingUtilitySpellSelections([]);
             }
           }}
           onConfirm={handleSelectUtilitySpells}
-          existingSelections={existingUtilitySpellSelections}
+          existingSelections={
+            existingSelections.filter(
+              (s) => s.type === "utility_spells",
+            ) as UtilitySpellsTraitSelection[]
+          }
         />
       )}
     </>
