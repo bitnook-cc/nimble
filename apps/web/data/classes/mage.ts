@@ -436,7 +436,13 @@ const mageFeatures: ClassFeature[] = [
     level: 14,
     name: "Elemental Mastery (3)",
     description: "Learn the Utility Spells from a 3rd spell school you know.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "elemental-mastery-3",
+        type: "utility_spells",
+        selectionMode: "full_school",
+      },
+    ],
   },
   {
     id: "subclass-feature-15",
