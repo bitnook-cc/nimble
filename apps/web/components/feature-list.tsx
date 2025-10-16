@@ -164,7 +164,6 @@ export function FeatureList({
     onSelectionsChange(updated);
 
     setSelectedUtilitySpellsEffect(null);
-    setExistingUtilitySpellSelections([]);
   };
 
   const handleSelectPoolFeatures = (newSelections: PoolFeatureTraitSelection[]) => {

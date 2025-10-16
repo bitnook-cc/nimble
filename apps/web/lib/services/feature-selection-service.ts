@@ -1,5 +1,5 @@
 import { SpellAbilityDefinition } from "../schemas/abilities";
-import { Character } from "../schemas/character";
+import { Character, UtilitySpellsTraitSelection } from "../schemas/character";
 import {
   AttributeBoostFeatureTrait,
   FeatureTrait,
