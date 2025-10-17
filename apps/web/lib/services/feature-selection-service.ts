@@ -301,7 +301,6 @@ export class FeatureSelectionService {
     // If per_school mode, validate distribution
     if (effect.selectionMode === "per_school") {
       const spellsPerSchool = effect.numberOfSpells || 1;
-      const contentRepository = ContentRepositoryService.getInstance();
 
       // Count spells per school
       const schoolCounts = new Map<string, number>();

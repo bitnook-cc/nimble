@@ -120,12 +120,12 @@ export function GameSessionToast() {
             <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
               {session.participants.map((participant) => (
                 <div
-                  key={participant.userId}
+                  key={participant.user.id}
                   className="flex items-center gap-2 text-sm px-2 py-1 rounded bg-muted/30"
                 >
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                  <span className="truncate flex-1">{participant.userName}</span>
-                  {participant.userId === session.ownerId && (
+                  <span className="truncate flex-1">{participant.user.name}</span>
+                  {participant.user.id === session.ownerId && (
                     <Badge variant="outline" className="text-xs">
                       GM
                     </Badge>

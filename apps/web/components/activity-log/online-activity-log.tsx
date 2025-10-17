@@ -115,10 +115,7 @@ export function OnlineActivityLog() {
 
                   {/* Render the activity based on its type */}
                   {entry.activityData.type === "roll" ? (
-                    <RollEntryDisplay
-                      roll={entry.activityData as any}
-                      formatTime={(date: Date) => formatTime(date.toISOString())}
-                    />
+                    <RollEntryDisplay roll={entry.activityData as any} />
                   ) : entry.activityData.type === "initiative" ? (
                     <InitiativeEntryDisplay entry={entry.activityData as InitiativeEntry} />
                   ) : (
