@@ -132,7 +132,7 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
     <>
       {/* Content area with container */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto py-6 px-4 space-y-6 min-h-[calc(100vh-3.5rem-4rem)]">
+        <div className="container mx-auto py-6 px-4 space-y-6 min-h-[calc(100dvh-3.5rem-4rem)]">
           <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
 
           {/* Carousel container with overflow hidden */}
