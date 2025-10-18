@@ -2,8 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import { gameConfig } from "../config/game-config";
 import { noteSchema } from "../schemas/note";
-import type { Note } from "../types/note";
-import { getCharacterService } from "./service-factory";
+import type { DiceRoll, Note } from "../types/note";
+import { diceService } from "./dice-service";
+import { getActivityLog, getCharacterService } from "./service-factory";
 
 export class NoteService {
   private static instance: NoteService;
@@ -31,7 +32,7 @@ export class NoteService {
   /**
    * Add a new note to the current character
    */
-  async addNote(title: string, content: string): Promise<Note> {
+  async addNote(title: string, content: string, diceRolls: DiceRoll[] = []): Promise<Note> {
     const characterService = getCharacterService();
     const character = characterService.getCurrentCharacter();
     if (!character) throw new Error("No character loaded");
@@ -49,6 +50,7 @@ export class NoteService {
       title,
       content,
       sortOrder: maxSortOrder + 1,
+      diceRolls,
     };
 
     // Validate the note
@@ -136,6 +138,36 @@ export class NoteService {
 
     await characterService.updateCharacterFields({
       notes: updatedNotes,
+    });
+  }
+
+  /**
+   * Roll a dice formula from a note and log it to the activity log
+   */
+  async rollDiceFromNote(noteId: string, rollId: string): Promise<void> {
+    const note = this.getNote(noteId);
+    if (!note) throw new Error("Note not found");
+
+    const diceRoll = note.diceRolls.find((r) => r.id === rollId);
+    if (!diceRoll) throw new Error("Dice roll not found");
+
+    const characterService = getCharacterService();
+    const character = characterService.getCurrentCharacter();
+    if (!character) throw new Error("No character loaded");
+
+    // Roll the dice using the dice service
+    const result = diceService.evaluateDiceFormula(diceRoll.formula);
+
+    // Log to activity log
+    const activityLogService = getActivityLog();
+    await activityLogService.addLogEntry({
+      id: uuidv4(),
+      timestamp: new Date(),
+      type: "roll",
+      description: `[Note: ${note.title}] ${diceRoll.name}: ${diceRoll.formula}`,
+      characterId: character.id,
+      rollExpression: diceRoll.formula,
+      diceResult: result,
     });
   }
 }

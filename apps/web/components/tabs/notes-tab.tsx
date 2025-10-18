@@ -20,6 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   Check,
   ChevronDown,
+  Dice6,
   GripVertical,
   MoreVertical,
   Pencil,
@@ -28,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
+import { v4 as uuidv4 } from "uuid";
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -44,10 +46,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+import { DiceFormulaHelpDialog } from "@/components/notes/dice-formula-help-dialog";
+
 import { gameConfig } from "@/lib/config/game-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { NoteService } from "@/lib/services/note-service";
-import type { Note } from "@/lib/types/note";
+import type { DiceRoll, Note } from "@/lib/types/note";
 
 interface SortableNoteProps {
   note: Note;
@@ -55,6 +59,7 @@ interface SortableNoteProps {
   isEditing: boolean;
   editTitle: string;
   editContent: string;
+  editDiceRolls: DiceRoll[];
   onToggle: () => void;
   onEdit: () => void;
   onSave: () => void;
@@ -62,6 +67,8 @@ interface SortableNoteProps {
   onDelete: () => void;
   onEditTitleChange: (value: string) => void;
   onEditContentChange: (value: string) => void;
+  onEditDiceRollsChange: (rolls: DiceRoll[]) => void;
+  onRollDice: (rollId: string) => void;
 }
 
 function SortableNote({
@@ -70,6 +77,7 @@ function SortableNote({
   isEditing,
   editTitle,
   editContent,
+  editDiceRolls,
   onToggle,
   onEdit,
   onSave,
@@ -77,6 +85,8 @@ function SortableNote({
   onDelete,
   onEditTitleChange,
   onEditContentChange,
+  onEditDiceRollsChange,
+  onRollDice,
 }: SortableNoteProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: note.id,
@@ -166,6 +176,65 @@ function SortableNote({
                       {editContent.length} / {gameConfig.notes.maxContentLength} characters
                     </div>
                   </div>
+
+                  {/* Dice Rolls Editor */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Dice Rolls</label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newRoll: DiceRoll = {
+                            id: uuidv4(),
+                            name: "",
+                            formula: "",
+                          };
+                          onEditDiceRollsChange([...editDiceRolls, newRoll]);
+                        }}
+                        disabled={editDiceRolls.length >= 20}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Roll
+                      </Button>
+                    </div>
+                    {editDiceRolls.map((roll, index) => (
+                      <div key={roll.id} className="flex gap-2 items-start">
+                        <Input
+                          placeholder="Name"
+                          value={roll.name}
+                          onChange={(e) => {
+                            const updated = [...editDiceRolls];
+                            updated[index] = { ...roll, name: e.target.value };
+                            onEditDiceRollsChange(updated);
+                          }}
+                          maxLength={50}
+                          className="flex-1"
+                        />
+                        <Input
+                          placeholder="Formula (e.g., 1d20+5)"
+                          value={roll.formula}
+                          onChange={(e) => {
+                            const updated = [...editDiceRolls];
+                            updated[index] = { ...roll, formula: e.target.value };
+                            onEditDiceRollsChange(updated);
+                          }}
+                          maxLength={100}
+                          className="flex-1"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            onEditDiceRollsChange(editDiceRolls.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="flex gap-2">
                     <Button onClick={onSave} size="sm">
                       <Check className="h-4 w-4 mr-2" />
@@ -179,11 +248,37 @@ function SortableNote({
                 </>
               ) : (
                 // View Mode
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {note.content || "*No content*"}
-                  </ReactMarkdown>
-                </div>
+                <>
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {note.content || "*No content*"}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* Dice Rolls Display */}
+                  {note.diceRolls && note.diceRolls.length > 0 && (
+                    <div className="space-y-2 border-t pt-4 mt-4">
+                      <div className="text-sm font-medium text-muted-foreground">Dice Rolls</div>
+                      {note.diceRolls.map((roll) => (
+                        <div
+                          key={roll.id}
+                          className="flex items-center justify-between gap-2 p-2 rounded-md border bg-muted/30"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{roll.name}</div>
+                            <div className="text-xs text-muted-foreground font-mono">
+                              {roll.formula}
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => onRollDice(roll.id)}>
+                            <Dice6 className="h-4 w-4 mr-1" />
+                            Roll
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </CollapsibleContent>
@@ -202,9 +297,11 @@ export function NotesTab() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editDiceRolls, setEditDiceRolls] = useState<DiceRoll[]>([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newDiceRolls, setNewDiceRolls] = useState<DiceRoll[]>([]);
   const [openNotes, setOpenNotes] = useState<Set<string>>(
     new Set(initialNotes.map((note) => note.id)),
   );
@@ -217,9 +314,10 @@ export function NotesTab() {
     if (!newTitle.trim()) return;
 
     try {
-      const newNote = await noteService.addNote(newTitle, newContent);
+      const newNote = await noteService.addNote(newTitle, newContent, newDiceRolls);
       setNewTitle("");
       setNewContent("");
+      setNewDiceRolls([]);
       setIsAddingNew(false);
       refreshNotes();
       // Auto-expand the new note
@@ -233,6 +331,7 @@ export function NotesTab() {
     setEditingNoteId(note.id);
     setEditTitle(note.title);
     setEditContent(note.content);
+    setEditDiceRolls(note.diceRolls || []);
   };
 
   const handleSaveEdit = async () => {
@@ -242,10 +341,12 @@ export function NotesTab() {
       await noteService.updateNote(editingNoteId, {
         title: editTitle,
         content: editContent,
+        diceRolls: editDiceRolls,
       });
       setEditingNoteId(null);
       setEditTitle("");
       setEditContent("");
+      setEditDiceRolls([]);
       refreshNotes();
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to update note");
@@ -256,6 +357,15 @@ export function NotesTab() {
     setEditingNoteId(null);
     setEditTitle("");
     setEditContent("");
+    setEditDiceRolls([]);
+  };
+
+  const handleRollDice = async (noteId: string, rollId: string) => {
+    try {
+      await noteService.rollDiceFromNote(noteId, rollId);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to roll dice");
+    }
   };
 
   const handleDeleteNote = async (noteId: string) => {
@@ -310,6 +420,12 @@ export function NotesTab() {
 
   return (
     <div className="space-y-4">
+      {/* Header with Help Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Notes</h2>
+        <DiceFormulaHelpDialog />
+      </div>
+
       {/* Add New Note Section */}
       {isAddingNew ? (
         <Card>
@@ -338,6 +454,65 @@ export function NotesTab() {
                 {newContent.length} / {gameConfig.notes.maxContentLength} characters
               </div>
             </div>
+
+            {/* Dice Rolls Editor */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Dice Rolls</label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newRoll: DiceRoll = {
+                      id: uuidv4(),
+                      name: "",
+                      formula: "",
+                    };
+                    setNewDiceRolls([...newDiceRolls, newRoll]);
+                  }}
+                  disabled={newDiceRolls.length >= 20}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Roll
+                </Button>
+              </div>
+              {newDiceRolls.map((roll, index) => (
+                <div key={roll.id} className="flex gap-2 items-start">
+                  <Input
+                    placeholder="Name"
+                    value={roll.name}
+                    onChange={(e) => {
+                      const updated = [...newDiceRolls];
+                      updated[index] = { ...roll, name: e.target.value };
+                      setNewDiceRolls(updated);
+                    }}
+                    maxLength={50}
+                    className="flex-1"
+                  />
+                  <Input
+                    placeholder="Formula (e.g., 1d20+5)"
+                    value={roll.formula}
+                    onChange={(e) => {
+                      const updated = [...newDiceRolls];
+                      updated[index] = { ...roll, formula: e.target.value };
+                      setNewDiceRolls(updated);
+                    }}
+                    maxLength={100}
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setNewDiceRolls(newDiceRolls.filter((_, i) => i !== index));
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
             <div className="flex gap-2">
               <Button onClick={handleAddNote} disabled={!newTitle.trim()}>
                 <Check className="h-4 w-4 mr-2" />
@@ -349,6 +524,7 @@ export function NotesTab() {
                   setIsAddingNew(false);
                   setNewTitle("");
                   setNewContent("");
+                  setNewDiceRolls([]);
                 }}
               >
                 <X className="h-4 w-4 mr-2" />
@@ -381,6 +557,7 @@ export function NotesTab() {
               isEditing={editingNoteId === note.id}
               editTitle={editTitle}
               editContent={editContent}
+              editDiceRolls={editDiceRolls}
               onToggle={() => toggleNote(note.id)}
               onEdit={() => handleEditNote(note)}
               onSave={handleSaveEdit}
@@ -388,6 +565,8 @@ export function NotesTab() {
               onDelete={() => handleDeleteNote(note.id)}
               onEditTitleChange={setEditTitle}
               onEditContentChange={setEditContent}
+              onEditDiceRollsChange={setEditDiceRolls}
+              onRollDice={(rollId) => handleRollDice(note.id, rollId)}
             />
           ))}
         </SortableContext>
