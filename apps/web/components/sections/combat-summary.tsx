@@ -274,7 +274,7 @@ function HPActionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {config.icon}
@@ -286,12 +286,12 @@ function HPActionDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(-5)}
-              className="h-8 w-12 p-0 text-xs"
+              className="h-8 flex-1 p-0 text-xs"
             >
               -5
             </Button>
@@ -299,7 +299,7 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(-1)}
-              className="h-8 w-12 p-0 text-xs"
+              className="h-8 flex-1 p-0 text-xs"
             >
               -1
             </Button>
@@ -309,7 +309,7 @@ function HPActionDialog({
               min="1"
               value={amount}
               onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
-              className={`flex-1 px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+              className={`w-16 sm:flex-1 px-2 sm:px-3 py-2 border-2 rounded text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                 actionType === "damage"
                   ? "border-destructive text-destructive focus:border-destructive focus:ring-destructive/20"
                   : actionType === "healing"
@@ -322,7 +322,7 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(1)}
-              className="h-8 w-12 p-0 text-xs"
+              className="h-8 flex-1 p-0 text-xs"
             >
               +1
             </Button>
@@ -330,7 +330,7 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(5)}
-              className="h-8 w-12 p-0 text-xs"
+              className="h-8 flex-1 p-0 text-xs"
             >
               +5
             </Button>

@@ -110,7 +110,7 @@ export function CharacterNameSection({
 
           {/* Character Info */}
           <div className="flex-1 space-y-2">
-            {/* Name Input with Buttons */}
+            {/* Name Input with Menu Button */}
             <div className="flex items-center gap-2">
               <Input
                 id="character-name"
@@ -119,26 +119,28 @@ export function CharacterNameSection({
                 className="text-xl font-bold flex-1"
                 placeholder="Character Name"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLevelUp}
-                disabled={character.level >= 20}
-                className="h-10 px-3 shrink-0"
-                title={character.level >= 20 ? "Maximum level reached" : "Open Level Up Guide"}
-              >
-                <TrendingUp className="h-4 w-4 mr-1" />
-                Level up
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onOpenConfig}
-                className="h-10 w-10 p-0 shrink-0"
-                title="Character Configuration"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 p-0 shrink-0"
+                    title="Character Menu"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleLevelUp} disabled={character.level >= 20}>
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    {character.level >= 20 ? "Maximum level reached" : "Level Up"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onOpenConfig}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Character Configuration
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Ancestry, Background, Class, Level */}
