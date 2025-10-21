@@ -229,16 +229,49 @@ export function AbilitySection() {
       return "bg-red-100 text-red-800 border-red-200";
     };
 
+    const hasRoll = !!spell.diceFormula;
+    const SpellIcon = hasRoll ? Sparkles : Zap;
+
     return (
       <Card key={spell.id} className={`mb-2 ${!canUse ? "opacity-50" : ""}`}>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Sparkles className="w-4 h-4 text-purple-500" />
-                <h4 className="font-semibold">{spell.name}</h4>
-                <Badge variant="outline" className={getTierColor(spell.tier)}>
-                  {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+        <CardContent className="p-2 sm:p-3">
+          <div className="space-y-2">
+            {/* Title with delete button */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <SpellIcon className="w-3 h-3 text-purple-500 shrink-0" />
+                <h4 className="font-semibold text-sm">{spell.name}</h4>
+              </div>
+              {isManuallyAddedAbility(spell.id) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteAbility(spell.id)}
+                  className="text-red-500 hover:text-red-700 h-5 w-5 p-0 shrink-0"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+
+            {/* Description */}
+            <MarkdownRenderer content={spell.description} className="text-sm" />
+
+            {/* Dice formula if exists */}
+            {spell.diceFormula && (
+              <div className="px-1.5 py-1 bg-muted/50 rounded text-xs font-mono text-center">
+                {spell.diceFormula}
+                {spell.scalingBonus && (
+                  <span className="text-green-600 ml-1">(+{spell.scalingBonus})</span>
+                )}
+              </div>
+            )}
+
+            {/* Pills and buttons */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-1 flex-wrap items-center">
+                <Badge variant="outline" className={`text-xs ${getTierColor(spell.tier)}`}>
+                  {spell.tier === 0 ? "Cantrip" : `T${spell.tier}`}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
                   {spell.category === "utility" ? "Utility" : "Combat"}
@@ -247,14 +280,14 @@ export function AbilitySection() {
                   {spell.school}
                 </Badge>
                 {spell.actionCost && spell.actionCost > 0 && (
-                  <Badge variant="outline" className="text-orange-600">
-                    {spell.actionCost} action{spell.actionCost > 1 ? "s" : ""}
+                  <Badge variant="outline" className="text-xs text-orange-600">
+                    {spell.actionCost} Action{spell.actionCost > 1 ? "s" : ""}
                   </Badge>
                 )}
                 {spell.resourceCost && (
                   <Badge
                     variant="outline"
-                    className={resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}
+                    className={`text-xs ${resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}`}
                   >
                     {spell.resourceCost.type === "fixed"
                       ? `${spell.resourceCost.amount} ${resourceInfo.resourceName}`
@@ -264,24 +297,22 @@ export function AbilitySection() {
                   </Badge>
                 )}
               </div>
-              <MarkdownRenderer content={spell.description} className="mb-2" />
-              {spell.diceFormula && (
-                <div className="mb-3 p-2 bg-muted/50 rounded text-sm">
-                  <strong>Damage:</strong> {spell.diceFormula}
-                  {spell.scalingBonus && (
-                    <span className="text-green-600 ml-2">(Scaling: {spell.scalingBonus})</span>
-                  )}
-                </div>
-              )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-1 shrink-0">
                 <Button
                   variant={!canUse ? "outline" : "default"}
                   size="sm"
                   onClick={() => handleUseAbility(spell.id)}
                   disabled={!canUse}
+                  className="h-7 text-xs"
+                  title={
+                    !resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast Spell"
+                  }
                 >
-                  {!resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast Spell"}
+                  <SpellIcon className="w-3 h-3 sm:mr-1" />
+                  <span className="hidden sm:inline">
+                    {!resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast"}
+                  </span>
                 </Button>
                 {spell.resourceCost && spell.upcastBonus && (
                   <Button
@@ -289,22 +320,13 @@ export function AbilitySection() {
                     size="sm"
                     disabled={!canUse}
                     title="Upcast spell for increased effect"
+                    className="h-7 px-2"
                   >
-                    <TrendingUp className="w-4 h-4" />
+                    <TrendingUp className="w-3 h-3" />
                   </Button>
                 )}
               </div>
             </div>
-            {isManuallyAddedAbility(spell.id) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteAbility(spell.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -345,18 +367,96 @@ export function AbilitySection() {
     const resourceInfo = getResourceInfo();
     const canUse = !isUsed && resourceInfo.canAfford;
 
+    const hasRoll = !!actionAbility.diceFormula;
+    const ActionIcon = hasRoll ? Zap : Sparkles;
+
     return (
       <Card key={ability.id} className={`mb-2 ${!canUse ? "opacity-50" : ""}`}>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <h4 className="font-semibold">{ability.name}</h4>
+        <CardContent className="p-2 sm:p-3">
+          <div className="space-y-2">
+            {/* Title with delete button */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <ActionIcon className="w-3 h-3 text-yellow-500 shrink-0" />
+                <h4 className="font-semibold text-sm">{ability.name}</h4>
+              </div>
+              {isManuallyAddedAbility(ability.id) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteAbility(ability.id)}
+                  className="text-red-500 hover:text-red-700 h-5 w-5 p-0 shrink-0"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+
+            {/* Description */}
+            <MarkdownRenderer content={ability.description} className="text-sm" />
+
+            {/* Dice formula if exists */}
+            {actionAbility.diceFormula && (
+              <div className="px-1.5 py-1 bg-muted/50 rounded text-xs font-mono text-center">
+                {actionAbility.diceFormula}
+              </div>
+            )}
+
+            {/* Variable resource cost selection */}
+            {actionAbility.resourceCost &&
+              actionAbility.resourceCost.type === "variable" &&
+              canUse && (
+                <div className="p-1.5 border rounded">
+                  <Label className="text-xs font-medium">Spend Amount:</Label>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Input
+                      type="number"
+                      min={
+                        actionAbility.resourceCost.type === "variable"
+                          ? actionAbility.resourceCost.minAmount
+                          : 1
+                      }
+                      max={
+                        actionAbility.resourceCost.type === "variable"
+                          ? Math.min(
+                              actionAbility.resourceCost.maxAmount ??
+                                characterService.getResourceMaxValue(
+                                  actionAbility.resourceCost.resourceId,
+                                ),
+                              resourceInfo.resource?.current || 0,
+                            )
+                          : resourceInfo.resource?.current || 0
+                      }
+                      value={variableResourceAmount}
+                      onChange={(e) =>
+                        setVariableResourceAmount(
+                          parseInt(e.target.value) ||
+                            (actionAbility.resourceCost?.type === "variable"
+                              ? actionAbility.resourceCost.minAmount
+                              : 1),
+                        )
+                      }
+                      className="w-16 h-7 text-sm"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {resourceInfo.resourceName} ({resourceInfo.resource?.current || 0})
+                    </span>
+                  </div>
+                </div>
+              )}
+
+            {/* Effect preview */}
+            {actionAbility.effects && actionAbility.effects.length > 0 && (
+              <EffectPreview effects={actionAbility.effects} />
+            )}
+
+            {/* Pills and buttons */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-1 flex-wrap items-center">
                 {getFrequencyBadge(actionAbility.frequency)}
                 {actionAbility.frequency !== "at_will" && actionAbility.maxUses && character && (
-                  <Badge variant="secondary">
-                    {remainingUses} / {maxUses} remaining
+                  <Badge variant="secondary" className="text-xs">
+                    {remainingUses}/{maxUses}
                     {actionAbility.maxUses.type === "formula" && (
                       <span className="text-xs opacity-70 ml-1">
                         ({actionAbility.maxUses.expression})
@@ -364,16 +464,15 @@ export function AbilitySection() {
                     )}
                   </Badge>
                 )}
-                {actionAbility.frequency === "at_will" && <Badge variant="outline">At Will</Badge>}
                 {actionAbility.actionCost && actionAbility.actionCost > 0 && (
-                  <Badge variant="outline" className="text-orange-600">
-                    {actionAbility.actionCost} action{actionAbility.actionCost > 1 ? "s" : ""}
+                  <Badge variant="outline" className="text-xs text-orange-600">
+                    {actionAbility.actionCost} Action{actionAbility.actionCost > 1 ? "s" : ""}
                   </Badge>
                 )}
                 {actionAbility.resourceCost && (
                   <Badge
                     variant="outline"
-                    className={resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}
+                    className={`text-xs ${resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}`}
                   >
                     {actionAbility.resourceCost.type === "fixed"
                       ? `${actionAbility.resourceCost.amount} ${resourceInfo.resourceName}`
@@ -383,62 +482,8 @@ export function AbilitySection() {
                   </Badge>
                 )}
               </div>
-              <MarkdownRenderer content={ability.description} className="mb-2" />
-              {actionAbility.diceFormula && (
-                <div className="mb-3 p-2 bg-muted/50 rounded text-sm">
-                  <strong>Roll:</strong> {actionAbility.diceFormula}
-                </div>
-              )}
 
-              {/* Variable resource cost selection */}
-              {actionAbility.resourceCost &&
-                actionAbility.resourceCost.type === "variable" &&
-                canUse && (
-                  <div className="mb-3 p-2 border rounded">
-                    <Label className="text-sm font-medium">Spend Amount:</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Input
-                        type="number"
-                        min={
-                          actionAbility.resourceCost.type === "variable"
-                            ? actionAbility.resourceCost.minAmount
-                            : 1
-                        }
-                        max={
-                          actionAbility.resourceCost.type === "variable"
-                            ? Math.min(
-                                actionAbility.resourceCost.maxAmount ??
-                                  characterService.getResourceMaxValue(
-                                    actionAbility.resourceCost.resourceId,
-                                  ),
-                                resourceInfo.resource?.current || 0,
-                              )
-                            : resourceInfo.resource?.current || 0
-                        }
-                        value={variableResourceAmount}
-                        onChange={(e) =>
-                          setVariableResourceAmount(
-                            parseInt(e.target.value) ||
-                              (actionAbility.resourceCost?.type === "variable"
-                                ? actionAbility.resourceCost.minAmount
-                                : 1),
-                          )
-                        }
-                        className="w-20"
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {resourceInfo.resourceName} (have {resourceInfo.resource?.current || 0})
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-              {/* Effect preview */}
-              {actionAbility.effects && actionAbility.effects.length > 0 && (
-                <EffectPreview effects={actionAbility.effects} className="mb-3" />
-              )}
-
-              <div className="flex gap-2">
+              <div className="flex gap-1 shrink-0">
                 <Button
                   variant={!canUse ? "outline" : "default"}
                   size="sm"
@@ -451,12 +496,27 @@ export function AbilitySection() {
                     )
                   }
                   disabled={!canUse}
+                  className="h-7 text-xs"
+                  title={
+                    isUsed
+                      ? "Used"
+                      : !resourceInfo.canAfford
+                        ? `Need ${resourceInfo.resourceName}`
+                        : hasRoll
+                          ? "Roll"
+                          : "Use Ability"
+                  }
                 >
-                  {isUsed
-                    ? "Used"
-                    : !resourceInfo.canAfford
-                      ? `Need ${resourceInfo.resourceName}`
-                      : "Use Ability"}
+                  <ActionIcon className="w-3 h-3 sm:mr-1" />
+                  <span className="hidden sm:inline">
+                    {isUsed
+                      ? "Used"
+                      : !resourceInfo.canAfford
+                        ? `Need ${resourceInfo.resourceName}`
+                        : hasRoll
+                          ? "Roll"
+                          : "Use"}
+                  </span>
                 </Button>
                 {actionAbility.frequency === "manual" && actionAbility.maxUses && (
                   <Button
@@ -464,22 +524,13 @@ export function AbilitySection() {
                     size="sm"
                     onClick={() => handleRefreshAbility(ability.id)}
                     title="Refresh ability uses"
+                    className="h-7 px-2"
                   >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="w-3 h-3" />
                   </Button>
                 )}
               </div>
             </div>
-            {isManuallyAddedAbility(ability.id) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteAbility(ability.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>

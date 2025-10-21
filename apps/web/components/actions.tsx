@@ -1,6 +1,17 @@
 "use client";
 
-import { RefreshCw, Sword, Swords, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Dice6,
+  RefreshCw,
+  Sparkles,
+  Sword,
+  Swords,
+  Zap,
+} from "lucide-react";
+
+import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { AbilityFrequency, ActionAbilityDefinition } from "@/lib/schemas/abilities";
@@ -27,6 +38,7 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
   const actionAbilities = abilities.filter(
     (ability): ability is ActionAbilityDefinition => ability.type === "action",
   );
+  const [expandedAbilities, setExpandedAbilities] = useState<Set<string>>(new Set());
 
   const handleAttack = async (weapon: WeaponItem) => {
     // Check if we have enough actions for weapon attacks (always cost 1 action)
@@ -72,6 +84,18 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
     } catch (error) {
       console.error("Failed to refresh ability:", error);
     }
+  };
+
+  const toggleAbilityExpanded = (abilityId: string) => {
+    setExpandedAbilities((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(abilityId)) {
+        newSet.delete(abilityId);
+      } else {
+        newSet.add(abilityId);
+      }
+      return newSet;
+    });
   };
 
   const getFrequencyBadge = (frequency: AbilityFrequency) => {
@@ -123,18 +147,18 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
                 return (
                   <div
                     key={weapon.id}
-                    className={`p-3 hover:bg-muted/50 transition-colors ${
+                    className={`p-2 hover:bg-muted/50 transition-colors ${
                       index > 0 ? "border-t" : ""
                     } ${insufficientActions ? "opacity-50" : ""}`}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-start space-x-3 flex-1 min-w-0">
-                        <div className="shrink-0 mt-1">
-                          <Sword className="w-4 h-4 text-muted-foreground" />
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-start space-x-2 flex-1 min-w-0">
+                        <div className="shrink-0 mt-0.5">
+                          <Sword className="w-3 h-3 text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium">{weapon.name}</div>
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="font-medium text-sm">{weapon.name}</div>
+                          <div className="text-xs text-muted-foreground">
                             {weapon.damage}
                             {weapon.properties && weapon.properties.length > 0 && (
                               <span> • {weapon.properties.join(", ")}</span>
@@ -148,9 +172,9 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
                           size="sm"
                           onClick={() => handleAttack(weapon)}
                           disabled={isDisabled}
-                          className="h-8"
+                          className="h-7 text-xs"
                         >
-                          <Sword className="w-3 h-3 sm:mr-2" />
+                          <Sword className="w-3 h-3 sm:mr-1" />
                           <span className="hidden sm:inline">
                             {insufficientActions ? "No Actions" : "Attack"}
                           </span>
@@ -172,128 +196,165 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
             <Zap className="w-5 h-5" />
             Abilities
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {actionAbilities.map((ability) => {
-              const currentUses = character._abilityUses.get(ability.id) || 0;
-              const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
-              const remainingUses = maxUses - currentUses;
-              const isUsed =
-                ability.frequency !== "at_will" && ability.maxUses && currentUses >= maxUses;
-              const actionCost = ability.actionCost || 0;
-              const insufficientActions =
-                character.inEncounter &&
-                actionCost > 0 &&
-                character.actionTracker.current < actionCost;
+          <Card>
+            <CardContent className="p-0">
+              {actionAbilities.map((ability, index) => {
+                const currentUses = character._abilityUses.get(ability.id) || 0;
+                const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
+                const remainingUses = maxUses - currentUses;
+                const isUsed =
+                  ability.frequency !== "at_will" && ability.maxUses && currentUses >= maxUses;
+                const actionCost = ability.actionCost || 0;
+                const insufficientActions =
+                  character.inEncounter &&
+                  actionCost > 0 &&
+                  character.actionTracker.current < actionCost;
 
-              // Check resource requirements
-              const getResourceInfo = () => {
-                if (!ability.resourceCost) return { canAfford: true, resourceName: null };
+                // Check resource requirements
+                const getResourceInfo = () => {
+                  if (!ability.resourceCost) return { canAfford: true, resourceName: null };
 
-                const resources = getResources();
-                const resource = resources.find(
-                  (r) => r.definition.id === ability.resourceCost!.resourceId,
-                );
-                if (!resource)
-                  return { canAfford: false, resourceName: ability.resourceCost.resourceId };
+                  const resources = getResources();
+                  const resource = resources.find(
+                    (r) => r.definition.id === ability.resourceCost!.resourceId,
+                  );
+                  if (!resource)
+                    return { canAfford: false, resourceName: ability.resourceCost.resourceId };
 
-                const requiredAmount =
-                  ability.resourceCost.type === "fixed"
-                    ? ability.resourceCost.amount
-                    : ability.resourceCost.minAmount;
+                  const requiredAmount =
+                    ability.resourceCost.type === "fixed"
+                      ? ability.resourceCost.amount
+                      : ability.resourceCost.minAmount;
 
-                return {
-                  canAfford: resource.current >= requiredAmount,
-                  resourceName: resource.definition.name,
+                  return {
+                    canAfford: resource.current >= requiredAmount,
+                    resourceName: resource.definition.name,
+                  };
                 };
-              };
 
-              const resourceInfo = getResourceInfo();
-              const isDisabled = isUsed || insufficientActions || !resourceInfo.canAfford;
+                const resourceInfo = getResourceInfo();
+                const isDisabled = isUsed || insufficientActions || !resourceInfo.canAfford;
 
-              return (
-                <Card key={ability.id} className={isDisabled ? "opacity-50" : ""}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-center text-base flex items-center justify-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      {ability.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="text-center text-sm">
-                      <MarkdownRenderer
-                        content={ability.description}
-                        className="mb-2 text-center"
-                      />
+                const hasRoll = !!ability.diceFormula;
+                const ActionIcon = hasRoll ? Dice6 : Sparkles;
+                const isExpanded = expandedAbilities.has(ability.id);
 
-                      {ability.diceFormula && (
-                        <div className="mb-2 p-2 bg-muted/50 rounded text-sm">
-                          <strong>Roll:</strong> {ability.diceFormula}
+                return (
+                  <div
+                    key={ability.id}
+                    className={`p-2 hover:bg-muted/50 transition-colors ${
+                      index > 0 ? "border-t" : ""
+                    } ${isDisabled ? "opacity-50" : ""}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-start space-x-2 flex-1 min-w-0">
+                        <div className="shrink-0 mt-0.5">
+                          <ActionIcon className="w-3 h-3 text-muted-foreground" />
                         </div>
-                      )}
-
-                      <div className="flex justify-center gap-2 mb-2 flex-wrap">
-                        {getFrequencyBadge(ability.frequency)}
-                        {ability.frequency !== "at_will" && ability.maxUses && character && (
-                          <Badge variant="secondary">
-                            {remainingUses} / {maxUses} remaining
-                          </Badge>
-                        )}
-                        {actionCost > 0 && (
-                          <Badge
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => toggleAbilityExpanded(ability.id)}
+                              className="flex items-center gap-1 hover:text-foreground transition-colors"
+                            >
+                              <span className="font-medium text-sm">{ability.name}</span>
+                              {isExpanded ? (
+                                <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0" />
+                              ) : (
+                                <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
+                              )}
+                            </button>
+                          </div>
+                          {isExpanded && (
+                            <div className="mt-1 mb-2 text-xs">
+                              <MarkdownRenderer content={ability.description} className="text-xs" />
+                            </div>
+                          )}
+                          <div className="text-xs text-muted-foreground">
+                            <div className="flex gap-1 flex-wrap items-center">
+                              {ability.diceFormula && (
+                                <span className="font-mono">{ability.diceFormula} •</span>
+                              )}
+                              {getFrequencyBadge(ability.frequency)}
+                              {ability.frequency !== "at_will" && ability.maxUses && character && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {remainingUses}/{maxUses}
+                                </Badge>
+                              )}
+                              {actionCost > 0 && (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${insufficientActions ? "text-red-600" : ""}`}
+                                >
+                                  {actionCost} Action{actionCost !== 1 ? "s" : ""}
+                                </Badge>
+                              )}
+                              {ability.resourceCost && (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}`}
+                                >
+                                  {ability.resourceCost.type === "fixed"
+                                    ? `${ability.resourceCost.amount} ${resourceInfo.resourceName}`
+                                    : ability.resourceCost.maxAmount
+                                      ? `${ability.resourceCost.minAmount}-${ability.resourceCost.maxAmount} ${resourceInfo.resourceName}`
+                                      : `${ability.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex gap-1">
+                        <Button
+                          variant={isDisabled ? "outline" : "default"}
+                          size="sm"
+                          onClick={() => handleUseAbility(ability)}
+                          disabled={isDisabled}
+                          className="h-7 text-xs"
+                          title={
+                            isUsed
+                              ? "Used"
+                              : insufficientActions
+                                ? "No Actions"
+                                : !resourceInfo.canAfford
+                                  ? `Need ${resourceInfo.resourceName}`
+                                  : hasRoll
+                                    ? "Roll"
+                                    : "Use Ability"
+                          }
+                        >
+                          <ActionIcon className="w-3 h-3 sm:mr-1" />
+                          <span className="hidden sm:inline">
+                            {isUsed
+                              ? "Used"
+                              : insufficientActions
+                                ? "No Actions"
+                                : !resourceInfo.canAfford
+                                  ? `Need ${resourceInfo.resourceName}`
+                                  : hasRoll
+                                    ? "Roll"
+                                    : "Use"}
+                          </span>
+                        </Button>
+                        {ability.frequency === "manual" && ability.maxUses && (
+                          <Button
                             variant="outline"
-                            className={insufficientActions ? "text-red-600" : ""}
+                            size="sm"
+                            onClick={() => handleRefreshAbility(ability.id)}
+                            title="Refresh ability uses"
+                            className="h-7 px-2"
                           >
-                            {actionCost} action{actionCost !== 1 ? "s" : ""}
-                          </Badge>
-                        )}
-                        {ability.resourceCost && (
-                          <Badge
-                            variant="outline"
-                            className={resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}
-                          >
-                            {ability.resourceCost.type === "fixed"
-                              ? `${ability.resourceCost.amount} ${resourceInfo.resourceName}`
-                              : ability.resourceCost.maxAmount
-                                ? `${ability.resourceCost.minAmount}-${ability.resourceCost.maxAmount} ${resourceInfo.resourceName}`
-                                : `${ability.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
-                          </Badge>
+                            <RefreshCw className="w-3 h-3" />
+                          </Button>
                         )}
                       </div>
                     </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant={isDisabled ? "outline" : "default"}
-                        size="sm"
-                        onClick={() => handleUseAbility(ability)}
-                        disabled={isDisabled}
-                        className="flex-1"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        {isUsed
-                          ? "Used"
-                          : insufficientActions
-                            ? "No Actions"
-                            : !resourceInfo.canAfford
-                              ? `Need ${resourceInfo.resourceName}`
-                              : "Use Ability"}
-                      </Button>
-                      {ability.frequency === "manual" && ability.maxUses && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRefreshAbility(ability.id)}
-                          title="Refresh ability uses"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
