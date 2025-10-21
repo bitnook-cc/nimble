@@ -32,13 +32,20 @@ interface ActionsProps {
 }
 
 export function Actions({ character, advantageLevel }: ActionsProps) {
-  const { performAttack, performUseAbility, refreshAbility, getAbilities, getResources } =
-    useCharacterService();
+  const {
+    performAttack,
+    performUseAbility,
+    refreshAbility,
+    getAbilities,
+    getResources,
+    getFavoritedSpells,
+  } = useCharacterService();
   const abilities = getAbilities();
   const weapons = getEquippedWeapons(character.inventory.items);
   const actionAbilities = abilities.filter(
     (ability): ability is ActionAbilityDefinition => ability.type === "action",
   );
+  const favoritedSpells = getFavoritedSpells();
   const [expandedAbilities, setExpandedAbilities] = useState<Set<string>>(new Set());
 
   const handleAttack = async (weapon: WeaponItem) => {
@@ -118,11 +125,11 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
     return <Badge className={colors[frequency]}>{labels[frequency]}</Badge>;
   };
 
-  if (weapons.length === 0 && actionAbilities.length === 0) {
+  if (weapons.length === 0 && actionAbilities.length === 0 && favoritedSpells.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          No equipped weapons or action abilities available.
+          No equipped weapons, favorited spells, or action abilities available.
         </CardContent>
       </Card>
     );
