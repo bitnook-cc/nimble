@@ -147,5 +147,10 @@ export function useCharacterService() {
     selectAttributeBoost: characterService.selectAttributeBoost.bind(characterService),
     updateUtilitySelectionsForTrait:
       characterService.updateUtilitySelectionsForTrait.bind(characterService),
+
+    // Favorite spells management
+    getFavoritedSpells: characterService.getFavoritedSpells.bind(characterService),
+    isSpellFavorited: characterService.isSpellFavorited.bind(characterService),
+    toggleFavoriteSpell: characterService.toggleFavoriteSpell.bind(characterService),
   };
 }

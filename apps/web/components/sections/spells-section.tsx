@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, Star, TrendingUp, Zap } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -27,7 +27,13 @@ import { MarkdownRenderer } from "../ui/markdown-renderer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export function SpellsSection() {
-  const { character, performUseAbility, getSpellTierAccess } = useCharacterService();
+  const {
+    character,
+    performUseAbility,
+    getSpellTierAccess,
+    toggleFavoriteSpell,
+    isSpellFavorited,
+  } = useCharacterService();
   const [openSchools, setOpenSchools] = useState<Record<string, boolean>>({});
   const [openLockedSchools, setOpenLockedSchools] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<"combat" | "utility">("combat");
@@ -187,6 +193,14 @@ export function SpellsSection() {
     setUpcastingSpell(spell);
   };
 
+  const handleToggleFavorite = async (spell: SpellAbilityDefinition) => {
+    try {
+      await toggleFavoriteSpell(spell.id);
+    } catch (error) {
+      console.error("Failed to toggle favorite spell:", error);
+    }
+  };
+
   return (
     <>
       <Card className="w-full">
@@ -276,73 +290,91 @@ export function SpellsSection() {
                             );
 
                             return (
-                              <div key={spell.id} className="border rounded-lg p-4 space-y-3">
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2 flex-1">
-                                    <div className="flex items-center gap-2">
-                                      <h4 className="font-semibold">{spell.name}</h4>
-                                      <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                        {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                                      </Badge>
-                                      <Badge variant="outline" className="text-xs">
-                                        {spell.category === "utility" ? "Utility" : "Combat"}
-                                      </Badge>
-                                    </div>
+                              <div key={spell.id} className="border rounded-lg p-4 space-y-2">
+                                {/* First row: Name, Tier, Favorite */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold">{spell.name}</h4>
+                                    <Badge variant="outline" className={getTierColor(spell.tier)}>
+                                      {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                                    </Badge>
+                                  </div>
+                                  {spell.category === "combat" && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleToggleFavorite(spell)}
+                                      title={
+                                        isSpellFavorited(spell.id)
+                                          ? "Remove from favorites"
+                                          : "Add to favorites"
+                                      }
+                                      className="h-8 px-2"
+                                    >
+                                      <Star
+                                        className={`w-4 h-4 ${isSpellFavorited(spell.id) ? "fill-yellow-500 text-yellow-500" : ""}`}
+                                      />
+                                    </Button>
+                                  )}
+                                </div>
 
-                                    {/* Action and Resource costs in a row */}
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      {spell.actionCost !== undefined && (
-                                        <Badge variant="secondary" className="text-xs">
-                                          {formatActionCost(spell.actionCost)}
-                                        </Badge>
-                                      )}
-                                      {spell.resourceCost && (
-                                        <Badge
-                                          variant={canCast ? "secondary" : "destructive"}
-                                          className="text-xs"
-                                        >
-                                          {formatResourceCost(spell.resourceCost)}
-                                        </Badge>
-                                      )}
-                                    </div>
+                                {/* Costs */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {spell.actionCost !== undefined && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      {formatActionCost(spell.actionCost)}
+                                    </Badge>
+                                  )}
+                                  {spell.resourceCost && (
+                                    <Badge
+                                      variant={canCast ? "secondary" : "destructive"}
+                                      className="text-xs"
+                                    >
+                                      {formatResourceCost(spell.resourceCost)}
+                                    </Badge>
+                                  )}
+                                </div>
 
-                                    <MarkdownRenderer
-                                      content={spell.description}
-                                      className="text-sm text-muted-foreground prose-p:mb-1"
-                                    />
-                                    {spell.diceFormula && (
-                                      <div className="text-xs text-muted-foreground">
-                                        <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                        {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                          <span className="ml-2 text-green-600">
-                                            (Scaled ×{spellScalingMultiplier})
-                                          </span>
-                                        )}
-                                      </div>
+                                {/* Description - full width */}
+                                <MarkdownRenderer
+                                  content={spell.description}
+                                  className="text-sm text-muted-foreground prose-p:mb-1"
+                                />
+                                {spell.diceFormula && (
+                                  <div className="text-xs text-muted-foreground">
+                                    <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                    {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                      <span className="ml-2 text-green-600">
+                                        (Scaled ×{spellScalingMultiplier})
+                                      </span>
                                     )}
                                   </div>
-                                  <div className="flex gap-2 ml-4">
+                                )}
+
+                                {/* Buttons below description */}
+                                <div className="flex gap-2 pt-1 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant={canCast ? "outline" : "ghost"}
+                                    onClick={() => handleSpellCast(spell)}
+                                    disabled={!canCast}
+                                    title={insufficientMessage || "Cast spell"}
+                                  >
+                                    <Zap className="w-4 h-4 mr-1" />
+                                    Cast
+                                  </Button>
+                                  {spell.resourceCost && spell.upcastBonus && (
                                     <Button
                                       size="sm"
                                       variant={canCast ? "outline" : "ghost"}
-                                      onClick={() => handleSpellCast(spell)}
+                                      onClick={() => handleUpcastClick(spell)}
                                       disabled={!canCast}
-                                      title={insufficientMessage || "Cast spell"}
+                                      title="Upcast spell for increased effect"
                                     >
-                                      <Zap className="w-4 h-4" />
+                                      <TrendingUp className="w-4 h-4 mr-1" />
+                                      Upcast
                                     </Button>
-                                    {spell.resourceCost && spell.upcastBonus && (
-                                      <Button
-                                        size="sm"
-                                        variant={canCast ? "outline" : "ghost"}
-                                        onClick={() => handleUpcastClick(spell)}
-                                        disabled={!canCast}
-                                        title="Upcast spell for increased effect"
-                                      >
-                                        <TrendingUp className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -534,73 +566,91 @@ export function SpellsSection() {
                           );
 
                           return (
-                            <div key={spell.id} className="border rounded-lg p-4 space-y-3">
-                              <div className="flex items-start justify-between">
-                                <div className="space-y-2 flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h4 className="font-semibold">{spell.name}</h4>
-                                    <Badge variant="outline" className={getTierColor(spell.tier)}>
-                                      {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
-                                    </Badge>
-                                    <Badge variant="outline" className="text-xs">
-                                      {spell.category === "utility" ? "Utility" : "Combat"}
-                                    </Badge>
-                                  </div>
+                            <div key={spell.id} className="border rounded-lg p-4 space-y-2">
+                              {/* First row: Name, Tier, Favorite */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-semibold">{spell.name}</h4>
+                                  <Badge variant="outline" className={getTierColor(spell.tier)}>
+                                    {spell.tier === 0 ? "Cantrip" : `Tier ${spell.tier}`}
+                                  </Badge>
+                                </div>
+                                {spell.category === "combat" && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleToggleFavorite(spell)}
+                                    title={
+                                      isSpellFavorited(spell.id)
+                                        ? "Remove from favorites"
+                                        : "Add to favorites"
+                                    }
+                                    className="h-8 px-2"
+                                  >
+                                    <Star
+                                      className={`w-4 h-4 ${isSpellFavorited(spell.id) ? "fill-yellow-500 text-yellow-500" : ""}`}
+                                    />
+                                  </Button>
+                                )}
+                              </div>
 
-                                  {/* Action and Resource costs in a row */}
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    {spell.actionCost !== undefined && (
-                                      <Badge variant="secondary" className="text-xs">
-                                        {formatActionCost(spell.actionCost)}
-                                      </Badge>
-                                    )}
-                                    {spell.resourceCost && (
-                                      <Badge
-                                        variant={canCast ? "secondary" : "destructive"}
-                                        className="text-xs"
-                                      >
-                                        {formatResourceCost(spell.resourceCost)}
-                                      </Badge>
-                                    )}
-                                  </div>
+                              {/* Costs */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {spell.actionCost !== undefined && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {formatActionCost(spell.actionCost)}
+                                  </Badge>
+                                )}
+                                {spell.resourceCost && (
+                                  <Badge
+                                    variant={canCast ? "secondary" : "destructive"}
+                                    className="text-xs"
+                                  >
+                                    {formatResourceCost(spell.resourceCost)}
+                                  </Badge>
+                                )}
+                              </div>
 
-                                  <MarkdownRenderer
-                                    content={spell.description}
-                                    className="text-sm text-muted-foreground prose-p:mb-1"
-                                  />
-                                  {spell.diceFormula && (
-                                    <div className="text-xs text-muted-foreground">
-                                      <span>Damage: {getEffectiveDamageFormula(spell)}</span>
-                                      {spell.scalingBonus && spellScalingMultiplier > 0 && (
-                                        <span className="ml-2 text-green-600">
-                                          (Scaled ×{spellScalingMultiplier})
-                                        </span>
-                                      )}
-                                    </div>
+                              {/* Description - full width */}
+                              <MarkdownRenderer
+                                content={spell.description}
+                                className="text-sm text-muted-foreground prose-p:mb-1"
+                              />
+                              {spell.diceFormula && (
+                                <div className="text-xs text-muted-foreground">
+                                  <span>Damage: {getEffectiveDamageFormula(spell)}</span>
+                                  {spell.scalingBonus && spellScalingMultiplier > 0 && (
+                                    <span className="ml-2 text-green-600">
+                                      (Scaled ×{spellScalingMultiplier})
+                                    </span>
                                   )}
                                 </div>
-                                <div className="flex gap-2 ml-4">
+                              )}
+
+                              {/* Buttons below description */}
+                              <div className="flex gap-2 pt-1 justify-end">
+                                <Button
+                                  size="sm"
+                                  variant={canCast ? "outline" : "ghost"}
+                                  onClick={() => handleSpellCast(spell)}
+                                  disabled={!canCast}
+                                  title={insufficientMessage || "Cast spell"}
+                                >
+                                  <Zap className="w-4 h-4 mr-1" />
+                                  Cast
+                                </Button>
+                                {spell.resourceCost && spell.upcastBonus && (
                                   <Button
                                     size="sm"
                                     variant={canCast ? "outline" : "ghost"}
-                                    onClick={() => handleSpellCast(spell)}
+                                    onClick={() => handleUpcastClick(spell)}
                                     disabled={!canCast}
-                                    title={insufficientMessage || "Cast spell"}
+                                    title="Upcast spell for increased effect"
                                   >
-                                    <Zap className="w-4 h-4" />
+                                    <TrendingUp className="w-4 h-4 mr-1" />
+                                    Upcast
                                   </Button>
-                                  {spell.resourceCost && spell.upcastBonus && (
-                                    <Button
-                                      size="sm"
-                                      variant={canCast ? "outline" : "ghost"}
-                                      onClick={() => handleUpcastClick(spell)}
-                                      disabled={!canCast}
-                                      title="Upcast spell for increased effect"
-                                    >
-                                      <TrendingUp className="w-4 h-4" />
-                                    </Button>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             </div>
                           );

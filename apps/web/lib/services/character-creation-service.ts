@@ -252,6 +252,7 @@ export class CharacterCreationService implements ICharacterCreation {
       _resourceDefinitions: [],
       _resourceValues: new Map(),
       _dicePools: [],
+      _favorites: { spells: [] },
       config,
       speed: gameConfig.character.defaultSpeed,
       actionTracker: createDefaultActionTracker(),

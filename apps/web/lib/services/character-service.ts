@@ -2262,6 +2262,61 @@ export class CharacterService {
     this.notifyCharacterChanged();
   }
 
+  // Favorite Spells Management
+
+  /**
+   * Get list of favorited spell IDs
+   */
+  getFavoritedSpells(): string[] {
+    if (!this._character) return [];
+    return this._character._favorites.spells;
+  }
+
+  /**
+   * Check if a spell is favorited
+   */
+  isSpellFavorited(spellId: string): boolean {
+    if (!this._character) return false;
+    return this._character._favorites.spells.includes(spellId);
+  }
+
+  /**
+   * Toggle a spell's favorited status
+   * Returns true if spell was added to favorites, false if removed
+   */
+  async toggleFavoriteSpell(spellId: string): Promise<boolean> {
+    if (!this._character) return false;
+
+    const currentFavorites = this._character._favorites.spells;
+    const isFavorited = currentFavorites.includes(spellId);
+
+    let updatedFavorites: string[];
+    if (isFavorited) {
+      // Remove from favorites
+      updatedFavorites = currentFavorites.filter((id) => id !== spellId);
+    } else {
+      // Add to favorites (check limit)
+      if (currentFavorites.length >= 100) {
+        throw new Error("Maximum number of favorited spells reached (100)");
+      }
+      updatedFavorites = [...currentFavorites, spellId];
+    }
+
+    const updatedCharacter = {
+      ...this._character,
+      _favorites: {
+        ...this._character._favorites,
+        spells: updatedFavorites,
+      },
+    };
+
+    this._character = updatedCharacter;
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+
+    return !isFavorited; // Return true if added, false if removed
+  }
+
   // Character Lifecycle Operations
 
   async deleteCharacterById(characterId: string): Promise<void> {

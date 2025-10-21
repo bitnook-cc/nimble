@@ -89,6 +89,7 @@ describe("CharacterCreationService", () => {
         _resourceDefinitions: [],
         _resourceValues: new Map(),
         _dicePools: [],
+        _favorites: { spells: [] },
         config: {
           maxWounds: 2,
           maxInventorySize: 10,
@@ -169,6 +170,7 @@ describe("CharacterCreationService", () => {
         _resourceDefinitions: [],
         _resourceValues: new Map(),
         _dicePools: [],
+        _favorites: { spells: [] },
         config: {
           maxWounds: 2,
           maxInventorySize: 10,
@@ -251,6 +253,7 @@ describe("CharacterCreationService", () => {
         _resourceDefinitions: [],
         _resourceValues: new Map(),
         _dicePools: [],
+        _favorites: { spells: [] },
         config: {
           maxWounds: 2,
           maxInventorySize: 10,

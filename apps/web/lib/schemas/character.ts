@@ -172,6 +172,10 @@ const resourceValuesMapSchema = z.union([
   z.record(z.string(), resourceValueSchema).transform((obj) => new Map(Object.entries(obj))),
 ]);
 
+const favoritesSchema = z.object({
+  spells: z.array(z.string()).max(100).default([]),
+});
+
 const characterBaseSchema = z.object({
   id: z.uuidv4(),
   name: z.string().min(1).max(50),
@@ -196,6 +200,7 @@ const characterBaseSchema = z.object({
   _resourceDefinitions: z.array(resourceDefinitionSchema),
   _resourceValues: resourceValuesMapSchema,
   _dicePools: z.array(dicePoolInstanceSchema).default([]),
+  _favorites: favoritesSchema.default({ spells: [] }),
   config: characterConfigurationSchema,
   speed: z.number().min(0),
   actionTracker: actionTrackerSchema,

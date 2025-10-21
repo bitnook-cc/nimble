@@ -20,9 +20,10 @@ import { WeaponItem } from "@/lib/schemas/inventory";
 import { abilityService } from "@/lib/services/ability-service";
 import { getEquippedWeapons } from "@/lib/utils/equipment";
 
+import { FavoriteSpells } from "./favorite-spells";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { MarkdownRenderer } from "./ui/markdown-renderer";
 
 interface ActionsProps {
@@ -188,6 +189,9 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
           </Card>
         </div>
       )}
+
+      {/* Favorite Spells Section */}
+      <FavoriteSpells character={character} advantageLevel={advantageLevel} />
 
       {/* Abilities Section */}
       {actionAbilities.length > 0 && (
