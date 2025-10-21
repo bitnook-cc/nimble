@@ -19,7 +19,6 @@
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^15.5.4",
-    "@nimble/shared-auth": "^1.0.0",
     "@nimble/shared-config": "^1.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",

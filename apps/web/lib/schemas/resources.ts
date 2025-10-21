@@ -14,6 +14,7 @@ const resourceResetConditionSchema = z.enum([
   "safe_rest",
   "encounter_end",
   "turn_end",
+  "initiative_roll",
   "never",
   "manual",
 ]);

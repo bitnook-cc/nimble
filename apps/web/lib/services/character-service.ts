@@ -1770,6 +1770,14 @@ export class CharacterService {
       actionsGranted = 3;
     }
 
+    // Reset resources with initiative_roll condition
+    const resourceDefinitions = this.getResourceDefinitions();
+    const newResourceValues = resourceService.resetResourcesByCondition(
+      resourceDefinitions,
+      this._character._resourceValues || new Map(),
+      "initiative_roll",
+    );
+
     // Update character to enter encounter mode with proper action tracker
     this._character = {
       ...this._character,
@@ -1780,6 +1788,7 @@ export class CharacterService {
         base: 3,
         bonus: 0,
       },
+      _resourceValues: newResourceValues,
     };
 
     await this.saveCharacter();

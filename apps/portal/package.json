@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nimble/shared-auth": "^1.0.0",
     "@nimble/shared-config": "^1.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.45.4",

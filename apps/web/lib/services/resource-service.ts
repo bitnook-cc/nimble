@@ -97,7 +97,8 @@ export class ResourceService {
 
   /**
    * Reset resources based on a condition
-   * Also resets resources with "smaller" conditions (safe_rest > encounter_end > turn_end)
+   * For hierarchical conditions (safe_rest > encounter_end > turn_end), resets resources with "smaller" conditions
+   * For standalone conditions (initiative_roll), only resets exact matches
    * Returns a new Map with updated values
    */
   resetResourcesByCondition(
@@ -107,18 +108,27 @@ export class ResourceService {
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
 
-    // Define the hierarchy of reset conditions
+    // Define the hierarchy of reset conditions (initiative_roll is NOT part of the hierarchy)
     const conditionHierarchy: ResourceResetCondition[] = ["turn_end", "encounter_end", "safe_rest"];
     const conditionIndex = conditionHierarchy.indexOf(condition);
 
     for (const definition of resourceDefinitions) {
-      // Reset if the resource's condition matches or is "smaller" (earlier in hierarchy)
+      // For initiative_roll, only reset if exact match (not part of hierarchy)
+      if (condition === "initiative_roll") {
+        if (definition.resetCondition === "initiative_roll") {
+          const targetValue = this.calculateResetTargetValue(definition);
+          newValues.set(definition.id, this.createNumericalValue(targetValue));
+        }
+        continue;
+      }
+
+      // For hierarchical conditions, reset if matches or is earlier in hierarchy
       const resourceConditionIndex = conditionHierarchy.indexOf(definition.resetCondition);
 
       // Reset if:
       // 1. Exact match
       // 2. Resource condition is earlier in hierarchy (smaller scope)
-      // 3. Skip if condition is "never" or "manual"
+      // 3. Skip if condition is "never", "manual", or "initiative_roll"
       if (
         definition.resetCondition === condition ||
         (conditionIndex >= 0 &&

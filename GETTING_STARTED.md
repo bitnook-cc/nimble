@@ -6,27 +6,76 @@ This guide will help you set up and run the Sidekick monorepo locally.
 
 Before you begin, ensure you have the following installed on your system:
 
-### Required Software
+### Installing Homebrew (macOS/Linux)
+
+If you don't have Homebrew installed, it's the easiest way to install all required dependencies:
+
+```bash
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Follow the on-screen instructions to add Homebrew to your PATH
+# (Usually requires adding a line to ~/.zshrc or ~/.bash_profile)
+
+# Verify installation
+brew --version
+```
+
+### Installing Dependencies with Homebrew
+
+Once Homebrew is installed, you can install all required software:
+
+```bash
+# Install Node.js (includes npm)
+brew install node
+
+# Install Git
+brew install git
+
+# Install Docker Desktop (includes Docker CLI and Docker Compose)
+brew install --cask docker
+
+# After installing Docker, launch Docker Desktop from Applications
+# or run: open -a Docker
+```
+
+### Verify Installations
+
+```bash
+# Check Node.js version (should be v18 or higher)
+node --version
+
+# Check npm version (should be v9 or higher)
+npm --version
+
+# Check Git version
+git --version
+
+# Check Docker version (requires Docker Desktop to be running)
+docker --version
+```
+
+### Manual Installation (Alternative)
+
+If you prefer not to use Homebrew:
 
 - **Node.js** (v18 or higher)
   - Download from [nodejs.org](https://nodejs.org/)
-  - Verify installation: `node --version`
-
-- **npm** (v9 or higher, comes with Node.js)
-  - Verify installation: `npm --version`
+  - npm comes bundled with Node.js
 
 - **Git**
   - Download from [git-scm.com](https://git-scm.com/)
-  - Verify installation: `git --version`
 
 - **Docker Desktop** (for local database)
   - Download from [docker.com](https://www.docker.com/products/docker-desktop)
   - Required for running the API server with PostgreSQL
-  - Verify installation: `docker --version`
 
 ### Optional but Recommended
 
 - **Visual Studio Code** or your preferred code editor
+  - Install with Homebrew: `brew install --cask visual-studio-code`
+  - Or download from [code.visualstudio.com](https://code.visualstudio.com/)
+
 - **Supabase CLI** (for database migrations)
   - Install: `npm install -g supabase`
 

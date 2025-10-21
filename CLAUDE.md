@@ -13,22 +13,7 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Packages
 
-- **`packages/shared-auth`**: Shared JWT authentication utilities for monorepo apps
 - **`packages/shared-config`**: Shared TypeScript and configuration files
-
-### Shared Authentication Package
-
-- **Location**: `packages/shared-auth/`
-- **Purpose**: Provides consistent JWT creation and verification across portal and vault
-- **Key Features**:
-  - RS256 (RSA with SHA-256) JWT signing and verification
-  - Asymmetric key support (portal signs with private key, vault verifies with public key)
-  - User ID and tags payload structure
-  - TypeScript types for JWT payload and user tags
-- **Usage**: 
-  - Portal: `createNimbleJWT(userId, userTags, privateKey)`
-  - Vault: `verifyNimbleJWT(token, publicKey)`
-- **Security**: Only public keys are exposed to client-side verification, private keys remain server-only
 
 ### Express API Server
 
