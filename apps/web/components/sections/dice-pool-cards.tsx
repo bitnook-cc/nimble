@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { HelpCircle, Plus } from "lucide-react";
 
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 export function DicePoolCards() {
   const { character, updateCharacter } = useCharacterService();
@@ -141,8 +142,20 @@ export function DicePoolCards() {
     return null;
   };
 
+  const getResetTooltip = (pool: DicePoolInstance) => {
+    const condition = pool.definition.resetCondition.replace("_", " ");
+    const resetType =
+      pool.definition.resetType === "to_max"
+        ? "refills with rolled dice"
+        : pool.definition.resetType === "to_zero"
+          ? "clears all dice"
+          : "resets to default";
+
+    return `Resets on ${condition} and ${resetType}`;
+  };
+
   return (
-    <>
+    <TooltipProvider>
       {dicePools.map((pool: DicePoolInstance) => {
         const maxSize = dicePoolService.getPoolMaxSize(pool, character);
         const currentValue = dicePoolService.getPoolCurrentValue(pool);
@@ -163,9 +176,19 @@ export function DicePoolCards() {
                     />
                   )}
                   {pool.definition.name}
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground transition-colors">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[250px]">
+                      <p>{getResetTooltip(pool)}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {pool.currentDice.length}/{maxSize} dice (Total: {currentValue})
+                  {pool.currentDice.length}/{maxSize} d{pool.definition.diceSize} dice
                 </span>
               </CardTitle>
               {pool.definition.description && (
@@ -252,7 +275,7 @@ export function DicePoolCards() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-between">
                 <Button
                   size="sm"
                   variant="outline"
@@ -273,26 +296,10 @@ export function DicePoolCards() {
                   Use Selected ({poolSelection?.size || 0})
                 </Button>
               </div>
-
-              {/* Pool info */}
-              <div className="text-xs text-muted-foreground">
-                <span>Dice Size: d{pool.definition.diceSize}</span>
-                <span className="mx-2">•</span>
-                <span>Reset: {pool.definition.resetCondition.replace("_", " ")}</span>
-                {pool.definition.resetType && (
-                  <>
-                    <span className="mx-2">•</span>
-                    <span>
-                      Reset Type:{" "}
-                      {pool.definition.resetType === "to_max" ? "Fill Pool" : "Clear Pool"}
-                    </span>
-                  </>
-                )}
-              </div>
             </CardContent>
           </Card>
         );
       })}
-    </>
+    </TooltipProvider>
   );
 }
