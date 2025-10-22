@@ -10,6 +10,7 @@ import type {
   // Character types
   Character,
   CharacterConfiguration,
+  ChoiceTraitSelection,
   CreateCharacterData,
   HitDice,
   HitDieSize,
@@ -54,6 +55,7 @@ export type {
   AttributeBoostTraitSelection,
   UtilitySpellsTraitSelection,
   SubclassTraitSelection,
+  ChoiceTraitSelection,
   TraitSelection,
 
   // Character types

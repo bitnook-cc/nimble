@@ -107,7 +107,13 @@ const DicePoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   poolDefinition: dicePoolDefinitionSchema,
 });
 
-export const FeatureTraitSchema = z.discriminatedUnion("type", [
+const ChoiceFeatureTraitSchema: any = BaseFeatureTraitSchema.extend({
+  type: z.literal("choice"),
+  options: z.array(z.lazy((): any => FeatureTraitSchema)),
+  numSelections: z.number().int().positive(),
+});
+
+export const FeatureTraitSchema: any = z.discriminatedUnion("type", [
   AbilityFeatureTraitSchema,
   AttributeBoostFeatureTraitSchema,
   StatBonusFeatureTraitSchema,
@@ -122,7 +128,8 @@ export const FeatureTraitSchema = z.discriminatedUnion("type", [
   PickFeatureFromPoolFeatureTraitSchema,
   ResistanceFeatureTraitSchema,
   SpellScalingFeatureTraitSchema,
-]);
+  ChoiceFeatureTraitSchema,
+] as const);
 
 // Export individual trait schemas for validation
 export {
@@ -140,6 +147,7 @@ export {
   PickFeatureFromPoolFeatureTraitSchema,
   ResistanceFeatureTraitSchema,
   SpellScalingFeatureTraitSchema,
+  ChoiceFeatureTraitSchema,
 };
 
 // ========================================
@@ -196,7 +204,8 @@ export type FeatureTraitType =
   | "subclass_choice"
   | "pick_feature_from_pool"
   | "resistance"
-  | "spell_scaling";
+  | "spell_scaling"
+  | "choice";
 
 export type TraitSource = "feature" | "item";
 
@@ -218,6 +227,7 @@ export type SubclassChoiceFeatureTrait = z.infer<typeof SubclassChoiceFeatureTra
 export type PickFeatureFromPoolFeatureTrait = z.infer<typeof PickFeatureFromPoolFeatureTraitSchema>;
 export type ResistanceFeatureTrait = z.infer<typeof ResistanceFeatureTraitSchema>;
 export type SpellScalingFeatureTrait = z.infer<typeof SpellScalingFeatureTraitSchema>;
+export type ChoiceFeatureTrait = z.infer<typeof ChoiceFeatureTraitSchema>;
 
 export type FeatureTrait = z.infer<typeof FeatureTraitSchema>;
 

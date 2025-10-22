@@ -2,6 +2,7 @@ import { SpellAbilityDefinition } from "../schemas/abilities";
 import { Character, UtilitySpellsTraitSelection } from "../schemas/character";
 import {
   AttributeBoostFeatureTrait,
+  ChoiceFeatureTrait,
   FeatureTrait,
   PickFeatureFromPoolFeatureTrait,
   SpellSchoolChoiceFeatureTrait,
@@ -17,6 +18,7 @@ export interface AvailableTraitSelections {
   spellSchoolSelections: SpellSchoolChoiceFeatureTrait[];
   attributeBoosts: AttributeBoostFeatureTrait[];
   utilitySpellSelections: UtilitySpellsFeatureTrait[];
+  choiceTraits: ChoiceFeatureTrait[];
 }
 
 /**
@@ -49,6 +51,7 @@ export class FeatureSelectionService {
       spellSchoolSelections: [],
       attributeBoosts: [],
       utilitySpellSelections: [],
+      choiceTraits: [],
     };
 
     for (const effect of allEffects) {
@@ -90,6 +93,14 @@ export class FeatureSelectionService {
           const remaining = this.getRemainingUtilitySpellSelections(character, effect);
           if (remaining > 0) {
             result.utilitySpellSelections.push(effect);
+          }
+          break;
+        }
+
+        case "choice": {
+          const remaining = this.getRemainingChoiceSelections(character, effect);
+          if (remaining > 0) {
+            result.choiceTraits.push(effect);
           }
           break;
         }
@@ -135,6 +146,27 @@ export class FeatureSelectionService {
     );
     // Attribute boosts are single selection (one attribute gets the boost)
     return Math.max(0, 1 - selections.length);
+  }
+
+  /**
+   * Get remaining choice selections for a specific effect
+   */
+  getRemainingChoiceSelections(character: Character, effect: ChoiceFeatureTrait): number {
+    const selections = character.traitSelections.filter(
+      (s) => s.type === "choice" && s.grantedByTraitId === effect.id,
+    );
+
+    if (selections.length === 0) {
+      return effect.numSelections;
+    }
+
+    // Get the first (and should be only) choice selection
+    const choiceSelection = selections[0];
+    if (choiceSelection.type === "choice") {
+      return Math.max(0, effect.numSelections - choiceSelection.selectedOptions.length);
+    }
+
+    return effect.numSelections;
   }
 
   /**

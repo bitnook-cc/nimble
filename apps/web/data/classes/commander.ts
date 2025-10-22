@@ -1,3 +1,5 @@
+import { options } from "happy-dom/lib/PropertySymbol.js";
+
 import { ClassDefinition } from "@/lib/schemas/class";
 import { ClassFeature } from "@/lib/schemas/features";
 
@@ -352,9 +354,22 @@ const commanderFeatures: ClassFeature[] = [
     traits: [
       {
         id: "commander-fit-for-any-battlefield-2-0",
-        type: "pick_feature_from_pool",
-        poolId: "combat-tactics-pool",
-        choicesAllowed: 1,
+        type: "choice",
+        options: [
+          {
+            id: "commander-fit-for-any-battlefield-2-0-1",
+            type: "pick_feature_from_pool",
+            poolId: "combat-tactics-pool",
+            choicesAllowed: 1,
+          },
+          {
+            id: "commander-fit-for-any-battlefield-2-0-2",
+            type: "pick_feature_from_pool",
+            poolId: "commanders-orders-pool",
+            choicesAllowed: 1,
+          },
+        ],
+        numSelections: 1,
       },
     ],
   },

@@ -151,14 +151,26 @@ const subclassTraitSelectionSchema = baseTraitSelectionSchema.extend({
   subclassId: z.string().min(1),
 });
 
+const choiceTraitSelectionSchema: any = baseTraitSelectionSchema.extend({
+  type: z.literal("choice"),
+  choiceTraitId: z.string().min(1),
+  selectedOptions: z.array(
+    z.object({
+      traitId: z.string().min(1),
+      selection: z.lazy((): any => traitSelectionSchema).optional(),
+    }),
+  ),
+});
+
 // Union of all trait selection types
-const traitSelectionSchema = z.discriminatedUnion("type", [
+const traitSelectionSchema: any = z.discriminatedUnion("type", [
   poolFeatureTraitSelectionSchema,
   spellSchoolTraitSelectionSchema,
   attributeBoostTraitSelectionSchema,
   utilitySpellsTraitSelectionSchema,
   subclassTraitSelectionSchema,
-]);
+  choiceTraitSelectionSchema,
+] as const);
 
 // Helper schemas for Map transformations
 // These handle both Map objects and plain objects (from JSON)
@@ -236,6 +248,7 @@ export type SpellSchoolTraitSelection = z.infer<typeof spellSchoolTraitSelection
 export type AttributeBoostTraitSelection = z.infer<typeof attributeBoostTraitSelectionSchema>;
 export type UtilitySpellsTraitSelection = z.infer<typeof utilitySpellsTraitSelectionSchema>;
 export type SubclassTraitSelection = z.infer<typeof subclassTraitSelectionSchema>;
+export type ChoiceTraitSelection = z.infer<typeof choiceTraitSelectionSchema>;
 export type TraitSelection = z.infer<typeof traitSelectionSchema>;
 
 // Character type

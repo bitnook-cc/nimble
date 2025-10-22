@@ -6,6 +6,7 @@ import {
   Attributes,
   Character,
   CharacterConfiguration,
+  ChoiceTraitSelection,
   PoolFeatureTraitSelection,
   Skill,
   Skills,
@@ -2221,6 +2222,128 @@ export class CharacterService {
 
     // Add the new selections
     const updatedSelections = [...otherSelections, ...newSelections];
+
+    this._character = {
+      ...this._character,
+      traitSelections: updatedSelections,
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Add a choice option to a choice trait selection
+   */
+  async addChoiceOption(choiceTraitId: string, optionTraitId: string): Promise<void> {
+    if (!this._character) return;
+
+    // Find existing choice selection
+    const existingSelection = this._character.traitSelections.find(
+      (s) => s.type === "choice" && s.grantedByTraitId === choiceTraitId,
+    );
+
+    let updatedSelections: TraitSelection[];
+
+    if (existingSelection && existingSelection.type === "choice") {
+      // Add option to existing selection
+      const updatedChoice: ChoiceTraitSelection = {
+        ...existingSelection,
+        selectedOptions: [...existingSelection.selectedOptions, { traitId: optionTraitId }],
+      };
+
+      updatedSelections = this._character.traitSelections.map((s) =>
+        s.type === "choice" && s.grantedByTraitId === choiceTraitId ? updatedChoice : s,
+      );
+    } else {
+      // Create new choice selection
+      const newSelection: ChoiceTraitSelection = {
+        type: "choice",
+        grantedByTraitId: choiceTraitId,
+        choiceTraitId: choiceTraitId,
+        selectedOptions: [{ traitId: optionTraitId }],
+      };
+
+      updatedSelections = [...this._character.traitSelections, newSelection];
+    }
+
+    this._character = {
+      ...this._character,
+      traitSelections: updatedSelections,
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Remove a choice option from a choice trait selection
+   */
+  async removeChoiceOption(choiceTraitId: string, optionTraitId: string): Promise<void> {
+    if (!this._character) return;
+
+    const existingSelection = this._character.traitSelections.find(
+      (s) => s.type === "choice" && s.grantedByTraitId === choiceTraitId,
+    );
+
+    if (!existingSelection || existingSelection.type !== "choice") return;
+
+    // Remove the option
+    const updatedChoice: ChoiceTraitSelection = {
+      ...existingSelection,
+      selectedOptions: existingSelection.selectedOptions.filter(
+        (opt: any) => opt.traitId !== optionTraitId,
+      ),
+    };
+
+    // If no options left, remove the entire selection
+    let updatedSelections: TraitSelection[];
+    if (updatedChoice.selectedOptions.length === 0) {
+      updatedSelections = this._character.traitSelections.filter(
+        (s) => !(s.type === "choice" && s.grantedByTraitId === choiceTraitId),
+      );
+    } else {
+      updatedSelections = this._character.traitSelections.map((s) =>
+        s.type === "choice" && s.grantedByTraitId === choiceTraitId ? updatedChoice : s,
+      );
+    }
+
+    this._character = {
+      ...this._character,
+      traitSelections: updatedSelections,
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
+  }
+
+  /**
+   * Add a nested selection to a choice option
+   */
+  async addChoiceOptionNestedSelection(
+    choiceTraitId: string,
+    optionTraitId: string,
+    nestedSelection: TraitSelection,
+  ): Promise<void> {
+    if (!this._character) return;
+
+    const existingSelection = this._character.traitSelections.find(
+      (s) => s.type === "choice" && s.grantedByTraitId === choiceTraitId,
+    );
+
+    if (!existingSelection || existingSelection.type !== "choice") return;
+
+    // Update the option with the nested selection
+    const updatedChoice: ChoiceTraitSelection = {
+      ...existingSelection,
+      selectedOptions: existingSelection.selectedOptions.map((opt: any) =>
+        opt.traitId === optionTraitId ? { ...opt, selection: nestedSelection } : opt,
+      ),
+    };
+
+    const updatedSelections = this._character.traitSelections.map((s) =>
+      s.type === "choice" && s.grantedByTraitId === choiceTraitId ? updatedChoice : s,
+    );
 
     this._character = {
       ...this._character,
