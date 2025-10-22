@@ -16,6 +16,12 @@ export interface DicePoolServiceInterface {
     poolId: string,
     dieIndex: number,
   ): { pools: DicePoolInstance[]; usedValue: number | null };
+  updateDieValue(
+    pools: DicePoolInstance[],
+    poolId: string,
+    dieIndex: number,
+    newValue: number,
+  ): DicePoolInstance[];
   resetDicePools(
     pools: DicePoolInstance[],
     resetCondition: "safe_rest" | "encounter_end" | "turn_end" | "manual",
@@ -111,6 +117,44 @@ export class DicePoolService implements DicePoolServiceInterface {
     updatedPools[poolIndex] = updatedPool;
 
     return { pools: updatedPools, usedValue };
+  }
+
+  updateDieValue(
+    pools: DicePoolInstance[],
+    poolId: string,
+    dieIndex: number,
+    newValue: number,
+  ): DicePoolInstance[] {
+    const poolIndex = pools.findIndex((p) => p.definition.id === poolId);
+    if (poolIndex === -1) {
+      return pools;
+    }
+
+    const pool = pools[poolIndex];
+    if (dieIndex < 0 || dieIndex >= pool.currentDice.length) {
+      return pools;
+    }
+
+    // Validate new value is within die range
+    const maxValue = pool.definition.diceSize;
+    if (newValue < 1 || newValue > maxValue) {
+      return pools;
+    }
+
+    // Update the die value
+    const updatedDice = [...pool.currentDice];
+    updatedDice[dieIndex] = newValue;
+
+    const updatedPool: DicePoolInstance = {
+      ...pool,
+      currentDice: updatedDice,
+    };
+
+    // Update pools array
+    const updatedPools = [...pools];
+    updatedPools[poolIndex] = updatedPool;
+
+    return updatedPools;
   }
 
   resetDicePools(
