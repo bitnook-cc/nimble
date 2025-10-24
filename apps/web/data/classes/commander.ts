@@ -202,7 +202,7 @@ const commanderFeatures: ClassFeature[] = [
         id: "coordinated-strike-pool",
         type: "resource",
         resourceDefinition: {
-          id: "coordinated-strike-pool-0",
+          id: "coordinated-strikes",
           name: "Coordinated Strikes",
           description:
             "Grants free attacks in combat",
@@ -216,7 +216,7 @@ const commanderFeatures: ClassFeature[] = [
           },
           maxValue: {
             type: "formula",
-            expression: "1*INT",
+            expression: "INT",
           },
         },
       },
@@ -225,7 +225,7 @@ const commanderFeatures: ClassFeature[] = [
         name: "Coordinated Strike!",
         type: "ability",
         ability: {
-          id: "coordinated-strike-base-0",
+          id: "coordinated-strike",
           name: "coordinated Strike!",
           description: "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
           resourceCost: {
