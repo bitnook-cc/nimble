@@ -8,6 +8,7 @@ import {
   FeatureTrait,
   PickFeatureFromPoolFeatureTrait,
 } from "@/lib/schemas/features";
+import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 
 import { Button } from "../ui/button";
@@ -51,8 +52,11 @@ function renderEffect(effect: FeatureTrait, index: number): React.ReactNode {
         const bonuses: string[] = [];
         if (effect.statBonus.attributes) {
           Object.entries(effect.statBonus.attributes).forEach(([attr, value]) => {
-            if (value) {
-              bonuses.push(`${attr} +${value.type === "fixed" ? value.value : value.expression}`);
+            const flexValue = value as FlexibleValue | undefined;
+            if (flexValue) {
+              const displayValue =
+                flexValue.type === "fixed" ? flexValue.value.toString() : flexValue.expression;
+              bonuses.push(`${attr} +${displayValue}`);
             }
           });
         }

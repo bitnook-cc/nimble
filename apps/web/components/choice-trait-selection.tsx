@@ -66,7 +66,7 @@ export function ChoiceTraitSelectionComponent({
       if (onSelectionChange) {
         // Callback mode - update via parent
         const updatedOptions = existingSelection!.selectedOptions.filter(
-          (opt) => opt.traitId !== optionTrait.id,
+          (opt: ChoiceTraitSelection["selectedOptions"][number]) => opt.traitId !== optionTrait.id,
         );
         if (updatedOptions.length === 0) {
           onSelectionChange(null);
