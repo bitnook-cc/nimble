@@ -71,6 +71,12 @@ export function FeatureList({
     string | undefined
   >();
 
+  // Choice trait context - tracks when we're selecting for a choice option
+  const [choiceContext, setChoiceContext] = useState<{
+    choiceTraitId: string;
+    optionTraitId: string;
+  } | null>(null);
+
   // Handler for opening selection dialogs
   const handleOpenSelectionDialog = (effect: FeatureTrait) => {
     switch (effect.type) {
@@ -108,6 +114,19 @@ export function FeatureList({
         setSelectedUtilitySpellsEffect(effect);
         break;
     }
+  };
+
+  // Handler for opening nested dialogs from choice traits
+  const handleOpenNestedDialog = (
+    trait: FeatureTrait,
+    parentChoiceTraitId: string,
+    optionTraitId: string,
+  ) => {
+    // Store the choice context
+    setChoiceContext({ choiceTraitId: parentChoiceTraitId, optionTraitId });
+
+    // Open the appropriate dialog for this trait
+    handleOpenSelectionDialog(trait);
   };
 
   // Handler for selection changes
@@ -169,15 +188,50 @@ export function FeatureList({
   const handleSelectPoolFeatures = (newSelections: PoolFeatureTraitSelection[]) => {
     if (!selectedPoolFeatureTrait) return;
 
-    // Remove existing selections for this effect
-    const otherSelections = existingSelections.filter(
-      (s) => !(s.type === "pool_feature" && s.grantedByTraitId === selectedPoolFeatureTrait.id),
-    );
+    if (choiceContext) {
+      // We're selecting for a choice option - add as nested selection
+      const choiceSelection = existingSelections.find(
+        (s) => s.type === "choice" && s.grantedByTraitId === choiceContext.choiceTraitId,
+      ) as import("@/lib/schemas/character").ChoiceTraitSelection | undefined;
 
-    // Add new selections
-    const updated = [...otherSelections, ...newSelections];
+      const otherSelections = existingSelections.filter(
+        (s) => !(s.type === "choice" && s.grantedByTraitId === choiceContext.choiceTraitId),
+      );
 
-    onSelectionsChange(updated);
+      // Create or update the choice selection with the nested pool feature selection
+      const updatedChoice: import("@/lib/schemas/character").ChoiceTraitSelection = choiceSelection
+        ? {
+            ...choiceSelection,
+            selectedOptions: choiceSelection.selectedOptions.map((opt) =>
+              opt.traitId === choiceContext.optionTraitId
+                ? { ...opt, selection: newSelections[0] }
+                : opt,
+            ),
+          }
+        : {
+            type: "choice",
+            grantedByTraitId: choiceContext.choiceTraitId,
+            choiceTraitId: choiceContext.choiceTraitId,
+            selectedOptions: [
+              {
+                traitId: choiceContext.optionTraitId,
+                selection: newSelections[0],
+              },
+            ],
+          };
+
+      onSelectionsChange([...otherSelections, updatedChoice]);
+      setChoiceContext(null);
+    } else {
+      // Normal selection - not part of a choice
+      const otherSelections = existingSelections.filter(
+        (s) => !(s.type === "pool_feature" && s.grantedByTraitId === selectedPoolFeatureTrait.id),
+      );
+
+      const updated = [...otherSelections, ...newSelections];
+      onSelectionsChange(updated);
+    }
+
     setSelectedPoolFeatureTrait(null);
   };
 
@@ -218,6 +272,8 @@ export function FeatureList({
                   onOpenSelectionDialog={handleOpenSelectionDialog}
                   character={character}
                   abilityOverrideInfo={abilityOverrideInfo}
+                  onSelectionChange={handleSelectionChange}
+                  onOpenNestedDialog={handleOpenNestedDialog}
                 />
               )}
             </FeatureCard>
@@ -236,6 +292,7 @@ export function FeatureList({
               (s) => s.type === "pool_feature",
             ) as PoolFeatureTraitSelection[]
           }
+          allSelections={existingSelections}
         />
       )}
 

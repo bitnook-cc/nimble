@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { PoolFeatureTraitSelection } from "@/lib/schemas/character";
+import { PoolFeatureTraitSelection, TraitSelection } from "@/lib/schemas/character";
 import {
   ClassFeature,
   FeatureTrait,
@@ -27,6 +27,7 @@ interface FeaturePoolSelectionDialogProps {
   onClose: () => void;
   onSelectFeatures: (selections: PoolFeatureTraitSelection[]) => void;
   existingSelections?: PoolFeatureTraitSelection[];
+  allSelections?: TraitSelection[]; // All trait selections to check for conflicts
 }
 
 // Helper function to render individual traits
@@ -147,6 +148,7 @@ export function FeaturePoolSelectionDialog({
   onClose,
   onSelectFeatures,
   existingSelections = [],
+  allSelections = [],
 }: FeaturePoolSelectionDialogProps) {
   const [selectedFeatures, setSelectedFeatures] = useState<ClassFeature[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -182,9 +184,28 @@ export function FeaturePoolSelectionDialog({
     .filter((s) => s.grantedByTraitId !== pickPoolFeatureTrait.id)
     .map((f) => f.feature.id);
 
-  // Filter out features selected by other traits
+  // Also check for features selected via choice traits
+  const choiceSelections = allSelections.filter((s) => s.type === "choice");
+  const featuresInChoices: string[] = [];
+
+  choiceSelections.forEach((choiceSelection) => {
+    if (choiceSelection.type === "choice") {
+      choiceSelection.selectedOptions.forEach((option) => {
+        if (option.selection?.type === "pool_feature") {
+          // Don't exclude if it's from the same choice + option we're currently selecting for
+          const isSameSelection = choiceSelection.grantedByTraitId === pickPoolFeatureTrait.id;
+          if (!isSameSelection) {
+            featuresInChoices.push(option.selection.feature.id);
+          }
+        }
+      });
+    }
+  });
+
+  // Filter out features selected by other traits OR in choice traits
   const availableFeatures = pool.features.filter(
-    (feature) => !otherTraitSelectionIDs.includes(feature.id),
+    (feature) =>
+      !otherTraitSelectionIDs.includes(feature.id) && !featuresInChoices.includes(feature.id),
   );
 
   // Calculate remaining selections

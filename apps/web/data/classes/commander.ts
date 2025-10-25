@@ -126,13 +126,6 @@ const commandersOrdersFeatures: ClassFeature[] = [
 // Combat Tactics - Feature Pool
 const combatTacticsFeatures: ClassFeature[] = [
   {
-    id: "attack-tactic",
-    level: 1,
-    name: "1/Attack",
-    description: "You can expend a Combat Die to add one of the following traits to your attack.",
-    traits: [], // Passive feature - no mechanical traits to process
-  },
-  {
     id: "commanding-presence",
     level: 1,
     name: "Commanding Presence",

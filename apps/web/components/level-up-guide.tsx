@@ -226,6 +226,11 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
                   // Abilities from picked features are now calculated dynamically
                   traitSelections.push(selection);
                   break;
+
+                case "choice":
+                  // Choice selections are tracked in levelUpData.traitSelections
+                  traitSelections.push(selection);
+                  break;
               }
             }
           }

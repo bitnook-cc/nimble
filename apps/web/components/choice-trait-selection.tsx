@@ -19,6 +19,7 @@ interface ChoiceTraitSelectionProps {
     parentChoiceTraitId: string,
     optionTraitId: string,
   ) => void;
+  onSelectionChange?: (selection: ChoiceTraitSelection | null) => void;
 }
 
 /**
@@ -30,6 +31,7 @@ export function ChoiceTraitSelectionComponent({
   character,
   existingSelection,
   onOpenNestedDialog,
+  onSelectionChange,
 }: ChoiceTraitSelectionProps) {
   const characterService = getCharacterService();
 
@@ -39,12 +41,45 @@ export function ChoiceTraitSelectionComponent({
   const remaining = featureSelectionService.getRemainingChoiceSelections(character, choiceTrait);
   const canSelectMore = selectedTraitIds.length < choiceTrait.numSelections;
 
-  const handleToggleOption = async (optionTrait: FeatureTrait) => {
+  const handleToggleOption = async (optionTrait: FeatureTrait, event?: React.MouseEvent) => {
     const isSelected = selectedTraitIds.includes(optionTrait.id);
 
+    // Check if this option requires a nested selection
+    const needsNestedSelection = requiresNestedSelection(optionTrait);
+
+    // If clicking on a selected option that requires nested selection and not clicking checkbox,
+    // allow re-opening the dialog to change the selection
+    if (
+      isSelected &&
+      needsNestedSelection &&
+      event &&
+      !(event.target as HTMLElement).closest('button[role="checkbox"]')
+    ) {
+      if (onOpenNestedDialog) {
+        onOpenNestedDialog(optionTrait, choiceTrait.id, optionTrait.id);
+      }
+      return;
+    }
+
     if (isSelected) {
-      // Deselect - remove this option
-      await characterService.removeChoiceOption(choiceTrait.id, optionTrait.id);
+      // Deselect - remove this option (and its nested selection)
+      if (onSelectionChange) {
+        // Callback mode - update via parent
+        const updatedOptions = existingSelection!.selectedOptions.filter(
+          (opt) => opt.traitId !== optionTrait.id,
+        );
+        if (updatedOptions.length === 0) {
+          onSelectionChange(null);
+        } else {
+          onSelectionChange({
+            ...existingSelection!,
+            selectedOptions: updatedOptions,
+          });
+        }
+      } else {
+        // Direct mode - update character service
+        await characterService.removeChoiceOption(choiceTrait.id, optionTrait.id);
+      }
     } else {
       // Select - check if we can add more
       if (selectedTraitIds.length >= choiceTrait.numSelections) {
@@ -52,7 +87,7 @@ export function ChoiceTraitSelectionComponent({
       }
 
       // Check if this option requires a nested selection
-      if (requiresNestedSelection(optionTrait)) {
+      if (needsNestedSelection) {
         // Open the appropriate dialog for this trait type
         if (onOpenNestedDialog) {
           onOpenNestedDialog(optionTrait, choiceTrait.id, optionTrait.id);
@@ -61,7 +96,25 @@ export function ChoiceTraitSelectionComponent({
       }
 
       // Simple selection - add to character
-      await characterService.addChoiceOption(choiceTrait.id, optionTrait.id);
+      if (onSelectionChange) {
+        // Callback mode - update via parent
+        const newOption = { traitId: optionTrait.id };
+        const updatedSelection: ChoiceTraitSelection = existingSelection
+          ? {
+              ...existingSelection,
+              selectedOptions: [...existingSelection.selectedOptions, newOption],
+            }
+          : {
+              type: "choice",
+              grantedByTraitId: choiceTrait.id,
+              choiceTraitId: choiceTrait.id,
+              selectedOptions: [newOption],
+            };
+        onSelectionChange(updatedSelection);
+      } else {
+        // Direct mode - update character service
+        await characterService.addChoiceOption(choiceTrait.id, optionTrait.id);
+      }
     }
   };
 
@@ -86,12 +139,12 @@ export function ChoiceTraitSelectionComponent({
         key={optionTrait.id}
         className={`flex items-start gap-3 p-3 rounded-md border transition-colors ${
           isSelected
-            ? "border-primary bg-accent"
+            ? "border-primary bg-accent cursor-pointer"
             : canSelectMore
               ? "border-border hover:border-primary/50 cursor-pointer"
               : "border-border opacity-50 cursor-not-allowed"
         }`}
-        onClick={() => canSelectMore && handleToggleOption(optionTrait)}
+        onClick={(e) => (canSelectMore || isSelected) && handleToggleOption(optionTrait, e)}
       >
         <Checkbox
           checked={isSelected}

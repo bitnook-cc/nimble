@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import {
   AttributeBoostTraitSelection,
   Character,
+  ChoiceTraitSelection,
   PoolFeatureTraitSelection,
   SpellSchoolTraitSelection,
   SubclassTraitSelection,
@@ -14,6 +15,7 @@ import {
   UtilitySpellsTraitSelection,
 } from "@/lib/schemas/character";
 import {
+  ChoiceFeatureTrait,
   FeatureTrait,
   PickFeatureFromPoolFeatureTrait,
   SpellSchoolChoiceFeatureTrait,
@@ -22,6 +24,7 @@ import { ContentRepositoryService } from "@/lib/services/content-repository-serv
 import { featureSelectionService } from "@/lib/services/feature-selection-service";
 import { getIconById } from "@/lib/utils/icon-utils";
 
+import { ChoiceTraitSelectionComponent } from "./choice-trait-selection";
 import { Button } from "./ui/button";
 
 interface TraitSelectionDisplayProps {
@@ -30,6 +33,12 @@ interface TraitSelectionDisplayProps {
   onOpenDialog: (effect: FeatureTrait) => void;
   character?: Character;
   autoOpen?: boolean;
+  onSelectionChange?: (traitId: string, selection: TraitSelection | null) => void;
+  onOpenNestedDialog?: (
+    trait: FeatureTrait,
+    parentChoiceTraitId: string,
+    optionTraitId: string,
+  ) => void;
 }
 
 /**
@@ -42,6 +51,8 @@ export function TraitSelectionDisplay({
   onOpenDialog,
   character,
   autoOpen = false,
+  onSelectionChange,
+  onOpenNestedDialog,
 }: TraitSelectionDisplayProps) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
@@ -59,6 +70,28 @@ export function TraitSelectionDisplay({
   const contentRepository = ContentRepositoryService.getInstance();
 
   const renderSelectionContent = () => {
+    // Handle choice trait inline (doesn't use dialog)
+    if (effect.type === "choice" && character) {
+      const choiceEffect = effect as ChoiceFeatureTrait;
+      const existingChoice = existingSelections.find((s) => s.type === "choice") as
+        | ChoiceTraitSelection
+        | undefined;
+
+      return (
+        <ChoiceTraitSelectionComponent
+          choiceTrait={choiceEffect}
+          character={character}
+          existingSelection={existingChoice}
+          onOpenNestedDialog={onOpenNestedDialog}
+          onSelectionChange={
+            onSelectionChange
+              ? (selection) => onSelectionChange(choiceEffect.id, selection)
+              : undefined
+          }
+        />
+      );
+    }
+
     if (!hasSelections) {
       switch (effect.type) {
         case "subclass_choice":

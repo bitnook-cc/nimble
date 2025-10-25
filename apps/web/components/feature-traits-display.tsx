@@ -41,6 +41,12 @@ interface FeatureTraitsDisplayProps {
     string,
     { currentLevel: number; overriddenLevels: number[]; isManual: boolean }
   >;
+  onSelectionChange?: (traitId: string, selection: TraitSelection | null) => void;
+  onOpenNestedDialog?: (
+    trait: FeatureTrait,
+    parentChoiceTraitId: string,
+    optionTraitId: string,
+  ) => void;
 }
 
 const getEffectIcon = (effectType: string) => {
@@ -73,6 +79,8 @@ const getEffectIcon = (effectType: string) => {
       return <Shield className="h-3 w-3" />;
     case "dice_pool":
       return <Dices className="h-3 w-3" />;
+    case "choice":
+      return <Users className="h-3 w-3" />;
   }
 };
 
@@ -106,6 +114,8 @@ const getEffectLabel = (effectType: string) => {
       return "Resistance";
     case "dice_pool":
       return "Dice Pool";
+    case "choice":
+      return "Choice";
   }
 };
 
@@ -296,6 +306,7 @@ const isSelectableEffect = (effect: FeatureTrait): boolean => {
     "utility_spells",
     "subclass_choice",
     "pick_feature_from_pool",
+    "choice",
   ].includes(effect.type);
 };
 
@@ -306,6 +317,8 @@ export function FeatureTraitsDisplay({
   character,
   className = "",
   abilityOverrideInfo,
+  onSelectionChange,
+  onOpenNestedDialog,
 }: FeatureTraitsDisplayProps) {
   if (!traits || traits.length === 0) {
     return (
@@ -350,6 +363,8 @@ export function FeatureTraitsDisplay({
                         onOpenDialog={onOpenSelectionDialog}
                         character={character}
                         autoOpen={false}
+                        onSelectionChange={onSelectionChange}
+                        onOpenNestedDialog={onOpenNestedDialog}
                       />
                     </div>
                   ) : (
@@ -362,6 +377,8 @@ export function FeatureTraitsDisplay({
                         onOpenDialog={onOpenSelectionDialog}
                         character={character}
                         autoOpen={false}
+                        onSelectionChange={onSelectionChange}
+                        onOpenNestedDialog={onOpenNestedDialog}
                       />
                     </>
                   )}
