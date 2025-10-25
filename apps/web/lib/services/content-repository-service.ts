@@ -199,7 +199,7 @@ export class ContentRepositoryService {
     });
   }
 
-  private getCustomAncestries(): AncestryDefinition[] {
+  public getCustomAncestries(): AncestryDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customAncestries);
       if (!stored) return [];
@@ -293,7 +293,7 @@ export class ContentRepositoryService {
     });
   }
 
-  private getCustomBackgrounds(): BackgroundDefinition[] {
+  public getCustomBackgrounds(): BackgroundDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customBackgrounds);
       if (!stored) return [];
@@ -396,7 +396,7 @@ export class ContentRepositoryService {
     return false;
   }
 
-  private getCustomClasses(): ClassDefinition[] {
+  public getCustomClasses(): ClassDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customClasses);
       if (!stored) return [];
@@ -492,7 +492,18 @@ export class ContentRepositoryService {
     };
   }
 
-  private getCustomSubclasses(): SubclassDefinition[] {
+  public removeCustomSubclass(subclassId: string): boolean {
+    const customSubclasses = this.getCustomSubclasses();
+    const filteredSubclasses = customSubclasses.filter((sub) => sub.id !== subclassId);
+
+    if (filteredSubclasses.length < customSubclasses.length) {
+      this.storage.setItem(STORAGE_KEYS.customSubclasses, JSON.stringify(filteredSubclasses));
+      return true;
+    }
+    return false;
+  }
+
+  public getCustomSubclasses(): SubclassDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customSubclasses);
       if (!stored) return [];
@@ -617,7 +628,18 @@ export class ContentRepositoryService {
     };
   }
 
-  private getCustomSpellSchools(): SpellSchoolWithSpells[] {
+  public removeCustomSpellSchool(schoolId: string): boolean {
+    const customSchools = this.getCustomSpellSchools();
+    const filteredSchools = customSchools.filter((school) => school.id !== schoolId);
+
+    if (filteredSchools.length < customSchools.length) {
+      this.storage.setItem(STORAGE_KEYS.customSpellSchools, JSON.stringify(filteredSchools));
+      return true;
+    }
+    return false;
+  }
+
+  public getCustomSpellSchools(): SpellSchoolWithSpells[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customSpellSchools);
       if (!stored) return [];
@@ -682,7 +704,18 @@ export class ContentRepositoryService {
     };
   }
 
-  private getCustomAbilities(): ActionAbilityDefinition[] {
+  public removeCustomAbility(abilityId: string): boolean {
+    const customAbilities = this.getCustomAbilities();
+    const filteredAbilities = customAbilities.filter((ability) => ability.id !== abilityId);
+
+    if (filteredAbilities.length < customAbilities.length) {
+      this.storage.setItem(STORAGE_KEYS.customAbilities, JSON.stringify(filteredAbilities));
+      return true;
+    }
+    return false;
+  }
+
+  public getCustomAbilities(): ActionAbilityDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customAbilities);
       if (!stored) return [];
@@ -755,7 +788,18 @@ export class ContentRepositoryService {
     };
   }
 
-  private getCustomSpells(): SpellAbilityDefinition[] {
+  public removeCustomSpell(spellId: string): boolean {
+    const customSpells = this.getCustomSpells();
+    const filteredSpells = customSpells.filter((spell) => spell.id !== spellId);
+
+    if (filteredSpells.length < customSpells.length) {
+      this.storage.setItem(STORAGE_KEYS.customSpells, JSON.stringify(filteredSpells));
+      return true;
+    }
+    return false;
+  }
+
+  public getCustomSpells(): SpellAbilityDefinition[] {
     try {
       const stored = this.storage.getItem(STORAGE_KEYS.customSpells);
       if (!stored) return [];
@@ -825,6 +869,17 @@ export class ContentRepositoryService {
       message,
       itemsAdded: validItems.length,
     };
+  }
+
+  public removeCustomItem(itemId: string): boolean {
+    const customItems = this.getCustomItems();
+    const filteredItems = customItems.filter((item) => item.id !== itemId);
+
+    if (filteredItems.length < customItems.length) {
+      this.storage.setItem(STORAGE_KEYS.customItems, JSON.stringify(filteredItems));
+      return true;
+    }
+    return false;
   }
 
   public getCustomItems(): RepositoryItem[] {

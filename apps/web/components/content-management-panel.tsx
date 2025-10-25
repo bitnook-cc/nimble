@@ -12,6 +12,7 @@ import {
   Package,
   Shield,
   Sparkles,
+  Trash2,
   Upload,
   Users,
   Wand2,
@@ -232,6 +233,91 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
     URL.revokeObjectURL(url);
   };
 
+  const canDelete = (item: ContentItem, contentType: CustomContentType): boolean => {
+    const itemId = item.id;
+
+    // Check if the item exists in the custom content repository (not built-in)
+    switch (contentType) {
+      case CustomContentType.CLASS:
+        return contentRepository.getCustomClasses().some((c) => c.id === itemId);
+      case CustomContentType.SUBCLASS:
+        return contentRepository.getCustomSubclasses().some((s) => s.id === itemId);
+      case CustomContentType.SPELL_SCHOOL:
+        return contentRepository.getCustomSpellSchools().some((s) => s.id === itemId);
+      case CustomContentType.ACTION:
+        return contentRepository.getCustomAbilities().some((a) => a.id === itemId);
+      case CustomContentType.SPELL:
+        return contentRepository.getCustomSpells().some((s) => s.id === itemId);
+      case CustomContentType.ITEM:
+        return contentRepository.getCustomItems().some((i) => i.id === itemId);
+      case CustomContentType.ANCESTRY:
+        return contentRepository.getCustomAncestries().some((a) => a.id === itemId);
+      case CustomContentType.BACKGROUND:
+        return contentRepository.getCustomBackgrounds().some((b) => b.id === itemId);
+      default:
+        return false;
+    }
+  };
+
+  const deleteContent = async (item: ContentItem, contentType: CustomContentType) => {
+    const itemId = item.id;
+    const itemName = item.name || itemId;
+
+    if (!confirm(`Delete "${itemName}"? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      let success = false;
+
+      switch (contentType) {
+        case CustomContentType.CLASS:
+          success = contentRepository.removeCustomClass(itemId);
+          break;
+        case CustomContentType.SUBCLASS:
+          success = contentRepository.removeCustomSubclass(itemId);
+          break;
+        case CustomContentType.ANCESTRY:
+          await contentRepository.removeCustomAncestry(itemId);
+          success = true;
+          break;
+        case CustomContentType.BACKGROUND:
+          await contentRepository.removeCustomBackground(itemId);
+          success = true;
+          break;
+        case CustomContentType.SPELL_SCHOOL:
+          success = contentRepository.removeCustomSpellSchool(itemId);
+          break;
+        case CustomContentType.ACTION:
+          success = contentRepository.removeCustomAbility(itemId);
+          break;
+        case CustomContentType.SPELL:
+          success = contentRepository.removeCustomSpell(itemId);
+          break;
+        case CustomContentType.ITEM:
+          success = contentRepository.removeCustomItem(itemId);
+          break;
+        default:
+          setUploadError(`Delete not implemented for ${contentType}`);
+          return;
+      }
+
+      if (success) {
+        setUploadMessage(`Deleted "${itemName}"`);
+        setTimeout(() => setUploadMessage(""), 3000);
+        // Force re-render by toggling the section
+        setExpandedSections((prev) => ({ ...prev, [contentType]: false }));
+        setTimeout(() => setExpandedSections((prev) => ({ ...prev, [contentType]: true })), 10);
+      } else {
+        setUploadError(`Failed to delete "${itemName}"`);
+        setTimeout(() => setUploadError(""), 3000);
+      }
+    } catch (error) {
+      setUploadError(`Error deleting "${itemName}": ${error}`);
+      setTimeout(() => setUploadError(""), 5000);
+    }
+  };
+
   const renderContentSection = (contentType: CustomContentType, count: number) => {
     const metadata = getContentTypeMetadata(contentType);
     const items = getContentForType(contentType);
@@ -422,14 +508,26 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         `AC ${(repoItem as any).armor}`}
                                     </div>
                                   </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 flex-shrink-0"
-                                    onClick={() => exportContent(repoItem, contentType)}
-                                  >
-                                    <Download className="h-3 w-3" />
-                                  </Button>
+                                  <div className="flex gap-1 flex-shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-5 w-5 p-0"
+                                      onClick={() => exportContent(repoItem, contentType)}
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </Button>
+                                    {canDelete(repoItem, contentType) && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                                        onClick={() => deleteContent(repoItem, contentType)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -471,14 +569,26 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         </div>
                                       )}
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-5 w-5 p-0 flex-shrink-0"
-                                      onClick={() => exportContent(spell, contentType)}
-                                    >
-                                      <Download className="h-3 w-3" />
-                                    </Button>
+                                    <div className="flex gap-1 flex-shrink-0">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-5 w-5 p-0"
+                                        onClick={() => exportContent(spell, contentType)}
+                                      >
+                                        <Download className="h-3 w-3" />
+                                      </Button>
+                                      {canDelete(spell, contentType) && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                                          onClick={() => deleteContent(spell, contentType)}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -517,14 +627,26 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         ` • AC ${(repositoryItem as any).armor}`}
                                     </div>
                                   </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 flex-shrink-0"
-                                    onClick={() => exportContent(item, contentType)}
-                                  >
-                                    <Download className="h-3 w-3" />
-                                  </Button>
+                                  <div className="flex gap-1 flex-shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => exportContent(item, contentType)}
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </Button>
+                                    {canDelete(item, contentType) && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                        onClick={() => deleteContent(item, contentType)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               );
                             }
@@ -574,14 +696,26 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       )}
                                   </div>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 flex-shrink-0"
-                                  onClick={() => exportContent(item, contentType)}
-                                >
-                                  <Download className="h-3 w-3" />
-                                </Button>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => exportContent(item, contentType)}
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </Button>
+                                  {canDelete(item, contentType) && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                      onClick={() => deleteContent(item, contentType)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                             );
                           })}

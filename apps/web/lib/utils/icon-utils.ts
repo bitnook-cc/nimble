@@ -10,6 +10,7 @@ import {
   Droplet,
   Dumbbell,
   Eye,
+  FileQuestion,
   // Element & Magic Icons
   Flame,
   FlaskConical,
@@ -123,10 +124,10 @@ const iconMap: Record<string, LucideIcon> = AVAILABLE_ICONS.reduce(
 /**
  * Get an icon by its ID
  * @param iconId - The ID of the icon
- * @returns The corresponding Lucide icon component, or Sparkles as default
+ * @returns The corresponding Lucide icon component, or FileQuestion as default
  */
-export function getIconById(iconId: IconId): LucideIcon {
-  return iconMap[iconId];
+export function getIconById(iconId: IconId | string): LucideIcon {
+  return iconMap[iconId] || FileQuestion;
 }
 
 /**

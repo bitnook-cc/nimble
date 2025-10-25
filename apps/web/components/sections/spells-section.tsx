@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight, Lock, Sparkles, Star, TrendingUp, Zap } from
 import { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
