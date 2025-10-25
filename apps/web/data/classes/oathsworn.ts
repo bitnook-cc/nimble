@@ -15,6 +15,187 @@ const judgementDefinition: DicePoolDefinition = {
   icon: "shield",
 };
 
+const sacredDecreesFeatures: ClassFeature[] = [
+  {
+    id: "courage",
+    level: 1,
+    name: "Courage!",
+    description:
+      "(1/encounter) When you or an ally in your aura would drop to 0 HP, set their HP to 1 instea",
+    traits: [
+      {
+        id: "courage-0",
+        type: "ability",
+        ability: {
+          id: "courage",
+          name: "Courage!",
+          description: "When you or an ally in your aura would drop to 0 HP, set their HP to 1 instead.,
+          type: "action",
+          frequency: "per_encounter",
+          maxUses: { type: "fixed", value: 1 },
+        },
+      },
+    ]
+  },
+  {
+    id: "blinding-aura",
+    level: 1,
+    name: "Blinding Aura",
+    description: "(1/Safe Rest) Action: Enemies in your aura are Blinded until the end of their next turn.",
+    traits: [
+      {
+        id: "blinding-aura-0",
+        type: "ability",
+        ability: {
+          id: "blinding-aura",
+          name: "Blinding Aura",
+          description: "Enemies in your aura are Blinded until the end of their next turn.",
+          type: "action",
+          actionCost: 1,
+          frequency: "per_safe_rest",
+          maxUses: { type: "fixed", value: 1 },
+        },
+      },
+    ],
+  },
+  {
+    id: "improved-aura",
+    level: 1,
+    name: "Improved Aura",
+    description:
+      "+2 aura Reach",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "explosive-judgment",
+    level: 1,
+    name: "Explosive Judgment",
+    description:" (1/encounter) 2 actions: Expend your Judgment Dice, deal that much radiant damage to all enemies in your aura.",
+    traits: [
+      {
+        id: "explosive-judgment-0",
+        type: "ability",
+        ability: {
+          id: "explosive-judgment",
+          name: "Explosive Judgment",
+          description:
+            "Expend your Judgment Dice, deal that much radiant damage to all enemies in your aura.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 2,
+        },
+      },
+    ],
+  },
+  {
+    id: "mighty-endurance",
+    level: 1,
+    name: "Mighty Endurance",
+    description: "You can now survive an additional 4 Wounds before death.",
+    traits: [
+      {
+        id: "mighty-endurance-0",
+        type: "stat_bonus",
+        statBonus: {
+          maxWoundsBonus: { type: "fixed", value: 4 },
+        },
+      },
+    ],
+  },
+  {
+    id: "reliable-justice",
+    level: 1,
+    name: "Reliable Justice",
+    description: "Whenever you roll Judgment Dice, roll with advantage (roll one extra and dropthe lowest).",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "radiant-aura",
+    level: 1,
+    name: "Radiant Aura",
+    description:
+      "Action: End any single harmful condition or effect on yourself or another willing creature within your aura. You may use this ability WIL times/Safe Rest",
+    traits: [
+      {
+        id: "radiant-aura-0",
+        type: "ability",
+        ability: {
+          id: "radiant-aura",
+          name: "Radiant Aura",
+          description:
+            "End any single harmful condition or effect on yourself or another willing creature within your aura.",
+          type: "action",
+          actionCost: 1,
+          frequency: "per_safe_rest",
+          maxUses: { type: "formula", expression: "WIL" },
+        },
+      },
+    ],
+  },
+  {
+    id: "shining-mandate",
+    level: 1,
+    name: "Shining Mandate",
+    description:
+      "The first time each round you are attacked while you already have Judgment Dice, select an ally within your aura to roll one and apply it to their next attack. You have advantage on skill checks to see through illusions.",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "stand-fast-friends",
+    level: 1,
+    name: "Stand Fast, Friends!",
+    description:
+      "After moving at least 4 spaces while Raging, you may deal STR Bludgeoning damage to all adjacent creatures where you stop.",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "unstoppable-protector",
+    level: 1,
+    name: "Unstoppable Protector",
+    description:
+      "Gain +1 speed. You may Interpose even if you are restrained, stunned, or otherwise incapacitated. If you Interpose for a noncombatant NPC, you may Interpose again this round.",
+    traits: [
+      {
+        id: "unstoppable-protector-0",
+        type: "stat_bonus",
+        statBonus: {
+          speedBonus: { type: "fixed", value: 1 },
+        },
+      },
+    ], 
+  },
+  {
+    id: "well-armored",
+    level: 1,
+    name: "Well Armored",
+    description: "Whenever you Interpose, gain temp HP equal to your STR.",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "you-re-next",
+    level: 1,
+    name: "You're Next!",
+    description:
+      "Action: While Raging, you can make a Might skill check to demoralize an enemy within Reach 12 (DC: their current HP). On a success, they immediately flee the battle.",
+    traits: [
+      {
+        id: "you-re-next-0",
+        type: "ability",
+        ability: {
+          id: "you-re-next",
+          name: "You're Next!",
+          description:
+            "While Raging, you can make a Might skill check to demoralize an enemy within Reach 12 (DC: their current HP). On a success, they immediately flee the battle.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+        },
+      },
+    ],
+  },
+];
+
+// Sacered Pool abilities - Feature Pool
 const oathswornFeatures: ClassFeature[] = [
   {
     id: "oathsworn-radiant-",
@@ -79,7 +260,6 @@ const oathswornFeatures: ClassFeature[] = [
     description:
       "You know Radiant cantrips, tier 1 Radiant spells, and gain a mana pool. Your mana pool is equal to WIL + LVL and recharges on a Safe Rest.",
     traits: [
-      
       {
         id: "radiant-spellcasting",
         type: "spell_school",
@@ -169,7 +349,14 @@ const oathswornFeatures: ClassFeature[] = [
     level: 3,
     name: "Sacred Decree",
     description: "Learn 1 Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-1-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ], 
   },
   {
     id: "serve-selflessly",
@@ -286,7 +473,14 @@ const oathswornFeatures: ClassFeature[] = [
     level: 6,
     name: "Sacred Decree (2)",
     description: "Learn a 2nd Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-2-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "subclass-feature-7",
@@ -296,11 +490,18 @@ const oathswornFeatures: ClassFeature[] = [
     traits: [], // Passive feature - no mechanical traits to process
   },
   {
-    id: "master-of-radiance-1",
+    id: "master-of-radiance",
     level: 7,
     name: "Master of Radiance",
     description: "Choose 1 Radiant Utility Spell.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "master-of-radiance-0",
+        type: "utility_spells",
+        numberOfSpells: 1,
+        selectionMode: "per_school",
+      },
+    ],
   },
   {
     id: "tier-4-spells",
@@ -350,7 +551,14 @@ const oathswornFeatures: ClassFeature[] = [
     level: 9,
     name: "Sacred Decree (3)",
     description: "Learn a 3rd Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-3-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "secondary-stat-increase-2",
@@ -420,14 +628,28 @@ const oathswornFeatures: ClassFeature[] = [
     level: 11,
     name: "Master of Radiance (2)",
     description: "Choose a 2nd Radiant Utility Spell.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "master-of-radiance-2-0",
+        type: "utility_spells",
+        numberOfSpells: 1,
+        selectionMode: "per_school",
+      },
+    ], 
   },
   {
     id: "sacred-decree-4",
     level: 12,
     name: "Sacred Decree (4)",
     description: "Learn a 4th Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-4-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-3",
@@ -475,23 +697,21 @@ const oathswornFeatures: ClassFeature[] = [
     level: 14,
     name: "Sacred Decree (5)",
     description: "Learn a 5th Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-5-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ], // Passive feature - no mechanical traits to process
   },
   {
     id: "radiant-judgment-6",
     level: 14,
     name: "Radiant Judgment (6)",
     description: "Whenever you roll Judgment Dice, roll 1 more.",
-    traits: [
-      {
-        id: "oathsworn-judgement-dice-2-0",
-        type: "dice_pool",
-        poolDefinition: {
-          ...judgmentDefinition,
-          maxDice: { type: "fixed", amount: "2" },
-        },
-      }, 
-    ], 
+    traits: [], 
   },
   {
     id: "subclass-feature-15",
@@ -518,7 +738,14 @@ const oathswornFeatures: ClassFeature[] = [
     level: 16,
     name: "Sacred Decree (6)",
     description: "Learn a 6th Sacred Decree.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "sacred-decree-6-0",
+        type: "pick_feature_from_pool",
+        poolId: "sacred-decree-pool",
+        choicesAllowed: 1,
+      },
+    ], // Passive feature - no mechanical traits to process
   },
   {
     id: "key-stat-increase-4",
