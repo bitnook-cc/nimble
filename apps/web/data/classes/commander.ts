@@ -206,7 +206,7 @@ const commanderFeatures: ClassFeature[] = [
           resetType: "to_max",
           minValue: {
             type: "fixed",
-            value: 0,
+            value: 1,
           },
           maxValue: {
             type: "formula",
