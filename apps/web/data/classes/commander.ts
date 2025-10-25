@@ -6,28 +6,6 @@ import { ClassFeature } from "@/lib/schemas/features";
 // Commander's Orders - Feature Pool
 const commandersOrdersFeatures: ClassFeature[] = [
   {
-    id: "coordinated-strike-order",
-    level: 1,
-    name: "Coordinated Strike!",
-    description:
-      "(1/round) Free action: you and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free. You can do this INT times/Safe Rest.",
-    traits: [
-      {
-        id: "coordinated-strike-order-0",
-        type: "ability",
-        ability: {
-          id: "coordinated-strike",
-          name: "Coordinated Strike!",
-          description:
-            "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
-          type: "action",
-          frequency: "per_turn",
-          maxUses: { type: "fixed", value: 1 },
-        },
-      },
-    ],
-  },
-  {
     id: "face-me-order",
     level: 1,
     name: "Face Me!",
@@ -216,15 +194,41 @@ const commanderFeatures: ClassFeature[] = [
     description: "Gain the Coordinated Strike! Commander's Order.",
     traits: [
       {
-        id: "commander-coordinated-strike-0",
+        id: "coordinated-strikes-pool",
+        type: "resource",
+        resourceDefinition: {
+          id: "coordinated-strikes",
+          name: "Coordinated Strikes",
+          description:
+            "Grants free attacks in combat",
+          colorScheme: "focused-mind",
+          icon: "target",
+          resetCondition: "safe_rest",
+          resetType: "to_max",
+          minValue: {
+            type: "fixed",
+            value: "0",
+          },
+          maxValue: {
+            type: "formula",
+            expression: "INT",
+          },
+        },
+      },
+      { 
+        id: "coordinated-strike-base",
+        name: "Coordinated Strike!",
         type: "ability",
         ability: {
-          id: "coordinated-strike-base",
-          name: "Coordinated Strike!",
-          description:
-            "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
-          type: "action",
-          frequency: "per_safe_rest",
+          id: "coordinated-strike",
+          name: "coordinated Strike!",
+          description: "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
+          resourceCost: {
+            type: "fixed",
+            resourceId: "coordinated-strikes",
+            amount: 1
+          },
+          frequency: "per_turn",
           maxUses: { type: "fixed", value: 1 },
         },
       },
