@@ -199,15 +199,14 @@ const commanderFeatures: ClassFeature[] = [
         resourceDefinition: {
           id: "coordinated-strikes",
           name: "Coordinated Strikes",
-          description:
-            "Grants free attacks in combat",
+          description: "Grants free attacks in combat",
           colorScheme: "focused-mind",
           icon: "target",
           resetCondition: "safe_rest",
           resetType: "to_max",
           minValue: {
             type: "fixed",
-            value: "0",
+            value: 0,
           },
           maxValue: {
             type: "formula",
@@ -215,18 +214,19 @@ const commanderFeatures: ClassFeature[] = [
           },
         },
       },
-      { 
+      {
         id: "coordinated-strike-base",
-        name: "Coordinated Strike!",
         type: "ability",
         ability: {
           id: "coordinated-strike",
           name: "coordinated Strike!",
-          description: "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
+          description:
+            "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
+          type: "action",
           resourceCost: {
             type: "fixed",
             resourceId: "coordinated-strikes",
-            amount: 1
+            amount: 1,
           },
           frequency: "per_turn",
           maxUses: { type: "fixed", value: 1 },

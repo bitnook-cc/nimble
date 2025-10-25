@@ -296,6 +296,9 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
       const resetType = poolDef.resetType === "to_max" ? "fills" : "clears";
       return `${poolDef.name}: ${maxDice} × d${poolDef.diceSize} (${resetText} ${resetType})`;
     }
+
+    case "choice":
+      return `Choose ${effect.numSelections} option${effect.numSelections > 1 ? "s" : ""}`;
   }
 };
 
