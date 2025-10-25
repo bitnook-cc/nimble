@@ -107,13 +107,13 @@ const DicePoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   poolDefinition: dicePoolDefinitionSchema,
 });
 
-const ChoiceFeatureTraitSchema: any = BaseFeatureTraitSchema.extend({
+const ChoiceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("choice"),
   options: z.array(z.lazy((): any => FeatureTraitSchema)),
   numSelections: z.number().int().positive(),
 });
 
-export const FeatureTraitSchema: any = z.discriminatedUnion("type", [
+export const FeatureTraitSchema = z.discriminatedUnion("type", [
   AbilityFeatureTraitSchema,
   AttributeBoostFeatureTraitSchema,
   StatBonusFeatureTraitSchema,
@@ -147,7 +147,6 @@ export {
   PickFeatureFromPoolFeatureTraitSchema,
   ResistanceFeatureTraitSchema,
   SpellScalingFeatureTraitSchema,
-  ChoiceFeatureTraitSchema,
 };
 
 // ========================================

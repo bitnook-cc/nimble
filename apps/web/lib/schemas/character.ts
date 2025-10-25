@@ -151,7 +151,7 @@ const subclassTraitSelectionSchema = baseTraitSelectionSchema.extend({
   subclassId: z.string().min(1),
 });
 
-const choiceTraitSelectionSchema: any = baseTraitSelectionSchema.extend({
+const choiceTraitSelectionSchema = baseTraitSelectionSchema.extend({
   type: z.literal("choice"),
   choiceTraitId: z.string().min(1),
   selectedOptions: z.array(
@@ -163,7 +163,7 @@ const choiceTraitSelectionSchema: any = baseTraitSelectionSchema.extend({
 });
 
 // Union of all trait selection types
-const traitSelectionSchema: any = z.discriminatedUnion("type", [
+const traitSelectionSchema = z.discriminatedUnion("type", [
   poolFeatureTraitSelectionSchema,
   spellSchoolTraitSelectionSchema,
   attributeBoostTraitSelectionSchema,
