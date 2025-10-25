@@ -1,14 +1,34 @@
 import { ClassDefinition } from "@/lib/schemas/class";
 import { ClassFeature } from "@/lib/schemas/features";
+import { DicePoolDefinition } from "@/lib/schemas/dice-pools";
+import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
+
+const judgementDefinition: DicePoolDefinition = {
+  id: "judgement-dice",
+  name: "Judgement Dice",
+  description: "Judgment Dice granted by the Radiant Judgment ability.",
+  diceSize: 6,
+  maxDice: { type: "fixed", amount: "2" },
+  resetCondition: "encounter_end",
+  resetType: "to_zero",
+  colorScheme: "divine-light",
+  icon: "shield",
+};
 
 const oathswornFeatures: ClassFeature[] = [
   {
-    id: "radiant-judgment",
+    id: "oathsworn-radiant-",
     level: 1,
     name: "Radiant Judgment",
     description:
       "Whenever an enemy attacks you, if you have no Judgment Dice, roll your Judgment dice (2d6). On your next melee attack this encounter, if you hit, deal that much additional radiant damage. The dice are expended whether you hit or miss.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-0",
+        type: "dice_pool",
+        poolDefinition: judgement,
+      },
+    ]
   },
   {
     id: "lay-on-hands",
@@ -59,6 +79,12 @@ const oathswornFeatures: ClassFeature[] = [
     description:
       "You know Radiant cantrips, tier 1 Radiant spells, and gain a mana pool. Your mana pool is equal to WIL + LVL and recharges on a Safe Rest.",
     traits: [
+      
+      {
+        id: "radiant-spellcasting",
+        type: "spell_school",
+        schoolId: "radiant",
+      },
       {
         id: "mana-and-radiant-spellcasting-0",
         type: "resource",
@@ -127,7 +153,16 @@ const oathswornFeatures: ClassFeature[] = [
     level: 3,
     name: "Radiant Judgment (2)",
     description: "Your Judgment Dice are d8s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-2-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...judgmentDefinition,
+          diceSize: 8,
+        },
+      },
+    ],
   },
   {
     id: "sacred-decree-1",
@@ -195,7 +230,16 @@ const oathswornFeatures: ClassFeature[] = [
     level: 5,
     name: "Radiant Judgment (3)",
     description: "Your Judgment Dice are d10s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-3-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...judgmentDefinition,
+          diceSize: 10,
+        },
+      },
+    ], 
   },
   {
     id: "upgraded-cantrips-1",
@@ -276,7 +320,16 @@ const oathswornFeatures: ClassFeature[] = [
     level: 8,
     name: "Radiant Judgment (4)",
     description: "Your Judgment Dice are d12s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-4-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...judgmentDefinition,
+          diceSize: 12,
+        },
+      },
+    ],
   },
   {
     id: "key-stat-increase-2",
@@ -344,7 +397,16 @@ const oathswornFeatures: ClassFeature[] = [
     level: 10,
     name: "Radiant Judgment (5)",
     description: "Your Judgment Dice are d20s.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-5-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...judgmentDefinition,
+          diceSize: 20,
+        },
+      },
+    ], // There was a max of d12 on the dice pools right? So not sure if this works
   },
   {
     id: "subclass-feature-11",
@@ -420,7 +482,16 @@ const oathswornFeatures: ClassFeature[] = [
     level: 14,
     name: "Radiant Judgment (6)",
     description: "Whenever you roll Judgment Dice, roll 1 more.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "oathsworn-judgement-dice-2-0",
+        type: "dice_pool",
+        poolDefinition: {
+          ...judgmentDefinition,
+          maxDice: { type: "fixed", amount: "2" },
+        },
+      }, 
+    ], 
   },
   {
     id: "subclass-feature-15",
