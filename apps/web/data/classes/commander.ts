@@ -199,7 +199,7 @@ const commanderFeatures: ClassFeature[] = [
     description: "Gain the Coordinated Strike! Commander's Order.",
     traits: [
       {
-        id: "coordinated-strike-pool",
+        id: "coordinated-strikes-pool",
         type: "resource",
         resourceDefinition: {
           id: "coordinated-strikes",
@@ -230,7 +230,7 @@ const commanderFeatures: ClassFeature[] = [
           description: "You and an ally within 6 spaces both immediately make a weapon attack or cast a cantrip for free.",
           resourceCost: {
             type: "fixed",
-            resourceId: "coordinated-strike-pool-0",
+            resourceId: "coordinated-strikes",
             amount: 1
           },
           frequency: "per_turn",
