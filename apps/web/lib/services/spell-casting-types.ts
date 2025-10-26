@@ -17,16 +17,25 @@ export interface CastingCost {
   riskLevel: "none" | "low" | "medium" | "high";
 }
 
+// Mana-specific casting options
+export interface ManaCastingOptions {
+  methodType: "mana";
+  targetTier: number; // The tier to cast the spell at
+}
+
+// Union type for all casting options (only mana for now)
+export type SpellCastingOptions = ManaCastingOptions;
+
 export interface CastingMethodContext {
   spell: SpellAbilityDefinition;
-  castingTier: number;
+  options: SpellCastingOptions;
 }
 
 export interface CastingMethodHandler {
   readonly methodType: CastingMethodType;
 
   /**
-   * Check if this casting method is available for the given spell
+   * Check if this casting method is available for the given spell and options
    */
   isAvailable(context: CastingMethodContext): boolean;
 
@@ -37,6 +46,11 @@ export interface CastingMethodHandler {
 
   /**
    * Execute the spell casting using this method
+   * Responsible for:
+   * - Deducting resources (via CharacterService.spendResource)
+   * - Deducting actions (via CharacterService.updateActionTracker)
+   * - Applying effects (via EffectService)
+   * - Logging spell cast (via ActivityLogService)
    */
   cast(context: CastingMethodContext): Promise<CastingResult>;
 
@@ -49,9 +63,4 @@ export interface CastingMethodHandler {
    * Get display name for UI buttons
    */
   getDisplayName(): string;
-}
-
-export interface SpellCastingOptions {
-  methodType: CastingMethodType;
-  castingTier?: number;
 }

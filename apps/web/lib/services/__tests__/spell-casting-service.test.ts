@@ -116,51 +116,83 @@ describe("SpellCastingService", () => {
 
   describe("getAvailableMethods", () => {
     it("should delegate to registered handlers", () => {
-      const methods = spellCastingService.getAvailableMethods(testSpells.tier1Spell);
+      // Add spell to character abilities
+      const characterService = getCharacterService();
+      const character = characterService.getCurrentCharacter();
+      if (character) {
+        character._abilities.push(testSpells.tier1Spell);
+      }
+
+      const methods = spellCastingService.getAvailableMethods(testSpells.tier1Spell.id, {
+        methodType: "mana",
+        targetTier: 1,
+      });
       expect(Array.isArray(methods)).toBe(true);
       expect(methods.length).toBeGreaterThan(0);
     });
 
     it("should handle spells without casting tier", () => {
-      const methods = spellCastingService.getAvailableMethods(testSpells.cantrip);
+      // Add spell to character abilities
+      const characterService = getCharacterService();
+      const character = characterService.getCurrentCharacter();
+      if (character) {
+        character._abilities.push(testSpells.cantrip);
+      }
+
+      const methods = spellCastingService.getAvailableMethods(testSpells.cantrip.id);
       expect(Array.isArray(methods)).toBe(true);
     });
   });
 
   describe("calculateCastingCost", () => {
-    it("should return error for unknown casting method", () => {
-      const cost = spellCastingService.calculateCastingCost(
-        testSpells.tier1Spell,
-        "unknown" as any,
-      );
+    it("should return null for spell not found in character abilities", () => {
+      const cost = spellCastingService.calculateCastingCost("non-existent-spell", {
+        methodType: "mana",
+        targetTier: 1,
+      });
 
-      expect(cost.canAfford).toBe(false);
-      expect(cost.description).toBe("Unknown casting method");
-      expect(cost.riskLevel).toBe("none");
+      expect(cost).toBeNull();
     });
 
-    it("should use default casting tier when not specified", () => {
-      const cost = spellCastingService.calculateCastingCost(testSpells.tier1Spell, "mana");
+    it("should calculate cost for tier 1 spell", () => {
+      const characterService = getCharacterService();
+      const character = characterService.getCurrentCharacter();
+      if (character) {
+        character._abilities.push(testSpells.tier1Spell);
+      }
+
+      const cost = spellCastingService.calculateCastingCost(testSpells.tier1Spell.id, {
+        methodType: "mana",
+        targetTier: 1,
+      });
 
       expect(cost).toBeDefined();
-      expect(typeof cost.canAfford).toBe("boolean");
-      expect(typeof cost.description).toBe("string");
+      expect(cost?.canAfford).toBe(true);
+      expect(cost?.description).toBe("1 Mana");
     });
   });
 
   describe("castSpell", () => {
-    it("should fail for unknown casting method", async () => {
-      const result = await spellCastingService.castSpell(testSpells.tier1Spell, {
-        methodType: "unknown" as any,
+    it("should fail for spell not found", async () => {
+      const result = await spellCastingService.castSpell("non-existent-spell", {
+        methodType: "mana",
+        targetTier: 1,
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Unknown casting method");
+      expect(result.error).toContain("not found");
     });
 
-    it("should use default casting tier when not specified", async () => {
-      const result = await spellCastingService.castSpell(testSpells.tier1Spell, {
+    it("should successfully cast tier 1 spell", async () => {
+      const characterService = getCharacterService();
+      const character = characterService.getCurrentCharacter();
+      if (character) {
+        character._abilities.push(testSpells.tier1Spell);
+      }
+
+      const result = await spellCastingService.castSpell(testSpells.tier1Spell.id, {
         methodType: "mana",
+        targetTier: 1,
       });
 
       expect(result).toBeDefined();
@@ -203,8 +235,9 @@ describe("SpellCastingService", () => {
         await characterService.updateCharacter(character);
       }
 
-      const result = await spellCastingService.castSpell(testSpells.tier1Spell, {
+      const result = await spellCastingService.castSpell(testSpells.tier1Spell.id, {
         methodType: "mana",
+        targetTier: 1,
       });
 
       expect(typeof result.success).toBe("boolean");
@@ -213,10 +246,17 @@ describe("SpellCastingService", () => {
       }
     });
 
-    it("should handle castingTier parameter correctly", async () => {
-      const result = await spellCastingService.castSpell(testSpells.tier1Spell, {
+    it("should handle targetTier parameter correctly for upcasting", async () => {
+      const characterService = getCharacterService();
+      const character = characterService.getCurrentCharacter();
+      if (character) {
+        character._abilities.push(testSpells.tier1Spell);
+        await characterService.updateCharacter(character);
+      }
+
+      const result = await spellCastingService.castSpell(testSpells.tier1Spell.id, {
         methodType: "mana",
-        castingTier: 2,
+        targetTier: 2,
       });
 
       expect(typeof result.success).toBe("boolean");

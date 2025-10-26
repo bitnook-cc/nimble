@@ -787,18 +787,6 @@ export class CharacterService {
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
-
-    // Log the resource usage
-    const newValue = this.getResourceValue(resourceId);
-    const maxValue = this.getResourceMaxValue(resourceId);
-    const logEntry = this.logService.createResourceEntry(
-      definition,
-      amount,
-      "spent",
-      newValue,
-      maxValue,
-    );
-    await this.logService.addLogEntry(logEntry);
   }
 
   /**
@@ -823,18 +811,29 @@ export class CharacterService {
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
+  }
 
-    // Log the resource restoration
-    const newValue = this.getResourceValue(resourceId);
-    const maxValue = this.getResourceMaxValue(resourceId);
-    const logEntry = this.logService.createResourceEntry(
-      definition,
-      amount,
-      "restored",
-      newValue,
-      maxValue,
-    );
-    await this.logService.addLogEntry(logEntry);
+  /**
+   * Get the active casting method (or default to "mana")
+   */
+  getActiveCastingMethod(): "mana" {
+    if (!this._character) return "mana";
+    return this._character._activeCastingMethod || "mana";
+  }
+
+  /**
+   * Set the active casting method for spells
+   */
+  async setActiveCastingMethod(methodType: "mana"): Promise<void> {
+    if (!this._character) return;
+
+    this._character = {
+      ...this._character,
+      _activeCastingMethod: methodType,
+    };
+
+    await this.saveCharacter();
+    this.notifyCharacterChanged();
   }
 
   /**
@@ -1903,14 +1902,29 @@ export class CharacterService {
 
   /**
    * Use ability with automatic action deduction and usage tracking
+   * NOTE: Spells must use SpellCastingService.castSpell() instead
    */
   async performUseAbility(abilityId: string, variableResourceAmount?: number): Promise<void> {
     if (!this._character) return;
 
     const ability = this.getAbilities().find((a) => a.id === abilityId);
 
-    if (!ability || (ability.type !== "action" && ability.type !== "spell")) {
-      console.error(`Ability ${abilityId} not found or not usable`);
+    if (!ability) {
+      console.error(`Ability ${abilityId} not found`);
+      return;
+    }
+
+    // ❌ REJECT SPELLS - they must use SpellCastingService instead
+    if (ability.type === "spell") {
+      console.error(
+        `Cannot use performUseAbility for spells. Use SpellCastingService.castSpell() instead.`,
+      );
+      return;
+    }
+
+    // ✅ Only action abilities allowed beyond this point
+    if (ability.type !== "action") {
+      console.error(`Ability ${abilityId} is not an action ability`);
       return;
     }
 
@@ -1967,11 +1981,7 @@ export class CharacterService {
       );
 
       // Apply any effects the ability has
-      if (
-        (ability.type === "action" || ability.type === "spell") &&
-        ability.effects &&
-        ability.effects.length > 0
-      ) {
+      if (ability.effects && ability.effects.length > 0) {
         await effectService.applyEffects(ability.effects, ability.name);
       }
     } catch (error) {

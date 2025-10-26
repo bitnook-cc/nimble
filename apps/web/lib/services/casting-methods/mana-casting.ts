@@ -1,18 +1,29 @@
+import { activityLogService } from "@/lib/services/activity-log-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
-import { CastingCost, CastingMethodContext, CastingResult } from "../spell-casting-types";
+import {
+  CastingCost,
+  CastingMethodContext,
+  CastingResult,
+  ManaCastingOptions,
+} from "../spell-casting-types";
 import { BaseCastingHandler } from "./base-casting-handler";
 
 export class ManaCastingHandler extends BaseCastingHandler {
   readonly methodType = "mana" as const;
 
   isAvailable(context: CastingMethodContext): boolean {
-    const { spell, castingTier } = context;
+    const { spell, options } = context;
+
+    // Type guard for mana options
+    if (options.methodType !== "mana") return false;
+
+    const manaOptions = options as ManaCastingOptions;
     const characterService = getCharacterService();
 
     // Check if character has spell tier access for the requested casting tier
     const maxTier = characterService.getSpellTierAccess();
-    if (castingTier > maxTier) {
+    if (manaOptions.targetTier > maxTier) {
       return false;
     }
 
@@ -27,7 +38,17 @@ export class ManaCastingHandler extends BaseCastingHandler {
   }
 
   calculateCost(context: CastingMethodContext): CastingCost {
-    const { spell, castingTier } = context;
+    const { spell, options } = context;
+
+    if (options.methodType !== "mana") {
+      return {
+        canAfford: false,
+        description: "Invalid casting method",
+        riskLevel: "none",
+      };
+    }
+
+    const manaOptions = options as ManaCastingOptions;
     const characterService = getCharacterService();
 
     // Handle cantrips (tier 0) - always free
@@ -40,9 +61,9 @@ export class ManaCastingHandler extends BaseCastingHandler {
     }
 
     // Calculate mana cost: base spell tier + extra tiers = total mana cost
-    // Spell costs 1 mana per tier above its base tier
+    // Each tier above base costs 1 additional mana
     const baseCost = spell.tier;
-    const extraTiers = Math.max(0, castingTier - spell.tier);
+    const extraTiers = Math.max(0, manaOptions.targetTier - spell.tier);
     const totalCost = baseCost + extraTiers;
 
     // Check current mana
@@ -63,63 +84,95 @@ export class ManaCastingHandler extends BaseCastingHandler {
   }
 
   async cast(context: CastingMethodContext): Promise<CastingResult> {
-    const { spell, castingTier } = context;
-    const characterService = getCharacterService();
+    const { spell, options } = context;
 
-    // Handle cantrips (tier 0) - no resource consumption
-    if (spell.tier === 0) {
-      await this.logSpellUsage(spell, castingTier, 0);
-      await this.applySpellEffects(spell);
-      return {
-        success: true,
-        effectiveSpellTier: castingTier,
-      };
-    }
-
-    // Check if we can afford the spell
-    const cost = this.calculateCost(context);
-    if (!cost.canAfford) {
+    if (options.methodType !== "mana") {
       return {
         success: false,
-        error: "Cannot afford to cast using Mana",
+        error: "Invalid casting method for mana handler",
       };
     }
 
+    const manaOptions = options as ManaCastingOptions;
+    const characterService = getCharacterService();
+
     try {
-      // Calculate and spend mana
-      const baseCost = spell.tier;
-      const extraTiers = Math.max(0, castingTier - spell.tier);
-      const totalCost = baseCost + extraTiers;
+      // 1. Deduct action cost (if in encounter)
+      const actionCost = spell.actionCost || 0;
+      if (actionCost > 0) {
+        const character = characterService.getCurrentCharacter();
+        if (character?.inEncounter) {
+          // Check if enough actions available
+          if (character.actionTracker.current < actionCost) {
+            return {
+              success: false,
+              error: `Not enough actions (need ${actionCost}, have ${character.actionTracker.current})`,
+            };
+          }
 
-      await characterService.spendResource("mana", totalCost);
+          await characterService.updateActionTracker({
+            ...character.actionTracker,
+            current: character.actionTracker.current - actionCost,
+          });
+        }
+      }
 
-      // Log usage and apply effects
-      await this.logSpellUsage(spell, castingTier, totalCost);
-      await this.applySpellEffects(spell);
+      // 2. Calculate and spend mana (if not cantrip)
+      let manaCost = 0;
+      if (spell.tier > 0) {
+        const baseCost = spell.tier;
+        const extraTiers = Math.max(0, manaOptions.targetTier - spell.tier);
+        manaCost = baseCost + extraTiers;
 
+        // Check if character can afford the mana cost
+        const cost = this.calculateCost(context);
+        if (!cost.canAfford) {
+          return {
+            success: false,
+            error: "Cannot afford to cast using Mana",
+          };
+        }
+
+        // Spend the mana
+        await characterService.spendResource("mana", manaCost);
+      }
+
+      // 3. Apply effects (if any)
+      if (spell.effects && spell.effects.length > 0) {
+        const { effectService } = await import("@/lib/services/effect-service");
+        await effectService.applyEffects(spell.effects, spell.name);
+      }
+
+      // 4. Log the spell cast
+      const manaResource =
+        manaCost > 0
+          ? {
+              resourceId: "mana",
+              resourceName: "Mana",
+              amount: manaCost,
+            }
+          : undefined;
+
+      const logEntry = activityLogService.createSpellCastEntry(
+        spell.name,
+        spell.school,
+        manaOptions.targetTier,
+        actionCost,
+        manaResource,
+      );
+
+      await activityLogService.addLogEntry(logEntry);
+
+      // 5. Return success
       return {
         success: true,
-        effectiveSpellTier: castingTier,
+        effectiveSpellTier: manaOptions.targetTier,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Failed to cast spell",
       };
-    }
-  }
-
-  private async logSpellUsage(spell: any, castingTier: number, manaCost: number): Promise<void> {
-    // For now, skip the logging since logAbilityUsage is private
-    // TODO: Consider making logAbilityUsage public or creating a public wrapper method
-    // The spell casting will be logged at a higher level if needed
-  }
-
-  private async applySpellEffects(spell: any): Promise<void> {
-    // Replicate effect application logic from performUseAbility
-    if (spell.effects && spell.effects.length > 0) {
-      const { effectService } = await import("@/lib/services/effect-service");
-      await effectService.applyEffects(spell.effects, spell.name);
     }
   }
 

@@ -109,13 +109,19 @@ describe("ManaCastingHandler", () => {
 
   describe("isAvailable", () => {
     it("should return true for spells with mana resource costs", () => {
-      const context = { spell: testSpells.tier1Spell, castingTier: 1 };
+      const context = {
+        spell: testSpells.tier1Spell,
+        options: { methodType: "mana" as const, targetTier: 1 },
+      };
       const available = manaCastingHandler.isAvailable(context);
       expect(available).toBe(true);
     });
 
     it("should return true for cantrips without resource costs", () => {
-      const context = { spell: testSpells.cantrip, castingTier: 0 };
+      const context = {
+        spell: testSpells.cantrip,
+        options: { methodType: "mana" as const, targetTier: 0 },
+      };
       const available = manaCastingHandler.isAvailable(context);
       expect(available).toBe(true);
     });
@@ -132,13 +138,19 @@ describe("ManaCastingHandler", () => {
         },
       };
 
-      const context = { spell: tier7Spell, castingTier: 7 };
+      const context = {
+        spell: tier7Spell,
+        options: { methodType: "mana" as const, targetTier: 7 },
+      };
       const available = manaCastingHandler.isAvailable(context);
       expect(available).toBe(false);
     });
 
     it("should return false for spells without resource costs", () => {
-      const context = { spell: testSpells.noResourceSpell, castingTier: 1 };
+      const context = {
+        spell: testSpells.noResourceSpell,
+        options: { methodType: "mana" as const, targetTier: 1 },
+      };
       const available = manaCastingHandler.isAvailable(context);
       expect(available).toBe(false);
     });
@@ -146,7 +158,10 @@ describe("ManaCastingHandler", () => {
 
   describe("calculateCost", () => {
     it("should calculate correct cost for tier 1 spell", () => {
-      const context = { spell: testSpells.tier1Spell, castingTier: 1 };
+      const context = {
+        spell: testSpells.tier1Spell,
+        options: { methodType: "mana" as const, targetTier: 1 },
+      };
       const cost = manaCastingHandler.calculateCost(context);
 
       expect(cost.canAfford).toBe(true);
@@ -155,7 +170,10 @@ describe("ManaCastingHandler", () => {
     });
 
     it("should calculate correct cost with extra tiers", () => {
-      const context = { spell: testSpells.tier1Spell, castingTier: 3 };
+      const context = {
+        spell: testSpells.tier1Spell,
+        options: { methodType: "mana" as const, targetTier: 3 },
+      };
       const cost = manaCastingHandler.calculateCost(context);
 
       expect(cost.canAfford).toBe(true);
@@ -163,7 +181,10 @@ describe("ManaCastingHandler", () => {
     });
 
     it("should indicate insufficient resources when character doesn't have enough mana", () => {
-      const context = { spell: testSpells.tier2Spell, castingTier: 6 };
+      const context = {
+        spell: testSpells.tier2Spell,
+        options: { methodType: "mana" as const, targetTier: 6 },
+      };
       const cost = manaCastingHandler.calculateCost(context);
 
       expect(cost.canAfford).toBe(false);
@@ -172,7 +193,10 @@ describe("ManaCastingHandler", () => {
     });
 
     it("should handle cantrips (no resource cost)", () => {
-      const context = { spell: testSpells.cantrip, castingTier: 0 };
+      const context = {
+        spell: testSpells.cantrip,
+        options: { methodType: "mana" as const, targetTier: 0 },
+      };
       const cost = manaCastingHandler.calculateCost(context);
 
       expect(cost.canAfford).toBe(true);
@@ -186,7 +210,10 @@ describe("ManaCastingHandler", () => {
       const initialResources = characterService.getResources();
       const initialMana = initialResources.find((r) => r.definition.id === "mana")?.current || 0;
 
-      const context = { spell: testSpells.tier1Spell, castingTier: 1 };
+      const context = {
+        spell: testSpells.tier1Spell,
+        options: { methodType: "mana" as const, targetTier: 1 },
+      };
       const result = await manaCastingHandler.cast(context);
 
       expect(result.success).toBe(true);
@@ -204,7 +231,10 @@ describe("ManaCastingHandler", () => {
       const initialResources = characterService.getResources();
       const initialMana = initialResources.find((r) => r.definition.id === "mana")?.current || 0;
 
-      const context = { spell: testSpells.cantrip, castingTier: 0 };
+      const context = {
+        spell: testSpells.cantrip,
+        options: { methodType: "mana" as const, targetTier: 0 },
+      };
       const result = await manaCastingHandler.cast(context);
 
       expect(result.success).toBe(true);
@@ -222,7 +252,10 @@ describe("ManaCastingHandler", () => {
       const initialResources = characterService.getResources();
       const initialMana = initialResources.find((r) => r.definition.id === "mana")?.current || 0;
 
-      const context = { spell: testSpells.tier1Spell, castingTier: 2 };
+      const context = {
+        spell: testSpells.tier1Spell,
+        options: { methodType: "mana" as const, targetTier: 2 },
+      };
       const result = await manaCastingHandler.cast(context);
 
       expect(result.success).toBe(true);
@@ -236,7 +269,10 @@ describe("ManaCastingHandler", () => {
     });
 
     it("should fail when character doesn't have enough mana", async () => {
-      const context = { spell: testSpells.tier2Spell, castingTier: 6 };
+      const context = {
+        spell: testSpells.tier2Spell,
+        options: { methodType: "mana" as const, targetTier: 6 },
+      };
       const result = await manaCastingHandler.cast(context);
 
       expect(result.success).toBe(false);
@@ -249,7 +285,10 @@ describe("ManaCastingHandler", () => {
 
       // Keep casting until we run out of mana
       for (let i = 0; i < 10; i++) {
-        const context = { spell: testSpells.tier1Spell, castingTier: 1 };
+        const context = {
+          spell: testSpells.tier1Spell,
+          options: { methodType: "mana" as const, targetTier: 1 },
+        };
         const result = await manaCastingHandler.cast(context);
 
         if (result.success) {

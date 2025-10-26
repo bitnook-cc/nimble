@@ -8,14 +8,11 @@ import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
+import { SpellCastingService } from "@/lib/services/spell-casting-service";
+import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import { getIconById } from "@/lib/utils/icon-utils";
-import {
-  formatActionCost,
-  formatResourceCost,
-  getInsufficientResourceMessage,
-  hasEnoughResourcesForSpell,
-} from "@/lib/utils/spell-utils";
+import { formatActionCost, formatResourceCost } from "@/lib/utils/spell-utils";
 
 import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
 import { Badge } from "../ui/badge";
@@ -26,18 +23,14 @@ import { MarkdownRenderer } from "../ui/markdown-renderer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export function SpellsSection() {
-  const {
-    character,
-    performUseAbility,
-    getSpellTierAccess,
-    toggleFavoriteSpell,
-    isSpellFavorited,
-  } = useCharacterService();
+  const { character, getSpellTierAccess, toggleFavoriteSpell, isSpellFavorited } =
+    useCharacterService();
   const [openSchools, setOpenSchools] = useState<Record<string, boolean>>({});
   const [openLockedSchools, setOpenLockedSchools] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<"combat" | "utility">("combat");
 
   const contentRepository = ContentRepositoryService.getInstance();
+  const spellCastingService = SpellCastingService.getInstance();
   const [isLockedSectionOpen, setIsLockedSectionOpen] = useState<boolean>(false);
   const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
 
@@ -178,13 +171,19 @@ export function SpellsSection() {
     return "bg-red-100 text-red-800 border-red-200";
   };
 
-  const handleSpellCast = async (spell: SpellAbilityDefinition, extraResource: number = 0) => {
-    if (extraResource > 0 && spell.resourceCost?.type === "fixed") {
-      // Pass the total resource amount for upcasting
-      await performUseAbility(spell.id, spell.resourceCost.amount + extraResource);
-    } else {
-      await performUseAbility(spell.id);
+  const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
+    const options: ManaCastingOptions = {
+      methodType: "mana",
+      targetTier: targetTier || spell.tier,
+    };
+
+    const result = await spellCastingService.castSpell(spell.id, options);
+
+    if (!result.success) {
+      console.error("Failed to cast spell:", result.error);
+      // Could show toast notification here
     }
+
     setUpcastingSpell(null);
   };
 
@@ -282,11 +281,16 @@ export function SpellsSection() {
                       <CollapsibleContent>
                         <div className="space-y-3 pt-2">
                           {spells.map((spell) => {
-                            const canCast = hasEnoughResourcesForSpell(resources, spell);
-                            const insufficientMessage = getInsufficientResourceMessage(
-                              resources,
-                              spell,
+                            const options: ManaCastingOptions = {
+                              methodType: "mana",
+                              targetTier: spell.tier,
+                            };
+                            const cost = spellCastingService.calculateCastingCost(
+                              spell.id,
+                              options,
                             );
+                            const canCast = cost?.canAfford ?? false;
+                            const insufficientMessage = cost?.warningMessage || null;
 
                             return (
                               <div key={spell.id} className="border rounded-lg p-4 space-y-2">
@@ -558,11 +562,13 @@ export function SpellsSection() {
                     <CollapsibleContent>
                       <div className="space-y-3 pt-2">
                         {spells.map((spell) => {
-                          const canCast = hasEnoughResourcesForSpell(resources, spell);
-                          const insufficientMessage = getInsufficientResourceMessage(
-                            resources,
-                            spell,
-                          );
+                          const options: ManaCastingOptions = {
+                            methodType: "mana",
+                            targetTier: spell.tier,
+                          };
+                          const cost = spellCastingService.calculateCastingCost(spell.id, options);
+                          const canCast = cost?.canAfford ?? false;
+                          const insufficientMessage = cost?.warningMessage || null;
 
                           return (
                             <div key={spell.id} className="border rounded-lg p-4 space-y-2">
@@ -797,11 +803,9 @@ export function SpellsSection() {
       {upcastingSpell && (
         <UpcastSpellDialog
           spell={upcastingSpell}
-          resource={resources.find(
-            (r) => r.definition.id === upcastingSpell.resourceCost?.resourceId,
-          )}
-          maxSpellTier={spellTierAccess}
-          onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
+          baseTier={upcastingSpell.tier}
+          maxTier={spellTierAccess}
+          onCast={(targetTier) => handleSpellCast(upcastingSpell, targetTier)}
           onClose={() => setUpcastingSpell(null)}
         />
       )}

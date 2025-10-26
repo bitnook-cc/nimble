@@ -213,6 +213,7 @@ const characterBaseSchema = z.object({
   _resourceValues: resourceValuesMapSchema,
   _dicePools: z.array(dicePoolInstanceSchema).default([]),
   _favorites: favoritesSchema.default({ spells: [] }),
+  _activeCastingMethod: z.enum(["mana"]).optional(),
   config: characterConfigurationSchema,
   speed: z.number().min(0),
   actionTracker: actionTrackerSchema,

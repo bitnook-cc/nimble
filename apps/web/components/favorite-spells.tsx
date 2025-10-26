@@ -9,13 +9,10 @@ import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { Character } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
+import { SpellCastingService } from "@/lib/services/spell-casting-service";
+import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
 import { getIconById } from "@/lib/utils/icon-utils";
-import {
-  formatActionCost,
-  formatResourceCost,
-  getInsufficientResourceMessage,
-  hasEnoughResourcesForSpell,
-} from "@/lib/utils/spell-utils";
+import { formatActionCost, formatResourceCost } from "@/lib/utils/spell-utils";
 
 import { UpcastSpellDialog } from "./dialogs/upcast-spell-dialog";
 import { Badge } from "./ui/badge";
@@ -29,13 +26,13 @@ interface FavoriteSpellsProps {
 }
 
 export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProps) {
-  const { performUseAbility, toggleFavoriteSpell, getSpellTierAccess, getResources } =
-    useCharacterService();
+  const { toggleFavoriteSpell, getSpellTierAccess, getResources } = useCharacterService();
   const [expandedSpells, setExpandedSpells] = useState<Set<string>>(new Set());
   const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
 
   const contentRepository = ContentRepositoryService.getInstance();
   const characterService = getCharacterService();
+  const spellCastingService = SpellCastingService.getInstance();
 
   // Get favorited spell IDs
   const favoritedSpellIds = character._favorites.spells;
@@ -86,12 +83,18 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
     }
   };
 
-  const handleSpellCast = async (spell: SpellAbilityDefinition, extraResource: number = 0) => {
-    if (extraResource > 0 && spell.resourceCost?.type === "fixed") {
-      await performUseAbility(spell.id, spell.resourceCost.amount + extraResource);
-    } else {
-      await performUseAbility(spell.id);
+  const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
+    const options: ManaCastingOptions = {
+      methodType: "mana",
+      targetTier: targetTier || spell.tier,
+    };
+
+    const result = await spellCastingService.castSpell(spell.id, options);
+
+    if (!result.success) {
+      console.error("Failed to cast spell:", result.error);
     }
+
     setUpcastingSpell(null);
   };
 
@@ -133,8 +136,13 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
         <Card>
           <CardContent className="p-0">
             {sortedFavoritedSpells.map((spell, index) => {
-              const canCast = hasEnoughResourcesForSpell(resources, spell);
-              const insufficientMessage = getInsufficientResourceMessage(resources, spell);
+              const options: ManaCastingOptions = {
+                methodType: "mana",
+                targetTier: spell.tier,
+              };
+              const cost = spellCastingService.calculateCastingCost(spell.id, options);
+              const canCast = cost?.canAfford ?? false;
+              const insufficientMessage = cost?.warningMessage || null;
               const actionCost = spell.actionCost || 0;
               const insufficientActions =
                 character.inEncounter &&
@@ -264,11 +272,9 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
       {upcastingSpell && (
         <UpcastSpellDialog
           spell={upcastingSpell}
-          resource={resources.find(
-            (r) => r.definition.id === upcastingSpell.resourceCost?.resourceId,
-          )}
-          maxSpellTier={spellTierAccess}
-          onCast={(extraResource) => handleSpellCast(upcastingSpell, extraResource)}
+          baseTier={upcastingSpell.tier}
+          maxTier={spellTierAccess}
+          onCast={(targetTier) => handleSpellCast(upcastingSpell, targetTier)}
           onClose={() => setUpcastingSpell(null)}
         />
       )}

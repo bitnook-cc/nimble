@@ -2,12 +2,14 @@ import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 
 // Import casting method handlers
 import { ManaCastingHandler } from "./casting-methods/mana-casting";
+import { getCharacterService } from "./service-factory";
 import {
   CastingCost,
   CastingMethodContext,
   CastingMethodHandler,
   CastingMethodType,
   CastingResult,
+  ManaCastingOptions,
   SpellCastingOptions,
 } from "./spell-casting-types";
 
@@ -32,14 +34,91 @@ export class SpellCastingService {
   }
 
   /**
+   * Main entry point: Cast a spell by ID with method-specific options
+   * This orchestrates the entire spell casting process
+   */
+  async castSpell(spellId: string, options: SpellCastingOptions): Promise<CastingResult> {
+    // 1. Get the spell from character service
+    const characterService = getCharacterService();
+    const spell = characterService
+      .getAbilities()
+      .find((a) => a.id === spellId && a.type === "spell") as SpellAbilityDefinition | undefined;
+
+    if (!spell) {
+      return {
+        success: false,
+        error: `Spell ${spellId} not found`,
+      };
+    }
+
+    // 2. Get the appropriate handler based on options
+    const handler = this.handlers.get(options.methodType);
+    if (!handler) {
+      return {
+        success: false,
+        error: `Unknown casting method: ${options.methodType}`,
+      };
+    }
+
+    // 3. Create context for the handler
+    const context: CastingMethodContext = {
+      spell,
+      options,
+    };
+
+    // 4. Check if the method is available
+    if (!handler.isAvailable(context)) {
+      return {
+        success: false,
+        error: `${handler.getDisplayName()} is not available for this spell`,
+      };
+    }
+
+    // 5. Check if the character can afford the cost
+    const cost = handler.calculateCost(context);
+    if (!cost.canAfford) {
+      return {
+        success: false,
+        error: cost.warningMessage || `Cannot afford to cast using ${handler.getDisplayName()}`,
+      };
+    }
+
+    // 6. Delegate to handler to execute the casting
+    // Handler will:
+    // - Deduct resources/actions
+    // - Apply effects
+    // - Log the spell cast
+    return await handler.cast(context);
+  }
+
+  /**
    * Get all available casting methods for a spell
    */
-  getAvailableMethods(spell: SpellAbilityDefinition, castingTier?: number): CastingMethodType[] {
-    const actualCastingTier = castingTier ?? spell.tier;
-    const context: CastingMethodContext = { spell, castingTier: actualCastingTier };
+  getAvailableMethods(
+    spellId: string,
+    options?: Partial<SpellCastingOptions>,
+  ): CastingMethodType[] {
+    const characterService = getCharacterService();
+    const spell = characterService
+      .getAbilities()
+      .find((a) => a.id === spellId && a.type === "spell") as SpellAbilityDefinition | undefined;
+
+    if (!spell) return [];
+
     const availableMethods: CastingMethodType[] = [];
 
     for (const [methodType, handler] of this.handlers) {
+      // Create a minimal context for availability check
+      const testOptions: SpellCastingOptions =
+        options?.methodType === methodType
+          ? (options as SpellCastingOptions)
+          : this.getDefaultOptions(methodType, spell);
+
+      const context: CastingMethodContext = {
+        spell,
+        options: testOptions,
+      };
+
       if (handler.isAvailable(context)) {
         availableMethods.push(methodType);
       }
@@ -49,67 +128,21 @@ export class SpellCastingService {
   }
 
   /**
-   * Calculate the cost of casting a spell with a specific method
+   * Calculate the cost of casting a spell with specific options
    */
-  calculateCastingCost(
-    spell: SpellAbilityDefinition,
-    methodType: CastingMethodType,
-    castingTier?: number,
-  ): CastingCost {
-    const handler = this.handlers.get(methodType);
-    if (!handler) {
-      return {
-        canAfford: false,
-        description: "Unknown casting method",
-        riskLevel: "none",
-      };
-    }
+  calculateCastingCost(spellId: string, options: SpellCastingOptions): CastingCost | null {
+    const characterService = getCharacterService();
+    const spell = characterService
+      .getAbilities()
+      .find((a) => a.id === spellId && a.type === "spell") as SpellAbilityDefinition | undefined;
 
-    const actualCastingTier = castingTier ?? spell.tier;
-    const context: CastingMethodContext = { spell, castingTier: actualCastingTier };
-    return handler.calculateCost(context);
-  }
+    if (!spell) return null;
 
-  /**
-   * Cast a spell using the specified method
-   */
-  async castSpell(
-    spell: SpellAbilityDefinition,
-    options: SpellCastingOptions,
-  ): Promise<CastingResult> {
     const handler = this.handlers.get(options.methodType);
-    if (!handler) {
-      return {
-        success: false,
-        error: "Unknown casting method",
-      };
-    }
+    if (!handler) return null;
 
-    const actualCastingTier = options.castingTier ?? spell.tier;
-    const context: CastingMethodContext = {
-      spell,
-      castingTier: actualCastingTier,
-    };
-
-    // Check if the method is available
-    if (!handler.isAvailable(context)) {
-      return {
-        success: false,
-        error: `${handler.getDisplayName()} is not available`,
-      };
-    }
-
-    // Check if the character can afford the cost
-    const cost = handler.calculateCost(context);
-    if (!cost.canAfford) {
-      return {
-        success: false,
-        error: `Cannot afford to cast using ${handler.getDisplayName()}: ${cost.description}`,
-      };
-    }
-
-    // Execute the casting
-    return await handler.cast(context);
+    const context: CastingMethodContext = { spell, options };
+    return handler.calculateCost(context);
   }
 
   /**
@@ -132,5 +165,23 @@ export class SpellCastingService {
    */
   getAllMethodTypes(): CastingMethodType[] {
     return Array.from(this.handlers.keys());
+  }
+
+  /**
+   * Helper to create default options for a casting method
+   */
+  private getDefaultOptions(
+    methodType: CastingMethodType,
+    spell: SpellAbilityDefinition,
+  ): SpellCastingOptions {
+    switch (methodType) {
+      case "mana":
+        return {
+          methodType: "mana",
+          targetTier: spell.tier,
+        } as ManaCastingOptions;
+      default:
+        throw new Error(`No default options for method: ${methodType}`);
+    }
   }
 }

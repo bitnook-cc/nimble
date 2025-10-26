@@ -5,7 +5,8 @@ import { Minus, Plus, Zap } from "lucide-react";
 import { useState } from "react";
 
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
-import { ResourceInstance } from "@/lib/schemas/resources";
+import { SpellCastingService } from "@/lib/services/spell-casting-service";
+import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
 
 import { Button } from "../ui/button";
 import {
@@ -19,54 +20,52 @@ import {
 
 interface UpcastSpellDialogProps {
   spell: SpellAbilityDefinition;
-  resource: ResourceInstance | undefined;
-  maxSpellTier: number;
-  onCast: (extraResourceAmount: number) => void;
+  baseTier: number;
+  maxTier: number;
+  onCast: (targetTier: number) => void;
   onClose: () => void;
 }
 
 export function UpcastSpellDialog({
   spell,
-  resource,
-  maxSpellTier,
+  baseTier,
+  maxTier,
   onCast,
   onClose,
 }: UpcastSpellDialogProps) {
-  const baseResourceCost =
-    spell.resourceCost?.type === "fixed"
-      ? spell.resourceCost.amount
-      : spell.resourceCost?.minAmount || 0;
+  const [targetTier, setTargetTier] = useState(baseTier);
+  const spellCastingService = SpellCastingService.getInstance();
 
-  const maxExtraResource = Math.min(
-    maxSpellTier - spell.tier,
-    resource ? resource.current - baseResourceCost : 0,
-  );
-
-  const [extraResource, setExtraResource] = useState(0);
-
-  const handleCast = () => {
-    onCast(extraResource);
-    onClose();
+  // Calculate cost for current target tier
+  const options: ManaCastingOptions = {
+    methodType: "mana",
+    targetTier,
   };
+  const cost = spellCastingService.calculateCastingCost(spell.id, options);
 
-  const resourceName = resource?.definition.name || "Resource";
-  const totalCost = baseResourceCost + extraResource;
-
-  // Calculate the damage preview
+  // Calculate damage preview with upcast bonus
   const getDamagePreview = () => {
     if (!spell.diceFormula) return null;
-    if (!spell.upcastBonus || extraResource === 0) return spell.diceFormula;
 
-    // Clean the upcast bonus
+    const extraTiers = targetTier - baseTier;
+    if (extraTiers === 0 || !spell.upcastBonus) {
+      return spell.diceFormula;
+    }
+
+    // Add upcastBonus once per extra tier
     const cleanBonus = spell.upcastBonus.replace(/^[+-]/, "");
     const sign = spell.upcastBonus.startsWith("-") ? "-" : "+";
 
-    // For now, show it symbolically (actual calculation happens when cast)
-    if (extraResource === 1) {
+    if (extraTiers === 1) {
       return `${spell.diceFormula}${sign}${cleanBonus}`;
     } else {
-      return `${spell.diceFormula}${sign}(${extraResource}×${cleanBonus})`;
+      return `${spell.diceFormula}${sign}(${extraTiers}×${cleanBonus})`;
     }
+  };
+
+  const handleCast = () => {
+    onCast(targetTier);
+    onClose();
   };
 
   return (
@@ -74,71 +73,68 @@ export function UpcastSpellDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upcast {spell.name}</DialogTitle>
-          <DialogDescription>
-            Choose how much extra {resourceName.toLowerCase()} to spend for increased effect.
-          </DialogDescription>
+          <DialogDescription>Cast at a higher tier for increased effect</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Resource cost display */}
+          {/* Tier display */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Base Cost:</span>
-              <span>
-                {baseResourceCost} {resourceName}
-              </span>
+              <span>Base Tier:</span>
+              <span>{baseTier}</span>
+            </div>
+            <div className="flex justify-between text-sm font-semibold">
+              <span>Casting Tier:</span>
+              <span className="text-lg">Tier {targetTier}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Extra {resourceName}:</span>
-              <span className="font-semibold">{extraResource}</span>
+              <span>Extra Tiers:</span>
+              <span className="text-purple-600">+{targetTier - baseTier}</span>
             </div>
-            <div className="flex justify-between font-semibold">
-              <span>Total Cost:</span>
-              <span className="text-lg">
-                {totalCost} {resourceName}
-              </span>
-            </div>
-            {resource && (
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Available:</span>
-                <span>
-                  {resource.current} {resourceName}
-                </span>
-              </div>
-            )}
           </div>
 
-          {/* Extra resource selector */}
+          {/* Tier selector */}
           <div className="flex items-center justify-center gap-4">
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setExtraResource(Math.max(0, extraResource - 1))}
-              disabled={extraResource <= 0}
+              onClick={() => setTargetTier(Math.max(baseTier, targetTier - 1))}
+              disabled={targetTier <= baseTier}
             >
               <Minus className="h-4 w-4" />
             </Button>
 
-            <div className="text-2xl font-bold w-12 text-center">{extraResource}</div>
+            <div className="text-2xl font-bold w-16 text-center">T{targetTier}</div>
 
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setExtraResource(Math.min(maxExtraResource, extraResource + 1))}
-              disabled={extraResource >= maxExtraResource}
+              onClick={() => setTargetTier(Math.min(maxTier, targetTier + 1))}
+              disabled={targetTier >= maxTier}
             >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
+
+          {/* Cost display */}
+          {cost && (
+            <div className="rounded-lg bg-muted p-4">
+              <div className="text-sm font-semibold mb-1">Cost:</div>
+              <div className="text-lg">{cost.description}</div>
+              {cost.warningMessage && (
+                <div className="text-sm text-destructive mt-2">{cost.warningMessage}</div>
+              )}
+            </div>
+          )}
 
           {/* Damage preview */}
           {spell.diceFormula && (
             <div className="rounded-lg bg-muted p-4">
               <div className="text-sm text-muted-foreground mb-1">Damage Formula:</div>
               <div className="text-lg font-mono font-semibold">{getDamagePreview()}</div>
-              {spell.upcastBonus && extraResource > 0 && (
+              {spell.upcastBonus && targetTier > baseTier && (
                 <div className="text-xs text-muted-foreground mt-2">
-                  Upcast bonus: {spell.upcastBonus} per extra {resourceName.toLowerCase()}
+                  Upcast bonus: {spell.upcastBonus} per tier
                 </div>
               )}
             </div>
@@ -149,9 +145,9 @@ export function UpcastSpellDialog({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleCast} disabled={!resource || resource.current < totalCost}>
+          <Button onClick={handleCast} disabled={!cost?.canAfford}>
             <Zap className="mr-2 h-4 w-4" />
-            Cast ({totalCost} {resourceName})
+            Cast (Tier {targetTier})
           </Button>
         </DialogFooter>
       </DialogContent>
