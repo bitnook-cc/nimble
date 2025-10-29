@@ -198,7 +198,7 @@ const sacredDecreesFeatures: ClassFeature[] = [
 // Sacered Pool abilities - Feature Pool
 const oathswornFeatures: ClassFeature[] = [
   {
-    id: "oathsworn-radiant-",
+    id: "radiant-judgment",
     level: 1,
     name: "Radiant Judgment",
     description:
