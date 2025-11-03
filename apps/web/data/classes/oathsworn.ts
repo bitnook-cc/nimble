@@ -1,14 +1,14 @@
-import { ClassDefinition } from "@/lib/schemas/class";
-import { ClassFeature } from "@/lib/schemas/features";
-import { DicePoolDefinition } from "@/lib/schemas/dice-pools";
 import { ActionAbilityDefinition } from "@/lib/schemas/abilities";
+import { ClassDefinition } from "@/lib/schemas/class";
+import { DicePoolDefinition } from "@/lib/schemas/dice-pools";
+import { ClassFeature } from "@/lib/schemas/features";
 
 const judgementDefinition: DicePoolDefinition = {
   id: "judgement-dice",
   name: "Judgement Dice",
   description: "Judgment Dice granted by the Radiant Judgment ability.",
   diceSize: 6,
-  maxDice: { type: "fixed", amount: "2" },
+  maxDice: { type: "fixed", value: 2 },
   resetCondition: "encounter_end",
   resetType: "to_zero",
   colorScheme: "divine-light",
@@ -29,19 +29,21 @@ const sacredDecreesFeatures: ClassFeature[] = [
         ability: {
           id: "courage",
           name: "Courage!",
-          description: "When you or an ally in your aura would drop to 0 HP, set their HP to 1 instead.,
+          description:
+            "When you or an ally in your aura would drop to 0 HP, set their HP to 1 instead.",
           type: "action",
           frequency: "per_encounter",
           maxUses: { type: "fixed", value: 1 },
         },
       },
-    ]
+    ],
   },
   {
     id: "blinding-aura",
     level: 1,
     name: "Blinding Aura",
-    description: "(1/Safe Rest) Action: Enemies in your aura are Blinded until the end of their next turn.",
+    description:
+      "(1/Safe Rest) Action: Enemies in your aura are Blinded until the end of their next turn.",
     traits: [
       {
         id: "blinding-aura-0",
@@ -62,15 +64,15 @@ const sacredDecreesFeatures: ClassFeature[] = [
     id: "improved-aura",
     level: 1,
     name: "Improved Aura",
-    description:
-      "+2 aura Reach",
+    description: "+2 aura Reach",
     traits: [], // Passive feature - no mechanical traits to process
   },
   {
     id: "explosive-judgment",
     level: 1,
     name: "Explosive Judgment",
-    description:" (1/encounter) 2 actions: Expend your Judgment Dice, deal that much radiant damage to all enemies in your aura.",
+    description:
+      " (1/encounter) 2 actions: Expend your Judgment Dice, deal that much radiant damage to all enemies in your aura.",
     traits: [
       {
         id: "explosive-judgment-0",
@@ -106,7 +108,8 @@ const sacredDecreesFeatures: ClassFeature[] = [
     id: "reliable-justice",
     level: 1,
     name: "Reliable Justice",
-    description: "Whenever you roll Judgment Dice, roll with advantage (roll one extra and dropthe lowest).",
+    description:
+      "Whenever you roll Judgment Dice, roll with advantage (roll one extra and dropthe lowest).",
     traits: [], // Passive feature - no mechanical traits to process
   },
   {
@@ -162,7 +165,7 @@ const sacredDecreesFeatures: ClassFeature[] = [
           speedBonus: { type: "fixed", value: 1 },
         },
       },
-    ], 
+    ],
   },
   {
     id: "well-armored",
@@ -207,9 +210,9 @@ const oathswornFeatures: ClassFeature[] = [
       {
         id: "oathsworn-judgement-dice-0",
         type: "dice_pool",
-        poolDefinition: judgement,
+        poolDefinition: judgementDefinition,
       },
-    ]
+    ],
   },
   {
     id: "lay-on-hands",
@@ -338,7 +341,7 @@ const oathswornFeatures: ClassFeature[] = [
         id: "oathsworn-judgement-dice-2-0",
         type: "dice_pool",
         poolDefinition: {
-          ...judgmentDefinition,
+          ...judgementDefinition,
           diceSize: 8,
         },
       },
@@ -356,7 +359,7 @@ const oathswornFeatures: ClassFeature[] = [
         poolId: "sacred-decree-pool",
         choicesAllowed: 1,
       },
-    ], 
+    ],
   },
   {
     id: "serve-selflessly",
@@ -422,11 +425,11 @@ const oathswornFeatures: ClassFeature[] = [
         id: "oathsworn-judgement-dice-3-0",
         type: "dice_pool",
         poolDefinition: {
-          ...judgmentDefinition,
+          ...judgementDefinition,
           diceSize: 10,
         },
       },
-    ], 
+    ],
   },
   {
     id: "upgraded-cantrips-1",
@@ -526,7 +529,7 @@ const oathswornFeatures: ClassFeature[] = [
         id: "oathsworn-judgement-dice-4-0",
         type: "dice_pool",
         poolDefinition: {
-          ...judgmentDefinition,
+          ...judgementDefinition,
           diceSize: 12,
         },
       },
@@ -610,7 +613,7 @@ const oathswornFeatures: ClassFeature[] = [
         id: "oathsworn-judgement-dice-5-0",
         type: "dice_pool",
         poolDefinition: {
-          ...judgmentDefinition,
+          ...judgementDefinition,
           diceSize: 20,
         },
       },
@@ -635,7 +638,7 @@ const oathswornFeatures: ClassFeature[] = [
         numberOfSpells: 1,
         selectionMode: "per_school",
       },
-    ], 
+    ],
   },
   {
     id: "sacred-decree-4",
@@ -711,7 +714,7 @@ const oathswornFeatures: ClassFeature[] = [
     level: 14,
     name: "Radiant Judgment (6)",
     description: "Whenever you roll Judgment Dice, roll 1 more.",
-    traits: [], 
+    traits: [],
   },
   {
     id: "subclass-feature-15",
