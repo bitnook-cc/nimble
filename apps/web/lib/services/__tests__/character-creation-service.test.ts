@@ -288,8 +288,8 @@ describe("CharacterCreationService", () => {
       const stored = await characterStorageService.getCharacter(testCharacterId);
       expect(stored?.name).toBe("Storage Test");
 
-      // Verify it's in the in-memory storage
-      const rawData = inMemoryStorage.getItem("nimble-navigator-characters");
+      // Verify it's in the in-memory storage (using new key)
+      const rawData = inMemoryStorage.getItem("sheets-characters");
       expect(rawData).toBeTruthy();
       const parsed = JSON.parse(rawData!);
       expect(parsed).toHaveLength(1);
@@ -297,8 +297,8 @@ describe("CharacterCreationService", () => {
     });
 
     it("should isolate storage between test instances", () => {
-      // Each test gets its own in-memory storage
-      const rawData = inMemoryStorage.getItem("nimble-navigator-characters");
+      // Each test gets its own in-memory storage (using new key)
+      const rawData = inMemoryStorage.getItem("sheets-characters");
       expect(rawData).toBeNull(); // Should be empty at start of each test
     });
   });
