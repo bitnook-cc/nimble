@@ -18,7 +18,7 @@ export function BannerBox({ children, className, onClick }: BannerBoxProps) {
         // Base styles
         "relative z-[5]",
         // Paper texture background
-        "bg-[url('https://cdn.shopify.com/s/files/1/0679/1456/3753/files/PaperTexture.jpg')]",
+        "bg-[url('/PaperTexture.jpg')]",
         "bg-cover bg-center",
         // Desktop styles
         "max-w-[60%] py-8 px-0",
