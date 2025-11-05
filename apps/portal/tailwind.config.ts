@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Archivo", "system-ui", "sans-serif"],
+        heading: ["Alegreya Sans", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "var(--color-border)",
         input: "var(--color-input)",
@@ -48,6 +52,9 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        "nimble-button": "2.5rem", /* 40px like nimblerpg.com buttons */
+        "nimble-input": "1.625rem", /* 26px like nimblerpg.com inputs */
+        "nimble-card": "1.8rem", /* Product card radius */
       },
       container: {
         center: true,
