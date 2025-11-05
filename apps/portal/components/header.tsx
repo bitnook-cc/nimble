@@ -23,30 +23,30 @@ export function Header({ user }: HeaderProps) {
 
   return (
     <>
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <header className="bg-black text-white">
+        <div className="max-w-[120rem] mx-auto px-12 py-2.5 lg:py-5">
+          <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-slate-900">Nimble</h1>
-              <span className="ml-2 text-sm text-slate-500">Portal</span>
+              <h1 className="text-2xl font-heading font-bold">Nimble</h1>
+              <span className="ml-2 text-sm text-white/70">Portal</span>
             </div>
 
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <div className="text-sm text-slate-600">
+                  <div className="text-sm text-white/80">
                     Welcome, {user.email}
                   </div>
                   <button
                     onClick={() => window.location.href = '/settings'}
-                    className="p-2 text-slate-400 hover:text-slate-600"
+                    className="p-2 text-white/70 hover:text-white transition-colors"
                     title="Settings"
                   >
                     <Settings className="w-5 h-5" />
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="p-2 text-slate-400 hover:text-slate-600"
+                    className="p-2 text-white/70 hover:text-white transition-colors"
                     title="Log out"
                   >
                     <LogOut className="w-5 h-5" />
@@ -55,7 +55,7 @@ export function Header({ user }: HeaderProps) {
               ) : (
                 <button
                   onClick={() => setShowLoginDialog(true)}
-                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex items-center px-6 py-2 text-sm font-medium text-white bg-primary rounded-nimble-button hover:bg-destructive transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
