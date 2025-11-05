@@ -766,12 +766,15 @@ export class CharacterService {
     }
 
     // Use ResourceService to update the value
-    this._character._resourceValues = resourceService.updateResourceValue(
-      resourceId,
-      value,
-      definition,
-      this._character._resourceValues || new Map(),
-    );
+    this._character = {
+      ...this._character,
+      _resourceValues: resourceService.updateResourceValue(
+        resourceId,
+        value,
+        definition,
+        this._character._resourceValues || new Map(),
+      ),
+    };
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -790,12 +793,15 @@ export class CharacterService {
     }
 
     // Use ResourceService to spend the resource
-    this._character._resourceValues = resourceService.spendResource(
-      resourceId,
-      amount,
-      definition,
-      this._character._resourceValues || new Map(),
-    );
+    this._character = {
+      ...this._character,
+      _resourceValues: resourceService.spendResource(
+        resourceId,
+        amount,
+        definition,
+        this._character._resourceValues || new Map(),
+      ),
+    };
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -814,12 +820,15 @@ export class CharacterService {
     }
 
     // Use ResourceService to restore the resource
-    this._character._resourceValues = resourceService.restoreResource(
-      resourceId,
-      amount,
-      definition,
-      this._character._resourceValues || new Map(),
-    );
+    this._character = {
+      ...this._character,
+      _resourceValues: resourceService.restoreResource(
+        resourceId,
+        amount,
+        definition,
+        this._character._resourceValues || new Map(),
+      ),
+    };
 
     await this.saveCharacter();
     this.notifyCharacterChanged();

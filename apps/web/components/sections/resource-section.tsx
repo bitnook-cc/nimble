@@ -5,9 +5,9 @@ import { ChevronDown, ChevronRight, Minus, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { useResourceService } from "@/lib/hooks/use-resource-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { resourceService } from "@/lib/services/resource-service";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { getIconById } from "@/lib/utils/icon-utils";
 import { getResourceColor } from "@/lib/utils/resource-config";
 
@@ -21,11 +21,16 @@ export function ResourceSection() {
   // Direct singleton access with automatic re-rendering - no context needed!
   const { character } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
-  const { activeResources, spendResource, restoreResource, getResourceInstance } =
-    useResourceService();
+  const characterService = getCharacterService();
 
   const [spendAmounts, setSpendAmounts] = useState<Record<string, string>>({});
   const [restoreAmounts, setRestoreAmounts] = useState<Record<string, string>>({});
+
+  // Get resources directly from character service
+  const resources = character ? characterService.getResources() : [];
+  const activeResources = resources.filter(
+    (r) => r.current !== 0 || r.definition.resetCondition !== "never",
+  );
 
   // Early return if no character or no resources
   if (!character || activeResources.length === 0) return null;
@@ -34,7 +39,7 @@ export function ResourceSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("resources", isOpen);
 
   const applySpend = async (resourceId: string, amount: number, resetInput: boolean = false) => {
-    await spendResource(resourceId, amount);
+    await characterService.spendResource(resourceId, amount);
 
     if (resetInput) {
       setSpendAmounts((prev) => ({ ...prev, [resourceId]: "1" }));
@@ -42,7 +47,7 @@ export function ResourceSection() {
   };
 
   const applyRestore = async (resourceId: string, amount: number, resetInput: boolean = false) => {
-    await restoreResource(resourceId, amount);
+    await characterService.restoreResource(resourceId, amount);
 
     if (resetInput) {
       setRestoreAmounts((prev) => ({ ...prev, [resourceId]: "1" }));
