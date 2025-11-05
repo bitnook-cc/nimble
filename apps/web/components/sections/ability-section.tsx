@@ -16,7 +16,10 @@ import { useState } from "react";
 
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
+import { UpcastSpellDialog } from "@/components/dialogs/upcast-spell-dialog";
 import { EffectPreview } from "@/components/effect-preview";
+import { ManaSpellActions } from "@/components/spell-actions/mana-spell-actions";
+import { SlotSpellActions } from "@/components/spell-actions/slot-spell-actions";
 import { SpellBrowser } from "@/components/spell-browser";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
@@ -30,6 +33,12 @@ import {
 import { FlexibleValue } from "@/lib/schemas/flexible-value";
 import { abilityService } from "@/lib/services/ability-service";
 import { getCharacterService } from "@/lib/services/service-factory";
+import { SpellCastingService } from "@/lib/services/spell-casting-service";
+import {
+  ManaCastingOptions,
+  SlotCastingOptions,
+  SpellCastingOptions,
+} from "@/lib/services/spell-casting-types";
 import {
   getExampleFormulas,
   getSupportedVariables,
@@ -73,6 +82,7 @@ export function AbilitySection() {
 
   const [isAddingAbility, setIsAddingAbility] = useState(false);
   const [isSpellBrowserOpen, setIsSpellBrowserOpen] = useState(false);
+  const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
   const [newAbility, setNewAbility] = useState<NewAbilityForm>({
     name: "",
     description: "",
@@ -116,6 +126,49 @@ export function AbilitySection() {
     if (!character) return;
 
     await refreshAbility(abilityId);
+  };
+
+  // Spell casting handlers
+  const spellCastingService = SpellCastingService.getInstance();
+  const spellcastingConfig = characterService.getSpellcastingConfig();
+  const spellTierAccess = characterService.getSpellTierAccess();
+
+  const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
+    if (!spellcastingConfig) {
+      console.error("No spellcasting configuration found for this class");
+      return;
+    }
+
+    let options: SpellCastingOptions;
+
+    if (spellcastingConfig.method === "mana") {
+      options = {
+        methodType: "mana",
+        targetTier: targetTier || spell.tier,
+      } as ManaCastingOptions;
+    } else {
+      // Slot casting always uses highest tier
+      options = {
+        methodType: "slot",
+      } as SlotCastingOptions;
+    }
+
+    const result = await spellCastingService.castSpell(spell.id, options);
+
+    if (!result.success) {
+      console.error("Failed to cast spell:", result.error);
+    }
+  };
+
+  const handleUpcastClick = async (spell: SpellAbilityDefinition) => {
+    // For slot casting, cast immediately at max tier (no upcast dialog needed)
+    if (spellcastingConfig?.method === "slot") {
+      await handleSpellCast(spell);
+      return;
+    }
+
+    // For mana casting, show the upcast dialog
+    setUpcastingSpell(spell);
   };
 
   const addAbility = () => {
@@ -198,29 +251,6 @@ export function AbilitySection() {
   };
 
   const renderSpell = (spell: SpellAbilityDefinition) => {
-    // Check if spell has resource requirements and if we have enough resources
-    const getResourceInfo = () => {
-      if (!spell.resourceCost) return { canAfford: true, resourceName: null };
-
-      const resources = characterService.getResources();
-      const resource = resources.find((r) => r.definition.id === spell.resourceCost!.resourceId);
-      if (!resource) return { canAfford: false, resourceName: spell.resourceCost.resourceId };
-
-      const requiredAmount =
-        spell.resourceCost.type === "fixed"
-          ? spell.resourceCost.amount
-          : spell.resourceCost.minAmount;
-
-      return {
-        canAfford: resource.current >= requiredAmount,
-        resourceName: resource.definition.name,
-        resource: resource,
-      };
-    };
-
-    const resourceInfo = getResourceInfo();
-    const canUse = resourceInfo.canAfford;
-
     const getTierColor = (tier: number) => {
       if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
       if (tier <= 3) return "bg-blue-100 text-blue-800 border-blue-200";
@@ -232,7 +262,7 @@ export function AbilitySection() {
     const SpellIcon = hasRoll ? Sparkles : Zap;
 
     return (
-      <Card key={spell.id} className={`mb-2 ${!canUse ? "opacity-50" : ""}`}>
+      <Card key={spell.id} className="mb-2">
         <CardContent className="p-2 sm:p-3">
           <div className="space-y-2">
             {/* Title with delete button */}
@@ -266,66 +296,39 @@ export function AbilitySection() {
               </div>
             )}
 
-            {/* Pills and buttons */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex gap-1 flex-wrap items-center">
-                <Badge variant="outline" className={`text-xs ${getTierColor(spell.tier)}`}>
-                  {spell.tier === 0 ? "Cantrip" : `T${spell.tier}`}
+            {/* Pills */}
+            <div className="flex gap-1 flex-wrap items-center">
+              <Badge variant="outline" className={`text-xs ${getTierColor(spell.tier)}`}>
+                {spell.tier === 0 ? "Cantrip" : `T${spell.tier}`}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {spell.category === "utility" ? "Utility" : "Combat"}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {spell.school}
+              </Badge>
+              {spell.actionCost && spell.actionCost > 0 && (
+                <Badge variant="outline" className="text-xs text-orange-600">
+                  {spell.actionCost} Action{spell.actionCost > 1 ? "s" : ""}
                 </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {spell.category === "utility" ? "Utility" : "Combat"}
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {spell.school}
-                </Badge>
-                {spell.actionCost && spell.actionCost > 0 && (
-                  <Badge variant="outline" className="text-xs text-orange-600">
-                    {spell.actionCost} Action{spell.actionCost > 1 ? "s" : ""}
-                  </Badge>
-                )}
-                {spell.resourceCost && (
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${resourceInfo.canAfford ? "text-blue-600" : "text-red-600"}`}
-                  >
-                    {spell.resourceCost.type === "fixed"
-                      ? `${spell.resourceCost.amount} ${resourceInfo.resourceName}`
-                      : spell.resourceCost.maxAmount
-                        ? `${spell.resourceCost.minAmount}-${spell.resourceCost.maxAmount} ${resourceInfo.resourceName}`
-                        : `${spell.resourceCost.minAmount}+ ${resourceInfo.resourceName}`}
-                  </Badge>
-                )}
-              </div>
-
-              <div className="flex gap-1 shrink-0">
-                <Button
-                  variant={!canUse ? "outline" : "default"}
-                  size="sm"
-                  onClick={() => handleUseAbility(spell.id)}
-                  disabled={!canUse}
-                  className="h-7 text-xs"
-                  title={
-                    !resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast Spell"
-                  }
-                >
-                  <SpellIcon className="w-3 h-3 sm:mr-1" />
-                  <span className="hidden sm:inline">
-                    {!resourceInfo.canAfford ? `Need ${resourceInfo.resourceName}` : "Cast"}
-                  </span>
-                </Button>
-                {spell.resourceCost && spell.upcastBonus && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!canUse}
-                    title="Upcast spell for increased effect"
-                    className="h-7 px-2"
-                  >
-                    <TrendingUp className="w-3 h-3" />
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
+
+            {/* Casting buttons */}
+            {spellcastingConfig?.method === "mana" ? (
+              <ManaSpellActions
+                spell={spell}
+                spellTierAccess={spellTierAccess}
+                onCast={handleSpellCast}
+                onUpcast={handleUpcastClick}
+              />
+            ) : spellcastingConfig?.method === "slot" ? (
+              <SlotSpellActions
+                spell={spell}
+                spellTierAccess={spellTierAccess}
+                onCast={handleSpellCast}
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>
@@ -963,6 +966,17 @@ export function AbilitySection() {
 
       {/* Spell Browser Dialog */}
       <SpellBrowser isOpen={isSpellBrowserOpen} onClose={() => setIsSpellBrowserOpen(false)} />
+
+      {/* Upcast Spell Dialog */}
+      {upcastingSpell && (
+        <UpcastSpellDialog
+          spell={upcastingSpell}
+          baseTier={upcastingSpell.tier}
+          maxTier={spellTierAccess}
+          onCast={(targetTier) => handleSpellCast(upcastingSpell, targetTier)}
+          onClose={() => setUpcastingSpell(null)}
+        />
+      )}
     </>
   );
 }
