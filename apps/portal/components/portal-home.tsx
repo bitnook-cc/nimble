@@ -145,62 +145,58 @@ export function PortalHome({ user }: { user: User }) {
           </p>
         </div>
 
-        {/* Tools Grid wrapped in BannerBox */}
-        <BannerBox className="mx-auto">
-          <div className="px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tools.map((tool) => (
-                <div
-                  key={tool.id}
-                  className={`bg-card rounded-nimble-card shadow-sm border border-border p-6 transition-all duration-200 ${
-                    tool.status === 'available'
-                      ? 'hover:shadow-md hover:border-primary/50 cursor-pointer'
-                      : 'opacity-75'
-                  }`}
-                  onClick={() => handleToolClick(tool)}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 rounded-lg bg-secondary">
-                        {tool.icon}
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="text-lg font-heading font-semibold text-card-foreground">
-                          {tool.title}
-                        </h3>
-                      </div>
-                    </div>
-                    {getStatusBadge(tool.status)}
+        {/* Tools Grid with individual BannerBox cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tools.map((tool) => (
+            <BannerBox
+              key={tool.id}
+              className={`mb-6 p-6 transition-all duration-200 ${
+                tool.status === 'available'
+                  ? 'hover:shadow-lg cursor-pointer'
+                  : 'opacity-75'
+              }`}
+              onClick={() => handleToolClick(tool)}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 rounded-lg bg-secondary">
+                    {tool.icon}
                   </div>
-
-                  <p className="text-muted-foreground mb-4">
-                    {tool.description}
-                  </p>
-
-                  {tool.tags && (
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {tool.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-1 text-xs rounded-full bg-secondary text-secondary-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {tool.status === 'available' && (
-                    <div className="flex items-center text-sm text-primary font-medium">
-                      Open Tool
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </div>
-                  )}
+                  <div className="ml-3">
+                    <h3 className="text-lg font-heading font-semibold text-card-foreground">
+                      {tool.title}
+                    </h3>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </BannerBox>
+                {getStatusBadge(tool.status)}
+              </div>
+
+              <p className="text-muted-foreground mb-4">
+                {tool.description}
+              </p>
+
+              {tool.tags && (
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {tool.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 text-xs rounded-full bg-secondary text-secondary-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {tool.status === 'available' && (
+                <div className="flex items-center text-sm text-primary font-medium">
+                  Open Tool
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </div>
+              )}
+            </BannerBox>
+          ))}
+        </div>
 
         {/* User Info Section */}
         <div className="mt-12 bg-card rounded-nimble-card shadow-sm border border-border p-6">
