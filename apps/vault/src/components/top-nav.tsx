@@ -90,13 +90,14 @@ export function TopNav() {
 
   if (loading) {
     return (
-      <nav className="border-b bg-white">
-        <div className="container mx-auto px-4 py-3">
+      <nav className="bg-black text-white">
+        <div className="max-w-[120rem] mx-auto px-12 py-2.5 lg:py-5">
           <div className="flex items-center justify-between">
-            <div className="text-lg font-semibold text-primary">
-              Nimble RPG Vault
+            <div className="flex items-center">
+              <h1 className="text-2xl font-heading font-bold">Nimble</h1>
+              <span className="ml-2 text-sm text-white/70">Vault</span>
             </div>
-            <div className="h-9 w-20 bg-muted animate-pulse rounded"></div>
+            <div className="h-9 w-20 bg-white/20 animate-pulse rounded"></div>
           </div>
         </div>
       </nav>
@@ -104,30 +105,31 @@ export function TopNav() {
   }
 
   return (
-    <nav className="border-b bg-white">
-      <div className="container mx-auto px-4 py-3">
+    <nav className="bg-black text-white">
+      <div className="max-w-[120rem] mx-auto px-12 py-2.5 lg:py-5">
         <div className="flex items-center justify-between">
-          <div className="text-lg font-semibold text-primary">
-            Nimble RPG Vault
+          <div className="flex items-center">
+            <h1 className="text-2xl font-heading font-bold">Nimble</h1>
+            <span className="ml-2 text-sm text-white/70">Vault</span>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/80">
                   Welcome, {user.email || `User ${user.id.slice(0, 8)}`}
                   {user.tags && user.tags.length > 0 && (
-                    <span className="ml-2 text-xs bg-secondary px-2 py-1 rounded">
+                    <span className="ml-2 text-xs bg-white/20 px-2 py-1 rounded">
                       {user.tags.join(', ')}
                     </span>
                   )}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
+                <Button variant="outline" size="sm" onClick={handleLogout} className="text-white border-white/30 hover:bg-white/10">
                   Logout
                 </Button>
               </>
             ) : (
-              <Button onClick={handleLogin}>
+              <Button onClick={handleLogin} className="bg-primary text-white hover:bg-destructive">
                 Login
               </Button>
             )}
