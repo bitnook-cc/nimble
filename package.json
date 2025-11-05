@@ -11,7 +11,8 @@
     "packages/shared",
     "packages/shared-config",
     "packages/shared-auth",
-    "packages/nimble-dice"
+    "packages/nimble-dice",
+    "packages/nimble-ui"
   ],
   "scripts": {
     "build": "turbo build",

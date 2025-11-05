@@ -1,0 +1,85 @@
+/* Nimble RPG Theme - Matching nimblerpg.com */
+:root {
+  /* Primary Colors - Nimble Red Accent #e32402 */
+  --color-primary: 4 96% 45%; /* #e32402 */
+  --color-primary-foreground: 0 0% 100%; /* white */
+
+  /* Background - Light grayish blue #eff0f5 */
+  --color-background: 229 33% 96%; /* #eff0f5 */
+  --color-foreground: 0 0% 0%; /* #000000 */
+
+  /* Card Backgrounds */
+  --color-card: 0 0% 100%; /* #ffffff */
+  --color-card-foreground: 0 0% 0%; /* #000000 */
+
+  /* Secondary - Light neutral gray */
+  --color-secondary: 0 0% 96%; /* Very light gray */
+  --color-secondary-foreground: 0 0% 20%; /* #333333 */
+
+  /* Muted - For disabled/subtle elements */
+  --color-muted: 0 0% 94%; /* Light gray background */
+  --color-muted-foreground: 0 0% 40%; /* #666666 */
+
+  /* Accent - Red variant matching primary */
+  --color-accent: 4 96% 45%; /* #e32402 */
+  --color-accent-foreground: 0 0% 100%; /* white */
+
+  /* Destructive - Darker red #cc0000 for danger/hover */
+  --color-destructive: 0 100% 40%; /* #cc0000 */
+  --color-destructive-foreground: 0 0% 100%; /* white */
+
+  /* Borders and Inputs - Subtle light gray */
+  --color-border: 0 0% 90%; /* Light gray border */
+  --color-input: 0 0% 90%; /* Light gray input border */
+  --color-ring: 4 96% 45%; /* #e32402 focus ring */
+
+  /* Popover */
+  --color-popover: 0 0% 100%; /* white */
+  --color-popover-foreground: 0 0% 0%; /* black */
+
+  /* Rounded Corners - Nimble uses highly rounded elements */
+  --radius: 1.625rem; /* 26px - matching input radius */
+}
+
+.dark {
+  /* Dark mode color scheme */
+  --color-background: 0 0% 10%; /* Very dark gray */
+  --color-foreground: 0 0% 98%; /* Almost white */
+
+  --color-card: 0 0% 14%; /* Dark gray */
+  --color-card-foreground: 0 0% 98%; /* Almost white */
+
+  --color-popover: 0 0% 14%; /* Dark gray */
+  --color-popover-foreground: 0 0% 98%; /* Almost white */
+
+  --color-primary: 4 96% 45%; /* Same red accent */
+  --color-primary-foreground: 0 0% 100%; /* white */
+
+  --color-secondary: 0 0% 20%; /* Dark gray */
+  --color-secondary-foreground: 0 0% 98%; /* Almost white */
+
+  --color-muted: 0 0% 20%; /* Dark gray */
+  --color-muted-foreground: 0 0% 70%; /* Light gray */
+
+  --color-accent: 4 96% 45%; /* Same red accent */
+  --color-accent-foreground: 0 0% 100%; /* white */
+
+  --color-destructive: 0 100% 50%; /* Brighter red in dark mode */
+  --color-destructive-foreground: 0 0% 100%; /* white */
+
+  --color-border: 0 0% 20%; /* Dark gray border */
+  --color-input: 0 0% 20%; /* Dark gray input border */
+  --color-ring: 4 96% 55%; /* Slightly brighter red for focus */
+}
+
+body {
+  color: hsl(var(--color-foreground));
+  background: hsl(var(--color-background));
+  font-family: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Nimble-style headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Alegreya Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 900;
+}
