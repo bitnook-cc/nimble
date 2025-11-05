@@ -326,15 +326,17 @@ const shadowmancerFeatures: ClassFeature[] = [
     traits: [
       {
         id: "pilfered-power-0",
-        type: "ability",
-        ability: {
-          id: "pilfered-power",
+        type: "resource",
+        resourceDefinition: {
+          id: "pilfered_power",
           name: "Pilfered Power",
-          description:
-            "Cast tiered spells at highest unlocked tier. DEX uses before patron takes notice.",
-          type: "action",
-          frequency: "per_safe_rest",
-          maxUses: { type: "formula", expression: "DEX" },
+          description: "Patron power slots for casting spells at maximum tier",
+          colorScheme: "purple-mystic",
+          icon: "gem",
+          resetCondition: "safe_rest",
+          resetType: "to_max",
+          minValue: { type: "fixed", value: 0 },
+          maxValue: { type: "formula", expression: "DEX" },
         },
       },
     ],
@@ -809,6 +811,10 @@ export const shadowmancer: ClassDefinition = {
       features: greaterInvocations,
     },
   ],
+  spellcasting: {
+    method: "slot",
+    resourceId: "pilfered_power",
+  },
 };
 
 export const shadowmancerClass = shadowmancer;

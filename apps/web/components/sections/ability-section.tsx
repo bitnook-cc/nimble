@@ -73,7 +73,6 @@ export function AbilitySection() {
 
   const [isAddingAbility, setIsAddingAbility] = useState(false);
   const [isSpellBrowserOpen, setIsSpellBrowserOpen] = useState(false);
-  const [editingAbility, setEditingAbility] = useState<string | null>(null);
   const [newAbility, setNewAbility] = useState<NewAbilityForm>({
     name: "",
     description: "",

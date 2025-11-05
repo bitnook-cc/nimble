@@ -763,4 +763,8 @@ export const stormshifterClass: ClassDefinition = {
     },
     direbestFormsPool,
   ],
+  spellcasting: {
+    method: "mana",
+    resourceId: "mana",
+  },
 };

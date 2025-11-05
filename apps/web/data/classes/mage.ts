@@ -582,6 +582,10 @@ export const mage: ClassDefinition = {
   startingEquipment: ["adventurers-garb", "staff", "soap"],
   features: mageFeatures,
   featurePools: [spellshaperPool],
+  spellcasting: {
+    method: "mana",
+    resourceId: "mana",
+  },
 };
 
 export const mageClass = mage;

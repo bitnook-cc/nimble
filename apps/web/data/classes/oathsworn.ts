@@ -852,6 +852,10 @@ export const oathsworn: ClassDefinition = {
   saveAdvantages: { strength: "advantage", dexterity: "disadvantage" },
   startingEquipment: ["mace", "rusty-mail", "wooden-buckler", "manacles"],
   features: oathswornFeatures,
+  spellcasting: {
+    method: "mana",
+    resourceId: "mana",
+  },
 };
 
 export const oathswornClass = oathsworn;

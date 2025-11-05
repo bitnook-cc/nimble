@@ -1,6 +1,6 @@
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 
-export type CastingMethodType = "mana";
+export type CastingMethodType = "mana" | "slot";
 
 export interface CastingResult {
   success: boolean;
@@ -23,8 +23,13 @@ export interface ManaCastingOptions {
   targetTier: number; // The tier to cast the spell at
 }
 
-// Union type for all casting options (only mana for now)
-export type SpellCastingOptions = ManaCastingOptions;
+// Slot casting options (casts at highest unlocked tier)
+export interface SlotCastingOptions {
+  methodType: "slot";
+}
+
+// Union type for all casting options
+export type SpellCastingOptions = ManaCastingOptions | SlotCastingOptions;
 
 export interface CastingMethodContext {
   spell: SpellAbilityDefinition;

@@ -9,10 +9,20 @@ import { useActivityLog } from "@/lib/hooks/use-activity-log";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
+import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { SkillName } from "@/lib/schemas/character";
 import { WeaponItem } from "@/lib/schemas/inventory";
 import { getCharacterService } from "@/lib/services/service-factory";
+import { SpellCastingService } from "@/lib/services/spell-casting-service";
+import {
+  ManaCastingOptions,
+  SlotCastingOptions,
+  SpellCastingOptions,
+} from "@/lib/services/spell-casting-types";
 
+import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
+import { ManaSpellActions } from "../spell-actions/mana-spell-actions";
+import { SlotSpellActions } from "../spell-actions/slot-spell-actions";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 
@@ -27,9 +37,11 @@ export function GeneralActionsRow() {
   const [showAssessDialog, setShowAssessDialog] = useState(false);
   const [showSkillDialog, setShowSkillDialog] = useState(false);
   const [selectedAssessAction, setSelectedAssessAction] = useState<AssessSubAction | null>(null);
+  const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
 
   const { addLogEntry } = useActivityLog();
   const characterService = getCharacterService();
+  const spellCastingService = SpellCastingService.getInstance();
 
   if (!character || !character.inEncounter) return null;
 
@@ -156,6 +168,50 @@ export function GeneralActionsRow() {
 
   const combatSpells = characterService.getAbilities();
   const spellAbilities = combatSpells.filter((spell) => spell.type === "spell");
+  const spellcastingConfig = characterService.getSpellcastingConfig();
+  const spellTierAccess = characterService.getSpellTierAccess();
+
+  const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
+    if (!spellcastingConfig) {
+      console.error("No spellcasting configuration found for this class");
+      return;
+    }
+
+    let options: SpellCastingOptions;
+
+    if (spellcastingConfig.method === "mana") {
+      options = {
+        methodType: "mana",
+        targetTier: targetTier || spell.tier,
+      } as ManaCastingOptions;
+    } else {
+      // Slot casting always uses highest tier
+      options = {
+        methodType: "slot",
+      } as SlotCastingOptions;
+    }
+
+    const result = await spellCastingService.castSpell(spell.id, options);
+
+    if (!result.success) {
+      console.error("Failed to cast spell:", result.error);
+    }
+
+    setShowSpellDialog(false);
+    setUpcastingSpell(null);
+  };
+
+  const handleUpcastClick = async (spell: SpellAbilityDefinition) => {
+    // For slot casting, cast immediately at max tier (no upcast dialog needed)
+    if (spellcastingConfig?.method === "slot") {
+      await handleSpellCast(spell);
+      return;
+    }
+
+    // For mana casting, show the upcast dialog
+    setShowSpellDialog(false);
+    setUpcastingSpell(spell);
+  };
 
   return (
     <>
@@ -230,25 +286,42 @@ export function GeneralActionsRow() {
 
       {/* Spell Selection Dialog */}
       <Dialog open={showSpellDialog} onOpenChange={setShowSpellDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Cast a Spell</DialogTitle>
             <DialogDescription>Choose a spell to cast</DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {spellAbilities.map((spell) => (
-              <Button
-                key={spell.id}
-                variant="outline"
-                className="w-full justify-start"
-                onClick={async () => {
-                  await performUseAbility(spell.id);
-                  setShowSpellDialog(false);
-                }}
-              >
-                <Wand2 className="w-4 h-4 mr-2" />
-                {spell.name}
-              </Button>
+              <div key={spell.id} className="border rounded-lg p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm">{spell.name}</h3>
+                    {spell.description && (
+                      <p className="text-xs text-muted-foreground mt-1">{spell.description}</p>
+                    )}
+                    <div className="flex gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        Tier {spell.tier} • {spell.school}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {spellcastingConfig?.method === "mana" ? (
+                  <ManaSpellActions
+                    spell={spell}
+                    spellTierAccess={spellTierAccess}
+                    onCast={handleSpellCast}
+                    onUpcast={handleUpcastClick}
+                  />
+                ) : spellcastingConfig?.method === "slot" ? (
+                  <SlotSpellActions
+                    spell={spell}
+                    spellTierAccess={spellTierAccess}
+                    onCast={handleSpellCast}
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
         </DialogContent>
@@ -312,6 +385,17 @@ export function GeneralActionsRow() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Upcast Spell Dialog */}
+      {upcastingSpell && (
+        <UpcastSpellDialog
+          spell={upcastingSpell}
+          baseTier={upcastingSpell.tier}
+          maxTier={spellTierAccess}
+          onCast={(targetTier) => handleSpellCast(upcastingSpell, targetTier)}
+          onClose={() => setUpcastingSpell(null)}
+        />
+      )}
     </>
   );
 }

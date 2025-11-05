@@ -5,7 +5,6 @@ import { gameConfig } from "../config/game-config";
 import { AbilityDefinition, AbilityDefinitionSchema } from "./abilities";
 import { dicePoolInstanceSchema } from "./dice-pools";
 import { ClassFeatureSchema } from "./features";
-import { flexibleValueSchema } from "./flexible-value";
 import { Inventory, inventorySchema } from "./inventory";
 import { noteSchema } from "./note";
 import { ResourceDefinition, ResourceValue, resourceDefinitionSchema } from "./resources";

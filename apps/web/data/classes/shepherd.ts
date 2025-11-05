@@ -660,6 +660,10 @@ export const shepherd: ClassDefinition = {
       features: sacredGraces,
     },
   ],
+  spellcasting: {
+    method: "mana",
+    resourceId: "mana",
+  },
 };
 
 export const shepherdClass = shepherd;

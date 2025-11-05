@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock, Sparkles, Star, TrendingUp, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Sparkles, Star } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -9,12 +9,18 @@ import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { SpellCastingService } from "@/lib/services/spell-casting-service";
-import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
+import {
+  ManaCastingOptions,
+  SlotCastingOptions,
+  SpellCastingOptions,
+} from "@/lib/services/spell-casting-types";
 import { calculateFlexibleValue as getFlexibleValue } from "@/lib/types/flexible-value";
 import { getIconById } from "@/lib/utils/icon-utils";
 import { formatActionCost, formatResourceCost } from "@/lib/utils/spell-utils";
 
 import { UpcastSpellDialog } from "../dialogs/upcast-spell-dialog";
+import { ManaSpellActions } from "../spell-actions/mana-spell-actions";
+import { SlotSpellActions } from "../spell-actions/slot-spell-actions";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -89,13 +95,14 @@ export function SpellsSection() {
     }
   };
 
-  // Find mana resource (if any)
+  // Get spellcasting configuration from class
+  const spellcastingConfig = characterService.getSpellcastingConfig();
+
+  // Find the appropriate resource based on spellcasting config
   const resources = characterService.getResources();
-  const manaResource = resources.find(
-    (resource) =>
-      resource.definition.id.toLowerCase() === "mana" ||
-      resource.definition.name.toLowerCase().includes("mana"),
-  );
+  const castingResource = spellcastingConfig
+    ? resources.find((resource) => resource.definition.id === spellcastingConfig.resourceId)
+    : undefined;
 
   // Get all spell schools the character has access to
   const characterSpellSchools = characterService.getSpellSchools();
@@ -172,10 +179,24 @@ export function SpellsSection() {
   };
 
   const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
-    const options: ManaCastingOptions = {
-      methodType: "mana",
-      targetTier: targetTier || spell.tier,
-    };
+    if (!spellcastingConfig) {
+      console.error("No spellcasting configuration found for this class");
+      return;
+    }
+
+    let options: SpellCastingOptions;
+
+    if (spellcastingConfig.method === "mana") {
+      options = {
+        methodType: "mana",
+        targetTier: targetTier || spell.tier,
+      } as ManaCastingOptions;
+    } else {
+      // Slot casting always uses highest tier
+      options = {
+        methodType: "slot",
+      } as SlotCastingOptions;
+    }
 
     const result = await spellCastingService.castSpell(spell.id, options);
 
@@ -187,7 +208,14 @@ export function SpellsSection() {
     setUpcastingSpell(null);
   };
 
-  const handleUpcastClick = (spell: SpellAbilityDefinition) => {
+  const handleUpcastClick = async (spell: SpellAbilityDefinition) => {
+    // For slot casting, cast immediately at max tier (no upcast dialog needed)
+    if (spellcastingConfig?.method === "slot") {
+      await handleSpellCast(spell);
+      return;
+    }
+
+    // For mana casting, show the upcast dialog
     setUpcastingSpell(spell);
   };
 
@@ -212,27 +240,32 @@ export function SpellsSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Mana Tracker */}
-          {manaResource && (
+          {/* Casting Resource Tracker (Mana, Pilfered Power, etc.) */}
+          {castingResource && (
             <div className="border rounded-lg p-4 bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-500" />
-                  <span className="font-medium">{manaResource.definition.name}</span>
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span className="font-medium">{castingResource.definition.name}</span>
+                  {spellcastingConfig?.method === "slot" && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      Casts at tier {spellTierAccess}
+                    </Badge>
+                  )}
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold">{manaResource.current}</div>
+                  <div className="text-lg font-bold">{castingResource.current}</div>
                   <div className="text-xs text-muted-foreground">
-                    / {getFlexibleValue(manaResource.definition.maxValue)}
+                    / {getFlexibleValue(castingResource.definition.maxValue)}
                   </div>
                 </div>
               </div>
-              {/* Mana bar */}
+              {/* Resource bar */}
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-blue-500 h-2 rounded-full transition-all duration-200"
                   style={{
-                    width: `${Math.max(0, Math.min(100, (manaResource.current / getFlexibleValue(manaResource.definition.maxValue)) * 100))}%`,
+                    width: `${Math.max(0, Math.min(100, (castingResource.current / getFlexibleValue(castingResource.definition.maxValue)) * 100))}%`,
                   }}
                 />
               </div>
@@ -281,17 +314,6 @@ export function SpellsSection() {
                       <CollapsibleContent>
                         <div className="space-y-3 pt-2">
                           {spells.map((spell) => {
-                            const options: ManaCastingOptions = {
-                              methodType: "mana",
-                              targetTier: spell.tier,
-                            };
-                            const cost = spellCastingService.calculateCastingCost(
-                              spell.id,
-                              options,
-                            );
-                            const canCast = cost?.canAfford ?? false;
-                            const insufficientMessage = cost?.warningMessage || null;
-
                             return (
                               <div key={spell.id} className="border rounded-lg p-4 space-y-2">
                                 {/* First row: Name, Tier, Favorite */}
@@ -329,10 +351,7 @@ export function SpellsSection() {
                                     </Badge>
                                   )}
                                   {spell.resourceCost && (
-                                    <Badge
-                                      variant={canCast ? "secondary" : "destructive"}
-                                      className="text-xs"
-                                    >
+                                    <Badge variant="secondary" className="text-xs">
                                       {formatResourceCost(spell.resourceCost)}
                                     </Badge>
                                   )}
@@ -354,31 +373,21 @@ export function SpellsSection() {
                                   </div>
                                 )}
 
-                                {/* Buttons below description */}
-                                <div className="flex gap-2 pt-1 justify-end">
-                                  <Button
-                                    size="sm"
-                                    variant={canCast ? "outline" : "ghost"}
-                                    onClick={() => handleSpellCast(spell)}
-                                    disabled={!canCast}
-                                    title={insufficientMessage || "Cast spell"}
-                                  >
-                                    <Zap className="w-4 h-4 mr-1" />
-                                    Cast
-                                  </Button>
-                                  {spell.resourceCost && spell.upcastBonus && (
-                                    <Button
-                                      size="sm"
-                                      variant={canCast ? "outline" : "ghost"}
-                                      onClick={() => handleUpcastClick(spell)}
-                                      disabled={!canCast}
-                                      title="Upcast spell for increased effect"
-                                    >
-                                      <TrendingUp className="w-4 h-4 mr-1" />
-                                      Upcast
-                                    </Button>
-                                  )}
-                                </div>
+                                {/* Casting Actions - method-specific */}
+                                {spellcastingConfig?.method === "mana" ? (
+                                  <ManaSpellActions
+                                    spell={spell}
+                                    spellTierAccess={spellTierAccess}
+                                    onCast={handleSpellCast}
+                                    onUpcast={handleUpcastClick}
+                                  />
+                                ) : spellcastingConfig?.method === "slot" ? (
+                                  <SlotSpellActions
+                                    spell={spell}
+                                    spellTierAccess={spellTierAccess}
+                                    onCast={handleSpellCast}
+                                  />
+                                ) : null}
                               </div>
                             );
                           })}
@@ -562,14 +571,6 @@ export function SpellsSection() {
                     <CollapsibleContent>
                       <div className="space-y-3 pt-2">
                         {spells.map((spell) => {
-                          const options: ManaCastingOptions = {
-                            methodType: "mana",
-                            targetTier: spell.tier,
-                          };
-                          const cost = spellCastingService.calculateCastingCost(spell.id, options);
-                          const canCast = cost?.canAfford ?? false;
-                          const insufficientMessage = cost?.warningMessage || null;
-
                           return (
                             <div key={spell.id} className="border rounded-lg p-4 space-y-2">
                               {/* First row: Name, Tier, Favorite */}
@@ -607,10 +608,7 @@ export function SpellsSection() {
                                   </Badge>
                                 )}
                                 {spell.resourceCost && (
-                                  <Badge
-                                    variant={canCast ? "secondary" : "destructive"}
-                                    className="text-xs"
-                                  >
+                                  <Badge variant="secondary" className="text-xs">
                                     {formatResourceCost(spell.resourceCost)}
                                   </Badge>
                                 )}
@@ -632,31 +630,21 @@ export function SpellsSection() {
                                 </div>
                               )}
 
-                              {/* Buttons below description */}
-                              <div className="flex gap-2 pt-1 justify-end">
-                                <Button
-                                  size="sm"
-                                  variant={canCast ? "outline" : "ghost"}
-                                  onClick={() => handleSpellCast(spell)}
-                                  disabled={!canCast}
-                                  title={insufficientMessage || "Cast spell"}
-                                >
-                                  <Zap className="w-4 h-4 mr-1" />
-                                  Cast
-                                </Button>
-                                {spell.resourceCost && spell.upcastBonus && (
-                                  <Button
-                                    size="sm"
-                                    variant={canCast ? "outline" : "ghost"}
-                                    onClick={() => handleUpcastClick(spell)}
-                                    disabled={!canCast}
-                                    title="Upcast spell for increased effect"
-                                  >
-                                    <TrendingUp className="w-4 h-4 mr-1" />
-                                    Upcast
-                                  </Button>
-                                )}
-                              </div>
+                              {/* Casting Actions - method-specific */}
+                              {spellcastingConfig?.method === "mana" ? (
+                                <ManaSpellActions
+                                  spell={spell}
+                                  spellTierAccess={spellTierAccess}
+                                  onCast={handleSpellCast}
+                                  onUpcast={handleUpcastClick}
+                                />
+                              ) : spellcastingConfig?.method === "slot" ? (
+                                <SlotSpellActions
+                                  spell={spell}
+                                  spellTierAccess={spellTierAccess}
+                                  onCast={handleSpellCast}
+                                />
+                              ) : null}
                             </div>
                           );
                         })}

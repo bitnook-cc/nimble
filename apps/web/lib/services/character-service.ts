@@ -512,6 +512,18 @@ export class CharacterService {
   }
 
   /**
+   * Get the spellcasting configuration from the character's class
+   * Returns undefined if the class doesn't have spellcasting configured
+   */
+  getSpellcastingConfig() {
+    if (!this._character) return undefined;
+
+    const contentRepository = ContentRepositoryService.getInstance();
+    const classDefinition = contentRepository.getClassDefinition(this._character.classId);
+    return classDefinition?.spellcasting;
+  }
+
+  /**
    * Get the spell scaling multiplier based on traits
    */
   getSpellScalingLevel(): number {

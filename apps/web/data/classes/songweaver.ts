@@ -731,6 +731,10 @@ export const songweaver: ClassDefinition = {
       features: peoplePerson,
     },
   ],
+  spellcasting: {
+    method: "mana",
+    resourceId: "mana",
+  },
 };
 
 export const songweaverClass = songweaver;

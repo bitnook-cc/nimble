@@ -33,6 +33,30 @@ const FeaturePoolSchema = z.object({
   features: z.array(ClassFeatureSchema),
 });
 
+// Spellcasting method configuration schemas
+const ManaCastingConfigSchema = z.object({
+  method: z.literal("mana"),
+  resourceId: z.string().min(1).meta({
+    title: "Resource ID",
+    description: "ID of the mana resource used for casting (typically 'mana')",
+  }),
+});
+
+const SlotCastingConfigSchema = z.object({
+  method: z.literal("slot"),
+  resourceId: z.string().min(1).meta({
+    title: "Resource ID",
+    description: "ID of the slot resource used for casting (e.g., 'pilfered_power')",
+  }),
+});
+
+const SpellcastingConfigSchema = z
+  .discriminatedUnion("method", [ManaCastingConfigSchema, SlotCastingConfigSchema])
+  .meta({
+    title: "Spellcasting Configuration",
+    description: "Defines which spellcasting system this class uses",
+  });
+
 // Main schemas
 export const ClassDefinitionSchema = z
   .object({
@@ -119,6 +143,10 @@ export const ClassDefinitionSchema = z
       )
       .optional()
       .meta({ title: "Subclasses", description: "Available subclasses for this class" }),
+    spellcasting: SpellcastingConfigSchema.optional().meta({
+      title: "Spellcasting Configuration",
+      description: "Optional configuration for spellcasting classes",
+    }),
   })
   .meta({
     title: "Class Definition",
@@ -176,6 +204,9 @@ export const SpellSchoolDefinitionSchema = z
 export type ArmorProficiency = z.infer<typeof ArmorProficiencySchema>;
 export type WeaponProficiency = z.infer<typeof WeaponProficiencySchema>;
 export type FeaturePool = z.infer<typeof FeaturePoolSchema>;
+export type ManaCastingConfig = z.infer<typeof ManaCastingConfigSchema>;
+export type SlotCastingConfig = z.infer<typeof SlotCastingConfigSchema>;
+export type SpellcastingConfig = z.infer<typeof SpellcastingConfigSchema>;
 export type ClassDefinition = z.infer<typeof ClassDefinitionSchema>;
 export type SubclassDefinition = z.infer<typeof SubclassDefinitionSchema>;
 export type SpellSchoolDefinition = z.infer<typeof SpellSchoolDefinitionSchema>;
