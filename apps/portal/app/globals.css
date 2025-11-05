@@ -2,42 +2,42 @@
 
 /* Nimble RPG Theme - Matching nimblerpg.com */
 :root {
-  /* Primary Colors - Nimble Red Accent */
-  --color-primary: 4 96% 44%; /* #e32402 converted to HSL */
-  --color-primary-foreground: 0 0% 100%;
+  /* Primary Colors - Nimble Red Accent #e32402 */
+  --color-primary: 4 96% 45%; /* #e32402 */
+  --color-primary-foreground: 0 0% 100%; /* white */
 
-  /* Background - Light gray like nimblerpg.com */
-  --color-background: 240 33% 96%; /* rgb(239, 240, 245) */
-  --color-foreground: 0 0% 0%;
+  /* Background - Light grayish blue #eff0f5 */
+  --color-background: 229 33% 96%; /* #eff0f5 */
+  --color-foreground: 0 0% 0%; /* #000000 */
 
   /* Card Backgrounds */
-  --color-card: 0 0% 100%;
-  --color-card-foreground: 0 0% 0%;
+  --color-card: 0 0% 100%; /* #ffffff */
+  --color-card-foreground: 0 0% 0%; /* #000000 */
 
-  /* Secondary - Subtle grays */
-  --color-secondary: 240 20% 92%;
-  --color-secondary-foreground: 0 0% 0%;
+  /* Secondary - Light neutral gray */
+  --color-secondary: 0 0% 96%; /* Very light gray */
+  --color-secondary-foreground: 0 0% 20%; /* #333333 */
 
   /* Muted - For disabled/subtle elements */
-  --color-muted: 240 20% 92%;
-  --color-muted-foreground: 0 0% 40%;
+  --color-muted: 0 0% 94%; /* Light gray background */
+  --color-muted-foreground: 0 0% 40%; /* #666666 */
 
-  /* Accent - Red variant */
-  --color-accent: 4 96% 44%;
-  --color-accent-foreground: 0 0% 100%;
+  /* Accent - Red variant matching primary */
+  --color-accent: 4 96% 45%; /* #e32402 */
+  --color-accent-foreground: 0 0% 100%; /* white */
 
-  /* Destructive - Slightly darker red for danger */
-  --color-destructive: 0 84% 40%;
-  --color-destructive-foreground: 0 0% 100%;
+  /* Destructive - Darker red #cc0000 for danger/hover */
+  --color-destructive: 0 100% 40%; /* #cc0000 */
+  --color-destructive-foreground: 0 0% 100%; /* white */
 
-  /* Borders and Inputs */
-  --color-border: 240 20% 85%;
-  --color-input: 240 20% 85%;
-  --color-ring: 4 96% 44%;
+  /* Borders and Inputs - Subtle light gray */
+  --color-border: 0 0% 90%; /* Light gray border */
+  --color-input: 0 0% 90%; /* Light gray input border */
+  --color-ring: 4 96% 45%; /* #e32402 focus ring */
 
   /* Popover */
-  --color-popover: 0 0% 100%;
-  --color-popover-foreground: 0 0% 0%;
+  --color-popover: 0 0% 100%; /* white */
+  --color-popover-foreground: 0 0% 0%; /* black */
 
   /* Rounded Corners - Nimble uses highly rounded elements */
   --radius: 1.625rem; /* 26px - matching input radius */
@@ -45,25 +45,25 @@
 
 .dark {
   /* Dark mode - inverted with red accent maintained */
-  --color-background: 240 10% 10%;
-  --color-foreground: 0 0% 95%;
-  --color-card: 240 10% 15%;
-  --color-card-foreground: 0 0% 95%;
-  --color-popover: 240 10% 15%;
-  --color-popover-foreground: 0 0% 95%;
-  --color-primary: 4 96% 44%;
-  --color-primary-foreground: 0 0% 100%;
-  --color-secondary: 240 10% 20%;
-  --color-secondary-foreground: 0 0% 95%;
-  --color-muted: 240 10% 20%;
-  --color-muted-foreground: 0 0% 60%;
-  --color-accent: 4 96% 44%;
-  --color-accent-foreground: 0 0% 100%;
-  --color-destructive: 0 84% 40%;
-  --color-destructive-foreground: 0 0% 100%;
-  --color-border: 240 10% 25%;
-  --color-input: 240 10% 25%;
-  --color-ring: 4 96% 44%;
+  --color-background: 0 0% 9%; /* Very dark gray, almost black */
+  --color-foreground: 0 0% 95%; /* Off-white text */
+  --color-card: 0 0% 13%; /* Dark card background */
+  --color-card-foreground: 0 0% 95%; /* Off-white text */
+  --color-popover: 0 0% 13%; /* Dark popover */
+  --color-popover-foreground: 0 0% 95%; /* Off-white text */
+  --color-primary: 4 96% 45%; /* #e32402 - same red */
+  --color-primary-foreground: 0 0% 100%; /* white */
+  --color-secondary: 0 0% 18%; /* Dark gray */
+  --color-secondary-foreground: 0 0% 95%; /* Off-white */
+  --color-muted: 0 0% 18%; /* Dark gray for muted elements */
+  --color-muted-foreground: 0 0% 53%; /* #888888 */
+  --color-accent: 4 96% 45%; /* #e32402 - same red */
+  --color-accent-foreground: 0 0% 100%; /* white */
+  --color-destructive: 0 100% 40%; /* #cc0000 */
+  --color-destructive-foreground: 0 0% 100%; /* white */
+  --color-border: 0 0% 22%; /* Dark border */
+  --color-input: 0 0% 22%; /* Dark input border */
+  --color-ring: 4 96% 45%; /* #e32402 focus ring */
 }
 
 * {
