@@ -169,7 +169,10 @@ export class SlotCastingHandler extends BaseCastingHandler {
 
       // 4. Roll dice if spell has a dice formula
       if (spell.diceFormula) {
+        const slotOptions = options as SlotCastingOptions;
+        const advantageLevel = slotOptions.advantageLevel ?? 0;
         const rollResult = diceService.evaluateDiceFormula(spell.diceFormula, {
+          advantageLevel,
           allowCriticals: true,
           allowFumbles: true,
         });
@@ -177,7 +180,7 @@ export class SlotCastingHandler extends BaseCastingHandler {
         const rollLogEntry = activityLogService.createDiceRollEntry(
           `${spell.name} (Spell)`,
           rollResult,
-          0,
+          advantageLevel,
         );
         await activityLogService.addLogEntry(rollLogEntry);
       }

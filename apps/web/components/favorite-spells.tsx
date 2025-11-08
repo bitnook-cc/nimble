@@ -69,11 +69,13 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
     if (spellcastingConfig?.method === "slot") {
       return {
         methodType: "slot",
+        advantageLevel,
       } as SlotCastingOptions;
     } else {
       return {
         methodType: "mana",
         targetTier: targetTier || spell.tier,
+        advantageLevel,
       } as ManaCastingOptions;
     }
   };

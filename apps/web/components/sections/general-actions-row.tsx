@@ -177,17 +177,20 @@ export function GeneralActionsRow() {
       return;
     }
 
+    const advantageLevel = uiState.advantageLevel;
     let options: SpellCastingOptions;
 
     if (spellcastingConfig.method === "mana") {
       options = {
         methodType: "mana",
         targetTier: targetTier || spell.tier,
+        advantageLevel,
       } as ManaCastingOptions;
     } else {
       // Slot casting always uses highest tier
       options = {
         methodType: "slot",
+        advantageLevel,
       } as SlotCastingOptions;
     }
 

@@ -132,6 +132,7 @@ export function AbilitySection() {
   const spellCastingService = SpellCastingService.getInstance();
   const spellcastingConfig = characterService.getSpellcastingConfig();
   const spellTierAccess = characterService.getSpellTierAccess();
+  const advantageLevel = uiState?.advantageLevel ?? 0;
 
   const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
     if (!spellcastingConfig) {
@@ -145,11 +146,13 @@ export function AbilitySection() {
       options = {
         methodType: "mana",
         targetTier: targetTier || spell.tier,
+        advantageLevel,
       } as ManaCastingOptions;
     } else {
       // Slot casting always uses highest tier
       options = {
         methodType: "slot",
+        advantageLevel,
       } as SlotCastingOptions;
     }
 

@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Lock, Sparkles, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
@@ -31,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 export function SpellsSection() {
   const { character, getSpellTierAccess, toggleFavoriteSpell, isSpellFavorited } =
     useCharacterService();
+  const { uiState } = useUIStateService();
   const [openSchools, setOpenSchools] = useState<Record<string, boolean>>({});
   const [openLockedSchools, setOpenLockedSchools] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<"combat" | "utility">("combat");
@@ -39,6 +41,7 @@ export function SpellsSection() {
   const spellCastingService = SpellCastingService.getInstance();
   const [isLockedSectionOpen, setIsLockedSectionOpen] = useState<boolean>(false);
   const [upcastingSpell, setUpcastingSpell] = useState<SpellAbilityDefinition | null>(null);
+  const advantageLevel = uiState?.advantageLevel ?? 0;
 
   // Get all spell abilities from character (only if character exists)
   const characterService = getCharacterService();
@@ -190,11 +193,13 @@ export function SpellsSection() {
       options = {
         methodType: "mana",
         targetTier: targetTier || spell.tier,
+        advantageLevel,
       } as ManaCastingOptions;
     } else {
       // Slot casting always uses highest tier
       options = {
         methodType: "slot",
+        advantageLevel,
       } as SlotCastingOptions;
     }
 

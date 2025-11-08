@@ -157,7 +157,9 @@ export class ManaCastingHandler extends BaseCastingHandler {
 
       // 3. Roll dice if spell has a dice formula
       if (spell.diceFormula) {
+        const advantageLevel = manaOptions.advantageLevel ?? 0;
         const rollResult = diceService.evaluateDiceFormula(spell.diceFormula, {
+          advantageLevel,
           allowCriticals: true,
           allowFumbles: true,
         });
@@ -165,7 +167,7 @@ export class ManaCastingHandler extends BaseCastingHandler {
         const rollLogEntry = activityLogService.createDiceRollEntry(
           `${spell.name} (Spell)`,
           rollResult,
-          0,
+          advantageLevel,
         );
         await activityLogService.addLogEntry(rollLogEntry);
       }

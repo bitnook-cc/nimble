@@ -21,11 +21,13 @@ export interface CastingCost {
 export interface ManaCastingOptions {
   methodType: "mana";
   targetTier: number; // The tier to cast the spell at
+  advantageLevel?: number; // Optional advantage level for dice rolls (default: 0)
 }
 
 // Slot casting options (casts at highest unlocked tier)
 export interface SlotCastingOptions {
   methodType: "slot";
+  advantageLevel?: number; // Optional advantage level for dice rolls (default: 0)
 }
 
 // Union type for all casting options
