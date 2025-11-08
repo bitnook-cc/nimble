@@ -21,22 +21,23 @@ export class SlotCastingHandler extends BaseCastingHandler {
     if (options.methodType !== "slot") return false;
 
     const characterService = getCharacterService();
-
-    // Check if character has the pilfered power resource
     const character = characterService.getCurrentCharacter();
     if (!character) return false;
 
-    const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
-    if (!resourceDef) return false;
-
-    // Check if character has spell tier access for the highest unlocked tier
+    // Check if character has spell tier access
     const maxTier = characterService.getSpellTierAccess();
     if (maxTier < spell.tier) {
       return false;
     }
 
-    // Slot casting is available for tiered spells (not cantrips)
-    return spell.tier > 0;
+    // Cantrips (tier 0) don't require pilfered power resource
+    if (spell.tier === 0) {
+      return true;
+    }
+
+    // For tiered spells, check if character has the pilfered power resource
+    const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
+    return !!resourceDef;
   }
 
   calculateCost(context: CastingMethodContext): CastingCost {
@@ -61,7 +62,16 @@ export class SlotCastingHandler extends BaseCastingHandler {
       };
     }
 
-    // Find the pilfered power resource definition
+    // Cantrips are always free
+    if (spell.tier === 0) {
+      return {
+        canAfford: true,
+        description: "0 slots (cantrip)",
+        riskLevel: "none",
+      };
+    }
+
+    // Find the pilfered power resource definition for tiered spells
     const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
 
     if (!resourceDef) {
@@ -73,7 +83,7 @@ export class SlotCastingHandler extends BaseCastingHandler {
       };
     }
 
-    // Slot casting always costs 1 slot
+    // Slot casting always costs 1 slot for tiered spells
     const currentSlots = characterService.getResourceValue(this.resourceId);
     const canAfford = currentSlots > 0;
 
@@ -113,22 +123,12 @@ export class SlotCastingHandler extends BaseCastingHandler {
         };
       }
 
-      // Find the pilfered power resource definition
-      const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
-
-      if (!resourceDef) {
-        return {
-          success: false,
-          error: "Character does not have the pilfered power resource",
-        };
-      }
-
       // Check if we can afford the cast
       const cost = this.calculateCost(context);
       if (!cost.canAfford) {
         return {
           success: false,
-          error: "No pilfered power slots available",
+          error: "Cannot afford to cast spell",
         };
       }
 
@@ -148,11 +148,24 @@ export class SlotCastingHandler extends BaseCastingHandler {
         });
       }
 
-      // 2. Spend 1 slot from pilfered power resource
-      await characterService.spendResource(this.resourceId, 1);
+      // 2. Spend slot for tiered spells (not cantrips)
+      let resourceDef;
+      if (spell.tier > 0) {
+        resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
 
-      // 3. Determine effective casting tier (highest unlocked)
-      const effectiveTier = characterService.getSpellTierAccess();
+        if (!resourceDef) {
+          return {
+            success: false,
+            error: "Character does not have the pilfered power resource",
+          };
+        }
+
+        await characterService.spendResource(this.resourceId, 1);
+      }
+
+      // 3. Determine effective casting tier
+      // Cantrips are always tier 0, tiered spells use highest unlocked tier
+      const effectiveTier = spell.tier === 0 ? 0 : characterService.getSpellTierAccess();
 
       // 4. Roll dice if spell has a dice formula
       if (spell.diceFormula) {
@@ -176,11 +189,14 @@ export class SlotCastingHandler extends BaseCastingHandler {
       }
 
       // 6. Log the spell cast
-      const slotResource = {
-        resourceId: this.resourceId,
-        resourceName: resourceDef.name,
-        amount: 1,
-      };
+      const slotResource =
+        spell.tier > 0 && resourceDef
+          ? {
+              resourceId: this.resourceId,
+              resourceName: resourceDef.name,
+              amount: 1,
+            }
+          : undefined;
 
       const logEntry = activityLogService.createSpellCastEntry(
         spell.name,

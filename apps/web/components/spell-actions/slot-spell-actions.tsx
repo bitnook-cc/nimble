@@ -28,15 +28,20 @@ export function SlotSpellActions({ spell, spellTierAccess, onCast }: SlotSpellAc
 
   return (
     <div className="flex gap-2 pt-1 justify-end items-center">
-      <Badge variant="secondary" className="text-xs">
-        Tier {spellTierAccess}
-      </Badge>
+      {spell.tier > 0 && (
+        <Badge variant="secondary" className="text-xs">
+          Tier {spellTierAccess}
+        </Badge>
+      )}
       <Button
         size="sm"
         variant={canCast ? "outline" : "ghost"}
         onClick={() => onCast(spell)}
         disabled={!canCast}
-        title={insufficientMessage || `Cast at maximum tier (${spellTierAccess})`}
+        title={
+          insufficientMessage ||
+          (spell.tier === 0 ? "Cast cantrip" : `Cast at maximum tier (${spellTierAccess})`)
+        }
       >
         <Zap className="w-4 h-4 mr-1" />
         Cast
