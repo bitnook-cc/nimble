@@ -1,4 +1,5 @@
 import { activityLogService } from "@/lib/services/activity-log-service";
+import { diceService } from "@/lib/services/dice-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
 import {
@@ -153,13 +154,28 @@ export class SlotCastingHandler extends BaseCastingHandler {
       // 3. Determine effective casting tier (highest unlocked)
       const effectiveTier = characterService.getSpellTierAccess();
 
-      // 4. Apply effects (if any)
+      // 4. Roll dice if spell has a dice formula
+      if (spell.diceFormula) {
+        const rollResult = diceService.evaluateDiceFormula(spell.diceFormula, {
+          allowCriticals: true,
+          allowFumbles: true,
+        });
+
+        const rollLogEntry = activityLogService.createDiceRollEntry(
+          `${spell.name} (Spell)`,
+          rollResult,
+          0,
+        );
+        await activityLogService.addLogEntry(rollLogEntry);
+      }
+
+      // 5. Apply effects (if any)
       if (spell.effects && spell.effects.length > 0) {
         const { effectService } = await import("@/lib/services/effect-service");
         await effectService.applyEffects(spell.effects, spell.name);
       }
 
-      // 5. Log the spell cast
+      // 6. Log the spell cast
       const slotResource = {
         resourceId: this.resourceId,
         resourceName: resourceDef.name,
@@ -176,7 +192,7 @@ export class SlotCastingHandler extends BaseCastingHandler {
 
       await activityLogService.addLogEntry(logEntry);
 
-      // 6. Return success
+      // 7. Return success
       return {
         success: true,
         effectiveSpellTier: effectiveTier,

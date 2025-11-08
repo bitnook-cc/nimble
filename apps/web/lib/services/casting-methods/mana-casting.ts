@@ -1,4 +1,5 @@
 import { activityLogService } from "@/lib/services/activity-log-service";
+import { diceService } from "@/lib/services/dice-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 
 import {
@@ -137,13 +138,28 @@ export class ManaCastingHandler extends BaseCastingHandler {
         await characterService.spendResource("mana", manaCost);
       }
 
-      // 3. Apply effects (if any)
+      // 3. Roll dice if spell has a dice formula
+      if (spell.diceFormula) {
+        const rollResult = diceService.evaluateDiceFormula(spell.diceFormula, {
+          allowCriticals: true,
+          allowFumbles: true,
+        });
+
+        const rollLogEntry = activityLogService.createDiceRollEntry(
+          `${spell.name} (Spell)`,
+          rollResult,
+          0,
+        );
+        await activityLogService.addLogEntry(rollLogEntry);
+      }
+
+      // 4. Apply effects (if any)
       if (spell.effects && spell.effects.length > 0) {
         const { effectService } = await import("@/lib/services/effect-service");
         await effectService.applyEffects(spell.effects, spell.name);
       }
 
-      // 4. Log the spell cast
+      // 5. Log the spell cast
       const manaResource =
         manaCost > 0
           ? {
@@ -163,7 +179,7 @@ export class ManaCastingHandler extends BaseCastingHandler {
 
       await activityLogService.addLogEntry(logEntry);
 
-      // 5. Return success
+      // 6. Return success
       return {
         success: true,
         effectiveSpellTier: manaOptions.targetTier,
