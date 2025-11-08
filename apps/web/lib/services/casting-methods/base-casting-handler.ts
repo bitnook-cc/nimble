@@ -14,4 +14,12 @@ export abstract class BaseCastingHandler implements CastingMethodHandler {
   abstract cast(context: CastingMethodContext): Promise<CastingResult>;
   abstract getDescription(): string;
   abstract getDisplayName(): string;
+
+  /**
+   * Check if a spell can be upcast with this casting method
+   * Default implementation: no upcasting support
+   */
+  canUpcast(context: CastingMethodContext): boolean {
+    return false;
+  }
 }

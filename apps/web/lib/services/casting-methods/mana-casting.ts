@@ -38,6 +38,23 @@ export class ManaCastingHandler extends BaseCastingHandler {
     return !!spell.resourceCost && spell.resourceCost.resourceId === "mana";
   }
 
+  canUpcast(context: CastingMethodContext): boolean {
+    const { spell } = context;
+    const characterService = getCharacterService();
+
+    // Can upcast if:
+    // 1. Spell has mana cost
+    // 2. Spell has upcast bonus
+    // 3. Spell tier is below max tier access
+    const maxTier = characterService.getSpellTierAccess();
+    return (
+      !!spell.resourceCost &&
+      spell.resourceCost.resourceId === "mana" &&
+      !!spell.upcastBonus &&
+      spell.tier < maxTier
+    );
+  }
+
   calculateCost(context: CastingMethodContext): CastingCost {
     const { spell, options } = context;
 

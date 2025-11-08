@@ -2,6 +2,7 @@ import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
 
 // Import casting method handlers
 import { ManaCastingHandler } from "./casting-methods/mana-casting";
+import { SlotCastingHandler } from "./casting-methods/slot-casting";
 import { getCharacterService } from "./service-factory";
 import {
   CastingCost,
@@ -20,6 +21,7 @@ export class SpellCastingService {
   private constructor() {
     // Register all casting method handlers
     this.registerHandler(new ManaCastingHandler());
+    this.registerHandler(new SlotCastingHandler());
   }
 
   static getInstance(): SpellCastingService {
@@ -142,7 +144,31 @@ export class SpellCastingService {
     if (!handler) return null;
 
     const context: CastingMethodContext = { spell, options };
+
+    // Check if the method is available before calculating cost
+    if (!handler.isAvailable(context)) {
+      return null;
+    }
+
     return handler.calculateCost(context);
+  }
+
+  /**
+   * Check if a spell can be upcast with the given casting method
+   */
+  canUpcastSpell(spellId: string, options: SpellCastingOptions): boolean {
+    const characterService = getCharacterService();
+    const spell = characterService
+      .getAbilities()
+      .find((a) => a.id === spellId && a.type === "spell") as SpellAbilityDefinition | undefined;
+
+    if (!spell) return false;
+
+    const handler = this.handlers.get(options.methodType);
+    if (!handler) return false;
+
+    const context: CastingMethodContext = { spell, options };
+    return handler.canUpcast(context);
   }
 
   /**

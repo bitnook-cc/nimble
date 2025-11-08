@@ -102,7 +102,13 @@ describe("SlotCastingHandler", () => {
       expect(handler.isAvailable(context)).toBe(true);
     });
 
-    it("should not be available for cantrips (tier 0)", () => {
+    it("should be available for cantrips (tier 0) without pilfered power resource", async () => {
+      // Remove the pilfered power resource
+      character._resourceDefinitions = [];
+      character._resourceValues.clear();
+      const characterService = getCharacterService();
+      await characterService.updateCharacter(character);
+
       const cantripSpell: SpellAbilityDefinition = {
         ...testSpell,
         tier: 0,
@@ -110,7 +116,7 @@ describe("SlotCastingHandler", () => {
       const options: SlotCastingOptions = { methodType: "slot" };
       const context = { spell: cantripSpell, options };
 
-      expect(handler.isAvailable(context)).toBe(false);
+      expect(handler.isAvailable(context)).toBe(true);
     });
 
     it("should not be available when character lacks pilfered power resource", async () => {
@@ -149,6 +155,28 @@ describe("SlotCastingHandler", () => {
   });
 
   describe("calculateCost", () => {
+    it("should calculate cantrips as free (0 slots)", async () => {
+      // Remove pilfered power to ensure cantrips don't need it
+      character._resourceDefinitions = [];
+      character._resourceValues.clear();
+      const characterService = getCharacterService();
+      await characterService.updateCharacter(character);
+
+      const cantripSpell: SpellAbilityDefinition = {
+        ...testSpell,
+        tier: 0,
+      };
+      const options: SlotCastingOptions = { methodType: "slot" };
+      const context = { spell: cantripSpell, options };
+
+      const cost = handler.calculateCost(context);
+
+      expect(cost.canAfford).toBe(true);
+      expect(cost.description).toBe("0 slots (cantrip)");
+      expect(cost.riskLevel).toBe("none");
+      expect(cost.warningMessage).toBeUndefined();
+    });
+
     it("should calculate cost as 1 slot when slots are available", () => {
       const options: SlotCastingOptions = { methodType: "slot" };
       const context = { spell: testSpell, options };
@@ -233,6 +261,27 @@ describe("SlotCastingHandler", () => {
   });
 
   describe("cast", () => {
+    it("should successfully cast cantrip without pilfered power resource", async () => {
+      // Remove pilfered power resource
+      character._resourceDefinitions = [];
+      character._resourceValues.clear();
+      const characterService = getCharacterService();
+      await characterService.updateCharacter(character);
+
+      const cantripSpell: SpellAbilityDefinition = {
+        ...testSpell,
+        tier: 0,
+        actionCost: 0,
+      };
+      const options: SlotCastingOptions = { methodType: "slot" };
+      const context = { spell: cantripSpell, options };
+
+      const result = await handler.cast(context);
+
+      expect(result.success).toBe(true);
+      expect(result.effectiveSpellTier).toBe(0); // Cantrips are tier 0
+    });
+
     it("should successfully cast spell and spend 1 slot", async () => {
       const options: SlotCastingOptions = { methodType: "slot" };
       const context = { spell: testSpell, options };
@@ -346,7 +395,7 @@ describe("SlotCastingHandler", () => {
       const result = await handler.cast(context);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("No pilfered power slots available");
+      expect(result.error).toContain("Cannot afford to cast spell");
     });
 
     it("should fail when resource definition missing", async () => {
@@ -361,7 +410,35 @@ describe("SlotCastingHandler", () => {
       const result = await handler.cast(context);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("does not have the pilfered power resource");
+      expect(result.error).toContain("Cannot afford to cast spell");
+    });
+
+    it("should log cantrip cast without resource cost", async () => {
+      // Remove pilfered power resource
+      character._resourceDefinitions = [];
+      character._resourceValues.clear();
+      const characterService = getCharacterService();
+      await characterService.updateCharacter(character);
+
+      const cantripSpell: SpellAbilityDefinition = {
+        ...testSpell,
+        tier: 0,
+        actionCost: 0,
+      };
+      const options: SlotCastingOptions = { methodType: "slot" };
+      const context = { spell: cantripSpell, options };
+
+      await handler.cast(context);
+
+      expect(activityLogService.createSpellCastEntry).toHaveBeenCalledWith(
+        "Fireball",
+        "fire",
+        0, // Cantrip tier
+        0, // Action cost
+        undefined, // No resource cost for cantrips
+      );
+
+      expect(activityLogService.addLogEntry).toHaveBeenCalled();
     });
 
     it("should log the spell cast with correct details", async () => {

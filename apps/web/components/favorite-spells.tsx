@@ -10,7 +10,11 @@ import { Character } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterService } from "@/lib/services/service-factory";
 import { SpellCastingService } from "@/lib/services/spell-casting-service";
-import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
+import {
+  ManaCastingOptions,
+  SlotCastingOptions,
+  SpellCastingOptions,
+} from "@/lib/services/spell-casting-types";
 import { getIconById } from "@/lib/utils/icon-utils";
 import { formatActionCost, formatResourceCost } from "@/lib/utils/spell-utils";
 
@@ -55,6 +59,24 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
   const spellTierAccess = getSpellTierAccess();
   const resources = getResources();
   const spellScalingMultiplier = characterService.getSpellScalingLevel();
+  const spellcastingConfig = characterService.getSpellcastingConfig();
+
+  // Create casting options once based on spellcasting method
+  const createCastingOptions = (
+    spell: SpellAbilityDefinition,
+    targetTier?: number,
+  ): SpellCastingOptions => {
+    if (spellcastingConfig?.method === "slot") {
+      return {
+        methodType: "slot",
+      } as SlotCastingOptions;
+    } else {
+      return {
+        methodType: "mana",
+        targetTier: targetTier || spell.tier,
+      } as ManaCastingOptions;
+    }
+  };
 
   const getTierColor = (tier: number) => {
     if (tier === 1) return "bg-green-100 text-green-800 border-green-200";
@@ -84,11 +106,7 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
   };
 
   const handleSpellCast = async (spell: SpellAbilityDefinition, targetTier?: number) => {
-    const options: ManaCastingOptions = {
-      methodType: "mana",
-      targetTier: targetTier || spell.tier,
-    };
-
+    const options = createCastingOptions(spell, targetTier);
     const result = await spellCastingService.castSpell(spell.id, options);
 
     if (!result.success) {
@@ -136,13 +154,11 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
         <Card>
           <CardContent className="p-0">
             {sortedFavoritedSpells.map((spell, index) => {
-              const options: ManaCastingOptions = {
-                methodType: "mana",
-                targetTier: spell.tier,
-              };
+              const options = createCastingOptions(spell);
               const cost = spellCastingService.calculateCastingCost(spell.id, options);
               const canCast = cost?.canAfford ?? false;
               const insufficientMessage = cost?.warningMessage || null;
+              const canUpcast = spellCastingService.canUpcastSpell(spell.id, options);
               const actionCost = spell.actionCost || 0;
               const insufficientActions =
                 character.inEncounter &&
@@ -247,7 +263,7 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
                           {insufficientActions ? "No Actions" : !canCast ? "Need Resource" : "Cast"}
                         </span>
                       </Button>
-                      {spell.resourceCost && spell.upcastBonus && (
+                      {canUpcast && (
                         <Button
                           size="sm"
                           variant={isDisabled ? "outline" : "default"}
