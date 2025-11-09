@@ -245,7 +245,18 @@ export function HitDiceSection() {
                     </Button>
                   </div>
 
-                  <Button variant="outline" onClick={() => setIsEditing(true)} className="w-full">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setEditValues({
+                        level: character.level,
+                        hitDieSize: character._hitDice.size,
+                        currentHitDice: character._hitDice.current,
+                      });
+                      setIsEditing(true);
+                    }}
+                    className="w-full"
+                  >
                     Edit Level & Hit Dice
                   </Button>
                 </div>
