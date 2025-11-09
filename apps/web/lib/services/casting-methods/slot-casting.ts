@@ -36,7 +36,8 @@ export class SlotCastingHandler extends BaseCastingHandler {
     }
 
     // For tiered spells, check if character has the pilfered power resource
-    const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
+    const resourceDefs = characterService.getResourceDefinitions();
+    const resourceDef = resourceDefs.find((r) => r.id === this.resourceId);
     return !!resourceDef;
   }
 
@@ -72,7 +73,8 @@ export class SlotCastingHandler extends BaseCastingHandler {
     }
 
     // Find the pilfered power resource definition for tiered spells
-    const resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
+    const resourceDefs = characterService.getResourceDefinitions();
+    const resourceDef = resourceDefs.find((r) => r.id === this.resourceId);
 
     if (!resourceDef) {
       return {
@@ -93,7 +95,6 @@ export class SlotCastingHandler extends BaseCastingHandler {
 
     const warningMessage = canAfford ? undefined : `No pilfered power slots remaining`;
 
-    // Risk level is always none for now (damage mechanic handled later)
     return {
       canAfford,
       description,
@@ -156,7 +157,8 @@ export class SlotCastingHandler extends BaseCastingHandler {
       // 2. Spend slot for tiered spells (not cantrips)
       let resourceDef;
       if (spell.tier > 0) {
-        resourceDef = character._resourceDefinitions.find((r) => r.id === this.resourceId);
+        const resourceDefs = characterService.getResourceDefinitions();
+        resourceDef = resourceDefs.find((r) => r.id === this.resourceId);
 
         if (!resourceDef) {
           return {
