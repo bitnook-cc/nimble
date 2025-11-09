@@ -228,12 +228,12 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
                                 {formatActionCost(actionCost)}
                               </Badge>
                             )}
-                            {spell.resourceCost && (
+                            {cost?.resourceCost && (
                               <Badge
                                 variant={canCast ? "secondary" : "destructive"}
                                 className="text-xs"
                               >
-                                {formatResourceCost(spell.resourceCost)}
+                                {cost.resourceCost.amount} {cost.resourceCost.resourceName}
                               </Badge>
                             )}
                           </div>

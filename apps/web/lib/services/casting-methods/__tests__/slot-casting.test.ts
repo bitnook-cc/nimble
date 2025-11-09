@@ -261,6 +261,33 @@ describe("SlotCastingHandler", () => {
   });
 
   describe("cast", () => {
+    it("should successfully cast spell with mana cost (ignored for slot casting)", async () => {
+      const spellWithManaCost: SpellAbilityDefinition = {
+        ...testSpell,
+        resourceCost: {
+          type: "fixed",
+          resourceId: "mana",
+          amount: 3,
+        },
+      };
+      const options: SlotCastingOptions = { methodType: "slot" };
+      const context = { spell: spellWithManaCost, options };
+
+      const result = await handler.cast(context);
+
+      expect(result.success).toBe(true);
+      expect(result.effectiveSpellTier).toBe(5);
+
+      // Verify slot was spent (not mana)
+      const characterService = getCharacterService();
+      const updatedCharacter = characterService.getCurrentCharacter();
+      const currentSlots = updatedCharacter?._resourceValues.get("pilfered_power");
+      expect(currentSlots?.type).toBe("numerical");
+      if (currentSlots?.type === "numerical") {
+        expect(currentSlots.value).toBe(2); // Started with 3, spent 1 slot (not mana)
+      }
+    });
+
     it("should successfully cast cantrip without pilfered power resource", async () => {
       // Remove pilfered power resource
       character._resourceDefinitions = [];

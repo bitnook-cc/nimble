@@ -99,6 +99,11 @@ export class SlotCastingHandler extends BaseCastingHandler {
       description,
       warningMessage,
       riskLevel: "none",
+      resourceCost: {
+        resourceId: this.resourceId,
+        resourceName: resourceDef.name,
+        amount: 1,
+      },
     };
   }
 

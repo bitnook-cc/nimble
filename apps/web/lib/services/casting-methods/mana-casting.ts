@@ -78,9 +78,14 @@ export class ManaCastingHandler extends BaseCastingHandler {
       };
     }
 
-    // Calculate mana cost: base spell tier + extra tiers = total mana cost
+    // Determine base mana cost: use spell's resourceCost if present, otherwise use tier
+    let baseCost = spell.tier;
+    if (spell.resourceCost && spell.resourceCost.type === "fixed") {
+      baseCost = spell.resourceCost.amount;
+    }
+
+    // Calculate total mana cost when upcasting
     // Each tier above base costs 1 additional mana
-    const baseCost = spell.tier;
     const extraTiers = Math.max(0, manaOptions.targetTier - spell.tier);
     const totalCost = baseCost + extraTiers;
 
@@ -93,11 +98,21 @@ export class ManaCastingHandler extends BaseCastingHandler {
       ? undefined
       : `Insufficient Mana (${currentMana}/${totalCost} required)`;
 
+    // Get mana resource name
+    const resources = characterService.getResources();
+    const manaResource = resources.find((r) => r.definition.id === "mana");
+    const manaResourceName = manaResource?.definition.name || "Mana";
+
     return {
       canAfford,
       description,
       warningMessage,
       riskLevel: "none",
+      resourceCost: {
+        resourceId: "mana",
+        resourceName: manaResourceName,
+        amount: totalCost,
+      },
     };
   }
 
@@ -138,7 +153,12 @@ export class ManaCastingHandler extends BaseCastingHandler {
       // 2. Calculate and spend mana (if not cantrip)
       let manaCost = 0;
       if (spell.tier > 0) {
-        const baseCost = spell.tier;
+        // Determine base mana cost: use spell's resourceCost if present, otherwise use tier
+        let baseCost = spell.tier;
+        if (spell.resourceCost && spell.resourceCost.type === "fixed") {
+          baseCost = spell.resourceCost.amount;
+        }
+
         const extraTiers = Math.max(0, manaOptions.targetTier - spell.tier);
         manaCost = baseCost + extraTiers;
 

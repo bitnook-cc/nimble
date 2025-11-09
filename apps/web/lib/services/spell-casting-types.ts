@@ -15,6 +15,11 @@ export interface CastingCost {
   description: string;
   warningMessage?: string;
   riskLevel: "none" | "low" | "medium" | "high";
+  resourceCost?: {
+    resourceId: string;
+    resourceName: string;
+    amount: number;
+  };
 }
 
 // Mana-specific casting options
@@ -50,6 +55,11 @@ export interface CastingMethodHandler {
    * Calculate the cost and risk of using this casting method
    */
   calculateCost(context: CastingMethodContext): CastingCost;
+
+  /**
+   * Check if a spell can be upcast with this casting method
+   */
+  canUpcast(context: CastingMethodContext): boolean;
 
   /**
    * Execute the spell casting using this method

@@ -206,6 +206,10 @@ export class SpellCastingService {
           methodType: "mana",
           targetTier: spell.tier,
         } as ManaCastingOptions;
+      case "slot":
+        return {
+          methodType: "slot",
+        };
       default:
         throw new Error(`No default options for method: ${methodType}`);
     }
