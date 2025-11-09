@@ -135,6 +135,7 @@ export function HitDiceSection() {
                         <SelectItem value="8">d8</SelectItem>
                         <SelectItem value="10">d10</SelectItem>
                         <SelectItem value="12">d12</SelectItem>
+                        <SelectItem value="20">d20</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

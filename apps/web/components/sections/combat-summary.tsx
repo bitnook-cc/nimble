@@ -105,7 +105,7 @@ function useViewportWidth() {
 
 // Wounds Display Subcomponent
 function WoundsDisplay() {
-  const { character, updateWounds } = useCharacterService();
+  const { character, updateWounds, getMaxWounds } = useCharacterService();
   const [hoveredWound, setHoveredWound] = useState<number | null>(null);
   const viewportWidth = useViewportWidth();
 
@@ -113,42 +113,43 @@ function WoundsDisplay() {
   if (!character) return null;
 
   const { wounds } = character;
+  const maxWounds = getMaxWounds();
 
   // Calculate if icons would exceed 70% of viewport width
   // Each icon is roughly 24px (w-5 h-5 = 20px + gap-1 = 4px between icons)
   const iconWidth = 24; // 20px icon + 4px gap
-  const iconsWidth = wounds.max * iconWidth;
+  const iconsWidth = maxWounds * iconWidth;
   const shouldUseIcons = iconsWidth <= viewportWidth * 0.6;
 
   const handleWoundClick = (woundIndex: number) => {
     const newWoundCount = woundIndex + 1;
     if (newWoundCount === wounds.current) {
       // Clicking on the current highest wound clears all wounds
-      updateWounds(0, wounds.max);
+      updateWounds(0);
     } else {
       // Set wounds to the clicked position
-      updateWounds(newWoundCount, wounds.max);
+      updateWounds(newWoundCount);
     }
   };
 
   const adjustWounds = (delta: number) => {
-    const newWounds = Math.max(0, Math.min(wounds.max, wounds.current + delta));
-    updateWounds(newWounds, wounds.max);
+    const newWounds = Math.max(0, Math.min(maxWounds, wounds.current + delta));
+    updateWounds(newWounds);
   };
 
   if (!shouldUseIcons) {
     // Determine status icon based on wound percentage
     const getStatusIcon = () => {
-      if (wounds.current >= wounds.max) {
+      if (wounds.current >= maxWounds) {
         return <Skull className="w-4 h-4 text-red-600" />;
       }
 
-      const criticalThreshold = Math.min(wounds.max * 0.8, wounds.max - 1);
+      const criticalThreshold = Math.min(maxWounds * 0.8, maxWounds - 1);
       if (wounds.current > criticalThreshold) {
         return <Heart className="w-4 h-4 text-red-500" />;
       }
 
-      if (wounds.current > wounds.max * 0.5) {
+      if (wounds.current > maxWounds * 0.5) {
         return <Bandage className="w-4 h-4 text-orange-600" />;
       }
 
@@ -168,13 +169,13 @@ function WoundsDisplay() {
         </Button>
         {getStatusIcon()}
         <span className="text-sm font-medium text-muted-foreground min-w-[3ch] text-center">
-          {wounds.current}/{wounds.max}
+          {wounds.current}/{maxWounds}
         </span>
         <Button
           variant="outline"
           size="sm"
           onClick={() => adjustWounds(1)}
-          disabled={wounds.current >= wounds.max}
+          disabled={wounds.current >= maxWounds}
           className="h-6 w-6 p-0 text-xs"
         >
           <Plus className="w-4 h-4" />
@@ -184,8 +185,8 @@ function WoundsDisplay() {
   }
 
   const woundIcons = [];
-  for (let i = 0; i < wounds.max; i++) {
-    const isLastWound = i === wounds.max - 1;
+  for (let i = 0; i < maxWounds; i++) {
+    const isLastWound = i === maxWounds - 1;
     const currentWounds = hoveredWound !== null ? hoveredWound + 1 : wounds.current;
     const isWounded = i < currentWounds;
     const isHovered = hoveredWound === i;
@@ -649,7 +650,8 @@ function ResourceTracker() {
 
 // Combat Status Bar Subcomponent
 function CombatStatusBar() {
-  const { character, endEncounter, startEncounter, getInitiative } = useCharacterService();
+  const { character, endEncounter, startEncounter, getInitiative, getMaxWounds } =
+    useCharacterService();
   const { rollInitiative } = useDiceActions();
   const { uiState } = useUIStateService();
 
@@ -660,6 +662,7 @@ function CombatStatusBar() {
   const initiative = getInitiative();
   const totalModifier = attributes.dexterity + initiative.modifier;
   const totalAdvantageLevel = uiState.advantageLevel + initiative.advantage;
+  const maxWounds = getMaxWounds();
 
   const handleInitiativeRoll = async () => {
     const result = await rollInitiative(totalModifier, totalAdvantageLevel);
@@ -667,7 +670,7 @@ function CombatStatusBar() {
   };
   const getHealthStatus = () => {
     // Check if character has max wounds (dead)
-    if (character.wounds.current >= character.wounds.max) {
+    if (character.wounds.current >= maxWounds) {
       return {
         text: "Dead",
         color: "text-red-600",
@@ -676,7 +679,7 @@ function CombatStatusBar() {
     }
 
     // Check if character is critical (>80% wounds OR one less than max, whichever is lower)
-    const criticalThreshold = Math.min(character.wounds.max * 0.8, character.wounds.max - 1);
+    const criticalThreshold = Math.min(maxWounds * 0.8, maxWounds - 1);
     if (character.wounds.current > criticalThreshold) {
       return {
         text: "Critical",
@@ -686,7 +689,7 @@ function CombatStatusBar() {
     }
 
     // Check if character has more than 50% max wounds (injured)
-    if (character.wounds.current > character.wounds.max * 0.5) {
+    if (character.wounds.current > maxWounds * 0.5) {
       return {
         text: "Injured",
         color: "text-orange-600",

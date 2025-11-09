@@ -79,10 +79,9 @@ export const createDefaultHitDice = (level: number = 1, hitDieSize: HitDieSize =
   };
 };
 
-export const createDefaultWounds = (maxWounds: number = 6): Wounds => {
+export const createDefaultWounds = (): Wounds => {
   return {
     current: 0,
-    max: maxWounds,
   };
 };
 
@@ -135,7 +134,7 @@ export const createDefaultCharacterTemplate = (): Partial<Character> => {
     },
     hitPoints: createDefaultHitPoints(10),
     _hitDice: createDefaultHitDice(1, 8),
-    wounds: createDefaultWounds(6),
+    wounds: createDefaultWounds(),
     config: createDefaultCharacterConfiguration(),
     _initiative: createDefaultInitiative(),
     speed: gameConfig.character.defaultSpeed,

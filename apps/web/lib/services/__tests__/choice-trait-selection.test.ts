@@ -38,7 +38,7 @@ describe("ChoiceTrait Selection", () => {
       _hitDice: { size: 10, current: 5, max: 5 },
       saveAdvantages: {},
       hitPoints: { current: 50, max: 50, temporary: 0 },
-      wounds: { current: 0, max: 3 },
+      wounds: { current: 0 },
       _resourceDefinitions: [],
       _resourceValues: new Map(),
       _dicePools: [],

@@ -11,7 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 
 export function WoundsSection() {
   // Get everything we need from service hooks
-  const { character, updateCharacter } = useCharacterService();
+  const { character, updateCharacter, getMaxWounds } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
 
   // Early return if no character (shouldn't happen in normal usage)
@@ -19,13 +19,13 @@ export function WoundsSection() {
 
   const isOpen = uiState.collapsibleSections.wounds;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("wounds", isOpen);
+  const maxWounds = getMaxWounds();
 
   const addWound = () => {
-    if (character.wounds.current < character.wounds.max) {
+    if (character.wounds.current < maxWounds) {
       const updatedCharacter = {
         ...character,
         wounds: {
-          ...character.wounds,
           current: character.wounds.current + 1,
         },
       };
@@ -38,7 +38,6 @@ export function WoundsSection() {
       const updatedCharacter = {
         ...character,
         wounds: {
-          ...character.wounds,
           current: character.wounds.current - 1,
         },
       };
@@ -47,14 +46,14 @@ export function WoundsSection() {
   };
 
   const getWoundStatus = () => {
-    if (character.wounds.current >= character.wounds.max) {
+    if (character.wounds.current >= maxWounds) {
       return {
         text: "DEAD",
         color: "text-red-600",
         bgColor: "bg-red-100",
         icon: Skull,
       };
-    } else if (character.wounds.current >= character.wounds.max - 2) {
+    } else if (character.wounds.current >= maxWounds - 2) {
       return {
         text: "CRITICAL",
         color: "text-orange-600",
@@ -90,12 +89,8 @@ export function WoundsSection() {
                   {woundStatus.text}
                 </div>
                 <div className="text-lg font-bold flex items-center gap-2">
-                  <span
-                    className={
-                      character.wounds.current >= character.wounds.max ? "text-red-600" : ""
-                    }
-                  >
-                    {character.wounds.current}/{character.wounds.max}
+                  <span className={character.wounds.current >= maxWounds ? "text-red-600" : ""}>
+                    {character.wounds.current}/{maxWounds}
                   </span>
                 </div>
                 {isOpen ? (
@@ -120,21 +115,21 @@ export function WoundsSection() {
               </div>
 
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold">{character.wounds.max}</div>
+                <div className="text-2xl font-bold">{maxWounds}</div>
                 <div className="text-sm text-muted-foreground">Maximum</div>
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="text-center text-sm text-muted-foreground">
-                {character.wounds.current >= character.wounds.max
+                {character.wounds.current >= maxWounds
                   ? "Character has died from wounds"
-                  : character.wounds.current >= character.wounds.max - 1
+                  : character.wounds.current >= maxWounds - 1
                     ? "Character is critically wounded"
                     : "Wounds are gained when reaching 0 HP"}
               </div>
 
-              {character.wounds.current < character.wounds.max && (
+              {character.wounds.current < maxWounds && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Button variant="destructive" size="sm" onClick={addWound} className="flex-1">
                     <AlertTriangle className="w-4 h-4 mr-2" />

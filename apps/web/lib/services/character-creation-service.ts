@@ -248,7 +248,7 @@ export class CharacterCreationService implements ICharacterCreation {
       _hitDice: hitDice,
       saveAdvantages: { ...classDefinition.saveAdvantages },
       hitPoints,
-      wounds: createDefaultWounds(config.maxWounds),
+      wounds: createDefaultWounds(),
       _resourceDefinitions: [],
       _resourceValues: new Map(),
       _dicePools: [],

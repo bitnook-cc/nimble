@@ -35,7 +35,7 @@ export function BasicSettingsSection({
             type="number"
             min="1"
             max="20"
-            value={character.wounds.max}
+            value={character.config.maxWounds}
             onChange={(e) => updateMaxWounds(e.target.value)}
             className="w-full"
           />

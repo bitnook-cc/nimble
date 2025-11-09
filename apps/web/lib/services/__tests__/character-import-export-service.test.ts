@@ -91,7 +91,7 @@ async function createRandomComplexCharacter(): Promise<Character> {
 
   // Random hit points and wounds
   character.hitPoints.current = Math.floor(Math.random() * character.hitPoints.max);
-  character.wounds.current = Math.floor(Math.random() * character.wounds.max);
+  character.wounds.current = Math.floor(Math.random() * character.config.maxWounds);
 
   // Random inventory items
   const randomInventory = [

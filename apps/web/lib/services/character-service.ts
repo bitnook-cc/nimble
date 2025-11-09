@@ -1410,9 +1410,8 @@ export class CharacterService {
         temporary: newTemporary,
       },
       wounds:
-        shouldGainWound && this._character.wounds.current < this._character.wounds.max
+        shouldGainWound && this._character.wounds.current < this.getMaxWounds()
           ? {
-              ...this._character.wounds,
               current: this._character.wounds.current + 1,
             }
           : this._character.wounds,
@@ -1501,14 +1500,14 @@ export class CharacterService {
   /**
    * Manually adjust wounds (for wound management UI)
    */
-  async updateWounds(current: number, max: number): Promise<void> {
+  async updateWounds(current: number): Promise<void> {
     if (!this._character) return;
 
+    const maxWounds = this.getMaxWounds();
     this._character = {
       ...this._character,
       wounds: {
-        current: Math.max(0, Math.min(current, max)),
-        max: Math.max(1, max),
+        current: Math.max(0, Math.min(current, maxWounds)),
       },
     };
 
@@ -2064,10 +2063,6 @@ export class CharacterService {
     const updatedCharacter = {
       ...this._character,
       config,
-      wounds: {
-        ...this._character.wounds,
-        max: config.maxWounds, // Update wounds max based on config
-      },
     };
 
     this._character = updatedCharacter;

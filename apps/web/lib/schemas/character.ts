@@ -64,14 +64,20 @@ export const actionTrackerSchema = z.object({
 });
 
 export const hitDiceSchema = z.object({
-  size: z.union([z.literal(4), z.literal(6), z.literal(8), z.literal(10), z.literal(12)]),
+  size: z.union([
+    z.literal(4),
+    z.literal(6),
+    z.literal(8),
+    z.literal(10),
+    z.literal(12),
+    z.literal(20),
+  ]),
   current: z.int().min(0),
   max: z.int().min(1),
 });
 
 export const woundsSchema = z.object({
   current: z.int().min(0),
-  max: z.int().min(1),
 });
 
 // Resource value schemas for the new model
