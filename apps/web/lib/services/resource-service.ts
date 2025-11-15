@@ -169,7 +169,13 @@ export class ResourceService {
     currentValues: Map<string, ResourceValue>,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
-    const currentValue = this.getNumericalValue(currentValues.get(resourceId));
+
+    // If resource doesn't exist yet, start from initial value
+    const existingValue = currentValues.get(resourceId);
+    const currentValue = existingValue
+      ? this.getNumericalValue(existingValue)
+      : this.calculateInitialValue(definition);
+
     const newValue = currentValue - amount;
 
     newValues.set(resourceId, this.setResourceValue(definition, newValue));
@@ -188,7 +194,13 @@ export class ResourceService {
     currentValues: Map<string, ResourceValue>,
   ): Map<string, ResourceValue> {
     const newValues = new Map(currentValues);
-    const currentValue = this.getNumericalValue(currentValues.get(resourceId));
+
+    // If resource doesn't exist yet, start from initial value
+    const existingValue = currentValues.get(resourceId);
+    const currentValue = existingValue
+      ? this.getNumericalValue(existingValue)
+      : this.calculateInitialValue(definition);
+
     const newValue = currentValue + amount;
 
     newValues.set(resourceId, this.setResourceValue(definition, newValue));
