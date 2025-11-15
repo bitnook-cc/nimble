@@ -266,7 +266,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "strength"],
         amount: 1,
       },
     ],
@@ -303,7 +303,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-1-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "will"],
         amount: 1,
       },
     ],
@@ -376,7 +376,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "strength"],
         amount: 1,
       },
     ],
@@ -398,7 +398,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-2-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "will"],
         amount: 1,
       },
     ],
@@ -457,7 +457,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "strength"],
         amount: 1,
       },
     ],
@@ -479,7 +479,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-3-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "will"],
         amount: 1,
       },
     ],
@@ -531,7 +531,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "key-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["intelligence", "will"],
+        allowedAttributes: ["dexterity", "strength"],
         amount: 1,
       },
     ],
@@ -554,7 +554,7 @@ const zephyrFeatures: ClassFeature[] = [
       {
         id: "secondary-stat-increase-4-0",
         type: "attribute_boost",
-        allowedAttributes: ["strength", "dexterity"],
+        allowedAttributes: ["intelligence", "will"],
         amount: 1,
       },
     ],
