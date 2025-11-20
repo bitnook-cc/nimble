@@ -91,7 +91,7 @@ export function TopBar({
     <div className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         {/* Left side - Menu, Auth, and Sync */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-1">
           <AppMenu
             settings={settings}
             characters={characters}
@@ -101,8 +101,16 @@ export function TopBar({
           <SyncButton />
         </div>
 
+        {/* Center - Logo (responsive) */}
+        <div className="hidden min-[500px]:flex items-center absolute left-1/2 -translate-x-1/2">
+          <img src="/logo.png" alt="Sidekick" className="h-8 w-8" />
+          <span className="hidden sm:inline font-alegreya-sans text-xl font-black -ml-1.5 relative z-10">
+            idekick
+          </span>
+        </div>
+
         {/* Right side - Advantage and Roll Panel */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 justify-end">
           {hasCharacter && (
             <>
               <CompactAdvantageToggle />

@@ -82,6 +82,16 @@
       "rlig" 1,
       "calt" 1;
   }
+
+  .font-alegreya-sans {
+    font-family:
+      "Alegreya Sans",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+  }
 }
 
 @layer utilities {

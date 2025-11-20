@@ -64,7 +64,7 @@ function HomeContent() {
     if (character) {
       document.title = `${APP_CONFIG.APP_NAME} - ${character.name}`;
     } else {
-      document.title = APP_CONFIG.APP_NAME;
+      document.title = `${APP_CONFIG.APP_NAME} - Your Nimble companion app`;
     }
   }, [character]);
 
