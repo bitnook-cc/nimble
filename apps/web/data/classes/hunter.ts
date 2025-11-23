@@ -1,6 +1,365 @@
 import { ClassDefinition } from "@/lib/schemas/class";
 import { ClassFeature } from "@/lib/schemas/features";
 
+// Thrill of the Hunt abilities - Feature Pool
+const thrillOfTheHuntFeatures: ClassFeature[] = [
+  {
+    id: "addling-arrow",
+    level: 1,
+    name: "Addling Arrow",
+    description:
+      "Action: Attack with a ranged weapon. The next attack the target makes must be against the closest other creature, chosen at random.",
+    traits: [
+      {
+        id: "addling-arrow-0",
+        type: "ability",
+        ability: {
+          id: "addling-arrow",
+          name: "Addling Arrow",
+          description:
+            "Attack with a ranged weapon. The next attack the target makes must be against the closest other creature, chosen at random.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "come-get-some",
+    level: 1,
+    name: "Come Get Some!",
+    description: "Action: Attack a target. It is Taunted by you until the end of their next turn.",
+    traits: [
+      {
+        id: "come-get-some-0",
+        type: "ability",
+        ability: {
+          id: "come-get-some",
+          name: "Come Get Some!",
+          description: "Attack a target. It is Taunted by you until the end of their next turn.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "decoy",
+    level: 1,
+    name: "Decoy",
+    description:
+      "When you Defend: The attack misses instead, and you can move up to half your speed away (where you really were all along!).",
+    traits: [], // Passive feature - no mechanical traits to process
+  },
+  {
+    id: "fleet-feet",
+    level: 1,
+    name: "Fleet Feet",
+    description: "Move up to your speed for free, ignoring difficult terrain.",
+    traits: [
+      {
+        id: "fleet-feet-0",
+        type: "ability",
+        ability: {
+          id: "fleet-feet",
+          name: "Fleet Feet",
+          description: "Move up to your speed for free, ignoring difficult terrain.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 0,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "grease-trap",
+    level: 1,
+    name: "Grease Trap",
+    description:
+      "(1/encounter) Reaction (when an enemy moves adjacent to you or an ally within 6 spaces): Target falls Prone, is vulnerable to the next fire damage it takes, and is treated as if it is Smoldering.",
+    traits: [
+      {
+        id: "grease-trap-0",
+        type: "ability",
+        ability: {
+          id: "grease-trap",
+          name: "Grease Trap",
+          description:
+            "Reaction (when an enemy moves adjacent to you or an ally within 6 spaces): Target falls Prone, is vulnerable to the next fire damage it takes, and is treated as if it is Smoldering.",
+          type: "action",
+          frequency: "per_encounter",
+          maxUses: { type: "fixed", value: 1 },
+          actionCost: 0,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "hail-of-arrows",
+    level: 1,
+    name: "Hail of Arrows",
+    description:
+      "(Half range) 2 actions: Shoot all creatures within a 3×3 area. Their speed is halved until the end of their next turn.",
+    traits: [
+      {
+        id: "hail-of-arrows-0",
+        type: "ability",
+        ability: {
+          id: "hail-of-arrows",
+          name: "Hail of Arrows",
+          description:
+            "(Half range) Shoot all creatures within a 3×3 area. Their speed is halved until the end of their next turn.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 2,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "heavy-shot",
+    level: 1,
+    name: "Heavy Shot",
+    description:
+      "(Half range) Action: Attack with a ranged weapon and push your target: 4 spaces for a small creature, 2 for a medium creature, 1 for a large creature.",
+    traits: [
+      {
+        id: "heavy-shot-0",
+        type: "ability",
+        ability: {
+          id: "heavy-shot",
+          name: "Heavy Shot",
+          description:
+            "(Half range) Attack with a ranged weapon and push your target: 4 spaces for a small creature, 2 for a medium creature, 1 for a large creature.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "incendiary-shot",
+    level: 1,
+    name: "Incendiary Shot",
+    description: "(Half range) Action: Attack with a ranged weapon, add WIL d8 fire damage.",
+    traits: [
+      {
+        id: "incendiary-shot-0",
+        type: "ability",
+        ability: {
+          id: "incendiary-shot",
+          name: "Incendiary Shot",
+          description: "(Half range) Attack with a ranged weapon, add WIL d8 fire damage.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "multishot",
+    level: 1,
+    name: "Multishot",
+    description:
+      "(Half range) Action: Attack your quarry with a ranged weapon and load an extra projectile. Select a 2nd target within 2 spaces of them to take the same amount of damage.",
+    traits: [
+      {
+        id: "multishot-0",
+        type: "ability",
+        ability: {
+          id: "multishot",
+          name: "Multishot",
+          description:
+            "(Half range) Attack your quarry with a ranged weapon and load an extra projectile. Select a 2nd target within 2 spaces of them to take the same amount of damage.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "pinning-shot",
+    level: 1,
+    name: "Pinning Shot",
+    description:
+      "Spend 3 actions shooting your quarry. They are Restrained until they can escape (DC 10+WIL).",
+    traits: [
+      {
+        id: "pinning-shot-0",
+        type: "ability",
+        ability: {
+          id: "pinning-shot",
+          name: "Pinning Shot",
+          description: "Shoot your quarry. They are Restrained until they can escape (DC 10+WIL).",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 3,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "snare-trap",
+    level: 1,
+    name: "Snare Trap",
+    description:
+      "(1/encounter) Reaction (when an enemy moves adjacent to you or an ally within 6 spaces): Move them back 1 space, they are Restrained until they can escape (DC 10+WIL).",
+    traits: [
+      {
+        id: "snare-trap-0",
+        type: "ability",
+        ability: {
+          id: "snare-trap",
+          name: "Snare Trap",
+          description:
+            "Reaction (when an enemy moves adjacent to you or an ally within 6 spaces): Move them back 1 space, they are Restrained until they can escape (DC 10+WIL).",
+          type: "action",
+          frequency: "per_encounter",
+          maxUses: { type: "fixed", value: 1 },
+          actionCost: 0,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "sharpshooter",
+    level: 1,
+    name: "Sharpshooter",
+    description:
+      "Action: If you have not moved this turn and your quarry is 4 or more spaces away, attack them for double damage.",
+    traits: [
+      {
+        id: "sharpshooter-0",
+        type: "ability",
+        ability: {
+          id: "sharpshooter",
+          name: "Sharpshooter",
+          description:
+            "If you have not moved this turn and your quarry is 4 or more spaces away, attack them for double damage.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "vital-shot",
+    level: 1,
+    name: "Vital Shot",
+    description:
+      "(Half Range) Action: Attack your Hampered quarry with a ranged weapon, ignoring their armor or doubling your Hunter's Mark damage bonus if they have none.",
+    traits: [
+      {
+        id: "vital-shot-0",
+        type: "ability",
+        ability: {
+          id: "vital-shot",
+          name: "Vital Shot",
+          description:
+            "(Half Range) Attack your Hampered quarry with a ranged weapon, ignoring their armor or doubling your Hunter's Mark damage bonus if they have none.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 1,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "wild-instinct",
+    level: 1,
+    name: "Wild Instinct",
+    description:
+      "(1/round, costs 0 TotH charges if you have none.) Assess for free, with advantage.",
+    traits: [
+      {
+        id: "wild-instinct-0",
+        type: "ability",
+        ability: {
+          id: "wild-instinct",
+          name: "Wild Instinct",
+          description:
+            "(1/round, costs 0 TotH charges if you have none.) Assess for free, with advantage.",
+          type: "action",
+          frequency: "per_turn",
+          maxUses: { type: "fixed", value: 1 },
+          actionCost: 0,
+          resourceCost: {
+            type: "fixed",
+            resourceId: "thrill-of-the-hunt-charges",
+            amount: 1,
+          },
+        },
+      },
+    ],
+  },
+];
+
 const hunterFeatures: ClassFeature[] = [
   {
     id: "hunters-mark",
@@ -61,7 +420,14 @@ const hunterFeatures: ClassFeature[] = [
     name: "Thrill of the Hunt",
     description:
       "Choose 2 Thrill of the Hunt (ToH) abilities. Gain a charge to use these abilities during that encounter whenever:\n• Your quarry dies.\n• You hit your quarry in melee or crit your quarry at range.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-1-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 2,
+      },
+    ],
   },
   {
     id: "roll-and-strike",
@@ -118,7 +484,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 4,
     name: "Thrill of the Hunt (2)",
     description: "Choose a 3rd Thrill of the Hunt ability.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-2-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "key-stat-increase-1",
@@ -199,7 +572,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 6,
     name: "Thrill of the Hunt (3)",
     description: "Choose a 4th Thrill of the Hunt ability.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-3-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "subclass-feature-7",
@@ -213,7 +593,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 8,
     name: "Thrill of the Hunt (4)",
     description: "Choose a 5th Thrill of the Hunt ability.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-4-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "key-stat-increase-2",
@@ -280,7 +667,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 12,
     name: "Thrill of the Hunt (5)",
     description: "Choose a 6th Thrill of the Hunt ability.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-5-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "key-stat-increase-3",
@@ -324,7 +718,14 @@ const hunterFeatures: ClassFeature[] = [
     level: 14,
     name: "Thrill of the Hunt (6)",
     description: "Choose a 7th Thrill of the Hunt ability.",
-    traits: [], // Passive feature - no mechanical traits to process
+    traits: [
+      {
+        id: "thrill-of-the-hunt-6-0",
+        type: "pick_feature_from_pool",
+        poolId: "thrill-of-the-hunt-pool",
+        choicesAllowed: 1,
+      },
+    ],
   },
   {
     id: "subclass-feature-15",
@@ -420,6 +821,15 @@ export const hunter: ClassDefinition = {
   saveAdvantages: {},
   startingEquipment: ["shortbow", "cheap-hides", "dagger", "hunting-trap"],
   features: hunterFeatures,
+  featurePools: [
+    {
+      id: "thrill-of-the-hunt-pool",
+      name: "Thrill of the Hunt",
+      description:
+        "A collection of special abilities that Hunters can use by spending Thrill of the Hunt charges. Each ability costs 1 charge to use and cannot miss. Abilities that spend charges cannot generate new ones. Unused charges are lost when combat ends.",
+      features: thrillOfTheHuntFeatures,
+    },
+  ],
 };
 
 export const hunterClass = hunter;
