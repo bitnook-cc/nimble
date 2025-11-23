@@ -412,6 +412,25 @@ const hunterFeatures: ClassFeature[] = [
           maxValue: { type: "fixed", value: 10 },
         },
       },
+      {
+        id: "thrill-of-the-hunt-resource-1",
+        type: "ability",
+        ability: {
+          id: "gain-charge",
+          name: "Gain Charge",
+          description: "Gain 1 Thrill of the Hunt charge.",
+          type: "action",
+          frequency: "at_will",
+          actionCost: 0,
+          effects: [
+            {
+              type: "resourceChange",
+              resourceId: "thrill-of-the-hunt-charges",
+              diceFormula: "1",
+            },
+          ],
+        },
+      },
     ],
   },
   {
