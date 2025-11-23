@@ -155,9 +155,8 @@ export class ActivityLogService {
 
     switch (entry.type) {
       case "roll":
-        const rollEntry = entry as DiceRollEntry;
         // Use toast service with dice result for consistent display
-        toastService.showDiceRoll(description, rollEntry.diceResult);
+        toastService.showDiceRoll(description, entry.diceResult);
         break;
 
       case "damage":
@@ -173,10 +172,9 @@ export class ActivityLogService {
         break;
 
       case "initiative":
-        const initiativeEntry = entry as InitiativeEntry;
-        if (initiativeEntry.diceResult) {
-          const actionsText = `${initiativeEntry.actionsGranted} ${initiativeEntry.actionsGranted === 1 ? "action" : "actions"}`;
-          toastService.showDiceRoll(`Initiative Roll (${actionsText})`, initiativeEntry.diceResult);
+        if (entry.diceResult) {
+          const actionsText = `${entry.actionsGranted} ${entry.actionsGranted === 1 ? "action" : "actions"}`;
+          toastService.showDiceRoll(`Initiative Roll (${actionsText})`, entry.diceResult);
         } else {
           toastService.showInfo(description);
         }
@@ -191,8 +189,7 @@ export class ActivityLogService {
         break;
 
       case "resource":
-        const resourceEntry = entry as ResourceUsageEntry;
-        if (resourceEntry.action === "spent") {
+        if (entry.action === "spent") {
           toastService.showWarning(description);
         } else {
           toastService.showSuccess(description);

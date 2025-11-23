@@ -1,6 +1,7 @@
 export interface AppSettings {
   activeCharacterId?: string; // Optional to allow null state when no characters exist
   themeId?: string; // Store theme ID as string to handle any theme
+  beyond20Enabled?: boolean; // Enable Beyond20 VTT integration
 }
 
 export class SettingsService {
@@ -72,10 +73,16 @@ export class SettingsService {
     await this.saveSettings({ ...settings, themeId });
   }
 
+  async updateBeyond20Enabled(enabled: boolean): Promise<void> {
+    const settings = await this.getSettings();
+    await this.saveSettings({ ...settings, beyond20Enabled: enabled });
+  }
+
   private getDefaultSettings(): AppSettings {
     return {
       activeCharacterId: undefined, // No default character when starting fresh
       themeId: "default", // Default to light theme
+      beyond20Enabled: false, // Disabled by default
     };
   }
 }
