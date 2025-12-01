@@ -1,6 +1,7 @@
 import { realtime } from "@nimble/shared";
 
 import { gameConfig } from "../config/game-config";
+import { beyond20SharingService } from "../integrations/beyond20";
 import { logEntrySchema } from "../schemas/activity-log";
 import {
   AbilityUsageEntry,
@@ -143,6 +144,15 @@ export class ActivityLogService {
         }
       } catch (error) {
         console.warn("Failed to auto-share activity log entry:", error);
+      }
+    }
+
+    // Send to Beyond20 VTT integration if enabled
+    if (currentCharacter) {
+      try {
+        await beyond20SharingService.sendRoll(newEntry, currentCharacter);
+      } catch (error) {
+        console.warn("Failed to send roll to Beyond20:", error);
       }
     }
 
