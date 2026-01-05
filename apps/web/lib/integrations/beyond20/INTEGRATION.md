@@ -1,5 +1,9 @@
 # Beyond20 VTT Integration
 
+## ✅ CURRENT STATUS: ACTIVE
+
+**The Beyond20 integration is now fully connected and operational. Dice rolls ARE being sent to VTT platforms when Beyond20 is enabled.**
+
 ## Overview
 
 The Beyond20 integration allows Sidekick users to seamlessly send their Nimble RPG dice rolls to Virtual Tabletop (VTT) platforms during online play sessions. This integration leverages the [Beyond20 browser extension](https://beyond20.here-for-more.info/), which acts as a bridge between character sheet websites and VTT platforms.
@@ -100,10 +104,10 @@ Through Beyond20, Sidekick can send rolls to:
 
 ### Currently Supported
 
-| Roll Type      | Description                                   | Beyond20 Type | Status       |
-| -------------- | --------------------------------------------- | ------------- | ------------ |
-| **Dice Rolls** | Generic dice rolls (d20 checks, damage, etc.) | `custom`      | ✅ Supported |
-| **Initiative** | Initiative rolls at combat start              | `initiative`  | ✅ Supported |
+| Roll Type      | Description                                   | Beyond20 Type | Status        |
+| -------------- | --------------------------------------------- | ------------- | ------------- |
+| **Dice Rolls** | Generic dice rolls (d20 checks, damage, etc.) | `custom`      | ✅ Active     |
+| **Initiative** | Initiative rolls at combat start              | `initiative`  | ✅ Active     |
 
 ### Conversion Details
 
@@ -381,13 +385,33 @@ private convertYourNewType(
 
 ### Integration Point
 
-The Beyond20 integration is intentionally **not** hooked into the activity log service yet. This was done to:
+**The Beyond20 integration is now FULLY CONNECTED to the activity log service.**
 
-- Complete Phase 1 (detection & setup) independently
-- Allow testing and validation before automatic roll sharing
-- Keep changes isolated and reviewable
+Current state:
+- ✅ All Beyond20 services are built and tested
+- ✅ Roll conversion logic is complete
+- ✅ Detection and settings UI work
+- ✅ **ActivityLogService imports and calls beyond20SharingService**
+- ✅ **Rolls ARE being sent to VTT platforms**
 
-To complete the integration in Phase 2, the activity log service will be modified to call `beyond20SharingService.sendRoll()` when adding log entries.
+The integration was completed by:
+1. Importing `beyond20SharingService` from `@/lib/integrations/beyond20` (line 4)
+2. In `addLogEntry()` method, after session sharing (lines 150-157):
+   ```typescript
+   // Send to Beyond20 VTT integration if enabled
+   if (currentCharacter) {
+     try {
+       await beyond20SharingService.sendRoll(newEntry, currentCharacter);
+     } catch (error) {
+       console.warn("Failed to send roll to Beyond20:", error);
+     }
+   }
+   ```
+
+The service gracefully handles errors and only sends rolls when:
+- Beyond20 extension is installed
+- Integration is enabled in settings
+- A valid character is active
 
 ## References
 

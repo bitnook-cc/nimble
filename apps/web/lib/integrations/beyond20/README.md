@@ -2,11 +2,14 @@
 
 Integration with the [Beyond20 browser extension](https://beyond20.here-for-more.info/) to enable sending dice rolls from Sidekick to Virtual Tabletop platforms (Roll20, Foundry VTT, etc.).
 
+**✅ Integration is ACTIVE! Dice rolls are now being sent to VTT platforms when Beyond20 is enabled.**
+
 ## Features
 
-- **Automatic Detection**: Detects if Beyond20 extension is installed
-- **Settings Toggle**: Enable/disable integration via app settings
-- **Status Indication**: Visual feedback when Beyond20 is detected/not detected
+- **Automatic Detection**: Detects if Beyond20 extension is installed ✅
+- **Settings Toggle**: Enable/disable integration via app settings ✅
+- **Status Indication**: Visual feedback when Beyond20 is detected/not detected ✅
+- **Roll Sending**: Send rolls to VTT platforms ✅ **CONNECTED AND WORKING**
 
 ## Setup (for users)
 
@@ -19,18 +22,21 @@ Integration with the [Beyond20 browser extension](https://beyond20.here-for-more
 
 ## Implementation Status
 
-### Phase 1: Detection & Setup ✅
+### Phase 1: Detection & Setup ✅ COMPLETE
 
 - [x] Beyond20 detection service
 - [x] React hook for integration status
 - [x] Settings toggle in UI
 - [x] Visual status indicators
+- [x] Roll conversion logic (built and tested)
+- [x] Beyond20SharingService implementation
 
-### Phase 2: Roll Integration (TODO)
+### Phase 2: Roll Integration ✅ COMPLETE
 
-- [ ] Roll adapter to convert Nimble rolls to Beyond20 format
-- [ ] Basic rolls (attributes, skills, saves)
-- [ ] Integration with DiceService
+- [x] **Connected to ActivityLogService**
+- [x] Actually sending rolls to VTT platforms
+- [x] Error handling with console warnings
+- [ ] Activity log indicators for sent rolls (future enhancement)
 
 ### Phase 3: Advanced Rolls (TODO)
 
