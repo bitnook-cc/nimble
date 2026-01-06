@@ -10,7 +10,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "#site/content": ["./.velite"],
-      "#site/trees": ["./.velite/trees"]
+      "#site/trees": ["./.velite/trees"],
+      "#site/search-index.json": ["./.velite/search-index.json"],
+      "#site/search-index": ["./.velite/search-index.d.ts"]
     }
   },
   "include": [
