@@ -119,7 +119,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
           setUploadDetails("");
         }, 8000);
       }
-    } catch (error) {
+    } catch (_error) {
       setUploadError("Failed to process files");
       setTimeout(() => setUploadError(""), 5000);
     }

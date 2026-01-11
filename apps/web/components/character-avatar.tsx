@@ -17,7 +17,7 @@ interface CharacterAvatarProps {
 export function CharacterAvatar({
   characterId,
   characterName,
-  imageId,
+  imageId: _imageId,
   classId,
   size = "profile",
   className,

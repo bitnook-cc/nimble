@@ -73,7 +73,7 @@ export function CharacterCreateForm({
     onCancel?.();
   };
 
-  const handleBuilderCharacterCreated = (characterId: string) => {
+  const handleBuilderCharacterCreated = (_characterId: string) => {
     setShowBuilder(false);
     onComplete?.(); // Notify parent that creation is complete
   };

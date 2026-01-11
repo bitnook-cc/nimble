@@ -48,7 +48,7 @@ export function AttributeSelection({
   attributes,
   onAttributesChange,
   classId,
-  ancestryId,
+  ancestryId: _ancestryId,
 }: AttributeSelectionProps) {
   const [selectedArray, setSelectedArray] = useState<keyof typeof STANDARD_ARRAYS>("standard");
   const contentRepository = ContentRepositoryService.getInstance();

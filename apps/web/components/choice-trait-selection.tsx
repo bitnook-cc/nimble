@@ -38,7 +38,7 @@ export function ChoiceTraitSelectionComponent({
   // Get currently selected option IDs
   const selectedTraitIds = existingSelection?.selectedOptions.map((opt: any) => opt.traitId) || [];
 
-  const remaining = featureSelectionService.getRemainingChoiceSelections(character, choiceTrait);
+  const _remaining = featureSelectionService.getRemainingChoiceSelections(character, choiceTrait);
   const canSelectMore = selectedTraitIds.length < choiceTrait.numSelections;
 
   const handleToggleOption = async (optionTrait: FeatureTrait, event?: React.MouseEvent) => {
