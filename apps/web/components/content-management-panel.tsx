@@ -207,8 +207,8 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
   };
 
   const exportContent = (item: ContentItem, contentType: CustomContentType) => {
-    const metadata = getContentTypeMetadata(contentType);
-    const itemId = (item as any).id;
+    const _metadata = getContentTypeMetadata(contentType);
+    const itemId = item.id;
     const filename = `${itemId}.json`;
 
     // Wrap in uploadable content format
@@ -474,7 +474,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                       ? // Group items by category and type
                         Object.entries(
                           (items as any[]).reduce((groups: Record<string, any[]>, item) => {
-                            const key = `${item.category}-${item.type}`;
+                            const _key = `${item.category}-${item.type}`;
                             const label = `${item.category} ${item.type}s`;
                             if (!groups[label]) groups[label] = [];
                             groups[label].push(item);

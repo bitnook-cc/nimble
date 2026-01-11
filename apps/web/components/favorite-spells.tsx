@@ -16,7 +16,7 @@ import {
   SpellCastingOptions,
 } from "@/lib/services/spell-casting-types";
 import { getIconById } from "@/lib/utils/icon-utils";
-import { formatActionCost, formatResourceCost } from "@/lib/utils/spell-utils";
+import { formatActionCost } from "@/lib/utils/spell-utils";
 
 import { UpcastSpellDialog } from "./dialogs/upcast-spell-dialog";
 import { Badge } from "./ui/badge";
@@ -57,7 +57,7 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
   });
 
   const spellTierAccess = getSpellTierAccess();
-  const resources = getResources();
+  const _resources = getResources();
   const spellScalingMultiplier = characterService.getSpellScalingLevel();
   const spellcastingConfig = characterService.getSpellcastingConfig();
 

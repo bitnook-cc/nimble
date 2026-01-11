@@ -8,7 +8,6 @@ import { WizardDialog } from "@/components/wizard/wizard-dialog";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { TraitSelection } from "@/lib/schemas/character";
-import { ClassFeature } from "@/lib/schemas/features";
 import {
   getClassService,
   getContentRepository,
