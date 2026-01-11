@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { characterSchema } from "../schemas/character";
-import { Character, CreateCharacterData } from "../schemas/character";
+import { Character } from "../schemas/character";
 import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import { ICharacterRepository } from "../storage/character-repository";
 import { StorageBasedCharacterRepository } from "../storage/storage-based-character-repository";

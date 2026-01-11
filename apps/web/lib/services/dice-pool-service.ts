@@ -191,7 +191,7 @@ export class DicePoolService implements DicePoolServiceInterface {
     return pool.currentDice.reduce((sum, die) => sum + die, 0);
   }
 
-  getPoolMaxSize(pool: DicePoolInstance, character: Character): number {
+  getPoolMaxSize(pool: DicePoolInstance, _character: Character): number {
     return evaluateFlexibleValue(pool.definition.maxDice);
   }
 

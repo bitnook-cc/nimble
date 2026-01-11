@@ -1053,7 +1053,7 @@ export class ContentRepositoryService {
               contentType: null,
               result: {
                 success: false,
-                message: "Invalid JSON format",
+                message: "Invalid JSON format: " + (error as Error).message,
               },
             });
 
