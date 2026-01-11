@@ -37,8 +37,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@astrojs/vercel": "^8.2.8",
-    "@vercel/node": "^2.3.0",
     "zod": "^4.1.9"
   }
 }
