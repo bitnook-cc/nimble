@@ -2,12 +2,10 @@
 
 import {
   Bandage,
-  Circle,
   Dice6,
   Droplets,
   Heart,
   HeartPlus,
-  HelpCircle,
   Minus,
   Plus,
   RotateCcw,

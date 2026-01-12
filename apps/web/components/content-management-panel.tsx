@@ -119,8 +119,8 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
           setUploadDetails("");
         }, 8000);
       }
-    } catch (_error) {
-      setUploadError("Failed to process files");
+    } catch (error) {
+      setUploadError("Failed to process files: " + (error as Error).message);
       setTimeout(() => setUploadError(""), 5000);
     }
 
@@ -473,20 +473,22 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                     {contentType === CustomContentType.ITEM
                       ? // Group items by category and type
                         Object.entries(
-                          (items as any[]).reduce((groups: Record<string, any[]>, item) => {
-                            const _key = `${item.category}-${item.type}`;
-                            const label = `${item.category} ${item.type}s`;
-                            if (!groups[label]) groups[label] = [];
-                            groups[label].push(item);
-                            return groups;
-                          }, {}),
+                          (items as RepositoryItem[]).reduce(
+                            (groups: Record<string, RepositoryItem[]>, item) => {
+                              const label = `${item.category} ${item.type}s`;
+                              if (!groups[label]) groups[label] = [];
+                              groups[label].push(item);
+                              return groups;
+                            },
+                            {},
+                          ),
                         ).map(([groupLabel, items]) => (
                           <div key={groupLabel} className="border rounded p-2">
                             <div className="font-medium text-sm text-yellow-600 mb-1">
                               {groupLabel} ({items.length} items)
                             </div>
                             <div className="space-y-1 ml-2">
-                              {items.map((repoItem: any) => (
+                              {items.map((repoItem: RepositoryItem) => (
                                 <div
                                   key={repoItem.id}
                                   className="flex items-start justify-between text-xs gap-2"
@@ -501,11 +503,11 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                     <div className="text-muted-foreground">
                                       {repoItem.rarity && `${repoItem.rarity} • `}
                                       {repoItem.type === "weapon" &&
-                                        (repoItem as any).damage &&
-                                        `${(repoItem as any).damage} • `}
+                                        repoItem.damage &&
+                                        `${repoItem.damage} • `}
                                       {repoItem.type === "armor" &&
-                                        (repoItem as any).armor &&
-                                        `AC ${(repoItem as any).armor}`}
+                                        repoItem.armor &&
+                                        `${repoItem.armor} Armor`}
                                     </div>
                                   </div>
                                   <div className="flex gap-1 flex-shrink-0">
@@ -620,11 +622,11 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       {repositoryItem.category} {repositoryItem.type}
                                       {repositoryItem.rarity && ` • ${repositoryItem.rarity}`}
                                       {repositoryItem.type === "weapon" &&
-                                        (repositoryItem as any).damage &&
-                                        ` • ${(repositoryItem as any).damage}`}
+                                        repositoryItem.damage &&
+                                        ` • ${repositoryItem.damage}`}
                                       {repositoryItem.type === "armor" &&
-                                        (repositoryItem as any).armor &&
-                                        ` • AC ${(repositoryItem as any).armor}`}
+                                        repositoryItem.armor &&
+                                        ` • ${repositoryItem.armor} Armor`}
                                     </div>
                                   </div>
                                   <div className="flex gap-1 flex-shrink-0">

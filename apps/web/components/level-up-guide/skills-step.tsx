@@ -24,7 +24,7 @@ interface SkillsStepProps {
 export function SkillsStep({
   character,
   levelsToGain,
-  skillAllocations,
+  skillAllocations: _skillAllocations,
   onSkillAllocationsChange,
 }: SkillsStepProps) {
   const [newAllocations, setNewAllocations] = useState<Record<string, number>>({});

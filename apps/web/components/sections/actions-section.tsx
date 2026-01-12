@@ -1,7 +1,6 @@
 "use client";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 
 import { Actions } from "../actions";

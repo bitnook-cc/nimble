@@ -8,7 +8,6 @@ import {
   RefreshCw,
   Sparkles,
   Trash2,
-  TrendingUp,
   Zap,
 } from "lucide-react";
 
