@@ -227,7 +227,7 @@ const berserkerFeatures: ClassFeature[] = [
   },
   {
     id: "berserker-that-all-you-got",
-    level: 2,
+    level: 1,
     name: "That All You Got?!",
     description:
       "When you are attacked, you may expend 1 or more Fury Dice to reduce the damage taken by STR + DEX for each die spent.",
