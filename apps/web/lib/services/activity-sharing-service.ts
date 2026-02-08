@@ -365,7 +365,7 @@ export class ActivitySharingService {
 
   // Toast notification for activity entries
   private showActivityToast(entry: SessionActivityEntry): void {
-    const { characterName, userName, activityData } = entry;
+    const { characterName, activityData } = entry;
 
     // Don't show toasts for the current user's own activity
     if (entry.characterId === this.currentSessionState?.characterId) {

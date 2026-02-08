@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AncestryDefinition } from "@/lib/schemas/ancestry";
 import type { Character } from "@/lib/schemas/character";
-import type { CharacterFeature } from "@/lib/schemas/features";
 
 import { AncestryService } from "../ancestry-service";
 

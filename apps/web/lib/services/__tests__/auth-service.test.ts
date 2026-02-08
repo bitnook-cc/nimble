@@ -248,9 +248,7 @@ describe("AuthService", () => {
       const mockPopup = { closed: false };
       mockOpen.mockReturnValue(mockPopup);
 
-      let intervalCallback: any;
-      mockSetInterval.mockImplementation((callback: any) => {
-        intervalCallback = callback;
+      mockSetInterval.mockImplementation(() => {
         return 123; // mock interval ID
       });
 

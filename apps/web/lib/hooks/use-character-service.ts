@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Character } from "../schemas/character";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
 import { getCharacterService } from "../services/service-factory";
-import { getSpellTierColor } from "../utils/spell-utils";
 import { useToastService } from "./use-toast-service";
 
 /**

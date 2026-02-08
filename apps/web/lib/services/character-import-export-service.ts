@@ -37,7 +37,7 @@ export class CharacterImportExportService {
       let characterData: any;
       try {
         characterData = JSON.parse(jsonString);
-      } catch (error) {
+      } catch {
         return {
           success: false,
           error: "Invalid JSON format. Please check your file and try again.",

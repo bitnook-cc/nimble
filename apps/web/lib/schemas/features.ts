@@ -15,12 +15,6 @@ const ProficiencyGrantSchema = z.object({
   bonus: z.number().int().optional(),
 });
 
-const SpellSchoolSchema = z.object({
-  schoolId: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
-});
-
 const ResistanceSchema = z.object({
   type: z.enum(["damage", "condition"]),
   name: z.string().min(1),
@@ -209,7 +203,6 @@ export type FeatureTraitType =
 export type TraitSource = "feature" | "item";
 
 export type ProficiencyGrant = z.infer<typeof ProficiencyGrantSchema>;
-export type SpellSchool = z.infer<typeof SpellSchoolSchema>;
 export type Resistance = z.infer<typeof ResistanceSchema>;
 
 export type AbilityFeatureTrait = z.infer<typeof AbilityFeatureTraitSchema>;

@@ -1,26 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
-import type { Effect, EffectResult } from "../../types/effects";
-import { ActivityLogService } from "../activity-log-service";
 import { CharacterService } from "../character-service";
-import { DicePoolService } from "../dice-pool-service";
-import { DiceService } from "../dice-service";
 import { EffectService } from "../effect-service";
-import {
-  ServiceFactory,
-  getActivityLog,
-  getCharacterService,
-  getDiceService,
-} from "../service-factory";
+import { ServiceFactory, getCharacterService } from "../service-factory";
 import { createTestCharacter, grantResource, loadCharacterForTesting } from "./test-utils";
 
 describe("EffectService", () => {
   let effectService: EffectService;
   let characterService: CharacterService;
-  let diceService: DiceService;
-  let activityLogService: ActivityLogService;
-  let dicePoolService: DicePoolService;
   let testCharacter: Character;
 
   beforeEach(async () => {
@@ -31,9 +19,6 @@ describe("EffectService", () => {
     // Get services
     effectService = EffectService.getInstance();
     characterService = getCharacterService();
-    diceService = getDiceService();
-    activityLogService = getActivityLog();
-    dicePoolService = DicePoolService.getInstance();
 
     // Mock Math.random for predictable dice results
     vi.spyOn(Math, "random").mockReturnValue(0.5); // Always return middle value

@@ -63,21 +63,6 @@ export class AbilityService {
       }
     }
 
-    // Calculate resource cost if present
-    let resourceCostInfo: { resourceId: string; amount: number } | undefined;
-    if (ability.resourceCost) {
-      const resourceCost = ability.resourceCost;
-      let requiredAmount: number;
-
-      if (resourceCost.type === "fixed") {
-        requiredAmount = resourceCost.amount;
-      } else {
-        requiredAmount = variableResourceAmount || resourceCost.minAmount;
-      }
-
-      resourceCostInfo = { resourceId: resourceCost.resourceId, amount: requiredAmount };
-    }
-
     // Spells are always available (like at-will abilities)
     if (ability.type === "spell") {
       return true;

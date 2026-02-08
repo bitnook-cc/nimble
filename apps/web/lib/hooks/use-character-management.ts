@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { Character } from "@/lib/schemas/character";
 import {
-  getCharacterCreation,
   getCharacterService,
   getCharacterStorage,
   getSettingsService,
@@ -30,7 +29,6 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
 
   // Get services from the factory (services are singletons, safe to call directly)
   const characterStorage = getCharacterStorage();
-  const characterCreation = getCharacterCreation();
   const settingsService = getSettingsService();
 
   // Get toast notifications and character service
@@ -102,7 +100,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
 
   // Subscribe to character events to update app state
   useEffect(() => {
-    const unsubscribeCreated = subscribeToEvent("created", async (event) => {
+    const unsubscribeCreated = subscribeToEvent("created", async () => {
       // Refresh character list and update settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);
@@ -115,7 +113,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       setLoadError(null);
     });
 
-    const unsubscribeSwitched = subscribeToEvent("switched", async (event) => {
+    const unsubscribeSwitched = subscribeToEvent("switched", async () => {
       // Refresh character list (for last played timestamps) and update settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);

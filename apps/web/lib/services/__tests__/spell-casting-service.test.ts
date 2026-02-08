@@ -2,9 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SpellAbilityDefinition } from "../../schemas/abilities";
 import type { Character } from "../../schemas/character";
-import { CharacterCreationService } from "../character-creation-service";
-import { ServiceFactory, getCharacterCreation } from "../service-factory";
-import { getCharacterService } from "../service-factory";
+import { ServiceFactory } from "../service-factory";
 import { SpellCastingService } from "../spell-casting-service";
 import { createTestSpellcaster, loadCharacterForTesting } from "./test-utils";
 
@@ -14,7 +12,6 @@ import { createTestSpellcaster, loadCharacterForTesting } from "./test-utils";
  */
 describe("SpellCastingService", () => {
   let spellCastingService: SpellCastingService;
-  let characterCreationService: CharacterCreationService;
   let testCharacter: Character;
   let testSpells: {
     cantrip: SpellAbilityDefinition;

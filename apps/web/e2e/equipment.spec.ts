@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
 import { CharacterTestUtils } from "./utils/character-utils";
 

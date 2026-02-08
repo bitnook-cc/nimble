@@ -11,7 +11,7 @@ test.describe("Character Creation and Basic Actions", () => {
     characterUtils = new CharacterTestUtils(page);
   });
 
-  test("quick create character, roll initiative, and use actions", async ({ page }) => {
+  test("quick create character, roll initiative, and use actions", async () => {
     await test.step("Create a character using quick create", async () => {
       await characterUtils.createCharacter();
     });

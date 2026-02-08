@@ -86,7 +86,7 @@ class AuthService {
       }
 
       let isResolved = false;
-      let checkClosed: NodeJS.Timeout;
+      const checkClosed: NodeJS.Timeout = setInterval(() => {}, 1000);
 
       // Cleanup function
       const cleanup = () => {

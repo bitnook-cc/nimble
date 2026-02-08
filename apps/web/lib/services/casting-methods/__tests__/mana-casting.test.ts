@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SpellAbilityDefinition } from "../../../schemas/abilities";
 import { createTestSpellcaster, loadCharacterForTesting } from "../../__tests__/test-utils";
-import { ServiceFactory, getCharacterCreation } from "../../service-factory";
-import { getCharacterService } from "../../service-factory";
+import { ServiceFactory } from "../../service-factory";
 import { ManaCastingHandler } from "../mana-casting";
 
 /**

@@ -2,14 +2,6 @@
 import { ITEM_REPOSITORY } from "@/data/items";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ArmorItem, ConsumableItem, WeaponItem } from "@/lib/schemas/inventory";
-import type {
-  RepositoryArmorItem,
-  RepositoryConsumableItem,
-  RepositoryItem,
-  RepositoryWeaponItem,
-} from "@/lib/types/item-repository";
-
 import { ItemService } from "../item-service";
 
 // Mock ITEM_REPOSITORY with factory function to avoid hoisting issues

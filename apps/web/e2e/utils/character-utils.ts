@@ -109,16 +109,15 @@ export class CharacterTestUtils {
   /**
    * Waits for and returns the first visible button matching the given patterns
    * @param patterns - Array of regex patterns to match button names
-   * @param timeout - Timeout in milliseconds
    */
-  async getFirstVisibleButton(patterns: RegExp[], timeout: number = 5000) {
+  async getFirstVisibleButton(patterns: RegExp[]) {
     for (const pattern of patterns) {
       const buttons = this.page.getByRole("button", { name: pattern });
       const count = await buttons.count();
 
       for (let i = 0; i < count; i++) {
         const button = buttons.nth(i);
-        if (await button.isVisible({ timeout: 1000 })) {
+        if (await button.isVisible()) {
           return button;
         }
       }
@@ -131,9 +130,8 @@ export class CharacterTestUtils {
 
   /**
    * Performs a dice roll by clicking any available roll button
-   * @param timeout - Timeout in milliseconds
    */
-  async performDiceRoll(timeout: number = 5000): Promise<void> {
+  async performDiceRoll(): Promise<void> {
     const rollPatterns = [
       /roll|dice/i,
       /strength|dexterity|intelligence|will/i,
@@ -141,7 +139,7 @@ export class CharacterTestUtils {
       /acrobatics|athletics|stealth|perception/i,
     ];
 
-    const rollButton = await this.getFirstVisibleButton(rollPatterns, timeout);
+    const rollButton = await this.getFirstVisibleButton(rollPatterns);
     await rollButton.click();
 
     // Wait for roll result to appear in activity log - look for heading to avoid ambiguity

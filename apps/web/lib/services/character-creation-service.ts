@@ -67,7 +67,7 @@ export class CharacterCreationService implements ICharacterCreation {
    * Uses createCompleteCharacter internally for consistency
    */
   async quickCreateCharacter(options: QuickCreateOptions): Promise<Character> {
-    const { classId, level = 1 } = options;
+    const { classId } = options;
 
     // Validate class exists
     const classDefinition = this.contentRepository.getClassDefinition(classId);

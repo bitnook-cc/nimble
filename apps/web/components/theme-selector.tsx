@@ -1,6 +1,6 @@
 "use client";
 
-import { getThemeFamily, themes } from "@/data/themes";
+import { themes } from "@/data/themes";
 import { Monitor, Moon, Palette, Sun } from "lucide-react";
 
 import { useEffect, useState } from "react";

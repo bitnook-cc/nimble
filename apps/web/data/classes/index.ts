@@ -74,7 +74,7 @@ export function getAllClassFeaturesUpToLevel(
 }
 
 // Helper function to get all subclasses for a specific class
-export function getSubclassesForClass(classId: string): any[] {
+export function getSubclassesForClass(): never[] {
   // For now, return empty array - subclasses will be handled by class service
   return [];
 }

@@ -1,7 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-
 import type { Character } from "../../schemas/character";
-import type { ResourceDefinition } from "../../schemas/resources";
 import { getCharacterCreation, getCharacterService } from "../service-factory";
 
 /**
@@ -56,7 +53,6 @@ export async function createTestCharacter(
     classId?: string;
     ancestryId?: string;
     backgroundId?: string;
-    level?: number;
     attributes?: {
       strength?: number;
       dexterity?: number;
@@ -71,7 +67,6 @@ export async function createTestCharacter(
     classId = "mage",
     ancestryId = "human",
     backgroundId = "fearless",
-    level = 1,
     attributes = {},
     spellTierAccess,
   } = options;

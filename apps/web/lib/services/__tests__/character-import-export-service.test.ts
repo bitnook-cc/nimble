@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { SpellAbilityDefinition } from "../../schemas/abilities";
 import type { Character } from "../../schemas/character";
 import { CharacterImportExportService } from "../character-import-export-service";
 import { ServiceFactory } from "../service-factory";

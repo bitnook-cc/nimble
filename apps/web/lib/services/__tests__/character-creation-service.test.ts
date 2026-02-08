@@ -306,29 +306,25 @@ describe("CharacterCreationService", () => {
   describe("quickCreateCharacter", () => {
     it("should create a character with minimal options", async () => {
       // Mock ContentRepository methods
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue({
-            ...berserkerClass,
-            keyAttributes: ["strength", "will"],
-          }),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue({
+          ...berserkerClass,
+          keyAttributes: ["strength", "will"],
+        }),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
 
       // Mock ItemService
-      const itemService = vi
-        .spyOn(characterCreationService as any, "itemService", "get")
-        .mockReturnValue({
-          createInventoryItem: vi.fn().mockReturnValue({
-            id: "battleaxe",
-            name: "Battleaxe",
-            type: "weapon",
-            size: 1,
-            damage: "1d8",
-          }),
-        });
+      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue({
+          id: "battleaxe",
+          name: "Battleaxe",
+          type: "weapon",
+          size: 1,
+          damage: "1d8",
+        }),
+      });
 
       const character = await characterCreationService.quickCreateCharacter({
         classId: "berserker",
@@ -354,20 +350,16 @@ describe("CharacterCreationService", () => {
 
     it("should use provided name, ancestry, and background when specified", async () => {
       // Mock ContentRepository methods
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
 
       // Mock ItemService
-      const itemService = vi
-        .spyOn(characterCreationService as any, "itemService", "get")
-        .mockReturnValue({
-          createInventoryItem: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
 
       const character = await characterCreationService.quickCreateCharacter({
         name: "Custom Hero",
@@ -393,11 +385,9 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid class", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(null),
+      });
 
       await expect(
         characterCreationService.quickCreateCharacter({
@@ -407,11 +397,9 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error when no ancestries available", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+      });
 
       vi.mocked(mockAncestryService.getAvailableAncestries).mockReturnValue([]);
 
@@ -423,11 +411,9 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error when no backgrounds available", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+      });
 
       vi.mocked(mockAncestryService.getAvailableAncestries).mockReturnValue([human]);
       vi.mocked(mockBackgroundService.getAvailableBackgrounds).mockReturnValue([]);
@@ -443,39 +429,35 @@ describe("CharacterCreationService", () => {
   describe("createCompleteCharacter", () => {
     it("should create a character with all specified options", async () => {
       // Mock ContentRepository methods
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
 
       // Mock ItemService
-      const itemService = vi
-        .spyOn(characterCreationService as any, "itemService", "get")
-        .mockReturnValue({
-          createInventoryItem: vi.fn().mockImplementation((itemId) => {
-            if (itemId === "battleaxe") {
-              return {
-                id: "battleaxe",
-                name: "Battleaxe",
-                type: "weapon",
-                size: 1,
-                damage: "1d8",
-              };
-            } else if (itemId === "rations-meat") {
-              return {
-                id: "rations-meat",
-                name: "Rations (Meat)",
-                type: "consumable",
-                size: 1,
-                count: 5,
-              };
-            }
-            return null;
-          }),
-        });
+      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+        createInventoryItem: vi.fn().mockImplementation((itemId) => {
+          if (itemId === "battleaxe") {
+            return {
+              id: "battleaxe",
+              name: "Battleaxe",
+              type: "weapon",
+              size: 1,
+              damage: "1d8",
+            };
+          } else if (itemId === "rations-meat") {
+            return {
+              id: "rations-meat",
+              name: "Rations (Meat)",
+              type: "consumable",
+              size: 1,
+              count: 5,
+            };
+          }
+          return null;
+        }),
+      });
 
       const character = await characterCreationService.createCompleteCharacter({
         name: "Complete Hero",
@@ -519,19 +501,15 @@ describe("CharacterCreationService", () => {
     });
 
     it("should handle empty skill allocations and equipment", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
 
-      const itemService = vi
-        .spyOn(characterCreationService as any, "itemService", "get")
-        .mockReturnValue({
-          createInventoryItem: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
 
       const character = await characterCreationService.createCompleteCharacter({
         name: "Simple Hero",
@@ -556,11 +534,9 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid class", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(null),
+      });
 
       await expect(
         characterCreationService.createCompleteCharacter({
@@ -577,12 +553,10 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid ancestry", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-          getAncestryDefinition: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(null),
+      });
 
       await expect(
         characterCreationService.createCompleteCharacter({
@@ -599,13 +573,11 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid background", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(null),
+      });
 
       await expect(
         characterCreationService.createCompleteCharacter({
@@ -622,23 +594,19 @@ describe("CharacterCreationService", () => {
     });
 
     it("should correctly set hit points based on class", async () => {
-      const contentRepository = vi
-        .spyOn(characterCreationService as any, "contentRepository", "get")
-        .mockReturnValue({
-          getClassDefinition: vi.fn().mockReturnValue({
-            ...berserkerClass,
-            startingHP: 25,
-            hitDieSize: 12,
-          }),
-          getAncestryDefinition: vi.fn().mockReturnValue(human),
-          getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
-        });
+      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+        getClassDefinition: vi.fn().mockReturnValue({
+          ...berserkerClass,
+          startingHP: 25,
+          hitDieSize: 12,
+        }),
+        getAncestryDefinition: vi.fn().mockReturnValue(human),
+        getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
+      });
 
-      const itemService = vi
-        .spyOn(characterCreationService as any, "itemService", "get")
-        .mockReturnValue({
-          createInventoryItem: vi.fn().mockReturnValue(null),
-        });
+      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+        createInventoryItem: vi.fn().mockReturnValue(null),
+      });
 
       const character = await characterCreationService.createCompleteCharacter({
         name: "Tank Hero",

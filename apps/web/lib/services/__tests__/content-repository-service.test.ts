@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { ActionAbilityDefinition, SpellAbilityDefinition } from "../../schemas/abilities";
 import type { AncestryDefinition } from "../../schemas/ancestry";

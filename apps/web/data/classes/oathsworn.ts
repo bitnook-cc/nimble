@@ -851,6 +851,14 @@ export const oathsworn: ClassDefinition = {
   saveAdvantages: { strength: "advantage", dexterity: "disadvantage" },
   startingEquipment: ["mace", "rusty-mail", "wooden-buckler", "manacles"],
   features: oathswornFeatures,
+  featurePools: [
+    {
+      id: "sacred-decree-pool",
+      name: "Sacred Decrees",
+      description: "Divine mandates that Oathsworn can learn to empower their sacred duty.",
+      features: sacredDecreesFeatures,
+    },
+  ],
   spellcasting: {
     method: "mana",
     resourceId: "mana",

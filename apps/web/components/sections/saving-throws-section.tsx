@@ -16,7 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 export function SavingThrowsSection() {
-  const { character, updateCharacter, getAttributes } = useCharacterService();
+  const { character, getAttributes } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
   const { rollSave } = useDiceActions();
 

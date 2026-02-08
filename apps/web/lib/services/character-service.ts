@@ -577,9 +577,6 @@ export class CharacterService {
       weapons: [...this._character._proficiencies.weapons],
     };
 
-    // Add proficiencies from traits
-    const profEffects = this.getAllActiveTraits().filter((effect) => effect.type === "proficiency");
-
     // Would need to implement merging logic for proficiency traits
     // For now, just return base proficiencies
     return proficiencies;
