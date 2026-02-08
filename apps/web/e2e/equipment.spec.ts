@@ -18,24 +18,28 @@ test.describe("Equipment and Inventory", () => {
 
     await test.step("Access equipment tab", async () => {
       const equipmentTab = page.getByRole("tab", { name: /equipment|inventory/i });
-      if (await equipmentTab.isVisible()) {
+      const isVisible = await equipmentTab.isVisible();
+      if (isVisible) {
         await characterUtils.navigateToTab("equipment");
       }
     });
 
     await test.step("Test equipment interactions", async () => {
       const addItemButton = page.getByRole("button", { name: /add|new.*item|equipment/i });
+      const isAddVisible = await addItemButton.isVisible();
 
-      if (await addItemButton.isVisible()) {
+      if (isAddVisible) {
         await addItemButton.click();
         await page.waitForTimeout(500);
 
         const nameInput = page.getByLabel(/name|item name/i);
-        if (await nameInput.isVisible()) {
+        const isNameVisible = await nameInput.isVisible();
+        if (isNameVisible) {
           await nameInput.fill("Test Sword");
 
           const saveButton = page.getByRole("button", { name: /save|add|create/i });
-          if (await saveButton.isVisible()) {
+          const isSaveVisible = await saveButton.isVisible();
+          if (isSaveVisible) {
             await saveButton.click();
           }
         }

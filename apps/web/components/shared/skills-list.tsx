@@ -41,12 +41,6 @@ export function SkillsList({
     return attributeValues[attributeName] || 0;
   };
 
-  const getTotalSkillModifier = (skillName: string, attributeName: string) => {
-    const attributeModifier = getAttributeModifier(attributeName);
-    const skillPoints = skillAllocations[skillName] || 0;
-    return attributeModifier + skillPoints;
-  };
-
   const canIncreaseSkill = (skillName: string) => {
     if (readOnly) return false;
     const currentPoints = skillAllocations[skillName] || 0;

@@ -29,7 +29,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 type AssessSubAction = "ask_question" | "create_opening" | "anticipate_danger";
 
 export function GeneralActionsRow() {
-  const { character, updateActionTracker, performUseAbility } = useCharacterService();
+  const { character, updateActionTracker } = useCharacterService();
   const { attack, rollSkill } = useDiceActions();
   const { uiState } = useUIStateService();
   const [showWeaponDialog, setShowWeaponDialog] = useState(false);

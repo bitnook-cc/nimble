@@ -77,8 +77,11 @@ test.describe("Abilities and Spells", () => {
 
     await test.step("Check for cantrip and cast it", async () => {
       // Look for tier 0 spells (cantrips)
-      const cantripBadge = page.getByText(/cantrip/i).first();
-      const hasCantripVisible = await cantripBadge.isVisible({ timeout: 2000 }).catch(() => false);
+      const hasCantripVisible = await page
+        .getByText(/cantrip/i)
+        .first()
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
 
       if (!hasCantripVisible) {
         test.skip(true, "Character has no cantrips available");
@@ -89,8 +92,7 @@ test.describe("Abilities and Spells", () => {
       const initialMana = manaText ? parseInt(manaText.match(/\d+/)?.[0] || "0") : null;
 
       // Find and click the Cast button for a cantrip
-      const castButtons = page.getByRole("button", { name: /cast/i });
-      const castButton = castButtons.first();
+      const castButton = page.getByRole("button", { name: /cast/i }).first();
       await expect(castButton).toBeVisible();
       await castButton.click();
 
@@ -125,8 +127,11 @@ test.describe("Abilities and Spells", () => {
 
     await test.step("Cast tier 1 spell", async () => {
       // Look for tier 1 spells
-      const tier1Badge = page.getByText(/tier 1/i).first();
-      const hasTier1Visible = await tier1Badge.isVisible({ timeout: 2000 }).catch(() => false);
+      const hasTier1Visible = await page
+        .getByText(/tier 1/i)
+        .first()
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
 
       if (!hasTier1Visible) {
         test.skip(true, "Character has no tier 1 spells available");
@@ -141,8 +146,7 @@ test.describe("Abilities and Spells", () => {
       }
 
       // Find Cast button near tier 1 badge
-      const castButtons = page.getByRole("button", { name: /cast/i });
-      const castButton = castButtons.first();
+      const castButton = page.getByRole("button", { name: /cast/i }).first();
       await expect(castButton).toBeVisible();
       await castButton.click();
 
@@ -356,8 +360,11 @@ test.describe("Abilities and Spells", () => {
 
     await test.step("Cast cantrips until out of actions", async () => {
       // Look for cantrip
-      const cantripBadge = page.getByText(/cantrip/i).first();
-      const hasCantripVisible = await cantripBadge.isVisible({ timeout: 2000 }).catch(() => false);
+      const hasCantripVisible = await page
+        .getByText(/cantrip/i)
+        .first()
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
 
       if (!hasCantripVisible) {
         test.skip(true, "Character has no cantrips available");
@@ -477,7 +484,7 @@ test.describe("Abilities and Spells", () => {
       // Click + button repeatedly until it's disabled (reached max tier)
       const increaseTierButton = page.getByRole("button", { name: /\+/i });
       let clickCount = 0;
-      let maxClicks = 20; // Safety limit
+      const maxClicks = 20; // Safety limit
 
       while (clickCount < maxClicks) {
         const isEnabled = await increaseTierButton.isEnabled({ timeout: 500 }).catch(() => false);
@@ -558,7 +565,7 @@ test.describe("Abilities and Spells", () => {
 
       // Click + until disabled
       const increaseTierButton = page.getByRole("button", { name: /\+/i });
-      let maxClicks = 20;
+      const maxClicks = 20;
 
       for (let i = 0; i < maxClicks; i++) {
         const isEnabled = await increaseTierButton.isEnabled({ timeout: 500 }).catch(() => false);
@@ -622,8 +629,11 @@ test.describe("Abilities and Spells", () => {
 
       while (currentMana > 0 && castCount < maxCasts) {
         // Find a leveled spell (not cantrip) that we can afford
-        const tier1Badge = page.getByText(/tier [1-9]/i).first();
-        const hasTier1 = await tier1Badge.isVisible({ timeout: 1000 }).catch(() => false);
+        const hasTier1 = await page
+          .getByText(/tier [1-9]/i)
+          .first()
+          .isVisible({ timeout: 1000 })
+          .catch(() => false);
 
         if (!hasTier1) {
           // No leveled spells, skip test
@@ -660,8 +670,11 @@ test.describe("Abilities and Spells", () => {
 
     await test.step("Verify Cast button disabled for spells requiring mana", async () => {
       // Look for tier 1+ spell
-      const tier1Badge = page.getByText(/tier [1-9]/i).first();
-      const hasTier1 = await tier1Badge.isVisible({ timeout: 1000 }).catch(() => false);
+      const hasTier1 = await page
+        .getByText(/tier [1-9]/i)
+        .first()
+        .isVisible({ timeout: 1000 })
+        .catch(() => false);
 
       if (!hasTier1) {
         test.skip(true, "No leveled spells to test");
@@ -676,7 +689,7 @@ test.describe("Abilities and Spells", () => {
       // Find Cast button for leveled spell - should be disabled
       // Note: We need to find a Cast button that's NOT for a cantrip
       const castButtons = page.getByRole("button", { name: /cast/i });
-      let foundDisabledLeveabledSpellButton = false;
+      let foundDisabledLeveledSpellButton = false;
 
       for (let i = 0; i < (await castButtons.count()); i++) {
         const button = castButtons.nth(i);
@@ -690,13 +703,13 @@ test.describe("Abilities and Spells", () => {
           .catch(() => false);
 
         if (hasTierBadge && !isEnabled) {
-          foundDisabledLeveabledSpellButton = true;
+          foundDisabledLeveledSpellButton = true;
           expect(isEnabled).toBe(false);
           break;
         }
       }
 
-      if (!foundDisabledLeveabledSpellButton) {
+      if (!foundDisabledLeveledSpellButton) {
         // Alternative: just verify at least one Cast button shows "Need Resource" text
         const needResourceButton = page.getByRole("button", { name: /need resource/i });
         const hasNeedResource = await needResourceButton

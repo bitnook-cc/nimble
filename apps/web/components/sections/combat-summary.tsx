@@ -713,7 +713,6 @@ function CombatStatusBar() {
 
     // Combine health status with combat status
     const combatText = inEncounter ? "In Combat" : "Ready";
-    const combatColor = inEncounter ? "text-red-600" : "text-green-600";
 
     return {
       text: `${healthStatus.text} - ${combatText}`,

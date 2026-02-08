@@ -1,5 +1,3 @@
-import { options } from "happy-dom/lib/PropertySymbol.js";
-
 import { ClassDefinition } from "@/lib/schemas/class";
 import { ClassFeature } from "@/lib/schemas/features";
 

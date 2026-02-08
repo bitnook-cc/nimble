@@ -59,9 +59,6 @@ export function TraitSelectionsSection() {
 
   if (!character) return null;
 
-  const classService = getClassService();
-  const contentRepository = ContentRepositoryService.getInstance();
-
   // Get all available selections from character service
   const availableSelections = getAvailableTraitSelections();
 

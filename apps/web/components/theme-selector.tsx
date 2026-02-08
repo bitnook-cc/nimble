@@ -74,9 +74,6 @@ export function ThemeSelector({ currentThemeId: propThemeId, onThemeChange }: Th
     setIsChanging(false);
   };
 
-  // Get current theme family
-  const currentFamily = getThemeFamily(currentThemeId);
-
   // Filter themes to show only those matching current color mode preference
   const visibleThemes = themes.filter((theme) => {
     if (colorMode === "system") {

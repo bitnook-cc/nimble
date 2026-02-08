@@ -158,7 +158,6 @@ export function DicePoolCards() {
     <TooltipProvider>
       {dicePools.map((pool: DicePoolInstance) => {
         const maxSize = dicePoolService.getPoolMaxSize(pool, character);
-        const currentValue = dicePoolService.getPoolCurrentValue(pool);
         const canAddDice = dicePoolService.canAddDiceToPool(pool, character);
         const poolSelection = selectedDice[pool.definition.id];
         const hasSelectedDice = poolSelection && poolSelection.size > 0;

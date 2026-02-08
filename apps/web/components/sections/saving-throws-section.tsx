@@ -24,22 +24,6 @@ export function SavingThrowsSection() {
   const advantageLevel = uiState.advantageLevel;
   const onToggle = (isOpen: boolean) => updateCollapsibleState("attributes", isOpen);
 
-  const onSaveAdvantageChange = useCallback(
-    async (attributeName: AttributeName, advantageType: SaveAdvantageType) => {
-      if (!character) return;
-
-      const updated = {
-        ...character,
-        saveAdvantages: {
-          ...character.saveAdvantages,
-          [attributeName]: advantageType,
-        },
-      };
-      await updateCharacter(updated);
-    },
-    [character, updateCharacter],
-  );
-
   const handleSaveRoll = useCallback(
     (attributeName: AttributeName) => {
       if (!character) return;

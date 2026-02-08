@@ -197,8 +197,6 @@ export function WizardNavigation({
   canProceed = true,
   isFirstStep = false,
   isLastStep = false,
-  currentStep,
-  totalSteps,
   nextButtonText,
   previousButtonText,
 }: {
