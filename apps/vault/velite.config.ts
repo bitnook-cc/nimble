@@ -26,6 +26,7 @@ const contentSchema = s.object({
     access: s.array(s.string()).default([]),
     slug: s.path(),
     content: s.mdx(),
+    raw: s.markdown(), // Raw markdown content for search indexing
     toc: s.toc(),
     metadata: s.metadata(),
   })
@@ -144,6 +145,7 @@ export default defineConfig({
             access: [] as string[], // Public content has no access restrictions (empty array)
             permalink: `/${slugifiedPath}`,
             readingTime: Math.ceil(data.content.split(' ').length / 200),
+            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
           }
         })
     },
@@ -165,6 +167,7 @@ export default defineConfig({
             access: ['patron', 'test'],
             permalink: `/${slugifiedPath}`,
             readingTime: Math.ceil(data.content.split(' ').length / 200),
+            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
           }
         })
     },
@@ -191,6 +194,7 @@ export default defineConfig({
             access: [productTag, 'test'],
             permalink: `/${slugifiedPath}`,
             readingTime: Math.ceil(data.content.split(' ').length / 200),
+            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
           }
         })
     }

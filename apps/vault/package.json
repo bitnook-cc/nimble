@@ -13,7 +13,11 @@
     "content:build": "velite build",
     "content:dev": "velite build --watch",
     "content:update": "./scripts/update-content.sh",
-    "vercel-install": "./scripts/vercel-submodule-workaround.sh && npm install"
+    "vercel-install": "./scripts/vercel-submodule-workaround.sh && npm install",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -25,6 +29,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fuse.js": "^7.1.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.542.0",
     "next": "^16.1.1",
@@ -38,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
