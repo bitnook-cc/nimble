@@ -121,7 +121,7 @@ router.delete(
       const session = req.session as SessionData;
       const userId = session.user!.id;
       const userEmail = session.user!.email;
-      const { characterId } = req.params;
+      const characterId = req.params.characterId as string;
 
       console.log(
         `[Sync API] DELETE /sync/characters/${characterId} - User: ${userEmail} (${userId})`,
