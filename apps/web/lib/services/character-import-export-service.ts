@@ -1,6 +1,6 @@
 import { type Character, characterSchema } from "../schemas/character";
 import type { ICharacterStorage } from "./interfaces";
-import { MigrationService } from "./migration-service";
+import { MigrationService, type UnmigratedCharacter } from "./migration-service";
 import { getCharacterStorage } from "./service-factory";
 
 export interface ImportResult {
@@ -46,7 +46,9 @@ export class CharacterImportExportService {
 
       // Apply migrations first
       try {
-        characterData = await this.migrationService.migrateCharacter(characterData);
+        characterData = await this.migrationService.migrateCharacter(
+          characterData as UnmigratedCharacter,
+        );
       } catch (error) {
         return {
           success: false,
