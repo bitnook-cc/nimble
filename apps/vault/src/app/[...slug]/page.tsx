@@ -95,9 +95,9 @@ export default async function ContentPage({ params }: ContentPageProps) {
       </div>
 
       {content.toc && content.toc.length > 0 && (
-        <aside className="mt-8 bg-card rounded-lg p-6 border border-border">
+        <aside className="mt-8 bg-card rounded-lg p-6 border border-border sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
           <h2 className="text-lg font-semibold text-foreground mb-4">Table of Contents</h2>
-          <nav>
+          <nav className="overflow-y-auto">
             <ul className="space-y-2">
               {content.toc.map((item: any, index: number) => (
                 <li key={index} style={{ marginLeft: `${(item.depth - 1) * 1}rem` }}>

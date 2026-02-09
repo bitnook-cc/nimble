@@ -274,6 +274,7 @@ export function SettingsContent({ user: initialUser }: SettingsContentProps) {
                       {account.canUnlink && (
                         <button
                           onClick={() => handleUnlinkAccount(account.provider)}
+                          aria-label={`Unlink your ${account.name} account`}
                           className="text-sm text-red-600 hover:text-red-700 font-medium"
                         >
                           Unlink
@@ -284,6 +285,7 @@ export function SettingsContent({ user: initialUser }: SettingsContentProps) {
                     <button
                       onClick={() => handleLinkAccount(account.provider)}
                       disabled={isLinking !== null}
+                      aria-label={`Link your ${account.name} account`}
                       className="flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       {isLinking === account.provider ? (

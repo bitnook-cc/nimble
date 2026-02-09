@@ -57,13 +57,13 @@ const sharedComponents = {
   ),
   code: (props: React.HTMLAttributes<HTMLElement>) => (
     <code
-      className="bg-secondary text-foreground px-1 py-0.5 rounded text-sm"
+      className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2 py-0.5 rounded text-sm font-mono"
       {...props}
     />
   ),
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
-      className="bg-primary text-background p-4 rounded-lg overflow-x-auto mb-4"
+      className="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto mb-4 border border-slate-700"
       {...props}
     />
   ),

@@ -39,17 +39,17 @@ export function Header({ user }: HeaderProps) {
                   </div>
                   <button
                     onClick={() => window.location.href = '/settings'}
+                    aria-label="Open account settings"
                     className="p-2 text-white/70 hover:text-white transition-colors"
-                    title="Settings"
                   >
-                    <Settings className="w-5 h-5" />
+                    <Settings className="w-5 h-5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={handleLogout}
+                    aria-label="Sign out of your account"
                     className="p-2 text-white/70 hover:text-white transition-colors"
-                    title="Log out"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </>
               ) : (

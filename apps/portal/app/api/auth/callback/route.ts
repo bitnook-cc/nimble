@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 import { UserTag } from '@/types/auth'
 import { redirect } from 'next/navigation'
+import { isValidReturnUrl } from '@/lib/security/url-validator'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -106,8 +107,8 @@ export async function GET(request: NextRequest) {
       }
       
       // Use Next.js redirect with proper URL validation
-      // Ensure we don't redirect to external domains in production
-      const redirectPath = next.startsWith('/') ? next : '/'
+      // Ensure we don't redirect to external domains or dangerous paths
+      const redirectPath = isValidReturnUrl(next) ? next : '/'
       redirect(`${redirectPath}?login=success`)
     }
   }

@@ -81,9 +81,10 @@ export function LoginDialog({ isOpen, onClose, returnTo }: LoginDialogProps) {
             <button
               onClick={onClose}
               disabled={isLoading !== null}
+              aria-label="Close sign in dialog"
               className="text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 

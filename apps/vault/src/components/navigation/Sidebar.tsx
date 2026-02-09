@@ -1,23 +1,60 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ChevronDown, ChevronRight, BookOpen, Lock, Folder, FileText } from 'lucide-react'
 import { publicMetaTree, patronMetaTree, purchasedMetaTree, type TreeNode } from '#site/trees'
 
 interface SidebarProps {
-  currentPath?: string
   userTags?: string[]
+  onClose?: () => void
 }
 
-export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
+export function Sidebar({ userTags = [], onClose }: SidebarProps) {
+  const pathname = usePathname()
+  const [currentPath, setCurrentPath] = useState('')
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]))
+
+  useEffect(() => {
+    setCurrentPath(pathname)
+  }, [pathname])
 
   // Combine all trees and filter by user access
   const allTreesArray = [publicMetaTree, patronMetaTree, purchasedMetaTree].flat()
   const combinedTree = allTreesArray.filter((node) =>
     filterTreeByAccess(node, userTags)
   )
+
+  // Auto-expand folders containing the current page
+  useEffect(() => {
+    if (currentPath) {
+      const foldersToExpand = new Set<string>()
+
+      const findParentFolders = (nodes: TreeNode[], parentPath = '') => {
+        nodes.forEach(node => {
+          const nodePath = parentPath ? `${parentPath}/${node.name}` : node.name
+
+          if (node.children) {
+            // Check if any child matches current path
+            const hasActiveChild = node.children.some(child =>
+              child.item?.permalink === currentPath ||
+              currentPath.startsWith(nodePath + '/')
+            )
+
+            if (hasActiveChild) {
+              foldersToExpand.add(node.path)
+            }
+
+            findParentFolders(node.children, nodePath)
+          }
+        })
+      }
+
+      findParentFolders(combinedTree)
+      setExpandedPaths(foldersToExpand)
+    }
+  }, [currentPath, combinedTree])
 
   // Recursively filter tree nodes by access
   function filterTreeByAccess(node: TreeNode, tags: string[]): boolean {
@@ -86,11 +123,13 @@ export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
         <div key={node.path} className="mb-1">
           <button
             onClick={() => togglePath(node.path)}
-            className="w-full flex items-center gap-2 p-2 text-left text-foreground hover:bg-accent rounded-md transition-colors text-sm"
+            aria-label={`Toggle ${getDisplayName(node)} folder`}
+            aria-expanded={isExpanded}
+            className="w-full flex items-center gap-2 p-3 text-left text-foreground hover:bg-accent rounded-md transition-colors text-sm min-h-12"
             style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
           >
-            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            <Folder size={14} className="text-muted-foreground" />
+            {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
+            <Folder size={14} className="text-muted-foreground" aria-hidden="true" />
             <span className="font-medium">{getDisplayName(node)}</span>
             <span className="text-xs text-muted-foreground ml-auto">
               ({node.children.length})
@@ -112,8 +151,9 @@ export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
         <div key={node.path}>
           <Link
             href={node.item.permalink}
+            aria-current={currentPath === node.item.permalink ? "page" : undefined}
             className={`
-              flex items-center gap-2 p-2 text-sm rounded-md transition-colors
+              flex items-center gap-2 p-3 text-sm rounded-md transition-colors min-h-10
               ${currentPath === node.item.permalink
                 ? 'bg-primary text-primary-foreground font-medium'
                 : 'text-foreground hover:bg-accent'
@@ -121,10 +161,10 @@ export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
             `}
             style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
           >
-            <FileText size={14} className="text-muted-foreground flex-shrink-0" />
+            <FileText size={14} className="text-muted-foreground flex-shrink-0" aria-hidden="true" />
             <span className="flex-1 truncate">{node.item.title}</span>
             {hasRestrictedAccess(node.item.access) && (
-              <Lock size={12} className="text-muted-foreground flex-shrink-0" />
+              <Lock size={12} className="text-muted-foreground flex-shrink-0" aria-label="Restricted content" />
             )}
           </Link>
         </div>
@@ -144,7 +184,7 @@ export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
         <p className="text-sm text-muted-foreground mt-1">RPG Knowledge Base</p>
       </div>
 
-      <nav className="p-4">
+      <nav aria-label="Documentation navigation" className="p-4">
         {combinedTree.length > 0 ? (
           combinedTree.map(node => renderTreeNode(node, 0))
         ) : (

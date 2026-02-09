@@ -8,6 +8,7 @@ import { Header } from '@/components/header'
 import { LoginSuccessToast } from '@/components/login-success-toast'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { redirect } from 'next/navigation'
+import { isValidReturnUrl } from '@/lib/security/url-validator'
 
 interface HomePageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -20,7 +21,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const returnTo = typeof params.returnTo === 'string' ? params.returnTo : undefined
 
   // If user is authenticated and there's a returnTo URL, redirect them
-  if (user && returnTo) {
+  // Validate the URL to prevent open redirect attacks
+  if (user && returnTo && isValidReturnUrl(returnTo)) {
     redirect(returnTo)
   }
 

@@ -133,7 +133,8 @@ export function LandingPage({ returnTo }: LandingPageProps) {
       if (tool.id === 'rules-vault') {
         // In development, redirect to vault dev server (port 4321)
         // In production, redirect to /vault path
-        const vaultUrl = process.env.NODE_ENV === 'development'
+        // Note: In production, vault is served from the same domain at /vault
+        const vaultUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost'
           ? 'http://localhost:4321'
           : '/vault'
         window.location.href = vaultUrl

@@ -19,6 +19,7 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<FuseSearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -81,6 +82,11 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
     return () => clearTimeout(timeoutId)
   }, [query, performSearch])
 
+  // Reset selected index when results change
+  useEffect(() => {
+    setSelectedIndex(-1)
+  }, [results])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -108,10 +114,23 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
     inputRef.current?.focus()
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setIsOpen(false)
+      setQuery('')
+      setSelectedIndex(-1)
       inputRef.current?.blur()
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSelectedIndex(prev =>
+        prev < results.length - 1 ? prev + 1 : prev
+      )
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSelectedIndex(prev => prev > 0 ? prev - 1 : 0)
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault()
+      handleResultClick(results[selectedIndex])
     }
   }
 
@@ -208,6 +227,10 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search vault..."
+          aria-label="Search vault documentation"
+          aria-expanded={isOpen && results.length > 0}
+          aria-controls="search-results"
+          aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
           className="
             w-full pl-10 pr-10 py-2
             bg-white border border-border rounded-lg
@@ -218,19 +241,25 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
         {query && (
           <button
             onClick={clearSearch}
+            aria-label="Clear search"
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         )}
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="
-          absolute top-full left-0 right-0 mt-1
-          bg-white border border-border rounded-lg shadow-lg
-          max-h-96 overflow-y-auto z-50
-        ">
+        <div
+          id="search-results"
+          role="listbox"
+          aria-label="Search results"
+          className="
+            absolute top-full left-0 right-0 mt-1
+            bg-white border border-border rounded-lg shadow-lg
+            max-h-96 overflow-y-auto z-50
+          "
+        >
           {results.map((result, idx) => {
             const snippet = getSearchSnippet(result)
             const hasBodyMatch = snippet !== null
@@ -238,12 +267,16 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
             return (
               <button
                 key={`${result.item.permalink}-${idx}`}
+                id={`search-result-${idx}`}
+                role="option"
+                aria-selected={idx === selectedIndex}
                 onClick={() => handleResultClick(result)}
-                className="
-                  w-full text-left p-3 hover:bg-accent
+                className={`
+                  w-full text-left p-4 hover:bg-accent
                   border-b border-border last:border-b-0
-                  focus:outline-none focus:bg-accent
-                "
+                  focus:outline-none focus:bg-accent min-h-12
+                  ${idx === selectedIndex ? 'ring-2 ring-primary' : ''}
+                `}
               >
                 <div className="font-medium text-foreground">
                   {highlightMatch(result.item.title, result.matches, 'title')}
