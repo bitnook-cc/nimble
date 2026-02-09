@@ -10,13 +10,13 @@ import { Migration } from "../types";
 export const v3ToV4Migration: Migration = {
   version: 4,
   description: "Remove freeform abilities",
-  migrate: (character: any) => {
-    const updatedCharacter = { ...character };
+  migrate: (character: unknown) => {
+    const updatedCharacter = { ...(character as Record<string, unknown>) };
 
     // Remove any freeform abilities from the _abilities array
     if (updatedCharacter._abilities && Array.isArray(updatedCharacter._abilities)) {
       updatedCharacter._abilities = updatedCharacter._abilities.filter(
-        (ability: any) => ability.type !== "freeform",
+        (ability: unknown) => (ability as Record<string, unknown>).type !== "freeform",
       );
     }
 

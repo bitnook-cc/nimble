@@ -20,7 +20,7 @@ describe("AuthService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset the service's internal user state
-    (authService as any).user = null;
+    (authService as unknown as { user: AuthUser | null }).user = null;
   });
 
   describe("fetchUser", () => {
@@ -36,10 +36,10 @@ describe("AuthService", () => {
         createdAt: "2023-01-01T00:00:00Z",
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: mockUser }),
-      });
+      } as Response);
 
       const result = await authService.fetchUser();
 
@@ -51,10 +51,10 @@ describe("AuthService", () => {
     });
 
     it("should return error when not authenticated (401)", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
-      });
+      } as Response);
 
       const result = await authService.fetchUser();
 
@@ -63,10 +63,10 @@ describe("AuthService", () => {
     });
 
     it("should return error when server fails", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         status: 500,
-      });
+      } as Response);
 
       const result = await authService.fetchUser();
 
@@ -75,7 +75,7 @@ describe("AuthService", () => {
     });
 
     it("should handle network errors", async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
+      vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"));
 
       const result = await authService.fetchUser();
 
@@ -98,7 +98,7 @@ describe("AuthService", () => {
       };
 
       // Set the cached user
-      (authService as any).user = mockUser;
+      (authService as unknown as { user: AuthUser | null }).user = mockUser;
 
       const user = await authService.getUser();
 
@@ -118,10 +118,10 @@ describe("AuthService", () => {
         createdAt: "2023-01-01T00:00:00Z",
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: mockUser }),
-      });
+      } as Response);
 
       const user = await authService.getUser();
 
@@ -130,10 +130,10 @@ describe("AuthService", () => {
     });
 
     it("should return null when user is not authenticated", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
-      });
+      } as Response);
 
       const user = await authService.getUser();
 
@@ -154,13 +154,13 @@ describe("AuthService", () => {
         createdAt: "2023-01-01T00:00:00Z",
       };
 
-      (authService as any).user = mockUser;
+      (authService as unknown as { user: AuthUser | null }).user = mockUser;
 
       expect(authService.isAuthenticated()).toBe(true);
     });
 
     it("should return false when user is not cached", () => {
-      (authService as any).user = null;
+      (authService as unknown as { user: AuthUser | null }).user = null;
 
       expect(authService.isAuthenticated()).toBe(false);
     });
@@ -168,9 +168,9 @@ describe("AuthService", () => {
 
   describe("logout", () => {
     it("should call logout endpoint and reload page on success", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-      });
+      } as Response);
 
       await authService.logout();
 
@@ -179,14 +179,14 @@ describe("AuthService", () => {
         credentials: "include",
       });
       expect(mockReload).toHaveBeenCalled();
-      expect((authService as any).user).toBeNull();
+      expect((authService as unknown as { user: AuthUser | null }).user).toBeNull();
     });
 
     it("should handle logout failure gracefully", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         status: 500,
-      });
+      } as Response);
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -199,7 +199,7 @@ describe("AuthService", () => {
     });
 
     it("should handle network errors during logout", async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
+      vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"));
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -213,11 +213,11 @@ describe("AuthService", () => {
   });
 
   describe("login", () => {
-    let mockOpen: any;
-    let mockAddEventListener: any;
-    let mockRemoveEventListener: any;
-    let mockSetInterval: any;
-    let mockClearInterval: any;
+    let mockOpen: ReturnType<typeof vi.fn>;
+    let mockAddEventListener: ReturnType<typeof vi.fn>;
+    let mockRemoveEventListener: ReturnType<typeof vi.fn>;
+    let mockSetInterval: ReturnType<typeof vi.fn>;
+    let mockClearInterval: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
       mockOpen = vi.fn();
@@ -229,7 +229,7 @@ describe("AuthService", () => {
       window.open = mockOpen;
       window.addEventListener = mockAddEventListener;
       window.removeEventListener = mockRemoveEventListener;
-      global.setInterval = mockSetInterval as any;
+      global.setInterval = mockSetInterval as unknown as typeof setInterval;
       global.clearInterval = mockClearInterval;
     });
 
@@ -252,22 +252,22 @@ describe("AuthService", () => {
         return 123; // mock interval ID
       });
 
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: mockUser }),
-      });
+      } as Response);
 
       const loginPromise = authService.login();
 
       // Simulate the auth success message
-      const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message",
-      )[1];
+      const messageHandler = (
+        mockAddEventListener.mock.calls as Array<[string, EventListener]>
+      ).find((call) => call[0] === "message")![1];
 
       await messageHandler({
         origin: "http://localhost:3000",
         data: { type: "auth-success" },
-      });
+      } as MessageEvent);
 
       const result = await loginPromise;
 
@@ -290,14 +290,14 @@ describe("AuthService", () => {
       const loginPromise = authService.login();
 
       // Simulate the auth failed message
-      const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message",
-      )[1];
+      const messageHandler = (
+        mockAddEventListener.mock.calls as Array<[string, EventListener]>
+      ).find((call) => call[0] === "message")![1];
 
       messageHandler({
         origin: "http://localhost:3000",
         data: { type: "auth-failed" },
-      });
+      } as MessageEvent);
 
       await expect(loginPromise).rejects.toThrow("Authentication failed");
       expect(mockClearInterval).toHaveBeenCalledWith(123);
@@ -315,8 +315,8 @@ describe("AuthService", () => {
       const mockPopup = { closed: false };
       mockOpen.mockReturnValue(mockPopup);
 
-      let intervalCallback: any;
-      mockSetInterval.mockImplementation((callback: any) => {
+      let intervalCallback: () => void;
+      mockSetInterval.mockImplementation((callback: () => void) => {
         intervalCallback = callback;
         return 123;
       });
@@ -325,7 +325,7 @@ describe("AuthService", () => {
 
       // Simulate popup being closed
       mockPopup.closed = true;
-      intervalCallback();
+      intervalCallback!();
 
       await expect(loginPromise).rejects.toThrow("Authentication cancelled");
       expect(mockClearInterval).toHaveBeenCalledWith(123);
@@ -340,14 +340,14 @@ describe("AuthService", () => {
       const loginPromise = authService.login();
 
       // Simulate message from different origin
-      const messageHandler = mockAddEventListener.mock.calls.find(
-        (call: any) => call[0] === "message",
-      )[1];
+      const messageHandler = (
+        mockAddEventListener.mock.calls as Array<[string, EventListener]>
+      ).find((call) => call[0] === "message")![1];
 
       messageHandler({
         origin: "http://evil.com",
         data: { type: "auth-success" },
-      });
+      } as MessageEvent);
 
       // The promise should still be pending
       const raceResult = await Promise.race([

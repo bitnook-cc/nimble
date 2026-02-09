@@ -2,16 +2,24 @@
 import { ITEM_REPOSITORY } from "@/data/items";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  type RepositoryAmmunitionItem,
+  type RepositoryArmorItem,
+  type RepositoryConsumableItem,
+  type RepositoryFreeformItem,
+  type RepositoryWeaponItem,
+} from "@/lib/types/item-repository";
+
 import { ItemService } from "../item-service";
 
 // Mock ITEM_REPOSITORY with factory function to avoid hoisting issues
 vi.mock("@/data/items", () => {
   const mockItemRepository = {
-    weapons: [] as any[],
-    armor: [] as any[],
-    freeform: [] as any[],
-    consumables: [] as any[],
-    ammunition: [] as any[],
+    weapons: [] as RepositoryWeaponItem[],
+    armor: [] as RepositoryArmorItem[],
+    freeform: [] as RepositoryFreeformItem[],
+    consumables: [] as RepositoryConsumableItem[],
+    ammunition: [] as RepositoryAmmunitionItem[],
   };
 
   return {
@@ -81,9 +89,9 @@ describe("ItemService", () => {
 
   describe("getAllItems", () => {
     it("should return all items from repository", () => {
-      ITEM_REPOSITORY.weapons = [mockWeapon] as any;
-      ITEM_REPOSITORY.armor = [mockArmor] as any;
-      ITEM_REPOSITORY.consumables = [mockConsumable] as any;
+      ITEM_REPOSITORY.weapons = [mockWeapon];
+      ITEM_REPOSITORY.armor = [mockArmor];
+      ITEM_REPOSITORY.consumables = [mockConsumable];
 
       const result = itemService.getAllItems();
 
@@ -99,9 +107,9 @@ describe("ItemService", () => {
 
   describe("getItemsByType", () => {
     beforeEach(() => {
-      ITEM_REPOSITORY.weapons = [mockWeapon] as any;
-      ITEM_REPOSITORY.armor = [mockArmor] as any;
-      ITEM_REPOSITORY.consumables = [mockConsumable] as any;
+      ITEM_REPOSITORY.weapons = [mockWeapon];
+      ITEM_REPOSITORY.armor = [mockArmor];
+      ITEM_REPOSITORY.consumables = [mockConsumable];
     });
 
     it("should return weapons when type is weapon", () => {

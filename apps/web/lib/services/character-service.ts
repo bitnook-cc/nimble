@@ -130,9 +130,9 @@ export class CharacterService {
     // Collect all abilities from traits grouped by ID
     for (const feature of allFeatures) {
       const level = (feature as ClassFeature).level || 0;
-      for (const effect of feature.traits) {
-        if (effect.type === "ability") {
-          const ability = (effect as AbilityFeatureTrait).ability;
+      for (const trait of feature.traits) {
+        if (trait.type === "ability") {
+          const ability = (trait as AbilityFeatureTrait).ability;
           if (ability && ability.id) {
             if (!abilitiesByIdAndLevel.has(ability.id)) {
               abilitiesByIdAndLevel.set(ability.id, []);
@@ -166,8 +166,8 @@ export class CharacterService {
         const current = instances[0];
         const overriddenLevels = instances
           .slice(1)
-          .filter((i) => !i.isManual)
-          .map((i) => i.level);
+          .filter((instance) => !instance.isManual)
+          .map((instance) => instance.level);
 
         if (overriddenLevels.length > 0) {
           overrideInfo.set(abilityId, {
@@ -191,9 +191,9 @@ export class CharacterService {
     if (!this._character) return [];
 
     return this.getAllActiveTraits()
-      .map((effect) => {
-        if (effect.type === "stat_bonus") {
-          return (effect as StatBonusFeatureTrait).statBonus;
+      .map((trait) => {
+        if (trait.type === "stat_bonus") {
+          return (trait as StatBonusFeatureTrait).statBonus;
         }
         return null;
       })
@@ -370,13 +370,11 @@ export class CharacterService {
     const schools = new Set<string>();
 
     // Get schools from direct spell_school traits
-    const schoolEffects = this.getAllActiveTraits().filter(
-      (effect) => effect.type === "spell_school",
-    );
+    const schoolTraits = this.getAllActiveTraits().filter((trait) => trait.type === "spell_school");
 
-    for (const effect of schoolEffects) {
-      if (effect.schoolId) {
-        schools.add(effect.schoolId);
+    for (const trait of schoolTraits) {
+      if ("schoolId" in trait && trait.schoolId) {
+        schools.add(trait.schoolId);
       }
     }
 
@@ -430,10 +428,10 @@ export class CharacterService {
     // 1. Get abilities from traits (including spell abilities) with level tracking
     const allFeatures = this.getAllActiveFeatures();
     for (const feature of allFeatures) {
-      const level = (feature as any).level || 0; // ClassFeature has level, others default to 0
-      for (const effect of feature.traits) {
-        if (effect.type === "ability") {
-          const ability = (effect as any).ability;
+      const level = (feature as ClassFeature).level || 0; // ClassFeature has level, others default to 0
+      for (const trait of feature.traits) {
+        if (trait.type === "ability") {
+          const ability = (trait as AbilityFeatureTrait).ability;
           if (ability) {
             const existing = abilitiesWithPriority.get(ability.id);
             // Priority 1000 + level for trait-granted abilities
@@ -498,13 +496,12 @@ export class CharacterService {
 
     // Check for spell tier access traits
     const tierEffects = this.getAllActiveTraits().filter(
-      (effect) => effect.type === "spell_tier_access",
+      (trait) => trait.type === "spell_tier_access",
     );
 
-    for (const effect of tierEffects) {
-      const tierEffect = effect as any;
-      if (tierEffect.maxTier > maxTier) {
-        maxTier = tierEffect.maxTier;
+    for (const trait of tierEffects) {
+      if ("maxTier" in trait && typeof trait.maxTier === "number" && trait.maxTier > maxTier) {
+        maxTier = trait.maxTier;
       }
     }
 
@@ -534,13 +531,16 @@ export class CharacterService {
 
     // Check for spell scaling traits - only highest applies
     const scalingEffects = this.getAllActiveTraits().filter(
-      (effect) => effect.type === "spell_scaling",
+      (trait) => trait.type === "spell_scaling",
     );
 
-    for (const effect of scalingEffects) {
-      const scalingEffect = effect as any;
-      if (scalingEffect.multiplier > scalingMultiplier) {
-        scalingMultiplier = scalingEffect.multiplier;
+    for (const trait of scalingEffects) {
+      if (
+        "multiplier" in trait &&
+        typeof trait.multiplier === "number" &&
+        trait.multiplier > scalingMultiplier
+      ) {
+        scalingMultiplier = trait.multiplier;
       }
     }
 
@@ -633,12 +633,12 @@ export class CharacterService {
     }
 
     // 2. Add pools from traits
-    const poolEffects = this.getAllActiveTraits().filter((effect) => effect.type === "dice_pool");
+    const poolEffects = this.getAllActiveTraits().filter((trait) => trait.type === "dice_pool");
 
-    for (const effect of poolEffects) {
-      if ((effect as any).poolDefinition) {
-        // Effects override base pools if they have the same ID
-        pools.set((effect as any).poolDefinition.id, (effect as any).poolDefinition);
+    for (const trait of poolEffects) {
+      if ("poolDefinition" in trait && trait.poolDefinition) {
+        // Traits override base pools if they have the same ID
+        pools.set(trait.poolDefinition.id, trait.poolDefinition);
       }
     }
 
@@ -2315,7 +2315,7 @@ export class CharacterService {
     const updatedChoice: ChoiceTraitSelection = {
       ...existingSelection,
       selectedOptions: existingSelection.selectedOptions.filter(
-        (opt: any) => opt.traitId !== optionTraitId,
+        (opt) => opt.traitId !== optionTraitId,
       ),
     };
 
@@ -2359,7 +2359,7 @@ export class CharacterService {
     // Update the option with the nested selection
     const updatedChoice: ChoiceTraitSelection = {
       ...existingSelection,
-      selectedOptions: existingSelection.selectedOptions.map((opt: any) =>
+      selectedOptions: existingSelection.selectedOptions.map((opt) =>
         opt.traitId === optionTraitId ? { ...opt, selection: nestedSelection } : opt,
       ),
     };

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
 import type { ClassDefinition } from "../../schemas/class";
@@ -45,7 +45,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     vi.clearAllMocks();
 
     // Setup character service mock
-    (getCharacterService as any).mockReturnValue({
+    (getCharacterService as Mock).mockReturnValue({
       getCurrentCharacter: () => mockCharacter,
       getAttributes: () => ({
         strength: 2,
@@ -56,7 +56,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     // Setup class service mock - default to mage
-    (getClassService as any).mockReturnValue({
+    (getClassService as Mock).mockReturnValue({
       getCharacterClass: () => mockMageClass,
     });
   });
@@ -69,7 +69,7 @@ describe("Formula Utils - KEY Variable Support", () => {
 
     it("should handle KEY with different class key attributes", () => {
       // Switch to fighter class
-      (getClassService as any).mockReturnValue({
+      (getClassService as Mock).mockReturnValue({
         getCharacterClass: () => mockFighterClass,
       });
 
@@ -88,7 +88,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     it("should handle KEY when class has no key attributes", () => {
-      (getClassService as any).mockReturnValue({
+      (getClassService as Mock).mockReturnValue({
         getCharacterClass: () => ({ id: "test", name: "Test", keyAttributes: [] }),
       });
 
@@ -97,7 +97,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     it("should handle KEY when no class is set", () => {
-      (getClassService as any).mockReturnValue({
+      (getClassService as Mock).mockReturnValue({
         getCharacterClass: () => null,
       });
 
@@ -120,7 +120,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     it("should handle KEY with fighter class", () => {
-      (getClassService as any).mockReturnValue({
+      (getClassService as Mock).mockReturnValue({
         getCharacterClass: () => mockFighterClass,
       });
 
@@ -138,7 +138,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     it("should not replace KEY when no character exists", () => {
-      (getCharacterService as any).mockReturnValue({
+      (getCharacterService as Mock).mockReturnValue({
         getCurrentCharacter: () => null,
         getAttributes: () => null,
       });
@@ -186,7 +186,7 @@ describe("Formula Utils - KEY Variable Support", () => {
 
   describe("Edge cases", () => {
     it("should handle when all key attributes are equal", () => {
-      (getCharacterService as any).mockReturnValue({
+      (getCharacterService as Mock).mockReturnValue({
         getCurrentCharacter: () => mockCharacter,
         getAttributes: () => ({
           strength: 3,
@@ -201,7 +201,7 @@ describe("Formula Utils - KEY Variable Support", () => {
     });
 
     it("should handle negative key attribute values", () => {
-      (getCharacterService as any).mockReturnValue({
+      (getCharacterService as Mock).mockReturnValue({
         getCurrentCharacter: () => mockCharacter,
         getAttributes: () => ({
           strength: -2,

@@ -81,16 +81,17 @@ export function useCharacterImage(characterId: string | null): UseCharacterImage
 
   // Listen for image change events
   useEffect(() => {
-    const handleImageUpdate = (event: CustomEvent) => {
-      if (event.detail?.characterId === characterId) {
+    const handleImageUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail?.characterId === characterId) {
         refreshImage();
       }
     };
 
-    window.addEventListener("character-image-updated" as any, handleImageUpdate);
+    window.addEventListener("character-image-updated", handleImageUpdate);
 
     return () => {
-      window.removeEventListener("character-image-updated" as any, handleImageUpdate);
+      window.removeEventListener("character-image-updated", handleImageUpdate);
     };
   }, [characterId, refreshImage]);
 

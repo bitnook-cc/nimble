@@ -81,7 +81,7 @@ export class CharacterStorageService {
    * Check if any characters need migration
    * @returns Array of characters that need migration
    */
-  async getCharactersNeedingMigration(): Promise<any[]> {
+  async getCharactersNeedingMigration(): Promise<Character[]> {
     try {
       const allCharacters = await this.repository.list();
       return allCharacters.filter((char) => this.migrationService.needsMigration(char));
@@ -134,7 +134,10 @@ export class CharacterStorageService {
    * @param id Character ID for recovery purposes
    * @returns Validated character or null if recovery fails
    */
-  private async validateOrRecoverCharacter(character: any, id: string): Promise<Character | null> {
+  private async validateOrRecoverCharacter(
+    character: Partial<Character>,
+    id: string,
+  ): Promise<Character | null> {
     try {
       // First, check if the character needs migration
       if (this.migrationService.needsMigration(character)) {

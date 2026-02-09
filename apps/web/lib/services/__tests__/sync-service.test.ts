@@ -1,5 +1,7 @@
 import { SyncResult, SyncStatus } from "@nimble/shared";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { Character } from "@/lib/schemas/character";
 
 // Now import after mocks are set up
 import { authService } from "../auth-service";
@@ -7,7 +9,7 @@ import { ServiceFactory } from "../service-factory";
 import { syncService } from "../sync/sync-service";
 
 // Mock fetch globally
-global.fetch = vi.fn();
+global.fetch = vi.fn() as Mock;
 
 // Mock the auth service
 vi.mock("../auth-service", () => ({
@@ -60,16 +62,22 @@ vi.mock("@/lib/utils/api", () => ({
 }));
 
 describe("SyncService", () => {
-  let mockAuthService: any;
-  let mockCharacterStorage: any;
-  let mockCharacterService: any;
+  let mockAuthService: typeof authService;
+  let mockCharacterStorage: {
+    getAllCharacters: Mock;
+    replaceAllCharacters: Mock;
+  };
+  let mockCharacterService: {
+    getCurrentCharacter: Mock;
+    loadCharacter: Mock;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockAuthService = authService;
     // Get the mocks from the service factory
-    const getServiceMock = ServiceFactory.getService as any;
+    const getServiceMock = ServiceFactory.getService as Mock;
     mockCharacterStorage = getServiceMock("characterStorage");
     mockCharacterService = getServiceMock("characterService");
   });
@@ -116,7 +124,7 @@ describe("SyncService", () => {
         maxCharacters: 30,
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockStatus,
       });
@@ -133,7 +141,7 @@ describe("SyncService", () => {
     });
 
     it("should return null if user is not authenticated", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: false,
         status: 401,
       });
@@ -144,7 +152,7 @@ describe("SyncService", () => {
     });
 
     it("should handle server errors", async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
+      (global.fetch as Mock).mockRejectedValueOnce(new Error("Network error"));
 
       const result = await syncService.getSyncStatus();
 
@@ -153,7 +161,7 @@ describe("SyncService", () => {
   });
 
   describe("syncCharacters", () => {
-    const mockCharacters = [
+    const mockCharacters: Character[] = [
       {
         id: "char-1",
         name: "Test Character 1",
@@ -170,7 +178,7 @@ describe("SyncService", () => {
           updatedAt: Date.now() - 1000,
         },
       },
-    ];
+    ] as Character[];
 
     it("should sync characters with server", async () => {
       mockCharacterStorage.getAllCharacters.mockResolvedValue(mockCharacters);
@@ -185,7 +193,7 @@ describe("SyncService", () => {
         maxCharacters: 30,
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResult,
       });
@@ -220,7 +228,7 @@ describe("SyncService", () => {
     it("should return null if user is not authenticated", async () => {
       mockCharacterStorage.getAllCharacters.mockResolvedValue(mockCharacters);
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: false,
         status: 401,
       });
@@ -233,7 +241,7 @@ describe("SyncService", () => {
     it("should throw error for other failures", async () => {
       mockCharacterStorage.getAllCharacters.mockResolvedValue(mockCharacters);
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: async () => ({ error: "Server error" }),
@@ -245,7 +253,7 @@ describe("SyncService", () => {
 
   describe("deleteCharacterBackup", () => {
     it("should delete character backup from server", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: true,
       });
 
@@ -262,7 +270,7 @@ describe("SyncService", () => {
     });
 
     it("should return true if character does not exist on server", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: false,
         status: 404,
       });
@@ -273,7 +281,7 @@ describe("SyncService", () => {
     });
 
     it("should return false for other errors", async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as Mock).mockResolvedValueOnce({
         ok: false,
         status: 500,
       });

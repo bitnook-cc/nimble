@@ -7,11 +7,12 @@ import { Migration } from "../types";
 export const v2ToV3Migration: Migration = {
   version: 3,
   description: "Add dice pools field for managing pool-based resources",
-  migrate: (character: any) => {
+  migrate: (character: unknown) => {
+    const char = character as Record<string, unknown>;
     return {
-      ...character,
+      ...char,
       // Add empty dice pools array if it doesn't exist
-      _dicePools: character._dicePools || [],
+      _dicePools: char._dicePools || [],
       _schemaVersion: 3,
     };
   },

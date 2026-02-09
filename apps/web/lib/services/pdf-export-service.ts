@@ -1,6 +1,7 @@
 import { PDFDocument, PDFForm } from "pdf-lib";
 
 import { Character, SaveAdvantageMap, SaveAdvantageType } from "../schemas/character";
+import { Item } from "../schemas/inventory";
 import { CharacterService } from "./character-service";
 import { ContentRepositoryService } from "./content-repository-service";
 import {
@@ -371,10 +372,10 @@ export class PDFExportService {
   /**
    * Sort items for display: equippable first, then consumables/ammunition, then freeform
    */
-  private sortItemsForDisplay(items: any[]): any[] {
-    const equippable: any[] = [];
-    const consumable: any[] = [];
-    const freeform: any[] = [];
+  private sortItemsForDisplay(items: Item[]): Item[] {
+    const equippable: Item[] = [];
+    const consumable: Item[] = [];
+    const freeform: Item[] = [];
 
     items.forEach((item) => {
       if (item.type === "weapon" || item.type === "armor") {
@@ -392,7 +393,7 @@ export class PDFExportService {
   /**
    * Format an item description with all relevant details
    */
-  private formatItemDescription(item: any): string | null {
+  private formatItemDescription(item: Item): string | null {
     let prefix = "";
     const parts: string[] = [];
     const checkBox = "O ";

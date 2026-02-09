@@ -271,27 +271,33 @@ describe("ChoiceTrait Selection", () => {
   describe("CharacterService - Choice Selection Management", () => {
     beforeEach(() => {
       // Directly set the character without loading from storage
-      (characterService as any)._character = mockCharacter;
+      (characterService as unknown as { _character: Character })._character = mockCharacter;
     });
 
     it("should add a choice option to a new selection", async () => {
       // Mock the save and notify methods to avoid validation errors
-      const originalSave = (characterService as any).saveCharacter;
-      const originalNotify = (characterService as any).notifyCharacterChanged;
-      (characterService as any).saveCharacter = async () => {};
-      (characterService as any).notifyCharacterChanged = () => {};
+      const serviceInternal = characterService as unknown as {
+        saveCharacter: () => Promise<void>;
+        notifyCharacterChanged: () => void;
+      };
+      const originalSave = serviceInternal.saveCharacter;
+      const originalNotify = serviceInternal.notifyCharacterChanged;
+      serviceInternal.saveCharacter = async () => {};
+      serviceInternal.notifyCharacterChanged = () => {};
 
       await characterService.addChoiceOption("test-choice", "option-1");
 
       // Restore original methods
-      (characterService as any).saveCharacter = originalSave;
-      (characterService as any).notifyCharacterChanged = originalNotify;
+      serviceInternal.saveCharacter = originalSave;
+      serviceInternal.notifyCharacterChanged = originalNotify;
 
       // Get the character from the service (since it reassigns _character)
-      const updatedCharacter = (characterService as any)._character;
+      const updatedCharacter = (characterService as unknown as { _character: Character })
+        ._character;
       const selection = updatedCharacter.traitSelections.find(
-        (s: any) => s.type === "choice" && s.grantedByTraitId === "test-choice",
-      ) as ChoiceTraitSelection | undefined;
+        (s): s is ChoiceTraitSelection =>
+          s.type === "choice" && s.grantedByTraitId === "test-choice",
+      );
 
       expect(selection).toBeDefined();
       expect(selection?.selectedOptions).toHaveLength(1);
@@ -300,13 +306,18 @@ describe("ChoiceTrait Selection", () => {
 
     it("should add a choice option to an existing selection", async () => {
       // Mock the save and notify methods
-      const originalSave = (characterService as any).saveCharacter;
-      const originalNotify = (characterService as any).notifyCharacterChanged;
-      (characterService as any).saveCharacter = async () => {};
-      (characterService as any).notifyCharacterChanged = () => {};
+      const serviceInternal = characterService as unknown as {
+        saveCharacter: () => Promise<void>;
+        notifyCharacterChanged: () => void;
+        _character: Character;
+      };
+      const originalSave = serviceInternal.saveCharacter;
+      const originalNotify = serviceInternal.notifyCharacterChanged;
+      serviceInternal.saveCharacter = async () => {};
+      serviceInternal.notifyCharacterChanged = () => {};
 
       // Set up existing selection on the service's character
-      (characterService as any)._character.traitSelections = [
+      serviceInternal._character.traitSelections = [
         {
           type: "choice",
           grantedByTraitId: "test-choice",
@@ -318,27 +329,33 @@ describe("ChoiceTrait Selection", () => {
       await characterService.addChoiceOption("test-choice", "option-2");
 
       // Restore original methods
-      (characterService as any).saveCharacter = originalSave;
-      (characterService as any).notifyCharacterChanged = originalNotify;
+      serviceInternal.saveCharacter = originalSave;
+      serviceInternal.notifyCharacterChanged = originalNotify;
 
-      const updatedCharacter = (characterService as any)._character;
+      const updatedCharacter = serviceInternal._character;
       const selection = updatedCharacter.traitSelections.find(
-        (s: any) => s.type === "choice" && s.grantedByTraitId === "test-choice",
-      ) as ChoiceTraitSelection | undefined;
+        (s): s is ChoiceTraitSelection =>
+          s.type === "choice" && s.grantedByTraitId === "test-choice",
+      );
 
       expect(selection?.selectedOptions).toHaveLength(2);
-      expect(selection?.selectedOptions.map((o: any) => o.traitId)).toContain("option-1");
-      expect(selection?.selectedOptions.map((o: any) => o.traitId)).toContain("option-2");
+      expect(selection?.selectedOptions.map((o) => o.traitId)).toContain("option-1");
+      expect(selection?.selectedOptions.map((o) => o.traitId)).toContain("option-2");
     });
 
     it("should remove a choice option from a selection", async () => {
       // Mock the save and notify methods
-      const originalSave = (characterService as any).saveCharacter;
-      const originalNotify = (characterService as any).notifyCharacterChanged;
-      (characterService as any).saveCharacter = async () => {};
-      (characterService as any).notifyCharacterChanged = () => {};
+      const serviceInternal = characterService as unknown as {
+        saveCharacter: () => Promise<void>;
+        notifyCharacterChanged: () => void;
+        _character: Character;
+      };
+      const originalSave = serviceInternal.saveCharacter;
+      const originalNotify = serviceInternal.notifyCharacterChanged;
+      serviceInternal.saveCharacter = async () => {};
+      serviceInternal.notifyCharacterChanged = () => {};
 
-      (characterService as any)._character.traitSelections = [
+      serviceInternal._character.traitSelections = [
         {
           type: "choice",
           grantedByTraitId: "test-choice",
@@ -350,13 +367,14 @@ describe("ChoiceTrait Selection", () => {
       await characterService.removeChoiceOption("test-choice", "option-1");
 
       // Restore original methods
-      (characterService as any).saveCharacter = originalSave;
-      (characterService as any).notifyCharacterChanged = originalNotify;
+      serviceInternal.saveCharacter = originalSave;
+      serviceInternal.notifyCharacterChanged = originalNotify;
 
-      const updatedCharacter = (characterService as any)._character;
+      const updatedCharacter = serviceInternal._character;
       const selection = updatedCharacter.traitSelections.find(
-        (s: any) => s.type === "choice" && s.grantedByTraitId === "test-choice",
-      ) as ChoiceTraitSelection | undefined;
+        (s): s is ChoiceTraitSelection =>
+          s.type === "choice" && s.grantedByTraitId === "test-choice",
+      );
 
       expect(selection?.selectedOptions).toHaveLength(1);
       expect(selection?.selectedOptions[0].traitId).toBe("option-2");
@@ -364,12 +382,17 @@ describe("ChoiceTrait Selection", () => {
 
     it("should remove the entire selection when last option is removed", async () => {
       // Mock the save and notify methods
-      const originalSave = (characterService as any).saveCharacter;
-      const originalNotify = (characterService as any).notifyCharacterChanged;
-      (characterService as any).saveCharacter = async () => {};
-      (characterService as any).notifyCharacterChanged = () => {};
+      const serviceInternal = characterService as unknown as {
+        saveCharacter: () => Promise<void>;
+        notifyCharacterChanged: () => void;
+        _character: Character;
+      };
+      const originalSave = serviceInternal.saveCharacter;
+      const originalNotify = serviceInternal.notifyCharacterChanged;
+      serviceInternal.saveCharacter = async () => {};
+      serviceInternal.notifyCharacterChanged = () => {};
 
-      (characterService as any)._character.traitSelections = [
+      serviceInternal._character.traitSelections = [
         {
           type: "choice",
           grantedByTraitId: "test-choice",
@@ -381,12 +404,13 @@ describe("ChoiceTrait Selection", () => {
       await characterService.removeChoiceOption("test-choice", "option-1");
 
       // Restore original methods
-      (characterService as any).saveCharacter = originalSave;
-      (characterService as any).notifyCharacterChanged = originalNotify;
+      serviceInternal.saveCharacter = originalSave;
+      serviceInternal.notifyCharacterChanged = originalNotify;
 
-      const updatedCharacter = (characterService as any)._character;
+      const updatedCharacter = serviceInternal._character;
       const selection = updatedCharacter.traitSelections.find(
-        (s: any) => s.type === "choice" && s.grantedByTraitId === "test-choice",
+        (s): s is ChoiceTraitSelection =>
+          s.type === "choice" && s.grantedByTraitId === "test-choice",
       );
 
       expect(selection).toBeUndefined();
@@ -394,12 +418,17 @@ describe("ChoiceTrait Selection", () => {
 
     it("should add a nested selection to a choice option", async () => {
       // Mock the save and notify methods
-      const originalSave = (characterService as any).saveCharacter;
-      const originalNotify = (characterService as any).notifyCharacterChanged;
-      (characterService as any).saveCharacter = async () => {};
-      (characterService as any).notifyCharacterChanged = () => {};
+      const serviceInternal = characterService as unknown as {
+        saveCharacter: () => Promise<void>;
+        notifyCharacterChanged: () => void;
+        _character: Character;
+      };
+      const originalSave = serviceInternal.saveCharacter;
+      const originalNotify = serviceInternal.notifyCharacterChanged;
+      serviceInternal.saveCharacter = async () => {};
+      serviceInternal.notifyCharacterChanged = () => {};
 
-      (characterService as any)._character.traitSelections = [
+      serviceInternal._character.traitSelections = [
         {
           type: "choice",
           grantedByTraitId: "test-choice",
@@ -422,13 +451,14 @@ describe("ChoiceTrait Selection", () => {
       );
 
       // Restore original methods
-      (characterService as any).saveCharacter = originalSave;
-      (characterService as any).notifyCharacterChanged = originalNotify;
+      serviceInternal.saveCharacter = originalSave;
+      serviceInternal.notifyCharacterChanged = originalNotify;
 
-      const updatedCharacter = (characterService as any)._character;
+      const updatedCharacter = serviceInternal._character;
       const selection = updatedCharacter.traitSelections.find(
-        (s: any) => s.type === "choice" && s.grantedByTraitId === "test-choice",
-      ) as ChoiceTraitSelection | undefined;
+        (s): s is ChoiceTraitSelection =>
+          s.type === "choice" && s.grantedByTraitId === "test-choice",
+      );
 
       expect(selection?.selectedOptions[0].selection).toBeDefined();
       expect(selection?.selectedOptions[0].selection?.type).toBe("attribute_boost");

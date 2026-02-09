@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { ServiceFactory } from "../service-factory";
+import { InMemoryStorageService } from "../storage-service";
 
 /**
  * Example test demonstrating how to use in-memory storage for testing

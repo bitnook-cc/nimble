@@ -10,17 +10,19 @@ import { Migration } from "../types";
 export const v4ToV5Migration: Migration = {
   version: 5,
   description: "Add advantage field to skills",
-  migrate: (character: any) => {
-    const updatedCharacter = { ...character };
+  migrate: (character: unknown) => {
+    const updatedCharacter = { ...(character as Record<string, unknown>) };
 
     // Add advantage field to all skills
     if (updatedCharacter._skills && typeof updatedCharacter._skills === "object") {
-      for (const skillName in updatedCharacter._skills) {
-        const skill = updatedCharacter._skills[skillName];
+      const skills = updatedCharacter._skills as Record<string, unknown>;
+      for (const skillName in skills) {
+        const skill = skills[skillName];
         if (skill && typeof skill === "object") {
-          updatedCharacter._skills[skillName] = {
-            ...skill,
-            advantage: skill.advantage ?? 0,
+          const skillObj = skill as Record<string, unknown>;
+          skills[skillName] = {
+            ...skillObj,
+            advantage: skillObj.advantage ?? 0,
           };
         }
       }
@@ -28,9 +30,10 @@ export const v4ToV5Migration: Migration = {
 
     // Add advantage field to initiative
     if (updatedCharacter._initiative && typeof updatedCharacter._initiative === "object") {
+      const initiative = updatedCharacter._initiative as Record<string, unknown>;
       updatedCharacter._initiative = {
-        ...updatedCharacter._initiative,
-        advantage: updatedCharacter._initiative.advantage ?? 0,
+        ...initiative,
+        advantage: initiative.advantage ?? 0,
       };
     }
 

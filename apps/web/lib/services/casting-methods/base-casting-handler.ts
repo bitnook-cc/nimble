@@ -19,7 +19,7 @@ export abstract class BaseCastingHandler implements CastingMethodHandler {
    * Check if a spell can be upcast with this casting method
    * Default implementation: no upcasting support
    */
-  canUpcast(_context: { spell: any; character: any }): boolean {
+  canUpcast(_context: CastingMethodContext): boolean {
     return false;
   }
 }

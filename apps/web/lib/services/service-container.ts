@@ -1,10 +1,15 @@
+interface ServiceConfig<T> {
+  factory: (container: ServiceContainer) => T;
+  singleton: boolean;
+}
+
 /**
  * Service Container for Dependency Injection
  * Manages service dependencies and provides controlled access to services
  */
 export class ServiceContainer {
-  private services = new Map<string, any>();
-  private singletons = new Map<string, any>();
+  private services = new Map<string, ServiceConfig<unknown>>();
+  private singletons = new Map<string, unknown>();
 
   /**
    * Register a service factory
@@ -26,10 +31,10 @@ export class ServiceContainer {
       if (!this.singletons.has(key)) {
         this.singletons.set(key, serviceConfig.factory(this));
       }
-      return this.singletons.get(key);
+      return this.singletons.get(key) as T;
     }
 
-    return serviceConfig.factory(this);
+    return serviceConfig.factory(this) as T;
   }
 
   /**

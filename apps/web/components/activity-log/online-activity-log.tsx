@@ -6,6 +6,7 @@ import { useCallback } from "react";
 
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { InitiativeEntry, LogEntry } from "@/lib/schemas/activity-log";
+import type { SessionActivityEntry } from "@/lib/services/activity-sharing-service";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -29,7 +30,7 @@ export function OnlineActivityLog() {
   }, []);
 
   const formatActivityTime = useCallback(
-    (entry: any) => {
+    (entry: SessionActivityEntry) => {
       // Use the activity's timestamp if it has one, otherwise use our session timestamp
       const activityTimestamp = entry.activityData.timestamp
         ? new Date(entry.activityData.timestamp)
@@ -115,11 +116,11 @@ export function OnlineActivityLog() {
 
                   {/* Render the activity based on its type */}
                   {entry.activityData.type === "roll" ? (
-                    <RollEntryDisplay roll={entry.activityData as any} />
+                    <RollEntryDisplay roll={entry.activityData} />
                   ) : entry.activityData.type === "initiative" ? (
                     <InitiativeEntryDisplay entry={entry.activityData as InitiativeEntry} />
                   ) : (
-                    <NonRollEntryDisplay entry={entry.activityData as any} />
+                    <NonRollEntryDisplay entry={entry.activityData} />
                   )}
                 </div>
               </div>

@@ -35,17 +35,17 @@ describe("CharacterCreationService", () => {
       getCurrentCharacter: vi.fn(),
       updateCharacter: vi.fn(),
       getAttributes: vi.fn(),
-    } as any;
+    } as unknown as CharacterService;
 
     mockAncestryService = {
       getAvailableAncestries: vi.fn().mockReturnValue([human]),
       getAncestryById: vi.fn().mockReturnValue(human),
-    } as any;
+    } as unknown as AncestryService;
 
     mockBackgroundService = {
       getAvailableBackgrounds: vi.fn().mockReturnValue([fearless]),
       getBackgroundById: vi.fn().mockReturnValue(fearless),
-    } as any;
+    } as unknown as BackgroundService;
 
     // Create the service with real storage and mock dependencies
     characterCreationService = new CharacterCreationService(
@@ -306,7 +306,18 @@ describe("CharacterCreationService", () => {
   describe("quickCreateCharacter", () => {
     it("should create a character with minimal options", async () => {
       // Mock ContentRepository methods
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue({
           ...berserkerClass,
           keyAttributes: ["strength", "will"],
@@ -316,7 +327,14 @@ describe("CharacterCreationService", () => {
       });
 
       // Mock ItemService
-      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+      type ServiceWithItemService = {
+        itemService: { createInventoryItem: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithItemService,
+        "itemService",
+        "get",
+      ).mockReturnValue({
         createInventoryItem: vi.fn().mockReturnValue({
           id: "battleaxe",
           name: "Battleaxe",
@@ -350,14 +368,32 @@ describe("CharacterCreationService", () => {
 
     it("should use provided name, ancestry, and background when specified", async () => {
       // Mock ContentRepository methods
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
         getAncestryDefinition: vi.fn().mockReturnValue(human),
         getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
       });
 
       // Mock ItemService
-      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+      type ServiceWithItemService = {
+        itemService: { createInventoryItem: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithItemService,
+        "itemService",
+        "get",
+      ).mockReturnValue({
         createInventoryItem: vi.fn().mockReturnValue(null),
       });
 
@@ -385,7 +421,14 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid class", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: { getClassDefinition: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(null),
       });
 
@@ -397,7 +440,14 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error when no ancestries available", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: { getClassDefinition: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
       });
 
@@ -411,7 +461,14 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error when no backgrounds available", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: { getClassDefinition: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
       });
 
@@ -429,15 +486,33 @@ describe("CharacterCreationService", () => {
   describe("createCompleteCharacter", () => {
     it("should create a character with all specified options", async () => {
       // Mock ContentRepository methods
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
         getAncestryDefinition: vi.fn().mockReturnValue(human),
         getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
       });
 
       // Mock ItemService
-      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
-        createInventoryItem: vi.fn().mockImplementation((itemId) => {
+      type ServiceWithItemService = {
+        itemService: { createInventoryItem: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithItemService,
+        "itemService",
+        "get",
+      ).mockReturnValue({
+        createInventoryItem: vi.fn().mockImplementation((itemId: string) => {
           if (itemId === "battleaxe") {
             return {
               id: "battleaxe",
@@ -501,13 +576,31 @@ describe("CharacterCreationService", () => {
     });
 
     it("should handle empty skill allocations and equipment", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
         getAncestryDefinition: vi.fn().mockReturnValue(human),
         getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
       });
 
-      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+      type ServiceWithItemService = {
+        itemService: { createInventoryItem: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithItemService,
+        "itemService",
+        "get",
+      ).mockReturnValue({
         createInventoryItem: vi.fn().mockReturnValue(null),
       });
 
@@ -534,7 +627,14 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid class", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: { getClassDefinition: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(null),
       });
 
@@ -553,7 +653,17 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid ancestry", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
         getAncestryDefinition: vi.fn().mockReturnValue(null),
       });
@@ -573,7 +683,18 @@ describe("CharacterCreationService", () => {
     });
 
     it("should throw error for invalid background", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue(berserkerClass),
         getAncestryDefinition: vi.fn().mockReturnValue(human),
         getBackgroundDefinition: vi.fn().mockReturnValue(null),
@@ -594,7 +715,18 @@ describe("CharacterCreationService", () => {
     });
 
     it("should correctly set hit points based on class", async () => {
-      vi.spyOn(characterCreationService as any, "contentRepository", "get").mockReturnValue({
+      type ServiceWithContentRepo = {
+        contentRepository: {
+          getClassDefinition: ReturnType<typeof vi.fn>;
+          getAncestryDefinition: ReturnType<typeof vi.fn>;
+          getBackgroundDefinition: ReturnType<typeof vi.fn>;
+        };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithContentRepo,
+        "contentRepository",
+        "get",
+      ).mockReturnValue({
         getClassDefinition: vi.fn().mockReturnValue({
           ...berserkerClass,
           startingHP: 25,
@@ -604,7 +736,14 @@ describe("CharacterCreationService", () => {
         getBackgroundDefinition: vi.fn().mockReturnValue(fearless),
       });
 
-      vi.spyOn(characterCreationService as any, "itemService", "get").mockReturnValue({
+      type ServiceWithItemService = {
+        itemService: { createInventoryItem: ReturnType<typeof vi.fn> };
+      };
+      vi.spyOn(
+        characterCreationService as unknown as ServiceWithItemService,
+        "itemService",
+        "get",
+      ).mockReturnValue({
         createInventoryItem: vi.fn().mockReturnValue(null),
       });
 

@@ -17,7 +17,7 @@ export interface Migration {
    * @param character - The character data in the previous version format
    * @returns The migrated character data in the new version format
    */
-  migrate: (character: any) => any;
+  migrate: (character: unknown) => unknown;
 }
 
 /**
@@ -57,7 +57,7 @@ export interface MigrationResult {
   error?: string;
 
   /** Characters that failed to migrate (for download) */
-  failedCharacters?: any[];
+  failedCharacters?: unknown[];
 
   /** Number of characters successfully migrated */
   migratedCount?: number;

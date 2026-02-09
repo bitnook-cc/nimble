@@ -80,13 +80,13 @@ export class ActivityLogService {
 
     try {
       const parsed = JSON.parse(stored);
-      const entries = parsed.map((entry: any) => ({
+      const entries = parsed.map((entry: LogEntry) => ({
         ...entry,
         timestamp: new Date(entry.timestamp),
       }));
 
       // Validate each entry and filter out invalid ones
-      const validEntries = entries.filter((entry: any) => {
+      const validEntries = entries.filter((entry: LogEntry) => {
         try {
           logEntrySchema.parse(entry);
           return true;

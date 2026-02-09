@@ -9,8 +9,8 @@ import { Migration } from "../types";
 export const v1ToV2Migration: Migration = {
   version: 2,
   description: "Convert character IDs to UUIDs",
-  migrate: (character: any) => {
-    const migrated = { ...character };
+  migrate: (character: unknown) => {
+    const migrated = { ...(character as Record<string, unknown>) };
 
     // Update schema version
     migrated._schemaVersion = 2;

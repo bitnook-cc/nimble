@@ -7,8 +7,8 @@ import { Migration } from "../types";
 export const v0ToV1Migration: Migration = {
   version: 1,
   description: "Rename effect fields to trait fields",
-  migrate: (character: any) => {
-    const migrated = { ...character };
+  migrate: (character: unknown) => {
+    const migrated = { ...(character as Record<string, unknown>) };
 
     // Add schema version (v0 characters don't have it)
     migrated._schemaVersion = 1;
@@ -26,8 +26,8 @@ export const v0ToV1Migration: Migration = {
 
     // Migrate each trait selection's internal structure
     if (Array.isArray(migrated.traitSelections)) {
-      migrated.traitSelections = migrated.traitSelections.map((selection: any) => {
-        const updatedSelection = { ...selection };
+      migrated.traitSelections = migrated.traitSelections.map((selection: unknown) => {
+        const updatedSelection = { ...(selection as Record<string, unknown>) };
 
         // Rename grantedByEffectId to grantedByTraitId
         if ("grantedByEffectId" in updatedSelection) {

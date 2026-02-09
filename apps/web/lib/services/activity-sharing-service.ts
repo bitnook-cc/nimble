@@ -21,7 +21,7 @@ interface SessionState {
   characterId: string;
 }
 
-interface SessionActivityEntry {
+export interface SessionActivityEntry {
   id: string;
   sessionId: string;
   characterId: string;
@@ -287,7 +287,7 @@ export class ActivitySharingService {
         this.notifyListeners();
       });
 
-      this.pusher.connection.bind("error", (err: any) => {
+      this.pusher.connection.bind("error", (err: Error) => {
         console.log("Pusher error:", err);
         this.pusherConnected = false;
         this.notifyListeners();
@@ -330,15 +330,17 @@ export class ActivitySharingService {
       const response = await this.getActivityHistory(sessionId);
 
       // Convert API response to SessionActivityEntry format
-      const sessionEntries: SessionActivityEntry[] = response.data.map((activity: any) => ({
-        id: activity.id,
-        sessionId: sessionId,
-        characterId: activity.characterId,
-        characterName: activity.characterName,
-        userName: activity.user.name,
-        activityData: activity.logEntry,
-        timestamp: activity.timestamp,
-      }));
+      const sessionEntries: SessionActivityEntry[] = response.data.map(
+        (activity: realtime.SharedActivityLogEntry) => ({
+          id: activity.id,
+          sessionId: sessionId,
+          characterId: activity.characterId,
+          characterName: activity.characterName,
+          userName: activity.user.name,
+          activityData: activity.logEntry,
+          timestamp: activity.timestamp,
+        }),
+      );
 
       this.receivedLogEntries = sessionEntries;
     } catch (error) {

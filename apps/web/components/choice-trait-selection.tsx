@@ -36,7 +36,7 @@ export function ChoiceTraitSelectionComponent({
   const characterService = getCharacterService();
 
   // Get currently selected option IDs
-  const selectedTraitIds = existingSelection?.selectedOptions.map((opt: any) => opt.traitId) || [];
+  const selectedTraitIds = existingSelection?.selectedOptions.map((opt) => opt.traitId) || [];
 
   const _remaining = featureSelectionService.getRemainingChoiceSelections(character, choiceTrait);
   const canSelectMore = selectedTraitIds.length < choiceTrait.numSelections;
@@ -130,7 +130,7 @@ export function ChoiceTraitSelectionComponent({
   const renderOptionTrait = (optionTrait: FeatureTrait, isSelected: boolean) => {
     // Find if this option has a nested selection
     const optionData = existingSelection?.selectedOptions.find(
-      (opt: any) => opt.traitId === optionTrait.id,
+      (opt) => opt.traitId === optionTrait.id,
     );
     const hasNestedSelection = optionData?.selection !== undefined;
 
@@ -192,7 +192,7 @@ export function ChoiceTraitSelectionComponent({
       case "resource":
         return trait.resourceDefinition.name;
       case "proficiency":
-        return trait.proficiencies.map((p: any) => p.name).join(", ");
+        return trait.proficiencies.map((p) => p.name).join(", ");
       default:
         return trait.type;
     }
@@ -242,7 +242,7 @@ export function ChoiceTraitSelectionComponent({
         )}
       </div>
       <div className="space-y-2">
-        {choiceTrait.options.map((optionTrait: any) => {
+        {choiceTrait.options.map((optionTrait) => {
           const isSelected = selectedTraitIds.includes(optionTrait.id);
           return renderOptionTrait(optionTrait, isSelected);
         })}
