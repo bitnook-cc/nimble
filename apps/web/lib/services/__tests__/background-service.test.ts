@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BackgroundDefinition } from "@/lib/schemas/background";
 import type { Character } from "@/lib/schemas/character";
+import type { StatBonusFeatureTrait } from "@/lib/schemas/features";
 
 import { BackgroundService } from "../background-service";
 
@@ -47,7 +48,7 @@ describe("BackgroundService", () => {
                 },
               },
             },
-          } as any,
+          } as Partial<StatBonusFeatureTrait>,
         ],
       },
     ],

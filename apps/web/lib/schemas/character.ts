@@ -162,6 +162,7 @@ const choiceTraitSelectionSchema = baseTraitSelectionSchema.extend({
   selectedOptions: z.array(
     z.object({
       traitId: z.string().min(1),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selection: z.lazy((): any => traitSelectionSchema).optional(),
     }),
   ),

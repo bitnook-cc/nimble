@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { gameConfig } from "@/lib/config/game-config";
 import { useToastService } from "@/lib/hooks/use-toast-service";
+import type { ClassDefinition } from "@/lib/schemas/class";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
 
@@ -112,7 +113,7 @@ export function CharacterCreateForm({
           className="w-full p-2 border rounded-md"
           autoFocus={autoFocus}
         >
-          {availableClasses.map((cls: any) => (
+          {availableClasses.map((cls: ClassDefinition) => (
             <option key={cls.id} value={cls.id}>
               {cls.name}
             </option>

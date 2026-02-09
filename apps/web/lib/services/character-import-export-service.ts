@@ -34,7 +34,7 @@ export class CharacterImportExportService {
   async importCharacter(jsonString: string, overwriteExisting = false): Promise<ImportResult> {
     try {
       // Parse JSON
-      let characterData: any;
+      let characterData: unknown;
       try {
         characterData = JSON.parse(jsonString);
       } catch {

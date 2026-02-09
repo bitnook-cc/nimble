@@ -65,8 +65,12 @@ vi.mock("@/lib/config/game-config", () => ({
 }));
 
 describe("CharacterCreateForm", () => {
-  let mockCharacterCreation: any;
-  let mockCharacterService: any;
+  let mockCharacterCreation: {
+    quickCreateCharacter: ReturnType<typeof vi.fn>;
+  };
+  let mockCharacterService: {
+    loadCharacter: ReturnType<typeof vi.fn>;
+  };
   let mockShowSuccess: ReturnType<typeof vi.fn>;
   let mockShowError: ReturnType<typeof vi.fn>;
 
@@ -75,7 +79,7 @@ describe("CharacterCreateForm", () => {
     vi.clearAllMocks();
     // Clear mock storage
     const storageModule = await import("@/lib/services/storage-service");
-    (storageModule as any).__clearMockStorage?.();
+    (storageModule as { __clearMockStorage?: () => void }).__clearMockStorage?.();
 
     // Setup mock implementations
     mockCharacterCreation = {

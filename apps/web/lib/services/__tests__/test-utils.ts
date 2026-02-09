@@ -1,4 +1,5 @@
 import type { Character } from "../../schemas/character";
+import type { ResourceDefinition } from "../../schemas/resources";
 import { getCharacterCreation, getCharacterService } from "../service-factory";
 
 /**
@@ -149,11 +150,11 @@ export async function grantResource(
   currentAmount: number,
   maxAmount?: number,
 ): Promise<void> {
-  const resourceDefinition = { ...TEST_RESOURCES[resourceId] };
+  const resourceDefinition: ResourceDefinition = { ...TEST_RESOURCES[resourceId] };
 
   // Update max value if specified
   if (maxAmount !== undefined) {
-    (resourceDefinition as any).maxValue = { type: "fixed" as const, value: maxAmount };
+    resourceDefinition.maxValue = { type: "fixed" as const, value: maxAmount };
   }
 
   // Add resource definition if not already present

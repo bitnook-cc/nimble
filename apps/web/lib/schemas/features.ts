@@ -103,6 +103,7 @@ const DicePoolFeatureTraitSchema = BaseFeatureTraitSchema.extend({
 
 const ChoiceFeatureTraitSchema = BaseFeatureTraitSchema.extend({
   type: z.literal("choice"),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: z.array(z.lazy((): any => FeatureTraitSchema)),
   numSelections: z.number().int().positive(),
 });
