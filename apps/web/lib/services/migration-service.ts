@@ -4,7 +4,7 @@ import { getMigrationsForVersionRange } from "../schemas/migration/registry";
 import { MigrationError, MigrationProgress, MigrationResult } from "../schemas/migration/types";
 
 // Type for characters that may have old schema versions
-type UnmigratedCharacter = Partial<Character> & {
+export type UnmigratedCharacter = Partial<Character> & {
   _schemaVersion?: number;
   id?: string;
   name?: string;
@@ -87,7 +87,7 @@ export class MigrationService {
 
     for (const migration of migrations) {
       try {
-        migratedCharacter = migration.migrate(migratedCharacter);
+        migratedCharacter = migration.migrate(migratedCharacter) as UnmigratedCharacter;
         // Ensure the version is updated
         migratedCharacter._schemaVersion = migration.version;
       } catch (error) {
@@ -156,7 +156,7 @@ export class MigrationService {
           }
 
           // Apply migration
-          migratedCharacter = migration.migrate(migratedCharacter);
+          migratedCharacter = migration.migrate(migratedCharacter) as UnmigratedCharacter;
           migratedCharacter._schemaVersion = migration.version;
           completedMigrations++;
         }

@@ -3,6 +3,12 @@ import { z } from "zod";
 import { ICON_IDS } from "../utils/icon-utils";
 import { flexibleValueSchema } from "./flexible-value";
 
+// Resource value schema
+const resourceValueSchema = z.object({
+  type: z.literal("numerical"),
+  value: z.number(),
+});
+
 // Resource reset condition schema
 const resourceResetConditionSchema = z.enum([
   "safe_rest",
@@ -61,6 +67,7 @@ export const resourceInstanceSchema = z.object({
 });
 
 // Export inferred types
+export type ResourceValue = z.infer<typeof resourceValueSchema>;
 export type ResourceResetCondition = z.infer<typeof resourceResetConditionSchema>;
 export type ResourceResetType = z.infer<typeof resourceResetTypeSchema>;
 export type ResourceDefinition = z.infer<typeof resourceDefinitionSchema>;

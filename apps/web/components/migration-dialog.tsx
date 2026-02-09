@@ -5,7 +5,7 @@ import { AlertCircle, CheckCircle2, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { MigrationProgress, MigrationResult } from "../lib/schemas/migration/types";
-import { MigrationService } from "../lib/services/migration-service";
+import { MigrationService, UnmigratedCharacter } from "../lib/services/migration-service";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -63,7 +63,7 @@ export function MigrationDialog({
     if (result?.failedCharacters) {
       const migrationService = MigrationService.getInstance();
       migrationService.downloadBackup(
-        result.failedCharacters,
+        result.failedCharacters as UnmigratedCharacter[],
         `failed-characters-${new Date().toISOString().split("T")[0]}.json`,
       );
     }
