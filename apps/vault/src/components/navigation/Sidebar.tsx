@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, BookOpen, Lock, Folder, FileText } from 'lucide-react'
-import { publicTree, patronTree, purchasedTree, type TreeNode } from '#site/trees'
+import { publicMetaTree, patronMetaTree, purchasedMetaTree, type TreeNode } from '#site/trees'
 
 interface SidebarProps {
   currentPath?: string
@@ -14,7 +14,7 @@ export function Sidebar({ currentPath = '', userTags = [] }: SidebarProps) {
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]))
 
   // Combine all trees and filter by user access
-  const allTreesArray = [publicTree, patronTree, purchasedTree].flat()
+  const allTreesArray = [publicMetaTree, patronMetaTree, purchasedMetaTree].flat()
   const combinedTree = allTreesArray.filter((node) =>
     filterTreeByAccess(node, userTags)
   )

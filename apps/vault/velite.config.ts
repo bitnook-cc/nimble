@@ -31,6 +31,87 @@ const contentSchema = s.object({
     metadata: s.metadata(),
   })
 
+/**
+ * Utility function to create 3 separate bundles for a content collection:
+ * 1. Meta - Lightweight metadata for navigation (title, category, permalink, access)
+ * 2. Search - Optimized for search indexing (includes 10k chars of content)
+ * 3. Content - Full content for page rendering (MDX, TOC, everything)
+ */
+function createContentCollections(
+  name: string,
+  pattern: string[],
+  options: {
+    pathPrefix: string // Prefix to remove from slug (e.g., 'public/', 'patron/')
+    accessTransform: (data: any) => string[] // Function to determine access tags
+  }
+) {
+  const baseTransform = (data: any) => {
+    const originalSlug = data.slug
+    const cleanedSlug = data.slug.replace(new RegExp(`^${options.pathPrefix}`), '')
+    const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
+    return {
+      originalSlug,
+      cleanedSlug,
+      slugifiedPath,
+      access: options.accessTransform(data),
+    }
+  }
+
+  return {
+    // 1. METADATA - For navigation trees and minimal UI (smallest bundle)
+    [`${name}Meta`]: {
+      name: `${name}Meta`,
+      pattern,
+      schema: contentSchema.transform((data) => {
+        const base = baseTransform(data)
+        return {
+          title: data.title,
+          category: data.category,
+          slug: base.slugifiedPath,
+          permalink: `/${base.slugifiedPath}`,
+          access: base.access.length > 0 ? base.access : undefined,
+        }
+      })
+    },
+
+    // 2. SEARCH - For fuzzy search indexing (medium bundle)
+    [`${name}Search`]: {
+      name: `${name}Search`,
+      pattern,
+      schema: contentSchema.transform((data) => {
+        const base = baseTransform(data)
+        return {
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          slug: base.slugifiedPath,
+          permalink: `/${base.slugifiedPath}`,
+          access: base.access.length > 0 ? base.access : undefined,
+          searchBody: data.raw.slice(0, 10000), // First 10k chars for search
+          readingTime: Math.ceil(data.raw.split(' ').length / 200),
+        }
+      })
+    },
+
+    // 3. CONTENT - For full page rendering (largest bundle, lazy loaded)
+    [`${name}Content`]: {
+      name: `${name}Content`,
+      pattern,
+      schema: contentSchema.transform((data) => {
+        const base = baseTransform(data)
+        return {
+          ...data,
+          originalSlug: base.originalSlug,
+          slug: base.slugifiedPath,
+          access: base.access.length > 0 ? base.access : undefined,
+          permalink: `/${base.slugifiedPath}`,
+          readingTime: Math.ceil(data.raw.split(' ').length / 200),
+        }
+      })
+    }
+  }
+}
+
 // Tree node structure
 interface TreeNode {
   name: string // Slugified name for URLs
@@ -128,76 +209,30 @@ export default defineConfig({
     clean: true
   },
   collections: {
-    // Public content - accessible to all users (no authentication required)
-    public: {
-      name: 'PublicContent',
-      pattern: ['public/**/*.md', 'public/**/*.mdx'],
-      schema: contentSchema
-        .transform((data) => {
-          const originalSlug = data.slug
-          // Remove 'public/' prefix from the slug
-          const cleanedSlug = data.slug.replace(/^public\//, '')
-          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
-          return {
-            ...data,
-            originalSlug,
-            slug: slugifiedPath,
-            access: [] as string[], // Public content has no access restrictions (empty array)
-            permalink: `/${slugifiedPath}`,
-            readingTime: Math.ceil(data.content.split(' ').length / 200),
-            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
-          }
-        })
-    },
+    // Generate 3 bundles for each content type using utility function
 
-    // Patron content - requires patron tier access
-    patron: {
-      name: 'PatronContent',
-      pattern: ['patron/**/*.md', 'patron/**/*.mdx'],
-      schema: contentSchema
-        .transform((data) => {
-          const originalSlug = data.slug
-          // Remove 'patron/' prefix from the slug
-          const cleanedSlug = data.slug.replace(/^patron\//, '')
-          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
-          return {
-            ...data,
-            originalSlug,
-            slug: slugifiedPath,
-            access: ['patron', 'test'],
-            permalink: `/${slugifiedPath}`,
-            readingTime: Math.ceil(data.content.split(' ').length / 200),
-            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
-          }
-        })
-    },
+    // PUBLIC content - accessible to all users (no authentication required)
+    ...createContentCollections('public', ['public/**/*.md', 'public/**/*.mdx'], {
+      pathPrefix: 'public/',
+      accessTransform: () => [] // Public content has no access restrictions
+    }),
 
-    // Purchased content - requires specific purchase tags (e.g., 'core-books')
-    purchased: {
-      name: 'PurchasedContent',
-      pattern: ['purchased/**/*.md', 'purchased/**/*.mdx'],
-      schema: contentSchema
-        .transform((data) => {
-          const originalSlug = data.slug
-          // Remove 'purchased/' prefix from the slug
-          const cleanedSlug = data.slug.replace(/^purchased\//, '')
-          const slugifiedPath = cleanedSlug.split('/').map(slugify).join('/')
+    // PATRON content - requires patron tier access
+    ...createContentCollections('patron', ['patron/**/*.md', 'patron/**/*.mdx'], {
+      pathPrefix: 'patron/',
+      accessTransform: () => ['patron', 'test']
+    }),
 
-          // Extract the product tag from the path (e.g., 'core-books' from 'purchased/core-books/...')
-          const productMatch = data.slug.match(/^purchased\/([^\/]+)/)
-          const productTag = productMatch ? productMatch[1] : 'purchased'
-
-          return {
-            ...data,
-            originalSlug,
-            slug: slugifiedPath,
-            access: [productTag, 'test'],
-            permalink: `/${slugifiedPath}`,
-            readingTime: Math.ceil(data.content.split(' ').length / 200),
-            searchBody: data.raw.slice(0, 5000), // First 5000 chars for search indexing
-          }
-        })
-    }
+    // PURCHASED content - requires specific purchase tags (e.g., 'core-books')
+    ...createContentCollections('purchased', ['purchased/**/*.md', 'purchased/**/*.mdx'], {
+      pathPrefix: 'purchased/',
+      accessTransform: (data) => {
+        // Extract the product tag from the path (e.g., 'core-books' from 'purchased/core-books/...')
+        const productMatch = data.slug.match(/^purchased\/([^\/]+)/)
+        const productTag = productMatch ? productMatch[1] : 'purchased'
+        return [productTag, 'test']
+      }
+    })
   },
   
   // MDX configuration for custom components
@@ -213,8 +248,16 @@ export default defineConfig({
 
     const collectionNames: string[] = []
 
-    // Dynamically iterate over all collections
+    // Only build trees for metadata collections (lightweight)
+    const metaCollections = ['publicMeta', 'patronMeta', 'purchasedMeta']
+
+    // Dynamically iterate over metadata collections
     Object.entries(data).forEach(([collectionName, collection]) => {
+      // Only process metadata collections for tree building
+      if (!metaCollections.includes(collectionName)) {
+        return
+      }
+
       if (Array.isArray(collection) && collection.length > 0) {
         const items = collection.map((item: any) => {
           const baseItem = {
@@ -225,8 +268,11 @@ export default defineConfig({
           // Only include access if it exists
           return item.access ? { ...baseItem, access: item.access } : baseItem
         })
+
+        // For originalSlug, we need to look up from the corresponding Content collection
+        // Since Meta doesn't have originalSlug, we'll use the slug directly
         const originalItems = collection.map((item: any) => ({
-          slug: item.originalSlug || item.slug
+          slug: item.slug
         }))
         const tree = buildTree(items, originalItems)
 

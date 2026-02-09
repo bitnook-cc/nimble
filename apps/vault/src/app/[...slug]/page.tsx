@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
-import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
-import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
+import { publicContent, patronContent, purchasedContent } from '#site/content'
+import type { FullContent } from '@/types/content'
 import { MDXContent } from '@/components/mdx-content'
 import { isContentAccessible } from '@/lib/content-access'
 import { getPortalUrl } from '@/lib/portal-url'
@@ -11,19 +11,17 @@ interface ContentPageProps {
   }>
 }
 
-type AnyContent = PublicContent | PatronContent | PurchasedContent
-
-function getContentFromParams(params: { slug: string[] }): AnyContent | null {
+function getContentFromParams(params: { slug: string[] }): FullContent | null {
   const slug = params?.slug?.join('/')
 
   // Search in all collections
-  const allContent = [
-    ...publicContent,
-    ...patronContent,
-    ...purchasedContent
+  const allContent: FullContent[] = [
+    ...publicContent as FullContent[],
+    ...patronContent as FullContent[],
+    ...purchasedContent as FullContent[]
   ]
 
-  const content = allContent.find((item: AnyContent) => item.slug === slug)
+  const content = allContent.find((item) => item.slug === slug)
 
   if (!content) {
     return null
@@ -33,13 +31,13 @@ function getContentFromParams(params: { slug: string[] }): AnyContent | null {
 }
 
 export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
-  const allContent = [
-    ...publicContent,
-    ...patronContent,
-    ...purchasedContent
+  const allContent: FullContent[] = [
+    ...publicContent as FullContent[],
+    ...patronContent as FullContent[],
+    ...purchasedContent as FullContent[]
   ]
 
-  return allContent.map((item: AnyContent) => ({
+  return allContent.map((item) => ({
     slug: item.slug.split('/'),
   }))
 }

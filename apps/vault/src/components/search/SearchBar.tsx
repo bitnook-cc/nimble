@@ -2,17 +2,11 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
-import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
+import { publicSearch, patronSearch, purchasedSearch } from '#site/content'
+import type { ContentSearch } from '@/types/content'
 import Fuse, { FuseResult, FuseResultMatch, RangeTuple } from 'fuse.js'
 
-interface SearchResult {
-  title: string
-  permalink: string
-  category?: string
-  description?: string
-  access?: string[]
-  searchBody?: string
-}
+type SearchResult = ContentSearch
 
 interface SearchBarProps {
   userTags?: string[]
@@ -28,33 +22,14 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Combine all content for searching
-  const allContent: SearchResult[] = useMemo(() => [
-    ...publicContent.map(doc => ({
-      title: doc.title,
-      permalink: doc.permalink,
-      category: doc.category,
-      description: doc.description,
-      access: undefined, // Public content has no access restrictions
-      searchBody: doc.searchBody
-    })),
-    ...patronContent.map(item => ({
-      title: item.title,
-      permalink: item.permalink,
-      category: item.category,
-      description: item.description,
-      access: item.access,
-      searchBody: item.searchBody
-    })),
-    ...purchasedContent.map(item => ({
-      title: item.title,
-      permalink: item.permalink,
-      category: item.category,
-      description: item.description,
-      access: item.access,
-      searchBody: item.searchBody
-    }))
-  ], [])
+  // Combine all search content (using search bundles for optimal performance)
+  const allContent: SearchResult[] = useMemo(() => {
+    return [
+      ...(publicSearch as ContentSearch[]),
+      ...(patronSearch as ContentSearch[]),
+      ...(purchasedSearch as ContentSearch[])
+    ]
+  }, [])
 
   // Filter content based on user access
   const accessibleContent = useMemo(() => allContent.filter(item => {

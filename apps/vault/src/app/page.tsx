@@ -1,17 +1,15 @@
 import Link from 'next/link'
-import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
-import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
+import { publicSearch, patronSearch, purchasedSearch } from '#site/content'
+import type { ContentSearch } from '@/types/content'
 import { ContentTreeView } from '@/components/ContentTreeView'
-import { publicTree, patronTree, purchasedTree } from '#site/trees'
-
-type AnyContent = PublicContent | PatronContent | PurchasedContent
+import { publicMetaTree, patronMetaTree, purchasedMetaTree } from '#site/trees'
 
 export default function HomePage() {
-  const recentDocs = publicContent.slice(0, 3)
-  const featuredContent: AnyContent[] = [...publicContent, ...patronContent, ...purchasedContent].slice(0, 6)
+  const recentDocs = publicSearch.slice(0, 3) as ContentSearch[]
+  const featuredContent = ([...publicSearch, ...patronSearch, ...purchasedSearch] as ContentSearch[]).slice(0, 6)
 
-  // Combine all trees
-  const combinedTree = [...publicTree, ...patronTree, ...purchasedTree]
+  // Combine all trees (using metadata trees for navigation)
+  const combinedTree = [...publicMetaTree, ...patronMetaTree, ...purchasedMetaTree]
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -28,7 +26,7 @@ export default function HomePage() {
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">Recent Additions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {recentDocs.map((doc: PublicContent) => (
+            {recentDocs.map((doc) => (
               <Link
                 key={doc.slug}
                 href={doc.permalink}

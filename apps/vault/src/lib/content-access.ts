@@ -1,16 +1,8 @@
 import { getUserTags } from './access'
-import { public as publicContent, patron as patronContent, purchased as purchasedContent } from '#site/content'
-import type { PublicContent, PatronContent, PurchasedContent } from '#site/content'
+import { publicMeta, patronMeta, purchasedMeta } from '#site/content'
+import type { ContentMeta } from '@/types/content'
 
-export interface AccessibleContent {
-  title: string
-  permalink: string
-  category?: string
-  access?: string[]
-  order: number
-  description?: string
-  readingTime?: number
-}
+export type AccessibleContent = ContentMeta
 
 /**
  * Check if a content item is accessible to the current user
@@ -61,33 +53,9 @@ export async function getAllAccessibleContent(): Promise<AccessibleContent[]> {
   const userTags = await getUserTags()
 
   const allContent: AccessibleContent[] = [
-    ...publicContent.map(doc => ({
-      title: doc.title,
-      permalink: doc.permalink,
-      category: doc.category || 'uncategorized',
-      access: undefined, // Public content has no access restrictions
-      order: doc.order,
-      description: doc.description,
-      readingTime: doc.readingTime
-    })),
-    ...patronContent.map(item => ({
-      title: item.title,
-      permalink: item.permalink,
-      category: item.category || 'patron',
-      access: item.access,
-      order: item.order,
-      description: item.description,
-      readingTime: item.readingTime
-    })),
-    ...purchasedContent.map(item => ({
-      title: item.title,
-      permalink: item.permalink,
-      category: item.category || 'purchased',
-      access: item.access,
-      order: item.order,
-      description: item.description,
-      readingTime: item.readingTime
-    }))
+    ...(publicMeta as ContentMeta[]),
+    ...(patronMeta as ContentMeta[]),
+    ...(purchasedMeta as ContentMeta[])
   ]
 
   // Filter content based on user access
@@ -106,23 +74,23 @@ export async function getAllAccessibleContent(): Promise<AccessibleContent[]> {
 }
 
 /**
- * Get accessible public content
+ * Get accessible public content metadata
  */
-export async function getAccessiblePublicContent(): Promise<PublicContent[]> {
+export async function getAccessiblePublicContent(): Promise<ContentMeta[]> {
   // Public content has no access restrictions, so just return all
-  return publicContent
+  return publicMeta as ContentMeta[]
 }
 
 /**
- * Get accessible patron content
+ * Get accessible patron content metadata
  */
-export async function getAccessiblePatronContent(): Promise<PatronContent[]> {
-  return filterAccessibleContent(patronContent)
+export async function getAccessiblePatronContent(): Promise<ContentMeta[]> {
+  return filterAccessibleContent(patronMeta as ContentMeta[])
 }
 
 /**
- * Get accessible purchased content
+ * Get accessible purchased content metadata
  */
-export async function getAccessiblePurchasedContent(): Promise<PurchasedContent[]> {
-  return filterAccessibleContent(purchasedContent)
+export async function getAccessiblePurchasedContent(): Promise<ContentMeta[]> {
+  return filterAccessibleContent(purchasedMeta as ContentMeta[])
 }
