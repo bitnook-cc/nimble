@@ -478,7 +478,7 @@ app/page.tsx (main orchestrator)
    - Equipment flags for weapons and armor
    - Size-based weapon limits (configurable, default: 2)
    - Equip/unequip toggles with validation
-   - Equipped items don't count toward inventory size
+   - All items count toward inventory size (including equipped items)
    - Only equipped weapons appear in actions
 
 8. **Armor System**

@@ -114,11 +114,8 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
 
   const sortedItems = getSortedItems();
 
+  // Calculate total inventory size - all items count toward the limit
   const currentSize = inventory.items.reduce((total, item) => {
-    // Exclude equipped weapons and armor from inventory size calculation
-    if ((item.type === "weapon" || item.type === "armor") && item.equipped) {
-      return total;
-    }
     return total + item.size;
   }, 0);
   const sizePercent = inventory.maxSize > 0 ? (currentSize / inventory.maxSize) * 100 : 0;
