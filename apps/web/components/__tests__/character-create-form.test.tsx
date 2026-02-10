@@ -96,8 +96,8 @@ describe("CharacterCreateForm", () => {
     // Setup service factory mocks
     const serviceFactory = await import("@/lib/services/service-factory");
     const { getCharacterCreation, getCharacterService } = vi.mocked(serviceFactory);
-    getCharacterCreation.mockReturnValue(mockCharacterCreation);
-    getCharacterService.mockReturnValue(mockCharacterService);
+    getCharacterCreation.mockReturnValue(mockCharacterCreation as any);
+    getCharacterService.mockReturnValue(mockCharacterService as any);
 
     // Setup toast service mock
     const toastModule = await import("@/lib/hooks/use-toast-service");

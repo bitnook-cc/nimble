@@ -111,7 +111,6 @@ export async function createTestSpellcaster(
     manaAmount?: number;
     maxMana?: number;
     spellTierAccess?: number;
-    level?: number;
   } = {},
 ): Promise<Character> {
   const {
@@ -120,14 +119,12 @@ export async function createTestSpellcaster(
     manaAmount = 5,
     maxMana = 10,
     spellTierAccess = 2,
-    level = 1,
   } = options;
 
   // Create base character
   const character = await createTestCharacter({
     name,
     classId,
-    level,
     attributes: {
       intelligence: 3, // High INT for spellcasters
       will: 2,

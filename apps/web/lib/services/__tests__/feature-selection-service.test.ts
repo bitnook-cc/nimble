@@ -29,7 +29,6 @@ describe("FeatureSelectionService", () => {
     testCharacter = await createTestCharacter({
       name: "Feature Selection Test Character",
       classId: "mage",
-      level: 3,
       attributes: { strength: 1, dexterity: 2, intelligence: 3, will: 2 },
       spellTierAccess: 2,
     });

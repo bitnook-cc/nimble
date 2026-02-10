@@ -27,18 +27,14 @@ async function createRandomComplexCharacter(): Promise<Character> {
     will: Math.floor(Math.random() * 13) - 2,
   };
 
-  // Random level (1-10)
-  const randomLevel = Math.floor(Math.random() * 10) + 1;
-
   // Create base character
   const character = await createTestCharacter({
     name: `Random Hero ${Math.floor(Math.random() * 1000)}`,
     classId: randomClass,
     ancestryId: randomAncestry,
     backgroundId: randomBackground,
-    level: randomLevel,
     attributes: randomAttributes,
-    spellTierAccess: randomLevel <= 3 ? randomLevel : Math.floor(randomLevel / 2) + 1,
+    spellTierAccess: Math.floor(Math.random() * 5) + 1, // Random tier 1-5
   });
 
   // Add random resources
@@ -362,7 +358,6 @@ describe("CharacterImportExportService", () => {
     it("should handle character with maximum complexity", async () => {
       const character = await createTestCharacter({
         name: "Maximum Complexity Character",
-        level: 10,
         attributes: { strength: 10, dexterity: 10, intelligence: 10, will: 10 },
         spellTierAccess: 9,
       });

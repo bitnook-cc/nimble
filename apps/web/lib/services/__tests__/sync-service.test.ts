@@ -62,7 +62,10 @@ vi.mock("@/lib/utils/api", () => ({
 }));
 
 describe("SyncService", () => {
-  let mockAuthService: typeof authService;
+  let mockAuthService: {
+    isAuthenticated: Mock;
+    fetchUser: Mock;
+  };
   let mockCharacterStorage: {
     getAllCharacters: Mock;
     replaceAllCharacters: Mock;
@@ -75,7 +78,7 @@ describe("SyncService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockAuthService = authService;
+    mockAuthService = authService as any;
     // Get the mocks from the service factory
     const getServiceMock = ServiceFactory.getService as Mock;
     mockCharacterStorage = getServiceMock("characterStorage");

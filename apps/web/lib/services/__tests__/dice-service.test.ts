@@ -91,9 +91,11 @@ describe("DiceService", () => {
       expect(result.formula).toBe("3d6 + 2");
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      const diceData = (diceTokens[0] as FormulaToken).diceData;
-      expect(diceData?.dice).toHaveLength(3);
-      expect(diceData?.total).toBe(9);
+      if (diceTokens[0].type === "dice") {
+        const diceData = diceTokens[0].diceData;
+        expect(diceData?.dice).toHaveLength(3);
+        expect(diceData?.total).toBe(9);
+      }
     });
 
     it("should handle d6 as 1d6", () => {
@@ -146,7 +148,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(20);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.dice).toHaveLength(2);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.dice).toHaveLength(2);
+      }
     });
   });
 
@@ -245,7 +249,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(20);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.advantageLevel).toBe(1);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.advantageLevel).toBe(1);
+      }
     });
 
     it("should handle disadvantage correctly", () => {
@@ -279,7 +285,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(3);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.advantageLevel).toBe(-1);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.advantageLevel).toBe(-1);
+      }
     });
   });
 
@@ -314,7 +322,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(15);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.criticalHits).toBe(2);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.criticalHits).toBe(2);
+      }
     });
 
     it("should handle fumbles on d20", () => {
@@ -343,7 +353,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(0);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.isFumble).toBe(true);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.isFumble).toBe(true);
+      }
     });
   });
 
@@ -377,7 +389,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(32);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.isDoubleDigit).toBe(true);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.isDoubleDigit).toBe(true);
+      }
     });
   });
 
@@ -473,7 +487,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(16);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.criticalHits).toBe(2);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.criticalHits).toBe(2);
+      }
     });
 
     it("should handle vicious with v postfix", () => {
@@ -505,7 +521,9 @@ describe("DiceService", () => {
       expect(result.total).toBe(9);
       const diceTokens = result.tokens.filter((t) => t.type === "dice");
       expect(diceTokens).toHaveLength(1);
-      expect((diceTokens[0] as FormulaToken).diceData?.criticalHits).toBe(1);
+      if (diceTokens[0].type === "dice") {
+        expect(diceTokens[0].diceData?.criticalHits).toBe(1);
+      }
     });
   });
 });

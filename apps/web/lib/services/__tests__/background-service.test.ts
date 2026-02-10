@@ -48,7 +48,7 @@ describe("BackgroundService", () => {
                 },
               },
             },
-          } as Partial<StatBonusFeatureTrait>,
+          } as StatBonusFeatureTrait,
         ],
       },
     ],

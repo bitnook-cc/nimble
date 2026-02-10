@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";
+import type { Effect } from "../../types/effects";
 import { CharacterService } from "../character-service";
 import { EffectService } from "../effect-service";
 import { ServiceFactory, getCharacterService } from "../service-factory";
