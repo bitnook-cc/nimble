@@ -1,17 +1,22 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { VaultLayout } from '@/components/vault-layout'
+import { getUserTags } from '@/lib/access'
 
 export const metadata: Metadata = {
   title: 'Nimble RPG Vault',
   description: 'Your comprehensive digital repository for the Nimble tabletop role-playing game system',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Fetch user tags server-side
+  const userTags = await getUserTags()
+  const tags = userTags.length > 0 ? userTags : ['public']
+
   return (
     <html lang="en">
       <head>
@@ -23,7 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <VaultLayout>{children}</VaultLayout>
+        <VaultLayout userTags={tags}>{children}</VaultLayout>
       </body>
     </html>
   )

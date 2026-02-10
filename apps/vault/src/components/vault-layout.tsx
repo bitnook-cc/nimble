@@ -1,11 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { SidebarWrapper } from '@/components/navigation/SidebarWrapper'
+import { Sidebar } from '@/components/navigation/Sidebar'
 import { SearchBar } from '@/components/search/SearchBar'
 import { TopNav } from '@/components/top-nav'
 
-export function VaultLayout({ children }: { children: React.ReactNode }) {
+interface VaultLayoutProps {
+  children: React.ReactNode
+  userTags: string[]
+}
+
+export function VaultLayout({ children, userTags }: VaultLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -30,13 +35,13 @@ export function VaultLayout({ children }: { children: React.ReactNode }) {
             ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}
         >
-          <SidebarWrapper />
+          <Sidebar userTags={userTags} />
         </div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="bg-white border-b border-border p-4 flex items-center justify-between">
-            <SearchBar />
+            <SearchBar userTags={userTags} />
           </div>
           <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-card to-secondary">
             {children}
