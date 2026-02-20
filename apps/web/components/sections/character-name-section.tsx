@@ -40,6 +40,7 @@ export function CharacterNameSection({
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showImageHistory, setShowImageHistory] = useState(false);
   const [showAncestryBackgroundDialog, setShowAncestryBackgroundDialog] = useState(false);
+  const [localName, setLocalName] = useState(name);
 
   if (!character) return null;
 
@@ -114,8 +115,16 @@ export function CharacterNameSection({
             <div className="flex items-center gap-2">
               <Input
                 id="character-name"
-                value={name}
-                onChange={(e) => onNameChange(e.target.value)}
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
+                onBlur={() => {
+                  const trimmed = localName.trim();
+                  if (trimmed) {
+                    onNameChange(trimmed);
+                  } else {
+                    setLocalName(name);
+                  }
+                }}
                 className="text-xl font-bold flex-1"
                 placeholder="Character Name"
               />
