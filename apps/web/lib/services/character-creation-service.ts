@@ -225,6 +225,13 @@ export class CharacterCreationService implements ICharacterCreation {
         })
         .filter((item) => item !== null) as Item[];
 
+      // Auto-equip starting weapons and armor
+      for (const item of items) {
+        if (item.type === "weapon" || item.type === "armor") {
+          item.equipped = true;
+        }
+      }
+
       inventory.items = items;
     }
 

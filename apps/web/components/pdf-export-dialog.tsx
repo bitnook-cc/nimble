@@ -39,7 +39,7 @@ export function PDFExportDialog({
   const [template, setTemplate] = useState<"full-page" | "half-page" | "detailed-page">(
     "full-page",
   );
-  const [includeFullInventory, setIncludeFullInventory] = useState(false);
+  const [includeFullInventory, setIncludeFullInventory] = useState(true);
 
   const handleExport = () => {
     // Always export as editable
