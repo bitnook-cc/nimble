@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { SpellAbilitySchema } from "./abilities";
 import { ClassFeatureSchema } from "./features";
+import { flexibleValueSchema } from "./flexible-value";
 
 // Armor proficiency schemas
 const ArmorProficiencySchema = z.union([
@@ -109,6 +110,11 @@ export const ClassDefinitionSchema = z
     startingEquipment: z.array(z.string()).meta({
       title: "Starting Equipment",
       description: "Array of repository item IDs for starting equipment",
+    }),
+    baseArmorFormula: flexibleValueSchema.optional().meta({
+      title: "Base Armor Formula",
+      description:
+        "Base armor calculation when no main armor is equipped. Defaults to DEX if not specified.",
     }),
     features: z
       .array(ClassFeatureSchema)

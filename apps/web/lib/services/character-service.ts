@@ -1181,24 +1181,39 @@ export class CharacterService {
     const attributes = this.getAttributes();
     const bonuses = this.getAllStatBonuses();
 
-    // Start with base dexterity
-    let armorValue = attributes.dexterity;
-
-    // Add armor bonuses from equipped armor items
     const equippedArmor = this.getEquippedArmor();
+    const mainArmor = equippedArmor.find((a) => a.isMainArmor);
+    const nonMainArmor = equippedArmor.filter((a) => !a.isMainArmor);
 
-    for (const armor of equippedArmor) {
-      if (armor.armor) {
-        armorValue += armor.armor;
+    let armorValue: number;
 
-        // Apply max dex bonus restriction if this is main armor
-        if (
-          armor.isMainArmor &&
-          armor.maxDexBonus !== undefined &&
-          attributes.dexterity > armor.maxDexBonus
-        ) {
-          armorValue = armorValue - (attributes.dexterity - armor.maxDexBonus);
-        }
+    if (mainArmor) {
+      // Main armor equipped: main armor + other armor + DEX capped by lowest maxDexBonus
+      armorValue = mainArmor.armor ?? 0;
+
+      for (const armor of nonMainArmor) {
+        if (armor.armor) armorValue += armor.armor;
+      }
+
+      // Find lowest maxDexBonus across all equipped armor
+      const dexCaps = equippedArmor
+        .filter((a) => a.maxDexBonus !== undefined)
+        .map((a) => a.maxDexBonus!);
+      const dexBonus =
+        dexCaps.length > 0
+          ? Math.min(attributes.dexterity, Math.min(...dexCaps))
+          : attributes.dexterity;
+      armorValue += dexBonus;
+    } else {
+      // No main armor: use class base armor formula (default DEX) + non-main armor (shields etc.)
+      const contentRepository = ContentRepositoryService.getInstance();
+      const classDefinition = contentRepository.getClassDefinition(this._character.classId);
+      armorValue = classDefinition?.baseArmorFormula
+        ? calculateFlexibleValue(classDefinition.baseArmorFormula)
+        : attributes.dexterity;
+
+      for (const armor of nonMainArmor) {
+        if (armor.armor) armorValue += armor.armor;
       }
     }
 

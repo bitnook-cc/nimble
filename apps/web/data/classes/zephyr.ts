@@ -630,6 +630,7 @@ export const zephyrClass: ClassDefinition = {
     dexterity: "advantage",
     intelligence: "disadvantage",
   },
+  baseArmorFormula: { type: "formula", expression: "STR + DEX" },
   startingEquipment: ["staff", "traveling-robes", "sandals"],
   features: [...zephyrFeatures, focusAbility],
   featurePools: [
