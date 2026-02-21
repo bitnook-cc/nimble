@@ -3,7 +3,7 @@
 import { Settings, TrendingUp } from "lucide-react";
 import { History, Upload } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { characterImageService } from "@/lib/services/character-image-service";
@@ -41,6 +41,10 @@ export function CharacterNameSection({
   const [showImageHistory, setShowImageHistory] = useState(false);
   const [showAncestryBackgroundDialog, setShowAncestryBackgroundDialog] = useState(false);
   const [localName, setLocalName] = useState(name);
+
+  useEffect(() => {
+    setLocalName(name);
+  }, [name]);
 
   if (!character) return null;
 
