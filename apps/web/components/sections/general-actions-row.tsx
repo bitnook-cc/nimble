@@ -98,8 +98,7 @@ export function GeneralActionsRow() {
     if (!canUseAction) return;
 
     consumeAction();
-    const attributeModifier = character._attributes.strength; // TODO: Could be dexterity for finesse weapons
-    await attack(weapon.name, weapon.damage || "1d6", attributeModifier, uiState.advantageLevel);
+    await attack(weapon.name, weapon.damage || "1d6", 0, uiState.advantageLevel);
     setShowWeaponDialog(false);
   };
 

@@ -35,7 +35,7 @@ const iceSchoolSpells: SpellAbilityDefinition[] = [
     id: "frost-shield",
     name: "Frost Shield",
     description:
-      "Tier 1, 1 Action, Self. Reaction: When attacked, Gain 2×KEY temp HP and Defend. Until the 1st time melts and these temp HP are lost at the start of your next turn. Upcast: +2×KEY temp HP.",
+      "Tier 1, 1 Action, Self. Reaction: When attacked, Gain 2×KEY temp HP and Defend for free. The ice melts and these temp HP are lost at the start of your next turn. Upcast: +2×KEY temp HP.",
     type: "spell",
     school: "ice",
     tier: 1,
