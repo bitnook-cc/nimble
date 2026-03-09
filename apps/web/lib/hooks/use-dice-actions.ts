@@ -19,12 +19,6 @@ export interface UseDiceActionsReturn {
     skillModifier: number,
     advantageLevel: number,
   ) => Promise<void>;
-  attack: (
-    weaponName: string,
-    damage: string,
-    attributeModifier: number,
-    advantageLevel: number,
-  ) => Promise<void>;
   rollInitiative: (
     totalModifier: number,
     advantageLevel: number,
@@ -163,44 +157,10 @@ export function useDiceActions(): UseDiceActionsReturn {
     [activityLogService, addLogEntry],
   );
 
-  const attack = useCallback(
-    async (
-      weaponName: string,
-      damage: string,
-      attributeModifier: number,
-      advantageLevel: number,
-    ) => {
-      try {
-        // Build formula with modifier
-        const formula =
-          attributeModifier >= 0
-            ? `${damage} + ${attributeModifier}`
-            : `${damage} - ${Math.abs(attributeModifier)}`;
-
-        const rollResult = diceService.evaluateDiceFormula(formula, {
-          advantageLevel,
-          allowCriticals: true, // Attacks can crit
-          allowFumbles: true, // Attacks can fumble
-        });
-
-        const logEntry = activityLogService.createDiceRollEntry(
-          `${weaponName} attack`,
-          rollResult,
-          advantageLevel,
-        );
-        await addLogEntry(logEntry);
-      } catch (error) {
-        console.error("Failed to roll attack:", error);
-      }
-    },
-    [activityLogService, addLogEntry],
-  );
-
   return {
     rollAttribute,
     rollSave,
     rollSkill,
     rollInitiative,
-    attack,
   };
 }

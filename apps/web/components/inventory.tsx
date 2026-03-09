@@ -20,7 +20,6 @@ import {
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { useDiceActions } from "@/lib/hooks/use-dice-actions";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
   AmmunitionItem,
@@ -61,8 +60,7 @@ interface InventoryProps {
 }
 
 export function Inventory({ inventory, characterDexterity }: InventoryProps) {
-  const { character, updateCharacterFields } = useCharacterService();
-  const { attack } = useDiceActions();
+  const { character, updateCharacterFields, performAttack } = useCharacterService();
   const { uiState } = useUIStateService();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -385,14 +383,8 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
   };
 
   const handleWeaponAttack = async (weapon: WeaponItem) => {
-    if (!character || !weapon.damage || !weapon.attribute) return;
-
-    // Get the character's attribute modifier
-    const attributeModifier =
-      character._attributes[weapon.attribute as keyof typeof character._attributes];
-
-    // Call the attack function
-    await attack(weapon.name, weapon.damage, attributeModifier, uiState.advantageLevel);
+    if (!character) return;
+    await performAttack(weapon, uiState.advantageLevel);
   };
 
   const handleDragStart = (itemId: string) => {
@@ -787,7 +779,7 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                     <div className="flex flex-col items-end space-y-2 shrink-0">
                       {/* Main action buttons row */}
                       <div className="flex items-center space-x-2">
-                        {item.type === "weapon" && (
+                        {item.type === "weapon" && item.equipped && (
                           <Button
                             variant="destructive"
                             size="sm"

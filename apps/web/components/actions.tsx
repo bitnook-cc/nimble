@@ -49,14 +49,6 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
   const [expandedAbilities, setExpandedAbilities] = useState<Set<string>>(new Set());
 
   const handleAttack = async (weapon: WeaponItem) => {
-    // Check if we have enough actions for weapon attacks (always cost 1 action)
-    if (character.inEncounter && character.actionTracker.current < 1) {
-      console.error(
-        "Not enough actions to attack (need 1, have " + character.actionTracker.current + ")",
-      );
-      return;
-    }
-
     await performAttack(weapon, advantageLevel);
   };
 

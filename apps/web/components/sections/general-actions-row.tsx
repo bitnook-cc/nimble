@@ -29,8 +29,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 type AssessSubAction = "ask_question" | "create_opening" | "anticipate_danger";
 
 export function GeneralActionsRow() {
-  const { character, updateActionTracker } = useCharacterService();
-  const { attack, rollSkill } = useDiceActions();
+  const { character, updateActionTracker, performAttack } = useCharacterService();
+  const { rollSkill } = useDiceActions();
   const { uiState } = useUIStateService();
   const [showWeaponDialog, setShowWeaponDialog] = useState(false);
   const [showSpellDialog, setShowSpellDialog] = useState(false);
@@ -88,17 +88,14 @@ export function GeneralActionsRow() {
     }
 
     if (equippedWeapons.length === 1) {
-      performAttack(equippedWeapons[0]);
+      handleWeaponAttack(equippedWeapons[0]);
     } else {
       setShowWeaponDialog(true);
     }
   };
 
-  const performAttack = async (weapon: WeaponItem) => {
-    if (!canUseAction) return;
-
-    consumeAction();
-    await attack(weapon.name, weapon.damage || "1d6", 0, uiState.advantageLevel);
+  const handleWeaponAttack = async (weapon: WeaponItem) => {
+    await performAttack(weapon, uiState.advantageLevel);
     setShowWeaponDialog(false);
   };
 
@@ -276,7 +273,7 @@ export function GeneralActionsRow() {
                 key={weapon.id}
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => performAttack(weapon)}
+                onClick={() => handleWeaponAttack(weapon)}
               >
                 <Swords className="w-4 h-4 mr-2" />
                 {weapon.name} ({weapon.damage || "1d6"})
