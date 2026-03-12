@@ -32,6 +32,12 @@ export function useCharacterService() {
       setCharacter(event.character || null);
     });
 
+    const unsubscribeDelete = characterService.subscribeToEvent("deleted", () => {
+      // Sync React state with the service's current character
+      // (which may have auto-switched to another character, or be null)
+      setCharacter(characterService.getCurrentCharacter());
+    });
+
     // Initialize with current character
     setCharacter(characterService.getCurrentCharacter());
 
@@ -40,6 +46,7 @@ export function useCharacterService() {
       unsubscribeUpdate();
       unsubscribeSwitch();
       unsubscribeCreate();
+      unsubscribeDelete();
     };
   }, []);
 

@@ -2481,20 +2481,25 @@ export class CharacterService {
   // Character Lifecycle Operations
 
   async deleteCharacterById(characterId: string): Promise<void> {
+    const wasActiveCharacter = this._character?.id === characterId;
+
     await this.storageService.deleteCharacter(characterId);
 
     // If we deleted the current character, clear it
-    if (this._character?.id === characterId) {
+    if (wasActiveCharacter) {
       this._character = null;
     }
 
     // Check if any characters remain
     const remainingCharacters = await this.storageService.getAllCharacters();
 
-    // If no characters remain, clear the active character from settings
     if (remainingCharacters.length === 0) {
+      // No characters remain, clear the active character from settings
       const settingsService = getSettingsService();
       await settingsService.clearActiveCharacter();
+    } else if (wasActiveCharacter) {
+      // Auto-switch to the first remaining character to prevent a broken state
+      await this.loadCharacter(remainingCharacters[0].id);
     }
 
     // Emit delete event

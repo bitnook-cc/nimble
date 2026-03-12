@@ -127,6 +127,9 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
     });
 
     const unsubscribeDeleted = subscribeToEvent("deleted", async (event) => {
+      // Capture whether the deleted character was the active one before refreshing state
+      const wasActiveCharacter = event.characterId === settings.activeCharacterId;
+
       // Refresh character list and settings
       const updatedCharacters = await characterStorage.getAllCharacters();
       setCharacters(updatedCharacters);
@@ -134,14 +137,15 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       const newSettings = await settingsService.getSettings();
       setSettings(newSettings);
 
-      // Show character selection if no characters left or if the deleted character was the active one
       if (updatedCharacters.length === 0) {
+        // No characters remain, show selection to create a new one
         setShowCharacterSelection(true);
         setLoadError("No characters remaining. Please create a new character.");
-      } else if (event.characterId === settings.activeCharacterId) {
-        // The active character was deleted, show selection to choose a new one
+      } else if (wasActiveCharacter) {
+        // The active character was deleted — the service auto-switched to another
+        // character, but show selector so the user can pick a different one if desired
         setShowCharacterSelection(true);
-        setLoadError("Active character was deleted. Please select a character.");
+        setLoadError(null);
       }
     });
 
