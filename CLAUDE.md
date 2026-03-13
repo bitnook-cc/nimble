@@ -6,14 +6,18 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Applications
 
-- **`apps/web`**: Next.js 14 web application (Sidekick character sheet app)
+- **`apps/web`**: Next.js 16 web application (Sidekick character sheet app)
 - **`apps/api`**: Express.js REST API server (port 3001)
-- **`apps/vault`**: Astro Starlight documentation site for Nimble RPG rules and content
-- **`apps/portal`**: Next.js 15 authentication portal with Supabase integration
+- **`apps/vault`**: Next.js 16 documentation site for Nimble RPG rules and content
+- **`apps/portal`**: Next.js 16 authentication portal with Supabase integration
+- **`apps/discord`**: Discord bot for Nimble dice rolling (HTTP interactions)
 
 ### Packages
 
-- **`packages/shared-config`**: Shared TypeScript and configuration files
+- **`packages/shared-config`**: Shared TypeScript, ESLint, and build configuration
+- **`packages/shared`**: Shared sync schemas, auth types, and realtime (Pusher) exports
+- **`packages/nimble-dice`**: Shared dice rolling engine
+- **`packages/nimble-ui`**: Shared UI components (banner-box, theme CSS)
 
 ### Express API Server
 
@@ -25,11 +29,14 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 - **Endpoints**:
   - `GET /` - Welcome message
   - `GET /health` - Health check
-  - `GET /api/hello` - Example API endpoint
+  - `GET /hello` - Example API endpoint
   - `GET /auth/google` - Initiate Google OAuth
   - `GET /auth/user` - Get current user
   - `POST /auth/logout` - Logout user
-  - `GET /db/test` - Test database connection (development)
+  - **Sync Endpoints**:
+    - `POST /sync/characters` - Sync character data
+    - `GET /sync/status` - Get sync status
+    - `DELETE /sync/characters/:characterId` - Delete synced character
   - **Image Endpoints** (requires authentication):
     - `POST /images/characters/:characterId/avatar` - Upload character avatar
     - `GET /images/characters/:characterId/avatar` - Get character avatar URL
@@ -39,11 +46,11 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 ### Nimble RPG Vault Documentation Site
 
 - **Location**: `apps/vault/`
-- **Framework**: Astro with Starlight documentation theme
-- **Port**: 4321 (auto-selects if in use)
+- **Framework**: Next.js 16 with Velite content processing and MDX
+- **Port**: 3002 (configurable)
 - **Content**: Complete Nimble RPG rules, lore, and reference materials
 - **Features**:
-  - 450+ markdown files organized into categories
+  - ~130 markdown files organized into categories
   - Responsive fantasy-themed design with parchment background
   - Beaufort Pro Heavy fonts for headlines, Avenir Next Condensed for body text
   - Collapsed sidebar sections with fantasy emojis (⚔️ Heroes, ✨ Magic, etc.)
@@ -235,8 +242,8 @@ Implemented a Prisma-like migration system to handle character schema changes wi
 To add a new migration when changing the character schema:
 
 1. **Update Schema**: Modify the character schema in `lib/schemas/character.ts`
-2. **Increment Version**: Update `CURRENT_SCHEMA_VERSION` in `lib/migrations/constants.ts`
-3. **Create Migration**: Add a new migration to `lib/migrations/registry.ts`:
+2. **Increment Version**: Update `CURRENT_SCHEMA_VERSION` in `lib/schemas/migration/constants.ts`
+3. **Create Migration**: Add a new migration to `lib/schemas/migration/registry.ts`:
    ```typescript
    const v1ToV2Migration: Migration = {
      version: 2,
@@ -250,14 +257,18 @@ To add a new migration when changing the character schema:
      }
    };
    ```
-4. **Test Migration**: Add tests in `lib/migrations/__tests__/`
+4. **Test Migration**: Add tests in `lib/schemas/migration/migrations/`
 5. **Deploy**: The migration will run automatically when users load their characters
 
-#### Current Migrations
+#### Current Migrations (CURRENT_SCHEMA_VERSION = 5)
 
 - **v0→v1**: Renamed "effect" terminology to "trait" throughout the system
   - `effectSelections` → `traitSelections`
   - `grantedByEffectId` → `grantedByTraitId`
+- **v1→v2**: Convert character IDs to UUIDs
+- **v2→v3**: Add dice pools field
+- **v3→v4**: Remove freeform abilities
+- **v4→v5**: Add advantage field to skills
 
 ### Multiple Traits Per Feature (December 2024)
 
@@ -278,7 +289,7 @@ Sidekick: A companion app for the Nimble TTRPG. A comprehensive digital characte
 
 ### Frontend
 
-- **Next.js 14** with App Router (client-side only)
+- **Next.js 16** with App Router (client-side only)
 - **TypeScript** for type safety
 - **Tailwind CSS** for responsive styling
 - **shadcn/ui** component library (built on Radix UI)
@@ -512,7 +523,7 @@ app/page.tsx (main orchestrator)
 
 11. **Spell System**
     - **Tier-Based Access (1-9)**: Progressive spell unlocking as characters level up
-    - **School-Based Organization**: Spells grouped by magical schools (fire, radiant, frost, nature, shadow, arcane)
+    - **School-Based Organization**: Spells grouped by magical schools (fire, ice, lightning, necrotic, radiant, wind)
     - **Class Integration**: Automatic spell school access through class features (Wizard gets Fire Magic, Cleric gets Radiant Magic)
     - **Resource Integration**: Spells consume mana or other class-specific resources
     - **Dedicated Spell Tab**: Separate interface for spell management with mana tracker
@@ -546,7 +557,7 @@ app/page.tsx (main orchestrator)
     - Character selector with creation and deletion
 
 15. **Class and Subclass System**
-    - Four core classes: Fighter, Wizard, Cleric, Rogue
+    - 11 core classes: Berserker, Cheat, Commander, Hunter, Mage, Oathsworn, Shadowmancer, Shepherd, Songweaver, Stormshifter, Zephyr
     - Subclass selection at appropriate levels with automatic feature grants
     - Level-based feature progression with validation
     - Automatic feature synchronization when gaining levels or choosing subclasses
@@ -640,8 +651,14 @@ app/page.tsx (main orchestrator)
 ├── apps/
 │   ├── web/         # Next.js web application
 │   ├── api/         # Express.js API server
-│   └── vault/       # Astro Starlight documentation site
-├── packages/        # Shared packages (if any)
+│   ├── vault/       # Next.js documentation site
+│   ├── portal/      # Next.js authentication portal
+│   └── discord/     # Discord bot for dice rolling
+├── packages/
+│   ├── shared-config/ # Shared TypeScript, ESLint config
+│   ├── shared/        # Shared sync schemas, auth types, realtime
+│   ├── nimble-dice/   # Shared dice rolling engine
+│   └── nimble-ui/     # Shared UI components
 ├── turbo.json       # Turborepo configuration
 ├── package.json     # Root package.json with workspaces
 └── CLAUDE.md        # This documentation

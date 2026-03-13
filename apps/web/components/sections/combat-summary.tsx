@@ -9,6 +9,7 @@ import {
   Minus,
   Plus,
   RotateCcw,
+  Settings,
   ShieldPlus,
   Skull,
   Sparkles,
@@ -562,6 +563,8 @@ function ActionTracker() {
 function ResourceTracker() {
   const { character } = useCharacterService();
   const characterService = getCharacterService();
+  const { updateActiveTab } = useUIStateService();
+  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
 
   // All hooks called first, then safety check
   if (!character) return null;
@@ -569,7 +572,15 @@ function ResourceTracker() {
   const resources = characterService.getResources();
   if (resources.length === 0) return null;
 
-  const createPieChart = (current: number, max: number, color: string) => {
+  const handleSpend = (resourceId: string) => {
+    characterService.spendResource(resourceId, 1);
+  };
+
+  const handleRestore = (resourceId: string) => {
+    characterService.restoreResource(resourceId, 1);
+  };
+
+  const createPieChart = (current: number, max: number, color: string, isSelected: boolean) => {
     const percentage = max > 0 ? current / max : 0;
     const radius = 16;
     const circumference = 2 * Math.PI * radius;
@@ -577,9 +588,10 @@ function ResourceTracker() {
     const strokeDashoffset = circumference * (1 - percentage);
 
     return (
-      <div className="relative w-10 h-10">
+      <div
+        className={`relative w-10 h-10 rounded-full transition-shadow ${isSelected ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""}`}
+      >
         <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
-          {/* Background circle */}
           <circle
             cx="20"
             cy="20"
@@ -589,7 +601,6 @@ function ResourceTracker() {
             fill="transparent"
             className="text-muted"
           />
-          {/* Progress circle */}
           <circle
             cx="20"
             cy="20"
@@ -603,7 +614,6 @@ function ResourceTracker() {
             className="transition-all duration-500 ease-in-out"
           />
         </svg>
-        {/* Center text */}
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-xs font-medium">{current}</span>
         </div>
@@ -619,6 +629,23 @@ function ResourceTracker() {
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium">Resources</span>
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                  onClick={() => updateActiveTab("character")}
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Manage resources on the Character tab</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className="flex flex-wrap gap-3 justify-center">
@@ -626,9 +653,47 @@ function ResourceTracker() {
             const maxValue = getFlexibleValue(resource.definition.maxValue);
             const percentage = maxValue > 0 ? (resource.current / maxValue) * 100 : 0;
             const color = getResourceColor(resource.definition.colorScheme, percentage);
+            const isSelected = selectedResourceId === resource.definition.id;
             return (
               <div key={resource.definition.id} className="flex flex-col items-center">
-                {createPieChart(resource.current, maxValue, color)}
+                <div className="flex items-center gap-1">
+                  {isSelected && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0 rounded-full"
+                      disabled={resource.current <= 0}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSpend(resource.definition.id);
+                      }}
+                    >
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                  )}
+                  <button
+                    className="cursor-pointer bg-transparent border-none p-0"
+                    onClick={() =>
+                      setSelectedResourceId(isSelected ? null : resource.definition.id)
+                    }
+                  >
+                    {createPieChart(resource.current, maxValue, color, isSelected)}
+                  </button>
+                  {isSelected && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0 rounded-full"
+                      disabled={resource.current >= maxValue}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRestore(resource.definition.id);
+                      }}
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
                 <div className="mt-1 text-center">
                   <div className="text-xs font-medium leading-tight">
                     {resource.definition.name}
