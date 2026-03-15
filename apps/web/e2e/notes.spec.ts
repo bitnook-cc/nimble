@@ -119,10 +119,12 @@ test.describe("Notes Management", () => {
       const deleteMenuItem = page.getByRole("menuitem", { name: /delete/i });
       await expect(deleteMenuItem).toBeVisible();
 
-      // Listen for the confirmation dialog
-      page.on("dialog", (dialog) => dialog.accept());
-
       await deleteMenuItem.click();
+
+      // Confirm in the AlertDialog
+      const confirmButton = page.getByRole("alertdialog").getByRole("button", { name: /delete/i });
+      await expect(confirmButton).toBeVisible();
+      await confirmButton.click();
 
       // Verify the note was deleted
       await expect(page.getByText("Updated Test Note")).not.toBeVisible();

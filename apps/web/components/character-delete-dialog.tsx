@@ -4,6 +4,7 @@ import { AlertTriangle, Cloud, Trash2 } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { Character } from "@/lib/schemas/character";
 import { authService } from "@/lib/services/auth-service";
 
@@ -36,6 +37,7 @@ export function CharacterDeleteDialog({
   isActiveCharacter,
   onDelete,
 }: CharacterDeleteDialogProps) {
+  const { showError } = useToastService();
   const [deleteFromServer, setDeleteFromServer] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,7 +56,7 @@ export function CharacterDeleteDialog({
       onClose();
     } catch (error) {
       console.error("Failed to delete character:", error);
-      alert("Failed to delete character. Please try again.");
+      showError("Failed to delete character. Please try again.");
     } finally {
       setIsDeleting(false);
     }

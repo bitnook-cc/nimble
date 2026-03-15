@@ -45,13 +45,7 @@ export function AuthButton() {
 
         // Auto-sync characters after successful login
         try {
-          console.log("[Auth] Auto-syncing characters after login...");
-          const syncResult = await syncService.syncCharacters();
-          if (syncResult) {
-            console.log(
-              `[Auth] Auto-sync complete: ${syncResult.characterCount} characters synced`,
-            );
-          }
+          await syncService.syncCharacters();
         } catch (syncError) {
           console.error("[Auth] Auto-sync failed:", syncError);
           // Don't throw - sync failure shouldn't prevent login

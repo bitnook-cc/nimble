@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { WizardDialog } from "@/components/wizard/wizard-dialog";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { TraitSelection } from "@/lib/schemas/character";
 import {
   getClassService,
@@ -51,6 +52,7 @@ const STEPS = [
 
 export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
   const { character, updateCharacter } = useCharacterService();
+  const { showError } = useToastService();
   const [currentStep, setCurrentStep] = useState(0);
   const [levelUpData, setLevelUpData] = useState<LevelUpData>({
     levelsToGain: 1,
@@ -264,6 +266,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
     } catch (error) {
       console.error("Failed to apply level up:", error);
       console.error("Level up data:", levelUpData);
+      showError("Failed to apply level up. Please try again.");
     }
   };
 

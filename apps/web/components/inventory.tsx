@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { useUIStateService } from "@/lib/hooks/use-ui-state-service";
 import {
   AmmunitionItem,
@@ -37,6 +38,16 @@ import {
 
 import { ItemBrowser } from "./item-browser";
 import { ItemFormFields } from "./item-form-fields";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import {
@@ -61,6 +72,7 @@ interface InventoryProps {
 
 export function Inventory({ inventory, characterDexterity }: InventoryProps) {
   const { character, updateCharacterFields, performAttack } = useCharacterService();
+  const { showError } = useToastService();
   const { uiState } = useUIStateService();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -78,6 +90,10 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
     size: 1,
     type: "freeform",
   });
+  const [armorConfirm, setArmorConfirm] = useState<{
+    itemId: string;
+    message: string;
+  } | null>(null);
 
   // Get sorted items based on itemOrder array
   const getSortedItems = () => {
@@ -492,26 +508,32 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
       if (validationMessage) {
         // For main armor replacement, ask for confirmation
         if (item.type === "armor" && (item as ArmorItem).isMainArmor) {
-          if (!confirm(validationMessage + ". Continue?")) {
-            return; // User cancelled
-          }
+          setArmorConfirm({ itemId, message: validationMessage + ". Continue?" });
+          return;
         } else {
-          alert(validationMessage);
+          showError(validationMessage);
           return; // Don't change the item
         }
       }
     }
 
+    await applyEquip(itemId, newEquippedState);
+  };
+
+  const applyEquip = async (itemId: string, equip: boolean) => {
+    const item = inventory.items.find((item) => item.id === itemId);
+    if (!item) return;
+
     let updatedItems: Item[];
 
     // Handle main armor replacement
-    if (newEquippedState && item.type === "armor" && (item as ArmorItem).isMainArmor) {
+    if (equip && item.type === "armor" && (item as ArmorItem).isMainArmor) {
       updatedItems = equipMainArmorWithReplacement(inventory.items, item as ArmorItem);
     } else {
       // Standard equip/unequip
       updatedItems = inventory.items.map((inventoryItem) => {
         if (inventoryItem.id === itemId) {
-          return { ...inventoryItem, equipped: newEquippedState };
+          return { ...inventoryItem, equipped: equip };
         }
         return inventoryItem;
       });
@@ -885,6 +907,28 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
 
       {/* Item Browser */}
       <ItemBrowser isOpen={isItemBrowserOpen} onClose={() => setIsItemBrowserOpen(false)} />
+
+      <AlertDialog open={!!armorConfirm} onOpenChange={(open) => !open && setArmorConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace Armor</AlertDialogTitle>
+            <AlertDialogDescription>{armorConfirm?.message}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (armorConfirm) {
+                  applyEquip(armorConfirm.itemId, true);
+                  setArmorConfirm(null);
+                }
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

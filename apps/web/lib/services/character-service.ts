@@ -60,6 +60,8 @@ export interface CharacterEvent {
  */
 export class CharacterService {
   private _character: Character | null = null;
+  private _cachedFeatures: CharacterFeature[] | null = null;
+  private _cachedTraits: FeatureTrait[] | null = null;
   private eventListeners: Map<CharacterEventType, ((event: CharacterEvent) => void)[]> = new Map();
 
   constructor(
@@ -73,8 +75,15 @@ export class CharacterService {
     return this._character;
   }
 
+  private setCharacter(character: Character | null): void {
+    this._character = character;
+    this._cachedFeatures = null;
+    this._cachedTraits = null;
+  }
+
   getAllActiveFeatures(): CharacterFeature[] {
     if (!this._character) return [];
+    if (this._cachedFeatures) return this._cachedFeatures;
 
     const classService = getClassService();
     const ancestryService = getAncestryService();
@@ -106,11 +115,14 @@ export class CharacterService {
       )
       .flatMap((item) => (item.feature ? [item.feature] : []));
 
-    return [...features, ...selectedFeatures, ...itemFeatures];
+    this._cachedFeatures = [...features, ...selectedFeatures, ...itemFeatures];
+    return this._cachedFeatures;
   }
 
   getAllActiveTraits(): FeatureTrait[] {
-    return this.getAllActiveFeatures().flatMap((f) => f.traits);
+    if (this._cachedTraits) return this._cachedTraits;
+    this._cachedTraits = this.getAllActiveFeatures().flatMap((f) => f.traits);
+    return this._cachedTraits;
   }
 
   /**
@@ -763,7 +775,7 @@ export class CharacterService {
     }
 
     // Use ResourceService to update the value
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _resourceValues: resourceService.updateResourceValue(
         resourceId,
@@ -771,7 +783,7 @@ export class CharacterService {
         definition,
         this._character._resourceValues || new Map(),
       ),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -790,7 +802,7 @@ export class CharacterService {
     }
 
     // Use ResourceService to spend the resource
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _resourceValues: resourceService.spendResource(
         resourceId,
@@ -798,7 +810,7 @@ export class CharacterService {
         definition,
         this._character._resourceValues || new Map(),
       ),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -817,7 +829,7 @@ export class CharacterService {
     }
 
     // Use ResourceService to restore the resource
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _resourceValues: resourceService.restoreResource(
         resourceId,
@@ -825,7 +837,7 @@ export class CharacterService {
         definition,
         this._character._resourceValues || new Map(),
       ),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -845,10 +857,10 @@ export class CharacterService {
   async setActiveCastingMethod(methodType: "mana"): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _activeCastingMethod: methodType,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1338,7 +1350,7 @@ export class CharacterService {
       }
 
       // Assign before emitting so listeners see the new character
-      this._character = character;
+      this.setCharacter(character);
 
       if (hadPreviousCharacter) {
         this.emitEvent({
@@ -1419,7 +1431,7 @@ export class CharacterService {
     const shouldGainWound = this._character.hitPoints.current > 0 && newCurrent === 0;
 
     // Update character state
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
@@ -1432,7 +1444,7 @@ export class CharacterService {
               current: this._character.wounds.current + 1,
             }
           : this._character.wounds,
-    };
+    });
 
     // Save and notify
     await this.saveCharacter();
@@ -1453,13 +1465,13 @@ export class CharacterService {
       this._character.hitPoints.current + amount,
     );
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
         current: newCurrent,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1480,13 +1492,13 @@ export class CharacterService {
     // Temp HP doesn't stack - take the higher value
     const newTemporary = Math.max(this._character.hitPoints.temporary, amount);
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
         temporary: newTemporary,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1501,14 +1513,14 @@ export class CharacterService {
   async updateHitPoints(current: number, max: number, temporary: number): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         current: Math.min(current, max), // Ensure current doesn't exceed max
         max,
         temporary,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1521,12 +1533,12 @@ export class CharacterService {
     if (!this._character) return;
 
     const maxWounds = this.getMaxWounds();
-    this._character = {
+    this.setCharacter({
       ...this._character,
       wounds: {
         current: Math.max(0, Math.min(current, maxWounds)),
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1538,10 +1550,10 @@ export class CharacterService {
   async updateActionTracker(actionTracker: ActionTracker): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       actionTracker,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1553,10 +1565,10 @@ export class CharacterService {
   async updateAbilities(abilities: AbilityDefinition[]): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _abilities: abilities,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1591,7 +1603,7 @@ export class CharacterService {
     const woundsRemoved = this._character.wounds.current > 0 ? 1 : 0;
 
     // Update character with full restoration
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
@@ -1614,7 +1626,7 @@ export class CharacterService {
         current: this._character.actionTracker.base,
         bonus: 0,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1666,7 +1678,7 @@ export class CharacterService {
     const actualHealing = Math.min(totalHealing, maxHP - currentHP);
 
     // Update character
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
@@ -1683,7 +1695,7 @@ export class CharacterService {
         current: this._character.actionTracker.base,
         bonus: 0,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1718,7 +1730,7 @@ export class CharacterService {
     const actualHealing = Math.min(totalHealing, maxHP - currentHP);
 
     // Update character with make camp restoration
-    this._character = {
+    this.setCharacter({
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
@@ -1735,7 +1747,7 @@ export class CharacterService {
         current: this._character.actionTracker.base,
         bonus: 0,
       },
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1774,7 +1786,7 @@ export class CharacterService {
       this._character,
     );
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       inEncounter: false,
       actionTracker: {
@@ -1785,7 +1797,7 @@ export class CharacterService {
       _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
       _resourceValues: newResourceValues,
       _dicePools: resetDicePools,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1816,7 +1828,7 @@ export class CharacterService {
     );
 
     // Update character to enter encounter mode with proper action tracker
-    this._character = {
+    this.setCharacter({
       ...this._character,
       inEncounter: true,
       actionTracker: {
@@ -1826,7 +1838,7 @@ export class CharacterService {
         bonus: 0,
       },
       _resourceValues: newResourceValues,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1861,7 +1873,7 @@ export class CharacterService {
       this._character,
     );
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       actionTracker: {
         ...this._character.actionTracker,
@@ -1871,7 +1883,7 @@ export class CharacterService {
       _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
       _resourceValues: newResourceValues,
       _dicePools: resetDicePools,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -1921,13 +1933,13 @@ export class CharacterService {
 
       // Deduct action if in encounter (weapons always cost 1 action)
       if (this._character.inEncounter) {
-        this._character = {
+        this.setCharacter({
           ...this._character,
           actionTracker: {
             ...this._character.actionTracker,
             current: this._character.actionTracker.current - 1,
           },
-        };
+        });
 
         await this.saveCharacter();
         this.notifyCharacterChanged();
@@ -2001,11 +2013,11 @@ export class CharacterService {
 
       const currentUses = this._character._abilityUses.get(ability.id) || 0;
 
-      this._character = {
+      this.setCharacter({
         ...this._character,
         actionTracker: updatedActionTracker,
         _abilityUses: new Map([...this._character._abilityUses, [ability.id, currentUses + 1]]),
-      };
+      });
 
       await this.saveCharacter();
       this.notifyCharacterChanged();
@@ -2032,10 +2044,10 @@ export class CharacterService {
   async refreshAbility(abilityId: string): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       _abilityUses: this.abilityService.refreshAbility(this._character, abilityId),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2065,7 +2077,7 @@ export class CharacterService {
       };
     }
 
-    this._character = updatedCharacter;
+    this.setCharacter(updatedCharacter);
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2082,7 +2094,7 @@ export class CharacterService {
       config,
     };
 
-    this._character = updatedCharacter;
+    this.setCharacter(updatedCharacter);
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2126,10 +2138,10 @@ export class CharacterService {
       subclassId,
     });
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2141,12 +2153,12 @@ export class CharacterService {
   async clearPoolFeatureSelections(grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: this._character.traitSelections.filter(
         (s) => !(s.type === "pool_feature" && s.grantedByTraitId === grantedByTraitId),
       ),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2168,10 +2180,10 @@ export class CharacterService {
     );
 
     // Add the new selections
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: [...otherSelections, ...selections],
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2183,7 +2195,7 @@ export class CharacterService {
   async selectSpellSchool(schoolId: string, grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: [
         ...this._character.traitSelections,
@@ -2193,7 +2205,7 @@ export class CharacterService {
           schoolId,
         },
       ],
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2205,12 +2217,12 @@ export class CharacterService {
   async clearSpellSchoolSelections(grantedByTraitId: string): Promise<void> {
     if (!this._character) return;
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: this._character.traitSelections.filter(
         (s) => !(s.type === "spell_school" && s.grantedByTraitId === grantedByTraitId),
       ),
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2239,10 +2251,10 @@ export class CharacterService {
       amount,
     });
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2266,10 +2278,10 @@ export class CharacterService {
     // Add the new selections
     const updatedSelections = [...otherSelections, ...newSelections];
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2310,10 +2322,10 @@ export class CharacterService {
       updatedSelections = [...this._character.traitSelections, newSelection];
     }
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2351,10 +2363,10 @@ export class CharacterService {
       );
     }
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2388,10 +2400,10 @@ export class CharacterService {
       s.type === "choice" && s.grantedByTraitId === choiceTraitId ? updatedChoice : s,
     );
 
-    this._character = {
+    this.setCharacter({
       ...this._character,
       traitSelections: updatedSelections,
-    };
+    });
 
     await this.saveCharacter();
     this.notifyCharacterChanged();
@@ -2401,7 +2413,7 @@ export class CharacterService {
    * Public method to update the character (used by class service)
    */
   async updateCharacter(character: Character): Promise<void> {
-    this._character = character;
+    this.setCharacter(character);
     await this.saveCharacter();
     this.notifyCharacterChanged();
     // Update event is already emitted in notifyCharacterChanged
@@ -2423,7 +2435,7 @@ export class CharacterService {
       inventory: updatedInventory,
     };
 
-    this._character = updatedCharacter;
+    this.setCharacter(updatedCharacter);
     await this.saveCharacter();
     this.notifyCharacterChanged();
   }
@@ -2476,7 +2488,7 @@ export class CharacterService {
       },
     };
 
-    this._character = updatedCharacter;
+    this.setCharacter(updatedCharacter);
     await this.saveCharacter();
     this.notifyCharacterChanged();
 
@@ -2492,7 +2504,7 @@ export class CharacterService {
 
     // If we deleted the current character, clear it
     if (wasActiveCharacter) {
-      this._character = null;
+      this.setCharacter(null);
     }
 
     // Check if any characters remain

@@ -34,6 +34,16 @@ import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -50,6 +60,7 @@ import { DiceFormulaHelpDialog } from "@/components/notes/dice-formula-help-dial
 
 import { gameConfig } from "@/lib/config/game-config";
 import { useCharacterService } from "@/lib/hooks/use-character-service";
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { NoteService } from "@/lib/services/note-service";
 import type { DiceRoll, Note } from "@/lib/types/note";
 
@@ -290,6 +301,7 @@ function SortableNote({
 
 export function NotesTab() {
   const { character } = useCharacterService();
+  const { showError } = useToastService();
   const noteService = NoteService.getInstance();
 
   const initialNotes = noteService.getNotes();
@@ -305,6 +317,7 @@ export function NotesTab() {
   const [openNotes, setOpenNotes] = useState<Set<string>>(
     new Set(initialNotes.map((note) => note.id)),
   );
+  const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
   const refreshNotes = () => {
     setNotes(noteService.getNotes());
@@ -323,7 +336,7 @@ export function NotesTab() {
       // Auto-expand the new note
       setOpenNotes((prev) => new Set([...prev, newNote.id]));
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to add note");
+      showError(error instanceof Error ? error.message : "Failed to add note");
     }
   };
 
@@ -349,7 +362,7 @@ export function NotesTab() {
       setEditDiceRolls([]);
       refreshNotes();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update note");
+      showError(error instanceof Error ? error.message : "Failed to update note");
     }
   };
 
@@ -364,19 +377,24 @@ export function NotesTab() {
     try {
       await noteService.rollDiceFromNote(noteId, rollId);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to roll dice");
+      showError(error instanceof Error ? error.message : "Failed to roll dice");
     }
   };
 
-  const handleDeleteNote = async (noteId: string) => {
-    if (!confirm("Are you sure you want to delete this note?")) return;
+  const handleDeleteNote = (noteId: string) => {
+    setNoteToDelete(noteId);
+  };
 
-    await noteService.deleteNote(noteId);
+  const confirmDeleteNote = async () => {
+    if (!noteToDelete) return;
+
+    await noteService.deleteNote(noteToDelete);
     setOpenNotes((prev) => {
       const newSet = new Set(prev);
-      newSet.delete(noteId);
+      newSet.delete(noteToDelete);
       return newSet;
     });
+    setNoteToDelete(null);
     refreshNotes();
   };
 
@@ -571,6 +589,26 @@ export function NotesTab() {
           ))}
         </SortableContext>
       </DndContext>
+
+      <AlertDialog open={!!noteToDelete} onOpenChange={(open) => !open && setNoteToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Note</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this note? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteNote}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

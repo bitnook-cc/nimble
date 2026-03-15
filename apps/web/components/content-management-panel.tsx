@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ActionAbilityDefinition, SpellAbilityDefinition } from "@/lib/schemas/abilities";
 import { AncestryDefinition } from "@/lib/schemas/ancestry";
@@ -37,6 +37,16 @@ import { RepositoryItem } from "@/lib/types/item-repository";
 import { ExampleGenerator } from "@/lib/utils/example-generator";
 import { getSchemaDocumentation } from "@/lib/utils/schema-documentation";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -70,6 +80,10 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
   const [showSchemaHelp, setShowSchemaHelp] = useState<Partial<Record<CustomContentType, boolean>>>(
     {},
   );
+  const [itemToConfirmDelete, setItemToConfirmDelete] = useState<{
+    item: ContentItem;
+    contentType: CustomContentType;
+  } | null>(null);
 
   const contentRepository = ContentRepositoryService.getInstance();
   const customContentStats = contentRepository.getCustomContentStats();
@@ -259,64 +273,67 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
     }
   };
 
-  const deleteContent = async (item: ContentItem, contentType: CustomContentType) => {
-    const itemId = item.id;
-    const itemName = item.name || itemId;
-
-    if (!confirm(`Delete "${itemName}"? This cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      let success = false;
-
-      switch (contentType) {
-        case CustomContentType.CLASS:
-          success = contentRepository.removeCustomClass(itemId);
-          break;
-        case CustomContentType.SUBCLASS:
-          success = contentRepository.removeCustomSubclass(itemId);
-          break;
-        case CustomContentType.ANCESTRY:
-          await contentRepository.removeCustomAncestry(itemId);
-          success = true;
-          break;
-        case CustomContentType.BACKGROUND:
-          await contentRepository.removeCustomBackground(itemId);
-          success = true;
-          break;
-        case CustomContentType.SPELL_SCHOOL:
-          success = contentRepository.removeCustomSpellSchool(itemId);
-          break;
-        case CustomContentType.ACTION:
-          success = contentRepository.removeCustomAbility(itemId);
-          break;
-        case CustomContentType.SPELL:
-          success = contentRepository.removeCustomSpell(itemId);
-          break;
-        case CustomContentType.ITEM:
-          success = contentRepository.removeCustomItem(itemId);
-          break;
-        default:
-          setUploadError(`Delete not implemented for ${contentType}`);
-          return;
-      }
-
-      if (success) {
-        setUploadMessage(`Deleted "${itemName}"`);
-        setTimeout(() => setUploadMessage(""), 3000);
-        // Force re-render by toggling the section
-        setExpandedSections((prev) => ({ ...prev, [contentType]: false }));
-        setTimeout(() => setExpandedSections((prev) => ({ ...prev, [contentType]: true })), 10);
-      } else {
-        setUploadError(`Failed to delete "${itemName}"`);
-        setTimeout(() => setUploadError(""), 3000);
-      }
-    } catch (error) {
-      setUploadError(`Error deleting "${itemName}": ${error}`);
-      setTimeout(() => setUploadError(""), 5000);
-    }
+  const promptDeleteContent = (item: ContentItem, contentType: CustomContentType) => {
+    setItemToConfirmDelete({ item, contentType });
   };
+
+  const deleteContent = useCallback(
+    async (item: ContentItem, contentType: CustomContentType) => {
+      const itemId = item.id;
+      const itemName = item.name || itemId;
+
+      try {
+        let success = false;
+
+        switch (contentType) {
+          case CustomContentType.CLASS:
+            success = contentRepository.removeCustomClass(itemId);
+            break;
+          case CustomContentType.SUBCLASS:
+            success = contentRepository.removeCustomSubclass(itemId);
+            break;
+          case CustomContentType.ANCESTRY:
+            await contentRepository.removeCustomAncestry(itemId);
+            success = true;
+            break;
+          case CustomContentType.BACKGROUND:
+            await contentRepository.removeCustomBackground(itemId);
+            success = true;
+            break;
+          case CustomContentType.SPELL_SCHOOL:
+            success = contentRepository.removeCustomSpellSchool(itemId);
+            break;
+          case CustomContentType.ACTION:
+            success = contentRepository.removeCustomAbility(itemId);
+            break;
+          case CustomContentType.SPELL:
+            success = contentRepository.removeCustomSpell(itemId);
+            break;
+          case CustomContentType.ITEM:
+            success = contentRepository.removeCustomItem(itemId);
+            break;
+          default:
+            setUploadError(`Delete not implemented for ${contentType}`);
+            return;
+        }
+
+        if (success) {
+          setUploadMessage(`Deleted "${itemName}"`);
+          setTimeout(() => setUploadMessage(""), 3000);
+          // Force re-render by toggling the section
+          setExpandedSections((prev) => ({ ...prev, [contentType]: false }));
+          setTimeout(() => setExpandedSections((prev) => ({ ...prev, [contentType]: true })), 10);
+        } else {
+          setUploadError(`Failed to delete "${itemName}"`);
+          setTimeout(() => setUploadError(""), 3000);
+        }
+      } catch (error) {
+        setUploadError(`Error deleting "${itemName}": ${error}`);
+        setTimeout(() => setUploadError(""), 5000);
+      }
+    },
+    [contentRepository],
+  );
 
   const renderContentSection = (contentType: CustomContentType, count: number) => {
     const metadata = getContentTypeMetadata(contentType);
@@ -524,7 +541,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         variant="ghost"
                                         size="sm"
                                         className="h-5 w-5 p-0 text-destructive hover:text-destructive"
-                                        onClick={() => deleteContent(repoItem, contentType)}
+                                        onClick={() => promptDeleteContent(repoItem, contentType)}
                                       >
                                         <Trash2 className="h-3 w-3" />
                                       </Button>
@@ -585,7 +602,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                           variant="ghost"
                                           size="sm"
                                           className="h-5 w-5 p-0 text-destructive hover:text-destructive"
-                                          onClick={() => deleteContent(spell, contentType)}
+                                          onClick={() => promptDeleteContent(spell, contentType)}
                                         >
                                           <Trash2 className="h-3 w-3" />
                                         </Button>
@@ -643,7 +660,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                         variant="ghost"
                                         size="sm"
                                         className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                        onClick={() => deleteContent(item, contentType)}
+                                        onClick={() => promptDeleteContent(item, contentType)}
                                       >
                                         <Trash2 className="h-3 w-3" />
                                       </Button>
@@ -712,7 +729,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                       variant="ghost"
                                       size="sm"
                                       className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                      onClick={() => deleteContent(item, contentType)}
+                                      onClick={() => promptDeleteContent(item, contentType)}
                                     >
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
@@ -830,6 +847,35 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
             </CardContent>
           </Card>
         </div>
+
+        <AlertDialog
+          open={!!itemToConfirmDelete}
+          onOpenChange={(open) => !open && setItemToConfirmDelete(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Content</AlertDialogTitle>
+              <AlertDialogDescription>
+                Delete &quot;{itemToConfirmDelete?.item.name || itemToConfirmDelete?.item.id}&quot;?
+                This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (itemToConfirmDelete) {
+                    deleteContent(itemToConfirmDelete.item, itemToConfirmDelete.contentType);
+                    setItemToConfirmDelete(null);
+                  }
+                }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );

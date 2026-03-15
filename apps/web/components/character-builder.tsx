@@ -4,6 +4,7 @@ import { Wand2 } from "lucide-react";
 
 import { useState } from "react";
 
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { TraitSelection } from "@/lib/schemas/character";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
@@ -77,6 +78,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
     equipmentReady: false,
   });
 
+  const { showError } = useToastService();
   const contentRepository = ContentRepositoryService.getInstance();
   const characterCreationService = getCharacterCreation();
   const characterService = getCharacterService();
@@ -166,6 +168,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
       onClose();
     } catch (error) {
       console.error("Failed to create character:", error);
+      showError("Failed to create character. Please try again.");
     }
   };
 

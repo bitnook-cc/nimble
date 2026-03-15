@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { Character } from "@/lib/schemas/character";
 import { pdfExportService } from "@/lib/services/pdf-export-service";
 import { getCharacterService } from "@/lib/services/service-factory";
@@ -36,6 +37,7 @@ interface AppMenuProps {
 export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps) {
   const { isAuthenticated } = useAuth();
   const { isInSession } = useActivitySharing();
+  const { showError } = useToastService();
   const [showSettings, setShowSettings] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
@@ -59,7 +61,7 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
         setShowPDFExport(false);
       } catch (error) {
         console.error("Failed to export PDF:", error);
-        // Could add toast notification here
+        showError("Failed to export PDF. Please try again.");
       } finally {
         setIsExporting(false);
       }

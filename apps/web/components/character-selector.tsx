@@ -72,7 +72,6 @@ export function CharacterSelector({
     if (deleteFromServer) {
       try {
         await syncService.deleteCharacterBackup(characterId);
-        console.log(`Deleted character ${characterId} from server backup`);
       } catch (error) {
         console.error(`Failed to delete character ${characterId} from server:`, error);
         // Don't throw - local deletion already succeeded

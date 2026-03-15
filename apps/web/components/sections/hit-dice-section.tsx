@@ -35,7 +35,6 @@ export function HitDiceSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("hitDice", isOpen);
 
   const handleSave = () => {
-    console.log(editValues);
     const updatedCharacter = {
       level: editValues.level,
       _hitDice: {
