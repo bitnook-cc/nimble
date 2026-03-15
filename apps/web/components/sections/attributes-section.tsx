@@ -146,6 +146,7 @@ export function AttributesSection() {
                 size="sm"
                 onClick={() => cycleSaveAdvantage(attributeName)}
                 className="absolute top-1 right-1 h-5 w-5 p-0 hover:bg-transparent"
+                aria-label={`Toggle ${displayName} save advantage`}
               >
                 {getSaveAdvantageIcon(saveAdvantage)}
               </Button>
@@ -185,6 +186,7 @@ export function AttributesSection() {
                   size="sm"
                   onClick={() => rollAttribute(attributeName, computedValue, advantageLevel)}
                   className="h-8 w-8 p-1"
+                  aria-label={`Roll ${displayName} check`}
                 >
                   <Dice6 className="w-3 h-3" />
                 </Button>
@@ -213,6 +215,7 @@ export function AttributesSection() {
                     )
                   }
                   className="h-8 w-8 p-1"
+                  aria-label={`Roll ${displayName} save`}
                 >
                   <Shield className="w-3 h-3" />
                 </Button>

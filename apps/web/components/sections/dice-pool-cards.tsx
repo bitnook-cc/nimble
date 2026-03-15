@@ -177,7 +177,10 @@ export function DicePoolCards() {
                   {pool.definition.name}
                   <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
-                      <button className="text-muted-foreground hover:text-foreground transition-colors">
+                      <button
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label={`${pool.definition.name} info`}
+                      >
                         <HelpCircle className="w-3.5 h-3.5" />
                       </button>
                     </TooltipTrigger>

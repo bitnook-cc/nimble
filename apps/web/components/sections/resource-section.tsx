@@ -249,6 +249,7 @@ export function ResourceSection() {
                           size="sm"
                           onClick={() => handleSpend(resource.definition.id)}
                           disabled={resource.current <= 0}
+                          aria-label={`Spend custom amount of ${resourceName}`}
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
@@ -280,6 +281,7 @@ export function ResourceSection() {
                           onClick={() => handleRestore(resource.definition.id)}
                           disabled={resource.current >= calculatedMaxValue}
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                          aria-label={`Restore custom amount of ${resourceName}`}
                         >
                           <Plus className="w-4 h-4" />
                         </Button>

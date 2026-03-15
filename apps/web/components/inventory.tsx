@@ -94,6 +94,7 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
     itemId: string;
     message: string;
   } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // Get sorted items based on itemOrder array
   const getSortedItems = () => {
@@ -808,6 +809,7 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                             onClick={() => handleWeaponAttack(item as WeaponItem)}
                             className="h-8 w-8 p-0"
                             disabled={!item.damage || !item.attribute}
+                            aria-label={`Attack with ${item.name}`}
                           >
                             <Sword className="w-4 h-4" />
                           </Button>
@@ -838,14 +840,16 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                           size="sm"
                           onClick={() => startEditItem(item)}
                           className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                          aria-label={`Edit ${item.name}`}
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => setItemToDelete(item.id)}
                           className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                          aria-label={`Delete ${item.name}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -860,6 +864,7 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                             onClick={() => changeItemCount(item.id, -1)}
                             disabled={(item as ConsumableItem | AmmunitionItem).count <= 1}
                             className="h-7 w-7 p-0"
+                            aria-label={`Decrease ${item.name} count`}
                           >
                             <Minus className="w-3 h-3" />
                           </Button>
@@ -871,6 +876,7 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
                             size="sm"
                             onClick={() => changeItemCount(item.id, 1)}
                             className="h-7 w-7 p-0"
+                            aria-label={`Increase ${item.name} count`}
                           >
                             <Plus className="w-3 h-3" />
                           </Button>
@@ -925,6 +931,34 @@ export function Inventory({ inventory, characterDexterity }: InventoryProps) {
               }}
             >
               Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={itemToDelete !== null}
+        onOpenChange={(open) => !open && setItemToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this item? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (itemToDelete) {
+                  removeItem(itemToDelete);
+                  setItemToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

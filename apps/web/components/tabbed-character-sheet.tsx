@@ -31,10 +31,14 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
   // Check if spells tab should be accessible
   // Tier 0 access is allowed as long as the character has spell schools unlocked
   const characterService = getCharacterService();
-  const hasSpellAccess =
-    character &&
-    character._spellTierAccess >= 0 &&
-    characterService.getAbilities().some((ability) => ability.type === "spell");
+  const hasSpellAccess = useMemo(
+    () =>
+      character &&
+      character._spellTierAccess >= 0 &&
+      characterService.getAbilities().some((ability) => ability.type === "spell"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [character],
+  );
 
   // Build tab order dynamically based on spell access
   const tabOrder = useMemo<TabType[]>(() => {

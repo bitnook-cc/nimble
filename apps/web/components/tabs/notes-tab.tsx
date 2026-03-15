@@ -239,6 +239,7 @@ function SortableNote({
                           onClick={() => {
                             onEditDiceRollsChange(editDiceRolls.filter((_, i) => i !== index));
                           }}
+                          aria-label={`Remove dice roll ${roll.name || `#${index + 1}`}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -524,6 +525,7 @@ export function NotesTab() {
                     onClick={() => {
                       setNewDiceRolls(newDiceRolls.filter((_, i) => i !== index));
                     }}
+                    aria-label={`Remove dice roll ${roll.name || `#${index + 1}`}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

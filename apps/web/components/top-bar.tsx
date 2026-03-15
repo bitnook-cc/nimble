@@ -59,7 +59,13 @@ function CompactAdvantageToggle() {
     <div className="flex items-center gap-2">
       <span className={`text-sm font-medium ${getDisplayColor()}`}>{getDisplayText()}</span>
       <div className="flex items-center">
-        <Button variant="ghost" size="sm" onClick={decrementAdvantage} className="h-7 w-7 p-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={decrementAdvantage}
+          className="h-7 w-7 p-0"
+          aria-label="Decrease advantage"
+        >
           <ChevronDown className="h-3 w-3" />
         </Button>
 
@@ -69,11 +75,18 @@ function CompactAdvantageToggle() {
           onClick={resetAdvantage}
           className="h-7 w-7 p-0"
           disabled={advantageLevel === 0}
+          aria-label="Reset advantage"
         >
           <Equal className="h-3 w-3" />
         </Button>
 
-        <Button variant="ghost" size="sm" onClick={incrementAdvantage} className="h-7 w-7 p-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={incrementAdvantage}
+          className="h-7 w-7 p-0"
+          aria-label="Increase advantage"
+        >
           <ChevronUp className="h-3 w-3" />
         </Button>
       </div>

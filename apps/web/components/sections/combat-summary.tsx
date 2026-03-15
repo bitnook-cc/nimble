@@ -163,6 +163,7 @@ function WoundsDisplay() {
           onClick={() => adjustWounds(-1)}
           disabled={wounds.current <= 0}
           className="h-6 w-6 p-0 text-xs"
+          aria-label="Remove wound"
         >
           <Minus className="w-4 h-4" />
         </Button>
@@ -176,6 +177,7 @@ function WoundsDisplay() {
           onClick={() => adjustWounds(1)}
           disabled={wounds.current >= maxWounds}
           className="h-6 w-6 p-0 text-xs"
+          aria-label="Add wound"
         >
           <Plus className="w-4 h-4" />
         </Button>
@@ -639,6 +641,7 @@ function ResourceTracker() {
                   size="sm"
                   className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                   onClick={() => updateActiveTab("character")}
+                  aria-label="Manage resources"
                 >
                   <Settings className="w-3.5 h-3.5" />
                 </Button>
@@ -669,6 +672,7 @@ function ResourceTracker() {
                         e.stopPropagation();
                         handleSpend(resource.definition.id);
                       }}
+                      aria-label={`Spend 1 ${resource.definition.name}`}
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
@@ -678,6 +682,7 @@ function ResourceTracker() {
                     onClick={() =>
                       setSelectedResourceId(isSelected ? null : resource.definition.id)
                     }
+                    aria-label={`${isSelected ? "Deselect" : "Select"} ${resource.definition.name}`}
                   >
                     {createPieChart(resource.current, maxValue, color, isSelected)}
                   </button>
@@ -691,6 +696,7 @@ function ResourceTracker() {
                         e.stopPropagation();
                         handleRestore(resource.definition.id);
                       }}
+                      aria-label={`Restore 1 ${resource.definition.name}`}
                     >
                       <Plus className="w-3 h-3" />
                     </Button>

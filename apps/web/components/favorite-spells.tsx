@@ -247,6 +247,7 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
                         onClick={() => handleToggleFavorite(spell)}
                         title="Remove from favorites"
                         className="h-7 px-2"
+                        aria-label={`Remove ${spell.name} from favorites`}
                       >
                         <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                       </Button>
@@ -273,6 +274,7 @@ export function FavoriteSpells({ character, advantageLevel }: FavoriteSpellsProp
                           disabled={isDisabled}
                           title="Upcast spell for increased effect"
                           className="h-7 px-2"
+                          aria-label={`Upcast ${spell.name}`}
                         >
                           <TrendingUp className="w-3 h-3" />
                         </Button>

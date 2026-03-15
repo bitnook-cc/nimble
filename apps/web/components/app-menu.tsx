@@ -74,7 +74,7 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" aria-label="Open menu">
             <Menu className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>

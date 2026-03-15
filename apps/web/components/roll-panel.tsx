@@ -77,7 +77,7 @@ export function RollPanel() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" aria-label="Open dice roller">
           <Dices className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -120,6 +120,7 @@ export function RollPanel() {
                     <button
                       onClick={() => removeDiceFromPool(die.id)}
                       className="text-slate-400 hover:text-red-500"
+                      aria-label={`Remove d${die.type} from pool`}
                     >
                       <X className="w-3 h-3" />
                     </button>

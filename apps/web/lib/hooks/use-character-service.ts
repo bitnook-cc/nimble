@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Character } from "../schemas/character";
 import { CharacterEvent, CharacterEventType } from "../services/character-service";
@@ -95,6 +95,69 @@ export function useCharacterService() {
     [characterService],
   );
 
+  // Bind all service methods once — characterService is a singleton that never changes
+  const methods = useMemo(
+    () => ({
+      // Service methods - direct access to character operations
+      updateCharacter: characterService.updateCharacter.bind(characterService),
+      updateCharacterFields: characterService.updateCharacterFields.bind(characterService),
+      applyDamage: characterService.applyDamage.bind(characterService),
+      applyHealing: characterService.applyHealing.bind(characterService),
+      applyTemporaryHP: characterService.applyTemporaryHP.bind(characterService),
+      updateWounds: characterService.updateWounds.bind(characterService),
+      updateActionTracker: characterService.updateActionTracker.bind(characterService),
+      updateAbilities: characterService.updateAbilities.bind(characterService),
+      startEncounter: characterService.startEncounter.bind(characterService),
+      endEncounter: characterService.endEncounter.bind(characterService),
+      endTurn: characterService.endTurn.bind(characterService),
+      performSafeRest: characterService.performSafeRest.bind(characterService),
+      performCatchBreath: characterService.performCatchBreath.bind(characterService),
+      performMakeCamp: characterService.performMakeCamp.bind(characterService),
+      performAttack: characterService.performAttack.bind(characterService),
+      performUseAbility: characterService.performUseAbility.bind(characterService),
+      refreshAbility: characterService.refreshAbility.bind(characterService),
+      updateCharacterConfiguration:
+        characterService.updateCharacterConfiguration.bind(characterService),
+
+      // Dynamic stat calculation methods
+      getAttributes: characterService.getAttributes.bind(characterService),
+      getSkills: characterService.getSkills.bind(characterService),
+      getSkillBonuses: characterService.getSkillBonuses.bind(characterService),
+      getSkillValue: characterService.getSkillValue.bind(characterService),
+      getInitiative: characterService.getInitiative.bind(characterService),
+      getHitDice: characterService.getHitDice.bind(characterService),
+      getMaxWounds: characterService.getMaxWounds.bind(characterService),
+      getArmorValue: characterService.getArmorValue.bind(characterService),
+      getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
+      getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
+      getSpeed: characterService.getSpeed.bind(characterService),
+      getSpellTierAccess: characterService.getSpellTierAccess.bind(characterService),
+      getSpellSchools: characterService.getSpellSchools.bind(characterService),
+      getAbilities: characterService.getAbilities.bind(characterService),
+      getResources: characterService.getResources.bind(characterService),
+      getAvailableTraitSelections:
+        characterService.getAvailableTraitSelections.bind(characterService),
+
+      // Effect selection methods
+      selectSubclass: characterService.selectSubclass.bind(characterService),
+      updatePoolSelectionsForTrait:
+        characterService.updatePoolSelectionsForTrait.bind(characterService),
+      selectSpellSchool: characterService.selectSpellSchool.bind(characterService),
+      clearSpellSchoolSelections:
+        characterService.clearSpellSchoolSelections.bind(characterService),
+      selectAttributeBoost: characterService.selectAttributeBoost.bind(characterService),
+      updateUtilitySelectionsForTrait:
+        characterService.updateUtilitySelectionsForTrait.bind(characterService),
+
+      // Favorite spells management
+      getFavoritedSpells: characterService.getFavoritedSpells.bind(characterService),
+      isSpellFavorited: characterService.isSpellFavorited.bind(characterService),
+      toggleFavoriteSpell: characterService.toggleFavoriteSpell.bind(characterService),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   return {
     // State
     character,
@@ -104,59 +167,7 @@ export function useCharacterService() {
     deleteCharacter,
     subscribeToEvent,
 
-    // Service methods - direct access to character operations
-    updateCharacter: characterService.updateCharacter.bind(characterService),
-    updateCharacterFields: characterService.updateCharacterFields.bind(characterService),
-    applyDamage: characterService.applyDamage.bind(characterService),
-    applyHealing: characterService.applyHealing.bind(characterService),
-    applyTemporaryHP: characterService.applyTemporaryHP.bind(characterService),
-    updateWounds: characterService.updateWounds.bind(characterService),
-    updateActionTracker: characterService.updateActionTracker.bind(characterService),
-    updateAbilities: characterService.updateAbilities.bind(characterService),
-    startEncounter: characterService.startEncounter.bind(characterService),
-    endEncounter: characterService.endEncounter.bind(characterService),
-    endTurn: characterService.endTurn.bind(characterService),
-    performSafeRest: characterService.performSafeRest.bind(characterService),
-    performCatchBreath: characterService.performCatchBreath.bind(characterService),
-    performMakeCamp: characterService.performMakeCamp.bind(characterService),
-    performAttack: characterService.performAttack.bind(characterService),
-    performUseAbility: characterService.performUseAbility.bind(characterService),
-    refreshAbility: characterService.refreshAbility.bind(characterService),
-    updateCharacterConfiguration:
-      characterService.updateCharacterConfiguration.bind(characterService),
-
-    // Dynamic stat calculation methods
-    getAttributes: characterService.getAttributes.bind(characterService),
-    getSkills: characterService.getSkills.bind(characterService),
-    getSkillBonuses: characterService.getSkillBonuses.bind(characterService),
-    getSkillValue: characterService.getSkillValue.bind(characterService),
-    getInitiative: characterService.getInitiative.bind(characterService),
-    getHitDice: characterService.getHitDice.bind(characterService),
-    getMaxWounds: characterService.getMaxWounds.bind(characterService),
-    getArmorValue: characterService.getArmorValue.bind(characterService),
-    getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),
-    getResourceMinValue: characterService.getResourceMinValue.bind(characterService),
-    getSpeed: characterService.getSpeed.bind(characterService),
-    getSpellTierAccess: characterService.getSpellTierAccess.bind(characterService),
-    getSpellSchools: characterService.getSpellSchools.bind(characterService),
-    getAbilities: characterService.getAbilities.bind(characterService),
-    getResources: characterService.getResources.bind(characterService),
-    getAvailableTraitSelections:
-      characterService.getAvailableTraitSelections.bind(characterService),
-
-    // Effect selection methods
-    selectSubclass: characterService.selectSubclass.bind(characterService),
-    updatePoolSelectionsForTrait:
-      characterService.updatePoolSelectionsForTrait.bind(characterService),
-    selectSpellSchool: characterService.selectSpellSchool.bind(characterService),
-    clearSpellSchoolSelections: characterService.clearSpellSchoolSelections.bind(characterService),
-    selectAttributeBoost: characterService.selectAttributeBoost.bind(characterService),
-    updateUtilitySelectionsForTrait:
-      characterService.updateUtilitySelectionsForTrait.bind(characterService),
-
-    // Favorite spells management
-    getFavoritedSpells: characterService.getFavoritedSpells.bind(characterService),
-    isSpellFavorited: characterService.isSpellFavorited.bind(characterService),
-    toggleFavoriteSpell: characterService.toggleFavoriteSpell.bind(characterService),
+    // Spread all bound service methods
+    ...methods,
   };
 }
