@@ -356,6 +356,37 @@ export const themes: Theme[] = [
       "--radius": "0",
     },
   },
+  // Parchment (light, fantasy colors + font, standard rounded UI)
+  {
+    id: "parchment",
+    name: "Parchment",
+    description: "Warm parchment tones with an old-world fantasy feel",
+    isDark: false,
+    colors: {
+      background: "hsl(38 35% 90%)",
+      foreground: "hsl(25 30% 18%)",
+      card: "hsl(36 30% 87%)",
+      cardForeground: "hsl(25 30% 18%)",
+      popover: "hsl(36 30% 87%)",
+      popoverForeground: "hsl(25 30% 18%)",
+      primary: "hsl(25 45% 35%)",
+      primaryForeground: "hsl(38 35% 92%)",
+      secondary: "hsl(35 25% 80%)",
+      secondaryForeground: "hsl(25 30% 18%)",
+      muted: "hsl(35 20% 82%)",
+      mutedForeground: "hsl(25 15% 40%)",
+      accent: "hsl(30 30% 75%)",
+      accentForeground: "hsl(25 30% 18%)",
+      destructive: "hsl(0 50% 42%)",
+      destructiveForeground: "hsl(38 35% 92%)",
+      border: "hsl(30 25% 55%)",
+      input: "hsl(30 20% 65%)",
+      ring: "hsl(25 45% 35%)",
+    },
+    custom: {
+      "--font-sans": "'Cormorant Garamond', 'Georgia', serif",
+    },
+  },
 ];
 
 // Helper function to get theme family from theme ID

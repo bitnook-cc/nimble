@@ -10,7 +10,8 @@ export type ThemeId =
   | "sunset"
   | "sunset-dark"
   | "midnight"
-  | "ironforge";
+  | "ironforge"
+  | "parchment";
 
 export interface Theme {
   id: ThemeId;
@@ -50,4 +51,5 @@ export type ThemeFamily =
   | "ocean"
   | "sunset"
   | "midnight"
-  | "ironforge";
+  | "ironforge"
+  | "parchment";
