@@ -5,6 +5,10 @@ import { APP_CONFIG } from "@/lib/config/app-config";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  title: {
+    default: APP_CONFIG.APP_NAME,
+    template: `%s | ${APP_CONFIG.APP_NAME}`,
+  },
   description: APP_CONFIG.APP_DESCRIPTION,
   icons: {
     icon: "/logo.png",

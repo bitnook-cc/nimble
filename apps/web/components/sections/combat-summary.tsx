@@ -252,18 +252,22 @@ function HPActionDialog({
       case "damage":
         return {
           title: "Apply Damage",
+          description: "Apply damage to your character. Temporary HP absorbs damage first.",
           buttonClass: "bg-red-600 hover:bg-red-700 text-white",
           icon: <Droplets className="w-4 h-4" />,
         };
       case "healing":
         return {
           title: "Apply Healing",
+          description: "Restore hit points to your character.",
           buttonClass: "bg-green-600 hover:bg-green-700 text-white",
           icon: <HeartPlus className="w-4 h-4" />,
         };
       case "tempHP":
         return {
           title: "Add Temporary HP",
+          description:
+            "Add temporary hit points. Temporary HP doesn't stack — the higher value is kept.",
           buttonClass: "bg-blue-600 hover:bg-blue-700 text-white",
           icon: <ShieldPlus className="w-4 h-4" />,
         };
@@ -280,9 +284,7 @@ function HPActionDialog({
             {config.icon}
             {config.title}
           </DialogTitle>
-          <DialogDescription>
-            View a detailed summary of your combat abilities, weapons, and defenses.
-          </DialogDescription>
+          <DialogDescription>{config.description}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

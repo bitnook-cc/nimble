@@ -1332,16 +1332,21 @@ export class CharacterService {
   async loadCharacter(characterId: string): Promise<Character | null> {
     const character = await this.storageService.getCharacter(characterId);
     if (character) {
-      if (this._character) {
-        await this.storageService.updateLastPlayed(this._character.id);
+      const hadPreviousCharacter = !!this._character;
+      if (hadPreviousCharacter) {
+        await this.storageService.updateLastPlayed(this._character!.id);
+      }
+
+      // Assign before emitting so listeners see the new character
+      this._character = character;
+
+      if (hadPreviousCharacter) {
         this.emitEvent({
           type: "switched",
           characterId,
           character,
         });
       }
-
-      this._character = character;
 
       // Update settings with new active character
       const settingsService = getSettingsService();
