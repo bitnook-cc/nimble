@@ -353,6 +353,7 @@ export const themes: Theme[] = [
       "--rpg-border-width": "2px",
       "--rpg-border-glow": "rgba(120,160,200,0.15)",
       "--rpg-panel-bg": "hsl(215 18% 8%)",
+      "--radius": "0",
     },
   },
 ];

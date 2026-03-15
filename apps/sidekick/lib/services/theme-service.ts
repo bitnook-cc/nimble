@@ -71,6 +71,8 @@ export class ThemeService {
     return this.getThemeById(this.currentThemeId);
   }
 
+  private previousCustomKeys: string[] = [];
+
   private applyTheme(themeId: string): void {
     const theme = this.getThemeById(themeId);
 
@@ -110,11 +112,19 @@ export class ThemeService {
     root.style.setProperty("--input", colors.input);
     root.style.setProperty("--ring", colors.ring);
 
+    // Remove previous theme's custom variables
+    for (const key of this.previousCustomKeys) {
+      root.style.removeProperty(key);
+    }
+
     // Apply custom theme variables if any
     if (finalTheme.custom) {
+      this.previousCustomKeys = Object.keys(finalTheme.custom);
       Object.entries(finalTheme.custom).forEach(([key, value]) => {
         root.style.setProperty(key, value);
       });
+    } else {
+      this.previousCustomKeys = [];
     }
 
     // Add theme class for theme-specific styles

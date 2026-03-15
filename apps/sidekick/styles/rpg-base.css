@@ -5,11 +5,23 @@
    Uses data-slot selectors from shadcn/ui v4.
    ============================================ */
 
-/* ---- Fonts ---- */
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&display=swap");
+/* ---- Fonts ----
+   Cinzel is loaded via <link> in layout.tsx for reliability.
+   Google Fonts @import inside CSS can be stripped by Tailwind v4's pipeline.
+*/
 
 [data-rpg] {
+  /* Override all radius tiers to 0 for sharp corners */
   --radius: 0 !important;
+  --radius-sm: 0 !important;
+  --radius-md: 0 !important;
+  --radius-lg: 0 !important;
+  --radius-xl: 0 !important;
+  --radius-2xl: 0 !important;
+  --radius-3xl: 0 !important;
+  --radius-4xl: 0 !important;
+
+  /* RPG font families */
   --rpg-font-header: "Cinzel", "Georgia", serif;
   --rpg-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
