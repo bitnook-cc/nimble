@@ -119,6 +119,13 @@ export class ThemeService {
 
     // Add theme class for theme-specific styles
     root.setAttribute("data-theme", getThemeFamily(finalTheme.id));
+
+    // Set RPG structural layer flag
+    if (finalTheme.rpg) {
+      root.setAttribute("data-rpg", "");
+    } else {
+      root.removeAttribute("data-rpg");
+    }
   }
 
   // Get light/dark themes grouped by family

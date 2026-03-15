@@ -9,13 +9,15 @@ export type ThemeId =
   | "ocean-dark"
   | "sunset"
   | "sunset-dark"
-  | "midnight";
+  | "midnight"
+  | "ironforge";
 
 export interface Theme {
   id: ThemeId;
   name: string;
   description: string;
   isDark: boolean;
+  rpg?: boolean;
   colors: {
     background: string;
     foreground: string;
@@ -41,4 +43,11 @@ export interface Theme {
   custom?: Record<string, string>;
 }
 
-export type ThemeFamily = "default" | "nimble" | "forest" | "ocean" | "sunset" | "midnight";
+export type ThemeFamily =
+  | "default"
+  | "nimble"
+  | "forest"
+  | "ocean"
+  | "sunset"
+  | "midnight"
+  | "ironforge";

@@ -321,6 +321,40 @@ export const themes: Theme[] = [
       ring: "hsl(260 60% 60%)",
     },
   },
+  // Ironforge (RPG - dark only)
+  {
+    id: "ironforge",
+    name: "Ironforge",
+    description: "Deep slate with steel-blue accents and fantasy styling",
+    isDark: true,
+    rpg: true,
+    colors: {
+      background: "hsl(215 15% 11%)",
+      foreground: "hsl(210 15% 82%)",
+      card: "hsl(215 15% 14%)",
+      cardForeground: "hsl(210 15% 82%)",
+      popover: "hsl(215 15% 14%)",
+      popoverForeground: "hsl(210 15% 82%)",
+      primary: "hsl(210 30% 55%)",
+      primaryForeground: "hsl(215 15% 11%)",
+      secondary: "hsl(215 12% 18%)",
+      secondaryForeground: "hsl(210 15% 82%)",
+      muted: "hsl(215 10% 22%)",
+      mutedForeground: "hsl(210 12% 55%)",
+      accent: "hsl(215 12% 18%)",
+      accentForeground: "hsl(210 15% 82%)",
+      destructive: "hsl(0 55% 50%)",
+      destructiveForeground: "hsl(210 15% 82%)",
+      border: "hsl(210 20% 35%)",
+      input: "hsl(210 20% 35%)",
+      ring: "hsl(210 30% 55%)",
+    },
+    custom: {
+      "--rpg-border-width": "2px",
+      "--rpg-border-glow": "rgba(120,160,200,0.15)",
+      "--rpg-panel-bg": "hsl(215 18% 8%)",
+    },
+  },
 ];
 
 // Helper function to get theme family from theme ID

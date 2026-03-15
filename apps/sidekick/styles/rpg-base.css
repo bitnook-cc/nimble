@@ -1,0 +1,328 @@
+/* ============================================
+   RPG THEME - STRUCTURAL LAYER
+   Scoped under [data-rpg] so it only activates
+   when an RPG-flagged theme is selected.
+   Uses data-slot selectors from shadcn/ui v4.
+   ============================================ */
+
+/* ---- Fonts ---- */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&display=swap");
+
+[data-rpg] {
+  --radius: 0 !important;
+  --rpg-font-header: "Cinzel", "Georgia", serif;
+  --rpg-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Typography ---- */
+
+[data-rpg] h1,
+[data-rpg] h2,
+[data-rpg] h3,
+[data-rpg] h4 {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Cards ---- */
+
+[data-rpg] [data-slot="card"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  box-shadow:
+    0 0 8px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+  position: relative;
+  overflow: visible;
+}
+
+[data-rpg] [data-slot="card"]::before,
+[data-rpg] [data-slot="card"]::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background-image: url("/corner.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-rpg] [data-slot="card"]::before {
+  top: 2px;
+  left: 2px;
+}
+
+[data-rpg] [data-slot="card"]::after {
+  bottom: 2px;
+  right: 2px;
+  transform: rotate(180deg);
+}
+
+[data-rpg] [data-slot="card-title"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---- Buttons ---- */
+
+[data-rpg] [data-slot="button"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  border-radius: 0;
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  box-shadow:
+    0 0 6px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Ghost and link buttons should not get heavy borders */
+[data-rpg] [data-slot="button"][data-variant="ghost"],
+[data-rpg] [data-slot="button"][data-variant="link"] {
+  border: none;
+  box-shadow: none;
+  text-transform: none;
+  font-family: inherit;
+  letter-spacing: normal;
+  font-size: inherit;
+}
+
+/* Icon-only buttons - keep compact */
+[data-rpg] [data-slot="button"][data-size="icon"] {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: inherit;
+}
+
+/* ---- Inputs / Textareas ---- */
+
+[data-rpg] [data-slot="input"],
+[data-rpg] [data-slot="textarea"] {
+  border-radius: 0;
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  box-shadow: 0 0 4px var(--rpg-border-glow, rgba(120, 160, 200, 0.15));
+}
+
+[data-rpg] input:not([data-slot]),
+[data-rpg] textarea:not([data-slot]),
+[data-rpg] select {
+  border-radius: 0;
+}
+
+/* ---- Tabs ---- */
+
+[data-rpg] [data-slot="tabs-list"] {
+  background: var(--rpg-panel-bg, hsl(215 18% 8%));
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+}
+
+[data-rpg] [data-slot="tabs-trigger"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  border-radius: 0;
+  border-right: 1px solid var(--border);
+  padding: 0.6rem 0.8rem;
+  transition: background-color 0.15s ease;
+}
+
+[data-rpg] [data-slot="tabs-trigger"]:last-child {
+  border-right: none;
+}
+
+[data-rpg] [data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: none;
+  font-weight: 700;
+}
+
+[data-rpg] [data-slot="tabs-trigger"]:not([data-state="active"]):hover {
+  background: var(--muted);
+}
+
+/* Also target role-based tabs (bottom tab bar, etc.) */
+[data-rpg] [role="tablist"] {
+  border-radius: 0;
+}
+
+[data-rpg] [role="tab"] {
+  border-radius: 0;
+}
+
+/* ---- Dialogs ---- */
+
+[data-rpg] [data-slot="dialog-content"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  box-shadow:
+    0 0 12px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+}
+
+[data-rpg] [data-slot="dialog-overlay"] {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+[data-rpg] [data-slot="dialog-title"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Alert Dialog ---- */
+
+[data-rpg] [data-slot="alert-dialog-content"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  box-shadow:
+    0 0 12px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+}
+
+[data-rpg] [data-slot="alert-dialog-overlay"] {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+[data-rpg] [data-slot="alert-dialog-title"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Select / Dropdown ---- */
+
+[data-rpg] [data-slot="select-trigger"] {
+  border-radius: 0;
+  border: var(--rpg-border-width, 2px) solid var(--border);
+}
+
+[data-rpg] [data-slot="select-content"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  border-radius: 0;
+  box-shadow:
+    0 0 8px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-rpg] [data-slot="dropdown-menu-content"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  border-radius: 0;
+  box-shadow:
+    0 0 8px var(--rpg-border-glow, rgba(120, 160, 200, 0.15)),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Separator ---- */
+
+[data-rpg] [data-slot="separator"] {
+  background: var(--border);
+  opacity: 0.6;
+}
+
+/* ---- Badge ---- */
+
+[data-rpg] [data-slot="badge"] {
+  border-radius: 0;
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+}
+
+/* ---- Checkbox ---- */
+
+[data-rpg] [data-slot="checkbox"] {
+  border-radius: 0;
+}
+
+/* ---- Switch ---- */
+
+[data-rpg] [data-slot="switch"] {
+  border-radius: 0;
+}
+
+[data-rpg] [data-slot="switch-thumb"] {
+  border-radius: 0;
+}
+
+/* ---- Label ---- */
+
+[data-rpg] [data-slot="label"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+}
+
+/* ---- Tooltip ---- */
+
+[data-rpg] [data-slot="tooltip-content"] {
+  border-radius: 0;
+  border: 1px solid var(--border);
+}
+
+/* ---- Alert ---- */
+
+[data-rpg] [data-slot="alert"] {
+  border: var(--rpg-border-width, 2px) solid var(--border);
+  border-radius: 0;
+}
+
+[data-rpg] [data-slot="alert-title"] {
+  font-family: var(--rpg-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---- Scroll Area ---- */
+
+[data-rpg] [data-slot="scroll-area-scrollbar"] {
+  border-radius: 0;
+}
+
+[data-rpg] [data-slot="scroll-area-thumb"] {
+  border-radius: 0;
+  background: var(--border);
+}
+
+/* ---- Scrollbar styling ---- */
+
+[data-rpg] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-rpg] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-rpg] ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 0;
+}
+
+[data-rpg] ::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* ---- General sharp corners fallback ---- */
+
+[data-rpg] .rounded-xl,
+[data-rpg] .rounded-lg,
+[data-rpg] .rounded-md,
+[data-rpg] .rounded-sm,
+[data-rpg] .rounded,
+[data-rpg] .rounded-full {
+  border-radius: 0;
+}
