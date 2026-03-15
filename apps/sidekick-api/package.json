@@ -1,5 +1,5 @@
 {
-  "name": "@nimble/api",
+  "name": "@nimble/sidekick-api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "predev": "npm run db:start-local && npm run db:migrate:deploy",
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
-    "vercel-build": "cd ../.. && npx turbo build --filter=@nimble/api && cd apps/api && prisma migrate deploy",
+    "vercel-build": "cd ../.. && npx turbo build --filter=@nimble/sidekick-api && cd apps/sidekick-api && prisma migrate deploy",
     "start": "node dist/index.js",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",

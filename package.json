@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/web",
-    "apps/api",
+    "apps/sidekick",
+    "apps/sidekick-api",
     "apps/discord",
     "apps/vault",
     "apps/portal",
@@ -17,8 +17,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:web": "turbo dev --filter=@nimble/web",
-    "dev:api": "turbo dev --filter=@nimble/api",
+    "dev:sidekick": "turbo dev --filter=@nimble/sidekick",
+    "dev:api": "turbo dev --filter=@nimble/sidekick-api",
     "dev:discord": "turbo dev --filter=@nimble/discord",
     "dev:vault": "turbo dev --filter=@nimble/vault",
     "dev:portal": "turbo dev --filter=@nimble/portal",

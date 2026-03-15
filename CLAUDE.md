@@ -6,8 +6,8 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Applications
 
-- **`apps/web`**: Next.js 16 web application (Sidekick character sheet app)
-- **`apps/api`**: Express.js REST API server (port 3001)
+- **`apps/sidekick`**: Next.js 16 web application (Sidekick character sheet app)
+- **`apps/sidekick-api`**: Express.js REST API server (port 3001)
 - **`apps/vault`**: Next.js 16 documentation site for Nimble RPG rules and content
 - **`apps/portal`**: Next.js 16 authentication portal with Supabase integration
 - **`apps/discord`**: Discord bot for Nimble dice rolling (HTTP interactions)
@@ -21,9 +21,9 @@ This is a **Turborepo monorepo** containing multiple applications and packages:
 
 ### Express API Server
 
-- **Location**: `apps/api/`
+- **Location**: `apps/sidekick-api/`
 - **Port**: 3001 (configurable via PORT env var)
-- **Entry**: `apps/api/src/index.ts`
+- **Entry**: `apps/sidekick-api/src/index.ts`
 - **Authentication**: Iron Session (serverless-compatible) with Google OAuth
 - **Database**: PostgreSQL with Prisma ORM
 - **Endpoints**:
@@ -71,7 +71,7 @@ The API uses PostgreSQL for data persistence. In local development, a Docker con
 - **Port**: 5432
 - **Credentials**: See `.env.example` for local defaults
 
-#### Database Commands (from `apps/api/`)
+#### Database Commands (from `apps/sidekick-api/`)
 
 **IMPORTANT: Always use migrations for database changes. NEVER use `db:push` as it bypasses migration tracking.**
 
@@ -95,9 +95,9 @@ npm run db:studio           # Open Prisma Studio GUI
 
 When you need to modify the database schema:
 
-1. **Edit `apps/api/prisma/schema.prisma`** with your changes
+1. **Edit `apps/sidekick-api/prisma/schema.prisma`** with your changes
 2. **Create a migration**: Run `npm run db:migrate:dev` and provide a descriptive name
-3. **Commit the migration file** in `apps/api/prisma/migrations/`
+3. **Commit the migration file** in `apps/sidekick-api/prisma/migrations/`
 4. **Never use `db:push`** - it causes database drift and breaks migration tracking
 
 #### Docker Management
@@ -153,10 +153,10 @@ npm run test:run      # Run tests once (CI mode)
 
 ```bash
 # Run specific tasks with filters
-npx turbo dev --filter=@nimble/web
-npx turbo dev --filter=@nimble/api
+npx turbo dev --filter=@nimble/sidekick
+npx turbo dev --filter=@nimble/sidekick-api
 npx turbo dev --filter=@nimble/vault
-npx turbo build --filter=@nimble/web
+npx turbo build --filter=@nimble/sidekick
 
 # Dry run to see what would be executed
 npx turbo build --dry-run
@@ -664,7 +664,7 @@ app/page.tsx (main orchestrator)
 └── CLAUDE.md        # This documentation
 ```
 
-### Web Application Structure (`apps/web/`)
+### Web Application Structure (`apps/sidekick/`)
 
 ```
 lib/
@@ -789,9 +789,9 @@ npm run test:run      # Run tests once (CI mode)
 
 ```bash
 # Run commands for specific apps using Turbo filters
-npx turbo dev --filter=@nimble/web
-npx turbo build --filter=@nimble/api
-npx turbo test --filter=@nimble/web
+npx turbo dev --filter=@nimble/sidekick
+npx turbo build --filter=@nimble/sidekick-api
+npx turbo test --filter=@nimble/sidekick
 ```
 
 ### Testing
@@ -812,7 +812,7 @@ The project uses **Vitest** for unit testing and **Playwright** for end-to-end t
 
 #### End-to-End Testing (Playwright)
 
-- **Location**: E2E tests are in `apps/web/e2e/` directory
+- **Location**: E2E tests are in `apps/sidekick/e2e/` directory
 - **Framework**: Playwright with multi-browser support (Chrome, Firefox, Safari, Mobile)
 - **Test Utils**: Centralized `CharacterTestUtils` class for common user interactions
 - **Test Scenarios**: Character creation, dice rolling, tab navigation, equipment management, health/resources

@@ -141,8 +141,8 @@ cd nimble
 npm install
 
 # Configure Google OAuth (optional)
-# 1. Copy apps/api/.env.example to apps/api/.env
-# 2. Add your Google OAuth credentials (see apps/api/README.md for setup)
+# 1. Copy apps/sidekick-api/.env.example to apps/sidekick-api/.env
+# 2. Add your Google OAuth credentials (see apps/sidekick-api/README.md for setup)
 
 # Start development servers (all apps)
 npm run dev

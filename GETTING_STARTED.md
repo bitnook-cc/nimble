@@ -123,10 +123,10 @@ cp apps/portal/.env.example apps/portal/.env.local
 - `CHARACTERS_APP_URL` - URL to character sheets app
 - `DICE_APP_URL` - URL to dice roller app
 
-#### API Server (`apps/api/`)
+#### API Server (`apps/sidekick-api/`)
 
 ```bash
-cp apps/api/.env.example apps/api/.env
+cp apps/sidekick-api/.env.example apps/sidekick-api/.env
 ```
 
 **Required environment variables:**
@@ -389,7 +389,7 @@ npm run db:generate
 ## Getting Help
 
 - **Documentation**: See `CLAUDE.md` for comprehensive architecture details
-- **Database Guide**: See `apps/api/DATABASE_DEPLOYMENT.md` for database setup
+- **Database Guide**: See `apps/sidekick-api/DATABASE_DEPLOYMENT.md` for database setup
 - **Issues**: Report bugs or request features on GitHub
 
 ## Environment Files Quick Reference
@@ -397,8 +397,8 @@ npm run db:generate
 | App | File Location | Purpose |
 |-----|--------------|---------|
 | Portal | `apps/portal/.env.local` | Supabase config, OAuth providers, site URL |
-| API | `apps/api/.env` | Database URL, session secrets, Google OAuth |
+| API | `apps/sidekick-api/.env` | Database URL, session secrets, Google OAuth |
 | Vault | `apps/vault/.env` | Supabase config, JWT public key |
-| Web | `apps/web/.env.local` | (If needed for future features) |
+| Sidekick | `apps/sidekick/.env.local` | (If needed for future features) |
 
 All apps have `.env.example` files showing the required variables with explanations.
