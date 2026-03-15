@@ -5,7 +5,7 @@ import { Cloud, CloudOff, CloudUpload, Loader2 } from "lucide-react";
 
 import { useCallback, useEffect, useState } from "react";
 
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToastService } from "@/lib/hooks/use-toast-service";
 import { syncService } from "@/lib/services/sync/sync-service";
 
 import { Button } from "./ui/button";
@@ -18,7 +18,7 @@ export function SyncButton() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSynced, setIsSynced] = useState(false);
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToastService();
 
   // Check authentication and sync status on mount
   useEffect(() => {
@@ -89,10 +89,10 @@ export function SyncButton() {
           maxCharacters: result.maxCharacters,
         });
 
-        toast({
-          title: "Sync Complete",
-          description: `Synced ${result.characterCount} character${result.characterCount !== 1 ? "s" : ""}`,
-        });
+        showSuccess(
+          "Sync Complete",
+          `Synced ${result.characterCount} character${result.characterCount !== 1 ? "s" : ""}`,
+        );
 
         // Update sync state
         setHasChanges(false);
@@ -103,23 +103,18 @@ export function SyncButton() {
           setIsSynced(false);
         }, 2000);
       } else {
-        toast({
-          title: "Sync Failed",
-          description: "Please sign in to sync your characters",
-          variant: "destructive",
-        });
+        showError("Sync Failed", "Please sign in to sync your characters");
       }
     } catch (error) {
       console.error("Sync failed:", error);
-      toast({
-        title: "Sync Failed",
-        description: error instanceof Error ? error.message : "An error occurred during sync",
-        variant: "destructive",
-      });
+      showError(
+        "Sync Failed",
+        error instanceof Error ? error.message : "An error occurred during sync",
+      );
     } finally {
       setIsSyncing(false);
     }
-  }, [isAuthenticated, isSyncing, toast]);
+  }, [isAuthenticated, isSyncing, showSuccess, showError]);
 
   // Don't show sync button if loading
   if (isLoading) {

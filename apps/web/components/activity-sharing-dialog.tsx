@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useActivitySharing } from "../lib/hooks/use-activity-sharing";
 import { useAuth } from "../lib/hooks/use-auth";
 import { useCharacterService } from "../lib/hooks/use-character-service";
-import { useToast } from "../lib/hooks/use-toast";
+import { useToastService } from "../lib/hooks/use-toast-service";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -27,7 +27,7 @@ export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySha
   const setOpen = onClose !== undefined ? (value: boolean) => !value && onClose() : setInternalOpen;
   const [joinCode, setJoinCode] = useState("");
   const [sessionName, setSessionName] = useState("");
-  const { toast } = useToast();
+  const { showSuccess, showError, showInfo } = useToastService();
   const { character } = useCharacterService();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const {
@@ -51,28 +51,24 @@ export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySha
       // Only show success message when actually joining/creating (when session appears)
       const isNewSession = sessionName.trim() !== "" || joinCode.trim() !== "";
       if (isNewSession) {
-        toast({
-          title: sessionName ? "Session Created" : "Joined Session",
-          description: sessionName
+        showSuccess(
+          sessionName ? "Session Created" : "Joined Session",
+          sessionName
             ? `Session "${currentSession.name}" created with code: ${currentSession.code}`
             : `Joined session "${currentSession.name}"`,
-        });
+        );
         setSessionName("");
         setJoinCode("");
       }
     }
-  }, [currentSession, error, sessionName, joinCode, toast]);
+  }, [currentSession, error, sessionName, joinCode, showSuccess]);
 
   // Show error notifications
   useEffect(() => {
     if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
+      showError("Error", error);
     }
-  }, [error, toast]);
+  }, [error, showError]);
 
   // Load user sessions when dialog opens and not in a session
   useEffect(() => {
@@ -104,19 +100,13 @@ export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySha
       // Owner leaving should close the session
       await closeSession();
       if (sessionName) {
-        toast({
-          title: "Session Closed",
-          description: `Session "${sessionName}" has been closed`,
-        });
+        showInfo("Session Closed", `Session "${sessionName}" has been closed`);
       }
     } else {
       // Regular participant leaving
       await leaveSession();
       if (sessionName) {
-        toast({
-          title: "Left Session",
-          description: `Left session "${sessionName}"`,
-        });
+        showInfo("Left Session", `Left session "${sessionName}"`);
       }
     }
   };
@@ -264,10 +254,10 @@ export function ActivitySharingDialog({ children, isOpen, onClose }: ActivitySha
                     className="h-6 w-6 p-0 cursor-pointer"
                     onClick={() => {
                       navigator.clipboard.writeText(currentSession.code);
-                      toast({
-                        title: "Code copied!",
-                        description: `Join code "${currentSession.code}" copied to clipboard`,
-                      });
+                      showSuccess(
+                        "Code copied!",
+                        `Join code "${currentSession.code}" copied to clipboard`,
+                      );
                     }}
                   >
                     <Copy className="h-3 w-3" />
