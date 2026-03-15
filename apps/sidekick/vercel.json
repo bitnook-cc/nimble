@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "turbo run build --filter=@nimble/web",
+  "buildCommand": "turbo run build --filter=@nimble/sidekick",
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": "out",
