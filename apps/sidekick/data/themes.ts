@@ -384,7 +384,7 @@ export const themes: Theme[] = [
       ring: "hsl(25 45% 35%)",
     },
     custom: {
-      "--font-sans": "'Cormorant Garamond', 'Georgia', serif",
+      "--font-sans": "'Alegreya', 'Georgia', serif",
     },
   },
 ];
