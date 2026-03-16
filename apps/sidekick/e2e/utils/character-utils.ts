@@ -142,10 +142,9 @@ export class CharacterTestUtils {
     const rollButton = await this.getFirstVisibleButton(rollPatterns);
     await rollButton.click();
 
-    // Wait for roll result to appear in activity log - look for heading to avoid ambiguity
-    await expect(
-      this.page.getByRole("heading", { name: /roll|attack|check/i }).first(),
-    ).toBeVisible({
+    // Wait for roll result to appear in activity log
+    // Roll entries render description as a span with "check", "save", "roll", or "attack" text
+    await expect(this.page.getByText(/check|save|roll|attack/i).first()).toBeVisible({
       timeout: 3000,
     });
   }
