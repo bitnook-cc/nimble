@@ -6,7 +6,7 @@ import { settingsService } from "./settings-service";
 
 export class ThemeService {
   private isInitialized = false;
-  private currentThemeId: string = "default";
+  private currentThemeId: string = "nimble";
 
   async initializeTheme(): Promise<void> {
     if (this.isInitialized || typeof window === "undefined") return;
@@ -15,7 +15,7 @@ export class ThemeService {
 
     // Get theme from app settings
     const settings = await settingsService.getSettings();
-    const themeId = settings.themeId || "default";
+    const themeId = settings.themeId || "nimble";
 
     // Update current theme ID
     this.currentThemeId = themeId;
@@ -35,7 +35,7 @@ export class ThemeService {
   async setTheme(themeId: string): Promise<void> {
     // Validate theme exists, fallback to default if not
     const theme = this.getThemeById(themeId);
-    const validThemeId = theme ? themeId : "default";
+    const validThemeId = theme ? themeId : "nimble";
 
     this.currentThemeId = validThemeId;
 
@@ -76,8 +76,8 @@ export class ThemeService {
   private applyTheme(themeId: string): void {
     const theme = this.getThemeById(themeId);
 
-    // Fallback to default if theme not found
-    const finalTheme = theme || this.getThemeById("default");
+    // Fallback to nimble if theme not found
+    const finalTheme = theme || this.getThemeById("nimble");
     if (!finalTheme) return;
 
     this.currentThemeId = finalTheme.id;

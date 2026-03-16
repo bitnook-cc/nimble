@@ -81,7 +81,7 @@ export class SettingsService {
   private getDefaultSettings(): AppSettings {
     return {
       activeCharacterId: undefined, // No default character when starting fresh
-      themeId: "default", // Default to light theme
+      themeId: "nimble", // Default to Nimble Classic theme
       beyond20Enabled: false, // Disabled by default
     };
   }

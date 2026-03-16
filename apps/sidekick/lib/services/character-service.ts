@@ -812,8 +812,8 @@ export class CharacterService {
       ),
     });
 
-    await this.saveCharacter();
     this.notifyCharacterChanged();
+    await this.saveCharacter();
   }
 
   /**
@@ -839,8 +839,8 @@ export class CharacterService {
       ),
     });
 
-    await this.saveCharacter();
     this.notifyCharacterChanged();
+    await this.saveCharacter();
   }
 
   /**
