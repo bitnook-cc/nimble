@@ -399,7 +399,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
       canProceed={canProceedFromCurrentStep()}
       nextButtonText={getNextButtonText()}
       previousButtonText={getPreviousButtonText()}
-      className="max-w-4xl w-[95vw]"
+      className="sm:max-w-4xl w-[95vw]"
       completedSteps={getCompletedSteps()}
     >
       <div className="min-w-0 px-4 sm:px-6 py-4">{renderStepContent()}</div>
