@@ -29,6 +29,7 @@ interface HitPointsStepProps {
   character: Character;
   levelUpData: LevelUpData;
   hitDieSize: string;
+  currentMaxHp: number;
   onHpChange: (hp: number) => void;
   onReroll: () => void;
 }
@@ -37,6 +38,7 @@ export function HitPointsStep({
   character,
   levelUpData,
   hitDieSize,
+  currentMaxHp,
   onHpChange,
   onReroll,
 }: HitPointsStepProps) {
@@ -54,7 +56,7 @@ export function HitPointsStep({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Current HP</Label>
-              <div className="text-2xl font-bold">{character.hitPoints.max}</div>
+              <div className="text-2xl font-bold">{currentMaxHp}</div>
             </div>
             <div>
               <Label htmlFor="new-hp">New HP</Label>

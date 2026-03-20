@@ -155,6 +155,13 @@ const greaterInvocations: ClassFeature[] = [
         allowedAttributes: ["dexterity"],
         amount: 1,
       },
+      {
+        id: "fiendish-boon-1",
+        type: "stat_bonus",
+        statBonus: {
+          hitDiceBonus: { type: "fixed", value: -1 },
+        },
+      },
     ],
   },
   {
