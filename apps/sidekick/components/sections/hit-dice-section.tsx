@@ -56,7 +56,7 @@ export function HitDiceSection() {
         ...character._hitDice,
         sizeOverride,
         current: editValues.currentHitDice,
-        max: editValues.level,
+        max: editValues.level, // Max hit dice always equals level
       },
     };
     updateCharacterFields(updatedCharacter);
