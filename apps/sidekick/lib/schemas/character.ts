@@ -53,7 +53,7 @@ export const skillSchema = z.object({
 
 export const hitPointsSchema = z.object({
   current: z.int().min(0),
-  max: z.int().min(1),
+  max: z.int(),
   temporary: z.int().min(0),
 });
 
@@ -72,6 +72,9 @@ export const hitDiceSchema = z.object({
     z.literal(12),
     z.literal(20),
   ]),
+  sizeOverride: z
+    .union([z.literal(4), z.literal(6), z.literal(8), z.literal(10), z.literal(12), z.literal(20)])
+    .optional(),
   current: z.int().min(0),
   max: z.int().min(1),
 });

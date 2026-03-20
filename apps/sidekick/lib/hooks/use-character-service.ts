@@ -126,6 +126,7 @@ export function useCharacterService() {
       getSkillValue: characterService.getSkillValue.bind(characterService),
       getInitiative: characterService.getInitiative.bind(characterService),
       getHitDice: characterService.getHitDice.bind(characterService),
+      getMaxHp: characterService.getMaxHp.bind(characterService),
       getMaxWounds: characterService.getMaxWounds.bind(characterService),
       getArmorValue: characterService.getArmorValue.bind(characterService),
       getResourceMaxValue: characterService.getResourceMaxValue.bind(characterService),

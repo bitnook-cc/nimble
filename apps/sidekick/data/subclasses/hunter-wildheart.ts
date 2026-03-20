@@ -11,7 +11,16 @@ export const hunterWildheart: SubclassDefinition = {
       level: 3,
       name: "Impressive Form",
       description: "+5 max HP. Upgrade your Hit Dice to d10s.",
-      traits: [], // Passive feature - no mechanical traits to process
+      traits: [
+        {
+          id: "impressive-form-0",
+          type: "stat_bonus",
+          statBonus: {
+            maxHpBonus: { type: "fixed", value: 5 },
+            hitDieSizeOverride: 10,
+          },
+        },
+      ],
     },
     {
       id: "i-have-the-high-ground",

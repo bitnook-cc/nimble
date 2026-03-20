@@ -51,7 +51,7 @@ const STEPS = [
 ];
 
 export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
-  const { character, updateCharacter } = useCharacterService();
+  const { character, updateCharacter, getHitDice, getMaxHp } = useCharacterService();
   const { showError } = useToastService();
   const [currentStep, setCurrentStep] = useState(0);
   const [levelUpData, setLevelUpData] = useState<LevelUpData>({
@@ -71,7 +71,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
   // Early return if no character loaded (after all hooks)
   if (!character) return null;
 
-  const hitDieSize = character._hitDice.size;
+  const hitDieSize = getHitDice().size;
 
   const handleNext = () => {
     if (currentStep === 0) {
@@ -289,6 +289,7 @@ export function LevelUpGuide({ open, onOpenChange }: LevelUpGuideProps) {
             character={character}
             levelUpData={levelUpData}
             hitDieSize={`d${hitDieSize}`}
+            currentMaxHp={getMaxHp()}
             onHpChange={(newHp) => setLevelUpData((prev) => ({ ...prev, newMaxHp: newHp }))}
             onReroll={rollHitPoints}
           />
