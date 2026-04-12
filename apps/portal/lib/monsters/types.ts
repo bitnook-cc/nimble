@@ -22,6 +22,13 @@ export interface MonsterPhase {
   actions?: MonsterAction[];
 }
 
+export interface BuilderConfig {
+  baseLevel: number;
+  hpLevelOffset: number;
+  damageLevelOffset: number;
+  dieSize: number;
+}
+
 export interface MonsterBase {
   id: string;
   name: string;
@@ -42,6 +49,7 @@ export interface MonsterBase {
   passives: MonsterPassive[];
   actions: MonsterAction[];
   notes?: string;
+  builderConfig?: BuilderConfig;
   timestamps: {
     createdAt: string;
     updatedAt: string;

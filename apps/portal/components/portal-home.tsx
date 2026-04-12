@@ -7,7 +7,6 @@ import {
   Users,
   Calendar,
   BookOpen,
-  Sparkles,
   Sword,
   Shield
 } from 'lucide-react'

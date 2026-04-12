@@ -33,6 +33,15 @@ const timestampsSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 
+const builderConfigSchema = z
+  .object({
+    baseLevel: z.number(),
+    hpLevelOffset: z.number().int(),
+    damageLevelOffset: z.number().int(),
+    dieSize: z.number().int().positive(),
+  })
+  .optional();
+
 const monsterBaseSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1, "Name is required"),
@@ -47,6 +56,7 @@ const monsterBaseSchema = z.object({
   passives: z.array(monsterPassiveSchema),
   actions: z.array(monsterActionSchema),
   notes: z.string().optional(),
+  builderConfig: builderConfigSchema,
   timestamps: timestampsSchema,
 });
 
