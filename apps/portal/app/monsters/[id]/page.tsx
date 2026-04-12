@@ -9,6 +9,7 @@ import {
   deleteMonster,
 } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
+import { GuidedBuilder } from "@/components/monsters/guided-builder";
 import { MonsterForm } from "@/components/monsters/monster-form";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
@@ -103,7 +104,11 @@ export default function EditMonsterPage({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <MonsterForm monster={monster} onChange={setMonster} />
+        {monster.kind === "standard" ? (
+          <GuidedBuilder monster={monster} onChange={setMonster} />
+        ) : (
+          <MonsterForm monster={monster} onChange={setMonster} />
+        )}
         <div className="sticky top-8">
           <MonsterStatBlock monster={monster} />
         </div>

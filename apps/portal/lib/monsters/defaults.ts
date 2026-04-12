@@ -1,20 +1,32 @@
 import type { Monster, LegendaryMonster, AnyMonster } from "./types";
+import { getRowByLevel, getHpForArmor } from "./monster-table";
 
 export function createDefaultMonster(
   overrides?: Partial<Omit<Monster, "kind" | "id" | "timestamps">>
 ): Monster {
   const now = new Date().toISOString();
+  const level = overrides?.level ?? 1;
+  const armor = overrides?.armor ?? "None";
+  const row = getRowByLevel(level);
+  const hp = row ? getHpForArmor(row, armor) : 10;
+
   return {
     id: crypto.randomUUID(),
     kind: "standard",
     name: "",
-    level: 1,
+    level,
     size: "Medium",
-    hitPoints: 10,
-    armor: "None",
+    hitPoints: hp,
+    armor,
     speed: 6,
     passives: [],
     actions: [],
+    builderConfig: {
+      baseLevel: level,
+      hpLevelOffset: 0,
+      damageLevelOffset: 0,
+      dieSize: 8,
+    },
     timestamps: {
       createdAt: now,
       updatedAt: now,

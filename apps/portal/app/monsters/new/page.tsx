@@ -6,7 +6,7 @@ import { ArrowLeft, Save } from "lucide-react";
 import { createDefaultMonster } from "@/lib/monsters/defaults";
 import { saveMonster } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
-import { MonsterForm } from "@/components/monsters/monster-form";
+import { GuidedBuilder } from "@/components/monsters/guided-builder";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
 
@@ -52,7 +52,7 @@ export default function NewMonsterPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <MonsterForm monster={monster} onChange={setMonster} />
+        <GuidedBuilder monster={monster} onChange={setMonster} />
         <div className="sticky top-8">
           <MonsterStatBlock monster={monster} />
         </div>
