@@ -66,13 +66,21 @@ const commands = [
   },
   {
     name: 'histogram',
-    description: 'Show the probability distribution of a dice formula (10,000 simulations)',
+    description: 'Show the probability distribution of a dice formula',
     options: [
       {
         type: 3, // STRING
         name: 'formula',
         description: 'Dice formula (e.g., 2d8+10, 1d20!a, 3d6+5)',
         required: true,
+      },
+      {
+        type: 4, // INTEGER
+        name: 'samples',
+        description: 'Number of simulations (default: 10000, max: 100000)',
+        required: false,
+        min_value: 100,
+        max_value: 100000,
       },
     ],
   },

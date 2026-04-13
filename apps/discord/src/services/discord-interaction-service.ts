@@ -283,11 +283,16 @@ export class DiscordInteractionService {
   private handleHistogramCommand(options: CommandOption[]): InteractionResponse {
     try {
       const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+      const samplesValue = options.find((opt) => opt.name === 'samples')?.value;
 
       if (typeof formulaValue !== 'string') {
         throw new Error('Formula must be a string');
       }
       const formula = formulaValue;
+      const samples = Math.min(
+        100000,
+        Math.max(100, typeof samplesValue === 'number' ? samplesValue : 10000),
+      );
 
       const result = generateHistogram(
         formula,
@@ -296,7 +301,7 @@ export class DiscordInteractionService {
           allowFumbles: true,
           vicious: false,
         },
-        10000,
+        samples,
       );
 
       if (!result) {
