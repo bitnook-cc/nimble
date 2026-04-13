@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Plus, Trash2, Sword, Shield, Search, X, Zap, ChevronDown, ChevronUp } from "lucide-react";
-import { MONSTER_SIZES } from "@/lib/monsters/constants";
+import { MONSTER_SIZES, ARMOR_TYPES } from "@/lib/monsters/constants";
 import {
   LEGENDARY_TABLE,
-  getLegendaryRowByLevel,
+  getLegendaryRowByIndex,
+  getLegendaryLevelIndex,
   getLegendaryHpForArmor,
 } from "@/lib/monsters/legendary-table";
 import {
@@ -18,6 +19,7 @@ import {
 import { MONSTER_ABILITIES } from "@/lib/monsters/abilities";
 import type {
   AnyMonster,
+  ArmorType,
   LegendaryMonster,
   BuilderConfig,
   MonsterPassive,
@@ -29,9 +31,6 @@ interface LegendaryGuidedBuilderProps {
   monster: AnyMonster;
   onChange: (monster: AnyMonster) => void;
 }
-
-const LEGENDARY_ARMOR_TYPES = ["Medium", "Heavy"] as const;
-type LegendaryArmor = (typeof LEGENDARY_ARMOR_TYPES)[number];
 
 const LEVEL_OPTIONS = LEGENDARY_TABLE.map((row) => ({
   value: row.level,
@@ -51,13 +50,17 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
     };
   });
 
-  const row = getLegendaryRowByLevel(config.baseLevel);
-  const armor = (monster.armor === "Heavy" ? "Heavy" : "Medium") as LegendaryArmor;
-  const hp = row ? getLegendaryHpForArmor(row, armor) : 150;
-  const lastStandHp = row?.hpLastStand ?? 50;
-  const saveDC = row?.saveDC ?? 12;
-  const damageSmall = row?.damageSmall ?? 12;
-  const damageBig = row?.damageBig ?? 24;
+  const baseIndex = getLegendaryLevelIndex(config.baseLevel);
+  const hpIndex = Math.max(0, Math.min(baseIndex + config.hpLevelOffset, LEGENDARY_TABLE.length - 1));
+  const dmgIndex = Math.max(0, Math.min(baseIndex + config.damageLevelOffset, LEGENDARY_TABLE.length - 1));
+  const baseRow = getLegendaryRowByIndex(baseIndex);
+  const hpRow = getLegendaryRowByIndex(hpIndex);
+  const dmgRow = getLegendaryRowByIndex(dmgIndex);
+  const hp = getLegendaryHpForArmor(hpRow, monster.armor as "None" | "Medium" | "Heavy");
+  const lastStandHp = hpRow.hpLastStand;
+  const saveDC = baseRow.saveDC;
+  const damageSmall = dmgRow.damageSmall;
+  const damageBig = dmgRow.damageBig;
 
   const smallFormulas = useMemo(
     () => generateFormulas(damageSmall, config.dieSize),
@@ -101,10 +104,12 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
 
   // --- Sync & update helpers ---
 
-  function syncMonster(newConfig: BuilderConfig, armorOverride?: LegendaryArmor) {
-    const newRow = getLegendaryRowByLevel(newConfig.baseLevel);
-    const a = armorOverride ?? armor;
-    const newHp = newRow ? getLegendaryHpForArmor(newRow, a) : hp;
+  function syncMonster(newConfig: BuilderConfig, armorOverride?: ArmorType) {
+    const newBaseIndex = getLegendaryLevelIndex(newConfig.baseLevel);
+    const newHpIndex = Math.max(0, Math.min(newBaseIndex + newConfig.hpLevelOffset, LEGENDARY_TABLE.length - 1));
+    const newHpRow = getLegendaryRowByIndex(newHpIndex);
+    const a = armorOverride ?? monster.armor;
+    const newHp = getLegendaryHpForArmor(newHpRow, a as "None" | "Medium" | "Heavy");
 
     setConfig(newConfig);
     onChange({
@@ -117,11 +122,65 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
   }
 
   function handleLevelChange(level: number) {
-    syncMonster({ ...config, baseLevel: level });
+    syncMonster({ ...config, baseLevel: level, hpLevelOffset: 0, damageLevelOffset: 0 });
   }
 
-  function handleArmorChange(a: LegendaryArmor) {
+  function handleArmorChange(a: ArmorType) {
     syncMonster(config, a);
+  }
+
+  function shiftBalance(direction: number) {
+    const newHpOffset = config.hpLevelOffset + direction;
+    const newDmgOffset = config.damageLevelOffset - direction;
+    const newHpIndex = baseIndex + newHpOffset;
+    const newDmgIndex = baseIndex + newDmgOffset;
+    if (newHpIndex < 0 || newHpIndex >= LEGENDARY_TABLE.length || newDmgIndex < 0 || newDmgIndex >= LEGENDARY_TABLE.length) return;
+    syncMonster({ ...config, hpLevelOffset: newHpOffset, damageLevelOffset: newDmgOffset });
+  }
+
+  // Max offsets clamped by table bounds
+  const maxPositiveOffset = Math.min(LEGENDARY_TABLE.length - 1 - baseIndex, baseIndex);
+  const maxNegativeOffset = -maxPositiveOffset;
+
+  // Drag handling for the balance indicator
+  const barRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const configRef = useRef(config);
+  configRef.current = config;
+  const baseIndexRef = useRef(baseIndex);
+  baseIndexRef.current = baseIndex;
+  const maxOffsetsRef = useRef({ min: maxNegativeOffset, max: maxPositiveOffset });
+  maxOffsetsRef.current = { min: maxNegativeOffset, max: maxPositiveOffset };
+
+  function handleDrag(clientX: number) {
+    const bar = barRef.current;
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const { min, max } = maxOffsetsRef.current;
+    const range = max - min;
+    const offset = Math.round(min + percent * range);
+    const clamped = Math.max(min, Math.min(max, offset));
+    const bi = baseIndexRef.current;
+    const newHpIdx = bi + clamped;
+    const newDmgIdx = bi - clamped;
+    if (newHpIdx < 0 || newHpIdx >= LEGENDARY_TABLE.length || newDmgIdx < 0 || newDmgIdx >= LEGENDARY_TABLE.length) return;
+    syncMonster({ ...configRef.current, hpLevelOffset: clamped, damageLevelOffset: -clamped });
+  }
+
+  function handlePointerDown(e: React.PointerEvent) {
+    isDragging.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    handleDrag(e.clientX);
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!isDragging.current) return;
+    handleDrag(e.clientX);
+  }
+
+  function handlePointerUp() {
+    isDragging.current = false;
   }
 
   function update(patch: Partial<AnyMonster>) {
@@ -245,6 +304,12 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
     "w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary";
   const sectionHeader =
     "text-sm font-heading font-bold text-foreground uppercase tracking-wide";
+
+  // Balance bar percentage
+  const balanceValue = config.hpLevelOffset;
+  const barPercent = maxPositiveOffset === 0
+    ? 50
+    : ((balanceValue - maxNegativeOffset) / (maxPositiveOffset - maxNegativeOffset)) * 100;
 
   // Render a formula table (shared for small and big)
   function renderFormulaTable(
@@ -495,7 +560,7 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
           <div className="font-bold">{config.baseLevel}</div>
         </div>
         <div className="text-center">
-          <div className="text-muted-foreground text-xs">HP ({armor})</div>
+          <div className="text-muted-foreground text-xs">HP ({monster.armor})</div>
           <div className="font-bold">{hp}</div>
         </div>
         <div className="text-center">
@@ -537,20 +602,21 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
           <div>
             <label className={labelClass}>Armor</label>
             <div className="relative flex bg-muted rounded-lg p-1">
+              {/* Sliding indicator */}
               <div
                 className="absolute top-1 bottom-1 rounded-md bg-primary shadow-sm transition-all duration-200 ease-in-out"
                 style={{
-                  width: `calc(${100 / LEGENDARY_ARMOR_TYPES.length}% - 2px)`,
-                  left: `calc(${(LEGENDARY_ARMOR_TYPES.indexOf(armor) * 100) / LEGENDARY_ARMOR_TYPES.length}% + 1px)`,
+                  width: `calc(${100 / ARMOR_TYPES.length}% - 2px)`,
+                  left: `calc(${(ARMOR_TYPES.indexOf(monster.armor as (typeof ARMOR_TYPES)[number]) * 100) / ARMOR_TYPES.length}% + 1px)`,
                 }}
               />
-              {LEGENDARY_ARMOR_TYPES.map((a) => (
+              {ARMOR_TYPES.map((a) => (
                 <button
                   key={a}
                   type="button"
                   onClick={() => handleArmorChange(a)}
                   className={`relative z-10 flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
-                    armor === a
+                    monster.armor === a
                       ? "text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
@@ -563,7 +629,103 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
         </div>
       </div>
 
-      {/* C. Die Size & Attacks */}
+      {/* C. Balance Dial */}
+      <div>
+        <h4 className={sectionHeader}>Balance</h4>
+        <div className="mt-3 bg-card border border-border rounded-lg p-4 space-y-3">
+          {/* Stats row */}
+          <div className="flex justify-between text-sm">
+            <div>
+              <span className="font-semibold text-red-500">Dmg</span>{" "}
+              <span className="text-foreground">{damageSmall}/{damageBig}</span>
+              {config.damageLevelOffset > 0 && (
+                <span className="text-red-400 text-xs ml-1">
+                  +{config.damageLevelOffset} {config.damageLevelOffset === 1 ? "level" : "levels"}
+                </span>
+              )}
+            </div>
+            <div>
+              {config.hpLevelOffset > 0 && (
+                <span className="text-blue-400 text-xs mr-1">
+                  +{config.hpLevelOffset} {config.hpLevelOffset === 1 ? "level" : "levels"}
+                </span>
+              )}
+              <span className="font-semibold text-blue-500">HP</span>{" "}
+              <span className="text-foreground">{hp}</span>
+            </div>
+          </div>
+
+          {/* Gradient bar with draggable indicator */}
+          <div
+            ref={barRef}
+            className="relative cursor-pointer select-none touch-none py-2"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+          >
+            <div
+              className="h-3 rounded-full"
+              style={{
+                background: "linear-gradient(to right, #ef4444, #f59e0b, #22c55e, #3b82f6)",
+              }}
+            />
+            {/* Draggable indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white border-2 border-foreground shadow-md"
+              style={{
+                left: `calc(${Math.max(2, Math.min(98, barPercent))}% - 10px)`,
+                transition: isDragging.current ? "none" : "left 0.2s ease",
+              }}
+            />
+          </div>
+
+          {/* Labels */}
+          <div className="flex justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
+            <span>Glass Cannon</span>
+            <span>Balanced</span>
+            <span>Tank</span>
+          </div>
+
+          {/* Sword / Reset / Shield buttons */}
+          <div className="flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => shiftBalance(-1)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all"
+              title="More damage, less HP"
+            >
+              <Sword className="w-3.5 h-3.5 text-red-500" />
+              <span className="text-red-500">Damage</span>
+            </button>
+            {(config.damageLevelOffset !== 0 || config.hpLevelOffset !== 0) && (
+              <button
+                type="button"
+                onClick={() =>
+                  syncMonster({
+                    ...config,
+                    hpLevelOffset: 0,
+                    damageLevelOffset: 0,
+                  })
+                }
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all text-muted-foreground"
+              >
+                Reset
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => shiftBalance(1)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all"
+              title="More HP, less damage"
+            >
+              <Shield className="w-3.5 h-3.5 text-blue-500" />
+              <span className="text-blue-500">Survivability</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* D. Die Size & Attacks */}
       <div>
         <h4 className={sectionHeader}>Die Size & Attacks</h4>
         <div className="mt-2">
