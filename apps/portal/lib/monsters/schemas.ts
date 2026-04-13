@@ -39,6 +39,7 @@ const builderConfigSchema = z
     hpLevelOffset: z.number().int(),
     damageLevelOffset: z.number().int(),
     dieSize: z.number().int().positive(),
+    nimbleDice: z.boolean().optional(),
   })
   .optional();
 

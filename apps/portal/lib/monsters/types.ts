@@ -27,6 +27,7 @@ export interface BuilderConfig {
   hpLevelOffset: number;
   damageLevelOffset: number;
   dieSize: number;
+  nimbleDice?: boolean;
 }
 
 export interface MonsterBase {

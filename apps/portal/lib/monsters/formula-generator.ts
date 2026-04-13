@@ -150,15 +150,26 @@ function parseDiceCount(formula: string): number {
  * NdX, NdX+M, (2d6+3)*2, exploding crits (!), vicious (v), etc.
  * Returns null if the formula is empty or unparseable.
  */
-export function calculateAverageDamage(formula: string): number | null {
+/**
+ * Calculate the expected average damage of a dice formula string.
+ *
+ * When nimbleDice=true, applies Nimble attack rules:
+ * - First die rolling 1 = miss (entire attack does 0 damage including modifier)
+ * - First die rolling max = crit (roll one extra exploding die)
+ * - Vicious (v): crit adds an additional non-exploding die
+ *
+ * When nimbleDice=false, uses naive averages (N * avg(dX) + M).
+ */
+export function calculateAverageDamage(
+  formula: string,
+  nimbleDice = false
+): number | null {
   if (!formula || !formula.trim()) return null;
 
   try {
     const tokens = tokenize(formula.trim());
     if (tokens.length === 0) return null;
 
-    // Evaluate the token stream using standard math order of operations.
-    // Convert dice tokens to their average value, then evaluate the expression.
     const values: number[] = [];
     const ops: string[] = [];
 
@@ -176,10 +187,21 @@ export function calculateAverageDamage(formula: string): number | null {
 
     const precedence: Record<string, number> = { "+": 1, "-": 1, "*": 2, "/": 2 };
 
+    // In Nimble mode, we need to handle the entire expression as an attack.
+    // Miss-on-1 means the whole result is 0 with probability 1/sides of the first dice token.
+    // Crit-on-max means add an extra exploding die with probability 1/sides.
+    // We find the first dice token to determine the die size for miss/crit.
+    let firstDiceSides: number | null = null;
+    let firstDiceModifiers: string[] = [];
+
     for (const token of tokens) {
       if (token.type === "static") {
         values.push(token.value);
       } else if (token.type === "dice") {
+        if (nimbleDice && firstDiceSides === null) {
+          firstDiceSides = token.sides;
+          firstDiceModifiers = token.modifiers;
+        }
         const avg = diceTokenAverage(token.count, token.sides, token.modifiers);
         values.push(avg);
       } else if (token.type === "operator") {
@@ -187,7 +209,7 @@ export function calculateAverageDamage(formula: string): number | null {
           ops.push("(");
         } else if (token.operator === ")") {
           while (ops.length > 0 && ops[ops.length - 1] !== "(") applyOp();
-          ops.pop(); // remove "("
+          ops.pop();
         } else {
           while (
             ops.length > 0 &&
@@ -203,10 +225,30 @@ export function calculateAverageDamage(formula: string): number | null {
 
     while (ops.length > 0) applyOp();
 
-    const result = values[0];
+    let result = values[0];
     if (result === undefined || isNaN(result)) return null;
 
-    // Round to 1 decimal place for display
+    // Apply Nimble attack rules if enabled and we found a dice token
+    if (nimbleDice && firstDiceSides !== null) {
+      const s = firstDiceSides;
+      const baseAvg = DIE_AVERAGES[s];
+      if (baseAvg !== undefined) {
+        const pMiss = 1 / s;
+        const pCrit = 1 / s;
+        const pHit = 1 - pMiss; // includes crit
+
+        // On a hit, the naive average is the base result
+        // On a crit, add an extra exploding die
+        const explodingExtra = baseAvg * s / (s - 1);
+
+        // Vicious: on crit, add one more non-exploding die
+        const hasVicious = firstDiceModifiers.includes("v");
+        const viciousExtra = hasVicious ? baseAvg : 0;
+
+        result = pHit * result + pCrit * (explodingExtra + viciousExtra);
+      }
+    }
+
     return Math.round(result * 10) / 10;
   } catch {
     return null;
@@ -214,34 +256,12 @@ export function calculateAverageDamage(formula: string): number | null {
 }
 
 /**
- * Calculate the average value of a dice token, accounting for modifiers.
- * - Exploding (! or !!): each die has a chance to explode, adding avg(die) * (1/sides) recursively
- * - Vicious (v): on a crit (max roll), adds one extra die. Probability = 1/sides per die.
+ * Calculate the naive average value of a dice token (no miss/crit rules).
+ * Used as building blocks for the expression evaluator.
  */
-function diceTokenAverage(count: number, sides: number, modifiers: string[]): number {
+function diceTokenAverage(count: number, sides: number, _modifiers: string[]): number {
   const baseAvg = DIE_AVERAGES[sides];
   if (baseAvg === undefined) return 0;
 
-  const hasExplode = modifiers.includes("!") || modifiers.includes("!!");
-  const hasVicious = modifiers.includes("v");
-
-  // Base average per die
-  let perDie = baseAvg;
-
-  if (hasExplode) {
-    // Exploding: expected value = avg + (1/sides) * avg + (1/sides)^2 * avg + ...
-    // Geometric series: avg / (1 - 1/sides) = avg * sides / (sides - 1)
-    perDie = baseAvg * sides / (sides - 1);
-  }
-
-  let total = count * perDie;
-
-  if (hasVicious) {
-    // Each die has a 1/sides chance of being a crit, adding one extra non-exploding die
-    const critChance = 1 / sides;
-    const extraDice = count * critChance;
-    total += extraDice * baseAvg;
-  }
-
-  return total;
+  return count * baseAvg;
 }

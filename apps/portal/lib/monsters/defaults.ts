@@ -27,6 +27,7 @@ export function createDefaultMonster(
       hpLevelOffset: 0,
       damageLevelOffset: 0,
       dieSize: 8,
+      nimbleDice: true,
     },
     timestamps: {
       createdAt: now,
@@ -62,6 +63,7 @@ export function createDefaultLegendaryMonster(
       hpLevelOffset: 0,
       damageLevelOffset: 0,
       dieSize: 8,
+      nimbleDice: true,
     },
     timestamps: {
       createdAt: now,
