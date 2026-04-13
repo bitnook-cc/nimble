@@ -59,34 +59,48 @@ export default function NewMonsterPage() {
         </div>
       )}
 
-      <div className="relative flex bg-muted rounded-lg p-1 max-w-xs">
-        <div
-          className="absolute top-1 bottom-1 rounded-md bg-primary shadow-sm transition-all duration-200 ease-in-out"
-          style={{
-            width: "calc(50% - 2px)",
-            left: kind === "standard" ? "calc(0% + 1px)" : "calc(50% + 1px)",
-          }}
-        />
-        <button
-          onClick={() => switchKind("standard")}
-          className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
-            kind === "standard"
-              ? "text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Standard
-        </button>
-        <button
-          onClick={() => switchKind("legendary")}
-          className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
-            kind === "legendary"
-              ? "text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Legendary
-        </button>
+      <div className="flex items-center justify-between">
+        <div className="relative flex bg-muted rounded-lg p-1 max-w-xs">
+          <div
+            className="absolute top-1 bottom-1 rounded-md bg-primary shadow-sm transition-all duration-200 ease-in-out"
+            style={{
+              width: "calc(50% - 2px)",
+              left: kind === "standard" ? "calc(0% + 1px)" : "calc(50% + 1px)",
+            }}
+          />
+          <button
+            onClick={() => switchKind("standard")}
+            className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
+              kind === "standard"
+                ? "text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Standard
+          </button>
+          <button
+            onClick={() => switchKind("legendary")}
+            className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
+              kind === "legendary"
+                ? "text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Legendary
+          </button>
+        </div>
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={monster.builderConfig?.nimbleDice ?? true}
+            onChange={(e) => {
+              const newConfig = { ...monster.builderConfig, nimbleDice: e.target.checked } as NonNullable<typeof monster.builderConfig>;
+              setMonster({ ...monster, builderConfig: newConfig } as AnyMonster);
+            }}
+            className="rounded border-border"
+          />
+          Nimble dice averages
+        </label>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

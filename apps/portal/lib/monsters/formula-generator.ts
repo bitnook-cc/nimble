@@ -8,6 +8,11 @@ export interface AttackFormula {
 
 const DIE_AVERAGES: Record<number, number> = {
   4: 2.5, 6: 3.5, 8: 4.5, 10: 5.5, 12: 6.5, 20: 10.5,
+  // Double-digit dice: roll two dice, one for tens, one for ones
+  // d44: values 11-44, avg = 2.5*10 + 2.5 = 27.5
+  // d66: values 11-66, avg = 3.5*10 + 3.5 = 38.5
+  // d88: values 11-88, avg = 4.5*10 + 4.5 = 49.5
+  44: 27.5, 66: 38.5, 88: 49.5, 100: 50.5,
 };
 
 export const DIE_THEMES: { size: number; label: string }[] = [
@@ -228,8 +233,9 @@ export function calculateAverageDamage(
     let result = values[0];
     if (result === undefined || isNaN(result)) return null;
 
-    // Apply Nimble attack rules if enabled and we found a dice token
-    if (nimbleDice && firstDiceSides !== null) {
+    // Apply Nimble attack rules if enabled and we found a standard (non-double-digit) dice token
+    const isDoubleDie = firstDiceSides !== null && [44, 66, 88, 100].includes(firstDiceSides);
+    if (nimbleDice && firstDiceSides !== null && !isDoubleDie) {
       const s = firstDiceSides;
       const baseAvg = DIE_AVERAGES[s];
       if (baseAvg !== undefined) {

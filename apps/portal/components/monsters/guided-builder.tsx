@@ -310,21 +310,6 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
         </div>
       </div>
 
-      {/* Nimble Dice Toggle */}
-      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={config.nimbleDice ?? true}
-          onChange={(e) => {
-            const newConfig = { ...config, nimbleDice: e.target.checked };
-            setConfig(newConfig);
-            onChange({ ...monster, builderConfig: newConfig } as AnyMonster);
-          }}
-          className="rounded border-border"
-        />
-        Use Nimble dice averages (miss on 1, exploding crits)
-      </label>
-
       {/* B. Level & Armor */}
       <div>
         <h4 className={sectionHeader}>Level & Armor</h4>
@@ -508,7 +493,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
                 >
                   {f.formula}
                   <span className="text-muted-foreground text-xs ml-1.5">
-                    avg {calculateAverageDamage(f.formula.replace(/^\(2×\)\s*/, ""), config.nimbleDice ?? true) ?? f.averageDamage}
+                    avg {calculateAverageDamage(f.formula.replace(/^\(2×\)\s*/, ""), monster.builderConfig?.nimbleDice ?? true) ?? f.averageDamage}
                     {f.attacks > 1 && " ×2"}
                   </span>
                 </button>
@@ -579,7 +564,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
                                 addSuggestedAttack({
                                   formula,
                                   averageDamage:
-                                    calculateAverageDamage(formula, config.nimbleDice ?? true) ??
+                                    calculateAverageDamage(formula, monster.builderConfig?.nimbleDice ?? true) ??
                                     damagePerRound,
                                   attacks: 1,
                                 })
@@ -925,9 +910,9 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
                       placeholder="Dice formula"
                       className={inputClass}
                     />
-                    {a.diceFormula && calculateAverageDamage(a.diceFormula, config.nimbleDice ?? true) !== null && (
+                    {a.diceFormula && calculateAverageDamage(a.diceFormula, monster.builderConfig?.nimbleDice ?? true) !== null && (
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
-                        avg {calculateAverageDamage(a.diceFormula, config.nimbleDice ?? true)}
+                        avg {calculateAverageDamage(a.diceFormula, monster.builderConfig?.nimbleDice ?? true)}
                       </span>
                     )}
                   </div>

@@ -103,6 +103,24 @@ export default function EditMonsterPage({
         </div>
       )}
 
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-muted-foreground">
+          {monster.kind === "legendary" ? "Legendary" : "Standard"} Monster
+        </span>
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={monster.builderConfig?.nimbleDice ?? true}
+            onChange={(e) => {
+              const newConfig = { ...monster.builderConfig, nimbleDice: e.target.checked } as NonNullable<typeof monster.builderConfig>;
+              setMonster({ ...monster, builderConfig: newConfig } as AnyMonster);
+            }}
+            className="rounded border-border"
+          />
+          Nimble dice averages
+        </label>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {monster.kind === "standard" ? (
           <GuidedBuilder monster={monster} onChange={setMonster} />
