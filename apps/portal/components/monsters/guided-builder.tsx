@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Minus } from "lucide-react";
+import { Plus, Trash2, Minus, ChevronDown, ChevronUp } from "lucide-react";
 import { MONSTER_SIZES, ARMOR_TYPES } from "@/lib/monsters/constants";
 import {
   MONSTER_TABLE,
@@ -11,6 +11,7 @@ import {
 } from "@/lib/monsters/monster-table";
 import {
   generateFormulas,
+  generateFullTable,
   calculateAverageDamage,
   DIE_THEMES,
   type AttackFormula,
@@ -72,6 +73,12 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
   const formulas = useMemo(
     () => generateFormulas(damagePerRound, config.dieSize),
     [damagePerRound, config.dieSize]
+  );
+
+  const [showFullTable, setShowFullTable] = useState(false);
+  const fullTable = useMemo(
+    () => (showFullTable ? generateFullTable(damagePerRound) : []),
+    [damagePerRound, showFullTable]
   );
 
   function syncMonster(newConfig: BuilderConfig, armorOverride?: ArmorType) {
@@ -272,54 +279,89 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
       {/* C. Balance Dial */}
       <div>
         <h4 className={sectionHeader}>Balance</h4>
-        <div className="mt-2 text-xs text-muted-foreground text-center mb-2">
-          More Damage ← → More Survivability
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => shiftBalance(-1)}
-            className="p-2 rounded-lg border border-border bg-card text-foreground shadow-sm hover:bg-muted active:scale-95 transition-all"
-            title="More damage, less HP"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <div className="flex-1 space-y-1">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>
-                Dmg {damagePerRound}
-                {config.damageLevelOffset !== 0 && (
-                  <span className="text-primary ml-1">
-                    ({config.damageLevelOffset > 0 ? "+" : ""}
-                    {config.damageLevelOffset})
-                  </span>
-                )}
-              </span>
-              <span>
-                HP {hp}
-                {config.hpLevelOffset !== 0 && (
-                  <span className="text-primary ml-1">
-                    ({config.hpLevelOffset > 0 ? "+" : ""}
-                    {config.hpLevelOffset})
-                  </span>
-                )}
-              </span>
+        <div className="mt-3 bg-card border border-border rounded-lg p-4 space-y-3">
+          {/* Stats row */}
+          <div className="flex justify-between text-sm">
+            <div>
+              <span className="font-semibold text-red-500">Dmg</span>{" "}
+              <span className="text-foreground">{damagePerRound}/round</span>
+              {config.damageLevelOffset !== 0 && (
+                <span className="text-muted-foreground text-xs ml-1">
+                  ({config.damageLevelOffset > 0 ? "+" : ""}{config.damageLevelOffset})
+                </span>
+              )}
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all"
-                style={{ width: `${Math.max(5, Math.min(95, barPercent))}%` }}
-              />
+            <div>
+              <span className="font-semibold text-blue-500">HP</span>{" "}
+              <span className="text-foreground">{hp}</span>
+              {config.hpLevelOffset !== 0 && (
+                <span className="text-muted-foreground text-xs ml-1">
+                  ({config.hpLevelOffset > 0 ? "+" : ""}{config.hpLevelOffset})
+                </span>
+              )}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => shiftBalance(1)}
-            className="p-2 rounded-lg border border-border bg-card text-foreground shadow-sm hover:bg-muted active:scale-95 transition-all"
-            title="More HP, less damage"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
+
+          {/* Gradient bar with indicator */}
+          <div className="relative">
+            <div
+              className="h-3 rounded-full"
+              style={{
+                background: "linear-gradient(to right, #ef4444, #f59e0b, #22c55e, #3b82f6)",
+              }}
+            />
+            {/* Indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-foreground shadow-md transition-all duration-200"
+              style={{
+                left: `calc(${Math.max(2, Math.min(98, barPercent))}% - 8px)`,
+              }}
+            />
+          </div>
+
+          {/* Labels */}
+          <div className="flex justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
+            <span>Glass Cannon</span>
+            <span>Balanced</span>
+            <span>Tank</span>
+          </div>
+
+          {/* +/- buttons */}
+          <div className="flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => shiftBalance(-1)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all"
+              title="More damage, less HP"
+            >
+              <Minus className="w-3 h-3" />
+              <span className="text-red-500">Damage</span>
+            </button>
+            {config.damageLevelOffset !== 0 && (
+              <button
+                type="button"
+                onClick={() =>
+                  syncMonster({
+                    ...config,
+                    hpLevelOffset: 0,
+                    damageLevelOffset: 0,
+                  })
+                }
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all text-muted-foreground"
+              >
+                Reset
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => shiftBalance(1)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-card shadow-sm hover:bg-muted active:scale-95 transition-all"
+              title="More HP, less damage"
+            >
+              <Plus className="w-3 h-3" />
+              <span className="text-blue-500">Survivability</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -369,6 +411,88 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
             </div>
           </div>
         )}
+
+        {/* Expand full table */}
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowFullTable(!showFullTable)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showFullTable ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
+            {showFullTable ? "Hide" : "Show"} all combinations
+          </button>
+
+          {showFullTable && fullTable.length > 0 && (
+            <div className="mt-2 overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="px-2 py-1.5 text-left font-medium text-muted-foreground">
+                      #
+                    </th>
+                    {[4, 6, 8, 10, 12, 20].map((die) => (
+                      <th
+                        key={die}
+                        className="px-2 py-1.5 text-center font-medium text-muted-foreground"
+                      >
+                        d{die}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {fullTable.map((row) => (
+                    <tr
+                      key={row.diceCount}
+                      className="border-t border-border hover:bg-muted/50"
+                    >
+                      <td className="px-2 py-1 text-muted-foreground font-medium">
+                        {row.diceCount}
+                      </td>
+                      {[4, 6, 8, 10, 12, 20].map((die) => {
+                        const formula = row.formulas[die];
+                        if (!formula) {
+                          return (
+                            <td
+                              key={die}
+                              className="px-2 py-1 text-center text-muted-foreground/30"
+                            >
+                              —
+                            </td>
+                          );
+                        }
+                        return (
+                          <td key={die} className="px-2 py-1 text-center">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                addSuggestedAttack({
+                                  formula,
+                                  averageDamage:
+                                    calculateAverageDamage(formula) ??
+                                    damagePerRound,
+                                  attacks: 1,
+                                })
+                              }
+                              className="font-mono text-foreground hover:text-primary hover:underline cursor-pointer"
+                            >
+                              {formula}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* E. Identity */}

@@ -100,6 +100,44 @@ function parseModifier(formula: string): number {
   return match ? parseInt(match[1], 10) : 0;
 }
 
+/**
+ * Generate the full attack table for a damage target, like the spreadsheet.
+ * Shows every valid NdX+M combination across all die sizes.
+ * Modifier = floor(target - count * dieAvg), shown only when >= 0.
+ */
+export interface FullTableRow {
+  diceCount: number;
+  formulas: Record<number, string | null>; // keyed by die size
+}
+
+export function generateFullTable(damageTarget: number): FullTableRow[] {
+  const dieSizes = [4, 6, 8, 10, 12, 20];
+  const rows: FullTableRow[] = [];
+
+  for (let count = 1; count <= 20; count++) {
+    const formulas: Record<number, string | null> = {};
+    let hasAny = false;
+
+    for (const die of dieSizes) {
+      const avg = DIE_AVERAGES[die];
+      if (!avg) continue;
+      const rawMod = damageTarget - count * avg;
+      if (rawMod < 0) {
+        formulas[die] = null;
+        continue;
+      }
+      const mod = Math.floor(rawMod);
+      formulas[die] = formatFormula(count, die, mod);
+      hasAny = true;
+    }
+
+    if (!hasAny) break;
+    rows.push({ diceCount: count, formulas });
+  }
+
+  return rows;
+}
+
 function parseDiceCount(formula: string): number {
   const clean = formula.replace(/^\(2×\)\s*/, "");
   const match = clean.match(/^(\d+)d/);
