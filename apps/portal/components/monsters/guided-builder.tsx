@@ -11,6 +11,7 @@ import {
 } from "@/lib/monsters/monster-table";
 import {
   generateFormulas,
+  calculateAverageDamage,
   DIE_THEMES,
   type AttackFormula,
 } from "@/lib/monsters/formula-generator";
@@ -134,15 +135,10 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
   }
 
   function addSuggestedAttack(f: AttackFormula) {
-    const isMulti = f.attacks > 1;
     const cleanFormula = f.formula.replace(/^\(2×\)\s*/, "");
-    const name = isMulti ? "Multiattack" : "Attack";
-    const desc = isMulti
-      ? `Makes 2 attacks. Each: ${cleanFormula} damage.`
-      : `${f.formula} damage.`;
     const action: MonsterAction = {
-      name,
-      description: desc,
+      name: "",
+      description: "",
       reach: 1,
       diceFormula: cleanFormula,
     };
@@ -245,16 +241,24 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
           </div>
           <div>
             <label className={labelClass}>Armor</label>
-            <div className="flex gap-1">
+            <div className="relative flex bg-muted rounded-lg p-1">
+              {/* Sliding indicator */}
+              <div
+                className="absolute top-1 bottom-1 rounded-md bg-primary shadow-sm transition-all duration-200 ease-in-out"
+                style={{
+                  width: `calc(${100 / ARMOR_TYPES.length}% - 2px)`,
+                  left: `calc(${(ARMOR_TYPES.indexOf(monster.armor as (typeof ARMOR_TYPES)[number]) * 100) / ARMOR_TYPES.length}% + 1px)`,
+                }}
+              />
               {ARMOR_TYPES.map((a) => (
                 <button
                   key={a}
                   type="button"
                   onClick={() => handleArmorChange(a)}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`relative z-10 flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
                     monster.armor === a
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {a}
@@ -275,7 +279,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
           <button
             type="button"
             onClick={() => shiftBalance(-1)}
-            className="p-2 rounded-md bg-muted text-muted-foreground hover:text-foreground"
+            className="p-2 rounded-lg border border-border bg-card text-foreground shadow-sm hover:bg-muted active:scale-95 transition-all"
             title="More damage, less HP"
           >
             <Minus className="w-4 h-4" />
@@ -311,7 +315,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
           <button
             type="button"
             onClick={() => shiftBalance(1)}
-            className="p-2 rounded-md bg-muted text-muted-foreground hover:text-foreground"
+            className="p-2 rounded-lg border border-border bg-card text-foreground shadow-sm hover:bg-muted active:scale-95 transition-all"
             title="More HP, less damage"
           >
             <Plus className="w-4 h-4" />
@@ -350,15 +354,15 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               {formulas.map((f, i) => (
-                <button
+                 <button
                   key={i}
                   type="button"
                   onClick={() => addSuggestedAttack(f)}
-                  className="px-3 py-1.5 text-xs rounded-md bg-muted text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                  className="px-3 py-2 text-sm font-mono rounded-lg border border-border bg-card shadow-sm hover:border-primary hover:bg-primary/5 active:scale-95 transition-all cursor-pointer"
                 >
-                  {f.formula}{" "}
-                  <span className="text-muted-foreground">
-                    (avg {f.averageDamage})
+                  {f.formula}
+                  <span className="text-muted-foreground text-xs ml-1.5">
+                    avg {f.averageDamage}
                   </span>
                 </button>
               ))}
@@ -442,7 +446,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
           <button
             type="button"
             onClick={addPassive}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
@@ -471,7 +475,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
               <button
                 type="button"
                 onClick={() => removePassive(i)}
-                className="self-start p-2 text-destructive hover:text-destructive/80"
+                className="self-start p-2 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/5 active:scale-95 transition-all"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -487,7 +491,7 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
           <button
             type="button"
             onClick={addAction}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
@@ -524,23 +528,30 @@ export function GuidedBuilder({ monster, onChange }: GuidedBuilderProps) {
                     placeholder="Reach"
                     className={inputClass}
                   />
-                  <input
-                    type="text"
-                    value={a.diceFormula ?? ""}
-                    onChange={(e) =>
-                      updateAction(i, {
-                        diceFormula: e.target.value || undefined,
-                      })
-                    }
-                    placeholder="Dice formula"
-                    className={inputClass}
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={a.diceFormula ?? ""}
+                      onChange={(e) =>
+                        updateAction(i, {
+                          diceFormula: e.target.value || undefined,
+                        })
+                      }
+                      placeholder="Dice formula"
+                      className={inputClass}
+                    />
+                    {a.diceFormula && calculateAverageDamage(a.diceFormula) !== null && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                        avg {calculateAverageDamage(a.diceFormula)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => removeAction(i)}
-                className="self-start p-2 text-destructive hover:text-destructive/80"
+                className="self-start p-2 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/5 active:scale-95 transition-all"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
