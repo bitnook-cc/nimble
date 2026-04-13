@@ -2,6 +2,7 @@ import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import {
   diceService,
   calculateAverageDamage,
+  generateHistogram,
   type CategorizedDie,
   type DiceFormulaResult,
   type DiceTokenResult,
@@ -59,6 +60,10 @@ export class DiscordInteractionService {
 
       if (name === 'average' && options) {
         return this.handleAverageCommand(options);
+      }
+
+      if (name === 'histogram' && options) {
+        return this.handleHistogramCommand(options);
       }
 
       if (name === 'help') {
@@ -139,6 +144,7 @@ export class DiscordInteractionService {
                   '`/roll formula:<dice>` — Roll dice',
                   '`/attack formula:<dice>` — Attack roll (crits & misses)',
                   '`/average formula:<dice>` — Expected average damage',
+                  '`/histogram formula:<dice>` — Probability distribution',
                   '`/help` — This help message',
                 ].join('\n'),
                 inline: false,
@@ -265,6 +271,140 @@ export class DiscordInteractionService {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: `❌ **Error calculating average:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+          flags: 64,
+        },
+      };
+    }
+  }
+
+  /**
+   * Handle the /histogram command
+   */
+  private handleHistogramCommand(options: CommandOption[]): InteractionResponse {
+    try {
+      const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+
+      if (typeof formulaValue !== 'string') {
+        throw new Error('Formula must be a string');
+      }
+      const formula = formulaValue;
+
+      const result = generateHistogram(
+        formula,
+        {
+          allowCriticals: true,
+          allowFumbles: true,
+          vicious: false,
+        },
+        10000,
+      );
+
+      if (!result) {
+        throw new Error(`Could not parse formula: \`${formula}\``);
+      }
+
+      // Build ASCII histogram
+      const maxBarWidth = 20;
+      const maxCount = Math.max(...result.buckets.map((b) => b.count));
+
+      // Group into ranges if there are too many unique values
+      let displayBuckets = result.buckets;
+      if (displayBuckets.length > 25) {
+        // Bin into ~20 ranges
+        const binCount = 20;
+        const range = result.max - result.min;
+        const binSize = Math.ceil(range / binCount) || 1;
+        const bins = new Map<number, { min: number; max: number; count: number }>();
+
+        for (const bucket of result.buckets) {
+          const binIndex = Math.floor((bucket.value - result.min) / binSize);
+          const binMin = result.min + binIndex * binSize;
+          const binMax = binMin + binSize - 1;
+          const existing = bins.get(binIndex);
+          if (existing) {
+            existing.count += bucket.count;
+          } else {
+            bins.set(binIndex, { min: binMin, max: binMax, count: bucket.count });
+          }
+        }
+
+        const sortedBins = Array.from(bins.values()).sort((a, b) => a.min - b.min);
+        displayBuckets = sortedBins.map((bin) => ({
+          value: bin.min === bin.max ? bin.min : bin.min, // use min as label
+          count: bin.count,
+          percentage: (bin.count / result.samples) * 100,
+        }));
+
+        // Rebuild maxCount for binned data
+        const binnedMaxCount = Math.max(...displayBuckets.map((b) => b.count));
+
+        const lines = sortedBins.map((bin) => {
+          const barLen = Math.round((bin.count / binnedMaxCount) * maxBarWidth);
+          const bar = '█'.repeat(barLen);
+          const pct = ((bin.count / result.samples) * 100).toFixed(1);
+          const label =
+            bin.min === bin.max ? `${bin.min}`.padStart(4) : `${bin.min}-${bin.max}`.padStart(7);
+          return `\`${label}\` ${bar} ${pct}%`;
+        });
+
+        const histogram = lines.join('\n');
+
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embeds: [
+              {
+                title: '📊 Dice Distribution',
+                color: 0xe67e22,
+                description: `\`${formula}\` — ${result.samples.toLocaleString()} simulations`,
+                fields: [
+                  { name: 'Distribution', value: histogram, inline: false },
+                  { name: 'Min', value: `${result.min}`, inline: true },
+                  { name: 'Max', value: `${result.max}`, inline: true },
+                  { name: 'Mean', value: `${result.mean}`, inline: true },
+                  { name: 'Median', value: `${result.median}`, inline: true },
+                ],
+              },
+            ],
+          },
+        };
+      }
+
+      // Simple histogram for <=25 unique values
+      const lines = displayBuckets.map((bucket) => {
+        const barLen = Math.round((bucket.count / maxCount) * maxBarWidth);
+        const bar = '█'.repeat(barLen);
+        const pct = bucket.percentage.toFixed(1);
+        const label = `${bucket.value}`.padStart(4);
+        return `\`${label}\` ${bar} ${pct}%`;
+      });
+
+      const histogram = lines.join('\n');
+
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [
+            {
+              title: '📊 Dice Distribution',
+              color: 0xe67e22,
+              description: `\`${formula}\` — ${result.samples.toLocaleString()} simulations`,
+              fields: [
+                { name: 'Distribution', value: histogram, inline: false },
+                { name: 'Min', value: `${result.min}`, inline: true },
+                { name: 'Max', value: `${result.max}`, inline: true },
+                { name: 'Mean', value: `${result.mean}`, inline: true },
+                { name: 'Median', value: `${result.median}`, inline: true },
+              ],
+            },
+          ],
+        },
+      };
+    } catch (error) {
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `❌ **Error generating histogram:** ${error instanceof Error ? error.message : 'Unknown error'}`,
           flags: 64,
         },
       };

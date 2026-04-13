@@ -904,5 +904,83 @@ export const calculateAverageDamage = (formula: string, nimbleDice = false): num
   }
 };
 
+// --- Histogram generation via Monte Carlo simulation ---
+
+export interface HistogramBucket {
+  value: number;
+  count: number;
+  percentage: number;
+}
+
+export interface HistogramResult {
+  buckets: HistogramBucket[];
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  samples: number;
+}
+
+/**
+ * Generate a histogram of results for a dice formula via Monte Carlo simulation.
+ * Rolls the formula `samples` times and buckets the results.
+ *
+ * @param formula - Dice formula string (e.g., "2d8+10", "1d20!a")
+ * @param options - Dice formula options (allowCriticals, allowFumbles, etc.)
+ * @param samples - Number of simulations to run (default 10000)
+ * @returns Histogram data with buckets, min, max, mean, median
+ */
+export const generateHistogram = (
+  formula: string,
+  options: DiceFormulaOptions = {},
+  samples = 10000,
+): HistogramResult | null => {
+  if (!formula || !formula.trim()) return null;
+
+  try {
+    const counts = new Map<number, number>();
+    let total = 0;
+    let min = Infinity;
+    let max = -Infinity;
+    const allResults: number[] = [];
+
+    for (let i = 0; i < samples; i++) {
+      const result = diceService.evaluateDiceFormula(formula, options);
+      const val = result.total;
+      allResults.push(val);
+      counts.set(val, (counts.get(val) ?? 0) + 1);
+      total += val;
+      if (val < min) min = val;
+      if (val > max) max = val;
+    }
+
+    // Sort results for median
+    allResults.sort((a, b) => a - b);
+    const median =
+      samples % 2 === 0
+        ? (allResults[samples / 2 - 1] + allResults[samples / 2]) / 2
+        : allResults[Math.floor(samples / 2)];
+
+    // Build sorted buckets
+    const sortedKeys = Array.from(counts.keys()).sort((a, b) => a - b);
+    const buckets: HistogramBucket[] = sortedKeys.map((value) => ({
+      value,
+      count: counts.get(value)!,
+      percentage: (counts.get(value)! / samples) * 100,
+    }));
+
+    return {
+      buckets,
+      min,
+      max,
+      mean: Math.round((total / samples) * 10) / 10,
+      median,
+      samples,
+    };
+  } catch {
+    return null;
+  }
+};
+
 // Also export the service instance for backward compatibility
 export { diceService };

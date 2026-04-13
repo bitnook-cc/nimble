@@ -65,6 +65,18 @@ const commands = [
     ],
   },
   {
+    name: 'histogram',
+    description: 'Show the probability distribution of a dice formula (10,000 simulations)',
+    options: [
+      {
+        type: 3, // STRING
+        name: 'formula',
+        description: 'Dice formula (e.g., 2d8+10, 1d20!a, 3d6+5)',
+        required: true,
+      },
+    ],
+  },
+  {
     name: 'help',
     description: 'Learn how to use the Nimble dice bot and dice notation',
   },
