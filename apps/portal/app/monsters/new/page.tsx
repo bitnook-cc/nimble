@@ -3,17 +3,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
-import { createDefaultMonster } from "@/lib/monsters/defaults";
+import { createDefaultMonster, createDefaultLegendaryMonster } from "@/lib/monsters/defaults";
 import { saveMonster } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
 import { GuidedBuilder } from "@/components/monsters/guided-builder";
+import { LegendaryGuidedBuilder } from "@/components/monsters/legendary-guided-builder";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
 
 export default function NewMonsterPage() {
   const router = useRouter();
+  const [kind, setKind] = useState<"standard" | "legendary">("standard");
   const [monster, setMonster] = useState<AnyMonster>(createDefaultMonster());
   const [error, setError] = useState<string | null>(null);
+
+  function switchKind(newKind: "standard" | "legendary") {
+    if (newKind === kind) return;
+    setKind(newKind);
+    setMonster(newKind === "legendary" ? createDefaultLegendaryMonster() : createDefaultMonster());
+  }
 
   function handleSave() {
     const result = anyMonsterSchema.safeParse(monster);
@@ -51,8 +59,35 @@ export default function NewMonsterPage() {
         </div>
       )}
 
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => switchKind("standard")}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            kind === "standard"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Standard
+        </button>
+        <button
+          onClick={() => switchKind("legendary")}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            kind === "legendary"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Legendary
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <GuidedBuilder monster={monster} onChange={setMonster} />
+        {kind === "legendary" ? (
+          <LegendaryGuidedBuilder monster={monster} onChange={setMonster} />
+        ) : (
+          <GuidedBuilder monster={monster} onChange={setMonster} />
+        )}
         <div className="sticky top-8">
           <MonsterStatBlock monster={monster} />
         </div>

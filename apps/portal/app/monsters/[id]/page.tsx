@@ -10,7 +10,7 @@ import {
 } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
 import { GuidedBuilder } from "@/components/monsters/guided-builder";
-import { MonsterForm } from "@/components/monsters/monster-form";
+import { LegendaryGuidedBuilder } from "@/components/monsters/legendary-guided-builder";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
 
@@ -107,7 +107,7 @@ export default function EditMonsterPage({
         {monster.kind === "standard" ? (
           <GuidedBuilder monster={monster} onChange={setMonster} />
         ) : (
-          <MonsterForm monster={monster} onChange={setMonster} />
+          <LegendaryGuidedBuilder monster={monster} onChange={setMonster} />
         )}
         <div className="sticky top-8">
           <MonsterStatBlock monster={monster} />
