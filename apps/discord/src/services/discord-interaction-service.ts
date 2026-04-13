@@ -1,6 +1,7 @@
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import {
   diceService,
+  calculateAverageDamage,
   type CategorizedDie,
   type DiceFormulaResult,
   type DiceTokenResult,
@@ -54,6 +55,10 @@ export class DiscordInteractionService {
 
       if (name === 'attack' && options) {
         return this.handleRollCommand(options, true);
+      }
+
+      if (name === 'average' && options) {
+        return this.handleAverageCommand(options);
       }
 
       if (name === 'help') {
@@ -123,6 +128,7 @@ export class DiscordInteractionService {
 
 ## Basic Usage
 Use \`/roll formula:<dice notation>\` to roll dice.
+Use \`/average formula:<dice notation>\` to see expected average damage with Nimble rules.
 
 ## Dice Notation Examples
 • **Basic rolls:** \`2d6\`, \`1d20\`, \`3d4+5\`
@@ -171,6 +177,80 @@ When using postfix notation, the order of operations is important. Always place 
         flags: 64, // Ephemeral (only visible to the user who ran the command)
       },
     };
+  }
+
+  /**
+   * Handle the /average command
+   */
+  private handleAverageCommand(options: CommandOption[]): InteractionResponse {
+    try {
+      const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+
+      if (typeof formulaValue !== 'string') {
+        throw new Error('Formula must be a string');
+      }
+      const formula = formulaValue;
+
+      const nimbleAvg = calculateAverageDamage(formula, true);
+      const naiveAvg = calculateAverageDamage(formula, false);
+
+      if (nimbleAvg === null || naiveAvg === null) {
+        throw new Error(`Could not parse formula: \`${formula}\``);
+      }
+
+      const fields = [
+        {
+          name: 'Formula',
+          value: `\`${formula}\``,
+          inline: true,
+        },
+        {
+          name: 'Nimble Average',
+          value: `**${nimbleAvg}**`,
+          inline: true,
+        },
+        {
+          name: 'Naive Average',
+          value: `${naiveAvg}`,
+          inline: true,
+        },
+      ];
+
+      const diff = nimbleAvg - naiveAvg;
+      if (diff !== 0) {
+        fields.push({
+          name: 'Miss/Crit Impact',
+          value: `${diff > 0 ? '+' : ''}${Math.round(diff * 10) / 10} (${diff < 0 ? 'miss penalty > crit bonus' : 'crit bonus > miss penalty'})`,
+          inline: false,
+        });
+      }
+
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [
+            {
+              title: '📊 Average Damage Calculator',
+              color: 0x9b59b6,
+              description:
+                'Expected damage per attack using Nimble dice rules (miss on 1, exploding crits).',
+              fields,
+              footer: {
+                text: 'Nimble avg accounts for: miss on natural 1, exploding crits on max roll, vicious (v)',
+              },
+            },
+          ],
+        },
+      };
+    } catch (error) {
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `❌ **Error calculating average:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+          flags: 64,
+        },
+      };
+    }
   }
 
   /**
