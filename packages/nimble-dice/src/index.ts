@@ -694,5 +694,137 @@ export const evaluateTokenizedFormula = (
   return diceService.evaluateTokenizedFormula(tokens, options);
 };
 
+// --- Average damage calculation ---
+
+const DIE_AVERAGES: Record<number, number> = {
+  4: 2.5,
+  6: 3.5,
+  8: 4.5,
+  10: 5.5,
+  12: 6.5,
+  20: 10.5,
+  // Double-digit dice: roll two dice, one for tens, one for ones
+  44: 27.5,
+  66: 38.5,
+  88: 49.5,
+  100: 50.5,
+};
+
+const DOUBLE_DIGIT_DICE = [44, 66, 88, 100];
+
+/**
+ * Calculate the naive average value of a dice token (no miss/crit rules).
+ */
+function diceTokenAverage(count: number, sides: number): number {
+  const baseAvg = DIE_AVERAGES[sides];
+  if (baseAvg === undefined) return 0;
+  return count * baseAvg;
+}
+
+/**
+ * Calculate the expected average damage of a dice formula string.
+ *
+ * When nimbleDice=true, applies Nimble attack rules:
+ * - First die rolling 1 = miss (entire attack does 0 damage including modifier)
+ * - First die rolling max = crit (roll one extra exploding die)
+ * - Vicious (v): crit adds an additional non-exploding die
+ * - Double-digit dice (d44, d66, d88) and d100 skip miss/crit rules
+ *
+ * When nimbleDice=false, uses naive averages (N * avg(dX) + M).
+ */
+export const calculateAverageDamage = (formula: string, nimbleDice = false): number | null => {
+  if (!formula || !formula.trim()) return null;
+
+  try {
+    const tokens = diceService.tokenize(formula.trim());
+    if (tokens.length === 0) return null;
+
+    const values: number[] = [];
+    const ops: string[] = [];
+
+    function applyOp() {
+      const op = ops.pop()!;
+      const b = values.pop()!;
+      const a = values.pop()!;
+      switch (op) {
+        case "+":
+          values.push(a + b);
+          break;
+        case "-":
+          values.push(a - b);
+          break;
+        case "*":
+          values.push(a * b);
+          break;
+        case "/":
+          values.push(b !== 0 ? a / b : 0);
+          break;
+      }
+    }
+
+    const precedence: Record<string, number> = { "+": 1, "-": 1, "*": 2, "/": 2 };
+
+    let firstDiceSides: number | null = null;
+    let firstDiceModifiers: string[] = [];
+
+    for (const token of tokens) {
+      if (token.type === "static") {
+        values.push(token.value);
+      } else if (token.type === "dice") {
+        if (nimbleDice && firstDiceSides === null) {
+          firstDiceSides = token.sides;
+          firstDiceModifiers = token.modifiers;
+        }
+        const avg = diceTokenAverage(token.count, token.sides);
+        values.push(avg);
+      } else if (token.type === "operator") {
+        if (token.operator === "(") {
+          ops.push("(");
+        } else if (token.operator === ")") {
+          while (ops.length > 0 && ops[ops.length - 1] !== "(") applyOp();
+          ops.pop();
+        } else {
+          while (
+            ops.length > 0 &&
+            ops[ops.length - 1] !== "(" &&
+            (precedence[ops[ops.length - 1]] ?? 0) >= (precedence[token.operator] ?? 0)
+          ) {
+            applyOp();
+          }
+          ops.push(token.operator);
+        }
+      }
+    }
+
+    while (ops.length > 0) applyOp();
+
+    let result = values[0];
+    if (result === undefined || isNaN(result)) return null;
+
+    // Apply Nimble attack rules if enabled and we found a standard dice token
+    const isDoubleDie = firstDiceSides !== null && DOUBLE_DIGIT_DICE.includes(firstDiceSides);
+    if (nimbleDice && firstDiceSides !== null && !isDoubleDie) {
+      const s = firstDiceSides;
+      const baseAvg = DIE_AVERAGES[s];
+      if (baseAvg !== undefined) {
+        const pMiss = 1 / s;
+        const pCrit = 1 / s;
+        const pHit = 1 - pMiss;
+
+        const explodingExtra = (baseAvg * s) / (s - 1);
+
+        const hasVicious = firstDiceModifiers.includes("v");
+        const viciousExtra = hasVicious ? baseAvg : 0;
+
+        result = pHit * result + pCrit * (explodingExtra + viciousExtra);
+      }
+    }
+
+    return Math.round(result * 10) / 10;
+  } catch {
+    return null;
+  }
+};
+
 // Also export the service instance for backward compatibility
 export { diceService };
