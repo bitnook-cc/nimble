@@ -59,23 +59,30 @@ export default function NewMonsterPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-6">
+      <div className="relative flex bg-muted rounded-lg p-1 max-w-xs">
+        <div
+          className="absolute top-1 bottom-1 rounded-md bg-primary shadow-sm transition-all duration-200 ease-in-out"
+          style={{
+            width: "calc(50% - 2px)",
+            left: kind === "standard" ? "calc(0% + 1px)" : "calc(50% + 1px)",
+          }}
+        />
         <button
           onClick={() => switchKind("standard")}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
             kind === "standard"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:text-foreground"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Standard
         </button>
         <button
           onClick={() => switchKind("legendary")}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`relative z-10 flex-1 px-4 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
             kind === "legendary"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:text-foreground"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Legendary

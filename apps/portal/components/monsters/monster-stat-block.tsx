@@ -165,10 +165,16 @@ export function MonsterStatBlock({ monster }: MonsterStatBlockProps) {
 
       {/* Legendary Phases */}
       {legendary?.bloodied && (
-        <PhaseSection title="Bloodied" phase={legendary.bloodied} />
+        <PhaseSection
+          title={`Bloodied (${Math.floor(monster.hitPoints / 2)} HP)`}
+          phase={legendary.bloodied}
+        />
       )}
       {legendary?.lastStand && (
-        <PhaseSection title="Last Stand" phase={legendary.lastStand} />
+        <PhaseSection
+          title={`Last Stand${legendary.lastStandHp ? ` (${legendary.lastStandHp} HP)` : ""}`}
+          phase={legendary.lastStand}
+        />
       )}
 
       {/* Notes */}

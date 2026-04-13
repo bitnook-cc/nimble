@@ -118,6 +118,7 @@ export function LegendaryGuidedBuilder({ monster, onChange }: LegendaryGuidedBui
       hitPoints: newHp,
       armor: a,
       builderConfig: newConfig,
+      lastStandHp: newHpRow.hpLastStand,
     } as AnyMonster);
   }
 

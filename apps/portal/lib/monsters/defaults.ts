@@ -52,6 +52,7 @@ export function createDefaultLegendaryMonster(
     level,
     size: "Large",
     hitPoints: hp,
+    lastStandHp: row?.hpLastStand ?? 50,
     armor: armor as "Medium" | "Heavy",
     speed: 6,
     passives: [],

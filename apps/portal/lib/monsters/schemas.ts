@@ -68,6 +68,7 @@ export const legendaryMonsterSchema = monsterBaseSchema.extend({
   kind: z.literal("legendary"),
   bloodied: monsterPhaseSchema.optional(),
   lastStand: monsterPhaseSchema.optional(),
+  lastStandHp: z.number().int().positive().optional(),
 });
 
 export const anyMonsterSchema = z.discriminatedUnion("kind", [

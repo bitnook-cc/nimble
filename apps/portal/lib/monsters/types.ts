@@ -64,6 +64,7 @@ export interface LegendaryMonster extends MonsterBase {
   kind: "legendary";
   bloodied?: MonsterPhase;
   lastStand?: MonsterPhase;
+  lastStandHp?: number;
 }
 
 export type AnyMonster = Monster | LegendaryMonster;
