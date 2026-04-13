@@ -124,57 +124,75 @@ export class DiscordInteractionService {
    * Handle the /help command
    */
   private handleHelpCommand(): InteractionResponse {
-    const helpText = `# 🎲 Nimble Dice Bot Help
-
-## Basic Usage
-Use \`/roll formula:<dice notation>\` to roll dice.
-Use \`/average formula:<dice notation>\` to see expected average damage with Nimble rules.
-
-## Dice Notation Examples
-• **Basic rolls:** \`2d6\`, \`1d20\`, \`3d4+5\`
-• **With modifiers:** \`1d20+5\`, \`2d8-3\`, \`1d6+2d4+7\`
-• **Exploding criticals:** \`1d20!\` (rerolls on max value)
-• **All dice explode:** \`3d6!!\` (ALL max rolls explode, not just first)
-• **Vicious dice:** \`1d8v\` (adds extra die on critical)
-• **Combined:** \`1d20!v\` or \`2d6!!v\` (exploding + vicious)
-• **Double-digit dice:** \`d44\`, \`d66\`, \`d88\`
-• **Math operations:** \`(2d6+3)*2\`, \`1d20+5-2\`
-
-## Advantage & Disadvantage
-**Option 1: Use postfix notation**
-• **Advantage:** \`1d20a\` or \`1d20a1\` (rolls 2d20, keeps highest)
-• **Multiple advantage:** \`1d20a3\` (rolls 4d20, keeps highest)
-• **Disadvantage:** \`1d20d\` or \`1d20d1\` (rolls 2d20, keeps lowest)
-• **Multiple disadvantage:** \`1d20d2\` (rolls 3d20, keeps lowest)
-
-**IMPORTANT**
-When using postfix notation, the order of operations is important. Always place the advantage/disadvantage postfix AFTER any exploding or vicious postfixes.
-
-**Option 2: Use the advantage parameter**
-• **Advantage:** \`/roll formula:1d20 advantage:1\`
-• **Disadvantage:** \`/roll formula:1d20 advantage:-1\`
-
-## Special Notations
-• **!** = Exploding dice (first die rerolls on max)
-• **!!** = All dice explode (ALL dice reroll on max)
-• **v** = Vicious (add extra die on critical)
-• **a** = Advantage (roll extra, keep highest)
-• **d** = Disadvantage (roll extra, keep lowest)
-• **Double-digit** = Rolls two dice for tens and ones (d44, d66, d88). Note: Double-digit rolls cannot crit or explode.
-
-## Examples
-• \`/roll formula:2d6+5\` - Roll 2d6 and add 5
-• \`/roll formula:1d20!a\` - Roll d20 with advantage and exploding crits
-• \`/roll formula:4d4!!\` - Roll 4d4 where ALL 4s explode
-• \`/roll formula:3d8v\` - Roll 3d8 with vicious dice
-• \`/roll formula:1d20d2+5\` - Roll d20 with double disadvantage, add 5
-• \`/roll formula:d44a\` - Roll a d44 with advantage`;
-
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: helpText,
-        flags: 64, // Ephemeral (only visible to the user who ran the command)
+        flags: 64,
+        embeds: [
+          {
+            title: '🎲 Nimble Dice Bot',
+            color: 0x3498db,
+            fields: [
+              {
+                name: 'Commands',
+                value: [
+                  '`/roll formula:<dice>` — Roll dice',
+                  '`/attack formula:<dice>` — Attack roll (crits & misses)',
+                  '`/average formula:<dice>` — Expected average damage',
+                  '`/help` — This help message',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Dice Notation',
+                value: [
+                  '`2d6`, `1d20`, `3d4+5` — Basic rolls',
+                  '`1d20+5`, `2d8-3` — With modifiers',
+                  '`1d20!` — Exploding crits (reroll on max)',
+                  '`3d6!!` — All dice explode',
+                  '`1d8v` — Vicious (extra die on crit)',
+                  '`d44`, `d66`, `d88` — Double-digit dice',
+                  '`(2d6+3)*2` — Math operations',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Advantage & Disadvantage',
+                value: [
+                  '`1d20a` — Advantage (roll 2, keep highest)',
+                  '`1d20a3` — Triple advantage (roll 4, keep highest)',
+                  '`1d20d` — Disadvantage (roll 2, keep lowest)',
+                  '`/roll formula:1d20 advantage:1` — Via parameter',
+                  '',
+                  '⚠️ Place a/d AFTER ! and v: `1d20!va`',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: '📊 Average Damage',
+                value: [
+                  '`/average formula:2d8+10` — Shows expected damage',
+                  'Accounts for Nimble rules:',
+                  '• Miss on natural 1 (0 damage)',
+                  '• Exploding crits on max roll',
+                  '• Vicious bonus dice (`v`)',
+                  '• Double-digit dice skip miss/crit',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Examples',
+                value: [
+                  '`/roll formula:2d6+5`',
+                  '`/attack formula:1d20!a`',
+                  '`/average formula:3d8v+10`',
+                  '`/roll formula:d66`',
+                ].join('\n'),
+                inline: false,
+              },
+            ],
+          },
+        ],
       },
     };
   }
