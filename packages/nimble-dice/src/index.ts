@@ -713,12 +713,73 @@ const DIE_AVERAGES: Record<number, number> = {
 const DOUBLE_DIGIT_DICE = [44, 66, 88, 100];
 
 /**
- * Calculate the naive average value of a dice token (no miss/crit rules).
+ * Parse advantage level from dice token modifiers.
+ * Returns 0 for no advantage, positive for advantage, negative for disadvantage.
  */
-function diceTokenAverage(count: number, sides: number): number {
+function parseAdvantageFromModifiers(modifiers: string[]): number {
+  for (const mod of modifiers) {
+    // Advantage: "a", "a1", "a2", etc.
+    if (mod.match(/^a\d*$/)) {
+      return parseInt(mod.substring(1) || "1", 10);
+    }
+    // Disadvantage: "d", "d1", "d2", etc.
+    if (mod.match(/^d\d*$/)) {
+      return -parseInt(mod.substring(1) || "1", 10);
+    }
+  }
+  return 0;
+}
+
+/**
+ * Expected value of the maximum of (k+1) rolls of a dN.
+ * Used for advantage calculations.
+ * E[max] = sum_{j=1}^{N} j * P(max = j)
+ * P(max = j) = (j/N)^(k+1) - ((j-1)/N)^(k+1)
+ */
+function expectedMax(sides: number, numDice: number): number {
+  let total = 0;
+  for (let j = 1; j <= sides; j++) {
+    const pMaxIsJ = Math.pow(j / sides, numDice) - Math.pow((j - 1) / sides, numDice);
+    total += j * pMaxIsJ;
+  }
+  return total;
+}
+
+/**
+ * Expected value of the minimum of (k+1) rolls of a dN.
+ * E[min] = (N+1) - E[max] by symmetry.
+ */
+function expectedMin(sides: number, numDice: number): number {
+  return sides + 1 - expectedMax(sides, numDice);
+}
+
+/**
+ * Calculate the average value of a single die with optional advantage/disadvantage.
+ */
+function singleDieAverage(sides: number, advantageLevel: number): number {
+  if (advantageLevel === 0) {
+    return DIE_AVERAGES[sides] ?? (sides + 1) / 2;
+  }
+  const numDice = 1 + Math.abs(advantageLevel);
+  return advantageLevel > 0 ? expectedMax(sides, numDice) : expectedMin(sides, numDice);
+}
+
+/**
+ * Calculate the naive average value of a dice token, accounting for advantage/disadvantage.
+ * For NdX with advantage, each die is rolled with extra dice and the best is kept.
+ */
+function diceTokenAverage(count: number, sides: number, modifiers: string[]): number {
   const baseAvg = DIE_AVERAGES[sides];
   if (baseAvg === undefined) return 0;
-  return count * baseAvg;
+
+  const advantageLevel = parseAdvantageFromModifiers(modifiers);
+  if (advantageLevel === 0) {
+    return count * baseAvg;
+  }
+
+  // Each kept die has the expected value of max/min of (1+|adv|) dice
+  const perDie = singleDieAverage(sides, advantageLevel);
+  return count * perDie;
 }
 
 /**
@@ -775,7 +836,7 @@ export const calculateAverageDamage = (formula: string, nimbleDice = false): num
           firstDiceSides = token.sides;
           firstDiceModifiers = token.modifiers;
         }
-        const avg = diceTokenAverage(token.count, token.sides);
+        const avg = diceTokenAverage(token.count, token.sides, token.modifiers);
         values.push(avg);
       } else if (token.type === "operator") {
         if (token.operator === "(") {
@@ -807,10 +868,27 @@ export const calculateAverageDamage = (formula: string, nimbleDice = false): num
       const s = firstDiceSides;
       const baseAvg = DIE_AVERAGES[s];
       if (baseAvg !== undefined) {
-        const pMiss = 1 / s;
-        const pCrit = 1 / s;
-        const pHit = 1 - pMiss;
+        // Advantage affects miss/crit probabilities on the first die
+        const advLevel = parseAdvantageFromModifiers(firstDiceModifiers);
+        const numRolled = 1 + Math.abs(advLevel);
 
+        let pMiss: number;
+        let pCrit: number;
+
+        if (advLevel > 0) {
+          // Advantage: keep highest. Miss only if ALL dice roll 1. Crit if ANY rolls max.
+          pMiss = Math.pow(1 / s, numRolled);
+          pCrit = 1 - Math.pow((s - 1) / s, numRolled);
+        } else if (advLevel < 0) {
+          // Disadvantage: keep lowest. Miss if ANY die rolls 1. Crit only if ALL roll max.
+          pMiss = 1 - Math.pow((s - 1) / s, numRolled);
+          pCrit = Math.pow(1 / s, numRolled);
+        } else {
+          pMiss = 1 / s;
+          pCrit = 1 / s;
+        }
+
+        const pHit = 1 - pMiss;
         const explodingExtra = (baseAvg * s) / (s - 1);
 
         const hasVicious = firstDiceModifiers.includes("v");

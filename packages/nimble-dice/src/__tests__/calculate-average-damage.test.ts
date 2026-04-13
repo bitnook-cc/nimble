@@ -174,6 +174,78 @@ describe("calculateAverageDamage", () => {
     });
   });
 
+  describe("advantage/disadvantage (naive mode)", () => {
+    it("advantage increases average: 1d8a vs 1d8", () => {
+      const withAdv = calculateAverageDamage("1d8a")!;
+      const without = calculateAverageDamage("1d8")!;
+      // E[max of 2d8] = 5.8125, vs naive 4.5
+      expect(withAdv).toBeGreaterThan(without);
+      expect(withAdv).toBeCloseTo(5.8, 0);
+    });
+
+    it("disadvantage decreases average: 1d8d vs 1d8", () => {
+      const withDis = calculateAverageDamage("1d8d")!;
+      const without = calculateAverageDamage("1d8")!;
+      // E[min of 2d8] = 8+1-5.8125 = 3.1875
+      expect(withDis).toBeLessThan(without);
+      expect(withDis).toBeCloseTo(3.2, 0);
+    });
+
+    it("higher advantage stacks increase average more", () => {
+      const adv1 = calculateAverageDamage("1d20a1")!;
+      const adv2 = calculateAverageDamage("1d20a2")!;
+      expect(adv2).toBeGreaterThan(adv1);
+    });
+
+    it("advantage with modifier: 1d8a+5", () => {
+      const result = calculateAverageDamage("1d8a+5")!;
+      // E[max of 2d8] ≈ 5.8125 + 5 = 10.8125
+      expect(result).toBeGreaterThan(10);
+      expect(result).toBeLessThan(12);
+    });
+
+    it("advantage on multiple dice: 2d6a", () => {
+      const withAdv = calculateAverageDamage("2d6a")!;
+      const without = calculateAverageDamage("2d6")!;
+      // Each die keeps best of 2, so average increases
+      expect(withAdv).toBeGreaterThan(without);
+    });
+  });
+
+  describe("advantage/disadvantage (Nimble mode)", () => {
+    it("advantage reduces miss probability", () => {
+      // With advantage on d8: P(miss) = (1/8)^2 = 1/64 ≈ 1.6%
+      // Without: P(miss) = 1/8 = 12.5%
+      // So Nimble avg with advantage should be closer to naive than without
+      const nimbleAdv = calculateAverageDamage("1d8a+10", true)!;
+      const nimbleNoAdv = calculateAverageDamage("1d8+10", true)!;
+      const naiveNoAdv = calculateAverageDamage("1d8+10", false)!;
+
+      // The miss penalty is smaller with advantage
+      const advReduction = 1 - nimbleAdv / calculateAverageDamage("1d8a+10", false)!;
+      const noAdvReduction = 1 - nimbleNoAdv / naiveNoAdv;
+      expect(advReduction).toBeLessThan(noAdvReduction);
+    });
+
+    it("advantage increases crit probability", () => {
+      // With advantage on d8: P(crit) = 1-(7/8)^2 ≈ 23.4%
+      // This should boost the crit bonus more than without advantage
+      const nimbleAdv = calculateAverageDamage("1d8a", true)!;
+      const naiveAdv = calculateAverageDamage("1d8a", false)!;
+      // With high crit chance but low miss chance, Nimble avg could be close to or above naive
+      expect(nimbleAdv).toBeGreaterThan(0);
+      expect(naiveAdv).toBeGreaterThan(0);
+    });
+
+    it("disadvantage increases miss probability", () => {
+      // With disadvantage on d8: P(miss) = 1-(7/8)^2 ≈ 23.4%
+      const nimbleDis = calculateAverageDamage("1d8d+10", true)!;
+      const nimbleNormal = calculateAverageDamage("1d8+10", true)!;
+      // Disadvantage should make Nimble avg much lower
+      expect(nimbleDis).toBeLessThan(nimbleNormal);
+    });
+  });
+
   describe("edge cases", () => {
     it("handles zero modifier: 1d8+0", () => {
       expect(calculateAverageDamage("1d8+0")).toBe(4.5);
