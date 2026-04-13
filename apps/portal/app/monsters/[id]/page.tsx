@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Download } from "lucide-react";
 import {
   getMonsterById,
   saveMonster,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
 import { GuidedBuilder } from "@/components/monsters/guided-builder";
+import { downloadNimbrewJson } from "@/lib/monsters/nimbrew-export";
 import { LegendaryGuidedBuilder } from "@/components/monsters/legendary-guided-builder";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
@@ -80,6 +81,13 @@ export default function EditMonsterPage({
           Back
         </button>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => downloadNimbrewJson(monster)}
+            className="flex items-center gap-2 px-4 py-2 border border-border text-muted-foreground rounded-md text-sm font-medium hover:bg-muted"
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </button>
           <button
             onClick={handleDelete}
             className="flex items-center gap-2 px-4 py-2 border border-destructive text-destructive rounded-md text-sm font-medium hover:bg-destructive/10"
