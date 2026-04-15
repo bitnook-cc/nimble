@@ -694,5 +694,293 @@ export const evaluateTokenizedFormula = (
   return diceService.evaluateTokenizedFormula(tokens, options);
 };
 
+// --- Average damage calculation ---
+
+const DIE_AVERAGES: Record<number, number> = {
+  4: 2.5,
+  6: 3.5,
+  8: 4.5,
+  10: 5.5,
+  12: 6.5,
+  20: 10.5,
+  // Double-digit dice: roll two dice, one for tens, one for ones
+  44: 27.5,
+  66: 38.5,
+  88: 49.5,
+  100: 50.5,
+};
+
+const DOUBLE_DIGIT_DICE = [44, 66, 88, 100];
+
+/**
+ * Parse advantage level from dice token modifiers.
+ * Returns 0 for no advantage, positive for advantage, negative for disadvantage.
+ */
+function parseAdvantageFromModifiers(modifiers: string[]): number {
+  for (const mod of modifiers) {
+    // Advantage: "a", "a1", "a2", etc.
+    if (mod.match(/^a\d*$/)) {
+      return parseInt(mod.substring(1) || "1", 10);
+    }
+    // Disadvantage: "d", "d1", "d2", etc.
+    if (mod.match(/^d\d*$/)) {
+      return -parseInt(mod.substring(1) || "1", 10);
+    }
+  }
+  return 0;
+}
+
+/**
+ * Expected value of the maximum of (k+1) rolls of a dN.
+ * Used for advantage calculations.
+ * E[max] = sum_{j=1}^{N} j * P(max = j)
+ * P(max = j) = (j/N)^(k+1) - ((j-1)/N)^(k+1)
+ */
+function expectedMax(sides: number, numDice: number): number {
+  let total = 0;
+  for (let j = 1; j <= sides; j++) {
+    const pMaxIsJ = Math.pow(j / sides, numDice) - Math.pow((j - 1) / sides, numDice);
+    total += j * pMaxIsJ;
+  }
+  return total;
+}
+
+/**
+ * Expected value of the minimum of (k+1) rolls of a dN.
+ * E[min] = (N+1) - E[max] by symmetry.
+ */
+function expectedMin(sides: number, numDice: number): number {
+  return sides + 1 - expectedMax(sides, numDice);
+}
+
+/**
+ * Calculate the average value of a single die with optional advantage/disadvantage.
+ */
+function singleDieAverage(sides: number, advantageLevel: number): number {
+  if (advantageLevel === 0) {
+    return DIE_AVERAGES[sides] ?? (sides + 1) / 2;
+  }
+  const numDice = 1 + Math.abs(advantageLevel);
+  return advantageLevel > 0 ? expectedMax(sides, numDice) : expectedMin(sides, numDice);
+}
+
+/**
+ * Calculate the naive average value of a dice token, accounting for advantage/disadvantage.
+ * For NdX with advantage, each die is rolled with extra dice and the best is kept.
+ */
+function diceTokenAverage(count: number, sides: number, modifiers: string[]): number {
+  const baseAvg = DIE_AVERAGES[sides];
+  if (baseAvg === undefined) return 0;
+
+  const advantageLevel = parseAdvantageFromModifiers(modifiers);
+  if (advantageLevel === 0) {
+    return count * baseAvg;
+  }
+
+  // Each kept die has the expected value of max/min of (1+|adv|) dice
+  const perDie = singleDieAverage(sides, advantageLevel);
+  return count * perDie;
+}
+
+/**
+ * Calculate the expected average damage of a dice formula string.
+ *
+ * When nimbleDice=true, applies Nimble attack rules:
+ * - First die rolling 1 = miss (entire attack does 0 damage including modifier)
+ * - First die rolling max = crit (roll one extra exploding die)
+ * - Vicious (v): crit adds an additional non-exploding die
+ * - Double-digit dice (d44, d66, d88) and d100 skip miss/crit rules
+ *
+ * When nimbleDice=false, uses naive averages (N * avg(dX) + M).
+ */
+export const calculateAverageDamage = (formula: string, nimbleDice = false): number | null => {
+  if (!formula || !formula.trim()) return null;
+
+  try {
+    const tokens = diceService.tokenize(formula.trim());
+    if (tokens.length === 0) return null;
+
+    const values: number[] = [];
+    const ops: string[] = [];
+
+    function applyOp() {
+      const op = ops.pop()!;
+      const b = values.pop()!;
+      const a = values.pop()!;
+      switch (op) {
+        case "+":
+          values.push(a + b);
+          break;
+        case "-":
+          values.push(a - b);
+          break;
+        case "*":
+          values.push(a * b);
+          break;
+        case "/":
+          values.push(b !== 0 ? a / b : 0);
+          break;
+      }
+    }
+
+    const precedence: Record<string, number> = { "+": 1, "-": 1, "*": 2, "/": 2 };
+
+    let firstDiceSides: number | null = null;
+    let firstDiceModifiers: string[] = [];
+
+    for (const token of tokens) {
+      if (token.type === "static") {
+        values.push(token.value);
+      } else if (token.type === "dice") {
+        if (nimbleDice && firstDiceSides === null) {
+          firstDiceSides = token.sides;
+          firstDiceModifiers = token.modifiers;
+        }
+        const avg = diceTokenAverage(token.count, token.sides, token.modifiers);
+        values.push(avg);
+      } else if (token.type === "operator") {
+        if (token.operator === "(") {
+          ops.push("(");
+        } else if (token.operator === ")") {
+          while (ops.length > 0 && ops[ops.length - 1] !== "(") applyOp();
+          ops.pop();
+        } else {
+          while (
+            ops.length > 0 &&
+            ops[ops.length - 1] !== "(" &&
+            (precedence[ops[ops.length - 1]] ?? 0) >= (precedence[token.operator] ?? 0)
+          ) {
+            applyOp();
+          }
+          ops.push(token.operator);
+        }
+      }
+    }
+
+    while (ops.length > 0) applyOp();
+
+    let result = values[0];
+    if (result === undefined || isNaN(result)) return null;
+
+    // Apply Nimble attack rules if enabled and we found a standard dice token
+    const isDoubleDie = firstDiceSides !== null && DOUBLE_DIGIT_DICE.includes(firstDiceSides);
+    if (nimbleDice && firstDiceSides !== null && !isDoubleDie) {
+      const s = firstDiceSides;
+      const baseAvg = DIE_AVERAGES[s];
+      if (baseAvg !== undefined) {
+        // Advantage affects miss/crit probabilities on the first die
+        const advLevel = parseAdvantageFromModifiers(firstDiceModifiers);
+        const numRolled = 1 + Math.abs(advLevel);
+
+        let pMiss: number;
+        let pCrit: number;
+
+        if (advLevel > 0) {
+          // Advantage: keep highest. Miss only if ALL dice roll 1. Crit if ANY rolls max.
+          pMiss = Math.pow(1 / s, numRolled);
+          pCrit = 1 - Math.pow((s - 1) / s, numRolled);
+        } else if (advLevel < 0) {
+          // Disadvantage: keep lowest. Miss if ANY die rolls 1. Crit only if ALL roll max.
+          pMiss = 1 - Math.pow((s - 1) / s, numRolled);
+          pCrit = Math.pow(1 / s, numRolled);
+        } else {
+          pMiss = 1 / s;
+          pCrit = 1 / s;
+        }
+
+        const pHit = 1 - pMiss;
+        const explodingExtra = (baseAvg * s) / (s - 1);
+
+        const hasVicious = firstDiceModifiers.includes("v");
+        const viciousExtra = hasVicious ? baseAvg : 0;
+
+        result = pHit * result + pCrit * (explodingExtra + viciousExtra);
+      }
+    }
+
+    return Math.round(result * 10) / 10;
+  } catch {
+    return null;
+  }
+};
+
+// --- Histogram generation via Monte Carlo simulation ---
+
+export interface HistogramBucket {
+  value: number;
+  count: number;
+  percentage: number;
+}
+
+export interface HistogramResult {
+  buckets: HistogramBucket[];
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  samples: number;
+}
+
+/**
+ * Generate a histogram of results for a dice formula via Monte Carlo simulation.
+ * Rolls the formula `samples` times and buckets the results.
+ *
+ * @param formula - Dice formula string (e.g., "2d8+10", "1d20!a")
+ * @param options - Dice formula options (allowCriticals, allowFumbles, etc.)
+ * @param samples - Number of simulations to run (default 10000)
+ * @returns Histogram data with buckets, min, max, mean, median
+ */
+export const generateHistogram = (
+  formula: string,
+  options: DiceFormulaOptions = {},
+  samples = 10000,
+): HistogramResult | null => {
+  if (!formula || !formula.trim()) return null;
+
+  try {
+    const counts = new Map<number, number>();
+    let total = 0;
+    let min = Infinity;
+    let max = -Infinity;
+    const allResults: number[] = [];
+
+    for (let i = 0; i < samples; i++) {
+      const result = diceService.evaluateDiceFormula(formula, options);
+      const val = result.total;
+      allResults.push(val);
+      counts.set(val, (counts.get(val) ?? 0) + 1);
+      total += val;
+      if (val < min) min = val;
+      if (val > max) max = val;
+    }
+
+    // Sort results for median
+    allResults.sort((a, b) => a - b);
+    const median =
+      samples % 2 === 0
+        ? (allResults[samples / 2 - 1] + allResults[samples / 2]) / 2
+        : allResults[Math.floor(samples / 2)];
+
+    // Build sorted buckets
+    const sortedKeys = Array.from(counts.keys()).sort((a, b) => a - b);
+    const buckets: HistogramBucket[] = sortedKeys.map((value) => ({
+      value,
+      count: counts.get(value)!,
+      percentage: (counts.get(value)! / samples) * 100,
+    }));
+
+    return {
+      buckets,
+      min,
+      max,
+      mean: Math.round((total / samples) * 10) / 10,
+      median,
+      samples,
+    };
+  } catch {
+    return null;
+  }
+};
+
 // Also export the service instance for backward compatibility
 export { diceService };

@@ -52,6 +52,39 @@ const commands = [
     ],
   },
   {
+    name: 'average',
+    description:
+      'Calculate expected average damage for a dice formula using Nimble rules (miss on 1, exploding crits)',
+    options: [
+      {
+        type: 3, // STRING
+        name: 'formula',
+        description: 'Dice formula (e.g., 2d8+10, 1d8v, 3d6+5)',
+        required: true,
+      },
+    ],
+  },
+  {
+    name: 'histogram',
+    description: 'Show the probability distribution of a dice formula',
+    options: [
+      {
+        type: 3, // STRING
+        name: 'formula',
+        description: 'Dice formula (e.g., 2d8+10, 1d20!a, 3d6+5)',
+        required: true,
+      },
+      {
+        type: 4, // INTEGER
+        name: 'samples',
+        description: 'Number of simulations (default: 10000, max: 100000)',
+        required: false,
+        min_value: 100,
+        max_value: 100000,
+      },
+    ],
+  },
+  {
     name: 'help',
     description: 'Learn how to use the Nimble dice bot and dice notation',
   },

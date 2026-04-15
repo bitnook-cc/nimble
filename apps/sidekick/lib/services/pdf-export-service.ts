@@ -278,11 +278,35 @@ export class PDFExportService {
 
     const allFeatures: string[] = [];
 
-    // Get class features
+    // Collect ability IDs first so we can deduplicate against features
+    const abilityIds = new Set<string>();
+    const abilities = characterService.getAbilities();
+
+    // Add action abilities first
+    abilities.forEach((ability) => {
+      if (ability.type === "action") {
+        abilityIds.add(ability.id);
+        allFeatures.push(`${ability.name}: ${ability.description || "Character ability"}`);
+      }
+    });
+
+    // Helper to check if a feature only grants abilities (and is already represented)
+    const isAbilityOnlyFeature = (feature: {
+      traits: Array<{ type: string; ability?: { id: string } }>;
+    }): boolean => {
+      if (feature.traits.length === 0) return false;
+      return feature.traits.every(
+        (trait) => trait.type === "ability" && trait.ability && abilityIds.has(trait.ability.id),
+      );
+    };
+
+    // Get class features (skip features that only grant already-listed abilities)
     try {
       const classFeatures = classService.getExpectedFeaturesForCharacter(character);
       classFeatures.forEach((feature) => {
-        allFeatures.push(`${feature.name}: ${feature.description || "Class feature"}`);
+        if (!isAbilityOnlyFeature(feature)) {
+          allFeatures.push(`${feature.name}: ${feature.description || "Class feature"}`);
+        }
       });
     } catch (error) {
       console.error("Could not get class features:", error);
@@ -292,7 +316,9 @@ export class PDFExportService {
     try {
       const ancestryFeatures = ancestryService.getExpectedFeaturesForCharacter(character);
       ancestryFeatures.forEach((feature) => {
-        allFeatures.push(`${feature.name}: ${feature.description || "Ancestry feature"}`);
+        if (!isAbilityOnlyFeature(feature)) {
+          allFeatures.push(`${feature.name}: ${feature.description || "Ancestry feature"}`);
+        }
       });
     } catch (error) {
       console.error("Could not get ancestry features:", error);
@@ -302,18 +328,13 @@ export class PDFExportService {
     try {
       const backgroundFeatures = backgroundService.getExpectedFeaturesForCharacter(character);
       backgroundFeatures.forEach((feature) => {
-        allFeatures.push(`${feature.name}: ${feature.description || "Background feature"}`);
+        if (!isAbilityOnlyFeature(feature)) {
+          allFeatures.push(`${feature.name}: ${feature.description || "Background feature"}`);
+        }
       });
     } catch (error) {
       console.error("Could not get background features:", error);
     }
-
-    // Add character abilities (non-spell abilities)
-    characterService.getAbilities().forEach((ability) => {
-      if (ability.type === "action") {
-        allFeatures.push(`${ability.name}: ${ability.description || "Character ability"}`);
-      }
-    });
 
     // Add inventory items based on options
     this.addInventoryToFeatures(character, options, allFeatures);

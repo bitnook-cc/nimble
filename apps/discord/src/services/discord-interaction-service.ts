@@ -1,6 +1,8 @@
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import {
   diceService,
+  calculateAverageDamage,
+  generateHistogram,
   type CategorizedDie,
   type DiceFormulaResult,
   type DiceTokenResult,
@@ -54,6 +56,14 @@ export class DiscordInteractionService {
 
       if (name === 'attack' && options) {
         return this.handleRollCommand(options, true);
+      }
+
+      if (name === 'average' && options) {
+        return this.handleAverageCommand(options);
+      }
+
+      if (name === 'histogram' && options) {
+        return this.handleHistogramCommand(options);
       }
 
       if (name === 'help') {
@@ -119,58 +129,291 @@ export class DiscordInteractionService {
    * Handle the /help command
    */
   private handleHelpCommand(): InteractionResponse {
-    const helpText = `# 🎲 Nimble Dice Bot Help
-
-## Basic Usage
-Use \`/roll formula:<dice notation>\` to roll dice.
-
-## Dice Notation Examples
-• **Basic rolls:** \`2d6\`, \`1d20\`, \`3d4+5\`
-• **With modifiers:** \`1d20+5\`, \`2d8-3\`, \`1d6+2d4+7\`
-• **Exploding criticals:** \`1d20!\` (rerolls on max value)
-• **All dice explode:** \`3d6!!\` (ALL max rolls explode, not just first)
-• **Vicious dice:** \`1d8v\` (adds extra die on critical)
-• **Combined:** \`1d20!v\` or \`2d6!!v\` (exploding + vicious)
-• **Double-digit dice:** \`d44\`, \`d66\`, \`d88\`
-• **Math operations:** \`(2d6+3)*2\`, \`1d20+5-2\`
-
-## Advantage & Disadvantage
-**Option 1: Use postfix notation**
-• **Advantage:** \`1d20a\` or \`1d20a1\` (rolls 2d20, keeps highest)
-• **Multiple advantage:** \`1d20a3\` (rolls 4d20, keeps highest)
-• **Disadvantage:** \`1d20d\` or \`1d20d1\` (rolls 2d20, keeps lowest)
-• **Multiple disadvantage:** \`1d20d2\` (rolls 3d20, keeps lowest)
-
-**IMPORTANT**
-When using postfix notation, the order of operations is important. Always place the advantage/disadvantage postfix AFTER any exploding or vicious postfixes.
-
-**Option 2: Use the advantage parameter**
-• **Advantage:** \`/roll formula:1d20 advantage:1\`
-• **Disadvantage:** \`/roll formula:1d20 advantage:-1\`
-
-## Special Notations
-• **!** = Exploding dice (first die rerolls on max)
-• **!!** = All dice explode (ALL dice reroll on max)
-• **v** = Vicious (add extra die on critical)
-• **a** = Advantage (roll extra, keep highest)
-• **d** = Disadvantage (roll extra, keep lowest)
-• **Double-digit** = Rolls two dice for tens and ones (d44, d66, d88). Note: Double-digit rolls cannot crit or explode.
-
-## Examples
-• \`/roll formula:2d6+5\` - Roll 2d6 and add 5
-• \`/roll formula:1d20!a\` - Roll d20 with advantage and exploding crits
-• \`/roll formula:4d4!!\` - Roll 4d4 where ALL 4s explode
-• \`/roll formula:3d8v\` - Roll 3d8 with vicious dice
-• \`/roll formula:1d20d2+5\` - Roll d20 with double disadvantage, add 5
-• \`/roll formula:d44a\` - Roll a d44 with advantage`;
-
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: helpText,
-        flags: 64, // Ephemeral (only visible to the user who ran the command)
+        flags: 64,
+        embeds: [
+          {
+            title: '🎲 Nimble Dice Bot',
+            color: 0x3498db,
+            fields: [
+              {
+                name: 'Commands',
+                value: [
+                  '`/roll formula:<dice>` — Roll dice',
+                  '`/attack formula:<dice>` — Attack roll (crits & misses)',
+                  '`/average formula:<dice>` — Expected average damage',
+                  '`/histogram formula:<dice>` — Probability distribution',
+                  '`/help` — This help message',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Dice Notation',
+                value: [
+                  '`2d6`, `1d20`, `3d4+5` — Basic rolls',
+                  '`1d20+5`, `2d8-3` — With modifiers',
+                  '`1d20!` — Exploding crits (reroll on max)',
+                  '`3d6!!` — All dice explode',
+                  '`1d8v` — Vicious (extra die on crit)',
+                  '`d44`, `d66`, `d88` — Double-digit dice',
+                  '`(2d6+3)*2` — Math operations',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Advantage & Disadvantage',
+                value: [
+                  '`1d20a` — Advantage (roll 2, keep highest)',
+                  '`1d20a3` — Triple advantage (roll 4, keep highest)',
+                  '`1d20d` — Disadvantage (roll 2, keep lowest)',
+                  '`/roll formula:1d20 advantage:1` — Via parameter',
+                  '',
+                  '⚠️ Place a/d AFTER ! and v: `1d20!va`',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: '📊 Average Damage',
+                value: [
+                  '`/average formula:2d8+10` — Shows expected damage',
+                  'Accounts for Nimble rules:',
+                  '• Miss on natural 1 (0 damage)',
+                  '• Exploding crits on max roll',
+                  '• Vicious bonus dice (`v`)',
+                  '• Double-digit dice skip miss/crit',
+                ].join('\n'),
+                inline: false,
+              },
+              {
+                name: 'Examples',
+                value: [
+                  '`/roll formula:2d6+5`',
+                  '`/attack formula:1d20!a`',
+                  '`/average formula:3d8v+10`',
+                  '`/roll formula:d66`',
+                ].join('\n'),
+                inline: false,
+              },
+            ],
+          },
+        ],
       },
     };
+  }
+
+  /**
+   * Handle the /average command
+   */
+  private handleAverageCommand(options: CommandOption[]): InteractionResponse {
+    try {
+      const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+
+      if (typeof formulaValue !== 'string') {
+        throw new Error('Formula must be a string');
+      }
+      const formula = formulaValue;
+
+      const nimbleAvg = calculateAverageDamage(formula, true);
+      const naiveAvg = calculateAverageDamage(formula, false);
+
+      if (nimbleAvg === null || naiveAvg === null) {
+        throw new Error(`Could not parse formula: \`${formula}\``);
+      }
+
+      const fields = [
+        {
+          name: 'Formula',
+          value: `\`${formula}\``,
+          inline: true,
+        },
+        {
+          name: 'Nimble Average',
+          value: `**${nimbleAvg}**`,
+          inline: true,
+        },
+        {
+          name: 'Naive Average',
+          value: `${naiveAvg}`,
+          inline: true,
+        },
+      ];
+
+      const diff = nimbleAvg - naiveAvg;
+      if (diff !== 0) {
+        fields.push({
+          name: 'Miss/Crit Impact',
+          value: `${diff > 0 ? '+' : ''}${Math.round(diff * 10) / 10} (${diff < 0 ? 'miss penalty > crit bonus' : 'crit bonus > miss penalty'})`,
+          inline: false,
+        });
+      }
+
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [
+            {
+              title: '📊 Average Damage Calculator',
+              color: 0x9b59b6,
+              description:
+                'Expected damage per attack using Nimble dice rules (miss on 1, exploding crits).',
+              fields,
+              footer: {
+                text: 'Nimble avg accounts for: miss on natural 1, exploding crits on max roll, vicious (v)',
+              },
+            },
+          ],
+        },
+      };
+    } catch (error) {
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `❌ **Error calculating average:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+          flags: 64,
+        },
+      };
+    }
+  }
+
+  /**
+   * Handle the /histogram command
+   */
+  private handleHistogramCommand(options: CommandOption[]): InteractionResponse {
+    try {
+      const formulaValue = options.find((opt) => opt.name === 'formula')?.value;
+      const samplesValue = options.find((opt) => opt.name === 'samples')?.value;
+
+      if (typeof formulaValue !== 'string') {
+        throw new Error('Formula must be a string');
+      }
+      const formula = formulaValue;
+      const samples = Math.min(
+        100000,
+        Math.max(100, typeof samplesValue === 'number' ? samplesValue : 10000),
+      );
+
+      const result = generateHistogram(
+        formula,
+        {
+          allowCriticals: true,
+          allowFumbles: true,
+          vicious: false,
+        },
+        samples,
+      );
+
+      if (!result) {
+        throw new Error(`Could not parse formula: \`${formula}\``);
+      }
+
+      // Build ASCII histogram
+      const maxBarWidth = 20;
+      const maxCount = Math.max(...result.buckets.map((b) => b.count));
+
+      // Group into ranges if there are too many unique values
+      let displayBuckets = result.buckets;
+      if (displayBuckets.length > 25) {
+        // Bin into ~20 ranges
+        const binCount = 20;
+        const range = result.max - result.min;
+        const binSize = Math.ceil(range / binCount) || 1;
+        const bins = new Map<number, { min: number; max: number; count: number }>();
+
+        for (const bucket of result.buckets) {
+          const binIndex = Math.floor((bucket.value - result.min) / binSize);
+          const binMin = result.min + binIndex * binSize;
+          const binMax = binMin + binSize - 1;
+          const existing = bins.get(binIndex);
+          if (existing) {
+            existing.count += bucket.count;
+          } else {
+            bins.set(binIndex, { min: binMin, max: binMax, count: bucket.count });
+          }
+        }
+
+        const sortedBins = Array.from(bins.values()).sort((a, b) => a.min - b.min);
+        displayBuckets = sortedBins.map((bin) => ({
+          value: bin.min === bin.max ? bin.min : bin.min, // use min as label
+          count: bin.count,
+          percentage: (bin.count / result.samples) * 100,
+        }));
+
+        // Rebuild maxCount for binned data
+        const binnedMaxCount = Math.max(...displayBuckets.map((b) => b.count));
+
+        const lines = sortedBins.map((bin) => {
+          const barLen = Math.round((bin.count / binnedMaxCount) * maxBarWidth);
+          const bar = '█'.repeat(barLen);
+          const pct = ((bin.count / result.samples) * 100).toFixed(1);
+          const label =
+            bin.min === bin.max ? `${bin.min}`.padStart(4) : `${bin.min}-${bin.max}`.padStart(7);
+          return `\`${label}\` ${bar} ${pct}%`;
+        });
+
+        const histogram = lines.join('\n');
+
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embeds: [
+              {
+                title: '📊 Dice Distribution',
+                color: 0xe67e22,
+                description: `\`${formula}\` — ${result.samples.toLocaleString()} simulations`,
+                fields: [
+                  { name: 'Distribution', value: histogram, inline: false },
+                  { name: 'Min', value: `${result.min}`, inline: true },
+                  { name: 'Max', value: `${result.max}`, inline: true },
+                  { name: 'Mean', value: `${result.mean}`, inline: true },
+                  { name: 'Median', value: `${result.median}`, inline: true },
+                ],
+              },
+            ],
+          },
+        };
+      }
+
+      // Simple histogram for <=25 unique values
+      const lines = displayBuckets.map((bucket) => {
+        const barLen = Math.round((bucket.count / maxCount) * maxBarWidth);
+        const bar = '█'.repeat(barLen);
+        const pct = bucket.percentage.toFixed(1);
+        const label = `${bucket.value}`.padStart(4);
+        return `\`${label}\` ${bar} ${pct}%`;
+      });
+
+      const histogram = lines.join('\n');
+
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [
+            {
+              title: '📊 Dice Distribution',
+              color: 0xe67e22,
+              description: `\`${formula}\` — ${result.samples.toLocaleString()} simulations`,
+              fields: [
+                { name: 'Distribution', value: histogram, inline: false },
+                { name: 'Min', value: `${result.min}`, inline: true },
+                { name: 'Max', value: `${result.max}`, inline: true },
+                { name: 'Mean', value: `${result.mean}`, inline: true },
+                { name: 'Median', value: `${result.median}`, inline: true },
+              ],
+            },
+          ],
+        },
+      };
+    } catch (error) {
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `❌ **Error generating histogram:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+          flags: 64,
+        },
+      };
+    }
   }
 
   /**

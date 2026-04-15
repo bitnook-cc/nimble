@@ -7,7 +7,6 @@ import {
   Users,
   Calendar,
   BookOpen,
-  Sparkles,
   Sword,
   Shield
 } from 'lucide-react'
@@ -57,7 +56,7 @@ const tools: ToolCard[] = [
     description: 'Design custom monsters and NPCs with stat blocks and special abilities.',
     icon: <Sword className="w-6 h-6" />,
     href: '/monsters',
-    status: 'placeholder',
+    status: 'available',
     tags: ['gm-tools', 'content-creation']
   },
   {
