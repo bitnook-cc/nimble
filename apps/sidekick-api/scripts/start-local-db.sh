@@ -9,6 +9,12 @@ if [ "$NODE_ENV" = "production" ] || [ "$CI" = "true" ]; then
   exit 0
 fi
 
+# In a dev container, PostgreSQL is provided by Docker Compose
+if [ "$DEVCONTAINER" = "true" ]; then
+  echo "✅ Dev container detected — PostgreSQL is managed by Docker Compose"
+  exit 0
+fi
+
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
   echo "Docker is not running. Please start Docker Desktop."

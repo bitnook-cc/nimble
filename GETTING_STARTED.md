@@ -2,6 +2,93 @@
 
 This guide will help you set up and run the Sidekick monorepo locally.
 
+There are two ways to set up your development environment:
+
+- **[Native Setup](#prerequisites)** (macOS/Linux) — Install Node.js, Docker, and dependencies directly on your machine
+- **[Docker Setup](#docker-development-setup)** (Windows / Cross-platform) — Run everything inside Docker containers with a single command
+
+---
+
+## Docker Development Setup
+
+Use this setup if you're on **Windows** or prefer a containerized environment. All you need is [Docker Desktop](https://www.docker.com/products/docker-desktop/) — no Node.js, PostgreSQL, or other dependencies required on your machine.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd nimble
+
+# Start the development environment (first run takes a few minutes)
+npm run docker:up
+
+# Start the web app
+npm run docker:dev:sidekick
+```
+
+Open http://localhost:3000 in your browser.
+
+The first `docker:up` automatically handles npm install, shared package builds, database creation, and Prisma migrations. Subsequent starts reuse cached dependencies and are much faster.
+
+### Available Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run docker:up` | Start containers (runs setup on first boot) |
+| `npm run docker:down` | Stop containers |
+| `npm run docker:shell` | Open a bash shell inside the container |
+| `npm run docker:dev` | Start all apps |
+| `npm run docker:dev:sidekick` | Start the web app only (port 3000) |
+| `npm run docker:dev:api` | Start the API server only (port 3001) |
+| `npm run docker:test` | Run unit tests |
+| `npm run docker:lint` | Run ESLint |
+| `npm run docker:typecheck` | Run TypeScript type checking |
+
+For any command not listed above, use the shell:
+
+```bash
+npm run docker:shell
+# Then run any command inside the container, e.g.:
+npm run dev:vault
+npx turbo run test:e2e --filter=@nimble/sidekick
+```
+
+### IDE Support (TypeScript Intellisense)
+
+The Docker setup uses a separate `node_modules` volume inside the container, so your host machine won't have `node_modules` by default. To get TypeScript autocomplete and go-to-definition working in your editor, run `npm install` locally as well:
+
+```bash
+npm install
+```
+
+This gives your editor access to type definitions. The container and host `node_modules` are independent and don't interfere with each other.
+
+### Resetting the Environment
+
+```bash
+# Stop containers and remove all data (node_modules, database)
+docker compose down -v
+
+# Start fresh
+npm run docker:up
+```
+
+### How It Works
+
+- **`docker-compose.yml`** defines two services: a Node.js 20 app container and a PostgreSQL 15 database
+- **`docker/entrypoint.sh`** runs automatically on first start: installs dependencies, builds shared packages, copies `.env.example` files, and runs database migrations
+- Source code is bind-mounted from your host, so edits are reflected immediately
+- The `DEVCONTAINER=true` environment variable tells the existing `start-local-db.sh` script to skip its Docker logic (the database is already provided by Docker Compose)
+
+---
+
+## Native Setup (macOS/Linux)
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:

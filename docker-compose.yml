@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/workspace:cached
+      - node_modules:/workspace/node_modules
+    entrypoint: ["/workspace/docker/entrypoint.sh"]
+    command: ["sleep", "infinity"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DEVCONTAINER: "true"
+      DATABASE_URL: "postgresql://postgres:nimblelocal123@db:5432/nimbledb?schema=public"
+      SESSION_SECRET: "dev-session-secret-not-for-production-1234567890"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "3002:3002"
+      - "4000:4000"
+      - "4321:4321"
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nimblelocal123
+      POSTGRES_DB: nimbledb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  node_modules:
+  postgres-data:
