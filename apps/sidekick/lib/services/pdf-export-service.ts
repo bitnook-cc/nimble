@@ -116,7 +116,7 @@ export class PDFExportService {
       this.setSaveAdvantages(form, character.saveAdvantages);
 
       // Hit Points - using exact field names with centered alignment
-      this.setTextField(form, "HP - Max", character.hitPoints.max.toString(), true);
+      this.setTextField(form, "HP - Max", characterService.getMaxHp().toString(), true);
 
       // Armor Class - using exact field name with centered alignment
       this.setTextField(form, "Armor", armorValue.toString(), true);
