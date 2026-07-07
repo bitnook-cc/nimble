@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/workspace:cached
       - node_modules:/workspace/node_modules
-    entrypoint: ["/workspace/docker/entrypoint.sh"]
+    entrypoint: ["bash", "/workspace/docker/entrypoint.sh"]
     command: ["sleep", "infinity"]
     depends_on:
       db:
