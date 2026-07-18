@@ -27,7 +27,16 @@
     "test": "turbo test",
     "test:watch": "turbo test:watch",
     "test:ui": "turbo test:ui",
-    "prepare": "npx husky || true"
+    "prepare": "npx husky || true",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:shell": "docker compose exec app bash",
+    "docker:dev": "docker compose exec app npm run dev",
+    "docker:dev:sidekick": "docker compose exec app npm run dev:sidekick",
+    "docker:dev:api": "docker compose exec app npm run dev:api",
+    "docker:test": "docker compose exec app npm run test",
+    "docker:lint": "docker compose exec app npm run lint",
+    "docker:typecheck": "docker compose exec app npm run typecheck"
   },
   "devDependencies": {
     "husky": "^9.1.7",

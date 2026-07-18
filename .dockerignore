@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+dist
+.turbo
+.git
+.claude
+.env
+.env.*
+!.env.example
+test-results
+playwright-report
