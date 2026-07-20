@@ -35,12 +35,13 @@ import { GeneralActionsRow } from "./general-actions-row";
 
 // Health Bar Subcomponent
 function HealthBar() {
-  const { character } = useCharacterService();
+  const { character, getMaxHp } = useCharacterService();
 
   // All hooks called first, then safety check
   if (!character) return null;
 
-  const { current, max, temporary } = character.hitPoints;
+  const max = getMaxHp();
+  const { current, temporary } = character.hitPoints;
   const healthPercentage = (current / max) * 100;
 
   const getHealthBarColor = () => {
@@ -352,13 +353,15 @@ function HPActionDialog({
 
 // Quick Actions Bar Subcomponent
 function QuickActionsBar() {
-  const { character, applyDamage, applyHealing, applyTemporaryHP } = useCharacterService();
+  const { character, applyDamage, applyHealing, applyTemporaryHP, getMaxHp } =
+    useCharacterService();
   const [openDialog, setOpenDialog] = useState<ActionType | null>(null);
 
   // All hooks called first, then safety check
   if (!character) return null;
 
-  const { current: currentHp, max: maxHp } = character.hitPoints;
+  const maxHp = getMaxHp();
+  const currentHp = character.hitPoints.current;
 
   const handleApplyAction = (actionType: ActionType, amount: number) => {
     switch (actionType) {

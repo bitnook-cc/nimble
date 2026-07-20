@@ -221,6 +221,17 @@ const formatEffectDescription = (effect: FeatureTrait): string => {
         const formatted = formatValue(effect.statBonus.hitDiceBonus);
         if (formatted) bonuses.push(`${formatted} Hit Dice`);
       }
+      if (effect.statBonus.hitDieSizeOverride) {
+        bonuses.push(`Hit Die → d${effect.statBonus.hitDieSizeOverride}`);
+      }
+      if (effect.statBonus.hitDieSizeStep) {
+        const steps = effect.statBonus.hitDieSizeStep;
+        bonuses.push(steps > 0 ? `Hit Die +${steps} step` : `Hit Die ${steps} step`);
+      }
+      if (effect.statBonus.maxHpBonus) {
+        const formatted = formatValue(effect.statBonus.maxHpBonus);
+        if (formatted) bonuses.push(`${formatted} Max HP`);
+      }
 
       // Resources
       if (effect.statBonus.resourceMaxBonuses) {

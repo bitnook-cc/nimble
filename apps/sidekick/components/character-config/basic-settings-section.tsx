@@ -2,11 +2,12 @@
 
 import { Character } from "@/lib/schemas/character";
 
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { NumericInput } from "../ui/numeric-input";
 
 interface BasicSettingsSectionProps {
   character: Character;
+  effectiveMaxHp: number;
   updateMaxWounds: (value: string) => Promise<void>;
   updateMaxHP: (value: string) => Promise<void>;
   updateInitiativeModifier: (value: string) => Promise<void>;
@@ -16,6 +17,7 @@ interface BasicSettingsSectionProps {
 
 export function BasicSettingsSection({
   character,
+  effectiveMaxHp,
   updateMaxWounds,
   updateMaxHP,
   updateInitiativeModifier,
@@ -30,13 +32,12 @@ export function BasicSettingsSection({
           Maximum Wounds
         </Label>
         <div className="space-y-1">
-          <Input
+          <NumericInput
             id="max-wounds"
-            type="number"
-            min="1"
-            max="20"
+            min={1}
+            max={20}
             value={character.config.maxWounds}
-            onChange={(e) => updateMaxWounds(e.target.value)}
+            onChange={(v) => updateMaxWounds(v)}
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
@@ -51,18 +52,15 @@ export function BasicSettingsSection({
           Maximum Hit Points
         </Label>
         <div className="space-y-1">
-          <Input
+          <NumericInput
             id="max-hp"
-            type="number"
-            min="1"
-            max="1000"
-            value={character.hitPoints.max}
-            onChange={(e) => updateMaxHP(e.target.value)}
+            min={1}
+            max={1000}
+            value={effectiveMaxHp}
+            onChange={(v) => updateMaxHP(v)}
             className="w-full"
           />
-          <p className="text-xs text-muted-foreground">
-            Base maximum hit points for the character.
-          </p>
+          <p className="text-xs text-muted-foreground">Maximum hit points for the character.</p>
         </div>
       </div>
 
@@ -72,13 +70,12 @@ export function BasicSettingsSection({
           Initiative Modifier
         </Label>
         <div className="space-y-1">
-          <Input
+          <NumericInput
             id="initiative-modifier"
-            type="number"
-            min="-10"
-            max="10"
+            min={-10}
+            max={10}
             value={character._initiative.modifier}
-            onChange={(e) => updateInitiativeModifier(e.target.value)}
+            onChange={(v) => updateInitiativeModifier(v)}
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
@@ -95,13 +92,12 @@ export function BasicSettingsSection({
           Base Inventory Size
         </Label>
         <div className="space-y-1">
-          <Input
+          <NumericInput
             id="max-inventory"
-            type="number"
-            min="1"
-            max="100"
+            min={1}
+            max={100}
             value={character.config.maxInventorySize}
-            onChange={(e) => updateMaxInventorySize(e.target.value)}
+            onChange={(v) => updateMaxInventorySize(v)}
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
@@ -122,13 +118,12 @@ export function BasicSettingsSection({
             Starting Skill Points
           </Label>
           <div className="space-y-1">
-            <Input
+            <NumericInput
               id="starting-points"
-              type="number"
-              min="1"
-              max="20"
+              min={1}
+              max={20}
               value={character.config.skillPoints.startingPoints}
-              onChange={(e) => updateSkillPointsConfig("startingPoints", e.target.value)}
+              onChange={(v) => updateSkillPointsConfig("startingPoints", v)}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">Skill points available at level 1.</p>
@@ -141,13 +136,12 @@ export function BasicSettingsSection({
             Points Per Level
           </Label>
           <div className="space-y-1">
-            <Input
+            <NumericInput
               id="points-per-level"
-              type="number"
-              min="0"
-              max="10"
+              min={0}
+              max={10}
               value={character.config.skillPoints.pointsPerLevel}
-              onChange={(e) => updateSkillPointsConfig("pointsPerLevel", e.target.value)}
+              onChange={(v) => updateSkillPointsConfig("pointsPerLevel", v)}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">

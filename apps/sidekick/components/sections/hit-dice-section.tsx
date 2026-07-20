@@ -17,14 +17,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export function HitDiceSection() {
   // Get everything we need from service hooks
-  const { character, performSafeRest, performCatchBreath, performMakeCamp, updateCharacterFields } =
-    useCharacterService();
+  const {
+    character,
+    performSafeRest,
+    performCatchBreath,
+    performMakeCamp,
+    updateCharacterFields,
+    getHitDice,
+  } = useCharacterService();
   const { uiState, updateCollapsibleState } = useUIStateService();
+
+  const computedHitDice = getHitDice();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     level: character?.level || 1,
-    hitDieSize: character?._hitDice.size || 6,
+    hitDieSize: computedHitDice?.size || 6,
     currentHitDice: character?._hitDice.current || character?.level || 1,
   });
 
@@ -35,10 +43,18 @@ export function HitDiceSection() {
   const onToggle = (isOpen: boolean) => updateCollapsibleState("hitDice", isOpen);
 
   const handleSave = () => {
+    // If the user didn't change the die size, preserve the current override state.
+    // If they changed it, set it as a manual override.
+    const sizeOverride =
+      editValues.hitDieSize === computedHitDice.size
+        ? character._hitDice.sizeOverride
+        : (editValues.hitDieSize as typeof character._hitDice.size);
+
     const updatedCharacter = {
       level: editValues.level,
       _hitDice: {
-        size: editValues.hitDieSize,
+        ...character._hitDice,
+        sizeOverride,
         current: editValues.currentHitDice,
         max: editValues.level, // Max hit dice always equals level
       },
@@ -50,7 +66,7 @@ export function HitDiceSection() {
   const handleCancel = () => {
     setEditValues({
       level: character.level,
-      hitDieSize: character._hitDice.size,
+      hitDieSize: computedHitDice.size,
       currentHitDice: character._hitDice.current,
     });
     setIsEditing(false);
@@ -86,7 +102,7 @@ export function HitDiceSection() {
                   <span>
                     {character._hitDice.current}/{character._hitDice.max}
                   </span>
-                  <span className="text-sm text-muted-foreground">d{character._hitDice.size}</span>
+                  <span className="text-sm text-muted-foreground">d{computedHitDice.size}</span>
                 </div>
                 {isOpen ? (
                   <ChevronDown className="w-4 h-4" />
@@ -176,7 +192,7 @@ export function HitDiceSection() {
                   </div>
 
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">d{character._hitDice.size}</div>
+                    <div className="text-2xl font-bold">d{computedHitDice.size}</div>
                     <div className="text-sm text-muted-foreground">Hit Die</div>
                   </div>
 
@@ -193,7 +209,7 @@ export function HitDiceSection() {
 
                 <div className="space-y-3">
                   <div className="text-center text-sm font-medium text-muted-foreground">
-                    Field Rest Options (d{character._hitDice.size} + STR{" "}
+                    Field Rest Options (d{computedHitDice.size} + STR{" "}
                     {character._attributes.strength >= 0 ? "+" : ""}
                     {character._attributes.strength})
                   </div>
@@ -218,7 +234,7 @@ export function HitDiceSection() {
                     >
                       <Heart className="w-4 h-4 mr-2" />
                       Make Camp
-                      <div className="text-xs ml-2">({character._hitDice.size} + STR)</div>
+                      <div className="text-xs ml-2">({computedHitDice.size} + STR)</div>
                     </Button>
                   </div>
 
@@ -249,7 +265,7 @@ export function HitDiceSection() {
                     onClick={() => {
                       setEditValues({
                         level: character.level,
-                        hitDieSize: character._hitDice.size,
+                        hitDieSize: computedHitDice.size,
                         currentHitDice: character._hitDice.current,
                       });
                       setIsEditing(true);

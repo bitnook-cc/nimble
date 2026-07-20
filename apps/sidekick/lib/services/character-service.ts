@@ -1153,7 +1153,33 @@ export class CharacterService {
 
     const result = { ...baseHitDice };
 
-    // Apply hit dice bonuses
+    // Manual override takes highest priority — user explicitly set this value
+    if (result.sizeOverride) {
+      result.size = result.sizeOverride;
+    } else {
+      // Apply feature bonuses to die size
+      const dieSizes = [4, 6, 8, 10, 12, 20] as const;
+      let totalSteps = 0;
+
+      for (const bonus of bonuses) {
+        if (bonus.hitDieSizeOverride && bonus.hitDieSizeOverride > result.size) {
+          result.size = bonus.hitDieSizeOverride;
+        }
+        if (bonus.hitDieSizeStep) {
+          totalSteps += bonus.hitDieSizeStep;
+        }
+      }
+
+      if (totalSteps !== 0) {
+        const currentIndex = dieSizes.indexOf(result.size as (typeof dieSizes)[number]);
+        if (currentIndex !== -1) {
+          const newIndex = Math.max(0, Math.min(dieSizes.length - 1, currentIndex + totalSteps));
+          result.size = dieSizes[newIndex];
+        }
+      }
+    }
+
+    // Apply hit dice count bonuses (always, regardless of size override)
     for (const bonus of bonuses) {
       if (bonus.hitDiceBonus) {
         result.max += calculateFlexibleValue(bonus.hitDiceBonus);
@@ -1161,6 +1187,24 @@ export class CharacterService {
     }
 
     return result;
+  }
+
+  /**
+   * Get computed max HP with bonuses applied
+   */
+  getMaxHp(): number {
+    if (!this._character) throw new Error("No character loaded");
+
+    let result = this._character.hitPoints.max;
+    const bonuses = this.getAllStatBonuses();
+
+    for (const bonus of bonuses) {
+      if (bonus.maxHpBonus) {
+        result += calculateFlexibleValue(bonus.maxHpBonus);
+      }
+    }
+
+    return Math.max(1, result);
   }
 
   /**
@@ -1460,10 +1504,7 @@ export class CharacterService {
   async applyHealing(amount: number): Promise<void> {
     if (!this._character) return;
 
-    const newCurrent = Math.min(
-      this._character.hitPoints.max,
-      this._character.hitPoints.current + amount,
-    );
+    const newCurrent = Math.min(this.getMaxHp(), this._character.hitPoints.current + amount);
 
     this.setCharacter({
       ...this._character,
@@ -1598,7 +1639,7 @@ export class CharacterService {
     );
 
     // Calculate what was restored for logging
-    const healingAmount = this._character.hitPoints.max - this._character.hitPoints.current;
+    const healingAmount = this.getMaxHp() - this._character.hitPoints.current;
     const hitDiceRestored = this._character._hitDice.max - this._character._hitDice.current;
     const woundsRemoved = this._character.wounds.current > 0 ? 1 : 0;
 
@@ -1607,7 +1648,7 @@ export class CharacterService {
       ...this._character,
       hitPoints: {
         ...this._character.hitPoints,
-        current: this._character.hitPoints.max, // Full HP restoration
+        current: this.getMaxHp(), // Full HP restoration
         temporary: 0, // Clear temporary HP
       },
       _hitDice: {
@@ -1655,7 +1696,7 @@ export class CharacterService {
     }
 
     // Roll the hit die using dice formula service
-    const hitDieSize = this._character._hitDice.size;
+    const hitDieSize = this.getHitDice().size;
     const strengthMod = this.getAttributes().strength;
 
     // Build formula for catch breath
@@ -1674,7 +1715,7 @@ export class CharacterService {
 
     // Calculate actual healing applied
     const currentHP = this._character.hitPoints.current;
-    const maxHP = this._character.hitPoints.max;
+    const maxHP = this.getMaxHp();
     const actualHealing = Math.min(totalHealing, maxHP - currentHP);
 
     // Update character
@@ -1720,13 +1761,13 @@ export class CharacterService {
     }
 
     // Calculate healing: max hit die + strength
-    const hitDieSize = this._character._hitDice.size;
+    const hitDieSize = this.getHitDice().size;
     const strengthMod = this.getAttributes().strength;
     const totalHealing = Math.max(1, hitDieSize + strengthMod); // Minimum 1 HP
 
     // Calculate actual healing applied
     const currentHP = this._character.hitPoints.current;
-    const maxHP = this._character.hitPoints.max;
+    const maxHP = this.getMaxHp();
     const actualHealing = Math.min(totalHealing, maxHP - currentHP);
 
     // Update character with make camp restoration

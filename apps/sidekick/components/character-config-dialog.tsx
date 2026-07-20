@@ -20,7 +20,7 @@ interface CharacterConfigDialogProps {
 }
 
 export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
-  const { character, updateCharacter } = useCharacterService();
+  const { character, updateCharacter, getMaxHp } = useCharacterService();
 
   // Don't render if character is null
   if (!character) {
@@ -46,16 +46,19 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
     await updateCharacter(updatedCharacter);
   };
 
+  const hpBonus = getMaxHp() - character.hitPoints.max;
+
   const updateMaxHP = async (value: string) => {
     const numValue = parseInt(value) || 1;
-    const maxHP = Math.max(1, numValue);
+    const effectiveMax = Math.max(1, numValue);
+    const baseMax = effectiveMax - hpBonus;
 
     const updatedCharacter = {
       ...character,
       hitPoints: {
         ...character.hitPoints,
-        max: maxHP,
-        current: Math.min(character.hitPoints.current, maxHP),
+        max: baseMax,
+        current: Math.min(character.hitPoints.current, effectiveMax),
       },
     };
     await updateCharacter(updatedCharacter);
@@ -118,6 +121,7 @@ export function CharacterConfigDialog({ onClose }: CharacterConfigDialogProps) {
           {/* Basic Settings */}
           <BasicSettingsSection
             character={character}
+            effectiveMaxHp={getMaxHp()}
             updateMaxWounds={updateMaxWounds}
             updateMaxHP={updateMaxHP}
             updateInitiativeModifier={updateInitiativeModifier}
