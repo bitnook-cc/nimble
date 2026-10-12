@@ -279,7 +279,7 @@ export class CharacterService {
       );
       await this.logService.addLogEntry(spellLogEntry);
     } else if (ability.type === "action") {
-      const currentUses = this._character._abilityUses.get(ability.id) || 0;
+      const currentUses = this.abilityService.getCurrentUses(ability, this._character);
       const maxUses = ability.maxUses ? this.abilityService.calculateMaxUses(ability) : 0;
       const logEntry = this.logService.createAbilityUsageEntry(
         ability.name,
@@ -1584,9 +1584,9 @@ export class CharacterService {
 
     // Reset all abilities (safe rest resets everything)
     const resetAbilities = new Map([
-      ...this.abilityService.resetAbilities(abilities, "per_turn", this._character),
-      ...this.abilityService.resetAbilities(abilities, "per_encounter", this._character),
-      ...this.abilityService.resetAbilities(abilities, "per_safe_rest", this._character),
+      ...this.abilityService.resetAbilities(abilities, "per_turn"),
+      ...this.abilityService.resetAbilities(abilities, "per_encounter"),
+      ...this.abilityService.resetAbilities(abilities, "per_safe_rest"),
     ]);
 
     // Reset resources that reset on safe rest
@@ -1766,8 +1766,8 @@ export class CharacterService {
 
     // Reset both per-encounter and per-turn abilities when encounter ends
     const resetAbilities = new Map([
-      ...this.abilityService.resetAbilities(abilities, "per_turn", this._character),
-      ...this.abilityService.resetAbilities(abilities, "per_encounter", this._character),
+      ...this.abilityService.resetAbilities(abilities, "per_turn"),
+      ...this.abilityService.resetAbilities(abilities, "per_encounter"),
     ]);
 
     // Reset resources that reset on encounter end
@@ -1809,6 +1809,12 @@ export class CharacterService {
   async startEncounter(initiativeRoll: number): Promise<void> {
     if (!this._character) return;
 
+    const abilities = this.getAbilities();
+    const resetAbilities = new Map([
+      ...this.abilityService.resetAbilities(abilities, "per_turn"),
+      ...this.abilityService.resetAbilities(abilities, "per_encounter"),
+    ]);
+
     // Calculate actions based on initiative roll total (game rules)
     let actionsGranted: number;
     if (initiativeRoll < 10) {
@@ -1831,6 +1837,7 @@ export class CharacterService {
     this.setCharacter({
       ...this._character,
       inEncounter: true,
+      _abilityUses: new Map([...this._character._abilityUses, ...resetAbilities]),
       actionTracker: {
         ...this._character.actionTracker,
         current: actionsGranted,
@@ -1851,11 +1858,7 @@ export class CharacterService {
     if (!this._character) return;
 
     // Reset per-turn abilities
-    const resetAbilities = this.abilityService.resetAbilities(
-      this.getAbilities(),
-      "per_turn",
-      this._character,
-    );
+    const resetAbilities = this.abilityService.resetAbilities(this.getAbilities(), "per_turn");
 
     // Reset resources that reset on turn end
     const resourceDefinitions = this.getResourceDefinitions();
@@ -2012,11 +2015,15 @@ export class CharacterService {
       }
 
       const currentUses = this._character._abilityUses.get(ability.id) || 0;
+      const abilityUses = new Map(this._character._abilityUses);
+      if (ability.frequency !== "per_turn" || this._character.inEncounter) {
+        abilityUses.set(ability.id, currentUses + 1);
+      }
 
       this.setCharacter({
         ...this._character,
         actionTracker: updatedActionTracker,
-        _abilityUses: new Map([...this._character._abilityUses, [ability.id, currentUses + 1]]),
+        _abilityUses: abilityUses,
       });
 
       await this.saveCharacter();

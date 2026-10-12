@@ -55,7 +55,7 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
   const handleUseAbility = async (ability: ActionAbilityDefinition) => {
     // For at-will abilities, allow usage regardless of currentUses
     // For other abilities, check if they have remaining uses
-    const currentUses = character._abilityUses.get(ability.id) || 0;
+    const currentUses = abilityService.getCurrentUses(ability, character);
     const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
 
     if (ability.frequency !== "at_will" && ability.maxUses && currentUses >= maxUses) {
@@ -202,7 +202,7 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
           <Card>
             <CardContent className="p-0">
               {actionAbilities.map((ability, index) => {
-                const currentUses = character._abilityUses.get(ability.id) || 0;
+                const currentUses = abilityService.getCurrentUses(ability, character);
                 const maxUses = ability.maxUses ? abilityService.calculateMaxUses(ability) : 0;
                 const remainingUses = maxUses - currentUses;
                 const isUsed =
@@ -245,6 +245,8 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
                 return (
                   <div
                     key={ability.id}
+                    role="group"
+                    aria-label={`${ability.name} ability`}
                     className={`p-2 hover:bg-muted/50 transition-colors ${
                       index > 0 ? "border-t" : ""
                     } ${isDisabled ? "opacity-50" : ""}`}
