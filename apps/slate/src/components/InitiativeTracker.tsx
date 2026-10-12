@@ -41,6 +41,12 @@ import { ReferenceBody, useContent } from "./ContentWorkspace";
 import { addMonsterToRun } from "../monsters";
 import { Modal } from "./Modal";
 import { addPartyToRun, missingPartyCharacters, type Party } from "../party";
+import {
+  prepareClassicInitiative,
+  setInitiativeMode,
+  sortInitiative,
+  type InitiativeMode,
+} from "../initiative";
 
 export function InitiativeTracker({
   tool,
@@ -51,7 +57,7 @@ export function InitiativeTracker({
 }: {
   party: Party;
   manageParty: () => void;
-  onAdvance: () => void;
+  onAdvance: (prepare?: (run: Run) => Run) => void;
   tool: InitiativeTool;
   update: (fn: (tool: InitiativeTool) => InitiativeTool) => void;
 }) {
@@ -65,6 +71,8 @@ export function InitiativeTracker({
     NonNullable<Run["hazards"]>[number] | null
   >(null);
   const [confirm, setConfirm] = useState(false);
+  const [rollingInitiative, setRollingInitiative] = useState(false);
+  const [initiativeError, setInitiativeError] = useState("");
   const [formError, setFormError] = useState("");
   const [partyError, setPartyError] = useState("");
   const run = tool.run;
@@ -96,7 +104,9 @@ export function InitiativeTracker({
         <EncounterLibrary
           occupied={!!run.combatants.length || !!run.hazards?.length}
           onClose={() => setEncounters(false)}
-          start={(next) => update((t) => changeRun(t, next))}
+          start={(next) =>
+            update((t) => changeRun(t, { ...next, mode: t.run.mode }))
+          }
         />
       )}
       {hazard && (
@@ -133,6 +143,21 @@ export function InitiativeTracker({
                   ? "Paused"
                   : "Finished"}
           </p>
+          <label className="initiative-mode">
+            Mode
+            <select
+              aria-label="Initiative mode"
+              value={run.mode}
+              title="Changing mode restarts turn order and keeps combatants and HP"
+              onChange={(event) => {
+                const mode = event.target.value as InitiativeMode;
+                mutate((r) => setInitiativeMode(r, mode));
+              }}
+            >
+              <option value="nimble">Nimble</option>
+              <option value="classic">D&D classic</option>
+            </select>
+          </label>
         </div>
         <div className="round-counter">
           <small>ROUND</small>
@@ -241,15 +266,13 @@ export function InitiativeTracker({
             <button
               className="icon-button"
               aria-label="Sort by initiative"
+              hidden={run.mode !== "classic"}
               title="Sort highest first; ties keep their order"
               disabled={run.combatants.length < 2}
               onClick={() =>
                 mutate((r) => ({
                   ...r,
-                  combatants: [...r.combatants].sort(
-                    (a, b) =>
-                      (b.initiative ?? -Infinity) - (a.initiative ?? -Infinity),
-                  ),
+                  combatants: sortInitiative(r.combatants),
                 }))
               }
             >
@@ -334,9 +357,19 @@ export function InitiativeTracker({
                 >
                   <div
                     className={`initiative-score ${c.side}`}
-                    title={`${c.side} · initiative ${c.initiative ?? "not set"}`}
+                    title={
+                      run.mode === "classic"
+                        ? `${c.side} · initiative ${c.initiative ?? "not set"}`
+                        : `${c.side} · position ${index + 1}`
+                    }
                   >
-                    {!canAct(c) ? <Skull size={16} /> : (c.initiative ?? "—")}
+                    {!canAct(c) ? (
+                      <Skull size={16} />
+                    ) : run.mode === "classic" ? (
+                      (c.initiative ?? "—")
+                    ) : (
+                      index + 1
+                    )}
                   </div>
                   <div className="combatant-details">
                     <button
@@ -610,11 +643,17 @@ export function InitiativeTracker({
                 </>
               ) : (
                 <>
-                  <small>MANUAL ORDER</small>
+                  <small>
+                    {run.mode === "classic"
+                      ? "INITIATIVE ORDER"
+                      : "PARTY ORDER"}
+                  </small>
                   <strong>
                     {run.status === "finished"
                       ? "Encounter complete"
-                      : "You set the pace"}
+                      : run.mode === "classic"
+                        ? "Ready to roll"
+                        : "Heroes go first"}
                   </strong>
                 </>
               )}
@@ -657,10 +696,17 @@ export function InitiativeTracker({
                 run.status === "paused" ||
                 run.status === "finished"
               }
-              onClick={onAdvance}
+              onClick={() => {
+                if (run.status === "ready" && run.mode === "classic") {
+                  setInitiativeError("");
+                  setRollingInitiative(true);
+                } else onAdvance();
+              }}
             >
               {run.status === "ready"
-                ? "Begin combat"
+                ? run.mode === "classic"
+                  ? "Roll initiative"
+                  : "Begin combat"
                 : run.legendaryTurn
                   ? "Complete legendary action"
                   : "Next turn"}
@@ -669,12 +715,85 @@ export function InitiativeTracker({
           </div>
         </div>
         <p className="tool-footnote">
-          Manual initiative · highest first when sorted · defeated combatants
-          are skipped.{" "}
-          {run.combatants.some((c) => c.legendary) &&
+          {run.mode === "classic"
+            ? "Highest initiative first; ties keep their order. Legendary monsters take ordinary turns."
+            : "Heroes first, then monsters; rearrange to set table order."}{" "}
+          Defeated combatants are skipped.{" "}
+          {run.mode === "nimble" &&
+            run.combatants.some((c) => c.legendary) &&
             "Legendary actions follow each hero; Last Stand stays active at 0 HP."}
         </p>
       </div>
+      {rollingInitiative && (
+        <Modal
+          title="Roll initiative"
+          onClose={() => setRollingInitiative(false)}
+        >
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const data = new FormData(event.currentTarget);
+              const scores: Record<string, number> = Object.create(null);
+              try {
+                for (const combatant of run.combatants.filter(canAct)) {
+                  const value = String(data.get(combatant.id) ?? "").trim();
+                  if (!value)
+                    throw new Error(`Enter initiative for ${combatant.name}.`);
+                  scores[combatant.id] = Number(value);
+                }
+                prepareClassicInitiative(run, scores);
+                onAdvance((current) =>
+                  prepareClassicInitiative(current, scores),
+                );
+                setRollingInitiative(false);
+              } catch (error) {
+                setInitiativeError(
+                  error instanceof Error
+                    ? error.message
+                    : "Check initiative values.",
+                );
+              }
+            }}
+          >
+            <p className="hint">
+              Roll at the table and enter each total. Highest goes first; ties
+              keep the current order.
+            </p>
+            <div className="initiative-entry-list">
+              {run.combatants.filter(canAct).map((combatant) => (
+                <label key={combatant.id}>
+                  <span>{combatant.name}</span>
+                  <input
+                    type="number"
+                    step="any"
+                    name={combatant.id}
+                    aria-label={`Initiative for ${combatant.name}`}
+                    defaultValue={combatant.initiative ?? ""}
+                    required
+                  />
+                </label>
+              ))}
+            </div>
+            {initiativeError && (
+              <p className="inline-error" role="alert">
+                {initiativeError}
+              </p>
+            )}
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setRollingInitiative(false)}
+              >
+                Cancel
+              </button>
+              <button className="primary" type="submit">
+                Start combat
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
       <div
         role="tabpanel"
         id={"panel-" + instanceId + "-monsters"}
@@ -1011,7 +1130,7 @@ export function InitiativeTracker({
             <button
               className="primary"
               onClick={() => {
-                update((t) => changeRun(t, newRun()));
+                update((t) => changeRun(t, newRun(t.run.mode)));
                 setConfirm(false);
               }}
             >

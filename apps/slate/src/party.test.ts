@@ -209,7 +209,7 @@ it("migrates genuine schema 5 storage and ZIPs, retaining packs and a usable rec
   const repo = await Repository.open(name);
   repos.push(repo);
   const migrated = await repo.load();
-  expect(migrated).toMatchObject({ version: 16, revision: 1 });
+  expect(migrated).toMatchObject({ version: 17, revision: 1 });
   expect(migrated.campaigns).toEqual(app.campaigns);
   expect(migrated.packs).toEqual(app.packs);
   const points = await repo.recoveryPoints();

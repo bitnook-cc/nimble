@@ -12,6 +12,7 @@ export default defineConfig({
     "accessibility.spec.ts",
     "release.spec.ts",
     "slate.spec.ts",
+    "initiative-modes.spec.ts",
   ],
   outputDir: "test-results-cross",
   workers: 2,

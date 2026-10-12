@@ -5,6 +5,7 @@ import {
   type Campaign,
   type Tool,
   type InitiativeTool,
+  type Run,
 } from "./model";
 import { roll } from "./rolls";
 import {
@@ -209,11 +210,15 @@ export function applyToolUpdate(
   }
   return { ...c, tools: tools.map((t) => (t.id === id ? next : t)) };
 }
-export function advanceCampaign(c: Campaign, id: string): Campaign {
+export function advanceCampaign(
+  c: Campaign,
+  id: string,
+  prepare?: (run: Run) => Run,
+): Campaign {
   const tracker = c.tools.find((t) => t.id === id) as
     InitiativeTool | undefined;
   if (!tracker || tracker.kind !== "initiative") return c;
-  const run = advance(tracker.run);
+  const run = advance(prepare ? prepare(tracker.run) : tracker.run);
   if (run === tracker.run) return c;
   const turn = tracker.run.status === "active" && run.activeId !== null;
   const round =

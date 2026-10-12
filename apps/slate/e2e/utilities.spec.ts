@@ -430,7 +430,7 @@ test("image cards save local bytes, pan and zoom offline and produce a verified 
   expect(files["assets/0"]).toEqual(
     new Uint8Array(readFileSync("public/icon-192.png")),
   );
-  expect(JSON.parse(strFromU8(files["manifest.json"])).schemaVersion).toBe(16);
+  expect(JSON.parse(strFromU8(files["manifest.json"])).schemaVersion).toBe(17);
   await page.keyboard.press("Escape");
   popup = await quick(page, "Image card");
   await popup.getByRole("button", { name: "Fit image", exact: true }).click();

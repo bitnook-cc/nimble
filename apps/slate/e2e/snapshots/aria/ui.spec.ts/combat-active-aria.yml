@@ -6,6 +6,10 @@
   - text: Encounter name
   - textbox "Encounter name": The northern gate
   - paragraph: 3 combatants · In progress
+  - text: Mode
+  - combobox "Initiative mode":
+    - option "Nimble"
+    - option "D&D classic" [selected]
   - text: ROUND
   - strong: "01"
   - tablist "Initiative sections":
@@ -55,4 +59,4 @@
     - button "Pause combat"
     - button "Finish combat"
     - button "Next turn"
-    - paragraph: Manual initiative · highest first when sorted · defeated combatants are skipped.
+    - paragraph: Highest initiative first; ties keep their order. Legendary monsters take ordinary turns. Defeated combatants are skipped.

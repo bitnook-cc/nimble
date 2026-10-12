@@ -21,8 +21,9 @@ import {
 } from "@nimble/dice";
 
 import { generatedNpcSchema, npcOptionsSchema } from "@nimble/generators";
+import { initiativeModeSchema, type InitiativeMode } from "./initiative";
 
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 const id = z.string().min(1);
 const integer = z.number().int();
 export const placementSchema = z.object({
@@ -82,6 +83,7 @@ export type Combatant = z.infer<typeof combatantSchema>;
 export const runSchema = z
   .object({
     name: z.string().max(100),
+    mode: initiativeModeSchema.default("nimble"),
     round: integer.min(1),
     activeId: id.nullable(),
     legendaryTurn: legendaryTurnSchema.optional(),
@@ -511,9 +513,10 @@ export function findSpace(
     }
   return null;
 }
-export function newRun(): Run {
+export function newRun(mode: InitiativeMode = "nimble"): Run {
   return {
     name: "New encounter",
+    mode,
     round: 1,
     activeId: null,
     status: "ready",

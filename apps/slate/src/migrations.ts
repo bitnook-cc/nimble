@@ -1,4 +1,5 @@
 import { migrateLegendaryCampaign } from "./legendary";
+import { migrateInitiativeCampaign } from "./initiative";
 import { migrateTableContent } from "./table-content";
 import {
   campaignSchema as v3CampaignSchema,
@@ -27,12 +28,14 @@ import {
 
 export function migrateCampaign(
   raw: unknown,
-  version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16,
+  version:
+    2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17,
 ): Campaign {
   if (version >= 4 && version < 11) raw = migrateCounters(raw);
   if (version >= 4 && version < 12) raw = migrateTimeTools(raw);
   if (version >= 4 && version < 13) raw = migrateLegendaryCampaign(raw);
   if (version >= 4 && version < 16) raw = migrateTableContent(raw);
+  if (version < 17) raw = migrateInitiativeCampaign(raw);
   if (
     version === 7 ||
     version === 8 ||
@@ -43,6 +46,7 @@ export function migrateCampaign(
     version === 13 ||
     version === 14 ||
     version === 15 ||
+    version === 16 ||
     version === SCHEMA_VERSION
   )
     return campaignSchema.parse(raw);
@@ -129,7 +133,8 @@ function migrateAppData(raw: unknown): AppData {
     raw.version === 12 ||
     raw.version === 13 ||
     raw.version === 14 ||
-    raw.version === 15
+    raw.version === 15 ||
+    raw.version === 16
   ) {
     const version = raw.version;
     const previous = z.object({ campaigns: z.array(z.unknown()) }).parse(raw);
@@ -146,7 +151,17 @@ function migrateAppData(raw: unknown): AppData {
 }
 
 export function migrateApp(raw: unknown): AppData {
-  let data = migrateAppData(raw);
+  const saved = z
+    .object({ version: z.number(), campaigns: z.array(z.unknown()) })
+    .safeParse(raw);
+  const input =
+    saved.success && saved.data.version < 17
+      ? {
+          ...(raw as Record<string, unknown>),
+          campaigns: saved.data.campaigns.map(migrateInitiativeCampaign),
+        }
+      : raw;
+  let data = migrateAppData(input);
   const previousVersion = (raw as { version: number }).version;
   if (previousVersion >= 7)
     return previousVersion < SCHEMA_VERSION

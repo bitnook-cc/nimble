@@ -324,7 +324,9 @@ export default function App() {
       );
     return (
       <InitiativeTracker
-        onAdvance={() => changeCampaign((c) => advanceCampaign(c, tool.id))}
+        onAdvance={(prepare) =>
+          changeCampaign((c) => advanceCampaign(c, tool.id, prepare))
+        }
         party={campaign.party}
         manageParty={() => setDialog("party")}
         tool={tool as InitiativeTool}
@@ -384,7 +386,12 @@ export default function App() {
         "note",
         campaign.tools.find((t) => t.id === entry.id),
       );
-    else addWidget(entry.kind === "table" ? "table" : "reference", undefined, entry);
+    else
+      addWidget(
+        entry.kind === "table" ? "table" : "reference",
+        undefined,
+        entry,
+      );
   };
   return (
     <ContentProvider

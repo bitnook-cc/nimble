@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Combatant, Run } from "./model";
 import type { ContentRecord } from "./content-schema";
+import { nimbleOrder } from "./initiative";
 
 export const legendaryStateSchema = z
   .object({
@@ -182,6 +183,7 @@ export function changeCombatantHp(c: Combatant, delta: number): Combatant {
 
 function regular(run: Run) {
   const alive = run.combatants.filter(canAct);
+  if (run.mode === "classic") return alive;
   // Solo actions replace the monster's ordinary initiative slot when heroes are present.
   return alive.some((c) => c.side === "hero")
     ? alive.filter((c) => !isLegendary(c))
@@ -209,6 +211,7 @@ function resume(run: Run): Run {
   };
 }
 export function repairLegendaryTurn(run: Run): Run {
+  if (run.mode === "classic") return { ...run, legendaryTurn: undefined };
   if (!run.legendaryTurn) return run;
   const groups = run.legendaryTurn.groups.filter((group) =>
     run.combatants.some(
@@ -233,6 +236,10 @@ export function repairLegendaryTurn(run: Run): Run {
 }
 export function advanceCombat(run: Run): Run {
   if (run.status === "paused" || run.status === "finished") return run;
+  if (run.status === "ready" && run.mode === "nimble")
+    run = { ...run, combatants: nimbleOrder(run.combatants) };
+  if (run.mode === "classic" && run.legendaryTurn)
+    run = { ...run, legendaryTurn: undefined };
   if (run.legendaryTurn) {
     const [current, ...groups] = run.legendaryTurn.groups;
     // A defeated/removed actor is skipped without consuming another group's action.
@@ -256,7 +263,7 @@ export function advanceCombat(run: Run): Run {
     return { ...run, activeId: order[0].id, status: "active" };
   const completed = run.combatants.find((c) => c.id === run.activeId);
   const next = nextRegular(run, run.activeId);
-  if (completed?.side === "hero") {
+  if (run.mode !== "classic" && completed?.side === "hero") {
     const groups = [
       ...new Set(
         run.combatants

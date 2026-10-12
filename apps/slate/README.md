@@ -1,6 +1,6 @@
 # Slate
 
-An offline-first Nimble GM screen built with React, TypeScript and Vite. Includes a configurable cell grid, a dice roller using `@nimble/dice`, a manual initiative tracker, a campaign party roster, an NPC name/attribute generator using `@nimble/generators`, and campaign management with portable backups. Milestones 1–5 are implemented for the web. Milestone 6 adds accessibility and release checks, native SQLite persistence, file picking/sharing, and Android/iOS projects; SDK builds and real-device release acceptance remain pending.
+An offline-first Nimble GM screen built with React, TypeScript and Vite. Includes a configurable cell grid, a dice roller using `@nimble/dice`, an initiative tracker with Nimble and D&D classic modes, a campaign party roster, an NPC name/attribute generator using `@nimble/generators`, and campaign management with portable backups. Milestones 1–5 are implemented for the web. Milestone 6 adds accessibility and release checks, native SQLite persistence, file picking/sharing, and Android/iOS projects; SDK builds and real-device release acceptance remain pending.
 
 ## Run locally
 
@@ -33,13 +33,16 @@ The build produces static files in `apps/slate/dist`. Serve that directory over 
 - Every screen size displays the entire grid. Widget content scrolls internally; expanded views provide more room without changing saved cell placements. Preview/offline status lives in a bottom-left popover pill.
 - Removing a widget keeps its tool data. Use **Click an empty cell → Saved tools** to restore it.
 - Dice expressions, advantage/disadvantage, explicit critical/fumble/vicious options, saved presets, individual dice and discarded results, and up to 50 retained rolls per tool. The UI shows the 10 most recent rolls.
-- Manual combat ordering, optional numeric initiative, stable descending sort, heroes/enemies/allies, HP adjustment, conditions, notes, rounds, pause/resume/finish, and the last 30 combat changes available to undo.
-- Defeated combatants are skipped when advancing. Ties preserve the current order. This is manual ordering, not a claim to implement a particular edition's full Nimble initiative or action economy.
+- **Nimble** initiative is the default: Begin combat puts the party before ordinary monsters, preserving table order within each side. Legendary monsters act after each hero, replacing their ordinary turn; allies and followers do not trigger legendary actions. The GM can rearrange turns during combat.
+- **D&D classic** initiative: Roll initiative opens a popup for each living combatant's total, then Start combat sorts highest first and begins the round. Ties preserve the current order. Legendary monsters receive one ordinary initiative turn per round. Cancelling or dismissing the popup leaves the encounter unchanged.
+- Both modes support heroes/enemies/allies, HP, conditions, notes, rounds, pause/resume/finish, and the last 30 combat changes available to undo. Defeated combatants are skipped. Changing mode restarts turn progress while retaining combatants and HP; one undo restores the previous mode and progress. Action economy remains GM-managed.
 - IndexedDB persistence on the web; SQLite persistence in native builds. Transaction completion precedes reporting saved, with validation on load and revision checks to reject stale writes.
 - Parchment follows Sidekick’s Nimble Classic/Nimble Dark palette; Stone follows Modern/Modern Dark, with contrast-safe text/accent shades. Both support light/dark/system appearance. Geist interface text, the bold Alegreya Sans wordmark and restrained Cinzel headings use bundled local WOFF2 fonts, including their SIL Open Font Licenses, with no runtime font download. Font sources and checksums are recorded in `public/fonts/SOURCES.json`.
 - Installable PWA with a deferred update prompt. Updates activate only after local changes are saved.
 
 The data model separates widget placement from tool state and campaigns from device appearance. Removing an active combatant selects the next living combatant and advances the round when wrapping. Resetting a run and HP changes are undoable. Changing an encounter title is saved directly, outside the combat undo stack.
+
+Schema 17 saves initiative modes in live encounters and undo snapshots, including campaign copies and ZIP backups. Schema 2–16 backups remain readable. Existing ongoing ordinary encounters retain their manual order in classic mode; legendary encounters retain Nimble timing. Ready trackers adopt the Nimble default. Upgrades retain rounds, active combatants, HP and undo history.
 
 ## Utility tools (Milestone 5)
 
@@ -49,7 +52,7 @@ Use **Click an empty cell → New tools** to add any utility to the grid. **Alt+
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Clock & timer | One compact widget with clock, countdown and stopwatch modes. Icon controls start/pause, reset, extend by one minute and acknowledge expiry. Mode switches preserve both time tools.                                                |
 | Counter       | Manual −/+ and reset to a starting value; configurable step, unit, bounds and target. Optionally add/subtract a step on each turn or round of a selected initiative tracker.                                                        |
-| Random table  | Display reusable library content: simple lists, weighted rows or explicit dice ranges. Roll or choose an entry manually, insert Markdown references, and optionally roll a linked table. Each tool retains a 20-result history. |
+| Random table  | Display reusable library content: simple lists, weighted rows or explicit dice ranges. Roll or choose an entry manually, insert Markdown references, and optionally roll a linked table. Each tool retains a 20-result history.     |
 | Image card    | Import PNG/JPEG/WebP/GIF up to 10 MiB, or select an existing campaign image. Set a caption, fit/fill, zoom (1–4×) and horizontal/vertical pan. **Fit image** restores the whole image. Use the tile's **Expand** for a larger view. |
 | Checklist     | Add/edit up to 200 tasks, check/uncheck, reorder with buttons, duplicate, indent 0–3 levels or uncheck all. Duplicated tasks start unchecked.                                                                                       |
 

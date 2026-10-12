@@ -772,6 +772,41 @@ main#main > .screen-panel,
   color: var(--muted);
   margin-top: 3px;
 }
+.initiative-mode {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.initiative-tool [hidden] {
+  display: none !important;
+}
+.initiative-mode select {
+  width: auto;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+.initiative-entry-list {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+.initiative-entry-list > label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 85px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.initiative-entry-list input {
+  margin: 0;
+  padding: 6px 8px;
+  text-align: right;
+}
 .round-counter {
   display: flex;
   flex-direction: column;

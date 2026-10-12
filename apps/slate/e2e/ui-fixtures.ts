@@ -87,9 +87,15 @@ export async function encounter(page: Page) {
   await combatant(page, "Goblin scout", 7, "enemy");
   await combatant(page, "Gatekeeper", 12, "ally");
   await page
-    .getByRole("button", { name: "Sort by initiative", exact: true })
+    .getByRole("combobox", { name: "Initiative mode" })
+    .selectOption("classic");
+  await page
+    .getByRole("button", { name: "Roll initiative", exact: true })
     .click();
-  await page.getByRole("button", { name: "Begin combat", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Roll initiative" })
+    .getByRole("button", { name: "Start combat" })
+    .click();
   await page.getByRole("button", { name: "Damage Mira", exact: true }).click();
   await page
     .getByRole("textbox", { name: "Dice formula", exact: true })
