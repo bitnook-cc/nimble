@@ -210,7 +210,7 @@ describe("CharacterImportExportService", () => {
 
       // Mock the export to capture the JSON instead of downloading
       let exportedJson = "";
-      vi.mocked(Blob).mockImplementation((blobParts?: BlobPart[]) => {
+      vi.mocked(Blob).mockImplementation(function (blobParts?: BlobPart[]) {
         if (blobParts && blobParts.length > 0) {
           exportedJson = blobParts[0] as string;
         }
@@ -300,7 +300,7 @@ describe("CharacterImportExportService", () => {
         characters.push(character);
 
         let exportedJson = "";
-        vi.mocked(Blob).mockImplementation((blobParts?: BlobPart[]) => {
+        vi.mocked(Blob).mockImplementation(function (blobParts?: BlobPart[]) {
           if (blobParts && blobParts.length > 0) {
             exportedJson = blobParts[0] as string;
           }
@@ -341,7 +341,7 @@ describe("CharacterImportExportService", () => {
       character._resourceValues.clear();
 
       let exportedJson = "";
-      vi.mocked(Blob).mockImplementation((blobParts?: BlobPart[]) => {
+      vi.mocked(Blob).mockImplementation(function (blobParts?: BlobPart[]) {
         if (blobParts && blobParts.length > 0) {
           exportedJson = blobParts[0] as string;
         }
@@ -407,7 +407,7 @@ describe("CharacterImportExportService", () => {
       }
 
       let exportedJson = "";
-      vi.mocked(Blob).mockImplementation((blobParts?: BlobPart[]) => {
+      vi.mocked(Blob).mockImplementation(function (blobParts?: BlobPart[]) {
         if (blobParts && blobParts.length > 0) {
           exportedJson = blobParts[0] as string;
         }

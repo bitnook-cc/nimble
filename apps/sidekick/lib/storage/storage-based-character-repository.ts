@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Character, CreateCharacterData } from "../schemas/character";
 import { IStorageService } from "../services/storage-service";
+import { serializeCharacter } from "../utils/character-serialization";
 import { ICharacterRepository } from "./character-repository";
 
 // Type for serialized character (with Maps converted to objects)
@@ -50,15 +51,20 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     }
   }
 
-  async save(character: Character): Promise<void> {
-    const serializedCharacters = await this.getSerializedCharacters();
+  async save(character: Character, preserveTimestamp = false): Promise<void> {
+    const serializedCharacters = this.getSerializedCharacters();
     const index = serializedCharacters.findIndex((c) => c.id === character.id);
 
     // Update timestamp
     if (!character.timestamps) {
       character.timestamps = {};
     }
-    character.timestamps.updatedAt = Date.now();
+    if (!preserveTimestamp)
+      character.timestamps.updatedAt = Math.max(
+        Date.now(),
+        (character.timestamps.updatedAt || 0) + 1,
+        (serializedCharacters[index]?.timestamps?.updatedAt || 0) + 1,
+      );
 
     // Convert to serializable format
     const serializable = this.serializeCharacter(character);
@@ -69,7 +75,7 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
       serializedCharacters.push(serializable);
     }
 
-    await this.saveSerializedCharacters(serializedCharacters);
+    this.saveSerializedCharacters(serializedCharacters);
   }
 
   async load(id: string): Promise<Character | null> {
@@ -83,9 +89,17 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const serializedCharacters = await this.getSerializedCharacters();
+    const serializedCharacters = this.getSerializedCharacters();
     const filtered = serializedCharacters.filter((c) => c.id !== id);
-    await this.saveSerializedCharacters(filtered);
+    this.saveSerializedCharacters(filtered);
+  }
+
+  async updateAll(transform: (characters: Character[]) => Character[]): Promise<Character[]> {
+    // No awaits between read, transform, and the single atomic localStorage write.
+    const current = this.getSerializedCharacters().map((c) => this.deserializeCharacter(c));
+    const updated = transform(current);
+    this.saveSerializedCharacters(updated.map((c) => this.serializeCharacter(c)));
+    return updated;
   }
 
   async create(data: CreateCharacterData, id?: string): Promise<Character> {
@@ -109,21 +123,20 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
   /**
    * Private method to get raw serialized characters from storage
    */
-  private async getSerializedCharacters(): Promise<SerializedCharacter[]> {
+  private getSerializedCharacters(): SerializedCharacter[] {
     const stored = this.storage.getItem(this.storageKey);
     if (!stored) return [];
 
-    try {
-      return JSON.parse(stored) as SerializedCharacter[];
-    } catch {
-      return [];
-    }
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed))
+      throw new Error("Stored characters are invalid; export a backup before recovery");
+    return parsed as SerializedCharacter[];
   }
 
   /**
    * Private method to save serialized characters to storage
    */
-  private async saveSerializedCharacters(characters: SerializedCharacter[]): Promise<void> {
+  private saveSerializedCharacters(characters: SerializedCharacter[]): void {
     this.storage.setItem(this.storageKey, JSON.stringify(characters));
   }
 
@@ -131,17 +144,7 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
    * Private method to convert Character to SerializedCharacter
    */
   private serializeCharacter(character: Character): SerializedCharacter {
-    return {
-      ...character,
-      _abilityUses:
-        character._abilityUses instanceof Map
-          ? Object.fromEntries(character._abilityUses)
-          : character._abilityUses,
-      _resourceValues:
-        character._resourceValues instanceof Map
-          ? Object.fromEntries(character._resourceValues)
-          : character._resourceValues,
-    };
+    return serializeCharacter(character);
   }
 
   /**
@@ -151,8 +154,8 @@ export class StorageBasedCharacterRepository implements ICharacterRepository {
     return {
       ...char,
       timestamps: {
-        createdAt: char.timestamps?.createdAt || Date.now(),
-        updatedAt: char.timestamps?.updatedAt || Date.now(),
+        createdAt: char.timestamps?.createdAt || 1,
+        updatedAt: char.timestamps?.updatedAt || char.timestamps?.createdAt || 1,
       },
       // Convert objects back to Maps, handling both correct serialization and legacy formats
       _abilityUses: new Map(

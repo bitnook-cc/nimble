@@ -1,3 +1,4 @@
+import { isAllowedOrigin } from "./config/security.js";
 import express from "express";
 import cors from "cors";
 import { getIronSession } from "iron-session";
@@ -7,6 +8,7 @@ import authRoutes from "./routes/auth.js";
 import syncRoutes from "./routes/sync.js";
 import imagesRoutes from "./routes/images.js";
 import activitySharingRoutes from "./routes/activity-sharing.js";
+import campaignRoutes from "./routes/campaigns.js";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -17,26 +19,18 @@ const PORT = process.env.PORT || 3001;
 
 // Iron Session middleware
 app.use(async (req, res, next) => {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  req.session = session;
-  next();
+  try {
+    req.session = await getIronSession<SessionData>(req, res, sessionOptions);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Passport middleware (only for OAuth strategies, not for sessions)
 app.use(passport.initialize());
 
 // CORS configuration - allow specific origins
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
-  : [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://localhost:3003",
-      // Default production URLs (override with ALLOWED_ORIGINS env var)
-      "https://nimble.bitnook.cc",
-      "https://nimble-navigator.vercel.app",
-    ];
 
 app.use(
   cors({
@@ -44,20 +38,8 @@ app.use(
       // Allow requests with no origin (like mobile apps or Postman)
       if (!origin) return callback(null, true);
 
-      // Check if the origin is in our allowed list
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // In development, allow all localhost origins
-        if (
-          process.env.NODE_ENV !== "production" &&
-          origin.includes("localhost")
-        ) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      }
+      if (isAllowedOrigin(origin)) callback(null, true);
+      else callback(new Error("Not allowed by CORS"));
     },
     credentials: true, // Allow cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -66,7 +48,16 @@ app.use(
 );
 
 // Middleware
-app.use(express.json());
+app.use((req, res, next) => {
+  if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    const origin = req.get("origin");
+    if (!origin || !isAllowedOrigin(origin))
+      return res.status(403).json({ error: "Untrusted request origin" });
+  }
+  next();
+});
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ extended: false, limit: "8kb" }));
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
@@ -89,6 +80,7 @@ app.use("/images", imagesRoutes);
 
 // Activity sharing routes
 app.use("/api", activitySharingRoutes);
+app.use("/campaigns", campaignRoutes);
 
 // Example API endpoint
 app.get("/hello", (req, res) => {
@@ -99,18 +91,17 @@ app.get("/hello", (req, res) => {
   });
 });
 
-// Protected API endpoint example
-app.get("/api/protected", async (req, res) => {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (session.user) {
-    res.json({
-      message: "This is a protected route",
-      user: session.user,
-    });
-  } else {
-    res.status(401).json({ error: "Unauthorized" });
-  }
-});
+app.use(
+  (
+    error: Error,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    console.error("API request failed:", error.message);
+    if (!res.headersSent) res.status(500).json({ error: "Request failed" });
+  },
+);
 
 // Start server only if not in serverless environment
 if (process.env.VERCEL !== "1") {

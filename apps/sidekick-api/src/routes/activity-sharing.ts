@@ -1,8 +1,43 @@
+import { PrismaClient } from "@prisma/client";
+import { AuthService } from "../services/auth-service.js";
+import { pusher } from "../lib/pusher.js";
 import { Router } from "express";
 import { realtime } from "@nimble/shared";
 import { activitySharingService } from "../services/activity-sharing-service.js";
 
 const router = Router();
+const authService = new AuthService(new PrismaClient());
+router.use(async (req, res, next) => {
+  try {
+    if (!req.session || !(await authService.ensureUserExists(req.session)))
+      return res.status(401).json({ error: "Authentication required" });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/pusher/auth", async (req, res) => {
+  const userId = req.session.user!.id;
+  const { socket_id: socketId, channel_name: channelName } = req.body || {};
+  const match =
+    typeof channelName === "string" &&
+    /^private-session-([a-zA-Z0-9_-]+)-user-([a-zA-Z0-9_-]+)$/.exec(
+      channelName,
+    );
+  if (
+    !match ||
+    match[2] !== userId ||
+    typeof socketId !== "string" ||
+    !/^\d+\.\d+$/.test(socketId)
+  )
+    return res.status(403).json({ error: "Channel access denied" });
+  try {
+    await activitySharingService.requireSessionAccess(match[1], userId, true);
+    return res.json(pusher.authorizeChannel(socketId, channelName));
+  } catch {
+    return res.status(403).json({ error: "Channel access denied" });
+  }
+});
 
 // List user's active sessions
 router.get("/sessions", async (req, res) => {
@@ -17,6 +52,8 @@ router.get("/sessions", async (req, res) => {
     );
     res.json(sessions);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error listing user sessions:", error);
     res.status(500).json({ error: "Failed to list sessions" });
   }
@@ -50,6 +87,8 @@ router.post("/sessions", async (req, res) => {
     );
     res.json(session);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error creating session:", error);
     res.status(500).json(
       realtime.errorResponseSchema.parse({
@@ -79,10 +118,15 @@ router.post("/sessions/:code/join", async (req, res) => {
     const participant = await activitySharingService.joinSession(
       sessionUser.id,
       code,
-      { characterId, characterName },
+      {
+        characterId,
+        characterName,
+      },
     );
     res.json(participant);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error joining session:", error);
     res.status(500).json({ error: "Failed to join session" });
   }
@@ -101,6 +145,8 @@ router.post("/sessions/:id/leave", async (req, res) => {
     await activitySharingService.leaveSession(sessionUser.id, id);
     res.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error leaving session:", error);
     res.status(500).json({ error: "Failed to leave session" });
   }
@@ -115,9 +161,14 @@ router.get("/sessions/:id", async (req, res) => {
 
     const { id } = req.params;
 
-    const session = await activitySharingService.getSession(id);
+    const session = await activitySharingService.getSession(
+      id,
+      req.session.user.id,
+    );
     res.json(session);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error getting session:", error);
     res.status(500).json({ error: "Failed to get session" });
   }
@@ -143,10 +194,15 @@ router.post("/sessions/:id/activity", async (req, res) => {
     const sharedActivity = await activitySharingService.shareActivity(
       sessionUser.id,
       id,
-      { characterId, logEntry },
+      {
+        characterId,
+        logEntry,
+      },
     );
     res.json(sharedActivity);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error sharing activity:", error);
     res.status(500).json({ error: "Failed to share activity" });
   }
@@ -168,10 +224,13 @@ router.get("/sessions/:id/activity", async (req, res) => {
 
     const activityLog = await activitySharingService.getActivityLog(
       id,
+      req.session.user.id,
       options,
     );
     res.json(activityLog);
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error getting activity history:", error);
     res.status(500).json({ error: "Failed to get activity history" });
   }
@@ -190,6 +249,8 @@ router.post("/sessions/:id/close", async (req, res) => {
     await activitySharingService.closeSession(sessionUser.id, id);
     res.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error closing session:", error);
     res.status(500).json({ error: "Failed to close session" });
   }
@@ -212,6 +273,8 @@ router.delete("/sessions/:id/participants/:participantId", async (req, res) => {
     );
     res.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === "Session access denied")
+      return res.status(403).json({ error: "Session access denied" });
     console.error("Error removing participant:", error);
     res.status(500).json({ error: "Failed to remove participant" });
   }

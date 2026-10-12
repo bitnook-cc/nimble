@@ -11,6 +11,96 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.js"
+    },
+    "./monsters/constants": {
+      "types": "./dist/monsters/constants.d.ts",
+      "import": "./dist/monsters/constants.js",
+      "require": "./dist/monsters/constants.js"
+    },
+    "./monsters/types": {
+      "types": "./dist/monsters/types.d.ts",
+      "import": "./dist/monsters/types.js",
+      "require": "./dist/monsters/types.js"
+    },
+    "./monsters/schemas": {
+      "types": "./dist/monsters/schemas.d.ts",
+      "import": "./dist/monsters/schemas.js",
+      "require": "./dist/monsters/schemas.js"
+    },
+    "./monsters/monster-table": {
+      "types": "./dist/monsters/monster-table.d.ts",
+      "import": "./dist/monsters/monster-table.js",
+      "require": "./dist/monsters/monster-table.js"
+    },
+    "./monsters/legendary-table": {
+      "types": "./dist/monsters/legendary-table.d.ts",
+      "import": "./dist/monsters/legendary-table.js",
+      "require": "./dist/monsters/legendary-table.js"
+    },
+    "./monsters/abilities": {
+      "types": "./dist/monsters/abilities.d.ts",
+      "import": "./dist/monsters/abilities.js",
+      "require": "./dist/monsters/abilities.js"
+    },
+    "./monsters/formula-generator": {
+      "types": "./dist/monsters/formula-generator.d.ts",
+      "import": "./dist/monsters/formula-generator.js",
+      "require": "./dist/monsters/formula-generator.js"
+    },
+    "./monsters/defaults": {
+      "types": "./dist/monsters/defaults.d.ts",
+      "import": "./dist/monsters/defaults.js",
+      "require": "./dist/monsters/defaults.js"
+    },
+    "./character/inventory": {
+      "types": "./dist/character/inventory.d.ts",
+      "import": "./dist/character/inventory.js",
+      "require": "./dist/character/inventory.js"
+    },
+    "./character/currency": {
+      "types": "./dist/character/currency.d.ts",
+      "import": "./dist/character/currency.js",
+      "require": "./dist/character/currency.js"
+    },
+    "./character/features": {
+      "types": "./dist/character/features.d.ts",
+      "import": "./dist/character/features.js",
+      "require": "./dist/character/features.js"
+    },
+    "./character/abilities": {
+      "types": "./dist/character/abilities.d.ts",
+      "import": "./dist/character/abilities.js",
+      "require": "./dist/character/abilities.js"
+    },
+    "./character/effects": {
+      "types": "./dist/character/effects.d.ts",
+      "import": "./dist/character/effects.js",
+      "require": "./dist/character/effects.js"
+    },
+    "./character/flexible-value": {
+      "types": "./dist/character/flexible-value.d.ts",
+      "import": "./dist/character/flexible-value.js",
+      "require": "./dist/character/flexible-value.js"
+    },
+    "./character/dice-pools": {
+      "types": "./dist/character/dice-pools.d.ts",
+      "import": "./dist/character/dice-pools.js",
+      "require": "./dist/character/dice-pools.js"
+    },
+    "./character/resources": {
+      "types": "./dist/character/resources.d.ts",
+      "import": "./dist/character/resources.js",
+      "require": "./dist/character/resources.js"
+    },
+    "./character/stat-bonus": {
+      "types": "./dist/character/stat-bonus.d.ts",
+      "import": "./dist/character/stat-bonus.js",
+      "require": "./dist/character/stat-bonus.js"
+    },
+    "./character/icon-ids": {
+      "types": "./dist/character/icon-ids.d.ts",
+      "import": "./dist/character/icon-ids.js",
+      "require": "./dist/character/icon-ids.js"
     }
   },
   "files": [
@@ -25,7 +115,8 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "dependencies": {
-    "zod": "^4.1.5"
+    "zod": "^4.1.5",
+    "@nimble/dice": "1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.8",

@@ -156,18 +156,7 @@ describe("Storage Services", () => {
         throw new Error("QuotaExceededError");
       });
 
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-      // Should not throw
-      expect(() => storage.setItem("test", "value")).not.toThrow();
-      // Either error or warn should have been called
-      expect(consoleErrorSpy.mock.calls.length + consoleWarnSpy.mock.calls.length).toBeGreaterThan(
-        0,
-      );
-
-      consoleErrorSpy.mockRestore();
-      consoleWarnSpy.mockRestore();
+      expect(() => storage.setItem("test", "value")).toThrow("QuotaExceededError");
     });
 
     it("should handle missing localStorage gracefully", () => {
@@ -181,7 +170,7 @@ describe("Storage Services", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       expect(newStorage.getItem("test")).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith("LocalStorage is not available");
+      expect(() => newStorage.setItem("test", "value")).toThrow();
 
       consoleSpy.mockRestore();
     });

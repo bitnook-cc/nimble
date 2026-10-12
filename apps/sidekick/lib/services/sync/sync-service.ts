@@ -1,8 +1,9 @@
-import { SyncResult, SyncStatus } from "@nimble/shared";
+import { SYNC_PROTOCOL_VERSION, SyncResult, SyncStatus } from "@nimble/shared";
 
 import { Character } from "@/lib/schemas/character";
 import { apiUrl } from "@/lib/utils/api";
 
+import { characterFingerprint, serializeCharacter } from "../../utils/character-serialization";
 import { authService } from "../auth-service";
 import { CharacterService } from "../character-service";
 import { ICharacterStorage } from "../interfaces";
@@ -12,10 +13,13 @@ import { imageSyncService } from "./image-sync-service";
 
 class SyncService {
   private static instance: SyncService;
+  private syncPromise: Promise<SyncResult | null> | null = null;
   private apiUrl: string;
   private characterStorage: ICharacterStorage;
   private characterService: CharacterService;
+  private pendingImages = new Set<string>();
   private lastSyncedCharacters: Map<string, string> = new Map(); // characterId -> JSON hash
+  private syncAccountId: string | null = null;
   private lastSyncTime: Date | null = null;
   private hasUnsyncedChanges: boolean = false;
 
@@ -38,10 +42,11 @@ class SyncService {
     try {
       // Check if we're in a browser environment
       if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-        const syncState = localStorage.getItem("nimble-sync-state");
+        const syncState = localStorage.getItem(`nimble-sync-state:${this.syncAccountId}`);
         if (syncState) {
           const parsed = JSON.parse(syncState);
           this.lastSyncedCharacters = new Map(parsed.characters || []);
+          this.pendingImages = new Set(parsed.pendingImages || []);
           this.lastSyncTime = parsed.lastSyncTime ? new Date(parsed.lastSyncTime) : null;
         }
       }
@@ -56,9 +61,10 @@ class SyncService {
       if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
         const syncState = {
           characters: Array.from(this.lastSyncedCharacters.entries()),
+          pendingImages: [...this.pendingImages],
           lastSyncTime: this.lastSyncTime?.toISOString(),
         };
-        localStorage.setItem("nimble-sync-state", JSON.stringify(syncState));
+        localStorage.setItem(`nimble-sync-state:${this.syncAccountId}`, JSON.stringify(syncState));
       }
     } catch (error) {
       console.error("Failed to save sync state:", error);
@@ -67,7 +73,7 @@ class SyncService {
 
   private createCharacterHash(character: Character): string {
     // Create a hash of the character data for change detection
-    return JSON.stringify(character);
+    return characterFingerprint(character);
   }
 
   /**
@@ -97,11 +103,16 @@ class SyncService {
         }
       }
 
+      if (this.pendingImages.size) {
+        this.hasUnsyncedChanges = true;
+        return true;
+      }
       this.hasUnsyncedChanges = false;
       return false;
     } catch (error) {
       console.error("Failed to check for changes:", error);
-      return false;
+      this.hasUnsyncedChanges = true;
+      return true;
     }
   }
 
@@ -168,126 +179,95 @@ class SyncService {
    * Sync characters with the server
    * Merges local and remote characters based on timestamps
    */
-  async syncCharacters(): Promise<SyncResult | null> {
-    try {
-      // Get all local characters from storage
-      const localCharacters = await this.characterStorage.getAllCharacters();
-
-      console.log("[Sync Client] Starting sync with server");
-      console.log(`[Sync Client] Sending ${localCharacters.length} local characters to sync`);
-      console.log(
-        "[Sync Client] Character IDs being sent:",
-        localCharacters.map((c) => ({
-          id: c.id,
-          name: c.name,
-          updatedAt: c.timestamps?.updatedAt
-            ? new Date(c.timestamps.updatedAt).toISOString()
-            : "unknown",
-        })),
-      );
-
-      // Send to server for sync
-      const response = await fetch(`${this.apiUrl}/sync/characters`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ characters: localCharacters }),
+  syncCharacters(): Promise<SyncResult | null> {
+    if (!this.syncPromise) {
+      this.syncPromise = this.performSync().finally(() => {
+        this.syncPromise = null;
       });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.log("[Sync Client] User not authenticated");
-          return null;
-        }
-        const error = await response.json();
-        console.error("[Sync Client] Sync failed:", error);
-        throw new Error(error.error || "Failed to sync characters");
-      }
-
-      const result: SyncResult = await response.json();
-
-      console.log("[Sync Client] Sync response received");
-      console.log(`[Sync Client] Received ${result.characterCount} characters from server`);
-      console.log(`[Sync Client] Max characters allowed: ${result.maxCharacters}`);
-      console.log("[Sync Client] Synced at:", new Date(result.syncedAt).toISOString());
-      console.log(
-        "[Sync Client] Character IDs received:",
-        result.characters?.map((c) => ({
-          id: c.id,
-          name: c.name,
-          updatedAt: c.timestamps?.updatedAt
-            ? new Date(c.timestamps.updatedAt).toISOString()
-            : "unknown",
-        })),
-      );
-
-      // Update local storage with merged characters using character storage service
-      if (result.characters && Array.isArray(result.characters)) {
-        // Use character storage service to validate and store all characters
-        await this.characterStorage.replaceAllCharacters(result.characters);
-
-        console.log(
-          `[Sync Client] Updated local storage with ${result.characters.length} synced characters`,
-        );
-
-        // Update sync state tracking
-        this.lastSyncedCharacters.clear();
-        for (const character of result.characters) {
-          this.lastSyncedCharacters.set(character.id, this.createCharacterHash(character));
-        }
-        this.lastSyncTime = new Date(result.syncedAt);
-        this.hasUnsyncedChanges = false;
-        this.saveSyncState();
-
-        // Reload the current character if it exists
-        const currentCharacter = this.characterService.getCurrentCharacter();
-        if (currentCharacter) {
-          console.log(`[Sync Client] Reloading current character: ${currentCharacter.id}`);
-          await this.characterService.loadCharacter(currentCharacter.id);
-        }
-
-        // Notify any listeners about the update
-        window.dispatchEvent(
-          new CustomEvent("characters-synced", {
-            detail: { characters: result.characters },
-          }),
-        );
-      }
-
-      // Sync character images using the dedicated sync method
-      if (result.characters && Array.isArray(result.characters)) {
-        console.log(`[Sync Client] Syncing images for ${result.characters.length} characters`);
-
-        for (const character of result.characters) {
-          try {
-            // Use the imageSyncService's syncCharacterImage method which handles all sync logic
-            const imageSyncResult = await imageSyncService.syncCharacterImage(
-              character.id,
-              character.imageId,
-            );
-
-            if (!imageSyncResult.success && imageSyncResult.error) {
-              console.warn(
-                `[Sync Client] Image sync warning for character ${character.id}: ${imageSyncResult.error}`,
-              );
-            }
-          } catch (error) {
-            console.error(
-              `[Sync Client] Failed to sync image for character ${character.id}:`,
-              error,
-            );
-            // Don't fail the entire sync if one image fails
-          }
-        }
-      }
-
-      return result;
-    } catch (error) {
-      console.error("Failed to sync characters:", error);
-      throw error;
     }
+    return this.syncPromise;
+  }
+
+  private async performSync(): Promise<SyncResult | null> {
+    const accountId = authService.getCurrentUserId() || (await authService.fetchUser()).user?.id;
+    if (!accountId) return null;
+    if (accountId !== this.syncAccountId) {
+      this.syncAccountId = accountId;
+      this.lastSyncedCharacters.clear();
+      this.pendingImages.clear();
+      this.lastSyncTime = null;
+      this.loadSyncState();
+    }
+    const localCharacters = structuredClone(await this.characterStorage.getAllCharacters());
+    const response = await fetch(`${this.apiUrl}/sync/characters`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        accountId,
+        protocolVersion: SYNC_PROTOCOL_VERSION,
+        characters: localCharacters.map(serializeCharacter),
+      }),
+    });
+    if (!response.ok) {
+      if (response.status === 401) return null;
+      const error = await response.json();
+      throw new Error(error.error || "Failed to sync characters");
+    }
+    const result: SyncResult = await response.json();
+    if (!Array.isArray(result.characters) || !Number.isFinite(result.syncedAt))
+      throw new Error("Invalid sync response");
+    if (authService.getCurrentUserId() !== accountId)
+      throw new Error("Account changed during sync; please sync again");
+
+    const conflicts = new Set(result.inventoryConflicts || []);
+    const safeCharacters = result.characters.map((c) =>
+      conflicts.has(c.id) ? localCharacters.find((local) => local.id === c.id) || c : c,
+    );
+    const merged = await this.characterStorage.mergeSyncedCharacters(
+      localCharacters,
+      safeCharacters,
+    );
+    this.lastSyncedCharacters = new Map(
+      result.characters.map((c) => [c.id, this.createCharacterHash(c)]),
+    );
+    this.lastSyncTime = new Date(result.syncedAt);
+    this.saveSyncState();
+    await this.checkForChanges();
+
+    const currentCharacter = this.characterService.getCurrentCharacter();
+    if (currentCharacter && merged.some((c) => c.id === currentCharacter.id)) {
+      await this.characterService.loadCharacter(currentCharacter.id);
+    }
+    this.pendingImages = new Set(
+      [...this.pendingImages].filter((id) => merged.some((c) => c.id === id && c.imageId)),
+    );
+    for (const character of merged) {
+      if (!character.imageId) continue;
+      try {
+        const imageResult = await imageSyncService.syncCharacterImage(
+          character.id,
+          character.imageId,
+        );
+        if (imageResult.success) this.pendingImages.delete(character.id);
+        else this.pendingImages.add(character.id);
+      } catch (error) {
+        this.pendingImages.add(character.id);
+        console.warn("Portrait sync will be retried", error);
+      }
+    }
+    this.saveSyncState();
+    await this.checkForChanges();
+    window.dispatchEvent(new CustomEvent("characters-synced", { detail: { characters: merged } }));
+    if (conflicts.size)
+      throw new Error(
+        "Party inventory changed. Open Campaigns to review the cloud inventory before syncing this character.",
+      );
+    if (this.pendingImages.size)
+      throw new Error(
+        "Character data synced, but some portraits could not be synced. Please try again.",
+      );
+    return { ...result, characters: merged, characterCount: merged.length };
   }
 
   /**

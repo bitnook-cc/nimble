@@ -86,7 +86,11 @@ function formatCR(monster: AnyMonster): string {
   return parts.join(" ");
 }
 
-function formatActionDesc(action: { description: string; reach?: number; diceFormula?: string }): string {
+function formatActionDesc(action: {
+  description: string;
+  reach?: number;
+  diceFormula?: string;
+}): string {
   const parts: string[] = [];
   if (action.diceFormula) {
     parts.push(` ${action.diceFormula}.`);
@@ -107,11 +111,13 @@ export function toNimbrewJson(monster: AnyMonster): NimbrewMonster {
     desc: p.description,
   }));
 
-  const actions: (NimbrewAction | NimbrewMultiAction)[] = monster.actions.map((a) => ({
-    type: "single" as const,
-    name: a.name,
-    desc: formatActionDesc(a),
-  }));
+  const actions: (NimbrewAction | NimbrewMultiAction)[] = monster.actions.map(
+    (a) => ({
+      type: "single" as const,
+      name: a.name,
+      desc: formatActionDesc(a),
+    }),
+  );
 
   const result: NimbrewMonster = {
     name: monster.name || "Unnamed Monster",
@@ -152,5 +158,16 @@ export function downloadNimbrewJson(monster: AnyMonster): void {
   const slug = (monster.name || "monster").toLowerCase().replace(/\s+/g, "-");
   a.download = `${slug}-nimbrew.json`;
   a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function downloadMonsterJson(monster: AnyMonster): void {
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(monster, null, 2)], { type: "application/json" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "monster-campaign.json";
+  link.click();
   URL.revokeObjectURL(url);
 }

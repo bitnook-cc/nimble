@@ -1,4 +1,4 @@
-import { PrismaClient, CharacterBackup, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import {
   Syncable,
   SyncResult,
@@ -13,6 +13,14 @@ import { track } from "@vercel/analytics/server";
 // Type alias for clarity - any object with syncable fields
 type SyncCharacterData = Syncable & Record<string, unknown>;
 
+export class LegacyInventoryConflictError extends Error {
+  constructor() {
+    super(
+      "Party inventory changed. Update Sidekick before syncing this character. Your local edits have not been replaced.",
+    );
+  }
+}
+
 export class CharacterSyncService {
   constructor(private prisma: PrismaClient) {}
 
@@ -22,157 +30,85 @@ export class CharacterSyncService {
   async syncCharacters(
     userId: string,
     characters: Syncable[],
+    supportsInventoryConflicts = true,
   ): Promise<SyncResult> {
-    console.log(`[Sync Server] Starting sync for user: ${userId}`);
-    console.log(
-      `[Sync Server] Received ${characters?.length || 0} characters from client`,
-    );
-
-    // Validate input
-    if (!Array.isArray(characters)) {
-      console.error("[Sync Server] Invalid input: characters is not an array");
+    if (!Array.isArray(characters))
       throw new Error("Invalid request: characters must be an array");
-    }
-
-    // Validate character count
-    if (characters.length > SERVER_CONFIG.sync.maxCharactersPerUser) {
-      console.error(
-        `[Sync Server] Character limit exceeded for user ${userId}: ${characters.length} > ${SERVER_CONFIG.sync.maxCharactersPerUser}`,
-      );
-      throw new Error(
-        `Character limit exceeded. Maximum allowed: ${SERVER_CONFIG.sync.maxCharactersPerUser}`,
-      );
-    }
-
-    console.log(
-      "[Sync Server] Client characters:",
-      characters.map((c) => ({
-        id: c.id,
-        updatedAt: c.timestamps?.updatedAt
-          ? new Date(c.timestamps.updatedAt).toISOString()
-          : "unknown",
-      })),
-    );
-
-    // Fetch existing backups
-    const existingBackups = await this.prisma.characterBackup.findMany({
-      where: { userId },
-    });
-
-    console.log(
-      `[Sync Server] Found ${existingBackups.length} existing backups for user ${userId}`,
-    );
-    console.log(
-      "[Sync Server] Existing backups:",
-      existingBackups.map((b: CharacterBackup) => ({
-        characterId: b.characterId,
-        updatedAt: b.updatedAt.toISOString(),
-        syncedAt: b.syncedAt.toISOString(),
-      })),
-    );
-
-    // Create a map for quick lookup
-    const backupMap = new Map(
-      existingBackups.map((backup: CharacterBackup) => [
-        backup.characterId,
-        backup,
-      ]),
-    );
-
-    // Process each character
-    const syncedCharacters: SyncCharacterData[] = [];
-    const operations: Prisma.PrismaPromise<CharacterBackup>[] = []; // Prisma transaction operations
-
+    const maxCharacters = SERVER_CONFIG.sync.maxCharactersPerUser;
+    const ids = new Set<string>();
     for (const character of characters) {
-      if (!character.id || !character.timestamps?.updatedAt) {
-        console.warn(
-          `[Sync Server] Skipping character without id or updatedAt: ${character.id}`,
+      if (
+        !character ||
+        typeof character.id !== "string" ||
+        !/^[a-zA-Z0-9_-]{1,100}$/.test(character.id) ||
+        ids.has(character.id) ||
+        typeof character.timestamps?.updatedAt !== "number" ||
+        !Number.isSafeInteger(character.timestamps.updatedAt) ||
+        character.timestamps.updatedAt <= 0 ||
+        character.timestamps.updatedAt > Date.now() + 300000
+      ) {
+        throw new Error(
+          "Invalid request: character IDs must be unique and timestamps valid",
         );
-        continue;
       }
-
-      const characterId = character.id;
-      // timestamps.updatedAt is a Unix timestamp in milliseconds
-      const characterUpdatedAt = new Date(character.timestamps.updatedAt);
-      const existingBackup = backupMap.get(characterId);
-
-      // Determine which version to keep (newer one wins)
-      let characterToKeep = character;
-      let needsUpdate = true;
-
-      if (existingBackup) {
-        // Safely parse the JSON data from Prisma
-        const backupData = existingBackup.characterData as SyncCharacterData;
-
-        // Use the shared helper to compare timestamps
-        if (!isNewerThan(character, backupData)) {
-          // Remote is newer or equal, use it
-          console.log(
-            `[Sync Server] Character ${characterId}: Server version is newer or equal, keeping server version`,
-          );
-          characterToKeep = backupData;
-          needsUpdate = false; // No need to update database
-        } else {
-          console.log(
-            `[Sync Server] Character ${characterId}: Client version is newer, will update server`,
-          );
+      ids.add(character.id);
+    }
+    if (characters.length > maxCharacters)
+      throw new Error(
+        "Character limit exceeded. Maximum allowed: " + maxCharacters,
+      );
+    const inventoryConflicts: string[] = [];
+    const syncedCharacters = await this.prisma.$transaction(async (tx) => {
+      // Serialize all backup changes for an account, including first-time uploads.
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+      const backups = await tx.characterBackup.findMany({ where: { userId } });
+      const merged = new Map<string, SyncCharacterData>(
+        backups.map((backup) => [
+          backup.characterId,
+          backup.characterData as SyncCharacterData,
+        ]),
+      );
+      for (const character of characters) {
+        const remote = merged.get(character.id);
+        const revision =
+          backups.find((b) => b.characterId === character.id)
+            ?.inventoryRevision ?? 0;
+        const localRevision =
+          (character as SyncCharacterData)._inventoryRevision ?? 0;
+        if (localRevision !== revision) {
+          // Older clients replace their entire local collection with a success
+          // response. Reject the transaction instead of returning stale data.
+          if (remote && !supportsInventoryConflicts)
+            throw new LegacyInventoryConflictError();
+          if (remote) inventoryConflicts.push(character.id);
+          else
+            throw new Error(
+              "Invalid request: inventory revision is not recognized",
+            );
+          continue;
         }
-      } else {
-        console.log(
-          `[Sync Server] Character ${characterId}: New character, will create backup`,
-        );
+        if (!remote || isNewerThan(character, remote))
+          merged.set(character.id, character as SyncCharacterData);
       }
-
-      syncedCharacters.push(characterToKeep);
-
-      // Prepare database operation if needed
-      if (needsUpdate) {
-        operations.push(
-          this.prisma.characterBackup.upsert({
-            where: {
-              userId_characterId: {
-                userId,
-                characterId,
-              },
-            },
-            update: {
-              characterData: character as Prisma.InputJsonValue,
-              updatedAt: characterUpdatedAt,
-              syncedAt: new Date(),
-            },
-            create: {
-              userId,
-              characterId,
-              characterData: character as Prisma.InputJsonValue,
-              updatedAt: characterUpdatedAt,
-            },
-          }),
+      if (merged.size > maxCharacters)
+        throw new Error(
+          "Character limit exceeded. Maximum allowed: " + maxCharacters,
         );
+      for (const character of characters) {
+        if (merged.get(character.id) !== character) continue;
+        const data = {
+          characterData: character as Prisma.InputJsonValue,
+          updatedAt: new Date(character.timestamps!.updatedAt!),
+          syncedAt: new Date(),
+        };
+        await tx.characterBackup.upsert({
+          where: { userId_characterId: { userId, characterId: character.id } },
+          update: data,
+          create: { userId, characterId: character.id, ...data },
+        });
       }
-    }
-
-    // Add remote-only characters to the result
-    for (const backup of existingBackups) {
-      if (!characters.find((c) => c.id === backup.characterId)) {
-        console.log(
-          `[Sync Server] Including server-only character: ${backup.characterId}`,
-        );
-        syncedCharacters.push(backup.characterData as SyncCharacterData);
-      }
-    }
-
-    // Execute all database operations in a transaction
-    if (operations.length > 0) {
-      console.log(
-        `[Sync Server] Executing ${operations.length} database operations for user ${userId}`,
-      );
-      await this.prisma.$transaction(operations);
-      console.log(`[Sync Server] Database operations completed successfully`);
-    } else {
-      console.log(
-        `[Sync Server] No database updates needed for user ${userId}`,
-      );
-    }
+      return [...merged.values()];
+    });
 
     // Fetch character images from Blob Storage (only if configured)
     let images: CharacterImageMetadata[] = [];
@@ -205,18 +141,21 @@ export class CharacterSyncService {
       );
     }
 
-    await track("character-sync", {
+    void track("character-sync", {
       user_id: userId,
       character_count: syncedCharacters.length,
       image_count: images.length,
       from_client: characters.length,
       to_client: syncedCharacters.length,
-      operations: operations.length,
+
       images: images.length,
-    });
+    }).catch(() => {});
 
     const result: SyncResult = {
       characters: syncedCharacters,
+      inventoryConflicts: inventoryConflicts.length
+        ? inventoryConflicts
+        : undefined,
       syncedAt: Date.now(),
       characterCount: syncedCharacters.length,
       maxCharacters: SERVER_CONFIG.sync.maxCharactersPerUser,
@@ -268,13 +207,16 @@ export class CharacterSyncService {
     userId: string,
     characterId: string,
   ): Promise<void> {
-    await this.prisma.characterBackup.delete({
-      where: {
-        userId_characterId: {
-          userId,
-          characterId,
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+      await tx.characterBackup.delete({
+        where: {
+          userId_characterId: {
+            userId,
+            characterId,
+          },
         },
-      },
+      });
     });
   }
 }

@@ -1,7 +1,8 @@
 import { Character, CreateCharacterData } from "../schemas/character";
 
 export interface ICharacterRepository {
-  save(character: Character): Promise<void>;
+  save(character: Character, preserveTimestamp?: boolean): Promise<void>;
+  updateAll(transform: (characters: Character[]) => Character[]): Promise<Character[]>;
   load(id: string): Promise<Character | null>;
   list(): Promise<Character[]>;
   delete(id: string): Promise<void>;

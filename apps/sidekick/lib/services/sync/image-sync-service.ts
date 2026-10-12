@@ -59,6 +59,7 @@ class ImageSyncService {
         credentials: "include",
         body: JSON.stringify({
           imageData: base64,
+          imageId,
         }),
       });
 
@@ -137,12 +138,19 @@ class ImageSyncService {
   /**
    * Get image URL from server for a character
    */
-  async getCharacterImageUrl(characterId: string): Promise<string | null> {
+  async getCharacterImageUrl(
+    characterId: string,
+    imageId?: string,
+    allowLegacy = false,
+  ): Promise<string | null> {
     try {
-      const response = await fetch(`${apiUrl}/images/characters/${characterId}/avatar`, {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${apiUrl}/images/characters/${characterId}/avatar${imageId ? "?imageId=" + encodeURIComponent(imageId) + (allowLegacy ? "&legacy=1" : "") : ""}`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
 
       if (response.status === 404) {
         return null; // No image on server
@@ -179,13 +187,19 @@ class ImageSyncService {
         return { success: true }; // No sync needed when not authenticated
       }
 
-      // Get server image info
-      const serverImageUrl = await this.getCharacterImageUrl(characterId);
+      if (!currentImageId) return { success: true };
 
       // Get local image info
       const hasLocalImage = currentImageId
         ? await characterImageService.imageExists(characterId, currentImageId)
         : false;
+
+      // Local replacements require the exact version; legacy portraits are only used for restoration.
+      const serverImageUrl = await this.getCharacterImageUrl(
+        characterId,
+        currentImageId,
+        !hasLocalImage,
+      );
 
       // Sync logic
       if (hasLocalImage && !serverImageUrl) {
@@ -197,14 +211,12 @@ class ImageSyncService {
         console.log("[ImageSync] Downloading image from server");
         return await this.downloadCharacterImage(characterId, serverImageUrl, currentImageId);
       } else if (hasLocalImage && serverImageUrl) {
-        // Both exist - for now, local takes precedence
-        // In the future, could compare timestamps or hashes
+        // The same immutable version exists on both sides.
         console.log("[ImageSync] Both local and server images exist, keeping local");
         return { success: true, url: serverImageUrl };
       }
 
-      // No image on either side
-      return { success: true };
+      return { success: false, error: "Portrait is not available locally or on the server" };
     } catch (error) {
       console.error("[ImageSync] Sync failed:", error);
       return {

@@ -91,9 +91,12 @@ export interface PusherEventMap {
 }
 
 // Helper type for channel names
-export type SessionChannelName = `session-${string}`;
+export type SessionChannelName = `private-session-${string}-user-${string}`;
 
 // Helper function to generate channel names
-export function getSessionChannel(sessionId: string): SessionChannelName {
-  return `session-${sessionId}`;
+export function getSessionChannel(
+  sessionId: string,
+  userId: string,
+): SessionChannelName {
+  return `private-session-${sessionId}-user-${userId}`;
 }

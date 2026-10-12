@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { pusher } from "../lib/pusher.js";
 import { realtime } from "@nimble/shared";
@@ -46,7 +47,7 @@ function generateJoinCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
   for (let i = 0; i < JOIN_CODE_LENGTH; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(randomInt(chars.length));
   }
   return result;
 }
@@ -82,7 +83,7 @@ export class ActivitySharingService {
 
     // Broadcast session creation via Pusher
     await pusher.trigger(
-      this.pusherChannel(session),
+      await this.pusherChannels(session),
       realtime.PUSHER_EVENTS.SESSION_CREATED,
       {
         session: this.formatSessionResponse(session),
@@ -144,7 +145,7 @@ export class ActivitySharingService {
 
       // Broadcast participant update via Pusher
       await pusher.trigger(
-        this.pusherChannel(session),
+        await this.pusherChannels(session),
         realtime.PUSHER_EVENTS.PARTICIPANT_UPDATED,
         {
           participant: this.formatParticipantResponse(updatedParticipant),
@@ -168,7 +169,7 @@ export class ActivitySharingService {
 
       // Broadcast participant join via Pusher
       await pusher.trigger(
-        this.pusherChannel(session),
+        await this.pusherChannels(session),
         realtime.PUSHER_EVENTS.PARTICIPANT_JOINED,
         {
           participant: this.formatParticipantResponse(newParticipant),
@@ -177,7 +178,7 @@ export class ActivitySharingService {
     }
 
     // Return the updated session with all participants
-    return this.getSession(session.id);
+    return this.getSession(session.id, userId);
   }
 
   /**
@@ -209,7 +210,7 @@ export class ActivitySharingService {
 
     // Broadcast participant leave via Pusher
     await pusher.trigger(
-      this.pusherChannel(session),
+      await this.pusherChannels(session),
       realtime.PUSHER_EVENTS.PARTICIPANT_LEFT,
       {
         participantId: participant.id,
@@ -221,7 +222,10 @@ export class ActivitySharingService {
   /**
    * Get session information by ID
    */
-  async getSession(sessionId: string): Promise<realtime.GameSession> {
+  async getSession(
+    sessionId: string,
+    userId: string,
+  ): Promise<realtime.GameSession> {
     const session = await prisma.gameSession.findUnique({
       where: { id: sessionId },
       include: {
@@ -243,6 +247,11 @@ export class ActivitySharingService {
       throw new Error("Session not found");
     }
 
+    if (
+      session.ownerId !== userId &&
+      !session.participants.some((p) => p.userId === userId)
+    )
+      throw new Error("Session access denied");
     return this.formatSessionResponse(session);
   }
 
@@ -332,7 +341,7 @@ export class ActivitySharingService {
 
     // Broadcast activity via Pusher
     await pusher.trigger(
-      this.pusherChannel(session),
+      await this.pusherChannels(session),
       realtime.PUSHER_EVENTS.ACTIVITY_SHARED,
       {
         activity: formattedEntry,
@@ -347,6 +356,7 @@ export class ActivitySharingService {
    */
   async getActivityLog(
     sessionId: string,
+    userId: string,
     options: { cursor?: string; limit?: number } = {},
   ): Promise<realtime.ActivityResponse> {
     const session = await prisma.gameSession.findUnique({
@@ -357,7 +367,14 @@ export class ActivitySharingService {
       throw new Error("Session not found");
     }
 
-    const limit = Math.min(options.limit || 50, 100); // Max 100 entries per request
+    await this.requireSessionAccess(sessionId, userId);
+    const limit = Math.max(
+      1,
+      Math.min(
+        Number.isFinite(options.limit) ? Math.floor(options.limit!) : 50,
+        100,
+      ),
+    ); // Max 100 entries per request
 
     // Build where clause
     const whereClause: {
@@ -433,7 +450,7 @@ export class ActivitySharingService {
 
     // Broadcast session closure via Pusher
     await pusher.trigger(
-      this.pusherChannel(session),
+      await this.pusherChannels(session),
       realtime.PUSHER_EVENTS.SESSION_CLOSED,
       {
         sessionId: session.id,
@@ -479,7 +496,7 @@ export class ActivitySharingService {
 
     // Broadcast participant removal via Pusher
     await pusher.trigger(
-      this.pusherChannel(session),
+      await this.pusherChannels(session, [participant.userId]),
       realtime.PUSHER_EVENTS.PARTICIPANT_REMOVED,
       {
         participantId: participantId,
@@ -506,8 +523,37 @@ export class ActivitySharingService {
     return code;
   }
 
-  private pusherChannel(session: { id: string }): realtime.SessionChannelName {
-    return realtime.getSessionChannel(session.id);
+  async requireSessionAccess(
+    sessionId: string,
+    userId: string,
+    activeOnly = false,
+  ): Promise<void> {
+    const session = await prisma.gameSession.findFirst({
+      where: {
+        id: sessionId,
+        ...(activeOnly ? { isActive: true } : {}),
+        OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
+      },
+      select: { id: true },
+    });
+    if (!session) throw new Error("Session access denied");
+  }
+
+  private async pusherChannels(
+    session: { id: string; ownerId: string },
+    extraUserIds: string[] = [],
+  ): Promise<realtime.SessionChannelName[]> {
+    const members = await prisma.sessionParticipant.findMany({
+      where: { sessionId: session.id },
+      select: { userId: true },
+    });
+    return [
+      ...new Set([
+        session.ownerId,
+        ...members.map((member) => member.userId),
+        ...extraUserIds,
+      ]),
+    ].map((id) => realtime.getSessionChannel(session.id, id));
   }
 
   /**

@@ -1,3 +1,7 @@
+/**
+ * All available icon IDs as a const array for type safety
+ */
+import { ICON_IDS } from "@nimble/shared/character/icon-ids";
 import {
   // Energy & Power Icons
   Battery,
@@ -104,10 +108,7 @@ export const AVAILABLE_ICONS: IconDefinition[] = [
   { id: "music", name: "Music", icon: Music, category: "mental" },
 ];
 
-/**
- * All available icon IDs as a const array for type safety
- */
-export const ICON_IDS = AVAILABLE_ICONS.map((icon) => icon.id) as readonly string[];
+export { ICON_IDS };
 export type IconId = (typeof ICON_IDS)[number];
 
 /**

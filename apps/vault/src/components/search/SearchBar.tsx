@@ -1,205 +1,201 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
-import { Search, X } from 'lucide-react'
-import { publicSearch, patronSearch, purchasedSearch } from '#site/content'
-import type { ContentSearch } from '@/types/content'
-import Fuse, { FuseResult, FuseResultMatch, RangeTuple } from 'fuse.js'
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { ContentSearch } from "@/types/content";
+import Fuse, { FuseResult, FuseResultMatch, RangeTuple } from "fuse.js";
 
-type SearchResult = ContentSearch
+type SearchResult = ContentSearch;
 
 interface SearchBarProps {
-  userTags?: string[]
-  onResultSelect?: (result: SearchResult) => void
+  content: ContentSearch[];
+  onResultSelect?: (result: SearchResult) => void;
 }
 
-type FuseSearchResult = FuseResult<SearchResult>
+type FuseSearchResult = FuseResult<SearchResult>;
 
-export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<FuseSearchResult[]>([])
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1)
-  const searchRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+export function SearchBar({ content, onResultSelect }: SearchBarProps) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<FuseSearchResult[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Combine all search content (using search bundles for optimal performance)
-  const allContent: SearchResult[] = useMemo(() => {
-    return [
-      ...(publicSearch as ContentSearch[]),
-      ...(patronSearch as ContentSearch[]),
-      ...(purchasedSearch as ContentSearch[])
-    ]
-  }, [])
-
-  // Filter content based on user access
-  const accessibleContent = useMemo(() => allContent.filter(item => {
-    // Test tag can see everything
-    if (userTags.includes('test')) {
-      return true
-    }
-    // Public content (no access array or undefined) is visible to everyone
-    if (!item.access) {
-      return true
-    }
-    // Check if user has any of the required tags
-    return item.access.some(access => userTags.includes(access))
-  }), [allContent, userTags])
+  const router = useRouter();
+  const accessibleContent = content;
 
   // Configure Fuse.js for fuzzy search
-  const fuse = useMemo(() => new Fuse(accessibleContent, {
-    keys: [
-      { name: 'title', weight: 2 }, // Title is most important
-      { name: 'description', weight: 1.5 },
-      { name: 'category', weight: 1 },
-      { name: 'searchBody', weight: 0.5 } // Body content is less important
-    ],
-    threshold: 0.4, // Balance between fuzzy and precise (0 = exact, 1 = match anything)
-    distance: 100, // How far to search for pattern match
-    minMatchCharLength: 2, // Minimum characters to start matching
-    includeScore: true, // Include match score for sorting
-    includeMatches: true, // Include matched text for highlighting
-    ignoreLocation: true, // Search entire strings, not just beginning
-    useExtendedSearch: false
-  }), [accessibleContent])
+  const fuse = useMemo(
+    () =>
+      new Fuse(accessibleContent, {
+        keys: [
+          { name: "title", weight: 2 }, // Title is most important
+          { name: "description", weight: 1.5 },
+          { name: "category", weight: 1 },
+          { name: "searchBody", weight: 0.5 }, // Body content is less important
+        ],
+        threshold: 0.4, // Balance between fuzzy and precise (0 = exact, 1 = match anything)
+        distance: 100, // How far to search for pattern match
+        minMatchCharLength: 2, // Minimum characters to start matching
+        includeScore: true, // Include match score for sorting
+        includeMatches: true, // Include matched text for highlighting
+        ignoreLocation: true, // Search entire strings, not just beginning
+        useExtendedSearch: false,
+      }),
+    [accessibleContent],
+  );
 
-  const performSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) {
-      setResults([])
-      return
-    }
+  const performSearch = useCallback(
+    (searchQuery: string) => {
+      if (!searchQuery.trim()) {
+        setResults([]);
+        return;
+      }
 
-    // Use Fuse.js for fuzzy search
-    const searchResults = fuse.search(searchQuery, { limit: 12 })
-    setResults(searchResults)
-  }, [fuse])
+      // Use Fuse.js for fuzzy search
+      const searchResults = fuse.search(searchQuery, { limit: 12 });
+      setResults(searchResults);
+    },
+    [fuse],
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      performSearch(query)
-    }, 200) // Debounce search
+      performSearch(query);
+    }, 200); // Debounce search
 
-    return () => clearTimeout(timeoutId)
-  }, [query, performSearch])
+    return () => clearTimeout(timeoutId);
+  }, [query, performSearch]);
 
   // Reset selected index when results change
   useEffect(() => {
-    setSelectedIndex(-1)
-  }, [results])
+    setSelectedIndex(-1);
+  }, [results]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleResultClick = (result: FuseSearchResult) => {
-    setQuery('')
-    setResults([])
-    setIsOpen(false)
-    onResultSelect?.(result.item)
+    setQuery("");
+    setResults([]);
+    setIsOpen(false);
+    onResultSelect?.(result.item);
 
     // Navigate to result
-    window.location.href = result.item.permalink
-  }
+    router.push(result.item.permalink);
+  };
 
   const clearSearch = () => {
-    setQuery('')
-    setResults([])
-    inputRef.current?.focus()
-  }
+    setQuery("");
+    setResults([]);
+    inputRef.current?.focus();
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      setIsOpen(false)
-      setQuery('')
-      setSelectedIndex(-1)
-      inputRef.current?.blur()
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setSelectedIndex(prev =>
-        prev < results.length - 1 ? prev + 1 : prev
-      )
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : 0)
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      e.preventDefault()
-      handleResultClick(results[selectedIndex])
+    if (e.key === "Escape") {
+      setIsOpen(false);
+      setQuery("");
+      setSelectedIndex(-1);
+      inputRef.current?.blur();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
+      e.preventDefault();
+      handleResultClick(results[selectedIndex]);
     }
-  }
+  };
 
   // Helper to highlight matched text
-  const highlightMatch = (text: string, matches?: readonly FuseResultMatch[], fieldKey?: string) => {
-    if (!matches || !text) return text
+  const highlightMatch = (
+    text: string,
+    matches?: readonly FuseResultMatch[],
+    fieldKey?: string,
+  ) => {
+    if (!matches || !text) return text;
 
     // Find matches for this specific field
-    const fieldMatches = matches.filter(m => m.key === fieldKey)
-    if (fieldMatches.length === 0) return text
+    const fieldMatches = matches.filter((m) => m.key === fieldKey);
+    if (fieldMatches.length === 0) return text;
 
-    const indices = fieldMatches.flatMap(m => Array.from(m.indices)) as RangeTuple[]
-    if (indices.length === 0) return text
+    const indices = fieldMatches.flatMap((m) =>
+      Array.from(m.indices),
+    ) as RangeTuple[];
+    if (indices.length === 0) return text;
 
     // Sort indices by start position
-    const sortedIndices = [...indices].sort((a, b) => a[0] - b[0])
+    const sortedIndices = [...indices].sort((a, b) => a[0] - b[0]);
 
     // Build highlighted text
-    const parts: React.ReactNode[] = []
-    let lastIndex = 0
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
 
     sortedIndices.forEach(([start, end], idx) => {
       // Add non-highlighted text before match
       if (start > lastIndex) {
-        parts.push(text.substring(lastIndex, start))
+        parts.push(text.substring(lastIndex, start));
       }
       // Add highlighted match
       parts.push(
         <mark key={idx} className="bg-yellow-200 text-foreground font-medium">
           {text.substring(start, end + 1)}
-        </mark>
-      )
-      lastIndex = end + 1
-    })
+        </mark>,
+      );
+      lastIndex = end + 1;
+    });
 
     // Add remaining text after last match
     if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex))
+      parts.push(text.substring(lastIndex));
     }
 
-    return <>{parts}</>
-  }
+    return <>{parts}</>;
+  };
 
   // Helper to get search snippet from body match
-  const getSearchSnippet = (result: FuseSearchResult): React.ReactNode | null => {
-    if (!result.matches || !result.item.searchBody) return null
+  const getSearchSnippet = (
+    result: FuseSearchResult,
+  ): React.ReactNode | null => {
+    if (!result.matches || !result.item.searchBody) return null;
 
-    const bodyMatches = result.matches.filter(m => m.key === 'searchBody')
-    if (bodyMatches.length === 0) return null
+    const bodyMatches = result.matches.filter((m) => m.key === "searchBody");
+    if (bodyMatches.length === 0) return null;
 
-    const match = bodyMatches[0]
-    const indices = match.indices[0]
-    if (!indices) return null
+    const match = bodyMatches[0];
+    const indices = match.indices[0];
+    if (!indices) return null;
 
-    const [start, end] = indices
-    const text = result.item.searchBody
+    const [start, end] = indices;
+    const text = result.item.searchBody;
 
     // Extract snippet around match (50 chars before and after)
-    const snippetStart = Math.max(0, start - 50)
-    const snippetEnd = Math.min(text.length, end + 50)
-    let snippet = text.substring(snippetStart, snippetEnd)
+    const snippetStart = Math.max(0, start - 50);
+    const snippetEnd = Math.min(text.length, end + 50);
+    let snippet = text.substring(snippetStart, snippetEnd);
 
     // Add ellipsis if truncated
-    if (snippetStart > 0) snippet = '...' + snippet
-    if (snippetEnd < text.length) snippet = snippet + '...'
+    if (snippetStart > 0) snippet = "..." + snippet;
+    if (snippetEnd < text.length) snippet = snippet + "...";
 
     // Highlight the matched portion within the snippet
-    const relativeStart = start - snippetStart + (snippetStart > 0 ? 3 : 0)
-    const relativeEnd = end - snippetStart + (snippetStart > 0 ? 3 : 0)
+    const relativeStart = start - snippetStart + (snippetStart > 0 ? 3 : 0);
+    const relativeEnd = end - snippetStart + (snippetStart > 0 ? 3 : 0);
 
     return (
       <>
@@ -209,8 +205,8 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
         </mark>
         {snippet.substring(relativeEnd + 1)}
       </>
-    )
-  }
+    );
+  };
 
   return (
     <div ref={searchRef} className="relative w-full max-w-md">
@@ -230,7 +226,9 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
           aria-label="Search vault documentation"
           aria-expanded={isOpen && results.length > 0}
           aria-controls="search-results"
-          aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
+          aria-activedescendant={
+            selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined
+          }
           className="
             w-full pl-10 pr-10 py-2
             bg-white border border-border rounded-lg
@@ -261,8 +259,8 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
           "
         >
           {results.map((result, idx) => {
-            const snippet = getSearchSnippet(result)
-            const hasBodyMatch = snippet !== null
+            const snippet = getSearchSnippet(result);
+            const hasBodyMatch = snippet !== null;
 
             return (
               <button
@@ -275,15 +273,19 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
                   w-full text-left p-4 hover:bg-accent
                   border-b border-border last:border-b-0
                   focus:outline-none focus:bg-accent min-h-12
-                  ${idx === selectedIndex ? 'ring-2 ring-primary' : ''}
+                  ${idx === selectedIndex ? "ring-2 ring-primary" : ""}
                 `}
               >
                 <div className="font-medium text-foreground">
-                  {highlightMatch(result.item.title, result.matches, 'title')}
+                  {highlightMatch(result.item.title, result.matches, "title")}
                 </div>
                 {result.item.description && !hasBodyMatch && (
                   <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {highlightMatch(result.item.description, result.matches, 'description')}
+                    {highlightMatch(
+                      result.item.description,
+                      result.matches,
+                      "description",
+                    )}
                   </div>
                 )}
                 {hasBodyMatch && (
@@ -293,24 +295,30 @@ export function SearchBar({ userTags = [], onResultSelect }: SearchBarProps) {
                 )}
                 {result.item.category && (
                   <div className="text-xs text-muted-foreground mt-1 capitalize">
-                    {highlightMatch(result.item.category.replace('-', ' '), result.matches, 'category')}
+                    {highlightMatch(
+                      result.item.category.replace("-", " "),
+                      result.matches,
+                      "category",
+                    )}
                   </div>
                 )}
               </button>
-            )
+            );
           })}
         </div>
       )}
 
       {isOpen && query && results.length === 0 && (
-        <div className="
+        <div
+          className="
           absolute top-full left-0 right-0 mt-1
           bg-white border border-border rounded-lg shadow-lg
           p-4 text-center text-muted-foreground z-50
-        ">
+        "
+        >
           No results found for &quot;{query}&quot;
         </div>
       )}
     </div>
-  )
+  );
 }

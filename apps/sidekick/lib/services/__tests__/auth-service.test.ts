@@ -213,11 +213,11 @@ describe("AuthService", () => {
   });
 
   describe("login", () => {
-    let mockOpen: ReturnType<typeof vi.fn>;
-    let mockAddEventListener: ReturnType<typeof vi.fn>;
-    let mockRemoveEventListener: ReturnType<typeof vi.fn>;
-    let mockSetInterval: ReturnType<typeof vi.fn>;
-    let mockClearInterval: ReturnType<typeof vi.fn>;
+    let mockOpen: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+    let mockAddEventListener: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+    let mockRemoveEventListener: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+    let mockSetInterval: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+    let mockClearInterval: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 
     beforeEach(() => {
       mockOpen = vi.fn();
@@ -266,6 +266,7 @@ describe("AuthService", () => {
 
       await messageHandler({
         origin: "http://localhost:3000",
+        source: mockPopup,
         data: { type: "auth-success" },
       } as MessageEvent);
 
@@ -296,6 +297,7 @@ describe("AuthService", () => {
 
       messageHandler({
         origin: "http://localhost:3000",
+        source: mockPopup,
         data: { type: "auth-failed" },
       } as MessageEvent);
 
@@ -346,6 +348,7 @@ describe("AuthService", () => {
 
       messageHandler({
         origin: "http://evil.com",
+        source: mockPopup,
         data: { type: "auth-success" },
       } as MessageEvent);
 

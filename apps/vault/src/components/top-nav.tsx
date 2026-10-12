@@ -1,97 +1,67 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Menu } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-import { getPortalUrl } from '@/lib/portal-url'
+import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { getPortalUrl } from "@/lib/portal-url";
 
 interface User {
-  id: string
-  email?: string
-  tags?: string[]
+  id: string;
+  email?: string;
+  tags?: string[];
 }
 
 interface TopNavProps {
-  onMenuClick?: () => void
+  onMenuClick?: () => void;
 }
 
 export function TopNav({ onMenuClick }: TopNavProps = {}) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
 
   useEffect(() => {
-    checkAuthStatus()
-    
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('[TopNav] Auth state changed:', event, !!session)
-        if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email,
-            tags: session.user.app_metadata?.tags || []
-          })
-        } else {
-          setUser(null)
-        }
-        setLoading(false)
+    let active = true;
+    const check = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (active) {
+        setUser(error || !user ? null : { id: user.id, email: user.email });
+        setLoading(false);
       }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const checkAuthStatus = async () => {
-    try {
-      console.log('[TopNav] Checking Supabase auth status...')
-      console.log('[TopNav] Available cookies:', document.cookie)
-      
-      const { data: { session }, error } = await supabase.auth.getSession()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      console.log('[TopNav] Supabase session:', session)
-      console.log('[TopNav] Supabase user:', user)
-      
-      if (error) {
-        console.error('[TopNav] Supabase session error:', error)
-        return
+    };
+    void check();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "INITIAL_SESSION") {
+        setTimeout(() => {
+          void check();
+          router.refresh();
+        }, 0);
       }
-
-      if (session?.user) {
-        console.log('[TopNav] Supabase user found:', {
-          id: session.user.id,
-          email: session.user.email,
-          last_sign_in_at: session.user.last_sign_in_at
-        })
-
-        setUser({
-          id: session.user.id,
-          email: session.user.email,
-          tags: session.user.app_metadata?.tags || []
-        })
-      } else {
-        console.log('[TopNav] No Supabase session found')
-      }
-    } catch (error) {
-      console.error('[TopNav] Failed to check Supabase auth:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase, router]);
 
   const handleLogin = () => {
     // Redirect to portal login
-    window.location.href = getPortalUrl()
-  }
+    window.location.href = getPortalUrl();
+  };
 
   const handleLogout = async () => {
-    console.log('[TopNav] Logging out...')
-    await supabase.auth.signOut()
-    setUser(null)
-  }
+    await supabase.auth.signOut();
+    setUser(null);
+    router.refresh();
+  };
 
   if (loading) {
     return (
@@ -106,7 +76,7 @@ export function TopNav({ onMenuClick }: TopNavProps = {}) {
           </div>
         </div>
       </nav>
-    )
+    );
   }
 
   return (
@@ -138,16 +108,24 @@ export function TopNav({ onMenuClick }: TopNavProps = {}) {
                   Welcome, {user.email || `User ${user.id.slice(0, 8)}`}
                   {user.tags && user.tags.length > 0 && (
                     <span className="ml-2 text-xs bg-white/20 px-2 py-1 rounded">
-                      {user.tags.join(', ')}
+                      {user.tags.join(", ")}
                     </span>
                   )}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleLogout} className="text-white border-white/30 hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-white border-white/30 hover:bg-white/10"
+                >
                   Logout
                 </Button>
               </>
             ) : (
-              <Button onClick={handleLogin} className="bg-primary text-white hover:bg-destructive">
+              <Button
+                onClick={handleLogin}
+                className="bg-primary text-white hover:bg-destructive"
+              >
                 Login
               </Button>
             )}
@@ -155,5 +133,5 @@ export function TopNav({ onMenuClick }: TopNavProps = {}) {
         </div>
       </div>
     </nav>
-  )
+  );
 }

@@ -14,6 +14,7 @@ import {
   TempHPEntry,
 } from "../schemas/activity-log";
 import { apiFetch } from "../utils/api";
+import { authService } from "./auth-service";
 import { toastService } from "./toast-service";
 
 interface SessionState {
@@ -269,10 +270,31 @@ export class ActivitySharingService {
     try {
       this.pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
         cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+        channelAuthorization: {
+          customHandler: async (params, callback) => {
+            try {
+              const response = await this.apiCall<{ auth: string }>("/pusher/auth", {
+                method: "POST",
+                body: JSON.stringify({
+                  socket_id: params.socketId,
+                  channel_name: params.channelName,
+                }),
+              });
+              callback(null, response);
+            } catch (error) {
+              callback(
+                error instanceof Error ? error : new Error("Channel authorization failed"),
+                null,
+              );
+            }
+          },
+        },
       });
 
       // Subscribe to session channel
-      const channel = this.pusher.subscribe(`session-${sessionId}`);
+      const channel = this.pusher.subscribe(
+        realtime.getSessionChannel(sessionId, authService.getCurrentUserId() || ""),
+      );
 
       // Listen for connection state changes
       this.pusher.connection.bind("connected", () => {
@@ -290,6 +312,22 @@ export class ActivitySharingService {
       this.pusher.connection.bind("error", (err: Error) => {
         console.log("Pusher error:", err);
         this.pusherConnected = false;
+        this.notifyListeners();
+      });
+
+      channel.bind(
+        realtime.PUSHER_EVENTS.PARTICIPANT_REMOVED,
+        (data: realtime.ParticipantRemovedPayload) => {
+          if (data.userId === authService.getCurrentUserId()) {
+            this.cleanupPusher();
+            this.currentSessionState = null;
+            this.notifyListeners();
+          }
+        },
+      );
+      channel.bind(realtime.PUSHER_EVENTS.SESSION_CLOSED, () => {
+        this.cleanupPusher();
+        this.currentSessionState = null;
         this.notifyListeners();
       });
 
@@ -354,7 +392,12 @@ export class ActivitySharingService {
   cleanupPusher(): void {
     if (this.pusher) {
       if (this.currentSessionState) {
-        this.pusher.unsubscribe(`session-${this.currentSessionState.session.id}`);
+        this.pusher.unsubscribe(
+          realtime.getSessionChannel(
+            this.currentSessionState.session.id,
+            authService.getCurrentUserId() || "",
+          ),
+        );
       }
       this.pusher.disconnect();
       this.pusher = null;

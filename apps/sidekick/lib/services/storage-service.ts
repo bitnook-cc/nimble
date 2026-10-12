@@ -14,54 +14,23 @@ export interface IStorageService {
  */
 export class LocalStorageService implements IStorageService {
   private isAvailable(): boolean {
-    try {
-      const test = "__storage_test__";
-      if (typeof window === "undefined" || !window.localStorage) {
-        return false;
-      }
-      window.localStorage.setItem(test, test);
-      window.localStorage.removeItem(test);
-      return true;
-    } catch {
-      return false;
-    }
+    return typeof window !== "undefined" && !!window.localStorage;
   }
 
   getItem(key: string): string | null {
-    if (!this.isAvailable()) {
-      console.warn("LocalStorage is not available");
-      return null;
-    }
-    try {
-      return localStorage.getItem(key);
-    } catch (error) {
-      console.error(`Error getting item from localStorage: ${error}`);
-      return null;
-    }
+    if (!this.isAvailable()) return null;
+    return localStorage.getItem(key);
   }
 
   setItem(key: string, value: string): void {
-    if (!this.isAvailable()) {
-      console.warn("LocalStorage is not available");
-      return;
-    }
-    try {
-      localStorage.setItem(key, value);
-    } catch (error) {
-      console.error(`Error setting item in localStorage: ${error}`);
-    }
+    if (!this.isAvailable())
+      throw new Error("Browser storage is unavailable; changes could not be saved");
+    localStorage.setItem(key, value);
   }
 
   removeItem(key: string): void {
-    if (!this.isAvailable()) {
-      console.warn("LocalStorage is not available");
-      return;
-    }
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error(`Error removing item from localStorage: ${error}`);
-    }
+    if (!this.isAvailable()) throw new Error("Browser storage is unavailable");
+    localStorage.removeItem(key);
   }
 
   clear(): void {

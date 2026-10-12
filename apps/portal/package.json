@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@nimble/dice": "^1.0.0",
     "@nimble/shared-config": "^1.0.0",
+    "@nimble/ui": "0.1.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/postcss": "^4.1.12",
@@ -20,7 +23,7 @@
     "clsx": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.544.0",
-    "next": "^16.1.1",
+    "next": "~16.3.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwind-merge": "^3.3.1",
@@ -28,12 +31,14 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.15",
     "@types/react-dom": "^19.1.9",
     "autoprefixer": "^10.0.1",
     "postcss": "^8.5.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

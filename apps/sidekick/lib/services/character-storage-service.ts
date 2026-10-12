@@ -6,6 +6,7 @@ import { CURRENT_SCHEMA_VERSION } from "../schemas/migration/constants";
 import { ICharacterRepository } from "../storage/character-repository";
 import { StorageBasedCharacterRepository } from "../storage/storage-based-character-repository";
 import { mergeWithDefaultCharacter } from "../utils/character-defaults";
+import { mergeSyncResponse } from "../utils/character-serialization";
 import { MigrationService } from "./migration-service";
 import { IStorageService, LocalStorageService } from "./storage-service";
 
@@ -47,13 +48,17 @@ export class CharacterStorageService {
         const validatedChar = await this.validateOrRecoverCharacter(char, char.id || uuidv4());
         if (validatedChar) {
           validCharacters.push(validatedChar);
+        } else {
+          throw new Error(
+            `Character ${char.id} could not be recovered; sync stopped to preserve stored data`,
+          );
         }
       }
 
       return validCharacters;
     } catch (error) {
       console.error("Failed to load character list:", error);
-      return [];
+      throw error;
     }
   }
 
@@ -62,19 +67,35 @@ export class CharacterStorageService {
     await this.repository.save(validated);
   }
 
+  async acceptCampaignInventory(
+    characterId: string,
+    inventory: Character["inventory"],
+    revision: number,
+  ): Promise<void> {
+    await this.repository.updateAll((current) =>
+      current.map((character) => {
+        if (character.id !== characterId) return character;
+        if ((character._inventoryRevision || 0) > revision)
+          throw new Error("Inventory changed again. Refresh before accepting it.");
+        return characterSchema.parse({
+          ...character,
+          inventory,
+          _inventoryRevision: revision,
+          timestamps: {
+            ...character.timestamps,
+            updatedAt: Math.max(Date.now(), (character.timestamps?.updatedAt || 0) + 1),
+          },
+        });
+      }),
+    );
+  }
+
   async deleteCharacter(id: string): Promise<void> {
     await this.repository.delete(id);
   }
 
-  async updateLastPlayed(characterId: string): Promise<void> {
-    const character = await this.getCharacter(characterId);
-    if (character) {
-      if (!character.timestamps) {
-        character.timestamps = {};
-      }
-      character.timestamps.updatedAt = Date.now();
-      await this.updateCharacter(character);
-    }
+  async updateLastPlayed(_characterId: string): Promise<void> {
+    // Viewing a character is not an edit and must not change its sync revision.
   }
 
   /**
@@ -96,36 +117,14 @@ export class CharacterStorageService {
    * Used for sync operations
    */
   async replaceAllCharacters(characters: Character[]): Promise<void> {
-    console.log(
-      `[CharacterStorage] Replacing all characters with ${characters.length} new characters`,
-    );
+    const validated = characters.map((c) => characterSchema.parse(c));
+    await this.repository.updateAll(() => validated);
+  }
 
-    // Validate all characters first
-    const validatedCharacters: Character[] = [];
-    for (const char of characters) {
-      try {
-        const validated = characterSchema.parse(char);
-        validatedCharacters.push(validated);
-      } catch (error) {
-        console.error(`[CharacterStorage] Failed to validate character ${char.id}:`, error);
-        // Try to recover the character
-        const recovered = await this.validateOrRecoverCharacter(char, char.id || uuidv4());
-        if (recovered) {
-          validatedCharacters.push(recovered);
-        }
-      }
-    }
-
-    // Clear existing characters and save the new ones
-    // This is done through the repository which handles the storage
-    await this.repository.clear();
-    for (const char of validatedCharacters) {
-      await this.repository.save(char);
-    }
-
-    console.log(
-      `[CharacterStorage] Successfully replaced with ${validatedCharacters.length} validated characters`,
-    );
+  async mergeSyncedCharacters(snapshot: Character[], remote: Character[]): Promise<Character[]> {
+    // Reject the whole response before changing stored data if any entry is invalid.
+    const validated = remote.map((c) => characterSchema.parse(c));
+    return this.repository.updateAll((current) => mergeSyncResponse(snapshot, validated, current));
   }
 
   /**
@@ -138,9 +137,10 @@ export class CharacterStorageService {
     character: Partial<Character>,
     id: string,
   ): Promise<Character | null> {
+    const needsMigration = this.migrationService.needsMigration(character);
     try {
       // First, check if the character needs migration
-      if (this.migrationService.needsMigration(character)) {
+      if (needsMigration) {
         console.info(
           `Character ${id} needs migration from version ${character._schemaVersion || 0} to ${CURRENT_SCHEMA_VERSION}`,
         );
@@ -156,8 +156,8 @@ export class CharacterStorageService {
 
       const validatedCharacter = characterSchema.parse(character);
 
-      // Save the recovered character back to storage
-      await this.repository.save(validatedCharacter);
+      // Persist only a migration, retaining the original modification time.
+      if (needsMigration) await this.repository.save(validatedCharacter, true);
 
       if (validatedCharacter.id !== id) {
         await this.repository.delete(id); // Remove old entry if ID changed during migration
@@ -181,7 +181,7 @@ export class CharacterStorageService {
         const validatedCharacter = characterSchema.parse(recoveredCharacter);
 
         // Save the recovered character back to storage
-        await this.repository.save(validatedCharacter);
+        await this.repository.save(validatedCharacter, true);
 
         console.info(`Successfully recovered character ${id} by merging with defaults`);
         return validatedCharacter;

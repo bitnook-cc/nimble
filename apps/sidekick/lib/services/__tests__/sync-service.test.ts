@@ -14,6 +14,7 @@ global.fetch = vi.fn() as Mock;
 // Mock the auth service
 vi.mock("../auth-service", () => ({
   authService: {
+    getCurrentUserId: vi.fn(() => "user-123"),
     isAuthenticated: vi.fn(),
     fetchUser: vi.fn(),
   },
@@ -24,6 +25,7 @@ vi.mock("../service-factory", () => {
   const mockCharacterStorage = {
     getAllCharacters: vi.fn(),
     replaceAllCharacters: vi.fn(),
+    mergeSyncedCharacters: vi.fn((_snapshot, remote) => Promise.resolve(remote)),
   };
 
   const mockCharacterService = {
@@ -56,6 +58,10 @@ vi.mock("../service-container", () => ({
   },
 }));
 
+vi.mock("../sync/image-sync-service", () => ({
+  imageSyncService: { syncCharacterImage: vi.fn().mockResolvedValue({ success: true }) },
+}));
+
 // Mock the api utils
 vi.mock("@/lib/utils/api", () => ({
   apiUrl: "http://localhost:3001",
@@ -69,6 +75,7 @@ describe("SyncService", () => {
   let mockCharacterStorage: {
     getAllCharacters: Mock;
     replaceAllCharacters: Mock;
+    mergeSyncedCharacters: Mock;
   };
   let mockCharacterService: {
     getCurrentCharacter: Mock;
@@ -208,7 +215,10 @@ describe("SyncService", () => {
 
       expect(result).toEqual(mockResult);
       expect(mockCharacterStorage.getAllCharacters).toHaveBeenCalled();
-      expect(mockCharacterStorage.replaceAllCharacters).toHaveBeenCalledWith(mockCharacters);
+      expect(mockCharacterStorage.mergeSyncedCharacters).toHaveBeenCalledWith(
+        mockCharacters,
+        mockCharacters,
+      );
       expect(mockCharacterService.loadCharacter).toHaveBeenCalledWith("char-1");
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/sync/characters"),
@@ -218,7 +228,11 @@ describe("SyncService", () => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ characters: mockCharacters }),
+          body: JSON.stringify({
+            accountId: "user-123",
+            protocolVersion: 2,
+            characters: mockCharacters,
+          }),
         }),
       );
       expect(dispatchEventSpy).toHaveBeenCalledWith(
@@ -252,6 +266,56 @@ describe("SyncService", () => {
 
       await expect(syncService.syncCharacters()).rejects.toThrow("Server error");
     });
+  });
+
+  it("coalesces simultaneous sync requests", async () => {
+    mockCharacterStorage.getAllCharacters.mockResolvedValue([]);
+    let release!: (response: unknown) => void;
+    (global.fetch as Mock).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    const first = syncService.syncCharacters();
+    const second = syncService.syncCharacters();
+    expect(first).toBe(second);
+    await vi.waitFor(() => expect(release).toBeDefined());
+    release({
+      ok: true,
+      json: async () => ({
+        characters: [],
+        syncedAt: Date.now(),
+        characterCount: 0,
+        maxCharacters: 30,
+      }),
+    });
+    await first;
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+  it("does not merge a response after the account changes", async () => {
+    mockCharacterStorage.getAllCharacters.mockResolvedValue([]);
+    let release!: (response: unknown) => void;
+    (global.fetch as Mock).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    const operation = syncService.syncCharacters();
+    await vi.waitFor(() => expect(release).toBeDefined());
+    vi.mocked(authService.getCurrentUserId).mockReturnValueOnce("different-user");
+    release({
+      ok: true,
+      json: async () => ({
+        characters: [],
+        syncedAt: Date.now(),
+        characterCount: 0,
+        maxCharacters: 30,
+      }),
+    });
+    await expect(operation).rejects.toThrow("Account changed");
+    expect(mockCharacterStorage.mergeSyncedCharacters).not.toHaveBeenCalled();
   });
 
   describe("deleteCharacterBackup", () => {

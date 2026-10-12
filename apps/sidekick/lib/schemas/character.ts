@@ -195,6 +195,7 @@ const favoritesSchema = z.object({
 });
 
 const characterBaseSchema = z.object({
+  _inventoryRevision: z.number().int().min(0).optional(),
   id: z.uuidv4(),
   name: z.string().min(1).max(50),
   ancestryId: z.string().min(1),

@@ -1,5 +1,6 @@
 import { openWidgetPicker } from "./ui-fixtures";
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 async function ready(page: Page) {
   await page.goto("/");
   await expect(page.getByRole("main", { name: "GM screen" })).toBeVisible();
@@ -14,6 +15,101 @@ async function saved(page: Page) {
     page.getByRole("status").filter({ hasText: "Saved on this device" }),
   ).toBeVisible();
 }
+
+test("a campaign monster can be built, edited, exported and restored offline", async ({
+  page,
+  context,
+}) => {
+  await ready(page);
+  await library(page);
+  const browse = page.getByRole("dialog", {
+    name: "Campaign library",
+    exact: true,
+  });
+  await browse
+    .getByRole("button", { name: "Create content", exact: true })
+    .click();
+  await browse
+    .getByLabel("New content type", { exact: true })
+    .selectOption("monster");
+  await browse
+    .getByLabel("New content title", { exact: true })
+    .fill("Ashen sentinel");
+  await browse.getByLabel("Monster HP", { exact: true }).fill("35");
+  await browse.getByLabel("Monster level", { exact: true }).fill("2");
+  await browse.getByLabel("Monster armor", { exact: true }).fill("heavy");
+  await browse
+    .getByLabel("New content Markdown", { exact: true })
+    .fill("Guards the ruined bridge.");
+  await browse
+    .getByRole("button", { name: "Create reference", exact: true })
+    .click();
+  const preview = page.getByRole("dialog", {
+    name: "Ashen sentinel",
+    exact: true,
+  });
+  await expect(preview).toContainText("35");
+  await preview
+    .getByRole("button", { name: "Edit content", exact: true })
+    .click();
+  await page
+    .getByLabel("Content title", { exact: true })
+    .fill("Tempered sentinel");
+  await page.getByLabel("Monster HP", { exact: true }).fill("60");
+  await page.getByLabel("Monster level", { exact: true }).fill("3");
+  await page.getByRole("button", { name: "Save content", exact: true }).click();
+  const updated = page.getByRole("dialog", {
+    name: "Tempered sentinel",
+    exact: true,
+  });
+  await expect(updated).toContainText("60");
+  await updated
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
+  await browse
+    .getByRole("button", { name: "Import / export content", exact: true })
+    .click();
+  const exchange = page.getByRole("dialog", {
+    name: "Import and export content",
+    exact: true,
+  });
+  await exchange.getByText(/Select records \(/).click();
+  await exchange
+    .getByRole("button", { name: "Select none", exact: true })
+    .click();
+  await exchange
+    .getByLabel("Tempered sentinel · monster", { exact: true })
+    .check();
+  await exchange
+    .getByRole("combobox", { name: "Export format", exact: true })
+    .selectOption("nimbrew");
+  await exchange
+    .getByRole("button", { name: "Preview export", exact: true })
+    .click();
+  const download = page.waitForEvent("download");
+  await exchange
+    .getByRole("button", { name: "Download export", exact: true })
+    .click();
+  const exported = JSON.parse(
+    await readFile((await (await download).path())!, "utf8"),
+  );
+  expect(exported.name).toBe("Tempered sentinel");
+  expect(String(exported.hp)).toBe("60");
+  await exchange
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
+  await saved(page);
+  await context.setOffline(true);
+  await page.reload();
+  await ready(page);
+  await library(page);
+  await browse
+    .getByLabel("Search content", { exact: true })
+    .fill("Tempered sentinel");
+  await browse.getByRole("button", { name: /^Tempered sentinel/ }).click();
+  await expect(updated).toContainText("60");
+  await expect(updated).toContainText("Guards the ruined bridge.");
+});
 test("library row icons edit, pin and delete campaign content with confirmation and offline persistence", async ({
   page,
   context,

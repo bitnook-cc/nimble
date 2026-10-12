@@ -1,44 +1,25 @@
-/**
- * URL Validator Utility
- *
- * Prevents open redirect attacks by validating return URLs.
- * Only allows relative paths that don't bypass validation.
- */
+const hasUnsafeCharacters = (value: string) =>
+  value.includes("\\") || [...value].some((char) => char.charCodeAt(0) <= 32);
 
-/**
- * Validates a return URL to prevent open redirect attacks
- *
- * @param url - The URL to validate
- * @returns true if the URL is safe to redirect to, false otherwise
- *
- * Security checks:
- * - Must be a non-empty string
- * - Must start with `/` (relative path only)
- * - Must not start with `//` (protocol-relative URL)
- * - Must not contain `://` (absolute URL)
- * - Must not start with blocklisted paths
- */
-export function isValidReturnUrl(url: string): boolean {
-  // Check for empty or non-string values
-  if (!url || typeof url !== 'string') {
-    return false
+/** Accept normalized same-origin application paths only. */
+export function isValidReturnUrl(value: string): boolean {
+  if (
+    typeof value !== "string" ||
+    !value.startsWith("/") ||
+    hasUnsafeCharacters(value)
+  )
+    return false;
+  try {
+    const url = new URL(value, "https://portal.invalid");
+    if (url.origin !== "https://portal.invalid") return false;
+    const path = decodeURIComponent(url.pathname).toLowerCase();
+    return (
+      !hasUnsafeCharacters(path) &&
+      !["/api", "/admin", "/auth"].some(
+        (prefix) => path === prefix || path.startsWith(prefix + "/"),
+      )
+    );
+  } catch {
+    return false;
   }
-
-  // Must start with `/` (relative path)
-  if (!url.startsWith('/')) {
-    return false
-  }
-
-  // Reject protocol-relative URLs (//) and path traversal
-  if (url.startsWith('//') || url.includes('://')) {
-    return false
-  }
-
-  // Blocklist dangerous paths
-  const blocklist = ['/api/', '/admin/', '/auth/']
-  if (blocklist.some(path => url.startsWith(path))) {
-    return false
-  }
-
-  return true
 }

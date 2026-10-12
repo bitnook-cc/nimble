@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { Request as VercelRequest, Response as VercelResponse } from 'express';
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import handler from '../interactions';
 

@@ -1,7 +1,7 @@
+import { randomBytes } from "node:crypto";
+import { validateCallbackUrl, validOAuthState } from "../config/security.js";
 import { Router } from "express";
 import passport from "passport";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "../config/session.js";
 import { PrismaClient } from "@prisma/client";
 import { AuthService } from "../services/auth-service.js";
 
@@ -9,72 +9,71 @@ const router = Router();
 const prisma = new PrismaClient();
 const authService = new AuthService(prisma);
 
-// Google OAuth login
-router.get("/google", (req, res, next) => {
-  // Pass the redirect URI through the state parameter
-  const redirectUri = (req.query.redirect_uri as string) || "";
-
-  // Encode the redirect URI in the state parameter
-  const state = Buffer.from(JSON.stringify({ redirectUri })).toString("base64");
-
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    state: state,
-  })(req, res, next);
+// Bind each OAuth callback to the browser that initiated it.
+router.get("/google", async (req, res, next) => {
+  try {
+    const redirectUri = validateCallbackUrl(req.query.redirect_uri);
+    if (!redirectUri)
+      return res.status(400).json({ error: "Invalid callback URL" });
+    const session = req.session;
+    const state = randomBytes(32).toString("hex");
+    session.googleOAuth = { state, redirectUri, createdAt: Date.now() };
+    await session.save();
+    passport.authenticate("google", { scope: ["profile", "email"], state })(
+      req,
+      res,
+      next,
+    );
+  } catch (error) {
+    next(error);
+  }
 });
 
-// Google OAuth callback
-router.get("/google/callback", (req, res, next) => {
-  // Store state in request for failure handling
-  const state = req.query.state as string;
-  const failureRedirect = state
-    ? `/auth/failure?state=${encodeURIComponent(state)}`
-    : "/auth/failure";
-
-  passport.authenticate("google", { session: false }, async (err, user) => {
-    if (err || !user) {
-      return res.redirect(failureRedirect);
-    }
-
-    // Save user to iron-session
-    const session = await getIronSession<SessionData>(req, res, sessionOptions);
-    session.user = user;
+router.get("/google/callback", async (req, res, next) => {
+  try {
+    const session = req.session;
+    const pending = session.googleOAuth;
+    delete session.googleOAuth;
     await session.save();
-
-    // Decode the state parameter to get the redirect URI
-    let redirectUri = "";
-
-    if (req.query.state) {
-      try {
-        const stateData = JSON.parse(
-          Buffer.from(req.query.state as string, "base64").toString(),
-        );
-        redirectUri = stateData.redirectUri || "";
-      } catch (error) {
-        console.error("Failed to decode state:", error);
-      }
+    if (!validOAuthState(req.query.state, pending) || !pending) {
+      return res
+        .status(400)
+        .json({ error: "Invalid or expired OAuth state; start login again" });
     }
-
-    // Fallback to a default if no redirect URI
-    if (!redirectUri) {
-      redirectUri = `${req.protocol}://${req.get("host")}/auth/callback`;
-    }
-
-    // Redirect to the client callback page with success status
-    res.redirect(`${redirectUri}?status=success`);
-  })(req, res, next);
+    const callback = new URL(pending.redirectUri);
+    passport.authenticate(
+      "google",
+      { session: false },
+      async (err: unknown, user: import("@nimble/shared").AuthUser | false) => {
+        try {
+          if (err || !user) {
+            callback.searchParams.set("status", "failed");
+          } else {
+            session.user = user;
+            await session.save();
+            callback.searchParams.set("status", "success");
+          }
+          res.redirect(callback.href);
+        } catch (error) {
+          next(error);
+        }
+      },
+    )(req, res, next);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Logout
 router.post("/logout", async (req, res) => {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  const session = req.session;
   session.destroy();
   res.json({ message: "Logged out successfully" });
 });
 
 // Get current user
 router.get("/user", async (req, res) => {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  const session = req.session;
 
   if (!session.user) {
     res.status(401).json({ error: "Not authenticated" });
@@ -91,29 +90,8 @@ router.get("/user", async (req, res) => {
   }
 });
 
-// Authentication failure
-router.get("/failure", (req, res) => {
-  // Decode the state parameter to get the redirect URI
-  let redirectUri = "";
-
-  if (req.query.state) {
-    try {
-      const stateData = JSON.parse(
-        Buffer.from(req.query.state as string, "base64").toString(),
-      );
-      redirectUri = stateData.redirectUri || "";
-    } catch (error) {
-      console.error("Failed to decode state:", error);
-    }
-  }
-
-  // Fallback to a default if no redirect URI
-  if (!redirectUri) {
-    redirectUri = `${req.protocol}://${req.get("host")}/auth/callback`;
-  }
-
-  // Redirect to the client callback page with failure status
-  res.redirect(`${redirectUri}?status=failed`);
+router.get("/failure", (_req, res) => {
+  res.status(401).json({ error: "Authentication failed; start login again" });
 });
 
 export default router;

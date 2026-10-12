@@ -1,17 +1,23 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Sidebar } from '@/components/navigation/Sidebar'
-import { SearchBar } from '@/components/search/SearchBar'
-import { TopNav } from '@/components/top-nav'
+import type { ContentSearch } from "@/types/content";
+import { useState } from "react";
+import { Sidebar } from "@/components/navigation/Sidebar";
+import { SearchBar } from "@/components/search/SearchBar";
+import { TopNav } from "@/components/top-nav";
 
 interface VaultLayoutProps {
-  children: React.ReactNode
-  userTags: string[]
+  children: React.ReactNode;
+  userTags: string[];
+  searchContent: ContentSearch[];
 }
 
-export function VaultLayout({ children, userTags }: VaultLayoutProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+export function VaultLayout({
+  children,
+  userTags,
+  searchContent,
+}: VaultLayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex h-screen flex-col">
@@ -32,16 +38,19 @@ export function VaultLayout({ children, userTags }: VaultLayoutProps) {
           className={`
             fixed md:static inset-y-0 left-0 z-50
             w-64 transform transition-transform duration-300 md:transform-none
-            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           `}
         >
-          <Sidebar userTags={userTags} />
+          <Sidebar
+            userTags={userTags}
+            onClose={() => setMobileMenuOpen(false)}
+          />
         </div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="bg-white border-b border-border p-4 flex items-center justify-between">
-            <SearchBar userTags={userTags} />
+            <SearchBar content={searchContent} />
           </div>
           <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-card to-secondary">
             {children}
@@ -49,5 +58,5 @@ export function VaultLayout({ children, userTags }: VaultLayoutProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
