@@ -239,7 +239,7 @@ for (const kind of ["standard", "legendary"] as const) {
     await nameInput.fill("Ashen sentinel");
     await page.getByRole("button", { name: "Save monster", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Ashen sentinel", exact: true })).toBeVisible();
-    expect(commands.at(-1)).toMatchObject({
+    expect(commands[commands.length - 1]).toMatchObject({
       type: "monster",
       entry: { name: "Ashen sentinel", kind },
     });
