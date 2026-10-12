@@ -183,6 +183,7 @@ export function SkillsList({
                               variant="outline"
                               size="sm"
                               onClick={() => handleSkillRoll(skill.name, skill.attribute)}
+                              aria-label={`Roll ${skill.label} check`}
                               className="w-6 h-6 p-0 ml-1"
                             >
                               <Dice6 className="w-3 h-3" />

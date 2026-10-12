@@ -1,0 +1,196 @@
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "E2E Mage",
+  "ancestryId": "human",
+  "backgroundId": "fearless",
+  "level": 6,
+  "classId": "mage",
+  "traitSelections": [],
+  "_schemaVersion": 5,
+  "_spellTierAccess": 0,
+  "_spellScalingLevel": 0,
+  "_proficiencies": {
+    "armor": [
+      {
+        "type": "cloth"
+      }
+    ],
+    "weapons": [
+      {
+        "type": "freeform",
+        "name": "Blades, Staves, Wands"
+      }
+    ]
+  },
+  "_attributes": {
+    "strength": 0,
+    "dexterity": 1,
+    "intelligence": 2,
+    "will": 2
+  },
+  "_initiative": {
+    "name": "Initiative",
+    "associatedAttribute": "dexterity",
+    "modifier": 0,
+    "advantage": 0
+  },
+  "_skills": {
+    "arcana": {
+      "name": "Arcana",
+      "associatedAttribute": "intelligence",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "examination": {
+      "name": "Examination",
+      "associatedAttribute": "intelligence",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "finesse": {
+      "name": "Finesse",
+      "associatedAttribute": "dexterity",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "influence": {
+      "name": "Influence",
+      "associatedAttribute": "will",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "insight": {
+      "name": "Insight",
+      "associatedAttribute": "will",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "might": {
+      "name": "Might",
+      "associatedAttribute": "strength",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "lore": {
+      "name": "Lore",
+      "associatedAttribute": "intelligence",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "naturecraft": {
+      "name": "Naturecraft",
+      "associatedAttribute": "will",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "perception": {
+      "name": "Perception",
+      "associatedAttribute": "will",
+      "modifier": 0,
+      "advantage": 0
+    },
+    "stealth": {
+      "name": "Stealth",
+      "associatedAttribute": "dexterity",
+      "modifier": 0,
+      "advantage": 0
+    }
+  },
+  "_abilities": [],
+  "_abilityUses": {},
+  "_hitDice": {
+    "size": 6,
+    "current": 6,
+    "max": 6
+  },
+  "saveAdvantages": {
+    "strength": "disadvantage",
+    "intelligence": "advantage"
+  },
+  "hitPoints": {
+    "current": 30,
+    "max": 30,
+    "temporary": 0
+  },
+  "wounds": {
+    "current": 0
+  },
+  "_resourceDefinitions": [],
+  "_resourceValues": {
+    "mana": {
+      "type": "numerical",
+      "value": 12
+    }
+  },
+  "_dicePools": [],
+  "_favorites": {
+    "spells": []
+  },
+  "config": {
+    "maxWounds": 6,
+    "maxInventorySize": 10,
+    "skillPoints": {
+      "startingPoints": 4,
+      "pointsPerLevel": 1
+    }
+  },
+  "speed": 6,
+  "actionTracker": {
+    "base": 3,
+    "bonus": 0,
+    "current": 3
+  },
+  "inEncounter": true,
+  "inventory": {
+    "maxSize": 10,
+    "items": [
+      {
+        "id": "e2e-item-0",
+        "name": "Adventurer's Garb",
+        "size": 1,
+        "description": "Sturdy traveling clothes suitable for adventure.",
+        "cost": {
+          "gold": 10
+        },
+        "type": "armor",
+        "equipped": true,
+        "armor": 2,
+        "maxDexBonus": 10,
+        "isMainArmor": true,
+        "properties": ["Cloth"]
+      },
+      {
+        "id": "e2e-item-1",
+        "name": "Staff",
+        "size": 2,
+        "description": "A long wooden staff, simple but effective in trained hands.",
+        "cost": {
+          "gold": 8
+        },
+        "type": "weapon",
+        "equipped": true,
+        "attribute": "strength",
+        "damage": "1d8 + STR",
+        "damageType": "Bludgeoning",
+        "properties": ["2-handed"]
+      },
+      {
+        "id": "e2e-item-2",
+        "name": "Soap",
+        "size": 0,
+        "description": "A bar of soap for cleaning and hygiene.",
+        "type": "freeform"
+      }
+    ],
+    "currency": {
+      "gold": 0,
+      "silver": 0
+    },
+    "itemOrder": []
+  },
+  "notes": [],
+  "timestamps": {
+    "createdAt": 1700000000000,
+    "updatedAt": 1700000000000
+  }
+}

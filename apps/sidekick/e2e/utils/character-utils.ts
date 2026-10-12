@@ -19,48 +19,19 @@ export class CharacterTestUtils {
       name: /create new character/i,
     });
 
-    if (await createNewCharacterButton.isVisible({ timeout: 2000 })) {
+    const quickCreateButton = this.page.getByRole("button", { name: /quick create/i });
+    if (!(await quickCreateButton.isVisible())) {
       // We're in the character selector, click "Create New Character"
       await createNewCharacterButton.click();
-
-      // Wait for the form to appear
-      await this.page.waitForTimeout(500);
     }
 
     // Look for the Quick Create button
-    const quickCreateButton = this.page.getByRole("button", { name: /quick create/i });
     await expect(quickCreateButton).toBeVisible({ timeout });
     await quickCreateButton.click();
 
-    // Wait for character creation to complete
-    // This could be indicated by:
-    // 1. A success message
-    // 2. The character name appearing in the interface
-    // 3. Character sheet tabs becoming visible
-    await this.page.waitForTimeout(2000); // Give time for character creation and state updates
-
-    // Verify character was created by checking for character-specific UI elements
-    const characterIndicators = [
-      this.page.getByText(/character/i),
-      this.page.getByRole("tab", { name: /combat|skills|equipment/i }),
-      this.page.getByText(/level \d+/i),
-    ];
-
-    // Wait for at least one indicator to appear
-    let characterCreated = false;
-    for (const indicator of characterIndicators) {
-      try {
-        await expect(indicator).toBeVisible({ timeout: 3000 });
-        characterCreated = true;
-        break;
-      } catch {
-        // Continue to next indicator
-      }
-    }
-
-    if (!characterCreated) {
-      throw new Error("Character creation failed or character indicators not found");
-    }
+    await expect(
+      this.page.getByRole("textbox", { name: "Character Name", exact: true }),
+    ).toBeVisible({ timeout });
   }
 
   /**
@@ -68,29 +39,9 @@ export class CharacterTestUtils {
    * This is a safe method that won't fail if a character already exists
    */
   async ensureCharacterExists(): Promise<void> {
-    try {
-      // Check if we're already in a character sheet (look for character-specific elements)
-      const characterSheetIndicators = [
-        this.page.getByRole("tab", { name: /combat/i }),
-        this.page.getByRole("tab", { name: /skills/i }),
-        this.page.getByText(/hit points|hp/i),
-      ];
-
-      let hasCharacter = false;
-      for (const indicator of characterSheetIndicators) {
-        if (await indicator.isVisible({ timeout: 1000 })) {
-          hasCharacter = true;
-          break;
-        }
-      }
-
-      if (!hasCharacter) {
-        // No character detected, create one
-        await this.createCharacter();
-      }
-    } catch (error) {
-      // If anything fails, try to create a character
-      console.log("Failed to detect existing character, attempting to create new one:", error);
+    if (
+      !(await this.page.getByRole("textbox", { name: "Character Name", exact: true }).isVisible())
+    ) {
       await this.createCharacter();
     }
   }
@@ -129,24 +80,20 @@ export class CharacterTestUtils {
   }
 
   /**
-   * Performs a dice roll by clicking any available roll button
+   * Performs a real custom roll and verifies its visible activity entry.
    */
   async performDiceRoll(): Promise<void> {
-    const rollPatterns = [
-      /roll|dice/i,
-      /strength|dexterity|intelligence|will/i,
-      /attack|cast|use|action/i,
-      /acrobatics|athletics|stealth|perception/i,
-    ];
-
-    const rollButton = await this.getFirstVisibleButton(rollPatterns);
-    await rollButton.click();
-
-    // Wait for roll result to appear in activity log
-    // Roll entries render description as a span with "check", "save", "roll", or "attack" text
-    await expect(this.page.getByText(/check|save|roll|attack/i).first()).toBeVisible({
-      timeout: 3000,
-    });
+    await this.page.getByRole("button", { name: "Open dice roller", exact: true }).click();
+    const panel = this.page.getByRole("menu", { name: "Open dice roller", exact: true });
+    await panel.getByRole("button", { name: "d20", exact: true }).click();
+    await panel.getByRole("button", { name: "Roll (1 dice)", exact: true }).click();
+    await this.page.keyboard.press("Escape");
+    await this.page.getByRole("button", { name: "Log", exact: true }).click();
+    const log = this.page
+      .locator('[data-slot="card"]')
+      .filter({ has: this.page.getByText("Character Log", { exact: true }) });
+    await expect(log.getByText("Custom roll", { exact: true }).last()).toBeVisible();
+    await expect(log.getByText("(1d20)", { exact: true }).last()).toBeVisible();
   }
 
   /**
