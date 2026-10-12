@@ -1,0 +1,28 @@
+- dialog "Flame Dart":
+  - heading "Flame Dart" [level=2]
+  - button "Close dialog"
+  - button "Pin to screen"
+  - button "Copy reference"
+  - button "Export Markdown"
+  - button "Make campaign copy"
+  - paragraph: spell · Magic / Fire Spells · d8a939a
+  - paragraph: Nimble Core Rules
+  - term: school
+  - definition: Fire Spells
+  - term: tier
+  - definition: "0"
+  - term: actions
+  - definition: "1"
+  - term: target
+  - definition: "type: single · kind: range · distance: 10"
+  - paragraph:
+    - strong: "Damage:"
+    - text: "1d10. On crit: Smoldering."
+  - paragraph:
+    - strong: "Higher levels:"
+    - text: +5 damage every 5 levels.
+  - heading "Related content" [level=3]
+  - button "Fire Spells"
+  - group: Source and attribution
+  - heading "Referenced by" [level=3]
+  - button "Fire Spells"

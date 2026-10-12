@@ -10,7 +10,10 @@ import {
 } from "@/lib/monsters/storage";
 import { anyMonsterSchema } from "@/lib/monsters/schemas";
 import { GuidedBuilder } from "@/components/monsters/guided-builder";
-import { downloadNimbrewJson } from "@/lib/monsters/nimbrew-export";
+import {
+  downloadNimbrewJson,
+  downloadMonsterJson,
+} from "@/lib/monsters/nimbrew-export";
 import { LegendaryGuidedBuilder } from "@/components/monsters/legendary-guided-builder";
 import { MonsterStatBlock } from "@/components/monsters/monster-stat-block";
 import type { AnyMonster } from "@/lib/monsters/types";
@@ -80,7 +83,14 @@ export default function EditMonsterPage({
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => downloadMonsterJson(monster)}
+            className="flex items-center gap-2 px-4 py-2 border border-border rounded-md text-sm hover:bg-muted"
+          >
+            <Download className="w-4 h-4" />
+            Campaign JSON
+          </button>
           <button
             onClick={() => downloadNimbrewJson(monster)}
             className="flex items-center gap-2 px-4 py-2 border border-border text-muted-foreground rounded-md text-sm font-medium hover:bg-muted"
@@ -120,8 +130,14 @@ export default function EditMonsterPage({
             type="checkbox"
             checked={monster.builderConfig?.nimbleDice ?? true}
             onChange={(e) => {
-              const newConfig = { ...monster.builderConfig, nimbleDice: e.target.checked } as NonNullable<typeof monster.builderConfig>;
-              setMonster({ ...monster, builderConfig: newConfig } as AnyMonster);
+              const newConfig = {
+                ...monster.builderConfig,
+                nimbleDice: e.target.checked,
+              } as NonNullable<typeof monster.builderConfig>;
+              setMonster({
+                ...monster,
+                builderConfig: newConfig,
+              } as AnyMonster);
             }}
             className="rounded border-border"
           />

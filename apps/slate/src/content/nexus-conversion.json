@@ -1,0 +1,685 @@
+{
+  "revision": "d8a939aa69752d92c05ba9760b60b2dadae07485",
+  "counts": {
+    "records": 443,
+    "terms": 36,
+    "assets": 6,
+    "byKind": {
+      "rule": 136,
+      "spell": 99,
+      "ancestry": 27,
+      "background": 31,
+      "table": 3,
+      "item": 89,
+      "class": 12,
+      "subclass": 28,
+      "faq": 18
+    }
+  },
+  "inventory": [
+    {
+      "file": "data/official/core/ancestries.json",
+      "sha256": "80a78aa3c2510cd2c2801eab18f79ba82e80201ca0675743e23d79fd801256be",
+      "resources": 24,
+      "ids": [
+        "ancestry/human",
+        "ancestry/dwarf",
+        "ancestry/elf",
+        "ancestry/halfling",
+        "ancestry/gnome",
+        "ancestry/bunbun",
+        "ancestry/dragonborn",
+        "ancestry/fiendkin",
+        "ancestry/goblin",
+        "ancestry/kobold",
+        "ancestry/orc",
+        "ancestry/birdfolk",
+        "ancestry/celestial",
+        "ancestry/changeling",
+        "ancestry/crystalborn",
+        "ancestry/dryadshroomling",
+        "ancestry/half-giant",
+        "ancestry/minotaurbeastfolk",
+        "ancestry/oozelingconstruct",
+        "ancestry/planarbeing",
+        "ancestry/ratfolk",
+        "ancestry/stoatling",
+        "ancestry/turtlefolkstonefolk",
+        "ancestry/wyrdling"
+      ]
+    },
+    {
+      "file": "data/official/core/backgrounds.json",
+      "sha256": "c87b672ca06037de5416209f28e8abffca5ee9e932fb844f8e9e8485cf5d49e6",
+      "resources": 24,
+      "ids": [
+        "background/back-out-of-retirement",
+        "background/devoted-protector",
+        "background/academy-dropout",
+        "background/made-a-bad-choice",
+        "background/haunted-past",
+        "background/ear-to-the-ground",
+        "background/what-ive-been-around",
+        "background/acrobat",
+        "background/wild-one",
+        "background/fey-touched",
+        "background/survivalist",
+        "background/home-at-sea",
+        "background/at-home-underground",
+        "background/raised-by-goblins",
+        "background/history-buff",
+        "background/former-con-artist",
+        "background/secretly-undead",
+        "background/taste-for-the-finer-things",
+        "background/fearless",
+        "background/so-dumb-im-smart-sometimes",
+        "background/wily-underdog",
+        "background/bumblewise",
+        "background/accidental-acrobat",
+        "background/tradesmanartisan"
+      ]
+    },
+    {
+      "file": "data/official/core/equipment-tables.json",
+      "sha256": "cc16186a2465c31332a1bb44b44b1bb524bc3e7e32bd739da12055fca2fc6285",
+      "resources": 3,
+      "ids": [
+        "table/armor-defense",
+        "item/equipment/armor-defense/cloth/1-adventurers-garb",
+        "item/equipment/armor-defense/cloth/2-minor-enchantment",
+        "item/equipment/armor-defense/cloth/3-major-enchantment",
+        "item/equipment/armor-defense/cloth/4-epic-enchantment",
+        "item/equipment/armor-defense/leather/1-cheap-hides",
+        "item/equipment/armor-defense/leather/2-ox-hide",
+        "item/equipment/armor-defense/leather/3-hard-leather-req-1-str",
+        "item/equipment/armor-defense/leather/4-wyrmhide-req-1-str",
+        "item/equipment/armor-defense/mail/1-rusty-mail",
+        "item/equipment/armor-defense/mail/2-chain-shirt-req-2-str",
+        "item/equipment/armor-defense/mail/3-scale-mail-req-3-str",
+        "item/equipment/armor-defense/mail/4-dragonscale-req-4-str",
+        "item/equipment/armor-defense/plate/1-rusty-plate-req-2-str",
+        "item/equipment/armor-defense/plate/2-half-plate-req-3-str",
+        "item/equipment/armor-defense/plate/3-full-plate-req-4-str",
+        "item/equipment/armor-defense/plate/4-adamantine-plate-req-5-str",
+        "item/equipment/armor-defense/shields/1-wooden-buckler",
+        "item/equipment/armor-defense/shields/2-iron-shield-req-2-str",
+        "item/equipment/armor-defense/shields/3-tower-shield-req-3-str",
+        "item/equipment/armor-defense/shields/4-dragon-shield-req-3-str",
+        "table/weapons",
+        "item/equipment/weapons/melee-weapons/1-dagger",
+        "item/equipment/weapons/melee-weapons/2-sickle",
+        "item/equipment/weapons/melee-weapons/3-clubmace",
+        "item/equipment/weapons/melee-weapons/4-hand-axe",
+        "item/equipment/weapons/melee-weapons/5-spear",
+        "item/equipment/weapons/melee-weapons/6-short-sword",
+        "item/equipment/weapons/melee-weapons/7-rapier",
+        "item/equipment/weapons/melee-weapons/8-staff",
+        "item/equipment/weapons/melee-weapons/9-longsword",
+        "item/equipment/weapons/melee-weapons/10-battleaxe",
+        "item/equipment/weapons/melee-weapons/11-pole-hammer",
+        "item/equipment/weapons/melee-weapons/12-glaive",
+        "item/equipment/weapons/melee-weapons/13-great-spear",
+        "item/equipment/weapons/melee-weapons/14-greatmaul",
+        "item/equipment/weapons/melee-weapons/15-greataxe",
+        "item/equipment/weapons/melee-weapons/16-greatsword",
+        "item/equipment/weapons/ranged-weapons/1-sling",
+        "item/equipment/weapons/ranged-weapons/2-javelins",
+        "item/equipment/weapons/ranged-weapons/3-throwing-hammers",
+        "item/equipment/weapons/ranged-weapons/4-shortbow",
+        "item/equipment/weapons/ranged-weapons/5-longbow",
+        "item/equipment/weapons/ranged-weapons/6-crossbow",
+        "item/equipment/weapons/ranged-weapons/7-handheld-ballista",
+        "table/misc-adventuring-equipment",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/1-healing-potion",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/2-greater-healing-potion",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/3-supreme-healing-potion",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/4-torch-stack-of-2",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/5-lantern-oil",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/6-medical-kit-1-use",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/7-vial-of-pitch",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/8-rope-50-ft",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/9-chain-10-ft",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/10-bucket",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/11-padlock-key",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/12-mirror",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/13-telescope",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/14-magnifying-glass",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/15-chalk",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/16-shovel",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/17-pulley",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/18-grappling-hook",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/19-quiver-ammo",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/20-saw",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/21-soap",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/22-strange-plant",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/23-shiny-object",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/24-lock-pick",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/25-bell",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/26-dice",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/27-blanket",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/28-hunting-trap",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/29-camping-supplies",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/30-crowbar",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/31-pitons",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/32-manacles",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/33-instrument",
+        "item/equipment/misc-adventuring-equipment/misc-adventuring-equipment/34-large-sack"
+      ]
+    },
+    {
+      "file": "data/official/core/spell-schools.json",
+      "sha256": "6a04dea4ef0ab084f72ef5867183af3d71aca258d51efbca24d1a22d83fb70ff",
+      "resources": 6,
+      "ids": [
+        "school/fire-spells",
+        "spell/fire-spells/hearth-home",
+        "spell/fire-spells/fire-step",
+        "spell/fire-spells/firebrand",
+        "spell/fire-spells/flame-dart",
+        "spell/fire-spells/hearts-fire",
+        "spell/fire-spells/kindle",
+        "spell/fire-spells/ignite",
+        "spell/fire-spells/enchant-weapon",
+        "spell/fire-spells/flame-barrier",
+        "spell/fire-spells/pyroclasm",
+        "spell/fire-spells/fiery-embrace",
+        "spell/fire-spells/living-inferno",
+        "spell/fire-spells/dragonform",
+        "school/ice-spells",
+        "spell/ice-spells/cryosleep",
+        "spell/ice-spells/cryotomb",
+        "spell/ice-spells/chillcraft",
+        "spell/ice-spells/ice-disk",
+        "spell/ice-spells/ice-lance",
+        "spell/ice-spells/snowblind",
+        "spell/ice-spells/wintry-scrying",
+        "spell/ice-spells/frost-shield",
+        "spell/ice-spells/shatter",
+        "spell/ice-spells/omenrime",
+        "spell/ice-spells/rimeblades",
+        "spell/ice-spells/arctic-blast",
+        "spell/ice-spells/glacier-strike",
+        "spell/ice-spells/arctic-annihilation",
+        "school/lightning-spells",
+        "spell/lightning-spells/sparkfetch",
+        "spell/lightning-spells/teleport",
+        "spell/lightning-spells/overload",
+        "spell/lightning-spells/spark-buddy",
+        "spell/lightning-spells/spark-step",
+        "spell/lightning-spells/tempests-command",
+        "spell/lightning-spells/zap",
+        "spell/lightning-spells/arc-lightning",
+        "spell/lightning-spells/alacrity",
+        "spell/lightning-spells/stormlash",
+        "spell/lightning-spells/electrickery",
+        "spell/lightning-spells/electrocharge",
+        "spell/lightning-spells/ride-the-lightning",
+        "spell/lightning-spells/seething-storm",
+        "school/necrotic-spells",
+        "spell/necrotic-spells/shadow-blast",
+        "spell/necrotic-spells/summon-shadow",
+        "spell/necrotic-spells/memory-veil",
+        "spell/necrotic-spells/greater-shadow",
+        "spell/necrotic-spells/speak-with-dead",
+        "spell/necrotic-spells/entice",
+        "spell/necrotic-spells/false-face",
+        "spell/necrotic-spells/gravecraft",
+        "spell/necrotic-spells/thought-leech",
+        "spell/necrotic-spells/withering-touch",
+        "spell/necrotic-spells/shadow-trap",
+        "spell/necrotic-spells/dread-visage",
+        "spell/necrotic-spells/vampiric-greed",
+        "spell/necrotic-spells/vigor-mortis",
+        "spell/necrotic-spells/gangrenous-burst",
+        "spell/necrotic-spells/unspeakable-word",
+        "spell/necrotic-spells/creeping-death",
+        "school/radiant-spells",
+        "spell/radiant-spells/lifebinding-spirit",
+        "spell/radiant-spells/radiant-bond",
+        "spell/radiant-spells/revive",
+        "spell/radiant-spells/beautify",
+        "spell/radiant-spells/bond-of-peace",
+        "spell/radiant-spells/light",
+        "spell/radiant-spells/rebuke",
+        "spell/radiant-spells/true-strike",
+        "spell/radiant-spells/heal",
+        "spell/radiant-spells/warding-bond",
+        "spell/radiant-spells/condemn",
+        "spell/radiant-spells/shield-of-justice",
+        "spell/radiant-spells/vengeance",
+        "spell/radiant-spells/sacrifice",
+        "spell/radiant-spells/celestial-legion",
+        "spell/radiant-spells/redeem",
+        "school/wind-spells",
+        "spell/wind-spells/lesser-windform",
+        "spell/wind-spells/vicious-mockery",
+        "spell/wind-spells/fly",
+        "spell/wind-spells/greater-windform",
+        "spell/wind-spells/breath-of-life",
+        "spell/wind-spells/feather-fall",
+        "spell/wind-spells/helpful-gust",
+        "spell/wind-spells/razor-wind",
+        "spell/wind-spells/wind-whisper",
+        "spell/wind-spells/blustery-gale",
+        "spell/wind-spells/barrier-of-wind",
+        "spell/wind-spells/echoburst",
+        "spell/wind-spells/eye-of-the-storm",
+        "spell/wind-spells/updraft",
+        "spell/wind-spells/thousand-cuts",
+        "spell/wind-spells/boisterous-winds"
+      ]
+    },
+    {
+      "file": "data/official/gmg/bestiary.json",
+      "sha256": "630c94c98654b080ed2f481d49fe06360757c71d6202d746d7c48c671014b336",
+      "resources": 86,
+      "ids": [
+        "monster/bandit-minion",
+        "monster/goblin-minion",
+        "monster/kobold-minion",
+        "monster/snakeman-minion",
+        "monster/bandit",
+        "monster/goblin",
+        "monster/kobold",
+        "monster/skeleton",
+        "monster/stenchling",
+        "monster/stirge",
+        "monster/seedling",
+        "monster/kobold-sneak",
+        "monster/zombie",
+        "monster/bandit-hunter",
+        "monster/cultist",
+        "monster/tiny-mimic",
+        "monster/gray-ooze",
+        "monster/acidpod",
+        "monster/gnoll",
+        "monster/worg",
+        "monster/kobold-clanger",
+        "monster/kobold-trapper",
+        "monster/kobold-denwarden",
+        "monster/snakeman",
+        "monster/ghoul",
+        "monster/bandit-assassin",
+        "monster/bandit-bruiser",
+        "monster/small-mimic",
+        "monster/tangler",
+        "monster/bugbear",
+        "monster/goblin-taskmaster",
+        "monster/goblin-ratrider",
+        "monster/blue-drake",
+        "monster/giant-spider",
+        "monster/fanatic",
+        "monster/specter",
+        "monster/bandit-captain",
+        "monster/bandit-mage",
+        "monster/spiny-fiend",
+        "monster/ochre-jelly",
+        "monster/gnoll-packleader",
+        "monster/griffon",
+        "monster/cobra-captain",
+        "monster/ettercap",
+        "monster/doomsayer",
+        "monster/rootbreaker",
+        "monster/ogre-zombie",
+        "monster/greater-stirge",
+        "monster/medium-mimic",
+        "monster/duskprowler",
+        "monster/mummy",
+        "monster/nestweaver",
+        "monster/basilisk",
+        "monster/black-pudding",
+        "monster/druid",
+        "monster/giant-cobra",
+        "monster/giant-zombie",
+        "monster/bulette",
+        "monster/troll",
+        "monster/wraith",
+        "monster/umber-hulk",
+        "monster/elder-ooze",
+        "monster/hill-giant",
+        "monster/cloaker",
+        "monster/glabrezu",
+        "monster/treant",
+        "monster/great-worm",
+        "monster/roc",
+        "monster/mummy-lord",
+        "monster/alaric-draegoth-the-crimson-count",
+        "monster/azriel-lord-of-pain-flame",
+        "monster/dravok-all-seeing-tyrant",
+        "monster/florindris-bane-of-the-forest",
+        "monster/general-flameheart",
+        "monster/gloomwing-the-cruel",
+        "monster/grimbeak-the-unyielding",
+        "monster/nalzar-apex-predator",
+        "monster/pudge-the-blunderer",
+        "monster/queen-aranya-broodmother",
+        "monster/ravager-of-the-lowlands",
+        "monster/caerys-the-hollow-star",
+        "monster/thorn-quickblade",
+        "monster/titan-of-the-deep-woods",
+        "monster/ul-vek-psionic-despot",
+        "monster/vael-undying-necromancer",
+        "monster/wax-golem"
+      ]
+    },
+    {
+      "file": "data/official/heroes/classes.json",
+      "sha256": "fd64447168acbeedb2a9844776c9daf38f7ea9d20ac572aec77e700d49d22728",
+      "resources": 11,
+      "ids": [
+        "class/berserker",
+        "class/the-cheat",
+        "class/commander",
+        "class/hunter",
+        "class/mage",
+        "class/oathsworn",
+        "class/shadowmancer",
+        "class/shepherd",
+        "class/songweaver",
+        "class/stormshifter",
+        "class/zephyr"
+      ]
+    },
+    {
+      "file": "data/official/heroes/story-subclasses.json",
+      "sha256": "1bc664ba85290544aa3d2782c002b7a4a3d133b2b8e1a5b09cff809a9a6e944e",
+      "resources": 4,
+      "ids": [
+        "subclass/spellblade",
+        "subclass/beastmaster",
+        "subclass/oathbreaker",
+        "subclass/reaver"
+      ]
+    },
+    {
+      "file": "data/official/heroes/subclasses.json",
+      "sha256": "4fe6243c8a401248a499477b0193028d34a25a98e62d50752de77d3cbc654aa5",
+      "resources": 22,
+      "ids": [
+        "subclass/mountainheart",
+        "subclass/red-mist",
+        "subclass/scoundrel",
+        "subclass/silent-blade",
+        "subclass/bulwark",
+        "subclass/vanguard",
+        "subclass/shadowpath",
+        "subclass/wild-heart",
+        "subclass/chaos",
+        "subclass/control",
+        "subclass/refuge",
+        "subclass/vengeance",
+        "subclass/abyssal-depths",
+        "subclass/red-dragon",
+        "subclass/malice",
+        "subclass/mercy",
+        "subclass/courage",
+        "subclass/snark",
+        "subclass/fang-claw",
+        "subclass/sky-storm",
+        "subclass/flame",
+        "subclass/pain"
+      ]
+    },
+    {
+      "file": "data/official/other/hexbinder-class.json",
+      "sha256": "44e50c19815da6b79f4701122dfd54a7b4190feeb3125479c626e3c303a074de",
+      "resources": 1,
+      "ids": [
+        "class/hexbinder"
+      ]
+    },
+    {
+      "file": "data/official/other/hexbinder-spells.json",
+      "sha256": "36f82d514ac2e868c66b945b66a6c744256329a787a87e17fcffa2cad734c9cb",
+      "resources": 1,
+      "ids": [
+        "school/hexbinder-spells",
+        "spell/hexbinder-spells/misery",
+        "spell/hexbinder-spells/life-bloom",
+        "spell/hexbinder-spells/twitch-curse",
+        "spell/hexbinder-spells/bloodcurse",
+        "spell/hexbinder-spells/wyrding-strands",
+        "spell/hexbinder-spells/frogify",
+        "spell/hexbinder-spells/malediction",
+        "spell/hexbinder-spells/circle-of-thorns",
+        "spell/hexbinder-spells/terror"
+      ]
+    },
+    {
+      "file": "data/official/other/hexbinder-subclasses.json",
+      "sha256": "17180cf1c7867d30c5c08911f8fe1c418a19c95b7df371f7fbe24547c83466f7",
+      "resources": 2,
+      "ids": [
+        "subclass/hex",
+        "subclass/hunt"
+      ]
+    }
+  ],
+  "items": {
+    "url": "https://nimble.nexus/items",
+    "retrievedAt": "2026-10-11T11:48:45.447Z",
+    "count": 12,
+    "sources": [
+      {
+        "id": "01042ce4-c950-4523-8955-3149044f6523",
+        "name": "Core Rules 3.0",
+        "abbreviation": "Core3"
+      },
+      {
+        "id": "a2eb6171-ff25-42bc-bcfe-cf854b220a3d",
+        "name": "Nimble Core Rules",
+        "abbreviation": "Core"
+      },
+      {
+        "id": "d54f0b7d-f28e-40f1-ae89-763bc56dbe8c",
+        "name": "Nimble GMG",
+        "abbreviation": "GMG"
+      },
+      {
+        "id": "d67abaa4-2084-4a5c-adc5-790a5b4f7b6a",
+        "name": "Nimble Heroes Book",
+        "abbreviation": "Heroes"
+      },
+      {
+        "id": "54ac9f04-03ba-44b8-b093-9063b5d5eb42",
+        "name": "Nimble Supplementary Content",
+        "abbreviation": "Extras"
+      }
+    ]
+  },
+  "warnings": [
+    "advantage-disadvantage: interactive examples replaced with explanatory text",
+    "glossary: unknown term Riding retained as text"
+  ],
+  "supplement": {
+    "retrievedAt": "2026-10-11T12:23:08.570Z",
+    "coverage": [
+      {
+        "kind": "monsters",
+        "live": 103,
+        "seeds": 86,
+        "additional": 15
+      },
+      {
+        "kind": "ancestries",
+        "live": 26,
+        "seeds": 24,
+        "additional": 3
+      },
+      {
+        "kind": "backgrounds",
+        "live": 30,
+        "seeds": 24,
+        "additional": 7
+      },
+      {
+        "kind": "classes",
+        "live": 12,
+        "seeds": 12,
+        "additional": 0
+      },
+      {
+        "kind": "subclasses",
+        "live": 24,
+        "seeds": 28,
+        "additional": 0
+      },
+      {
+        "kind": "spell-schools",
+        "live": 7,
+        "seeds": 7,
+        "additional": 0
+      },
+      {
+        "kind": "random-tables",
+        "live": 0,
+        "seeds": 3,
+        "additional": 0
+      }
+    ],
+    "records": [
+      {
+        "kind": "monster",
+        "id": "monster/nexus/552q6cdwtw8rnv4f0qzjjdn6wa",
+        "name": "Giant Ant"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/2arvwxf47f9hrs6zkd8x4vdrq3",
+        "name": "Giant Centipede"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/5108d800h38sebxh5ts4gqyybp",
+        "name": "Giant Iron Cobra"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/7446js7s4k98fa4wb8asdnqej0",
+        "name": "Heytet-Seqat, Scorpion Queen"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/73q420m5sf8x8vzhe09xp7j3db",
+        "name": "Kelebek & Poppy"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/54h29t1r5d98e9m2p84606y8sv",
+        "name": "Krogg, Goblin King"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/17fjtag5jg9rt8h5s8pwbjgfmw",
+        "name": "Lindwurm"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/3m5pxkj3cp9p7s5qh1g94qy7py",
+        "name": "Banshee"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/7vg1qejwp29t69smh10f9zyafb",
+        "name": "Death Knight"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/2tjwj4zmzz9508zh37egz988qv",
+        "name": "Gargoyle"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/615twd2a768ktvyqy08845k2qs",
+        "name": "Orc"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/1hxnkxh7ma9t982j971vvn5npz",
+        "name": "Orc Battlebard"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/5sq7krn9k79ebvr2ttzqtqz1bv",
+        "name": "Orc Elite"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/212mjyd5t893m8nhwb7yjp1q6d",
+        "name": "Orc Raider"
+      },
+      {
+        "kind": "monster",
+        "id": "monster/nexus/60dtnmdakg974r0t6gahk637e8",
+        "name": "Warpig"
+      },
+      {
+        "kind": "ancestry",
+        "id": "ancestry/nexus/c00aaa94-b785-40d8-8508-e87824a6a4cb",
+        "name": "Beastfolk"
+      },
+      {
+        "kind": "ancestry",
+        "id": "ancestry/nexus/59344834-dfd1-4213-97e3-e3a99dbdaf19",
+        "name": "Lizardfolk"
+      },
+      {
+        "kind": "ancestry",
+        "id": "ancestry/nexus/102b1557-2087-4ac3-bbba-33ac386394fb",
+        "name": "Turtlefolk"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/ca0c1b45-68f8-43a2-b6d5-d3e026c416cc",
+        "name": "Arcane Apprentice"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/385d17c5-a562-4d4c-bbb9-ba1eaeec7894",
+        "name": "Betrayed Before"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/dbc44802-ab6e-43d4-b925-aa71ce4acc57",
+        "name": "Brace The World"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/8754438d-778d-495e-8ec5-cd92b0a05498",
+        "name": "Criminal"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/0e2161d7-9af7-45ed-96d6-17843b051bb2",
+        "name": "Dragon, my NEMESIS"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/ac28df0b-be7a-42d0-ac89-0c455d2dc5d7",
+        "name": "Learned A Lot"
+      },
+      {
+        "kind": "background",
+        "id": "background/nexus/60572daa-6552-4f5b-a70e-49b78604bba2",
+        "name": "Overlooked"
+      }
+    ],
+    "warnings": [
+      "Giant Ant: additional fields (role, effects) are retained in source data.",
+      "Giant Centipede: additional fields (role, effects) are retained in source data.",
+      "Giant Iron Cobra: additional fields (role, effects) are retained in source data.",
+      "Heytet-Seqat, Scorpion Queen: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Kelebek & Poppy: additional fields (effects) are retained in source data.",
+      "Krogg, Goblin King: additional fields (role, effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Lindwurm: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Banshee: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Death Knight: additional fields (effects, spicy_encounter) are retained in source data.",
+      "Gargoyle: additional fields (effects) are retained in source data.",
+      "Orc: additional fields (effects, mild_encounter, spicy_encounter, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Orc Battlebard: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Orc Elite: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Orc Raider: additional fields (effects, paperforgeId, paperforgeImageUrl) are retained in source data.",
+      "Warpig: additional fields (role, effects, mild_encounter, spicy_encounter, paperforgeId, paperforgeImageUrl) are retained in source data."
+    ]
+  }
+}

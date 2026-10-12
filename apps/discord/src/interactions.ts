@@ -1,13 +1,13 @@
+import 'dotenv/config';
 import type { Request, Response } from 'express';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyKey } from 'discord-interactions';
 import { discordInteractionService } from './services/discord-interaction-service.js';
 import { track } from '@vercel/analytics/server';
 
 const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
 
-type HandlerRequest = Request | VercelRequest;
-type HandlerResponse = Response | VercelResponse;
+type HandlerRequest = Request;
+type HandlerResponse = Response;
 
 export default async function handler(req: HandlerRequest, res: HandlerResponse) {
   // Only accept POST requests
@@ -16,16 +16,27 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
   }
 
   const bodyBuffer = req.body as Buffer;
-  const body = JSON.parse(bodyBuffer.toString('utf-8'));
 
   // Verify the request came from Discord
   const signature = req.headers['x-signature-ed25519'] as string;
   const timestamp = req.headers['x-signature-timestamp'] as string;
 
-  const isValidRequest = await verifyKey(bodyBuffer, signature, timestamp, PUBLIC_KEY);
+  let isValidRequest = false;
+  try {
+    isValidRequest = await verifyKey(bodyBuffer, signature, timestamp, PUBLIC_KEY);
+  } catch {
+    /* Invalid signatures fail closed. */
+  }
 
   if (isValidRequest !== true) {
     return res.status(401).json({ error: 'Invalid request signature' });
+  }
+
+  let body;
+  try {
+    body = JSON.parse(bodyBuffer.toString('utf-8'));
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
   // Handle the interaction using the service

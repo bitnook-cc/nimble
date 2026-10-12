@@ -14,55 +14,58 @@ datasource db {
 model User {
   id          String   @id @default(cuid())
   googleId    String   @unique
-  email       String   // Removed @unique - only googleId is unique
+  email       String // Removed @unique - only googleId is unique
   name        String
   picture     String?
   loginCount  Int      @default(0)
   lastLoginAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
-  characterBackups   CharacterBackup[]
-  ownedSessions      GameSession[] @relation("GameSessionOwner")
-  sessionParticipant SessionParticipant[]
-  sharedActivityLogs SharedActivityLog[]
-  
+  campaigns           Campaign[]
+  campaignMemberships CampaignMember[]
+  characterBackups    CharacterBackup[]
+  ownedSessions       GameSession[]        @relation("GameSessionOwner")
+  sessionParticipant  SessionParticipant[]
+  sharedActivityLogs  SharedActivityLog[]
+
   @@index([email])
   @@index([googleId])
 }
 
 // Character backup storage
 model CharacterBackup {
-  id            String   @id @default(uuid())
-  userId        String
-  characterId   String
-  characterData Json     // Full character object as JSONB
-  updatedAt     DateTime // Character's last update timestamp
-  syncedAt      DateTime @default(now()) // When this backup was created/updated
-  
+  id                String   @id @default(uuid())
+  userId            String
+  characterId       String
+  inventoryRevision Int      @default(0)
+  characterData     Json // Full character object as JSONB
+  updatedAt         DateTime // Character's last update timestamp
+  syncedAt          DateTime @default(now()) // When this backup was created/updated
+
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, characterId])
   @@index([userId, characterId])
 }
 
 // Gaming session for sharing activity logs
 model GameSession {
-  id           String   @id @default(cuid())
-  sessionName  String
-  code         String   @unique // Short join code (e.g., "FIRE123")
-  ownerId      String
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
+  id          String   @id @default(cuid())
+  sessionName String
+  code        String   @unique // Short join code (e.g., "FIRE123")
+  ownerId     String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   // Relations
-  owner        User @relation("GameSessionOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  owner        User                 @relation("GameSessionOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   participants SessionParticipant[]
   activityLogs SharedActivityLog[]
-  
+
   @@index([code])
   @@index([ownerId])
 }
@@ -72,15 +75,15 @@ model SessionParticipant {
   id            String   @id @default(cuid())
   sessionId     String
   userId        String
-  characterId   String   // Character they're playing in this session
-  characterName String   // Character name for display
+  characterId   String // Character they're playing in this session
+  characterName String // Character name for display
   joinedAt      DateTime @default(now())
   lastActiveAt  DateTime @default(now())
-  
+
   // Relations
   session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([sessionId, userId])
   @@index([sessionId])
   @@index([userId])
@@ -92,13 +95,67 @@ model SharedActivityLog {
   sessionId   String
   userId      String
   characterId String
-  logEntry    Json     // Complete activity log entry as JSONB
+  logEntry    Json // Complete activity log entry as JSONB
   timestamp   DateTime @default(now())
-  
+
   // Relations
   session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([sessionId, timestamp])
   @@index([userId])
+}
+
+model Campaign {
+  id         String              @id @default(cuid())
+  name       String
+  ownerId    String
+  revision   Int                 @default(0)
+  state      Json
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  owner      User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members    CampaignMember[]
+  invites    CampaignInvite[]
+  operations CampaignOperation[]
+
+  @@index([ownerId])
+}
+
+model CampaignMember {
+  campaignId  String
+  userId      String
+  role        String   @default("PLAYER")
+  characterId String?
+  shareNotes  Boolean  @default(false)
+  joinedAt    DateTime @default(now())
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([campaignId, userId])
+  @@index([userId])
+}
+
+model CampaignInvite {
+  id         String   @id @default(cuid())
+  campaignId String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  uses       Int      @default(0)
+  maxUses    Int      @default(10)
+  revoked    Boolean  @default(false)
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+}
+
+model CampaignOperation {
+  campaignId  String
+  id          String
+  userId      String
+  requestHash String
+  createdAt   DateTime @default(now())
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@id([campaignId, id])
 }

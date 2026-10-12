@@ -1,0 +1,26 @@
+[
+  {
+    "sha256": "19f9c92546aa300c312235e3125af1b81394d8db9a4bc4a425cd5b641d2d54e1",
+    "file": "geist-latin.woff2",
+    "subset": "latin",
+    "source": "https://fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwcGFU.woff2",
+    "family": "Geist",
+    "license": "https://raw.githubusercontent.com/google/fonts/main/ofl/geist/OFL.txt"
+  },
+  {
+    "sha256": "09941fb1c169c38fd414536b37690057fc01b3117a5c63dd6571186540c8f370",
+    "file": "cinzel-latin.woff2",
+    "subset": "latin",
+    "source": "https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2",
+    "family": "Cinzel",
+    "license": "https://raw.githubusercontent.com/google/fonts/main/ofl/cinzel/OFL.txt"
+  },
+  {
+    "sha256": "3d93545dd27c75e7358686499e4afcf0dd203af1f1dbd60c0afff5908d44fe68",
+    "file": "alegreya-sans-black-latin.woff2",
+    "subset": "latin",
+    "source": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUu9_-1phKLFgshYDvh6Vwt5dlKqEp2iw.woff2",
+    "family": "Alegreya Sans",
+    "license": "https://raw.githubusercontent.com/google/fonts/main/ofl/alegreyasans/OFL.txt"
+  }
+]

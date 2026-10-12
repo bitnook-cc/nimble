@@ -17,23 +17,18 @@ test.describe("Attributes and Skills", () => {
     });
 
     await test.step("Test attribute rolls", async () => {
-      const attributeRolls = page.getByRole("button", {
-        name: /strength|dexterity|intelligence|will/i,
-      });
-
-      if ((await attributeRolls.count()) > 0) {
-        await attributeRolls.first().click();
-        await expect(page.getByText(/rolled|d20|result/i)).toBeVisible();
-      }
+      await page.getByRole("button", { name: "Explore", exact: true }).click();
+      await page.getByRole("button", { name: "Roll strength check", exact: true }).click();
     });
 
     await test.step("Test skill checks", async () => {
-      const skillsTab = page.getByRole("tab", { name: /skills/i });
-      if (await skillsTab.isVisible()) {
-        await characterUtils.navigateToTab("skills");
-      }
-
-      await characterUtils.performDiceRoll();
+      await page.getByRole("button", { name: "Roll Arcana check", exact: true }).click();
+      await page.getByRole("button", { name: "Log", exact: true }).click();
+      const log = page
+        .locator('[data-slot="card"]')
+        .filter({ has: page.getByText("Character Log", { exact: true }) });
+      await expect(log.getByText(/^strength check$/i)).toBeVisible();
+      await expect(log.getByText(/^arcana skill check$/i)).toBeVisible();
     });
   });
 });

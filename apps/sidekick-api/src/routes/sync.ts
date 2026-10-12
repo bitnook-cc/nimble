@@ -2,9 +2,12 @@ import { Router, Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "../config/session.js";
-import { CharacterSyncService } from "../services/character-sync-service.js";
+import {
+  CharacterSyncService,
+  LegacyInventoryConflictError,
+} from "../services/character-sync-service.js";
 import { AuthService } from "../services/auth-service.js";
-import { SyncErrorCode } from "@nimble/shared";
+import { SyncErrorCode, SYNC_PROTOCOL_VERSION } from "@nimble/shared";
 
 const router = Router();
 
@@ -19,21 +22,25 @@ const requireAuth = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (!session.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
+  try {
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    if (!session.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
 
-  // Ensure user exists in database
-  const user = await authService.ensureUserExists(session);
-  if (!user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
+    // Ensure user exists in database
+    const user = await authService.ensureUserExists(session);
+    if (!user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
 
-  req.session = session;
-  next();
+    req.session = session;
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Sync characters - handles both upload and merge
@@ -42,7 +49,11 @@ router.post("/characters", requireAuth, async (req, res): Promise<void> => {
     const session = req.session as SessionData;
     const userId = session.user!.id;
     const userEmail = session.user!.email;
-    const { characters } = req.body;
+    const { characters, accountId, protocolVersion } = req.body;
+    if (accountId && accountId !== userId) {
+      res.status(409).json({ error: "Account changed; reload before syncing" });
+      return;
+    }
 
     console.log(
       `[Sync API] POST /sync/characters - User: ${userEmail} (${userId})`,
@@ -51,7 +62,11 @@ router.post("/characters", requireAuth, async (req, res): Promise<void> => {
       `[Sync API] Received ${characters?.length || 0} characters in request body`,
     );
 
-    const result = await syncService.syncCharacters(userId, characters);
+    const result = await syncService.syncCharacters(
+      userId,
+      characters,
+      protocolVersion === SYNC_PROTOCOL_VERSION,
+    );
 
     console.log(`[Sync API] Sync successful for user ${userEmail}`);
     console.log(
@@ -61,6 +76,13 @@ router.post("/characters", requireAuth, async (req, res): Promise<void> => {
     res.json(result);
   } catch (error) {
     console.error("[Sync API] Sync error:", error);
+
+    if (error instanceof LegacyInventoryConflictError) {
+      res
+        .status(409)
+        .json({ error: error.message, code: SyncErrorCode.SYNC_CONFLICT });
+      return;
+    }
 
     if (error instanceof Error) {
       if (error.message.includes("Character limit exceeded")) {
@@ -85,6 +107,29 @@ router.post("/characters", requireAuth, async (req, res): Promise<void> => {
     });
   }
 });
+
+// Owner-only inventory review also works after leaving a campaign.
+router.get(
+  "/inventories",
+  requireAuth,
+  async (req, res, next): Promise<void> => {
+    try {
+      const backups = await prisma.characterBackup.findMany({
+        where: { userId: req.session.user!.id, inventoryRevision: { gt: 0 } },
+      });
+      res.setHeader("Cache-Control", "private, no-store");
+      res.json(
+        backups.map((b) => ({
+          characterId: b.characterId,
+          revision: b.inventoryRevision,
+          inventory: (b.characterData as Record<string, unknown>).inventory,
+        })),
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // Get sync status
 router.get("/status", requireAuth, async (req, res): Promise<void> => {

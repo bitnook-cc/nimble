@@ -3,6 +3,7 @@
 import { TrendingUp, Zap } from "lucide-react";
 
 import { SpellAbilityDefinition } from "@/lib/schemas/abilities";
+import { getCharacterService } from "@/lib/services/service-factory";
 import { SpellCastingService } from "@/lib/services/spell-casting-service";
 import { ManaCastingOptions } from "@/lib/services/spell-casting-types";
 
@@ -29,8 +30,11 @@ export function ManaSpellActions({
     targetTier: spell.tier,
   };
   const cost = spellCastingService.calculateCastingCost(spell.id, options);
-  const canCast = cost?.canAfford ?? false;
-  const insufficientMessage = cost?.warningMessage;
+  const character = getCharacterService().getCurrentCharacter();
+  const insufficientActions =
+    character?.inEncounter && character.actionTracker.current < (spell.actionCost ?? 0);
+  const canCast = (cost?.canAfford ?? false) && !insufficientActions;
+  const insufficientMessage = insufficientActions ? "Not enough actions" : cost?.warningMessage;
 
   // Check if spell can be upcast (has resource cost, upcast bonus, and is not at max tier)
   const canUpcast = spell.resourceCost && spell.upcastBonus && spell.tier < spellTierAccess;
@@ -53,7 +57,7 @@ export function ManaSpellActions({
           variant={canCast ? "outline" : "ghost"}
           onClick={() => onUpcast(spell)}
           disabled={!canCast}
-          title="Upcast spell for increased effect"
+          title={insufficientMessage || "Upcast spell for increased effect"}
         >
           <TrendingUp className="w-4 h-4 mr-1" />
           Upcast

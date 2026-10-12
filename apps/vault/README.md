@@ -247,6 +247,14 @@ npm run typecheck  # Run TypeScript type checking
 
 ## Troubleshooting
 
+### Local content and access tests
+
+Vault requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for verified authentication. Set `VAULT_CONTENT_DIR` to the `content` directory of your Nimble content checkout when the submodule or symlink is unavailable. Run `npm run content:build` before type checks so `.velite` contains all generated metadata and search exports, including empty collections.
+
+From `apps/vault`, run `npm run build`, then `npm run start` and `npm run test:e2e`. The browser suite covers public search, keyboard and mouse navigation, responsive layouts, restricted search data exclusion, and login redirects for protected articles. Supply a content checkout with both public and restricted entries for the access tests. `npm test` separately verifies that authorization uses verified users and rejects expired Patreon membership tags.
+
+Anonymous tests can use a local placeholder Supabase URL and public key when no session cookie is present. These checks do not validate a real provider login or subscription; use the actual project settings for those deployment checks.
+
 ### Common Issues
 
 1. **Content not updating**: Restart development server to refresh Velite cache

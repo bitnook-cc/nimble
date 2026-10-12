@@ -1,35 +1,52 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import { VaultLayout } from '@/components/vault-layout'
-import { getUserTags } from '@/lib/access'
+import { publicSearch, patronSearch, purchasedSearch } from "#site/content";
+import type { ContentSearch } from "@/types/content";
+import type { Metadata } from "next";
+import "./globals.css";
+import { VaultLayout } from "@/components/vault-layout";
+import { getUserTags } from "@/lib/access";
 
 export const metadata: Metadata = {
-  title: 'Nimble RPG Vault',
-  description: 'Your comprehensive digital repository for the Nimble tabletop role-playing game system',
-}
+  title: "Nimble RPG Vault",
+  description:
+    "Your comprehensive digital repository for the Nimble tabletop role-playing game system",
+};
 
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   // Fetch user tags server-side
-  const userTags = await getUserTags()
-  const tags = userTags.length > 0 ? userTags : ['public']
+  const userTags = await getUserTags();
+  const searchContent = (
+    [...publicSearch, ...patronSearch, ...purchasedSearch] as ContentSearch[]
+  ).filter(
+    (item) =>
+      userTags.includes("test") ||
+      !item.access?.length ||
+      item.access.some((tag) => userTags.includes(tag)),
+  );
+  const tags = userTags.length > 0 ? userTags : ["public"];
 
   return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Alegreya+Sans:wght@900&display=swap"
           rel="stylesheet"
         />
       </head>
       <body>
-        <VaultLayout userTags={tags}>{children}</VaultLayout>
+        <VaultLayout userTags={tags} searchContent={searchContent}>
+          {children}
+        </VaultLayout>
       </body>
     </html>
-  )
+  );
 }

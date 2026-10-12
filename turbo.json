@@ -28,7 +28,9 @@
     "PATREON_CLIENT_SECRET",
     "VAULT_CONTENT_REPO",
     "VAULT_CONTENT_BRANCH",
-    "ADMIN_USER_IDS"
+    "ADMIN_USER_IDS",
+    "PATREON_CAMPAIGN_ID",
+    "VAULT_CONTENT_DIR"
   ],
   "tasks": {
     "build": {
@@ -79,10 +81,10 @@
       "dependsOn": ["^lint"]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["^build"],
       "cache": false
     },
     "test:ui": {

@@ -98,6 +98,7 @@ export function UpcastSpellDialog({
             <Button
               variant="outline"
               size="icon"
+              aria-label="Decrease casting tier"
               onClick={() => setTargetTier(Math.max(baseTier, targetTier - 1))}
               disabled={targetTier <= baseTier}
             >
@@ -109,6 +110,7 @@ export function UpcastSpellDialog({
             <Button
               variant="outline"
               size="icon"
+              aria-label="Increase casting tier"
               onClick={() => setTargetTier(Math.min(maxTier, targetTier + 1))}
               disabled={targetTier >= maxTier}
             >

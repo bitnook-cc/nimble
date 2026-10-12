@@ -340,7 +340,7 @@ export function AbilitySection() {
   const renderAbility = (ability: AbilityDefinition) => {
     const actionAbility = ability as ActionAbilityDefinition;
     const maxUses = actionAbility.maxUses ? abilityService.calculateMaxUses(actionAbility) : 0;
-    const currentUses = character._abilityUses.get(actionAbility.id) || 0;
+    const currentUses = abilityService.getCurrentUses(actionAbility, character);
     const remainingUses = maxUses - currentUses;
     const isUsed =
       actionAbility.frequency !== "at_will" && actionAbility.maxUses && currentUses >= maxUses;
@@ -375,7 +375,12 @@ export function AbilitySection() {
     const ActionIcon = hasRoll ? Zap : Sparkles;
 
     return (
-      <Card key={ability.id} className={`mb-2 ${!canUse ? "opacity-50" : ""}`}>
+      <Card
+        key={ability.id}
+        role="group"
+        aria-label={`${ability.name} ability`}
+        className={`mb-2 ${!canUse ? "opacity-50" : ""}`}
+      >
         <CardContent className="p-2 sm:p-3">
           <div className="space-y-2">
             {/* Title with delete button */}

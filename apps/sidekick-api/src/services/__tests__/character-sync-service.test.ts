@@ -3,6 +3,10 @@ import { CharacterSyncService } from "../character-sync-service.js";
 import { isNewerThan } from "@nimble/shared";
 import { PrismaClient } from "@prisma/client";
 
+vi.mock("@vercel/analytics/server", () => ({
+  track: vi.fn().mockResolvedValue(undefined),
+}));
+
 // Mock Prisma Client
 vi.mock("@prisma/client", () => ({
   PrismaClient: vi.fn(),
@@ -39,6 +43,7 @@ type MockPrismaClient = {
     delete: ReturnType<typeof vi.fn>;
   };
   $transaction: ReturnType<typeof vi.fn>;
+  $queryRaw: ReturnType<typeof vi.fn>;
 };
 
 describe("CharacterSyncService", () => {
@@ -55,7 +60,8 @@ describe("CharacterSyncService", () => {
         upsert: vi.fn(),
         delete: vi.fn(),
       },
-      $transaction: vi.fn(),
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      $transaction: vi.fn(async (run) => run(mockPrisma)),
     };
 
     service = new CharacterSyncService(mockPrisma as unknown as PrismaClient);
@@ -87,9 +93,6 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
-        Promise.resolve(ops),
-      );
 
       const result = await service.syncCharacters(userId, localCharacters);
 
@@ -100,8 +103,7 @@ describe("CharacterSyncService", () => {
 
       // Verify database operations were prepared
       expect(mockPrisma.$transaction).toHaveBeenCalled();
-      const transactionCall = mockPrisma.$transaction.mock.calls[0][0];
-      expect(transactionCall).toHaveLength(2);
+      expect(mockPrisma.characterBackup.upsert).toHaveBeenCalledTimes(2);
     });
 
     it("should merge with existing remote characters", async () => {
@@ -130,9 +132,6 @@ describe("CharacterSyncService", () => {
       };
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
-      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
-        Promise.resolve(ops),
-      );
 
       // Mock isNewerThan to say remote is newer
       (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(
@@ -145,7 +144,7 @@ describe("CharacterSyncService", () => {
       expect(result.characters[0]).toEqual(remoteCharacter);
 
       // Should not update database since remote is newer
-      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+      expect(mockPrisma.characterBackup.upsert).not.toHaveBeenCalled();
     });
 
     it("should update remote when local is newer", async () => {
@@ -175,9 +174,6 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
-        Promise.resolve(ops),
-      );
 
       // Mock isNewerThan to say local is newer
       (isNewerThan as MockedFunction<typeof isNewerThan>).mockReturnValue(true);
@@ -189,8 +185,7 @@ describe("CharacterSyncService", () => {
 
       // Should update database since local is newer
       expect(mockPrisma.$transaction).toHaveBeenCalled();
-      const transactionCall = mockPrisma.$transaction.mock.calls[0][0];
-      expect(transactionCall).toHaveLength(1);
+      expect(mockPrisma.characterBackup.upsert).toHaveBeenCalledTimes(1);
     });
 
     it("should include remote-only characters in result", async () => {
@@ -219,9 +214,6 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([existingBackup]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
-        Promise.resolve(ops),
-      );
 
       const result = await service.syncCharacters(userId, [localCharacter]);
 
@@ -245,7 +237,7 @@ describe("CharacterSyncService", () => {
       ).rejects.toThrow("Character limit exceeded");
     });
 
-    it("should skip characters without id or updatedAt", async () => {
+    it("should reject the entire request when a character is invalid", async () => {
       const characters = [
         {
           id: "char-1",
@@ -267,14 +259,11 @@ describe("CharacterSyncService", () => {
 
       mockPrisma.characterBackup.findMany.mockResolvedValue([]);
       mockPrisma.characterBackup.upsert.mockResolvedValue({});
-      mockPrisma.$transaction.mockImplementation((ops: unknown) =>
-        Promise.resolve(ops),
-      );
 
-      const result = await service.syncCharacters(userId, characters as any[]);
-
-      expect(result.characters).toHaveLength(1);
-      expect(result.characters[0].id).toBe("char-1");
+      await expect(
+        service.syncCharacters(userId, characters as any[]),
+      ).rejects.toThrow("Invalid request");
+      expect(mockPrisma.characterBackup.upsert).not.toHaveBeenCalled();
     });
 
     it("should handle invalid input", async () => {
@@ -282,6 +271,44 @@ describe("CharacterSyncService", () => {
         service.syncCharacters(userId, null as unknown as any[]),
       ).rejects.toThrow("Invalid request: characters must be an array");
     });
+  });
+
+  it("rejects a merged cloud collection over the limit without writing", async () => {
+    const timestamp = Date.now();
+    mockPrisma.characterBackup.findMany.mockResolvedValue(
+      Array.from({ length: 30 }, (_, i) => ({
+        characterId: "remote-" + i,
+        characterData: {
+          id: "remote-" + i,
+          timestamps: { updatedAt: timestamp },
+        },
+      })),
+    );
+    await expect(
+      service.syncCharacters("user-123", [
+        { id: "new", timestamps: { updatedAt: timestamp } },
+      ]),
+    ).rejects.toThrow("Character limit exceeded");
+    expect(mockPrisma.characterBackup.upsert).not.toHaveBeenCalled();
+  });
+  it("takes the account lock before reading backups", async () => {
+    mockPrisma.characterBackup.findMany.mockResolvedValue([]);
+    await service.syncCharacters("user-123", []);
+    expect(mockPrisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      mockPrisma.characterBackup.findMany.mock.invocationCallOrder[0],
+    );
+  });
+  it("rejects duplicate character IDs and future timestamps", async () => {
+    const character = { id: "same", timestamps: { updatedAt: Date.now() } };
+    await expect(
+      service.syncCharacters("user-123", [character, character]),
+    ).rejects.toThrow("Invalid request");
+    await expect(
+      service.syncCharacters("user-123", [
+        { ...character, timestamps: { updatedAt: Date.now() + 3600000 } },
+      ]),
+    ).rejects.toThrow("Invalid request");
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
   });
 
   describe("getSyncStatus", () => {

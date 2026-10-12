@@ -1,0 +1,21 @@
+- dialog "Your campaigns":
+  - heading "Your campaigns" [level=2]
+  - button "Close dialog"
+  - paragraph: Campaigns keep their own tools, layouts and attachments. Backups include unfinished combat.
+  - group:
+    - group "Campaign settings":
+      - button "Campaigns" [pressed]
+      - button "Attachments"
+      - button "Backup & recovery"
+    - button "My Campaign"
+    - button "Export My Campaign": Export
+    - text: Rename current campaign
+    - textbox "Rename current campaign": My Campaign
+    - button "Rename"
+    - button "Duplicate campaign"
+    - button "Archive campaign"
+    - button "Delete campaign"
+    - text: New campaign
+    - textbox "New campaign":
+      - /placeholder: A new adventure
+    - button "Create campaign"

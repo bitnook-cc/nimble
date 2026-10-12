@@ -1,0 +1,1467 @@
+{
+  "format": "nexus-official-supplement",
+  "retrievedAt": "2026-10-11T12:23:08.570Z",
+  "url": "https://nimble.nexus",
+  "coverage": [
+    {
+      "kind": "monsters",
+      "live": 103,
+      "seeds": 86,
+      "additional": 15
+    },
+    {
+      "kind": "ancestries",
+      "live": 26,
+      "seeds": 24,
+      "additional": 3
+    },
+    {
+      "kind": "backgrounds",
+      "live": 30,
+      "seeds": 24,
+      "additional": 7
+    },
+    {
+      "kind": "classes",
+      "live": 12,
+      "seeds": 12,
+      "additional": 0
+    },
+    {
+      "kind": "subclasses",
+      "live": 24,
+      "seeds": 28,
+      "additional": 0
+    },
+    {
+      "kind": "spell-schools",
+      "live": 7,
+      "seeds": 7,
+      "additional": 0
+    },
+    {
+      "kind": "random-tables",
+      "live": 0,
+      "seeds": 3,
+      "additional": 0
+    }
+  ],
+  "records": [
+    {
+      "kind": "monsters",
+      "name": "Giant Ant",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Wickedjelly",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "552q6cdwtw8rnv4f0qzjjdn6wa",
+          "attributes": {
+            "name": "Giant Ant",
+            "hazard": false,
+            "hp": 15,
+            "level": "1/2",
+            "size": "small",
+            "armor": "none",
+            "kind": "Giant Bug",
+            "role": "melee",
+            "movement": [
+              {
+                "speed": 6
+              },
+              {
+                "mode": "climb",
+                "speed": 6
+              },
+              {
+                "mode": "burrow",
+                "speed": 4
+              }
+            ],
+            "abilities": [],
+            "actions": [
+              {
+                "name": "Bite",
+                "description": "1d6+1. You deal +1 damage for each ant latched on to target. Attacks can't miss or be defended/interposed.",
+                "damage": {
+                  "roll": "1d6+1"
+                }
+              }
+            ],
+            "actionsInstructions": "Latched on: Grappled (escape DC 10)",
+            "effects": [],
+            "description": "",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/552q6cdwtw8rnv4f0qzjjdn6wa"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Giant Centipede",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Wickedjelly",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "2arvwxf47f9hrs6zkd8x4vdrq3",
+          "attributes": {
+            "name": "Giant Centipede",
+            "hazard": false,
+            "hp": 15,
+            "level": "1/2",
+            "size": "small",
+            "armor": "none",
+            "kind": "Giant Bug",
+            "role": "melee",
+            "movement": [
+              {
+                "speed": 8
+              },
+              {
+                "mode": "climb",
+                "speed": 8
+              }
+            ],
+            "abilities": [],
+            "actions": [
+              {
+                "name": "Bite",
+                "description": "1d6+1",
+                "damage": {
+                  "roll": "1d6+1"
+                }
+              },
+              {
+                "name": "Latched on",
+                "description": "You deal +1 damage for each centipede latched on to target. Attacks can't miss or be defended/interposed."
+              },
+              {
+                "name": "Venomous",
+                "description": "DC 10 Str or poisoned.  "
+              }
+            ],
+            "actionsInstructions": "Latched on: Grappled (escape DC 10)",
+            "effects": [],
+            "description": "",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/2arvwxf47f9hrs6zkd8x4vdrq3"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Giant Iron Cobra",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Wickedjelly",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "5108d800h38sebxh5ts4gqyybp",
+          "attributes": {
+            "name": "Giant Iron Cobra",
+            "hazard": false,
+            "hp": 41,
+            "level": 3,
+            "size": "large",
+            "armor": "none",
+            "kind": "Construct",
+            "role": "melee",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "",
+                "name": ""
+              }
+            ],
+            "actions": [
+              {
+                "name": "Bite",
+                "description": "1d8+10. Venomous: DC 10 Str or poisoned.\n",
+                "damage": {
+                  "roll": "1d8+10"
+                }
+              },
+              {
+                "name": "Coiling Strike",
+                "description": "On melee crit, Grapple (escape DC 10).  Can’t do anything. Attacks against you have advantage, and melee attacks that hit, crit."
+              },
+              {
+                "name": "Crush",
+                "description": "1d6+10. Every round grappled.  Advantage vs smaller creatures.",
+                "damage": {
+                  "roll": "1d6+10"
+                }
+              }
+            ],
+            "actionsInstructions": "Choose one.",
+            "effects": [],
+            "description": "Immune: Lightning.  Half damage from slashing/piercing weapons\n\nVulnerable: Double damage from cold and blunt weapons",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/5108d800h38sebxh5ts4gqyybp"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Heytet-Seqat, Scorpion Queen",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "7446js7s4k98fa4wb8asdnqej0",
+          "attributes": {
+            "name": "Heytet-Seqat, Scorpion Queen",
+            "hazard": false,
+            "hp": 0,
+            "hpPerHero": 64,
+            "level": 8,
+            "size": "large",
+            "armor": "medium",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "Can move through spaces of smaller creatures, knocking them Prone.",
+                "name": "Trampling Movement"
+              },
+              {
+                "description": "Hits from Prone melee attackers automatically crit her.",
+                "name": "Soft Underbelly"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Claw",
+                "description": "1d6+11. On damage, Grappled (escape DC 14, or when she is crit).",
+                "damage": {
+                  "roll": "1d6+11"
+                }
+              },
+              {
+                "name": "Deadly Stinger",
+                "description": "1d6+20. (vs Prone or Grappled) ",
+                "damage": {
+                  "roll": "1d6+20"
+                }
+              }
+            ],
+            "actionsInstructions": "Choose one.",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "157",
+            "paperforgeImageUrl": "/paperforge/0157/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false,
+            "bloodied": {
+              "description": "She drips acid blood, dealing 1d6 damage to any creature she walks over."
+            }
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/7446js7s4k98fa4wb8asdnqej0"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Kelebek & Poppy",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "DG",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "73q420m5sf8x8vzhe09xp7j3db",
+          "attributes": {
+            "name": "Kelebek & Poppy",
+            "hazard": false,
+            "hp": 120,
+            "level": 3,
+            "size": "medium",
+            "armor": "medium",
+            "kind": "Bug Druid & His Stinky Pet",
+            "movement": [],
+            "abilities": [
+              {
+                "description": "When damaged, enemies within 2 spaces must make a STR save (DC 10) or spend the round vomiting (cannot take actions or reactions).",
+                "name": "Stink Cloud"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Vinelash (Kelebek)",
+                "description": "Move 6, then deal 2d6 damage. On hit, move target to an unoccupied space within 10 spaces."
+              },
+              {
+                "name": "Crushing Mandibles",
+                "description": "4d6 damage, up to 2 adjacent creatures."
+              }
+            ],
+            "actionsInstructions": "After each hero's turn:",
+            "effects": [],
+            "description": "This was originally two creatures in the GM's Book. Adapted to a single statblock.",
+            "subtype": "legendary",
+            "legendary": true,
+            "bloodied": {
+              "description": "Poppy the stink bug dies! The room fills with stinky gas: all heroes have a maximum of 2 actions each round. Stink Cloud and Crushing Mandibles abilities are no longer available."
+            },
+            "lastStand": {
+              "description": ""
+            },
+            "saves": {
+              "int": 1,
+              "wil": 1
+            }
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/73q420m5sf8x8vzhe09xp7j3db"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Krogg, Goblin King",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "54h29t1r5d98e9m2p84606y8sv",
+          "attributes": {
+            "name": "Krogg, Goblin King",
+            "hazard": false,
+            "hp": 60,
+            "level": 2,
+            "size": "medium",
+            "armor": "medium",
+            "kind": "Angry Bugbear",
+            "role": "melee",
+            "movement": [],
+            "abilities": [],
+            "actions": [
+              {
+                "name": "Manglemaul",
+                "description": "2d6. Move 6. Deal 2d6, Grappled (escape DC 10).",
+                "damage": {
+                  "roll": "2d6"
+                }
+              },
+              {
+                "name": "Crack Skulls",
+                "description": "2d6. Move 6. Swing a Grappled creature at another creature. Both take 2d6,\nending the Grapple.",
+                "damage": {
+                  "roll": "2d6"
+                }
+              }
+            ],
+            "actionsInstructions": "After each hero's turn:",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "769",
+            "paperforgeImageUrl": "/paperforge/0769/portrait.png",
+            "subtype": "legendary",
+            "legendary": true,
+            "bloodied": {
+              "description": "Krogg loses Medium Armor but his damage increases to 2d8."
+            },
+            "lastStand": {
+              "description": ""
+            },
+            "saves": {
+              "str": 1,
+              "dex": 1
+            }
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/54h29t1r5d98e9m2p84606y8sv"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Lindwurm",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "17fjtag5jg9rt8h5s8pwbjgfmw",
+          "attributes": {
+            "name": "Lindwurm",
+            "hazard": false,
+            "hp": 140,
+            "level": 6,
+            "size": "medium",
+            "armor": "medium",
+            "movement": [],
+            "abilities": [
+              {
+                "description": "When crit, Grappled, or Bloodied: regurgitates its most recent meal.",
+                "name": "Desperate Purge"
+              },
+              {
+                "description": "Attacks those nearest the Golden Egg.",
+                "name": "Fiercely Jealous"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Coil",
+                "description": "1d6+13. Move up to 6, attack for 1d6+10, target is Grappled (escape DC 13).\n",
+                "damage": {
+                  "roll": "1d6+13"
+                }
+              },
+              {
+                "name": "Squeeze",
+                "description": "1d6+13. Squeeze a Grappled creature for 2d6+10 damage",
+                "damage": {
+                  "roll": "1d6+13"
+                }
+              }
+            ],
+            "actionsInstructions": "Choose one.",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "145",
+            "paperforgeImageUrl": "/paperforge/0145/portrait.png",
+            "subtype": "legendary",
+            "legendary": true,
+            "bloodied": {
+              "description": "At 1/2 HP move 8, Poison any creature adjacent to your path (lasts until healed)."
+            },
+            "lastStand": {
+              "description": "At 0 the Lindworm is dying! 60 more damage and it dies. Until then, each turn it may also Spit Acid. (Range 8) 1d6+10."
+            },
+            "saves": {}
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/17fjtag5jg9rt8h5s8pwbjgfmw"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Banshee",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Everdawn DM",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "3m5pxkj3cp9p7s5qh1g94qy7py",
+          "attributes": {
+            "name": "Banshee",
+            "hazard": false,
+            "hp": 70,
+            "level": 3,
+            "size": "medium",
+            "armor": "none",
+            "kind": "Undead",
+            "movement": [],
+            "abilities": [],
+            "actions": [
+              {
+                "name": " Deathly Wail",
+                "description": "(1/Encounter, Reach 12) DC 13 WIL\nsave or drop to 0 HP. On save, lose half max\nHP. \n- Adv (or immune) if *hearing* is protected."
+              },
+              {
+                "name": "Horrible Glare",
+                "description": "(Reach 8) 1d10, [[Frightened]]\n1 Round.",
+                "target": {
+                  "reach": 8
+                }
+              },
+              {
+                "name": "Ghastly Touch",
+                "description": "Fly 4 then 2d10."
+              }
+            ],
+            "actionsInstructions": " After each hero’s turn, choose 1:",
+            "effects": [],
+            "description": "Adapted from the Monsters & More early draft. ",
+            "paperforgeId": "277",
+            "paperforgeImageUrl": "/paperforge/0277/portrait.png",
+            "subtype": "legendary",
+            "legendary": true,
+            "bloodied": {
+              "description": "(35hp) Any dying heroes gain 1 HP and 1 action."
+            },
+            "lastStand": {
+              "description": "(20hp) **Possess**: All heroes make a DC16 WIL Save. Lowest failure is [[Possessed]]. "
+            },
+            "saves": {}
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "4e0sp0jgs19j5a90kgnccnpjdr"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/3m5pxkj3cp9p7s5qh1g94qy7py"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "4e0sp0jgs19j5a90kgnccnpjdr",
+            "attributes": {
+              "name": "Undead Spirit",
+              "description": "Malevolent creatures whose presence is barely physical. These commonly include ghosts, wraiths, specters, banshees, and similarly disembodied spirits. ",
+              "abilities": [
+                {
+                  "name": "Incorporeal",
+                  "description": "*Immune* to nonmagical damage. *Resistant* to Necrotic. *Vulnerable* to Radiant, Sunlight, and Silver."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/4e0sp0jgs19j5a90kgnccnpjdr"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Death Knight",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "7vg1qejwp29t69smh10f9zyafb",
+          "attributes": {
+            "name": "Death Knight",
+            "hazard": false,
+            "hp": 50,
+            "level": 9,
+            "size": "medium",
+            "armor": "heavy",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "Enemies within Reach 2 cannot regain HP, when healed they instead suffer 1d10 damage.",
+                "name": "Merciless Aura"
+              },
+              {
+                "description": "(Reaction, 1 use) Instantly descend into the earth and erupt from the ground up to 6 spaces away. Creatures within Reach 2 are knocked Prone on a failed DC 14 DEX save.",
+                "name": "Gravewalk (Spicy)"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Doom Blade",
+                "description": "1d10+20 (Req: DC 14 WIL save to Interpose). On damage, 1 Wound. THEN (optional):"
+              },
+              {
+                "name": "Call Servant",
+                "description": "(Single use) Summon 2 Grave Crows or 1 Grave Squire within Reach 6."
+              }
+            ],
+            "actionsInstructions": "",
+            "effects": [],
+            "description": "",
+            "spicy_encounter": "Gravewalk",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "5pthzmf2wf80tb8gxrs4ddye6d"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/7vg1qejwp29t69smh10f9zyafb"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "5pthzmf2wf80tb8gxrs4ddye6d",
+            "attributes": {
+              "name": "Death Knights",
+              "description": "Once noble champions, Death Knights are fallen paladins or warlords who betrayed their oaths and now serve death itself. Cursed by dark necromantic forces, they rise clad in blackened armor, their souls forever bound to undeath. Death Knights command legions of the lost and often guard profane relics or cursed ruins. Their presence blights the land, and their very name inspires dread—each one a tale of tragic fall and terrible wrath.",
+              "abilities": [
+                {
+                  "name": "Dread of Death",
+                  "description": "WIL save instead of rolling for Initiative against Death Knights."
+                },
+                {
+                  "name": "Hatred of light",
+                  "description": "Vulnerable to Radiant. Immediately strikes back for half as much damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/5pthzmf2wf80tb8gxrs4ddye6d"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Gargoyle",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "DorgaJohn",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "2tjwj4zmzz9508zh37egz988qv",
+          "attributes": {
+            "name": "Gargoyle",
+            "hazard": false,
+            "hp": 40,
+            "level": 6,
+            "size": "medium",
+            "armor": "heavy",
+            "movement": [
+              {
+                "speed": 6
+              },
+              {
+                "mode": "fly",
+                "speed": 6
+              }
+            ],
+            "abilities": [],
+            "actions": [
+              {
+                "name": "Crush.",
+                "description": "1d4+30 (with disadvantage) and Prone."
+              }
+            ],
+            "actionsInstructions": "",
+            "effects": [],
+            "description": "",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {},
+          "links": {
+            "self": "/api/monsters/2tjwj4zmzz9508zh37egz988qv"
+          }
+        },
+        "included": []
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Orc",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "615twd2a768ktvyqy08845k2qs",
+          "attributes": {
+            "name": "Orc",
+            "hazard": false,
+            "hp": 22,
+            "level": 1,
+            "size": "medium",
+            "armor": "medium",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "When crit: deal 5 damage to an adjacent enemy",
+                "name": "Enrage"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Battleaxe",
+                "description": "1d10+4",
+                "damage": {
+                  "roll": "1d10+4"
+                }
+              },
+              {
+                "name": "Javelin",
+                "description": "1d6+4. Range 8",
+                "damage": {
+                  "roll": "1d6+4"
+                }
+              }
+            ],
+            "actionsInstructions": "Choose one.",
+            "effects": [],
+            "description": "",
+            "mild_encounter": "Attack from Range to deal less damage and waste Enrage.",
+            "spicy_encounter": "Use melee attacks as much as possible, Always stay adjacent to enemies Enrage has a target.",
+            "paperforgeId": "187",
+            "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "0gf54dznx891maj94wsf7th58a"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/615twd2a768ktvyqy08845k2qs"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "0gf54dznx891maj94wsf7th58a",
+            "attributes": {
+              "name": "Orcs",
+              "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+              "abilities": [
+                {
+                  "name": "Battlelust",
+                  "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                },
+                {
+                  "name": "Tough as Nails",
+                  "description": "Orcs have Medium armor, except against magic damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Orc Battlebard",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "1hxnkxh7ma9t982j971vvn5npz",
+          "attributes": {
+            "name": "Orc Battlebard",
+            "hazard": false,
+            "hp": 50,
+            "level": 4,
+            "size": "medium",
+            "armor": "medium",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "Allied Orcs attacks with advantage so long as\nyou have not moved (or been moved) since your last turn.",
+                "name": "Stand Your Ground!"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Battle Horn (1/encounter)",
+                "description": " Trigger every allied Orc's\nEnrage ability."
+              },
+              {
+                "name": "Battleaxe",
+                "description": "1d10+4",
+                "damage": {
+                  "roll": "1d10+4"
+                }
+              }
+            ],
+            "actionsInstructions": "",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "187",
+            "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "0gf54dznx891maj94wsf7th58a"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/1hxnkxh7ma9t982j971vvn5npz"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "0gf54dznx891maj94wsf7th58a",
+            "attributes": {
+              "name": "Orcs",
+              "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+              "abilities": [
+                {
+                  "name": "Battlelust",
+                  "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                },
+                {
+                  "name": "Tough as Nails",
+                  "description": "Orcs have Medium armor, except against magic damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Orc Elite",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "5sq7krn9k79ebvr2ttzqtqz1bv",
+          "attributes": {
+            "name": "Orc Elite ",
+            "hazard": false,
+            "hp": 60,
+            "level": 6,
+            "size": "medium",
+            "armor": "medium",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "When crit: deal 5 damage to an adjacent enemy",
+                "name": "Enrage."
+              }
+            ],
+            "actions": [
+              {
+                "name": "Cleave",
+                "description": "2d10+4. to up to 2 enemies in Reach",
+                "damage": {
+                  "roll": "2d10+4"
+                }
+              },
+              {
+                "name": "Heavy Javelin",
+                "description": "2d6+4. Range 8",
+                "damage": {
+                  "roll": "2d6+4"
+                }
+              }
+            ],
+            "actionsInstructions": "Choose One.",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "187",
+            "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "0gf54dznx891maj94wsf7th58a"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/5sq7krn9k79ebvr2ttzqtqz1bv"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "0gf54dznx891maj94wsf7th58a",
+            "attributes": {
+              "name": "Orcs",
+              "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+              "abilities": [
+                {
+                  "name": "Battlelust",
+                  "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                },
+                {
+                  "name": "Tough as Nails",
+                  "description": "Orcs have Medium armor, except against magic damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Orc Raider",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "212mjyd5t893m8nhwb7yjp1q6d",
+          "attributes": {
+            "name": "Orc Raider",
+            "hazard": false,
+            "hp": 34,
+            "level": 3,
+            "size": "medium",
+            "armor": "medium",
+            "movement": [
+              {
+                "speed": 6
+              }
+            ],
+            "abilities": [
+              {
+                "description": "When crit: deal 5 damage to an adjacent enemy",
+                "name": "Enrage"
+              }
+            ],
+            "actions": [
+              {
+                "name": "Twin Strike (2x)",
+                "description": "1d10+4.  Trigger every allied Orc's",
+                "damage": {
+                  "roll": "1d10+4"
+                }
+              },
+              {
+                "name": "Javelin",
+                "description": "1d6+4. Range 8",
+                "damage": {
+                  "roll": "1d6+4"
+                }
+              }
+            ],
+            "actionsInstructions": "",
+            "effects": [],
+            "description": "",
+            "paperforgeId": "189",
+            "paperforgeImageUrl": "/paperforge/0189/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "0gf54dznx891maj94wsf7th58a"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/212mjyd5t893m8nhwb7yjp1q6d"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "0gf54dznx891maj94wsf7th58a",
+            "attributes": {
+              "name": "Orcs",
+              "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+              "abilities": [
+                {
+                  "name": "Battlelust",
+                  "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                },
+                {
+                  "name": "Tough as Nails",
+                  "description": "Orcs have Medium armor, except against magic damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "monsters",
+      "name": "Warpig",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Susann",
+      "document": {
+        "data": {
+          "type": "monsters",
+          "id": "60dtnmdakg974r0t6gahk637e8",
+          "attributes": {
+            "name": "Warpig",
+            "hazard": false,
+            "hp": 18,
+            "level": "1/2",
+            "size": "medium",
+            "armor": "none",
+            "kind": "Beast - Mammal",
+            "role": "melee",
+            "movement": [
+              {
+                "speed": 10
+              }
+            ],
+            "abilities": [],
+            "actions": [
+              {
+                "name": "Gore",
+                "description": "1d10",
+                "damage": {
+                  "roll": "1d10"
+                }
+              }
+            ],
+            "actionsInstructions": "",
+            "effects": [],
+            "description": "Armored warthogs, trained to gore the furthest creature away.\n",
+            "mild_encounter": "Go after melee heroes and stay within reach after attacking, making yourself vulnerable to follow up attacks.",
+            "spicy_encounter": "Go after ranged heroes, force them to move or have disadvantage on attacks. Continually move out of melee reach.",
+            "paperforgeId": "287",
+            "paperforgeImageUrl": "/paperforge/0287/portrait.png",
+            "subtype": "standard",
+            "legendary": false,
+            "minion": false
+          },
+          "relationships": {
+            "families": {
+              "data": [
+                {
+                  "type": "families",
+                  "id": "0gf54dznx891maj94wsf7th58a"
+                }
+              ]
+            }
+          },
+          "links": {
+            "self": "/api/monsters/60dtnmdakg974r0t6gahk637e8"
+          }
+        },
+        "included": [
+          {
+            "type": "families",
+            "id": "0gf54dznx891maj94wsf7th58a",
+            "attributes": {
+              "name": "Orcs",
+              "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+              "abilities": [
+                {
+                  "name": "Battlelust",
+                  "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                },
+                {
+                  "name": "Tough as Nails",
+                  "description": "Orcs have Medium armor, except against magic damage."
+                }
+              ]
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ancestries",
+      "name": "Beastfolk",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "ancestries",
+          "id": "c00aaa94-b785-40d8-8508-e87824a6a4cb",
+          "attributes": {
+            "name": "Beastfolk",
+            "size": [
+              "medium"
+            ],
+            "rarity": "uncommon",
+            "description": "Humanoid with beastly traits. Your size might also be Small or Large if you so choose.",
+            "abilities": [
+              {
+                "name": "Beastly Heritage",
+                "description": "Choose two beastly heritages.                                 \n\n• Primal Instinct: +1 to Finese, Might, Naturecraft, Perception or Stealth                                                                                                                        \n• Natural Weapon: 1d4 + STR or DEX                                             \n• Natural Physique: +1 Armor or +1 Speed                       \n• Night Eyes: gain Darkvision 6"
+              }
+            ],
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "ancestries",
+      "name": "Lizardfolk",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "ancestries",
+          "id": "59344834-dfd1-4213-97e3-e3a99dbdaf19",
+          "attributes": {
+            "name": "Lizardfolk",
+            "size": [
+              "medium"
+            ],
+            "rarity": "uncommon",
+            "description": "Lizardfolks exhibit a wide array of scale patterns and colours. Their individual facial features are as varied as those of lizards.. They can survive with just their wits in situations that would be deadly for other folk.",
+            "abilities": [
+              {
+                "name": "Marshborn Nature",
+                "description": "You have a Swim Speed and +1 Armor, +2 Instead when Anticipating Danger or when submerged in water. \nYou know Draconic if your INT is not negative."
+              }
+            ],
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "ancestries",
+      "name": "Turtlefolk",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Nimble Co.",
+      "document": {
+        "data": {
+          "type": "ancestries",
+          "id": "102b1557-2087-4ac3-bbba-33ac386394fb",
+          "attributes": {
+            "name": "Turtlefolk",
+            "size": [
+              "small",
+              "medium"
+            ],
+            "rarity": "exotic",
+            "description": "Turtlefolk take their time in everything they do; they are patient, sturdy, and slow to anger. They rely on their thick shells for protection, making them difficult to harm, but their cautious movements come at the cost of speed.",
+            "abilities": [
+              {
+                "name": "Slow & Steady",
+                "description": "+4 Armor, –2 speed."
+              }
+            ],
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Arcane Apprentice",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "ca0c1b45-68f8-43a2-b6d5-d3e026c416cc",
+          "attributes": {
+            "name": "Arcane Apprentice",
+            "requirement": "$undefined",
+            "description": "+1 Arcana. Additionally, you learn one cantrip spell from any school. You might change the cantrip you learned every time you gain a Key Stat Increase.",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Betrayed Before",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "385d17c5-a562-4d4c-bbb9-ba1eaeec7894",
+          "attributes": {
+            "name": "Betrayed Before",
+            "requirement": "$undefined",
+            "description": "You gain advantage on rolls to see if someone is trustworthy. If somebody betrays you, you gain an Inspiration Point.",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Brace The World",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "dbc44802-ab6e-43d4-b925-aa71ce4acc57",
+          "attributes": {
+            "name": "Brace The World",
+            "requirement": "$undefined",
+            "description": "+1 to Finesse, Might, Perception, or Stealth. 1/Day, after you've failed a check using any of the mentioned skill, you may reroll the d20.",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Criminal",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "8754438d-778d-495e-8ec5-cd92b0a05498",
+          "attributes": {
+            "name": "Criminal",
+            "requirement": "$undefined",
+            "description": "+1 Stealth. \nYou instinctively know your way out of trouble, be it a conversation or situation by asking the DM for a hint as to how you might escape (1/Safe Rest).",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Dragon, my NEMESIS",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "0e2161d7-9af7-45ed-96d6-17843b051bb2",
+          "attributes": {
+            "name": "Dragon, my NEMESIS",
+            "requirement": "$undefined",
+            "description": "You survived a dragon, scarred. You now study them for hope of crossing paths again. Advantage on skill checks related to dragon. When you roll a critical hit against a dragon, add half your LV to the damage.",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Learned A Lot",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "ac28df0b-be7a-42d0-ac89-0c455d2dc5d7",
+          "attributes": {
+            "name": "Learned A Lot",
+            "requirement": "$undefined",
+            "description": "+1 to Arcana, Examination, Lore, Insight, or Naturecraft. 1/Day, after you've failed a check using any of the mentioned skill, you may reroll the d20.",
+            "awards": []
+          }
+        }
+      }
+    },
+    {
+      "kind": "backgrounds",
+      "name": "Overlooked",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "pineapplepirate_",
+      "document": {
+        "data": {
+          "type": "backgrounds",
+          "id": "60572daa-6552-4f5b-a70e-49b78604bba2",
+          "attributes": {
+            "name": "Overlooked",
+            "requirement": "$undefined",
+            "description": "While dressed or behaving inconspicuously, you have advantage on skill checks to avoid notice. Additionally, creatures with no reason to suspect you as a threat will naturally overlook your presence.",
+            "awards": []
+          }
+        }
+      }
+    }
+  ]
+}

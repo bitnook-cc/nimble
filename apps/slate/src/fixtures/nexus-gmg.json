@@ -1,0 +1,211 @@
+{
+  "source": {
+    "name": "Nimble GMG",
+    "abbreviation": "GMG",
+    "license": "Nimble 3rd Party Creator License v2.0",
+    "link": "https://nimblerpg.com/"
+  },
+  "data": [
+    {
+      "type": "monsters",
+      "attributes": {
+        "name": "Bandit Minion",
+        "hp": 1,
+        "level": "1/4",
+        "size": "medium",
+        "armor": "none",
+        "kind": "Bandits",
+        "movement": [
+          {
+            "speed": 6
+          }
+        ],
+        "abilities": [],
+        "actions": [
+          {
+            "name": "Stab",
+            "damage": {
+              "roll": "1d8"
+            },
+            "description": "(follows minion rules)"
+          }
+        ],
+        "actionsInstructions": "",
+        "description": "",
+        "legendary": false,
+        "minion": true,
+        "paperforgeId": "17e"
+      },
+      "relationships": {
+        "family": {
+          "data": {
+            "type": "families",
+            "id": "bandits"
+          }
+        }
+      }
+    },
+    {
+      "type": "monsters",
+      "attributes": {
+        "name": "Bandit",
+        "hp": 12,
+        "level": "1/3",
+        "size": "medium",
+        "armor": "none",
+        "kind": "Bandits",
+        "movement": [
+          {
+            "speed": 6
+          }
+        ],
+        "abilities": [],
+        "actions": [
+          {
+            "name": "Stab",
+            "damage": {
+              "roll": "1d8+1"
+            },
+            "description": "(or Shoot, Range 8)"
+          }
+        ],
+        "actionsInstructions": "",
+        "description": "",
+        "legendary": false,
+        "paperforgeId": "17c"
+      },
+      "relationships": {
+        "family": {
+          "data": {
+            "type": "families",
+            "id": "bandits"
+          }
+        }
+      }
+    },
+    {
+      "type": "monsters",
+      "attributes": {
+        "name": "Goblin",
+        "hp": 15,
+        "level": "1/3",
+        "size": "small",
+        "armor": "none",
+        "kind": "Goblins",
+        "movement": [
+          {
+            "speed": 6
+          }
+        ],
+        "abilities": [],
+        "actions": [
+          {
+            "name": "Stab",
+            "damage": {
+              "roll": "1d6+2"
+            },
+            "description": "(or Shoot, Range 8)"
+          }
+        ],
+        "actionsInstructions": "",
+        "description": "",
+        "legendary": false,
+        "paperforgeId": "1"
+      },
+      "relationships": {
+        "family": {
+          "data": {
+            "type": "families",
+            "id": "goblins"
+          }
+        }
+      }
+    },
+    {
+      "type": "monsters",
+      "attributes": {
+        "name": "Alaric Draegoth, the Crimson Count",
+        "hp": 320,
+        "level": 16,
+        "size": "medium",
+        "armor": "none",
+        "kind": "Vampire Lord",
+        "movement": [
+          {
+            "mode": "fly",
+            "speed": 8
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Sanguine Cloak",
+            "description": "(1/turn) Deal 1d10 necrotic damage whenever you are hit, the attack is reduced by this amount."
+          },
+          {
+            "name": "Sunscorn",
+            "description": "Vulnerable to radiant. After taking radiant damage, use Beguile as a Reaction, they roll with disadvantage."
+          }
+        ],
+        "actions": [
+          {
+            "name": "Ebonfang",
+            "damage": {
+              "roll": "1d10+15"
+            },
+            "description": "Your target is considered Bloodied for 1 round. Fly 8 before or after attacking."
+          },
+          {
+            "name": "Beguile",
+            "description": "If no creature is Beguiled, Beguile a target on a failed DC 18 WIL save (w/ disadvantage if Bloodied). Beguiled: Dazed. Cannot Defend or allow anyone to Interpose for you. Damage ends."
+          },
+          {
+            "name": "Beckon & Bite",
+            "damage": {
+              "roll": "2d10+30"
+            },
+            "description": "Move a Beguiled creature adjacent to you and bite them. Also deals 1 Wound."
+          }
+        ],
+        "actionsInstructions": "After each hero's turn, summon 1 blood bat minion (d10) within 8 spaces, then choose 1:",
+        "description": "",
+        "saves": {
+          "all": 2
+        },
+        "bloodied": "At 160 HP, gain Mistform. Not vulnerable to radiant. Bat Decoy: Whenever Alaric would take damage, instead first swap places with a bat minion, 1/round.",
+        "lastStand": "Alaric is dying! 160 more damage and he dies. Until then, his Sanguine Cloak, attacks, and bats roll d20s instead of d10s.",
+        "paperforgeId": "514",
+        "legendary": true
+      },
+      "relationships": {}
+    }
+  ],
+  "included": [
+    {
+      "type": "families",
+      "id": "bandits",
+      "attributes": {
+        "name": "Bandits",
+        "abilities": [
+          {
+            "name": "Parry",
+            "description": "Treat attacks against you that roll 2 as a miss."
+          }
+        ]
+      }
+    },
+    {
+      "type": "families",
+      "id": "goblins",
+      "attributes": {
+        "name": "Goblins",
+        "description": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.",
+        "abilities": [
+          {
+            "name": "Haha, Missed Me!",
+            "description": "Whenever an attack misses you, deal 1 psychic damage in return."
+          }
+        ]
+      }
+    }
+  ]
+}

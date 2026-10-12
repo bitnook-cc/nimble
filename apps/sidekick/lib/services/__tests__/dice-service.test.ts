@@ -1,4 +1,3 @@
-import { type FormulaToken } from "@nimble/dice";
 import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Character } from "../../schemas/character";

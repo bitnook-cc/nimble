@@ -1,0 +1,32 @@
+- dialog "Edit NPC generator":
+  - heading "Edit NPC generator" [level=2]
+  - button "Close dialog"
+  - text: Generator name
+  - textbox "Generator name": Harbour folk
+  - text: Name generation
+  - combobox "Name generation":
+    - option "Name lists" [selected]
+    - option "Syllable patterns"
+  - paragraph: One entry per line. Repeated entries are more likely to be chosen. Any first names take precedence over masculine and feminine pools. Missing gender pools fall back to the available names.
+  - text: Any first names
+  - textbox "Any first names": Rowan Sable
+  - text: Masculine first names
+  - textbox "Masculine first names"
+  - text: Feminine first names
+  - textbox "Feminine first names"
+  - text: Surnames
+  - textbox "Surnames": Vale
+  - heading "NPC attributes" [level=3]
+  - paragraph: Each table needs at least one entry. These replace the four default tables for this generator.
+  - text: Appearance entries
+  - textbox "Appearance entries": Blue cloak
+  - text: Scar or mark entries
+  - textbox "Scar or mark entries": Nicked ear
+  - text: Mannerism entries
+  - textbox "Mannerism entries": Whistles softly
+  - text: Quirk entries
+  - textbox "Quirk entries": Collects shells Refuses hats
+  - button "Save generator"
+  - button "Try generator"
+  - button "Cancel"
+  - status: "Rowan Vale Appearance: Blue cloak Scar or mark: Nicked ear Mannerism: Whistles softly Quirk: Collects shells"

@@ -98,7 +98,7 @@ class AuthService {
       // Listen for messages from the popup
       const handleMessage = async (event: MessageEvent) => {
         // Verify the message is from the same origin (our callback page)
-        if (event.origin !== window.location.origin) {
+        if (event.origin !== window.location.origin || event.source !== popup || !event.data) {
           return;
         }
 
@@ -144,6 +144,10 @@ class AuthService {
     // Otherwise, try to fetch the user from the server
     const response = await this.fetchUser();
     return response.user || null;
+  }
+
+  getCurrentUserId(): string | null {
+    return this.user?.id ?? null;
   }
 
   isAuthenticated(): boolean {

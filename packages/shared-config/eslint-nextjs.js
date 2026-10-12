@@ -55,9 +55,11 @@ export default tseslint.config(
       "node_modules/**",
       ".turbo/**",
       "coverage/**",
+      "playwright-report/**",
+      "test-results*/**",
       "*.config.js",
       "*.config.mjs",
       "*.config.ts",
     ],
-  }
+  },
 );

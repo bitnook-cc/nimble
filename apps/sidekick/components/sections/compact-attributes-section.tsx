@@ -86,6 +86,7 @@ export function CompactAttributesSection() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleAttributeRoll(name)}
+                        aria-label={`Roll ${name} check`}
                         className="h-7 w-7 p-0"
                       >
                         <Dice6 className="h-3 w-3" />
@@ -108,6 +109,7 @@ export function CompactAttributesSection() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleSaveRoll(name)}
+                        aria-label={`Roll ${name} save`}
                         className="h-7 w-7 p-0"
                       >
                         <Shield className="h-3 w-3" />

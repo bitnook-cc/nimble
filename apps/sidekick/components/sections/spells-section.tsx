@@ -247,7 +247,11 @@ export function SpellsSection() {
         <CardContent className="space-y-6">
           {/* Casting Resource Tracker (Mana, Pilfered Power, etc.) */}
           {castingResource && (
-            <div className="border rounded-lg p-4 bg-muted/30">
+            <div
+              className="border rounded-lg p-4 bg-muted/30"
+              role="group"
+              aria-label={`${castingResource.definition.name} resource`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-purple-500" />
@@ -320,7 +324,12 @@ export function SpellsSection() {
                         <div className="space-y-3 pt-2">
                           {spells.map((spell) => {
                             return (
-                              <div key={spell.id} className="border rounded-lg p-4 space-y-2">
+                              <div
+                                key={spell.id}
+                                className="border rounded-lg p-4 space-y-2"
+                                role="group"
+                                aria-label={`${spell.name} spell`}
+                              >
                                 {/* First row: Name, Tier, Favorite */}
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
@@ -577,7 +586,12 @@ export function SpellsSection() {
                       <div className="space-y-3 pt-2">
                         {spells.map((spell) => {
                           return (
-                            <div key={spell.id} className="border rounded-lg p-4 space-y-2">
+                            <div
+                              key={spell.id}
+                              className="border rounded-lg p-4 space-y-2"
+                              role="group"
+                              aria-label={`${spell.name} spell`}
+                            >
                               {/* First row: Name, Tier, Favorite */}
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">

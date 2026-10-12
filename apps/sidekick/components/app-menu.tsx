@@ -4,6 +4,8 @@ import { Database, Download, Menu, Plus, Settings, Share2, Users } from "lucide-
 
 import { useState } from "react";
 
+import Link from "next/link";
+
 import { useActivitySharing } from "@/lib/hooks/use-activity-sharing";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useToastService } from "@/lib/hooks/use-toast-service";
@@ -79,6 +81,12 @@ export function AppMenu({ settings, characters, onSettingsChange }: AppMenuProps
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem asChild>
+            <Link href="/campaigns/">
+              <Users className="w-4 h-4 mr-2" />
+              Campaigns
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowCharacterSelector(true)}>
             <Users className="w-4 h-4 mr-2" />
             Characters

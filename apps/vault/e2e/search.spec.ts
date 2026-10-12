@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Vault Search Functionality", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByPlaceholder("Search vault...")).toBeVisible();
   });
 
   test("search input is visible and functional", async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe("Vault Search Functionality", () => {
 
     await test.step("Verify results dropdown appears", async () => {
       // Look for result items (buttons within the dropdown)
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       // Should have at least one result
       await expect(resultButtons.first()).toBeVisible({ timeout: 5000 });
     });
@@ -62,13 +62,9 @@ test.describe("Vault Search Functionality", () => {
 
     await test.step("Verify fuzzy match results appear", async () => {
       // Should still find results despite typo (fuzzy matching)
-      const resultButtons = page.locator('button');
-      const visibleResults = await resultButtons.count();
-
-      // Should have at least some results due to fuzzy matching
-      // If no results, fuzzy search might not be finding matches (acceptable if no close matches)
-      // This test validates the fuzzy search runs without errors
-      expect(visibleResults).toBeGreaterThanOrEqual(0);
+      await expect(
+        page.getByRole("option", { name: /Combat And Actions/i }),
+      ).toBeVisible();
     });
   });
 
@@ -81,7 +77,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify results are visible", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).toBeVisible({ timeout: 5000 });
     });
 
@@ -94,12 +90,14 @@ test.describe("Vault Search Functionality", () => {
     await test.step("Verify search is cleared and results hidden", async () => {
       await expect(searchInput).toHaveValue("");
       // Results should no longer be visible
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).not.toBeVisible();
     });
   });
 
-  test("search shows 'no results' message for nonsense query", async ({ page }) => {
+  test("search shows 'no results' message for nonsense query", async ({
+    page,
+  }) => {
     const searchInput = page.getByPlaceholder("Search vault...");
 
     await test.step("Search for nonsense term", async () => {
@@ -122,7 +120,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify results are visible", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).toBeVisible({ timeout: 5000 });
     });
 
@@ -133,7 +131,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify results dropdown is hidden", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).not.toBeVisible();
     });
   });
@@ -147,7 +145,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify results are visible", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).toBeVisible({ timeout: 5000 });
     });
 
@@ -157,7 +155,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify search input loses focus and dropdown closes", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).not.toBeVisible();
     });
   });
@@ -171,12 +169,12 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Click on first search result", async () => {
-      const firstResult = page.locator('button:has-text("Nimble")').first();
+      const firstResult = page.getByRole("option").first();
       await expect(firstResult).toBeVisible({ timeout: 5000 });
 
       // Click and wait for navigation
       await Promise.all([
-        page.waitForLoadState("networkidle"),
+        page.waitForURL((url) => url.pathname !== "/"),
         firstResult.click(),
       ]);
     });
@@ -237,12 +235,16 @@ test.describe("Vault Search Functionality", () => {
     await test.step("Verify results are displayed", async () => {
       // Just verify that search returns results without checking exact count
       // The limit is enforced in the search logic (12 results max)
-      const resultsDropdown = page.locator('div.absolute.top-full');
+      const resultsDropdown = page.getByRole("listbox", {
+        name: "Search results",
+      });
       await expect(resultsDropdown).toBeVisible({ timeout: 5000 });
 
       // Verify at least one result exists
-      const firstResult = page.locator('button').first();
-      await expect(firstResult).toBeVisible();
+      await expect(resultsDropdown.getByRole("option").first()).toBeVisible();
+      expect(
+        await resultsDropdown.getByRole("option").count(),
+      ).toBeLessThanOrEqual(12);
     });
   });
 
@@ -259,7 +261,7 @@ test.describe("Vault Search Functionality", () => {
     });
 
     await test.step("Verify results display correctly on mobile", async () => {
-      const resultButtons = page.locator('button:has-text("Nimble")');
+      const resultButtons = page.getByRole("option");
       await expect(resultButtons.first()).toBeVisible({ timeout: 5000 });
     });
   });
@@ -281,7 +283,9 @@ test.describe("Vault Search Functionality", () => {
     });
   });
 
-  test("search displays snippets for body content matches", async ({ page }) => {
+  test("search displays snippets for body content matches", async ({
+    page,
+  }) => {
     const searchInput = page.getByPlaceholder("Search vault...");
 
     await test.step("Search for term likely in content body", async () => {

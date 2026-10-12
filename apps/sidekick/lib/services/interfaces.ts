@@ -10,9 +10,15 @@ export interface ICharacterStorage {
   getAllCharacters(): Promise<Character[]>;
   createCharacter(character: Character): Promise<Character>;
   updateCharacter(character: Character): Promise<void>;
+  acceptCampaignInventory(
+    characterId: string,
+    inventory: Character["inventory"],
+    revision: number,
+  ): Promise<void>;
   deleteCharacter(id: string): Promise<void>;
   updateLastPlayed(id: string): Promise<void>;
   replaceAllCharacters(characters: Character[]): Promise<void>;
+  mergeSyncedCharacters(snapshot: Character[], remote: Character[]): Promise<Character[]>;
 }
 
 /**

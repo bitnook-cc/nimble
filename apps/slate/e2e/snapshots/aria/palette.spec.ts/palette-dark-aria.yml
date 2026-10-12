@@ -1,0 +1,40 @@
+- dialog "Command palette":
+  - banner:
+    - heading "Command palette" [level=2]
+    - button "Close command palette"
+  - combobox "Search widgets" [expanded]
+  - listbox "Widgets":
+    - option "Dice roller" [selected]:
+      - strong: Dice roller
+      - text: Dice roller · Saved in this campaign
+    - option "Initiative tracker":
+      - strong: Initiative tracker
+      - text: Initiative tracker · New encounter
+    - option "NPC generator":
+      - strong: NPC generator
+      - text: New campaign tool · Create names, scars, mannerisms and quirks.
+    - option "Notes":
+      - strong: Notes
+      - text: New campaign tool · Markdown notes with links to your campaign library.
+    - option "Reference":
+      - strong: Reference
+      - text: New campaign tool · Pin a rule, spell, item or section for offline play.
+    - option "Item library":
+      - strong: Item library
+      - text: New campaign tool · Search, edit and pin campaign items.
+    - option "Random table":
+      - strong: Random table
+      - text: New campaign tool · Roll weighted or dice-range tables.
+    - option "Clock & timer":
+      - strong: Clock & timer
+      - text: New campaign tool · Clock, countdown and stopwatch with compact controls.
+    - option "Counter":
+      - strong: Counter
+      - text: New campaign tool · Count manually or add/subtract on combat turns and rounds.
+    - option "Image card":
+      - strong: Image card
+      - text: New campaign tool · Keep a local map, portrait or handout in view.
+    - option "Checklist":
+      - strong: Checklist
+      - text: New campaign tool · Track tasks, clues and session preparation.
+  - paragraph: ↑ ↓ to choose · Enter to open · Esc to close

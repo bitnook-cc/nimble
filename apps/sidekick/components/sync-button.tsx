@@ -95,8 +95,9 @@ export function SyncButton() {
         );
 
         // Update sync state
-        setHasChanges(false);
-        setIsSynced(true);
+        const pendingChanges = await syncService.checkForChanges();
+        setHasChanges(pendingChanges);
+        setIsSynced(!pendingChanges);
 
         // Reset button text after 2 seconds
         setTimeout(() => {

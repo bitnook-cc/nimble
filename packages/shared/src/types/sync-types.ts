@@ -1,3 +1,6 @@
+// Version 2 clients preserve local edits when inventory conflicts are returned.
+export const SYNC_PROTOCOL_VERSION = 2;
+
 /**
  * Sync operation error codes
  */
@@ -30,6 +33,7 @@ export interface CharacterImageMetadata {
  * Sync result response
  */
 export interface SyncResult {
+  inventoryConflicts?: string[];
   characters: any[]; // Will be typed as Character[] in consuming apps
   syncedAt: number; // Unix timestamp in milliseconds
   characterCount: number;

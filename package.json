@@ -8,11 +8,12 @@
     "apps/discord",
     "apps/vault",
     "apps/portal",
+    "apps/slate",
     "packages/shared",
     "packages/shared-config",
-    "packages/shared-auth",
     "packages/nimble-dice",
-    "packages/nimble-ui"
+    "packages/nimble-ui",
+    "packages/nimble-generators"
   ],
   "scripts": {
     "build": "turbo build",
@@ -21,6 +22,7 @@
     "dev:api": "turbo dev --filter=@nimble/sidekick-api",
     "dev:discord": "turbo dev --filter=@nimble/discord",
     "dev:vault": "turbo dev --filter=@nimble/vault",
+    "dev:slate": "npm run build -w @nimble/dice && npm run build -w @nimble/generators && npm run dev -w @nimble/slate",
     "dev:portal": "turbo dev --filter=@nimble/portal",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
@@ -47,8 +49,14 @@
     "@vercel/analytics": "^1.5.0"
   },
   "overrides": {
-    "esbuild": "^0.24.3",
-    "path-to-regexp": "^8.2.0",
-    "undici": "^7.2.0"
+    "next": "~16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@prisma/config": {
+      "deepmerge-ts": "^8.0.0"
+    },
+    "sharp": "^0.35.5",
+    "qs": "^6.16.0",
+    "postcss-selector-parser": "^7.1.6"
   }
 }

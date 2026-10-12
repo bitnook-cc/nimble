@@ -66,13 +66,13 @@ vi.mock("@/lib/config/game-config", () => ({
 
 describe("CharacterCreateForm", () => {
   let mockCharacterCreation: {
-    quickCreateCharacter: ReturnType<typeof vi.fn>;
+    quickCreateCharacter: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
   };
   let mockCharacterService: {
-    loadCharacter: ReturnType<typeof vi.fn>;
+    loadCharacter: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
   };
-  let mockShowSuccess: ReturnType<typeof vi.fn>;
-  let mockShowError: ReturnType<typeof vi.fn>;
+  let mockShowSuccess: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+  let mockShowError: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 
   beforeEach(async () => {
     // Reset all mocks

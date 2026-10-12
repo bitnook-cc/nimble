@@ -1,0 +1,15 @@
+- dialog "Notes":
+  - heading "Notes" [level=2]
+  - button "Configure tool"
+  - button "Close dialog"
+  - button "Edit note"
+  - button "Note details"
+  - heading "Tonight" [level=2]
+  - list:
+    - listitem:
+      - checkbox [disabled]
+      - text: Open the northern gate
+    - listitem:
+      - checkbox [disabled]
+      - text: Check
+      - button "Initiative"

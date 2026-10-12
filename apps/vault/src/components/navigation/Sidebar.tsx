@@ -1,121 +1,143 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ChevronDown, ChevronRight, BookOpen, Lock, Folder, FileText } from 'lucide-react'
-import { publicMetaTree, patronMetaTree, purchasedMetaTree, type TreeNode } from '#site/trees'
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+  Lock,
+  Folder,
+  FileText,
+} from "lucide-react";
+import {
+  publicMetaTree,
+  patronMetaTree,
+  purchasedMetaTree,
+  type TreeNode,
+} from "#site/trees";
 
 interface SidebarProps {
-  userTags?: string[]
-  onClose?: () => void
+  userTags?: string[];
+  onClose?: () => void;
 }
 
 export function Sidebar({ userTags = [], onClose }: SidebarProps) {
-  const pathname = usePathname()
-  const [currentPath, setCurrentPath] = useState('')
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]))
+  const pathname = usePathname();
+  const [currentPath, setCurrentPath] = useState("");
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set([]));
 
   useEffect(() => {
-    setCurrentPath(pathname)
-  }, [pathname])
+    setCurrentPath(pathname);
+  }, [pathname]);
 
   // Combine all trees and filter by user access
-  const allTreesArray = [publicMetaTree, patronMetaTree, purchasedMetaTree].flat()
+  const allTreesArray = [
+    publicMetaTree,
+    patronMetaTree,
+    purchasedMetaTree,
+  ].flat();
   const combinedTree = allTreesArray.filter((node) =>
-    filterTreeByAccess(node, userTags)
-  )
+    filterTreeByAccess(node, userTags),
+  );
 
   // Auto-expand folders containing the current page
   useEffect(() => {
     if (currentPath) {
-      const foldersToExpand = new Set<string>()
+      const foldersToExpand = new Set<string>();
 
-      const findParentFolders = (nodes: TreeNode[], parentPath = '') => {
-        nodes.forEach(node => {
-          const nodePath = parentPath ? `${parentPath}/${node.name}` : node.name
+      const findParentFolders = (nodes: TreeNode[], parentPath = "") => {
+        nodes.forEach((node) => {
+          const nodePath = parentPath
+            ? `${parentPath}/${node.name}`
+            : node.name;
 
           if (node.children) {
             // Check if any child matches current path
-            const hasActiveChild = node.children.some(child =>
-              child.item?.permalink === currentPath ||
-              currentPath.startsWith(nodePath + '/')
-            )
+            const hasActiveChild = node.children.some(
+              (child) =>
+                child.item?.permalink === currentPath ||
+                currentPath.startsWith(nodePath + "/"),
+            );
 
             if (hasActiveChild) {
-              foldersToExpand.add(node.path)
+              foldersToExpand.add(node.path);
             }
 
-            findParentFolders(node.children, nodePath)
+            findParentFolders(node.children, nodePath);
           }
-        })
-      }
+        });
+      };
 
-      findParentFolders(combinedTree)
-      setExpandedPaths(foldersToExpand)
+      findParentFolders(combinedTree);
+      setExpandedPaths(foldersToExpand);
     }
-  }, [currentPath, combinedTree])
+  }, [currentPath, combinedTree]);
 
   // Recursively filter tree nodes by access
   function filterTreeByAccess(node: TreeNode, tags: string[]): boolean {
     // If user has 'test' tag, they can see everything
-    if (tags.includes('test')) {
-      return true
+    if (tags.includes("test")) {
+      return true;
     }
 
     // If it's a leaf node with an item, check access
     if (node.item) {
       // Public content has no access array, so it's always visible
       if (!node.item.access || node.item.access.length === 0) {
-        return true
+        return true;
       }
       // Check if user has any of the required access tags
-      return node.item.access.some(access => tags.includes(access))
+      return node.item.access.some((access) => tags.includes(access));
     }
 
     // If it's a folder, recursively filter children
     if (node.children && node.children.length > 0) {
-      const filteredChildren = node.children.filter(child => filterTreeByAccess(child, tags))
+      const filteredChildren = node.children.filter((child) =>
+        filterTreeByAccess(child, tags),
+      );
       // Keep folder if it has any accessible children
-      return filteredChildren.length > 0
+      return filteredChildren.length > 0;
     }
 
-    return false
+    return false;
   }
 
   const togglePath = (path: string) => {
-    const newExpanded = new Set(expandedPaths)
+    const newExpanded = new Set(expandedPaths);
     if (newExpanded.has(path)) {
-      newExpanded.delete(path)
+      newExpanded.delete(path);
     } else {
-      newExpanded.add(path)
+      newExpanded.add(path);
     }
-    setExpandedPaths(newExpanded)
-  }
+    setExpandedPaths(newExpanded);
+  };
 
   const hasRestrictedAccess = (access?: string[]) => {
     // No access array means public content
     if (!access || access.length === 0) {
-      return false
+      return false;
     }
     // Content with access array is restricted
-    return true
-  }
+    return true;
+  };
 
   const formatName = (name: string) => {
     // Remove file extensions and clean up
-    return name
-      .replace(/\.(md|mdx)$/, '')
-      .replace(/[-_]/g, ' ')
-  }
+    return name.replace(/\.(md|mdx)$/, "").replace(/[-_]/g, " ");
+  };
 
   const getDisplayName = (node: TreeNode) => {
-    return node.displayName || formatName(node.name)
-  }
+    return node.displayName || formatName(node.name);
+  };
 
-  const renderTreeNode = (node: TreeNode, depth: number = 0): React.ReactElement => {
-    const isExpanded = expandedPaths.has(node.path)
-    const hasChildren = node.children && node.children.length > 0
+  const renderTreeNode = (
+    node: TreeNode,
+    depth: number = 0,
+  ): React.ReactElement => {
+    const isExpanded = expandedPaths.has(node.path);
+    const hasChildren = node.children && node.children.length > 0;
 
     // Folder node
     if (hasChildren) {
@@ -128,8 +150,16 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
             className="w-full flex items-center gap-2 p-3 text-left text-foreground hover:bg-accent rounded-md transition-colors text-sm min-h-12"
             style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
           >
-            {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
-            <Folder size={14} className="text-muted-foreground" aria-hidden="true" />
+            {isExpanded ? (
+              <ChevronDown size={14} aria-hidden="true" />
+            ) : (
+              <ChevronRight size={14} aria-hidden="true" />
+            )}
+            <Folder
+              size={14}
+              className="text-muted-foreground"
+              aria-hidden="true"
+            />
             <span className="font-medium">{getDisplayName(node)}</span>
             <span className="text-xs text-muted-foreground ml-auto">
               ({node.children.length})
@@ -138,11 +168,11 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
 
           {isExpanded && (
             <div className="mt-1">
-              {node.children.map(child => renderTreeNode(child, depth + 1))}
+              {node.children.map((child) => renderTreeNode(child, depth + 1))}
             </div>
           )}
         </div>
-      )
+      );
     }
 
     // Leaf node (actual content item)
@@ -151,28 +181,40 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
         <div key={node.path}>
           <Link
             href={node.item.permalink}
-            aria-current={currentPath === node.item.permalink ? "page" : undefined}
+            onClick={onClose}
+            aria-current={
+              currentPath === node.item.permalink ? "page" : undefined
+            }
             className={`
               flex items-center gap-2 p-3 text-sm rounded-md transition-colors min-h-10
-              ${currentPath === node.item.permalink
-                ? 'bg-primary text-primary-foreground font-medium'
-                : 'text-foreground hover:bg-accent'
+              ${
+                currentPath === node.item.permalink
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-foreground hover:bg-accent"
               }
             `}
             style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
           >
-            <FileText size={14} className="text-muted-foreground flex-shrink-0" aria-hidden="true" />
+            <FileText
+              size={14}
+              className="text-muted-foreground flex-shrink-0"
+              aria-hidden="true"
+            />
             <span className="flex-1 truncate">{node.item.title}</span>
             {hasRestrictedAccess(node.item.access) && (
-              <Lock size={12} className="text-muted-foreground flex-shrink-0" aria-label="Restricted content" />
+              <Lock
+                size={12}
+                className="text-muted-foreground flex-shrink-0"
+                aria-label="Restricted content"
+              />
             )}
           </Link>
         </div>
-      )
+      );
     }
 
-    return <></>
-  }
+    return <></>;
+  };
 
   return (
     <aside className="w-64 bg-gradient-to-b from-card to-secondary border-r border-border h-screen overflow-y-auto">
@@ -186,7 +228,7 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
 
       <nav aria-label="Documentation navigation" className="p-4">
         {combinedTree.length > 0 ? (
-          combinedTree.map(node => renderTreeNode(node, 0))
+          combinedTree.map((node) => renderTreeNode(node, 0))
         ) : (
           <div className="text-center text-muted-foreground mt-8">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
@@ -200,8 +242,11 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
         <div className="text-xs text-muted-foreground">
           <p>Access Level:</p>
           <div className="flex flex-wrap gap-1 mt-1">
-            {userTags.map(tag => (
-              <span key={tag} className="bg-accent px-2 py-1 rounded text-foreground">
+            {userTags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-accent px-2 py-1 rounded text-foreground"
+              >
                 {tag}
               </span>
             ))}
@@ -209,5 +254,5 @@ export function Sidebar({ userTags = [], onClose }: SidebarProps) {
         </div>
       </div>
     </aside>
-  )
+  );
 }

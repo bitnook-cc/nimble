@@ -8,6 +8,11 @@ import { formulaEvaluatorService } from "./formula-evaluator-service";
 import { getCharacterService } from "./service-factory";
 
 export class AbilityService {
+  getCurrentUses(ability: ActionAbilityDefinition, character: Character): number {
+    if (ability.frequency === "per_turn" && !character.inEncounter) return 0;
+    return character._abilityUses.get(ability.id) || 0;
+  }
+
   /**
    * Calculate the actual max uses for an ability based on its maxUses definition
    */
@@ -73,7 +78,7 @@ export class AbilityService {
       return true;
     }
 
-    const currentUses = character._abilityUses.get(ability.id) || 0;
+    const currentUses = this.getCurrentUses(ability, character);
     const maxUses = this.calculateMaxUses(ability);
 
     // For limited-use action abilities, check uses remaining
@@ -97,12 +102,11 @@ export class AbilityService {
   }
 
   /**
-   * Reset abilities based on frequency
+   * Return only the reset entries so multiple frequencies can be combined safely.
    */
   resetAbilities(
     abilities: AbilityDefinition[],
     frequency: "per_turn" | "per_encounter" | "per_safe_rest",
-    character: Character,
   ): Map<string, number> {
     const resetMap = new Map(
       abilities
@@ -113,7 +117,7 @@ export class AbilityService {
         .map((ability) => [ability.id, 0]),
     );
 
-    return new Map([...character._abilityUses, ...resetMap]);
+    return resetMap;
   }
 
   /**

@@ -1,0 +1,36 @@
+- tabpanel "Monsters":
+  - text: Search monsters
+  - searchbox "Search monsters": Goblin
+  - paragraph: 6 monsters · available offline
+  - button "Manage monsters"
+  - list "Monster search results":
+    - listitem:
+      - button "Preview Goblin":
+        - strong: Goblin
+        - text: Level 1/3 · 15 HP · none armor Goblins · Nimble · GMG
+      - button "Add Goblin to encounter": Add
+    - listitem:
+      - button "Preview Goblin Minion":
+        - strong: Goblin Minion
+        - text: Level 1/4 Minion · 1 HP · none armor Goblins · Nimble · GMG
+      - button "Add Goblin Minion to encounter": Add
+    - listitem:
+      - button "Preview Goblin Ratrider":
+        - strong: Goblin Ratrider
+        - text: Level 2 · 30 HP · none armor Goblins · Nimble · GMG
+      - button "Add Goblin Ratrider to encounter": Add
+    - listitem:
+      - button "Preview Goblin Taskmaster":
+        - strong: Goblin Taskmaster
+        - text: Level 2 · 30 HP · medium armor Goblins · Nimble · GMG
+      - button "Add Goblin Taskmaster to encounter": Add
+    - listitem:
+      - button "Preview Bugbear":
+        - strong: Bugbear
+        - text: Level 2 · 30 HP · medium armor Goblins · Nimble · GMG
+      - button "Add Bugbear to encounter": Add
+    - listitem:
+      - button "Preview Krogg, Goblin King":
+        - strong: Krogg, Goblin King
+        - text: Level 2 Solo · 60 HP · medium armor Angry Bugbear · Nimble · GMG
+      - button "Add Krogg, Goblin King to encounter": Add
