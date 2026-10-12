@@ -1,0 +1,34 @@
+- region "Dice roller":
+  - heading "Dice roller" [level=2]
+  - button "Configure tool"
+  - button "Widget menu Dice roller"
+  - button "Expand Dice roller"
+  - button "d4"
+  - button "d6"
+  - button "d8"
+  - button "d10"
+  - button "d12"
+  - button "d20"
+  - button "d100"
+  - text: Dice formula
+  - textbox "Dice formula":
+    - /placeholder: 2d6 + 3
+    - text: 2d6 + 3
+  - button "Clear dice formula"
+  - button "Save roll preset"
+  - text: Advantage
+  - combobox "Advantage":
+    - option "Normal roll" [selected]
+    - option "Advantage"
+    - option "Double advantage"
+    - option "Disadvantage"
+    - option "Double disadvantage"
+  - group: Roll options & notation
+  - button "Roll dice ↵"
+  - text: 2d6 + 3 11 4 d6 4 d6
+  - paragraph: "[4] + [4] + 3"
+  - text: Recent rolls 1 / 50
+  - time: 12:00
+  - text: 2d6 + 3
+  - strong: "11"
+  - button "Reroll 2d6 + 3"

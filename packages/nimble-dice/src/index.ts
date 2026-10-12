@@ -41,8 +41,56 @@ export class DiceService {
    * Tokenizes a dice formula into an array of tokens for external processing
    */
   public tokenize(formula: string): FormulaToken[] {
+    if (typeof formula !== "string" || formula.length > this.config.maxFormulaLength) {
+      throw new Error(`Formula must be at most ${this.config.maxFormulaLength} characters`);
+    }
     const cleanedFormula = this.sanitizeExpression(formula);
-    return this.parseTokens(cleanedFormula);
+    const tokens = this.parseTokens(cleanedFormula);
+    this.validateRoll(tokens);
+    return tokens;
+  }
+
+  /** Validate before allocating dice, including callers supplying tokens directly. */
+  public validateRoll(tokens: FormulaToken[], options: DiceFormulaOptions = {}): number {
+    if (!Array.isArray(tokens) || tokens.length > this.config.maxTokens) {
+      throw new Error(`A formula may contain at most ${this.config.maxTokens} tokens`);
+    }
+    const validateAdvantage = (value: number) => {
+      if (!Number.isSafeInteger(value) || Math.abs(value) > this.config.maxAdvantage) {
+        throw new Error(
+          `Advantage must be an integer between -${this.config.maxAdvantage} and ${this.config.maxAdvantage}`,
+        );
+      }
+    };
+    validateAdvantage(options.advantageLevel ?? 0);
+    let dice = 0;
+    for (const token of tokens) {
+      if (token.type === "static" && !Number.isFinite(token.value))
+        throw new Error("Invalid number");
+      if (token.type !== "dice") continue;
+      if (
+        !Number.isSafeInteger(token.count) ||
+        token.count < 1 ||
+        token.count > this.config.maxDiceCount
+      ) {
+        throw new Error(`Dice count must be between 1 and ${this.config.maxDiceCount}`);
+      }
+      if (
+        ![...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].some(sides => sides === token.sides)
+      ) {
+        throw new Error("Invalid dice type");
+      }
+      const advantage = this.parseTokenModifiers(token.modifiers, options).advantageLevel ?? 0;
+      validateAdvantage(advantage);
+      dice += this.config.doubleDigitDiceTypes.some(sides => sides === token.sides)
+        ? 2 * (token.count + Math.abs(advantage))
+        : token.count + Math.abs(advantage);
+      if (dice > this.config.maxTotalDice)
+        throw new Error(
+          `A roll may use at most ${this.config.maxTotalDice} dice including advantage`,
+        );
+    }
+    return Math.max(1, dice);
   }
 
   /**
@@ -53,6 +101,7 @@ export class DiceService {
     options: DiceFormulaOptions = {},
   ): DiceFormulaResult {
     try {
+      this.validateRoll(tokens, options);
       // Check for unsubstituted variables (when not using tokenized externally)
       const hasUnsubstitutedVariables = tokens.some(
         (token) => token.type === "static" && token.isVariable && token.value === 0,
@@ -569,7 +618,7 @@ export class DiceService {
     const tokens: FormulaToken[] = [];
 
     // Define subpatterns for better readability
-    const diceNotation = String.raw`(\d+)?d(\d+)([!v]*)?([ad]\d?)?`;
+    const diceNotation = String.raw`(\d+)?d(\d+)([!v]*)?([ad]\d*)?`;
     const numbers = String.raw`\d+(\.\d+)?`;
     const variables = String.raw`[A-Z]+`;
     const operators = String.raw`[+\-*/()]`;
@@ -938,6 +987,11 @@ export const generateHistogram = (
   if (!formula || !formula.trim()) return null;
 
   try {
+    if (!Number.isSafeInteger(samples) || samples < 1 || samples > diceConfig.maxHistogramSamples)
+      return null;
+    const tokens = diceService.tokenize(formula);
+    const rollCost = diceService.validateRoll(tokens, options);
+    if (samples * rollCost > diceConfig.maxHistogramRolls) return null;
     const counts = new Map<number, number>();
     let total = 0;
     let min = Infinity;
@@ -945,7 +999,7 @@ export const generateHistogram = (
     const allResults: number[] = [];
 
     for (let i = 0; i < samples; i++) {
-      const result = diceService.evaluateDiceFormula(formula, options);
+      const result = diceService.evaluateTokenizedFormula(tokens, options);
       const val = result.total;
       allResults.push(val);
       counts.set(val, (counts.get(val) ?? 0) + 1);

@@ -1,0 +1,19 @@
+- dialog "Campaign party":
+  - heading "Campaign party" [level=2]
+  - button "Close dialog"
+  - paragraph: My Campaign · 2 PCs. Add these characters to any initiative tracker with Add party.
+  - group:
+    - list "Party characters":
+      - listitem:
+        - strong: Mira
+        - text: Alex · Level 3 · 18/24 HP
+        - paragraph: Carries the lantern
+        - button "Edit Mira"
+        - button "Remove Mira from party"
+      - listitem:
+        - strong: Thorn
+        - text: Alex · Level 3 · 20/20 HP
+        - paragraph: Carries the lantern
+        - button "Edit Thorn"
+        - button "Remove Thorn from party"
+    - button "Add character"

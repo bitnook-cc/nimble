@@ -1,0 +1,23 @@
+- dialog "Cones & Lines":
+  - heading "Cones & Lines" [level=2]
+  - button "Close dialog"
+  - button "Pin to screen"
+  - button "Copy reference"
+  - button "Export Markdown"
+  - button "Make campaign copy"
+  - paragraph: rule · Rules / Adventuring / Movement, Range & Space · d8a939a
+  - paragraph: Core Rules v2 · p. 55
+  - paragraph: For a cone, start at the character and extend X spaces outward. The cone can be up to X spaces wide at the farthest edge (you can make it narrower than X, but not wider).
+  - paragraph: For a line, starting from the character, extend the area up to X spaces in a single direction (you can make it shorter, but not longer), and 1 space wide. If a space is at least halfway covered by the cone or line, it is included in the effect.
+  - paragraph:
+    - img "cone 4"
+  - paragraph:
+    - img "line 4"
+  - heading "Related content" [level=3]
+  - button "Measuring Spaces"
+  - button "Diagonal Spaces"
+  - button "Multi-Target/Area of Effect (AoE)"
+  - button "Range and Reach"
+  - group: Source and attribution
+  - heading "Referenced by" [level=3]
+  - paragraph: No references yet.

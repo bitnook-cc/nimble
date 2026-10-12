@@ -1,0 +1,202 @@
+{
+  "format": "nexus-official-items-snapshot",
+  "retrievedAt": "2026-10-11T11:48:45.447Z",
+  "url": "https://nimble.nexus/items",
+  "sources": [
+    {
+      "id": "01042ce4-c950-4523-8955-3149044f6523",
+      "name": "Core Rules 3.0",
+      "abbreviation": "Core3"
+    },
+    {
+      "id": "a2eb6171-ff25-42bc-bcfe-cf854b220a3d",
+      "name": "Nimble Core Rules",
+      "abbreviation": "Core"
+    },
+    {
+      "id": "d54f0b7d-f28e-40f1-ae89-763bc56dbe8c",
+      "name": "Nimble GMG",
+      "abbreviation": "GMG"
+    },
+    {
+      "id": "d67abaa4-2084-4a5c-adc5-790a5b4f7b6a",
+      "name": "Nimble Heroes Book",
+      "abbreviation": "Heroes"
+    },
+    {
+      "id": "54ac9f04-03ba-44b8-b093-9063b5d5eb42",
+      "name": "Nimble Supplementary Content",
+      "abbreviation": "Extras"
+    }
+  ],
+  "items": [
+    {
+      "id": "2bea858f-95a7-4a76-83a7-ba3660be366b",
+      "name": "Handwraps of Force",
+      "kind": "",
+      "rarity": "rare",
+      "description": "While wearing these wraps, whenever you make an unarmed strike, you may push your target up to 2 spaces and yourself the same distance in the opposite direction. You may instead make an attack with no target, striking the air to propel yourself 4 spaces in any direction",
+      "moreInfo": "Core Rules v0.9",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "danielle"
+    },
+    {
+      "id": "341b4b88-b389-4558-9a7e-77b4b482893c",
+      "name": "Keycoin",
+      "kind": "",
+      "rarity": "unspecified",
+      "description": "Insert into a keyhole to magically unlock a door. On use, the coin teleports 1d88 miles away.",
+      "moreInfo": "Adapted from **The Griffon's Saddlebag**",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "byteslicer"
+    },
+    {
+      "id": "3ea3f5c6-3648-4c8f-917c-6d57f99eb576",
+      "name": "Heart Piercer",
+      "kind": "Rapier",
+      "rarity": "rare",
+      "description": "2d4 damage. On crit, Dazed.",
+      "moreInfo": "",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "danielle"
+    },
+    {
+      "id": "4727d985-1087-48fb-84bf-1b5995080bbc",
+      "name": "Additional Healing Potions",
+      "kind": "Potion",
+      "rarity": "unspecified",
+      "description": "**Lesser Healing Potion.** Action: Drink or administer to recover 1d4+2 HP.\n\n**Omega Healing Potion.** Action: Drink or administer to recover 5d10+10 HP.",
+      "moreInfo": "A diluted version of a Healing Potion; which is effective for scratches, bruises, and other daily pains. Your typical apothecary can brew these easily, with the right ingredients.\n\nOmega Healing Potions are believed to be--at least in part--the blood of the gods. They are rare and have many buyers, but some of the most common and most generous are always religious in nature.",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Pollywannahacker"
+    },
+    {
+      "id": "75c55873-6fbd-4bc0-8d9a-5ba9f17ab2e9",
+      "name": "Manglemaul",
+      "kind": "2 handed Maul",
+      "rarity": "rare",
+      "description": "1d6+STR bludgeoning damage. On hit: you\nmay Grapple a creature smaller than you\n(escape DC 10).",
+      "moreInfo": "Action: You may swing a creature\nGrappled this way at another creature within Reach,\ndamaging both of them and ending the Grapple.",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Prins Bus"
+    },
+    {
+      "id": "764baa50-32f6-46a3-84e2-a4903588182e",
+      "name": "Button of Protection",
+      "kind": "",
+      "rarity": "rare",
+      "description": "A small, unassuming button etched with a faintly glowing sigil. When sewn onto an outfit, as a reaction when you are attacked, you may pull the button off and throw it into the air. The button emits a sudden, dazzling flash of light and a high-pitched whistle. The attacker must make a WIL save or be distracted, causing the attack to miss you.",
+      "moreInfo": "After use, the button becomes inert. It can be sewn back onto a garment during a Safe Rest by an experienced seamstress or tailor with silver thread, which reactivates its power.\n\nCore Rules v0.9",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "danielle"
+    },
+    {
+      "id": "82d862d8-9049-43f3-a21f-c622eb20c42e",
+      "name": "Revolver",
+      "kind": "Firearm",
+      "rarity": "uncommon",
+      "description": "Range 8, Load 1. 1d6+DEX Piercing. Costs 40 GP.",
+      "moreInfo": "Magazine size of 6 rounds.",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Walse"
+    },
+    {
+      "id": "8d5c2dc9-fe5c-47f5-bcd6-effdcd93c6a6",
+      "name": "Stormquill",
+      "kind": "Crossbow",
+      "rarity": "rare",
+      "description": "2d4+10 (Range 8)",
+      "moreInfo": "",
+      "source": {
+        "name": "Nimble GMG",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "danielle"
+    },
+    {
+      "id": "997325e1-fa46-42fb-80c7-d2bb0a034d1b",
+      "name": "Rifle",
+      "kind": "Firearm",
+      "rarity": "uncommon",
+      "description": "2-handed, Range 12, Load 2. 1d12+DEX Piercing damage, Costs 50 GP.",
+      "moreInfo": "Magazine size of 5 rounds.",
+      "source": {
+        "name": "Nimble Supplementary Content",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Walse"
+    },
+    {
+      "id": "a40f79e2-af2f-4326-a2ca-0d05bd2a31fa",
+      "name": "Additional Mana Potions",
+      "kind": "Potion",
+      "rarity": "unspecified",
+      "description": "**Lesser Mana Potion.** Action: Drink or administer to recover 1d4 mana.\n\n**Omega Mana Potion.** Action: Drink or administer to recover 5d4+5 mana.",
+      "moreInfo": "A diluted Mana Potion, which may or may not work... the cheapness, ease of use, and sweet-sour taste make up for it; to the average hedge mage that is.\n\nOmega Mana Potions are made only by the absolute most experienced alchemists and mages working together. They are considered to be just a step below the philosopher's stone in alchemy.",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "Pollywannahacker"
+    },
+    {
+      "id": "b4521795-4a07-44f1-8494-f7836e0bf895",
+      "name": "Gem of Escape",
+      "kind": "",
+      "rarity": "very_rare",
+      "description": "**_ACTION_**. Crush one in case of emergency to instantly teleport ALL who are bound to one to the location of the other gem.",
+      "moreInfo": "These magical gems are always crafted in pairs and can have any number of willing creatures magically bound to them.",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "byteslicer"
+    },
+    {
+      "id": "f07c5a3c-6cab-4299-9935-dfa478e1bc30",
+      "name": "Your life, for mine",
+      "kind": "Short Sword",
+      "rarity": "rare",
+      "description": "1d6 + DEX piercing. (1/turn) Take 1 wound to make the die crit.",
+      "moreInfo": "Used by the most wicked cheats.",
+      "source": {
+        "name": "Nimble Core Rules",
+        "license": "Nimble 3rd Party Creator License v2.0",
+        "link": "https://nimblerpg.com/"
+      },
+      "contributor": "chroy"
+    }
+  ]
+}

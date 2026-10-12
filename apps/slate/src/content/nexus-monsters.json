@@ -1,0 +1,4111 @@
+{
+  "format": "slate-content",
+  "schemaVersion": 1,
+  "id": "nimble-nexus-bestiary",
+  "version": "d8a939aa69752d92c05ba9760b60b2dadae07485",
+  "name": "Nimble Nexus · Official bestiary",
+  "source": {
+    "url": "https://github.com/dstrelau/nimble.monster/tree/d8a939aa69752d92c05ba9760b60b2dadae07485/data/official/gmg/bestiary.json",
+    "revision": "d8a939aa69752d92c05ba9760b60b2dadae07485",
+    "license": "Nimble © 2025 Nimble Co. Nimble 3rd Party Creator License v2.0; source repository AGPL-3.0. Nimble Nexus is independent of Nimble Co."
+  },
+  "records": [
+    {
+      "id": "monster/bandit-minion",
+      "kind": "monster",
+      "title": "Bandit Minion",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n## Actions\n\n### Stab\n\n[1d8](roll:1d8) · (follows minion rules)",
+      "tags": [
+        "Bandits",
+        "Bandits",
+        "minion"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 1,
+        "level": "1/4",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": true
+      }
+    },
+    {
+      "id": "monster/goblin-minion",
+      "kind": "monster",
+      "title": "Goblin Minion",
+      "body": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.\n\n### Goblins: Haha, Missed Me!\n\nWhenever an attack misses you, deal 1 psychic damage in return.\n\n## Actions\n\n### Stab\n\n[1d6](roll:1d6) · (follows minion rules)",
+      "tags": [
+        "Goblins",
+        "Goblins",
+        "minion"
+      ],
+      "category": "Goblins",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 1,
+        "level": "1/4",
+        "armor": "none",
+        "size": "small",
+        "kind": "Goblins",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": true
+      }
+    },
+    {
+      "id": "monster/kobold-minion",
+      "kind": "monster",
+      "title": "Kobold Minion",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n## Actions\n\n### Stab\n\n[1d4](roll:1d4) · (follows minion rules)",
+      "tags": [
+        "Kobolds",
+        "Kobolds",
+        "minion"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 1,
+        "level": "1/4",
+        "armor": "none",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": true
+      }
+    },
+    {
+      "id": "monster/snakeman-minion",
+      "kind": "monster",
+      "title": "Snakeman Minion",
+      "body": "*Aggressive Hissing Noises*\n\n### Snakemen: Coiling Strike\n\nOn melee crit: Grapple (escape DC 10).\n\n## Actions\n\n### Strike\n\n[1d6](roll:1d6) · Melee/ranged (follows minion rules)",
+      "tags": [
+        "Snakemen",
+        "Snakemen",
+        "minion"
+      ],
+      "category": "Snakemen",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 1,
+        "level": "1/4",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Snakemen",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": true
+      }
+    },
+    {
+      "id": "monster/bandit",
+      "kind": "monster",
+      "title": "Bandit",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n## Actions\n\n### Stab\n\n[1d8+1](roll:1d8%2B1) · (or Shoot, Range 8)",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 12,
+        "level": "1/3",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/goblin",
+      "kind": "monster",
+      "title": "Goblin",
+      "body": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.\n\n### Goblins: Haha, Missed Me!\n\nWhenever an attack misses you, deal 1 psychic damage in return.\n\n## Actions\n\n### Stab\n\n[1d6+2](roll:1d6%2B2) · (or Shoot, Range 8)",
+      "tags": [
+        "Goblins",
+        "Goblins"
+      ],
+      "category": "Goblins",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 15,
+        "level": "1/3",
+        "armor": "none",
+        "size": "small",
+        "kind": "Goblins",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/kobold",
+      "kind": "monster",
+      "title": "Kobold",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n## Actions\n\n### Stab\n\n[1d4+2](roll:1d4%2B2) · (or Sling, Range 8)",
+      "tags": [
+        "Kobolds",
+        "Kobolds"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 12,
+        "level": "1/3",
+        "armor": "none",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/skeleton",
+      "kind": "monster",
+      "title": "Skeleton",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Grave Arrow\n\n[1d4+3](roll:1d4%2B3) · ",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 10,
+        "level": "1/3",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/stenchling",
+      "kind": "monster",
+      "title": "Stenchling",
+      "body": "### Putrid Cloud\n\nOn Death: 2d6 poison damage to enemies within Reach 2.\n\n## Actions\n\n### Bite\n\n[2d6](roll:2d6) · ",
+      "tags": [
+        "Cultists & Horrors",
+        "Horrors"
+      ],
+      "category": "Horrors",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 18,
+        "level": "1/2",
+        "armor": "none",
+        "size": "small",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/stirge",
+      "kind": "monster",
+      "title": "Stirge",
+      "body": "### Stirges: Evasive Flier\n\nAttacks against stirges are made with disadvantage.\n\n### Stirges: Latched On\n\nYou move where your target moves until either dies. Your attacks can't miss or be Defended/Interposed against. Attacks that miss you damage your target instead.\n\n## Actions\n\n### Latch On\n\n[1d4+2](roll:1d4%2B2) · On hit: Latched On.",
+      "tags": [
+        "Dungeon Denizens",
+        "Stirges"
+      ],
+      "category": "Stirges",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 10,
+        "level": "1/2",
+        "armor": "none",
+        "size": "tiny",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/seedling",
+      "kind": "monster",
+      "title": "Seedling",
+      "body": "Soulless, thorny plant beings fertilized by blood.\n\n### Briarbanes: Peeling Bark\n\nDamage degrades Armor 1 step: Heavy » Medium » None.\n\n## Actions\n\n### Thorn Seed\n\n[2d6+2](roll:2d6%2B2) · ",
+      "tags": [
+        "Forest Denizens",
+        "Briarbanes"
+      ],
+      "category": "Briarbanes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 8,
+        "level": "1/2",
+        "armor": "heavy",
+        "size": "small",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/kobold-sneak",
+      "kind": "monster",
+      "title": "Kobold Sneak",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n### Revenge\n\nWhen an ally dies, you may move up to 6 spaces before using your Nooooo! ability.\n\n## Actions\n\n### Stab\n\n[1d4+2](roll:1d4%2B2) · (or Sling, Range 8)",
+      "tags": [
+        "Kobolds",
+        "Kobolds"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 15,
+        "level": "1/2",
+        "armor": "none",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/zombie",
+      "kind": "monster",
+      "title": "Zombie",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Crunch\n\n[1d4+4](roll:1d4%2B4) · On damage: Grappled.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 15,
+        "level": "1/2",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bandit-hunter",
+      "kind": "monster",
+      "title": "Bandit Hunter",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n## Actions\n\n### Battlebow\n\n[2d8+2](roll:2d8%2B2) · ",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 22,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/cultist",
+      "kind": "monster",
+      "title": "Cultist",
+      "body": "### Cultists: Fanatical Zeal\n\nWhile not at max HP, make all rolls with advantage. Your crits also inflict Despair (Disadvantage on the next attack you make this encounter).\n\n## Actions\n\n### Oblation of Blood!\n\nIf undamaged, attack self for 2 damage. Adjacent enemies are inflicted with Despair.\n\n### Dreadful Blade\n\n[1d6+6](roll:1d6%2B6) · \n\n### Blood Boil\n\n[3d6+6](roll:3d6%2B6) · (Bloodied creature)",
+      "tags": [
+        "Cultists & Horrors",
+        "Cultists"
+      ],
+      "category": "Cultists",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/tiny-mimic",
+      "kind": "monster",
+      "title": "Tiny Mimic",
+      "body": "(Cup, Shoe, Apple, Candlestick, Potion, Pebble)\n\n### Mimics: Ambusher\n\nMimics always start first and heroes roll Initiative with disadvantage.\n\n### Mimics: Sticky\n\nMimic hits also Grapple and can Grapple any number of creatures. When crit: release 1 creature (attacker's choice).\n\n## Actions\n\n### Pseudopod\n\n[1d4](roll:1d4) · (escape DC 9)\n\n### Bite\n\n[1d12](roll:1d12) · (a Grappled creature)",
+      "tags": [
+        "Dungeon Denizens",
+        "Mimics"
+      ],
+      "category": "Mimics",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "tiny",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/gray-ooze",
+      "kind": "monster",
+      "title": "Gray Ooze",
+      "body": "### Oozes: Digestive Touch\n\nContact with an ooze inflicts the Digested condition: they deal an additional X damage for each time the target has been Digested this encounter.\n\n### Oozes: Goopy\n\nWhen crit or dealt any slashing damage: summon X ooze minions (size: d6); their attacks inflict Digested.\n\n## Actions\n\n### Acidic Touch (2×)\n\n[1d6+2](roll:1d6%2B2) · ",
+      "tags": [
+        "Dungeon Denizens",
+        "Oozes"
+      ],
+      "category": "Oozes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/acidpod",
+      "kind": "monster",
+      "title": "Acidpod",
+      "body": "Soulless, thorny plant beings fertilized by blood.\n\n### Briarbanes: Peeling Bark\n\nDamage degrades Armor 1 step: Heavy » Medium » None.\n\n### Caustic Eruption\n\nOn death: 4d6 acid damage to all adjacent creatures.\n\n## Actions\n\n### Grab\n\nDC 12 DEX save or Grappled.",
+      "tags": [
+        "Forest Denizens",
+        "Briarbanes"
+      ],
+      "category": "Briarbanes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 8,
+        "level": "1",
+        "armor": "heavy",
+        "size": "small",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/gnoll",
+      "kind": "monster",
+      "title": "Gnoll",
+      "body": "### Frenzy\n\nAdvantage against Bloodied creatures.\n\n## Actions\n\n### Ravage (2×)\n\n[1d10](roll:1d10) · \n\n### Shoot\n\n[1d10](roll:1d10) · ",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Hill And Field",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/worg",
+      "kind": "monster",
+      "title": "Worg",
+      "body": "### Savage\n\nAlways crits when attacking a Grappled creature.\n\n## Actions\n\n### Rip Apart (2×)\n\n[1d6+2](roll:1d6%2B2) · On hit: Grappled (escape DC 10).",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "large",
+        "kind": "Hill And Field",
+        "movement": "walk 10",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/kobold-clanger",
+      "kind": "monster",
+      "title": "Kobold Clanger",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n### CLANG!\n\nAllies who hear your clanging, roll 1 additional die whenever they attack.\n\n## Actions",
+      "tags": [
+        "Kobolds",
+        "Kobolds"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 16,
+        "level": "1",
+        "armor": "heavy",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/kobold-trapper",
+      "kind": "monster",
+      "title": "Kobold Trapper",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n### Trap!\n\nWhen an enemy moves adjacent to you or an ally, they trigger one of your traps! (1/encounter each). BEEES! Deal 5d4 damage (doesn't miss). Half as much to ALL adjacent creatures. HIDDEN NET! Restrained (escape DC 10).\n\n## Actions\n\n### Throw Scorpion (2×)\n\n[1d4+2](roll:1d4%2B2) · ",
+      "tags": [
+        "Kobolds",
+        "Kobolds"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 26,
+        "level": "1",
+        "armor": "none",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/kobold-denwarden",
+      "kind": "monster",
+      "title": "Kobold Denwarden",
+      "body": "Small, maniacal dragonlings. Fiercely protective of their own.\n\n### Kobolds: Nooooo!\n\nWhen an ally within 2 spaces dies, attack once for free.\n\n### Hold!\n\nAdjacent allies gain Medium Armor.\n\n## Actions\n\n### Stab (2×)\n\n[1d4+2](roll:1d4%2B2) · (or Sling, Range 8)",
+      "tags": [
+        "Kobolds",
+        "Kobolds"
+      ],
+      "category": "Kobolds",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 20,
+        "level": "1",
+        "armor": "medium",
+        "size": "small",
+        "kind": "Kobolds",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/snakeman",
+      "kind": "monster",
+      "title": "Snakeman",
+      "body": "*Aggressive Hissing Noises*\n\n### Snakemen: Coiling Strike\n\nOn melee crit: Grapple (escape DC 10).\n\n## Actions\n\n### Slash\n\n[1d6+6](roll:1d6%2B6) · (or Spit, Range 8)",
+      "tags": [
+        "Snakemen",
+        "Snakemen"
+      ],
+      "category": "Snakemen",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 26,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Snakemen",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ghoul",
+      "kind": "monster",
+      "title": "Ghoul",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Sickening Claw\n\n[1d4+8](roll:1d4%2B8) · On damage: Dazed.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 20,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bandit-assassin",
+      "kind": "monster",
+      "title": "Bandit Assassin",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n### Sneak\n\nYou are invisible until you attack.\n\n## Actions\n\n### Poison Blade (2×)\n\n[1d8+2](roll:1d8%2B2) · On damage: Dazed.",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 24,
+        "level": "2",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bandit-bruiser",
+      "kind": "monster",
+      "title": "Bandit Bruiser",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n## Actions\n\n### Bash\n\n[2d8+4](roll:2d8%2B4) · ",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 24,
+        "level": "2",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/small-mimic",
+      "kind": "monster",
+      "title": "Small Mimic",
+      "body": "(Backpack, Shield/Weapon, Chair, Crate, Tree Stump)\n\n### Mimics: Ambusher\n\nMimics always start first and heroes roll Initiative with disadvantage.\n\n### Mimics: Sticky\n\nMimic hits also Grapple and can Grapple any number of creatures. When crit: release 1 creature (attacker's choice).\n\n## Actions\n\n### Pseudopod\n\n[1d6](roll:1d6) · (escape DC 11)\n\n### Bite\n\n[1d20](roll:1d20) · (a Grappled creature)",
+      "tags": [
+        "Dungeon Denizens",
+        "Mimics"
+      ],
+      "category": "Mimics",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 41,
+        "level": "2",
+        "armor": "none",
+        "size": "small",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/tangler",
+      "kind": "monster",
+      "title": "Tangler",
+      "body": "Soulless, thorny plant beings fertilized by blood.\n\n### Briarbanes: Peeling Bark\n\nDamage degrades Armor 1 step: Heavy » Medium » None.\n\n## Actions\n\n### Tangle (2×)\n\n[1d6+2](roll:1d6%2B2) · (Reach 6) On Hit: Grappled (escape DC 12, or any fire or slashing damage).",
+      "tags": [
+        "Forest Denizens",
+        "Briarbanes"
+      ],
+      "category": "Briarbanes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 20,
+        "level": "2",
+        "armor": "heavy",
+        "size": "medium",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bugbear",
+      "kind": "monster",
+      "title": "Bugbear",
+      "body": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.\n\n### Goblins: Haha, Missed Me!\n\nWhenever an attack misses you, deal 1 psychic damage in return.\n\n## Actions\n\n### Cleave\n\n[2d6+4](roll:2d6%2B4) · \n\n### Javelin\n\n[1d6+2](roll:1d6%2B2) · ",
+      "tags": [
+        "Goblins",
+        "Goblins"
+      ],
+      "category": "Goblins",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 30,
+        "level": "2",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Goblins",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/goblin-taskmaster",
+      "kind": "monster",
+      "title": "Goblin Taskmaster",
+      "body": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.\n\n### Goblins: Haha, Missed Me!\n\nWhenever an attack misses you, deal 1 psychic damage in return.\n\n### Meat Shield\n\nCan force other goblins to Interpose for him.\n\n## Actions\n\n### Stab\n\n[1d6+2](roll:1d6%2B2) · (or Shoot, Range 8) Then:\n\n### Get in here!\n\nCall a goblin minion to the fight.",
+      "tags": [
+        "Goblins",
+        "Goblins"
+      ],
+      "category": "Goblins",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 30,
+        "level": "2",
+        "armor": "medium",
+        "size": "small",
+        "kind": "Goblins",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/goblin-ratrider",
+      "kind": "monster",
+      "title": "Goblin Ratrider",
+      "body": "Green, cunning, & thriving on the edge of chaos. Will mock you mercilessly if given the chance.\n\n### Goblins: Haha, Missed Me!\n\nWhenever an attack misses you, deal 1 psychic damage in return.\n\n### CHAAARGE!\n\nIf you move at least 4 spaces in a straight line, attack with advantage once.\n\n## Actions\n\n### Bite & Stab (2×)\n\n[1d6+2](roll:1d6%2B2) · On crit: Prone.",
+      "tags": [
+        "Goblins",
+        "Goblins"
+      ],
+      "category": "Goblins",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 30,
+        "level": "2",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Goblins",
+        "movement": "walk 10",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/blue-drake",
+      "kind": "monster",
+      "title": "Blue Drake",
+      "body": "### On Death\n\nDeal 1d12 damage back (ignores metal armor).\n\n## Actions\n\n### Shocking Bite\n\n[1d12+5](roll:1d12%2B5) · (ignores metal armor)",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 34,
+        "level": "2",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Hill And Field",
+        "movement": "fly 12",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/giant-spider",
+      "kind": "monster",
+      "title": "Giant Spider",
+      "body": "## Actions\n\n### Shoot Web\n\n[1d8+2](roll:1d8%2B2) · On hit: Restrained (escape DC 12, or any slashing/fire damage).\n\n### Bite\n\n[2d8+4](roll:2d8%2B4) · (Hampered target) Poisoned (magical healing ends).",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 27,
+        "level": "2",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Underground",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/fanatic",
+      "kind": "monster",
+      "title": "Fanatic",
+      "body": "### Cultists: Fanatical Zeal\n\nWhile not at max HP, make all rolls with advantage. Your crits also inflict Despair (Disadvantage on the next attack you make this encounter).\n\n## Actions\n\n### Oblation of Blood!\n\nIf undamaged, attack self for 2 damage. Adjacent enemies are inflicted with Despair.\n\n### Whispers of Madness\n\n[3d6+6](roll:3d6%2B6) · Contested STR check or Grappled (reroll to escape, or any radiant damage); if successful, deal psychic damage (cannot be Defended or Interposed against).",
+      "tags": [
+        "Cultists & Horrors",
+        "Cultists"
+      ],
+      "category": "Cultists",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 41,
+        "level": "3",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/specter",
+      "kind": "monster",
+      "title": "Specter",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Deathly Touch\n\n[1d4](roll:1d4) · On damage: set HP to 0.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 30,
+        "level": "3",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "fly 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bandit-captain",
+      "kind": "monster",
+      "title": "Bandit Captain",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n## Actions\n\n### Slice (3×)\n\n[1d8+1](roll:1d8%2B1) · (or Shoot, Range 8)",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 36,
+        "level": "4",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bandit-mage",
+      "kind": "monster",
+      "title": "Bandit Mage",
+      "body": "### Bandits: Parry\n\nTreat attacks against you that roll 2 as a miss.\n\n### Spark Step\n\nWhen damaged, teleport up to 4 spaces.\n\n## Actions\n\n### Arc Lightning\n\n[3d8](roll:3d8) · Also strikes the next closest creature. On miss: damage self instead.",
+      "tags": [
+        "Bandits",
+        "Bandits"
+      ],
+      "category": "Bandits",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 41,
+        "level": "4",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Bandits",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/spiny-fiend",
+      "kind": "monster",
+      "title": "Spiny Fiend",
+      "body": "### Spines\n\nMelee attackers take 3 damage.\n\n## Actions\n\n### Claws (2×)\n\n[1d6+6](roll:1d6%2B6) · \n\n### Shoot Spine\n\n[1d6+6](roll:1d6%2B6) · ",
+      "tags": [
+        "Cultists & Horrors",
+        "Horrors"
+      ],
+      "category": "Horrors",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 49,
+        "level": "4",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ochre-jelly",
+      "kind": "monster",
+      "title": "Ochre Jelly",
+      "body": "### Oozes: Digestive Touch\n\nContact with an ooze inflicts the Digested condition: they deal an additional X damage for each time the target has been Digested this encounter.\n\n### Oozes: Goopy\n\nWhen crit or dealt any slashing damage: summon X ooze minions (size: d6); their attacks inflict Digested.\n\n## Actions\n\n### Acidic Touch (2×)\n\n[1d6+3](roll:1d6%2B3) · ",
+      "tags": [
+        "Dungeon Denizens",
+        "Oozes"
+      ],
+      "category": "Oozes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 52,
+        "level": "4",
+        "armor": "none",
+        "size": "large",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/gnoll-packleader",
+      "kind": "monster",
+      "title": "Gnoll Packleader",
+      "body": "### Frenzy\n\nAdvantage against Bloodied creatures.\n\n## Actions\n\n### Bark Orders\n\n2 allies can move. Then:\n\n### Ravage (3×)\n\n[1d10](roll:1d10) · ",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 39,
+        "level": "4",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Hill And Field",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/griffon",
+      "kind": "monster",
+      "title": "Griffon",
+      "body": "## Actions\n\n### Talons\n\n[2d6+10](roll:2d6%2B10) · On hit: Grappled (escape DC 14)\n\n### Fly & Drop\n\n(if grappling) Fly upward 12 and release (6d6 fall damage).",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 50,
+        "level": "4",
+        "armor": "none",
+        "size": "large",
+        "kind": "Hill And Field",
+        "movement": "fly 12",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/cobra-captain",
+      "kind": "monster",
+      "title": "Cobra Captain",
+      "body": "*Aggressive Hissing Noises*\n\n### Snakemen: Coiling Strike\n\nOn melee crit: Grapple (escape DC 10).\n\n## Actions\n\n### Slash (2×)\n\n[1d6+6](roll:1d6%2B6) · (or Spit, Range 8)",
+      "tags": [
+        "Snakemen",
+        "Snakemen"
+      ],
+      "category": "Snakemen",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 36,
+        "level": "4",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Snakemen",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ettercap",
+      "kind": "monster",
+      "title": "Ettercap",
+      "body": "## Actions\n\n### Web Garrote\n\n[1d8+2](roll:1d8%2B2) · On hit: Grappled (escape DC 13), Silenced until target escapes. (Silenced: Cannot cast spells or use other abilities that require speaking.)",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 49,
+        "level": "4",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Underground",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/doomsayer",
+      "kind": "monster",
+      "title": "Doomsayer",
+      "body": "### Cultists: Fanatical Zeal\n\nWhile not at max HP, make all rolls with advantage. Your crits also inflict Despair (Disadvantage on the next attack you make this encounter).\n\n## Actions\n\n### Feverish Chant\n\n(Concentration) Reduce all damage done to allies who can hear you to 1.\n\n### Ecstatic Ravings\n\n[2d6](roll:2d6) · Psychic damage to all enemies who can hear you.",
+      "tags": [
+        "Cultists & Horrors",
+        "Cultists"
+      ],
+      "category": "Cultists",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 58,
+        "level": "5",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/rootbreaker",
+      "kind": "monster",
+      "title": "Rootbreaker",
+      "body": "Soulless, thorny plant beings fertilized by blood.\n\n### Briarbanes: Peeling Bark\n\nDamage degrades Armor 1 step: Heavy » Medium » None.\n\n## Actions\n\n### Slam\n\n[3d6+6](roll:3d6%2B6) · On crit: knockback 2.",
+      "tags": [
+        "Forest Denizens",
+        "Briarbanes"
+      ],
+      "category": "Briarbanes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 50,
+        "level": "5",
+        "armor": "heavy",
+        "size": "large",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ogre-zombie",
+      "kind": "monster",
+      "title": "Ogre Zombie",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Greatclub (2×)\n\n[1d4+8](roll:1d4%2B8) · On crit: Prone.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 46,
+        "level": "5",
+        "armor": "none",
+        "size": "large",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/greater-stirge",
+      "kind": "monster",
+      "title": "Greater Stirge",
+      "body": "### Stirges: Evasive Flier\n\nAttacks against stirges are made with disadvantage.\n\n### Stirges: Latched On\n\nYou move where your target moves until either dies. Your attacks can't miss or be Defended/Interposed against. Attacks that miss you damage your target instead.\n\n## Actions\n\n### Latch On\n\n[1d12+10](roll:1d12%2B10) · On hit: Latched On.",
+      "tags": [
+        "Dungeon Denizens",
+        "Stirges"
+      ],
+      "category": "Stirges",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 60,
+        "level": "6",
+        "armor": "none",
+        "size": "small",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/medium-mimic",
+      "kind": "monster",
+      "title": "Medium Mimic",
+      "body": "(Table, Treasure Chest, Barrel, Bookshelf, Door, Bed)\n\n### Mimics: Ambusher\n\nMimics always start first and heroes roll Initiative with disadvantage.\n\n### Mimics: Sticky\n\nMimic hits also Grapple and can Grapple any number of creatures. When crit: release 1 creature (attacker's choice).\n\n## Actions\n\n### Pseudopod\n\n[1d8](roll:1d8) · (escape DC 13)\n\n### Bite\n\n[2d20](roll:2d20) · (a Grappled creature)",
+      "tags": [
+        "Dungeon Denizens",
+        "Mimics"
+      ],
+      "category": "Mimics",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 79,
+        "level": "6",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/duskprowler",
+      "kind": "monster",
+      "title": "Duskprowler",
+      "body": "### Illusory Aura\n\nAttacks against the Duskprowler have Disadvantage 2. Damage suppresses this effect until the end of the next hero's turn.\n\n## Actions\n\n### Ravage (2×)\n\n[2d8+2](roll:2d8%2B2) · ",
+      "tags": [
+        "Forest Denizens"
+      ],
+      "category": "Forest Denizens",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 70,
+        "level": "6",
+        "armor": "none",
+        "size": "large",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/mummy",
+      "kind": "monster",
+      "title": "Mummy",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Slam (2×)\n\n[1d4+8](roll:1d4%2B8) · On damage: Dazed.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 54,
+        "level": "6",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/nestweaver",
+      "kind": "monster",
+      "title": "Nestweaver",
+      "body": "## Actions\n\nSummon 2 spider minions (d8). Then choose 1:\n\n### Shoot Web\n\n[1d8+2](roll:1d8%2B2) · On hit: Restrained (escape DC 12, or any slashing/fire damage).\n\n### Bite\n\n[3d8+6](roll:3d8%2B6) · (Hampered target) Poisoned (magical healing ends).",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 54,
+        "level": "6",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Underground",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/basilisk",
+      "kind": "monster",
+      "title": "Basilisk",
+      "body": "### Flesh to Stone\n\nCreatures Dazed by the Basilisk remain so for 10 minutes. Dazed 3 times = Petrified.\n\n## Actions\n\n### Stone Gaze\n\nDaze 1 creature within sight, then:\n\n### Envenom\n\n[1d8+10](roll:1d8%2B10) · Advantage vs Dazed targets.",
+      "tags": [
+        "Forest Denizens"
+      ],
+      "category": "Forest Denizens",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 48,
+        "level": "7",
+        "armor": "heavy",
+        "size": "medium",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/black-pudding",
+      "kind": "monster",
+      "title": "Black Pudding",
+      "body": "### Oozes: Digestive Touch\n\nContact with an ooze inflicts the Digested condition: they deal an additional X damage for each time the target has been Digested this encounter.\n\n### Oozes: Goopy\n\nWhen crit or dealt any slashing damage: summon X ooze minions (size: d6); their attacks inflict Digested.\n\n## Actions\n\n### Acidic Touch (2×)\n\n[1d6+5](roll:1d6%2B5) · (Reach 2)",
+      "tags": [
+        "Dungeon Denizens",
+        "Oozes"
+      ],
+      "category": "Oozes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 90,
+        "level": "8",
+        "armor": "none",
+        "size": "large",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/druid",
+      "kind": "monster",
+      "title": "Druid",
+      "body": "## Actions\n\n### Beastshift\n\n[4d4+10](roll:4d4%2B10) · +4 speed, gain Medium armor this round.\n\n### Hurricane\n\n[4d4+10](roll:4d4%2B10) · (Reach 3) To all enemies within reach. On damage: move targets anywhere else in Reach.",
+      "tags": [
+        "Forest Denizens"
+      ],
+      "category": "Forest Denizens",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 90,
+        "level": "8",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/giant-cobra",
+      "kind": "monster",
+      "title": "Giant Cobra",
+      "body": "*Aggressive Hissing Noises*\n\n### Snakemen: Coiling Strike\n\nOn melee crit: Grapple (escape DC 10).\n\n## Actions\n\n### Crush\n\n[2d6+20](roll:2d6%2B20) · Advantage vs. smaller creatures.",
+      "tags": [
+        "Snakemen",
+        "Snakemen"
+      ],
+      "category": "Snakemen",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 80,
+        "level": "8",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Snakemen",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/giant-zombie",
+      "kind": "monster",
+      "title": "Giant Zombie",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Decaying Swipe (2×)\n\n[1d4+10](roll:1d4%2B10) · On damage: knockback Primary Die spaces.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 73,
+        "level": "8",
+        "armor": "none",
+        "size": "huge",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/bulette",
+      "kind": "monster",
+      "title": "Bulette",
+      "body": "### Burst Forth!\n\nCombat with a Bulette starts with the heaviest character making a DC 14 DEX save or they are Grappled (escape DC 14) and take 1d12+20 damage (half on save).\n\n## Actions\n\n### Drag Below\n\n[2d12](roll:2d12) · (A Grappled creature) Then drag below and burrow away.\n\n### Leap & Bite\n\n[1d12+20](roll:1d12%2B20) · (If not grappling) Leap 6, and attack. On hit: Grappled.",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 74,
+        "level": "10",
+        "armor": "heavy",
+        "size": "large",
+        "kind": "Hill And Field",
+        "movement": "burrow 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/troll",
+      "kind": "monster",
+      "title": "Troll",
+      "body": "### Regenerate\n\nDoes not die at 0 HP. Only fire, radiant, or a crit while at 0 HP can kill it.\n\n## Actions\n\nChoose twice:\n\n### Claws\n\n[1d4+10](roll:1d4%2B10) · (Reach 2) On crit: Prone.\n\n### Bite\n\n[1d4+20](roll:1d4%2B20) · (A Prone creature)",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 100,
+        "level": "10",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Hill And Field",
+        "movement": "walk 8",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/wraith",
+      "kind": "monster",
+      "title": "Wraith",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n## Actions\n\n### Soul Rend (2×)\n\n[1d4+10](roll:1d4%2B10) · On damage: deal 1 Wound.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 94,
+        "level": "10",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "fly 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/umber-hulk",
+      "kind": "monster",
+      "title": "Umber Hulk",
+      "body": "### Confounding Pheromones\n\nEnemies make a DC 15 WIL save at the start of their turns or Confused this turn. Gain advantage 1 on the save for each failure this encounter. (Confused: The GM spends your next action.)\n\n## Actions\n\n### Mandible & Claws (2×)\n\n[1d10+10](roll:1d10%2B10) · ",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 70,
+        "level": "10",
+        "armor": "heavy",
+        "size": "large",
+        "kind": "Underground",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/elder-ooze",
+      "kind": "monster",
+      "title": "Elder Ooze",
+      "body": "### Oozes: Digestive Touch\n\nContact with an ooze inflicts the Digested condition: they deal an additional X damage for each time the target has been Digested this encounter.\n\n### Oozes: Goopy\n\nWhen crit or dealt any slashing damage: summon X ooze minions (size: d6); their attacks inflict Digested.\n\n## Actions\n\n### Acidic Touch (3×)\n\n[1d6+6](roll:1d6%2B6) · (Reach 3)",
+      "tags": [
+        "Dungeon Denizens",
+        "Oozes"
+      ],
+      "category": "Oozes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 150,
+        "level": "12",
+        "armor": "none",
+        "size": "huge",
+        "kind": "Dungeon Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/hill-giant",
+      "kind": "monster",
+      "title": "Hill Giant",
+      "body": "### Brute\n\nOn hit: Knockback Primary Die spaces.\n\n## Actions\n\n### Smash (2×)\n\n[1d6+15](roll:1d6%2B15) · (Reach 2)\n\n### Boulder!\n\n[1d6+20](roll:1d6%2B20) · ",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 140,
+        "level": "12",
+        "armor": "none",
+        "size": "huge",
+        "kind": "Hill And Field",
+        "movement": "walk 8",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/cloaker",
+      "kind": "monster",
+      "title": "Cloaker",
+      "body": "### Ambusher\n\nCloakers always start first and heroes roll Initiative with disadvantage.\n\n### Mutual Harm\n\nYou take half damage from attacks while grappling a creature (they take the other half).\n\n## Actions\n\n### Wrap\n\n[2d10+20](roll:2d10%2B20) · On Hit: Grappled (escape DC 16).\n\n### Horrifying Wail\n\nDC 16 WIL save, or creatures within 6 spaces are Frightened and must spend 1 Action moving as far away as possible.",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 110,
+        "level": "13",
+        "armor": "none",
+        "size": "large",
+        "kind": "Underground",
+        "movement": "fly 10",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/glabrezu",
+      "kind": "monster",
+      "title": "Glabrezu",
+      "body": "## Actions\n\n### Doomclaw (2×)\n\n[3d6+10](roll:3d6%2B10) · (Reach 2) On damage: Grappled (escape DC 17). If the same creature is Grappled by both of the glabrezu's claws, it must escape from each of them separately.\n\n### Tear Asunder\n\n[50](roll:50) · (A creature Grappled by both of the glabrezu's claws) Unpreventable damage. If the target is at 0 HP: DC 17 STR save or be torn in two, dying instantly.",
+      "tags": [
+        "Cultists & Horrors",
+        "Horrors"
+      ],
+      "category": "Horrors",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 110,
+        "level": "14",
+        "armor": "heavy",
+        "size": "large",
+        "kind": "Cultists & Horrors",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/treant",
+      "kind": "monster",
+      "title": "Treant",
+      "body": "Soulless, thorny plant beings fertilized by blood.\n\n### Briarbanes: Peeling Bark\n\nDamage degrades Armor 1 step: Heavy » Medium » None.\n\n### Enrage\n\nAttack with advantage when unarmored.\n\n## Actions\n\nChoose twice:\n\n### Slam\n\n[2d6+10](roll:2d6%2B10) · (Reach 3) On damage: Prone.\n\n### Stomp\n\n[2d6+20](roll:2d6%2B20) · (Hampered target)",
+      "tags": [
+        "Forest Denizens",
+        "Briarbanes"
+      ],
+      "category": "Briarbanes",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 170,
+        "level": "14",
+        "armor": "heavy",
+        "size": "huge",
+        "kind": "Forest Denizens",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/great-worm",
+      "kind": "monster",
+      "title": "Great Worm",
+      "body": "### Tremor Sight\n\nAdvantage against creatures that moved since the worm's last turn.\n\n## Actions\n\n### Crush\n\n[50](roll:50) · Creatures in a 2×6 area take damage on a failed DC 18 DEX save. (Creatures who fail can spend 1 Action to dive out of the way instead of taking this damage. They move half their speed and land Prone.)\n\n### Bite/Swallow\n\n[1d4+40](roll:1d4%2B40) · On crit: Swallowed. (Swallowed: You take 20 damage at the start of your turn. Your attacks cannot miss and ignore armor.)",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 140,
+        "level": "16",
+        "armor": "heavy",
+        "size": "huge",
+        "kind": "Underground",
+        "movement": "burrow 8",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/roc",
+      "kind": "monster",
+      "title": "Roc",
+      "body": "## Actions\n\n### Pluck Up\n\n[3d12+20](roll:3d12%2B20) · (Reach 4, target up to 2 creatures) On hit: Grappled (escape DC 18).\n\n### Crush & Drop\n\n[20](roll:20) · Fly upward 20 spaces, deal damage to Grappled creatures, then release (10d6 fall damage).",
+      "tags": [
+        "Hill And Field"
+      ],
+      "category": "Hill And Field",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 195,
+        "level": "17",
+        "armor": "medium",
+        "size": "gargantuan",
+        "kind": "Hill And Field",
+        "movement": "fly 20",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/mummy-lord",
+      "kind": "monster",
+      "title": "Mummy Lord",
+      "body": "Hate the living for not being dead, hate themselves for not being living.\n\n### Undead: Unliving, Undying\n\nThe first time this dies, reset to 1 HP instead (excluding minions).\n\n### Cursed Gaze\n\nWhen crit: DC 20 INT save, or suffer 1 Wound.\n\n## Actions\n\n### Scarab Swarm\n\nSummon 10 scarab minions (d6) within 6 spaces. Then:\n\n### Slam (2×)\n\n[1d4+20](roll:1d4%2B20) · On damage: Dazed.",
+      "tags": [
+        "Undead",
+        "Undead"
+      ],
+      "category": "Undead",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 280,
+        "level": "21",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/alaric-draegoth-the-crimson-count",
+      "kind": "monster",
+      "title": "Alaric Draegoth, the Crimson Count",
+      "body": "### Sanguine Cloak\n\n(1/turn) Deal 1d10 necrotic damage whenever you are hit, the attack is reduced by this amount.\n\n### Sunscorn\n\nVulnerable to radiant. After taking radiant damage, use Beguile as a Reaction, they roll with disadvantage.\n\n## Actions\n\nAfter each hero's turn, summon 1 blood bat minion (d10) within 8 spaces, then choose 1:\n\n### Ebonfang\n\n[1d10+15](roll:1d10%2B15) · Your target is considered Bloodied for 1 round. Fly 8 before or after attacking.\n\n### Beguile\n\nIf no creature is Beguiled, Beguile a target on a failed DC 18 WIL save (w/ disadvantage if Bloodied). Beguiled: Dazed. Cannot Defend or allow anyone to Interpose for you. Damage ends.\n\n### Beckon & Bite\n\n[2d10+30](roll:2d10%2B30) · Move a Beguiled creature adjacent to you and bite them. Also deals 1 Wound.\n\n## Bloodied\n\nAt 160 HP, gain Mistform. Not vulnerable to radiant. Bat Decoy: Whenever Alaric would take damage, instead first swap places with a bat minion, 1/round.\n\n## Last stand\n\nAlaric is dying! 160 more damage and he dies. Until then, his Sanguine Cloak, attacks, and bats roll d20s instead of d10s.",
+      "tags": [
+        "Vampire Lord",
+        "legendary"
+      ],
+      "category": "Vampire Lord",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 320,
+        "level": "16",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Vampire Lord",
+        "movement": "fly 8",
+        "saves": "ALL +2",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/azriel-lord-of-pain-flame",
+      "kind": "monster",
+      "title": "Azriel, Lord of Pain & Flame",
+      "body": "### PAIN!\n\nCrits against Azriel are Vicious, he deals damage equal to the crit dice back to the attacker.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Crackling Whip\n\n[3d12](roll:3d12) · Move 6. (Reach 6) On hit: Grappled and pulled adjacent to Azriel (escape DC 17 STR, DEX, or until he uses the whip again).\n\n### Doom Sword\n\n[3d12+10](roll:3d12%2B10) · Fire damage to all creatures within Reach 2.\n\n## Bloodied\n\nAt 160 HP, Azriel can use Crackling Whip twice each turn.\n\n## Last stand\n\nYES, MORE PAIN! Azriel is dying! 180 more damage and he dies. Until then, EVERY hit against him is a crit.",
+      "tags": [
+        "Huge Balor Feeling Hot & Spicy",
+        "legendary"
+      ],
+      "category": "Huge Balor Feeling Hot & Spicy",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 320,
+        "level": "14",
+        "armor": "heavy",
+        "size": "huge",
+        "kind": "Huge Balor Feeling Hot & Spicy",
+        "movement": "walk 6",
+        "saves": "ALL +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/dravok-all-seeing-tyrant",
+      "kind": "monster",
+      "title": "Dravok, All-Seeing Tyrant",
+      "body": "### My plans, flawless!\n\nDravok makes all saves with +1 Advantage, attacks against him have Disadvantage.\n\n### Weakness\n\nTaking more than 12 piercing or slashing damage: Dravok's plans are FLAWED! (until the end of the next hero's turn.)\n\n## Actions\n\nAfter each hero's turn, Move 6 and then either use Eye Ray OR Terrible Maw:\n\n### Eye Ray\n\n(Range 10) Randomly chosen ray then choose target: 1. Warping Ray: 3d6, On hit: Dazed, exchange places. 2. Petrification Ray: Permanently Dazed, healing ends (3 stacks = Petrified). 3. Terror Ray: 5d10 psychic & Terrified. 4. Gravitation Ray: 2d6, push that many spaces, Prone on 7+. 5. Charm Ray: DC 16 WIL or spend 3 Actions controlled. 6. Death Ray: DC 16 STR or drop to 0 HP.\n\n### Terrible Maw\n\n[4d4](roll:4d4) · Melee attack. EVERY die can crit and is Vicious.\n\n## Bloodied\n\nTo Dust! At 110 HP, use Petrification Ray against every enemy. His save DC increases to 18.\n\n## Last stand\n\nDravok is dying! 70 more damage and he dies. Until then, each turn he will move or use Warping Ray and then Devastation Beam: 2d12+20 in a 10 space long, 2 space wide line.",
+      "tags": [
+        "Large Aberration, all TEETH & EYES",
+        "legendary"
+      ],
+      "category": "Large Aberration, all TEETH & EYES",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 325,
+        "level": "12",
+        "armor": "none",
+        "size": "large",
+        "kind": "Large Aberration, all TEETH & EYES",
+        "movement": "fly 6",
+        "saves": "INT +2 · WIL +2",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/florindris-bane-of-the-forest",
+      "kind": "monster",
+      "title": "Florindris, Bane of the Forest",
+      "body": "### Aura of Wind\n\nRanged attacks against you have disadvantage. End of turn: push adjacent creatures 2 spaces away.\n\n### Wither\n\nResistant to necrotic damage, but it suppresses Aura of Wind for 1 turn.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Petal Storm\n\n[3d10+10](roll:3d10%2B10) · (1 use) Damage to all enemies within Reach 8, half on a DC 13 DEX save.\n\n### Rend\n\n[1d10+10](roll:1d10%2B10) · Fly 10 before or after attacking. (Reach 2) Up to 2 targets within reach. On hit: Gain Thornblight (suffer 5 damage for each space forcibly moved, magical healing ends).\n\n### Gust\n\n(Reach 8) Move a target 1d10 spaces.\n\n## Bloodied\n\nAt 100 HP, enemies within Reach 12 gain Thornblight, and Petal Storm recharges.\n\n## Last stand\n\nFlorindris is dying! 70 more damage and she dies. Until then, Aura of Wind and Gust move creatures twice as far.",
+      "tags": [
+        "Large Floral Dragon",
+        "legendary"
+      ],
+      "category": "Large Floral Dragon",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 200,
+        "level": "7",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Large Floral Dragon",
+        "movement": "fly 10",
+        "saves": "ALL +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/general-flameheart",
+      "kind": "monster",
+      "title": "General Flameheart",
+      "body": "### Cinder Armor\n\nImmune to fire. When damaged, deal 5 fire damage to all adjacent creatures.\n\n### Extinguish Flame\n\nCold or radiant crits extinguish all areas ignited by Molten Fury and suppress Cinder Armor for 1 turn.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Inferno Cleave\n\n[2d10+10](roll:2d10%2B10) · Move 8 then strike a 2×2 square area for fire damage.\n\n### Molten Fury\n\n[2d10+10](roll:2d10%2B10) · Lob a molten fireball at the furthest hero not already in the flames, igniting a 2×2 square area. Another 10 damage at the end of each of their turns if they remain in the area.\n\n## Bloodied\n\nAt 87 HP, on his next turn, he uses Molten Fury a number of times equal to half the number of heroes (rounded up).\n\n## Last stand\n\nFlameheart is dying! 80 more damage and he dies. Until then, the area of his attacks increase to a 3×3 square.",
+      "tags": [
+        "Huge Flame Titan",
+        "legendary"
+      ],
+      "category": "Huge Flame Titan",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 175,
+        "level": "8",
+        "armor": "heavy",
+        "size": "huge",
+        "kind": "Huge Flame Titan",
+        "movement": "walk 8",
+        "saves": "STR +1 · WIL +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/gloomwing-the-cruel",
+      "kind": "monster",
+      "title": "Gloomwing the Cruel",
+      "body": "### Aura of Rot\n\nCreatures within 6 spaces take 5 necrotic damage at the end of their turns.\n\n### Light Sensitivity\n\nRadiant damage suppresses Aura of Rot until the end of the next hero's turn.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Rot Breath\n\n[8d10](roll:8d10) · (1 use) Fly 10, then (Cone 8) DC 17 DEX save or necrotic damage, half on save.\n\n### Bite\n\n[3d10](roll:3d10) · (Reach 2) Move 6. On damage: Cruelty's Gift (Healing is halved and Vulnerable to necrotic, healing ends).\n\n### Claws\n\n[3d10+10](roll:3d10%2B10) · (Reach 2) Slashing + necrotic damage.\n\n### Tail\n\n[1d10](roll:1d10) · (Reach 4) Knocked back that many spaces.\n\n## Bloodied\n\nAt 160 HP Gloomwing's Rot Breath recharges.\n\n## Last stand\n\nGloomwing is dying! 150 more damage and he dies. Until then, the damage and range of His Aura of Rot is doubled.",
+      "tags": [
+        "Huge Rot Dragon",
+        "legendary"
+      ],
+      "category": "Huge Rot Dragon",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 320,
+        "level": "15",
+        "armor": "heavy",
+        "size": "huge",
+        "kind": "Huge Rot Dragon",
+        "movement": "fly 10",
+        "saves": "ALL +2",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/grimbeak-the-unyielding",
+      "kind": "monster",
+      "title": "Grimbeak, the Unyielding",
+      "body": "### Brutal\n\nTreat the highest die rolled as the Primary Die. On crit: knock Prone.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Savage Screech\n\n[2d6](roll:2d6) · (1 use) All enemies within reach 12 suffer damage (ignoring armor). DC 11 WIL save or become Frightened for 1 round.\n\n### Rend & Tear\n\n[2d6+10](roll:2d6%2B10) · \n\n### Beak\n\n[2d6](roll:2d6) · Move 8.\n\n## Bloodied\n\nAt 50 HP, Savage Screech recharges.\n\n## Last stand\n\nGrimbeak is dying! 30 more damage and she dies. Until then, her Attacks use d10s instead of d6s.",
+      "tags": [
+        "Large Owlbear",
+        "legendary"
+      ],
+      "category": "Large Owlbear",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 100,
+        "level": "3",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Large Owlbear",
+        "movement": "walk 6",
+        "saves": "STR +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/nalzar-apex-predator",
+      "kind": "monster",
+      "title": "Nalzar, Apex Predator",
+      "body": "### Tail Swipe\n\nWhen dealt slashing or lightning damage: knock a hero within 3 spaces Prone.\n\n### Torn Wings\n\nEach slashing crit reduces the Wing Buffet DC by 1.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Devour\n\n[4d12+6](roll:4d12%2B6) · (Prone creatures only, Reach 2)\n\n### Wing Buffet\n\n[1d12](roll:1d12) · Fly 8, then land. Cone 8: then DC 14 STR save or also knocked Prone (advantage if behind cover or another hero).\n\n## Bloodied\n\nAt 90 HP, her Wing Buffet Range and DC increase by 2.\n\n## Last stand\n\nNalzar is dying! 60 more damage and she dies. Until then, each turn, she moves 6, then uses Devour (ignoring the Prone requirement).",
+      "tags": [
+        "Large Grey Drake",
+        "legendary"
+      ],
+      "category": "Large Grey Drake",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 180,
+        "level": "6",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Large Grey Drake",
+        "movement": "fly 8",
+        "saves": "STR +1 · DEX +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/pudge-the-blunderer",
+      "kind": "monster",
+      "title": "Pudge the Blunderer",
+      "body": "## Actions\n\nAfter each hero's turn, choose one:\n\n### Move & Smack\n\n[1d8+2](roll:1d8%2B2) · Move 8. On damage: Prone.\n\n### Grab & Throw\n\n[1d8+2](roll:1d8%2B2) · On damage: they are thrown at another hero within 6 spaces. Both make a DC 12 DEX save or take 1d8+2 damage and are knocked Prone, half damage on save.\n\n## Bloodied\n\nAt 37 HP, Pudge's damage increases to 1d12+2.\n\n## Last stand\n\nPudge is dying! 20 more damage and he dies. Until then, Pudge can move 6 spaces, and use Grab & Throw each turn.",
+      "tags": [
+        "Dumb Ogre",
+        "legendary"
+      ],
+      "category": "Dumb Ogre",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 75,
+        "level": "2",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Dumb Ogre",
+        "movement": "walk 8",
+        "saves": "STR +1 · INT -1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/queen-aranya-broodmother",
+      "kind": "monster",
+      "title": "Queen Aranya, Broodmother",
+      "body": "### Weave Web\n\nCreatures she hits are entangled in a sticky web (Dazed).\n\n### Flammable Webs\n\nFire critical hits suppress the Broodmother's Weave Web for 1 turn.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Impale\n\n[2d8+8](roll:2d8%2B8) · (Reach 2) Then skitter away up to 8 spaces.\n\n### Hatch Brood\n\nSummon spiderling minions (1/hero, size: d8); they act only when commanded.\n\n### Dinner Time!\n\nCommand all of your spiderling minions to move up to 6 spaces and attack once each.\n\n## Bloodied\n\n\"Avenge Your Queen, My Brood!\" At 80 HP, summon 3 spiderling minions/hero anywhere within Reach 8.\n\n## Last stand\n\nAranya is dying! 40 more damage and she dies. Until then, Hatch Brood after each of her turns.",
+      "tags": [
+        "Large Matriarch of Spiders",
+        "legendary"
+      ],
+      "category": "Large Matriarch of Spiders",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 160,
+        "level": "6",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Large Matriarch of Spiders",
+        "movement": "walk 8",
+        "saves": "ALL +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ravager-of-the-lowlands",
+      "kind": "monster",
+      "title": "Ravager of the Lowlands",
+      "body": "### Feral Instinct\n\nWhenever Ravager is crit, he can fly 10.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Venomous Stinger\n\n[5d12](roll:5d12) · (1 use) Reach 3.\n\n### Ravage\n\n[1d12+20](roll:1d12%2B20) · \n\n### Claw\n\n[1d12+6](roll:1d12%2B6) · Fly 10.\n\n## Bloodied\n\nAt 65 HP, his Venomous Stinger recharges.\n\n## Last stand\n\nThe Ravager is dying! 40 more damage and he dies. Until then, the first time each turn he takes damage, he uses Move & Claw.",
+      "tags": [
+        "Large Manticore",
+        "legendary"
+      ],
+      "category": "Large Manticore",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 130,
+        "level": "5",
+        "armor": "medium",
+        "size": "large",
+        "kind": "Large Manticore",
+        "movement": "fly 10",
+        "saves": "STR +1 · DEX +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/caerys-the-hollow-star",
+      "kind": "monster",
+      "title": "Caerys, the Hollow Star",
+      "body": "### Ravages of Time\n\nAt the beginning of each round, all heroes suffer 1 Wound.\n\n### Slipstream\n\n3/encounter when she would suffer any negative effect she can swap places with a creature of her choice making them the target instead. All heroes recover 1 Wound.\n\n## Actions\n\nAfter each hero's turn, choose 1 not yet chosen (reset when all have been chosen):\n\n### Wormhole\n\n[3d20](roll:3d20) · Teleport 12. Damage to a creature adjacent to where you began or ended.\n\n### Immensity\n\n[3d20](roll:3d20) · (Reach 12) DC 20 STR save (disadvantage if within Reach 4) or damage and Prone. Half on save.\n\n### Glimpse Your End\n\nDC 20 WIL save or DOOMED: Concentration ends, the next damage roll against you is maximized.\n\n### Plasma Storm\n\n[2d20+2d20](roll:2d20%2B2d20) · Reach 6, DC 20 DEX save or lightning and fire damage. Half on save.\n\n### Singularity\n\n[5d20](roll:5d20) · Reach 2, bludgeoning damage.\n\n### Almighty Push & Pull\n\n(Range 12) DC 20 STR save or be launched 20 ft. into the air, repeat until the target saves. Fall damage for this attack is 1d20 for every 10 ft. fallen.\n\n## Bloodied\n\nAt 310 HP, Gravitational Mastery: Move ALL objects and creatures within 16 spaces anywhere else within the area. Gravitational Lensing: The hero with the most HP is marked by Caerys. She takes half damage from all sources, her mark takes the other half. This lasts until the mark drops to 0 HP.\n\n## Last stand\n\nUse Gravitational Mastery, then Caerys is dying! 200 more damage and she dies. Until then she chooses twice each turn. If still alive after 1 round: Reset Time: she resets back to full HP.",
+      "tags": [
+        "World-Ending Cataclysm",
+        "legendary"
+      ],
+      "category": "World-Ending Cataclysm",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 620,
+        "level": "20",
+        "armor": "heavy",
+        "size": "gargantuan",
+        "kind": "World-Ending Cataclysm",
+        "movement": "fly 12",
+        "saves": "ALL +3",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/thorn-quickblade",
+      "kind": "monster",
+      "title": "Thorn Quickblade",
+      "body": "### Strike Back\n\nWhen crit, make a Heart Piercer or Stormquill attack in return.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Stormquill (Crossbow)\n\n[4d4+10](roll:4d4%2B10) · Move 4.\n\n### Heart Piercer (Rapier)\n\n[2d4+3](roll:2d4%2B3) · Move 8. On crit: Dazed.\n\n## Bloodied\n\nSmoke Bomb. At 62 HP, Thorn immediately becomes invisible (until the end of his next turn), then moves 8, ignoring opportunity attacks.\n\n## Last stand\n\nMortal Panic! Thorn is dying! 30 more damage and he's dead! Until then he'll Strike Back EVERY time he's hit (1/turn).",
+      "tags": [
+        "Human Criminal",
+        "legendary"
+      ],
+      "category": "Human Criminal",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 125,
+        "level": "4",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Human Criminal",
+        "movement": "walk 8",
+        "saves": "DEX +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/titan-of-the-deep-woods",
+      "kind": "monster",
+      "title": "Titan of the Deep Woods",
+      "body": "### Splintering Legions\n\nBludgeoning damage or any crit cause bones to splinter off and animate, forming a d10 minion.\n\n### Brittle Bones\n\nResistant to piercing, vulnerable to bludgeoning.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Devastating Strike\n\n[1d4+30](roll:1d4%2B30) · (Reach 4) On hit: Knockback 6.\n\n### Crushing Stomp\n\n[1d4+20](roll:1d4%2B20) · Move up to 10 spaces. Up to 2 targets along the path. On hit: Prone.\n\n### Beckoning Doom\n\nThe 2 furthest heroes make a DC 16 STR save or are moved adjacent to Titan.\n\n## Last stand\n\nShattered Legion. At 0 HP Titan collapses into 4 skeleton minions/hero (d10 sized). If any remain, they reassemble into the Titan the next evening.",
+      "tags": [
+        "Gargantuan Skeleton",
+        "legendary"
+      ],
+      "category": "Gargantuan Skeleton",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 240,
+        "level": "10",
+        "armor": "heavy",
+        "size": "gargantuan",
+        "kind": "Gargantuan Skeleton",
+        "movement": "walk 10",
+        "saves": "STR +3",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/ul-vek-psionic-despot",
+      "kind": "monster",
+      "title": "Ul'vek, Psionic Despot",
+      "body": "### Mind Shield\n\nWhenever Ul' would fail a save or take more than 30 damage while he has a creature Dominated, he may avoid the attack instead, but all Dominated creatures come to their senses.\n\n## Actions\n\nAfter each hero's turn, choose one:\n\n### Dominate\n\n[2d12](roll:2d12) · (If no creatures are Dominated) Choose half of the heroes to suffer psychic damage (ignoring armor). DC 15 WIL save or Dominated as well. Dominated: Rolls are made with disadvantage. Ul' spends your first action on each of your turns. Damage ends.\n\n### Consume\n\n[6d12](roll:6d12) · (Dominated creature) Contested DEX or STR check, on success: Grappled. Cannot be Defended or Interposed against.\n\n### Control\n\nTeleport 8. (Reach 8) DC 15 WIL save, force an enemy to spend one Action to make a weapon attack or cast a cantrip. On save, they attack with disadvantage.\n\n## Bloodied\n\nAt 150 HP gain Illusory Shift. Reaction, when attacked (1 use): Swap places with a Dominated creature, making them the new target of the attack.\n\n## Last stand\n\nUl' is dying! 110 more damage and he dies. Until then, Dominated no longer ends on taking damage. Every hero makes a WIL save or become Dominated.",
+      "tags": [
+        "Medium Brain-Eating Aberration",
+        "legendary"
+      ],
+      "category": "Medium Brain-Eating Aberration",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 300,
+        "level": "11",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Medium Brain-Eating Aberration",
+        "movement": "walk 6",
+        "saves": "INT +2 · WIL +2 · DEX +1",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/vael-undying-necromancer",
+      "kind": "monster",
+      "title": "Vael, Undying Necromancer",
+      "body": "### Protect Master!\n\nWhenever Vael would fail a save or take 20 or more damage, he may sacrifice his Lifebinding Spirit, Bane, instead. He spends his next turn moving up to 6 spaces and summoning Bane.\n\n## Actions\n\nAfter each hero's turn, Bane attacks for 1d12+6 then Vael chooses one:\n\n### DOOM\n\n[5d12](roll:5d12) · (Undamaged target) DC 14 WIL save or full damage. Half on save.\n\n### Veilwalker's Rebuke\n\n[2d12+6](roll:2d12%2B6) · Double damage against those behind cover. 1/round you may swap places with them.\n\n### Cruelty's Edge\n\n[1d4+2](roll:1d4%2B2) · On hit: DC 14 WIL save or Dazed and Frightened. Then move 6.\n\n## Bloodied\n\nAt 125 HP, Vael gains the reaction Shield of Cruelty. (1 time use) If Vael would be damaged, instead he may reflect that much radiant damage back at the attacker.\n\n## Last stand\n\nDEATH, AN OLD FRIEND. Vael is dying! 90 more damage and he dies. Until then, he gains Heavy Armor, the hero that most recently damaged him is reduced to 0 HP, and Bane is sacrificed into a Vengeful Spirit. It deals 1d12+6 necrotic damage to creatures within reach 3 at the end of each of his turns.",
+      "tags": [
+        "Luminary of Malice",
+        "legendary"
+      ],
+      "category": "Luminary of Malice",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 250,
+        "level": "9",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Luminary of Malice",
+        "movement": "walk 6",
+        "saves": "INT +2 · WIL +2",
+        "legendary": true,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/wax-golem",
+      "kind": "monster",
+      "title": "Wax Golem",
+      "body": "### Sticky\n\nGrapples target on hit. Can Grapple any number of creatures. When crit: release 1 creature (attacker's choice).\n\n## Actions\n\nChoose one:\n\n### Wax Grip\n\n[1d4](roll:1d4) · (escape DC 10).\n\n### Crush\n\n[1d12](roll:1d12) · (A Grappled creature)",
+      "tags": [
+        "Underground"
+      ],
+      "category": "Underground",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 28,
+        "level": "1",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Underground",
+        "movement": "walk 6",
+        "saves": "",
+        "legendary": false,
+        "minion": false
+      }
+    },
+    {
+      "id": "monster/nexus/552q6cdwtw8rnv4f0qzjjdn6wa",
+      "kind": "monster",
+      "title": "Giant Ant",
+      "body": "## Actions\n\nLatched on: Grappled (escape DC 10)\n\n### Bite\n\n[1d6+1](roll:1d6%2B1) ·  1d6+1. You deal +1 damage for each ant latched on to target. Attacks can't miss or be defended/interposed.",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 15,
+        "level": "1/2",
+        "armor": "none",
+        "size": "small",
+        "kind": "Giant Bug",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6 · climb 6 · burrow 4",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "552q6cdwtw8rnv4f0qzjjdn6wa",
+            "attributes": {
+              "name": "Giant Ant",
+              "hazard": false,
+              "hp": 15,
+              "level": "1/2",
+              "size": "small",
+              "armor": "none",
+              "kind": "Giant Bug",
+              "role": "melee",
+              "movement": [
+                {
+                  "speed": 6
+                },
+                {
+                  "mode": "climb",
+                  "speed": 6
+                },
+                {
+                  "mode": "burrow",
+                  "speed": 4
+                }
+              ],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": "Bite",
+                  "description": "1d6+1. You deal +1 damage for each ant latched on to target. Attacks can't miss or be defended/interposed.",
+                  "damage": {
+                    "roll": "1d6+1"
+                  }
+                }
+              ],
+              "actionsInstructions": "Latched on: Grappled (escape DC 10)",
+              "effects": [],
+              "description": "",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/552q6cdwtw8rnv4f0qzjjdn6wa"
+            }
+          },
+          "dependencies": [],
+          "title": "Giant Ant",
+          "body": "## Actions\n\nLatched on: Grappled (escape DC 10)\n\n### Bite\n\n[1d6+1](roll:1d6%2B1) ·  1d6+1. You deal +1 damage for each ant latched on to target. Attacks can't miss or be defended/interposed."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Wickedjelly",
+          "url": "https://nimble.nexus/monsters/552q6cdwtw8rnv4f0qzjjdn6wa",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/2arvwxf47f9hrs6zkd8x4vdrq3",
+      "kind": "monster",
+      "title": "Giant Centipede",
+      "body": "## Actions\n\nLatched on: Grappled (escape DC 10)\n\n### Bite\n\n[1d6+1](roll:1d6%2B1) ·  1d6+1\n\n### Latched on\n\n You deal +1 damage for each centipede latched on to target. Attacks can't miss or be defended/interposed.\n\n### Venomous\n\n DC 10 Str or poisoned.  ",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 15,
+        "level": "1/2",
+        "armor": "none",
+        "size": "small",
+        "kind": "Giant Bug",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 8 · climb 8",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "2arvwxf47f9hrs6zkd8x4vdrq3",
+            "attributes": {
+              "name": "Giant Centipede",
+              "hazard": false,
+              "hp": 15,
+              "level": "1/2",
+              "size": "small",
+              "armor": "none",
+              "kind": "Giant Bug",
+              "role": "melee",
+              "movement": [
+                {
+                  "speed": 8
+                },
+                {
+                  "mode": "climb",
+                  "speed": 8
+                }
+              ],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": "Bite",
+                  "description": "1d6+1",
+                  "damage": {
+                    "roll": "1d6+1"
+                  }
+                },
+                {
+                  "name": "Latched on",
+                  "description": "You deal +1 damage for each centipede latched on to target. Attacks can't miss or be defended/interposed."
+                },
+                {
+                  "name": "Venomous",
+                  "description": "DC 10 Str or poisoned.  "
+                }
+              ],
+              "actionsInstructions": "Latched on: Grappled (escape DC 10)",
+              "effects": [],
+              "description": "",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/2arvwxf47f9hrs6zkd8x4vdrq3"
+            }
+          },
+          "dependencies": [],
+          "title": "Giant Centipede",
+          "body": "## Actions\n\nLatched on: Grappled (escape DC 10)\n\n### Bite\n\n[1d6+1](roll:1d6%2B1) ·  1d6+1\n\n### Latched on\n\n You deal +1 damage for each centipede latched on to target. Attacks can't miss or be defended/interposed.\n\n### Venomous\n\n DC 10 Str or poisoned.  "
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Wickedjelly",
+          "url": "https://nimble.nexus/monsters/2arvwxf47f9hrs6zkd8x4vdrq3",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/5108d800h38sebxh5ts4gqyybp",
+      "kind": "monster",
+      "title": "Giant Iron Cobra",
+      "body": "Immune: Lightning.  Half damage from slashing/piercing weapons\n\nVulnerable: Double damage from cold and blunt weapons\n\n## Actions\n\nChoose one.\n\n### Bite\n\n[1d8+10](roll:1d8%2B10) ·  1d8+10. Venomous: DC 10 Str or poisoned.\n\n\n### Coiling Strike\n\n On melee crit, Grapple (escape DC 10).  Can’t do anything. Attacks against you have advantage, and melee attacks that hit, crit.\n\n### Crush\n\n[1d6+10](roll:1d6%2B10) ·  1d6+10. Every round grappled.  Advantage vs smaller creatures.",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 41,
+        "level": "3",
+        "armor": "none",
+        "size": "large",
+        "kind": "Construct",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "5108d800h38sebxh5ts4gqyybp",
+            "attributes": {
+              "name": "Giant Iron Cobra",
+              "hazard": false,
+              "hp": 41,
+              "level": 3,
+              "size": "large",
+              "armor": "none",
+              "kind": "Construct",
+              "role": "melee",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "",
+                  "name": ""
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Bite",
+                  "description": "1d8+10. Venomous: DC 10 Str or poisoned.\n",
+                  "damage": {
+                    "roll": "1d8+10"
+                  }
+                },
+                {
+                  "name": "Coiling Strike",
+                  "description": "On melee crit, Grapple (escape DC 10).  Can’t do anything. Attacks against you have advantage, and melee attacks that hit, crit."
+                },
+                {
+                  "name": "Crush",
+                  "description": "1d6+10. Every round grappled.  Advantage vs smaller creatures.",
+                  "damage": {
+                    "roll": "1d6+10"
+                  }
+                }
+              ],
+              "actionsInstructions": "Choose one.",
+              "effects": [],
+              "description": "Immune: Lightning.  Half damage from slashing/piercing weapons\n\nVulnerable: Double damage from cold and blunt weapons",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/5108d800h38sebxh5ts4gqyybp"
+            }
+          },
+          "dependencies": [],
+          "title": "Giant Iron Cobra",
+          "body": "Immune: Lightning.  Half damage from slashing/piercing weapons\n\nVulnerable: Double damage from cold and blunt weapons\n\n## Actions\n\nChoose one.\n\n### Bite\n\n[1d8+10](roll:1d8%2B10) ·  1d8+10. Venomous: DC 10 Str or poisoned.\n\n\n### Coiling Strike\n\n On melee crit, Grapple (escape DC 10).  Can’t do anything. Attacks against you have advantage, and melee attacks that hit, crit.\n\n### Crush\n\n[1d6+10](roll:1d6%2B10) ·  1d6+10. Every round grappled.  Advantage vs smaller creatures."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Wickedjelly",
+          "url": "https://nimble.nexus/monsters/5108d800h38sebxh5ts4gqyybp",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/7446js7s4k98fa4wb8asdnqej0",
+      "kind": "monster",
+      "title": "Heytet-Seqat, Scorpion Queen",
+      "body": "### Trampling Movement\n\nCan move through spaces of smaller creatures, knocking them Prone.\n\n### Soft Underbelly\n\nHits from Prone melee attackers automatically crit her.\n\n## Actions\n\nChoose one.\n\n### Claw\n\n[1d6+11](roll:1d6%2B11) ·  1d6+11. On damage, Grappled (escape DC 14, or when she is crit).\n\n### Deadly Stinger\n\n[1d6+20](roll:1d6%2B20) ·  1d6+20. (vs Prone or Grappled) \n\n## Bloodied\n\nShe drips acid blood, dealing 1d6 damage to any creature she walks over.",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hpPerHero": 64,
+        "level": "8",
+        "armor": "medium",
+        "size": "large",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "bloodied": "She drips acid blood, dealing 1d6 damage to any creature she walks over.",
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "7446js7s4k98fa4wb8asdnqej0",
+            "attributes": {
+              "name": "Heytet-Seqat, Scorpion Queen",
+              "hazard": false,
+              "hp": 0,
+              "hpPerHero": 64,
+              "level": 8,
+              "size": "large",
+              "armor": "medium",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "Can move through spaces of smaller creatures, knocking them Prone.",
+                  "name": "Trampling Movement"
+                },
+                {
+                  "description": "Hits from Prone melee attackers automatically crit her.",
+                  "name": "Soft Underbelly"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Claw",
+                  "description": "1d6+11. On damage, Grappled (escape DC 14, or when she is crit).",
+                  "damage": {
+                    "roll": "1d6+11"
+                  }
+                },
+                {
+                  "name": "Deadly Stinger",
+                  "description": "1d6+20. (vs Prone or Grappled) ",
+                  "damage": {
+                    "roll": "1d6+20"
+                  }
+                }
+              ],
+              "actionsInstructions": "Choose one.",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "157",
+              "paperforgeImageUrl": "/paperforge/0157/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false,
+              "bloodied": {
+                "description": "She drips acid blood, dealing 1d6 damage to any creature she walks over."
+              }
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/7446js7s4k98fa4wb8asdnqej0"
+            }
+          },
+          "dependencies": [],
+          "title": "Heytet-Seqat, Scorpion Queen",
+          "body": "### Trampling Movement\n\nCan move through spaces of smaller creatures, knocking them Prone.\n\n### Soft Underbelly\n\nHits from Prone melee attackers automatically crit her.\n\n## Actions\n\nChoose one.\n\n### Claw\n\n[1d6+11](roll:1d6%2B11) ·  1d6+11. On damage, Grappled (escape DC 14, or when she is crit).\n\n### Deadly Stinger\n\n[1d6+20](roll:1d6%2B20) ·  1d6+20. (vs Prone or Grappled) \n\n## Bloodied\n\nShe drips acid blood, dealing 1d6 damage to any creature she walks over."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/7446js7s4k98fa4wb8asdnqej0",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/73q420m5sf8x8vzhe09xp7j3db",
+      "kind": "monster",
+      "title": "Kelebek & Poppy",
+      "body": "This was originally two creatures in the GM's Book. Adapted to a single statblock.\n\n### Stink Cloud\n\nWhen damaged, enemies within 2 spaces must make a STR save (DC 10) or spend the round vomiting (cannot take actions or reactions).\n\n## Actions\n\nAfter each hero's turn:\n\n### Vinelash (Kelebek)\n\n Move 6, then deal 2d6 damage. On hit, move target to an unoccupied space within 10 spaces.\n\n### Crushing Mandibles\n\n 4d6 damage, up to 2 adjacent creatures.\n\n## Bloodied\n\nPoppy the stink bug dies! The room fills with stinky gas: all heroes have a maximum of 2 actions each round. Stink Cloud and Crushing Mandibles abilities are no longer available.\n\n## Last stand\n\n",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 120,
+        "level": "3",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Bug Druid & His Stinky Pet",
+        "hazard": false,
+        "legendary": true,
+        "minion": false,
+        "bloodied": "Poppy the stink bug dies! The room fills with stinky gas: all heroes have a maximum of 2 actions each round. Stink Cloud and Crushing Mandibles abilities are no longer available.",
+        "lastStand": "",
+        "saves": "INT 1 · WIL 1",
+        "movement": "",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "73q420m5sf8x8vzhe09xp7j3db",
+            "attributes": {
+              "name": "Kelebek & Poppy",
+              "hazard": false,
+              "hp": 120,
+              "level": 3,
+              "size": "medium",
+              "armor": "medium",
+              "kind": "Bug Druid & His Stinky Pet",
+              "movement": [],
+              "abilities": [
+                {
+                  "description": "When damaged, enemies within 2 spaces must make a STR save (DC 10) or spend the round vomiting (cannot take actions or reactions).",
+                  "name": "Stink Cloud"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Vinelash (Kelebek)",
+                  "description": "Move 6, then deal 2d6 damage. On hit, move target to an unoccupied space within 10 spaces."
+                },
+                {
+                  "name": "Crushing Mandibles",
+                  "description": "4d6 damage, up to 2 adjacent creatures."
+                }
+              ],
+              "actionsInstructions": "After each hero's turn:",
+              "effects": [],
+              "description": "This was originally two creatures in the GM's Book. Adapted to a single statblock.",
+              "subtype": "legendary",
+              "legendary": true,
+              "bloodied": {
+                "description": "Poppy the stink bug dies! The room fills with stinky gas: all heroes have a maximum of 2 actions each round. Stink Cloud and Crushing Mandibles abilities are no longer available."
+              },
+              "lastStand": {
+                "description": ""
+              },
+              "saves": {
+                "int": 1,
+                "wil": 1
+              }
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/73q420m5sf8x8vzhe09xp7j3db"
+            }
+          },
+          "dependencies": [],
+          "title": "Kelebek & Poppy",
+          "body": "This was originally two creatures in the GM's Book. Adapted to a single statblock.\n\n### Stink Cloud\n\nWhen damaged, enemies within 2 spaces must make a STR save (DC 10) or spend the round vomiting (cannot take actions or reactions).\n\n## Actions\n\nAfter each hero's turn:\n\n### Vinelash (Kelebek)\n\n Move 6, then deal 2d6 damage. On hit, move target to an unoccupied space within 10 spaces.\n\n### Crushing Mandibles\n\n 4d6 damage, up to 2 adjacent creatures.\n\n## Bloodied\n\nPoppy the stink bug dies! The room fills with stinky gas: all heroes have a maximum of 2 actions each round. Stink Cloud and Crushing Mandibles abilities are no longer available.\n\n## Last stand\n\n"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "DG",
+          "url": "https://nimble.nexus/monsters/73q420m5sf8x8vzhe09xp7j3db",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/54h29t1r5d98e9m2p84606y8sv",
+      "kind": "monster",
+      "title": "Krogg, Goblin King",
+      "body": "## Actions\n\nAfter each hero's turn:\n\n### Manglemaul\n\n[2d6](roll:2d6) ·  2d6. Move 6. Deal 2d6, Grappled (escape DC 10).\n\n### Crack Skulls\n\n[2d6](roll:2d6) ·  2d6. Move 6. Swing a Grappled creature at another creature. Both take 2d6,\nending the Grapple.\n\n## Bloodied\n\nKrogg loses Medium Armor but his damage increases to 2d8.\n\n## Last stand\n\n",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 60,
+        "level": "2",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "Angry Bugbear",
+        "hazard": false,
+        "legendary": true,
+        "minion": false,
+        "bloodied": "Krogg loses Medium Armor but his damage increases to 2d8.",
+        "lastStand": "",
+        "saves": "STR 1 · DEX 1",
+        "movement": "",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "54h29t1r5d98e9m2p84606y8sv",
+            "attributes": {
+              "name": "Krogg, Goblin King",
+              "hazard": false,
+              "hp": 60,
+              "level": 2,
+              "size": "medium",
+              "armor": "medium",
+              "kind": "Angry Bugbear",
+              "role": "melee",
+              "movement": [],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": "Manglemaul",
+                  "description": "2d6. Move 6. Deal 2d6, Grappled (escape DC 10).",
+                  "damage": {
+                    "roll": "2d6"
+                  }
+                },
+                {
+                  "name": "Crack Skulls",
+                  "description": "2d6. Move 6. Swing a Grappled creature at another creature. Both take 2d6,\nending the Grapple.",
+                  "damage": {
+                    "roll": "2d6"
+                  }
+                }
+              ],
+              "actionsInstructions": "After each hero's turn:",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "769",
+              "paperforgeImageUrl": "/paperforge/0769/portrait.png",
+              "subtype": "legendary",
+              "legendary": true,
+              "bloodied": {
+                "description": "Krogg loses Medium Armor but his damage increases to 2d8."
+              },
+              "lastStand": {
+                "description": ""
+              },
+              "saves": {
+                "str": 1,
+                "dex": 1
+              }
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/54h29t1r5d98e9m2p84606y8sv"
+            }
+          },
+          "dependencies": [],
+          "title": "Krogg, Goblin King",
+          "body": "## Actions\n\nAfter each hero's turn:\n\n### Manglemaul\n\n[2d6](roll:2d6) ·  2d6. Move 6. Deal 2d6, Grappled (escape DC 10).\n\n### Crack Skulls\n\n[2d6](roll:2d6) ·  2d6. Move 6. Swing a Grappled creature at another creature. Both take 2d6,\nending the Grapple.\n\n## Bloodied\n\nKrogg loses Medium Armor but his damage increases to 2d8.\n\n## Last stand\n\n"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/54h29t1r5d98e9m2p84606y8sv",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/17fjtag5jg9rt8h5s8pwbjgfmw",
+      "kind": "monster",
+      "title": "Lindwurm",
+      "body": "### Desperate Purge\n\nWhen crit, Grappled, or Bloodied: regurgitates its most recent meal.\n\n### Fiercely Jealous\n\nAttacks those nearest the Golden Egg.\n\n## Actions\n\nChoose one.\n\n### Coil\n\n[1d6+13](roll:1d6%2B13) ·  1d6+13. Move up to 6, attack for 1d6+10, target is Grappled (escape DC 13).\n\n\n### Squeeze\n\n[1d6+13](roll:1d6%2B13) ·  1d6+13. Squeeze a Grappled creature for 2d6+10 damage\n\n## Bloodied\n\nAt 1/2 HP move 8, Poison any creature adjacent to your path (lasts until healed).\n\n## Last stand\n\nAt 0 the Lindworm is dying! 60 more damage and it dies. Until then, each turn it may also Spit Acid. (Range 8) 1d6+10.",
+      "tags": [
+        "monster",
+        "Nimble GMG"
+      ],
+      "category": "Nimble GMG / Monsters",
+      "sources": [
+        {
+          "book": "Nimble GMG"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 140,
+        "level": "6",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": true,
+        "minion": false,
+        "bloodied": "At 1/2 HP move 8, Poison any creature adjacent to your path (lasts until healed).",
+        "lastStand": "At 0 the Lindworm is dying! 60 more damage and it dies. Until then, each turn it may also Spit Acid. (Range 8) 1d6+10.",
+        "saves": "",
+        "movement": "",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "17fjtag5jg9rt8h5s8pwbjgfmw",
+            "attributes": {
+              "name": "Lindwurm",
+              "hazard": false,
+              "hp": 140,
+              "level": 6,
+              "size": "medium",
+              "armor": "medium",
+              "movement": [],
+              "abilities": [
+                {
+                  "description": "When crit, Grappled, or Bloodied: regurgitates its most recent meal.",
+                  "name": "Desperate Purge"
+                },
+                {
+                  "description": "Attacks those nearest the Golden Egg.",
+                  "name": "Fiercely Jealous"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Coil",
+                  "description": "1d6+13. Move up to 6, attack for 1d6+10, target is Grappled (escape DC 13).\n",
+                  "damage": {
+                    "roll": "1d6+13"
+                  }
+                },
+                {
+                  "name": "Squeeze",
+                  "description": "1d6+13. Squeeze a Grappled creature for 2d6+10 damage",
+                  "damage": {
+                    "roll": "1d6+13"
+                  }
+                }
+              ],
+              "actionsInstructions": "Choose one.",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "145",
+              "paperforgeImageUrl": "/paperforge/0145/portrait.png",
+              "subtype": "legendary",
+              "legendary": true,
+              "bloodied": {
+                "description": "At 1/2 HP move 8, Poison any creature adjacent to your path (lasts until healed)."
+              },
+              "lastStand": {
+                "description": "At 0 the Lindworm is dying! 60 more damage and it dies. Until then, each turn it may also Spit Acid. (Range 8) 1d6+10."
+              },
+              "saves": {}
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/17fjtag5jg9rt8h5s8pwbjgfmw"
+            }
+          },
+          "dependencies": [],
+          "title": "Lindwurm",
+          "body": "### Desperate Purge\n\nWhen crit, Grappled, or Bloodied: regurgitates its most recent meal.\n\n### Fiercely Jealous\n\nAttacks those nearest the Golden Egg.\n\n## Actions\n\nChoose one.\n\n### Coil\n\n[1d6+13](roll:1d6%2B13) ·  1d6+13. Move up to 6, attack for 1d6+10, target is Grappled (escape DC 13).\n\n\n### Squeeze\n\n[1d6+13](roll:1d6%2B13) ·  1d6+13. Squeeze a Grappled creature for 2d6+10 damage\n\n## Bloodied\n\nAt 1/2 HP move 8, Poison any creature adjacent to your path (lasts until healed).\n\n## Last stand\n\nAt 0 the Lindworm is dying! 60 more damage and it dies. Until then, each turn it may also Spit Acid. (Range 8) 1d6+10."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble GMG",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/17fjtag5jg9rt8h5s8pwbjgfmw",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/3m5pxkj3cp9p7s5qh1g94qy7py",
+      "kind": "monster",
+      "title": "Banshee",
+      "body": "Adapted from the Monsters & More early draft. \n\n## Undead Spirit\n\nMalevolent creatures whose presence is barely physical. These commonly include ghosts, wraiths, specters, banshees, and similarly disembodied spirits. \n\n### Incorporeal\n\n*Immune* to nonmagical damage. *Resistant* to Necrotic. *Vulnerable* to Radiant, Sunlight, and Silver.\n\n## Actions\n\n After each hero’s turn, choose 1:\n\n### Deathly Wail\n\n (1/Encounter, Reach 12) DC 13 WIL\nsave or drop to 0 HP. On save, lose half max\nHP. \n- Adv (or immune) if *hearing* is protected.\n\n### Horrible Glare\n\n(reach 8)  (Reach 8) 1d10, [[Frightened]]\n1 Round.\n\n### Ghastly Touch\n\n Fly 4 then 2d10.\n\n## Bloodied\n\n(35hp) Any dying heroes gain 1 HP and 1 action.\n\n## Last stand\n\n(20hp) **Possess**: All heroes make a DC16 WIL Save. Lowest failure is [[Possessed]]. ",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 70,
+        "level": "3",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Undead",
+        "hazard": false,
+        "legendary": true,
+        "minion": false,
+        "bloodied": "(35hp) Any dying heroes gain 1 HP and 1 action.",
+        "lastStand": "(20hp) **Possess**: All heroes make a DC16 WIL Save. Lowest failure is [[Possessed]]. ",
+        "saves": "",
+        "movement": "",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "3m5pxkj3cp9p7s5qh1g94qy7py",
+            "attributes": {
+              "name": "Banshee",
+              "hazard": false,
+              "hp": 70,
+              "level": 3,
+              "size": "medium",
+              "armor": "none",
+              "kind": "Undead",
+              "movement": [],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": " Deathly Wail",
+                  "description": "(1/Encounter, Reach 12) DC 13 WIL\nsave or drop to 0 HP. On save, lose half max\nHP. \n- Adv (or immune) if *hearing* is protected."
+                },
+                {
+                  "name": "Horrible Glare",
+                  "description": "(Reach 8) 1d10, [[Frightened]]\n1 Round.",
+                  "target": {
+                    "reach": 8
+                  }
+                },
+                {
+                  "name": "Ghastly Touch",
+                  "description": "Fly 4 then 2d10."
+                }
+              ],
+              "actionsInstructions": " After each hero’s turn, choose 1:",
+              "effects": [],
+              "description": "Adapted from the Monsters & More early draft. ",
+              "paperforgeId": "277",
+              "paperforgeImageUrl": "/paperforge/0277/portrait.png",
+              "subtype": "legendary",
+              "legendary": true,
+              "bloodied": {
+                "description": "(35hp) Any dying heroes gain 1 HP and 1 action."
+              },
+              "lastStand": {
+                "description": "(20hp) **Possess**: All heroes make a DC16 WIL Save. Lowest failure is [[Possessed]]. "
+              },
+              "saves": {}
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "4e0sp0jgs19j5a90kgnccnpjdr"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/3m5pxkj3cp9p7s5qh1g94qy7py"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "4e0sp0jgs19j5a90kgnccnpjdr",
+              "attributes": {
+                "name": "Undead Spirit",
+                "description": "Malevolent creatures whose presence is barely physical. These commonly include ghosts, wraiths, specters, banshees, and similarly disembodied spirits. ",
+                "abilities": [
+                  {
+                    "name": "Incorporeal",
+                    "description": "*Immune* to nonmagical damage. *Resistant* to Necrotic. *Vulnerable* to Radiant, Sunlight, and Silver."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/4e0sp0jgs19j5a90kgnccnpjdr"
+              }
+            }
+          ],
+          "title": "Banshee",
+          "body": "Adapted from the Monsters & More early draft. \n\n## Undead Spirit\n\nMalevolent creatures whose presence is barely physical. These commonly include ghosts, wraiths, specters, banshees, and similarly disembodied spirits. \n\n### Incorporeal\n\n*Immune* to nonmagical damage. *Resistant* to Necrotic. *Vulnerable* to Radiant, Sunlight, and Silver.\n\n## Actions\n\n After each hero’s turn, choose 1:\n\n### Deathly Wail\n\n (1/Encounter, Reach 12) DC 13 WIL\nsave or drop to 0 HP. On save, lose half max\nHP. \n- Adv (or immune) if *hearing* is protected.\n\n### Horrible Glare\n\n(reach 8)  (Reach 8) 1d10, [[Frightened]]\n1 Round.\n\n### Ghastly Touch\n\n Fly 4 then 2d10.\n\n## Bloodied\n\n(35hp) Any dying heroes gain 1 HP and 1 action.\n\n## Last stand\n\n(20hp) **Possess**: All heroes make a DC16 WIL Save. Lowest failure is [[Possessed]]. "
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Everdawn DM",
+          "url": "https://nimble.nexus/monsters/3m5pxkj3cp9p7s5qh1g94qy7py",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/7vg1qejwp29t69smh10f9zyafb",
+      "kind": "monster",
+      "title": "Death Knight",
+      "body": "## Death Knights\n\nOnce noble champions, Death Knights are fallen paladins or warlords who betrayed their oaths and now serve death itself. Cursed by dark necromantic forces, they rise clad in blackened armor, their souls forever bound to undeath. Death Knights command legions of the lost and often guard profane relics or cursed ruins. Their presence blights the land, and their very name inspires dread—each one a tale of tragic fall and terrible wrath.\n\n### Dread of Death\n\nWIL save instead of rolling for Initiative against Death Knights.\n\n### Hatred of light\n\nVulnerable to Radiant. Immediately strikes back for half as much damage.\n\n### Merciless Aura\n\nEnemies within Reach 2 cannot regain HP, when healed they instead suffer 1d10 damage.\n\n### Gravewalk (Spicy)\n\n(Reaction, 1 use) Instantly descend into the earth and erupt from the ground up to 6 spaces away. Creatures within Reach 2 are knocked Prone on a failed DC 14 DEX save.\n\n## Actions\n\n### Doom Blade\n\n 1d10+20 (Req: DC 14 WIL save to Interpose). On damage, 1 Wound. THEN (optional):\n\n### Call Servant\n\n (Single use) Summon 2 Grave Crows or 1 Grave Squire within Reach 6.",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 50,
+        "level": "9",
+        "armor": "heavy",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "7vg1qejwp29t69smh10f9zyafb",
+            "attributes": {
+              "name": "Death Knight",
+              "hazard": false,
+              "hp": 50,
+              "level": 9,
+              "size": "medium",
+              "armor": "heavy",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "Enemies within Reach 2 cannot regain HP, when healed they instead suffer 1d10 damage.",
+                  "name": "Merciless Aura"
+                },
+                {
+                  "description": "(Reaction, 1 use) Instantly descend into the earth and erupt from the ground up to 6 spaces away. Creatures within Reach 2 are knocked Prone on a failed DC 14 DEX save.",
+                  "name": "Gravewalk (Spicy)"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Doom Blade",
+                  "description": "1d10+20 (Req: DC 14 WIL save to Interpose). On damage, 1 Wound. THEN (optional):"
+                },
+                {
+                  "name": "Call Servant",
+                  "description": "(Single use) Summon 2 Grave Crows or 1 Grave Squire within Reach 6."
+                }
+              ],
+              "actionsInstructions": "",
+              "effects": [],
+              "description": "",
+              "spicy_encounter": "Gravewalk",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "5pthzmf2wf80tb8gxrs4ddye6d"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/7vg1qejwp29t69smh10f9zyafb"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "5pthzmf2wf80tb8gxrs4ddye6d",
+              "attributes": {
+                "name": "Death Knights",
+                "description": "Once noble champions, Death Knights are fallen paladins or warlords who betrayed their oaths and now serve death itself. Cursed by dark necromantic forces, they rise clad in blackened armor, their souls forever bound to undeath. Death Knights command legions of the lost and often guard profane relics or cursed ruins. Their presence blights the land, and their very name inspires dread—each one a tale of tragic fall and terrible wrath.",
+                "abilities": [
+                  {
+                    "name": "Dread of Death",
+                    "description": "WIL save instead of rolling for Initiative against Death Knights."
+                  },
+                  {
+                    "name": "Hatred of light",
+                    "description": "Vulnerable to Radiant. Immediately strikes back for half as much damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/5pthzmf2wf80tb8gxrs4ddye6d"
+              }
+            }
+          ],
+          "title": "Death Knight",
+          "body": "## Death Knights\n\nOnce noble champions, Death Knights are fallen paladins or warlords who betrayed their oaths and now serve death itself. Cursed by dark necromantic forces, they rise clad in blackened armor, their souls forever bound to undeath. Death Knights command legions of the lost and often guard profane relics or cursed ruins. Their presence blights the land, and their very name inspires dread—each one a tale of tragic fall and terrible wrath.\n\n### Dread of Death\n\nWIL save instead of rolling for Initiative against Death Knights.\n\n### Hatred of light\n\nVulnerable to Radiant. Immediately strikes back for half as much damage.\n\n### Merciless Aura\n\nEnemies within Reach 2 cannot regain HP, when healed they instead suffer 1d10 damage.\n\n### Gravewalk (Spicy)\n\n(Reaction, 1 use) Instantly descend into the earth and erupt from the ground up to 6 spaces away. Creatures within Reach 2 are knocked Prone on a failed DC 14 DEX save.\n\n## Actions\n\n### Doom Blade\n\n 1d10+20 (Req: DC 14 WIL save to Interpose). On damage, 1 Wound. THEN (optional):\n\n### Call Servant\n\n (Single use) Summon 2 Grave Crows or 1 Grave Squire within Reach 6."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/7vg1qejwp29t69smh10f9zyafb",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/2tjwj4zmzz9508zh37egz988qv",
+      "kind": "monster",
+      "title": "Gargoyle",
+      "body": "## Actions\n\n### Crush.\n\n 1d4+30 (with disadvantage) and Prone.",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 40,
+        "level": "6",
+        "armor": "heavy",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6 · fly 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "2tjwj4zmzz9508zh37egz988qv",
+            "attributes": {
+              "name": "Gargoyle",
+              "hazard": false,
+              "hp": 40,
+              "level": 6,
+              "size": "medium",
+              "armor": "heavy",
+              "movement": [
+                {
+                  "speed": 6
+                },
+                {
+                  "mode": "fly",
+                  "speed": 6
+                }
+              ],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": "Crush.",
+                  "description": "1d4+30 (with disadvantage) and Prone."
+                }
+              ],
+              "actionsInstructions": "",
+              "effects": [],
+              "description": "",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {},
+            "links": {
+              "self": "/api/monsters/2tjwj4zmzz9508zh37egz988qv"
+            }
+          },
+          "dependencies": [],
+          "title": "Gargoyle",
+          "body": "## Actions\n\n### Crush.\n\n 1d4+30 (with disadvantage) and Prone."
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "DorgaJohn",
+          "url": "https://nimble.nexus/monsters/2tjwj4zmzz9508zh37egz988qv",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/615twd2a768ktvyqy08845k2qs",
+      "kind": "monster",
+      "title": "Orc",
+      "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\nChoose one.\n\n### Battleaxe\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4\n\n### Javelin\n\n[1d6+4](roll:1d6%2B4) ·  1d6+4. Range 8",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 22,
+        "level": "1",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "615twd2a768ktvyqy08845k2qs",
+            "attributes": {
+              "name": "Orc",
+              "hazard": false,
+              "hp": 22,
+              "level": 1,
+              "size": "medium",
+              "armor": "medium",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "When crit: deal 5 damage to an adjacent enemy",
+                  "name": "Enrage"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Battleaxe",
+                  "description": "1d10+4",
+                  "damage": {
+                    "roll": "1d10+4"
+                  }
+                },
+                {
+                  "name": "Javelin",
+                  "description": "1d6+4. Range 8",
+                  "damage": {
+                    "roll": "1d6+4"
+                  }
+                }
+              ],
+              "actionsInstructions": "Choose one.",
+              "effects": [],
+              "description": "",
+              "mild_encounter": "Attack from Range to deal less damage and waste Enrage.",
+              "spicy_encounter": "Use melee attacks as much as possible, Always stay adjacent to enemies Enrage has a target.",
+              "paperforgeId": "187",
+              "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "0gf54dznx891maj94wsf7th58a"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/615twd2a768ktvyqy08845k2qs"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "0gf54dznx891maj94wsf7th58a",
+              "attributes": {
+                "name": "Orcs",
+                "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+                "abilities": [
+                  {
+                    "name": "Battlelust",
+                    "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                  },
+                  {
+                    "name": "Tough as Nails",
+                    "description": "Orcs have Medium armor, except against magic damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+              }
+            }
+          ],
+          "title": "Orc",
+          "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\nChoose one.\n\n### Battleaxe\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4\n\n### Javelin\n\n[1d6+4](roll:1d6%2B4) ·  1d6+4. Range 8"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/615twd2a768ktvyqy08845k2qs",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/1hxnkxh7ma9t982j971vvn5npz",
+      "kind": "monster",
+      "title": "Orc Battlebard",
+      "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Stand Your Ground!\n\nAllied Orcs attacks with advantage so long as\nyou have not moved (or been moved) since your last turn.\n\n## Actions\n\n### Battle Horn (1/encounter)\n\n  Trigger every allied Orc's\nEnrage ability.\n\n### Battleaxe\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 50,
+        "level": "4",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "1hxnkxh7ma9t982j971vvn5npz",
+            "attributes": {
+              "name": "Orc Battlebard",
+              "hazard": false,
+              "hp": 50,
+              "level": 4,
+              "size": "medium",
+              "armor": "medium",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "Allied Orcs attacks with advantage so long as\nyou have not moved (or been moved) since your last turn.",
+                  "name": "Stand Your Ground!"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Battle Horn (1/encounter)",
+                  "description": " Trigger every allied Orc's\nEnrage ability."
+                },
+                {
+                  "name": "Battleaxe",
+                  "description": "1d10+4",
+                  "damage": {
+                    "roll": "1d10+4"
+                  }
+                }
+              ],
+              "actionsInstructions": "",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "187",
+              "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "0gf54dznx891maj94wsf7th58a"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/1hxnkxh7ma9t982j971vvn5npz"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "0gf54dznx891maj94wsf7th58a",
+              "attributes": {
+                "name": "Orcs",
+                "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+                "abilities": [
+                  {
+                    "name": "Battlelust",
+                    "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                  },
+                  {
+                    "name": "Tough as Nails",
+                    "description": "Orcs have Medium armor, except against magic damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+              }
+            }
+          ],
+          "title": "Orc Battlebard",
+          "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Stand Your Ground!\n\nAllied Orcs attacks with advantage so long as\nyou have not moved (or been moved) since your last turn.\n\n## Actions\n\n### Battle Horn (1/encounter)\n\n  Trigger every allied Orc's\nEnrage ability.\n\n### Battleaxe\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/1hxnkxh7ma9t982j971vvn5npz",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/5sq7krn9k79ebvr2ttzqtqz1bv",
+      "kind": "monster",
+      "title": "Orc Elite",
+      "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage.\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\nChoose One.\n\n### Cleave\n\n[2d10+4](roll:2d10%2B4) ·  2d10+4. to up to 2 enemies in Reach\n\n### Heavy Javelin\n\n[2d6+4](roll:2d6%2B4) ·  2d6+4. Range 8",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 60,
+        "level": "6",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "5sq7krn9k79ebvr2ttzqtqz1bv",
+            "attributes": {
+              "name": "Orc Elite ",
+              "hazard": false,
+              "hp": 60,
+              "level": 6,
+              "size": "medium",
+              "armor": "medium",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "When crit: deal 5 damage to an adjacent enemy",
+                  "name": "Enrage."
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Cleave",
+                  "description": "2d10+4. to up to 2 enemies in Reach",
+                  "damage": {
+                    "roll": "2d10+4"
+                  }
+                },
+                {
+                  "name": "Heavy Javelin",
+                  "description": "2d6+4. Range 8",
+                  "damage": {
+                    "roll": "2d6+4"
+                  }
+                }
+              ],
+              "actionsInstructions": "Choose One.",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "187",
+              "paperforgeImageUrl": "/paperforge/0187/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "0gf54dznx891maj94wsf7th58a"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/5sq7krn9k79ebvr2ttzqtqz1bv"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "0gf54dznx891maj94wsf7th58a",
+              "attributes": {
+                "name": "Orcs",
+                "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+                "abilities": [
+                  {
+                    "name": "Battlelust",
+                    "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                  },
+                  {
+                    "name": "Tough as Nails",
+                    "description": "Orcs have Medium armor, except against magic damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+              }
+            }
+          ],
+          "title": "Orc Elite",
+          "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage.\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\nChoose One.\n\n### Cleave\n\n[2d10+4](roll:2d10%2B4) ·  2d10+4. to up to 2 enemies in Reach\n\n### Heavy Javelin\n\n[2d6+4](roll:2d6%2B4) ·  2d6+4. Range 8"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/5sq7krn9k79ebvr2ttzqtqz1bv",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/212mjyd5t893m8nhwb7yjp1q6d",
+      "kind": "monster",
+      "title": "Orc Raider",
+      "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\n### Twin Strike (2x)\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4.  Trigger every allied Orc's\n\n### Javelin\n\n[1d6+4](roll:1d6%2B4) ·  1d6+4. Range 8",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 34,
+        "level": "3",
+        "armor": "medium",
+        "size": "medium",
+        "kind": "",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 6",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "212mjyd5t893m8nhwb7yjp1q6d",
+            "attributes": {
+              "name": "Orc Raider",
+              "hazard": false,
+              "hp": 34,
+              "level": 3,
+              "size": "medium",
+              "armor": "medium",
+              "movement": [
+                {
+                  "speed": 6
+                }
+              ],
+              "abilities": [
+                {
+                  "description": "When crit: deal 5 damage to an adjacent enemy",
+                  "name": "Enrage"
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Twin Strike (2x)",
+                  "description": "1d10+4.  Trigger every allied Orc's",
+                  "damage": {
+                    "roll": "1d10+4"
+                  }
+                },
+                {
+                  "name": "Javelin",
+                  "description": "1d6+4. Range 8",
+                  "damage": {
+                    "roll": "1d6+4"
+                  }
+                }
+              ],
+              "actionsInstructions": "",
+              "effects": [],
+              "description": "",
+              "paperforgeId": "189",
+              "paperforgeImageUrl": "/paperforge/0189/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "0gf54dznx891maj94wsf7th58a"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/212mjyd5t893m8nhwb7yjp1q6d"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "0gf54dznx891maj94wsf7th58a",
+              "attributes": {
+                "name": "Orcs",
+                "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+                "abilities": [
+                  {
+                    "name": "Battlelust",
+                    "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                  },
+                  {
+                    "name": "Tough as Nails",
+                    "description": "Orcs have Medium armor, except against magic damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+              }
+            }
+          ],
+          "title": "Orc Raider",
+          "body": "## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n### Enrage\n\nWhen crit: deal 5 damage to an adjacent enemy\n\n## Actions\n\n### Twin Strike (2x)\n\n[1d10+4](roll:1d10%2B4) ·  1d10+4.  Trigger every allied Orc's\n\n### Javelin\n\n[1d6+4](roll:1d6%2B4) ·  1d6+4. Range 8"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/212mjyd5t893m8nhwb7yjp1q6d",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    },
+    {
+      "id": "monster/nexus/60dtnmdakg974r0t6gahk637e8",
+      "kind": "monster",
+      "title": "Warpig",
+      "body": "Armored warthogs, trained to gore the furthest creature away.\n\n\n## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n## Actions\n\n### Gore\n\n[1d10](roll:1d10) ·  1d10",
+      "tags": [
+        "monster",
+        "Nimble Supplementary Content"
+      ],
+      "category": "Nimble Supplementary Content / Monsters",
+      "sources": [
+        {
+          "book": "Nimble Supplementary Content"
+        }
+      ],
+      "related": [],
+      "fields": {
+        "hp": 18,
+        "level": "1/2",
+        "armor": "none",
+        "size": "medium",
+        "kind": "Beast - Mammal",
+        "hazard": false,
+        "legendary": false,
+        "minion": false,
+        "saves": "",
+        "movement": "walk 10",
+        "incomplete": false,
+        "missing": [],
+        "exchange": {
+          "format": "nexus",
+          "resource": {
+            "type": "monsters",
+            "id": "60dtnmdakg974r0t6gahk637e8",
+            "attributes": {
+              "name": "Warpig",
+              "hazard": false,
+              "hp": 18,
+              "level": "1/2",
+              "size": "medium",
+              "armor": "none",
+              "kind": "Beast - Mammal",
+              "role": "melee",
+              "movement": [
+                {
+                  "speed": 10
+                }
+              ],
+              "abilities": [],
+              "actions": [
+                {
+                  "name": "Gore",
+                  "description": "1d10",
+                  "damage": {
+                    "roll": "1d10"
+                  }
+                }
+              ],
+              "actionsInstructions": "",
+              "effects": [],
+              "description": "Armored warthogs, trained to gore the furthest creature away.\n",
+              "mild_encounter": "Go after melee heroes and stay within reach after attacking, making yourself vulnerable to follow up attacks.",
+              "spicy_encounter": "Go after ranged heroes, force them to move or have disadvantage on attacks. Continually move out of melee reach.",
+              "paperforgeId": "287",
+              "paperforgeImageUrl": "/paperforge/0287/portrait.png",
+              "subtype": "standard",
+              "legendary": false,
+              "minion": false
+            },
+            "relationships": {
+              "families": {
+                "data": [
+                  {
+                    "type": "families",
+                    "id": "0gf54dznx891maj94wsf7th58a"
+                  }
+                ]
+              }
+            },
+            "links": {
+              "self": "/api/monsters/60dtnmdakg974r0t6gahk637e8"
+            }
+          },
+          "dependencies": [
+            {
+              "type": "families",
+              "id": "0gf54dznx891maj94wsf7th58a",
+              "attributes": {
+                "name": "Orcs",
+                "description": "Mighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.",
+                "abilities": [
+                  {
+                    "name": "Battlelust",
+                    "description": "Heroes have disadvantage on Initiative against an Orcish band."
+                  },
+                  {
+                    "name": "Tough as Nails",
+                    "description": "Orcs have Medium armor, except against magic damage."
+                  }
+                ]
+              },
+              "relationships": {},
+              "links": {
+                "self": "/api/families/0gf54dznx891maj94wsf7th58a"
+              }
+            }
+          ],
+          "title": "Warpig",
+          "body": "Armored warthogs, trained to gore the furthest creature away.\n\n\n## Orcs\n\nMighty, battle-born warriors that train endlessly to resist blades and arrows. Only the greatest\nOrcs dare use the arcane, and even they do so with reverence and fear. Adolescent Orcs must\ntravel with a warband and return alive before they are considered full citizens and adults. They\nwage war for the love of battle alone, razing cities and salting the earth in their wake. The warbands that\nfind enough glory return to their homes proud and victorious. Those that don't, simply never return.\n\n### Battlelust\n\nHeroes have disadvantage on Initiative against an Orcish band.\n\n### Tough as Nails\n\nOrcs have Medium armor, except against magic damage.\n\n## Actions\n\n### Gore\n\n[1d10](roll:1d10) ·  1d10"
+        },
+        "upstream": {
+          "liveSnapshot": true,
+          "source": {
+            "name": "Nimble Supplementary Content",
+            "license": "Nimble 3rd Party Creator License v2.0",
+            "link": "https://nimblerpg.com/"
+          },
+          "contributor": "Susann",
+          "url": "https://nimble.nexus/monsters/60dtnmdakg974r0t6gahk637e8",
+          "retrievedAt": "2026-10-11T12:23:08.570Z"
+        }
+      }
+    }
+  ],
+  "terms": [],
+  "assets": {}
+}

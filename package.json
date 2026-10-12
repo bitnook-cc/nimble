@@ -8,11 +8,13 @@
     "apps/discord",
     "apps/vault",
     "apps/portal",
+    "apps/slate",
     "packages/shared",
     "packages/shared-config",
     "packages/shared-auth",
     "packages/nimble-dice",
-    "packages/nimble-ui"
+    "packages/nimble-ui",
+    "packages/nimble-generators"
   ],
   "scripts": {
     "build": "turbo build",
@@ -36,7 +38,8 @@
     "docker:dev:api": "docker compose exec app npm run dev:api",
     "docker:test": "docker compose exec app npm run test",
     "docker:lint": "docker compose exec app npm run lint",
-    "docker:typecheck": "docker compose exec app npm run typecheck"
+    "docker:typecheck": "docker compose exec app npm run typecheck",
+    "dev:slate": "npm run build -w @nimble/dice && npm run build -w @nimble/generators && npm run dev -w @nimble/slate"
   },
   "devDependencies": {
     "husky": "^9.1.7",

@@ -1,0 +1,179 @@
+import { z } from "zod";
+import { generatorDefinitionSchema } from "@nimble/generators";
+import { itemFieldsSchema } from "./item-schema";
+import { encounterFieldsSchema } from "./encounter-schema";
+import { monsterStatsSchema } from "./monster-schema";
+import { tableDefinitionSchema } from "./utility-schema";
+
+const key = z
+  .string()
+  .min(1)
+  .max(160)
+  .regex(/^[a-zA-Z0-9_./-]+$/);
+export const recordSchema = z
+  .object({
+    id: key,
+    kind: z.enum([
+      "rule",
+      "spell",
+      "item",
+      "faq",
+      "monster",
+      "npc-generator",
+      "encounter",
+      "class",
+      "subclass",
+      "ancestry",
+      "background",
+      "table",
+    ]),
+    title: z.string().trim().min(1).max(160),
+    body: z.string().max(100000),
+    tags: z.array(z.string().max(100)).max(80),
+    category: z.string().max(160).default(""),
+    sources: z
+      .array(
+        z.object({
+          book: z.string().max(160),
+          pages: z.array(z.number().int().positive()).optional(),
+        }),
+      )
+      .max(20)
+      .default([]),
+    related: z.array(z.string().max(500)).max(100).default([]),
+    fields: z.record(z.string(), z.unknown()).default({}),
+    origin: z.string().max(500).optional(),
+  })
+  .superRefine((record, ctx) => {
+    if (
+      !["monster", "npc-generator", "item", "encounter", "table"].includes(
+        record.kind,
+      )
+    )
+      return;
+    // Older official tables contain Markdown only; retain those reference tables.
+    if (record.kind === "table" && record.fields.definition === undefined)
+      return;
+    const parsed =
+      record.kind === "table"
+        ? tableDefinitionSchema.safeParse(record.fields.definition)
+        : record.kind === "monster"
+          ? monsterStatsSchema.safeParse(record.fields)
+          : record.kind === "item"
+            ? itemFieldsSchema.safeParse(record.fields)
+            : record.kind === "encounter"
+              ? encounterFieldsSchema.safeParse(record.fields)
+              : generatorDefinitionSchema.safeParse(record.fields);
+    if (!parsed.success)
+      for (const issue of parsed.error.issues)
+        ctx.addIssue({
+          code: "custom",
+          path: ["fields", ...issue.path],
+          message: issue.message,
+        });
+  });
+export type ContentRecord = z.infer<typeof recordSchema>;
+export const packSchema = z
+  .strictObject({
+    format: z.literal("slate-content"),
+    schemaVersion: z.literal(1),
+    id: key,
+    version: key,
+    name: z.string().min(1).max(160),
+    source: z.object({
+      url: z
+        .url()
+        .refine(
+          (url) => /^https?:\/\//i.test(url),
+          "Source must be an HTTP(S) URL",
+        )
+        .optional(),
+      revision: z.string().max(100),
+      license: z.string().max(500),
+    }),
+    records: z.array(recordSchema).min(1).max(3000),
+    terms: z
+      .array(
+        z.object({
+          term: z.string().max(160),
+          aliases: z.array(z.string().max(160)),
+          target: z.string().max(500),
+          preview: z.string().max(3000),
+        }),
+      )
+      .max(2000),
+    assets: z.record(
+      z.string(),
+      z
+        .string()
+        .max(1500000)
+        .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
+    ),
+  })
+  .superRefine((p, ctx) => {
+    if (new Set(p.records.map((r) => r.id)).size !== p.records.length)
+      ctx.addIssue({ code: "custom", message: "Duplicate content IDs" });
+    if (Object.keys(p.assets).length > 100)
+      ctx.addIssue({ code: "custom", message: "Too many pack images" });
+    for (const term of p.terms)
+      if (!p.records.some((r) => r.id === term.target.split("#")[0]))
+        ctx.addIssue({
+          code: "custom",
+          message: `Missing term target: ${term.term}`,
+        });
+    for (const r of p.records)
+      for (const link of r.related)
+        if (
+          !/^[a-zA-Z0-9_./-]+@[a-zA-Z0-9_./-]+::[a-zA-Z0-9_./-]+(?:#[a-zA-Z0-9_-]+)?$/.test(
+            link,
+          ) &&
+          !p.records.some((t) => t.id === link.split("#")[0])
+        )
+          ctx.addIssue({
+            code: "custom",
+            message: `Missing related record: ${link}`,
+          });
+  });
+export type ContentPack = z.infer<typeof packSchema>;
+export const packKey = (pack: Pick<ContentPack, "id" | "version">) =>
+  `${pack.id}@${pack.version}`;
+export const packTarget = (
+  pack: Pick<ContentPack, "id" | "version">,
+  id: string,
+) => `${packKey(pack)}::${id}`;
+export const referenceHref = (target: string) =>
+  `slate:${encodeURIComponent(target)}`;
+export const referenceMarkdown = (title: string, target: string) =>
+  `[${title.replace(/[\\[\]]/g, "\\$&")}](${referenceHref(target)})`;
+export function readTarget(href: string) {
+  try {
+    return href.startsWith("slate:") ? decodeURIComponent(href.slice(6)) : null;
+  } catch {
+    return null;
+  }
+}
+export function remapReferences(body: string, remap: (id: string) => string) {
+  return body.replace(/slate:([^\s)]+)/g, (original, encoded: string) => {
+    const target = readTarget(`slate:${encoded}`);
+    if (!target?.startsWith("local::")) return original;
+    const [id, anchor] = target.slice(7).split("#");
+    return referenceHref(`local::${remap(id)}${anchor ? "#" + anchor : ""}`);
+  });
+}
+export function mergePacks(existing: ContentPack[], incoming: ContentPack[]) {
+  const merged = [...existing];
+  for (const pack of incoming) {
+    const old = merged.find((p) => packKey(p) === packKey(pack));
+    if (old && JSON.stringify(old) !== JSON.stringify(pack))
+      throw new Error(
+        "This pack version already exists with different content. Use a new version.",
+      );
+    if (!old) merged.push(pack);
+  }
+  return merged;
+}
+export function parsePack(text: string): ContentPack {
+  if (new TextEncoder().encode(text).length > 8 * 1024 * 1024)
+    throw new Error("Content pack exceeds 8 MiB.");
+  return packSchema.parse(JSON.parse(text));
+}

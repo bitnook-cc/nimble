@@ -1,0 +1,9 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+work/
+*.tsbuildinfo
+
+test-results-dev/
+test-results-cross/

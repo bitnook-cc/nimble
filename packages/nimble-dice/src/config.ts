@@ -8,6 +8,12 @@ export const diceConfig = {
    * Note: This applies to the base dice count, not including advantage/disadvantage extras.
    */
   maxDiceCount: 100,
+  maxTotalDice: 100,
+  maxAdvantage: 10,
+  maxFormulaLength: 1000,
+  maxTokens: 200,
+  maxHistogramSamples: 100000,
+  maxHistogramRolls: 1000000,
 
   /**
    * Maximum number of consecutive critical explosions allowed.

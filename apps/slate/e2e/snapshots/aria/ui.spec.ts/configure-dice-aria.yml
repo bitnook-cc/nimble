@@ -1,0 +1,7 @@
+- dialog "Configure Dice roller":
+  - heading "Configure Dice roller" [level=2]
+  - button "Close dialog"
+  - text: Tool name
+  - textbox "Tool name": Travel rolls
+  - paragraph: The name is shared by all widgets using this saved tool.
+  - button "Save tool"

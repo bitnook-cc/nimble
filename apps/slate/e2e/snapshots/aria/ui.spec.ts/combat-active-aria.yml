@@ -1,0 +1,58 @@
+- region "Initiative tracker":
+  - heading "Initiative tracker" [level=2]
+  - button "Configure tool"
+  - button "Widget menu Initiative tracker"
+  - button "Expand Initiative tracker"
+  - text: Encounter name
+  - textbox "Encounter name": The northern gate
+  - paragraph: 3 combatants · In progress
+  - text: ROUND
+  - strong: "01"
+  - tablist "Initiative sections":
+    - tab "Combatants" [selected]
+    - tab "Monsters"
+  - tabpanel "Combatants":
+    - button "Add combatant"
+    - button "Set up party"
+    - button "Load encounter"
+    - button "Sort by initiative"
+    - button "Undo combat change"
+    - button "Reset encounter"
+    - text: ORDER / COMBATANT HIT POINTS
+    - list:
+      - listitem:
+        - text: "18"
+        - button "Edit Mira": Mira hero
+        - button "Damage Mira": −
+        - button "Set HP for Mira":
+          - strong: "19"
+          - text: /20
+        - button "Heal Mira": +
+        - button "Move Mira up" [disabled]
+        - button "Move Mira down"
+      - listitem:
+        - text: "12"
+        - button "Edit Gatekeeper": Gatekeeper ally
+        - button "Damage Gatekeeper": −
+        - button "Set HP for Gatekeeper":
+          - strong: "20"
+          - text: /20
+        - button "Heal Gatekeeper" [disabled]: +
+        - button "Move Gatekeeper up"
+        - button "Move Gatekeeper down"
+      - listitem:
+        - text: "7"
+        - button "Edit Goblin scout": Goblin scout enemy
+        - button "Damage Goblin scout": −
+        - button "Set HP for Goblin scout":
+          - strong: "20"
+          - text: /20
+        - button "Mark Goblin scout dead"
+        - button "Move Goblin scout up"
+        - button "Move Goblin scout down" [disabled]
+    - text: CURRENT TURN
+    - strong: Mira
+    - button "Pause combat"
+    - button "Finish combat"
+    - button "Next turn"
+    - paragraph: Manual initiative · highest first when sorted · defeated combatants are skipped.

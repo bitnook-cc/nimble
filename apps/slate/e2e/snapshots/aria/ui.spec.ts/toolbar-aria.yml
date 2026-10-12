@@ -1,0 +1,16 @@
+- banner "Screen controls":
+  - link "Slate GM screen":
+    - /url: "#main"
+    - text: slate
+  - 'button "Switch campaign: My Campaign"': My Campaign
+  - tablist "Campaign screens":
+    - tab "Session screen" [selected]
+  - button "Manage screens"
+  - button "Campaign party"
+  - button "Encounter manager"
+  - button "Campaign library"
+  - button "12 × 8 grid"
+  - button "Arrange"
+  - button "Command palette"
+  - button "Appearance"
+  - status "Stored on this device": Saved on this device

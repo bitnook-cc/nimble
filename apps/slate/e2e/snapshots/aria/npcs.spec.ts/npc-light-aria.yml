@@ -1,0 +1,45 @@
+- region "NPC generator":
+  - heading "NPC generator" [level=2]
+  - button "Configure tool"
+  - button "Widget menu NPC generator"
+  - button "Expand NPC generator"
+  - text: Name style
+  - combobox "Name style":
+    - option "Mixed fantasy"
+    - option "Human" [selected]
+    - option "Elf"
+    - option "Dwarf"
+    - option "Halfling"
+    - option "Gnome"
+  - text: Name pool
+  - combobox "Name pool":
+    - option "Any" [selected]
+    - option "Masculine"
+    - option "Feminine"
+  - button "Manage generators"
+  - button "Generate NPC"
+  - button "Generate 5"
+  - region "Generated NPC":
+    - heading "Gwenlyn Greystone" [level=3]
+    - button "Reroll name"
+    - term: Appearance
+    - definition:
+      - text: Their clothes smell faintly of woodsmoke.
+      - button "Reroll appearance"
+    - term: Scar or mark
+    - definition:
+      - text: A small notch interrupts the edge of one ear.
+      - button "Reroll scar or mark"
+    - term: Mannerism
+    - definition:
+      - text: They laugh quietly before delivering bad news.
+      - button "Reroll mannerism"
+    - term: Quirk
+    - definition:
+      - text: They believe any bargain should end with a shared snack.
+      - button "Reroll quirk"
+    - button "Save NPC"
+    - button "Copy NPC"
+    - button "Save as note"
+  - group: Saved NPCs (0)
+  - group: Recent NPCs (1)
