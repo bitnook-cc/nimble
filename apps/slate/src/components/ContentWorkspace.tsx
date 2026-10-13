@@ -1,4 +1,6 @@
 import { TableEditor } from "./TableEditor";
+import { NexusCredit } from "./NexusCredit";
+import { isNexusSource } from "../nexus-attribution";
 import { TableWidget } from "./TableWidget";
 import { tableDefinition, mapTableLinks } from "../table-content";
 import { ItemEditor } from "./ItemEditor";
@@ -30,7 +32,12 @@ import {
   removeCampaignContent,
   type Entry,
 } from "../content";
-import { referenceMarkdown, type ContentRecord } from "../content-schema";
+import {
+  referenceMarkdown,
+  packSchema,
+  type ContentRecord,
+  type ContentPack,
+} from "../content-schema";
 import { uid, type Campaign } from "../model";
 import type { AppData, Tool } from "../model";
 
@@ -50,6 +57,65 @@ export function useContent() {
   const value = useContext(Context);
   if (!value) throw new Error("Content workspace missing");
   return value;
+}
+// Preview records resolve each other without creating campaign data or dice history.
+export function ImportPreviewContent({
+  records,
+  pack,
+  children,
+}: {
+  records: ContentRecord[];
+  pack?: ContentPack;
+  children: ReactNode;
+}) {
+  const workspace = useContent();
+  const [target, setTarget] = useState<string | null>(null);
+  const incoming = records.map((record) => ({
+    ...record,
+    target: `local::${record.id}`,
+    pack,
+  }));
+  const all = [
+    ...incoming,
+    ...workspace.all.filter(
+      (entry) => !incoming.some((r) => r.target === entry.target),
+    ),
+  ];
+  const entry = target ? resolveEntry(all, target) : undefined;
+  return (
+    <Context.Provider
+      value={{
+        ...workspace,
+        all,
+        open: setTarget,
+        rollFormula: (formula) =>
+          roll(formula, {
+            advantageLevel: 0,
+            allowCriticals: false,
+            allowFumbles: false,
+          }),
+        update: () => {},
+        edit: () => {},
+        remove: () => {},
+        pin: () => {},
+      }}
+    >
+      {children}
+      {target && (
+        <Modal
+          title={entry?.title ?? "Reference unavailable"}
+          onClose={() => setTarget(null)}
+          wide
+        >
+          {entry ? (
+            <ReferenceBody entry={entry} preview />
+          ) : (
+            <p>This reference is not included in the import.</p>
+          )}
+        </Modal>
+      )}
+    </Context.Provider>
+  );
 }
 export function ContentProvider({
   campaign,
@@ -122,6 +188,7 @@ export function ContentProvider({
           : record.fields,
       kind: record.kind === "note" ? "rule" : record.kind,
       origin: record.target,
+      ...(record.importedFrom ? { importedFrom: record.importedFrom } : {}),
       related: record.related.map((r) =>
         record.pack && !r.includes("::")
           ? `${record.pack.id}@${record.pack.version}::${r}`
@@ -286,11 +353,26 @@ export function ContentProvider({
 export function ReferenceBody({
   entry,
   sections = true,
+  preview = false,
 }: {
   entry: Entry;
   sections?: boolean;
+  preview?: boolean;
 }) {
   const { all, open, rollFormula } = useContent();
+  const importAssets = packSchema.shape.assets.safeParse(
+    entry.importedFrom?.assets,
+  );
+  const importSource = packSchema.shape.source.safeParse(
+    entry.importedFrom?.source,
+  );
+  const nexusUrl = (entry.fields.nexus as { url?: unknown } | undefined)?.url;
+  const fromNexus =
+    isNexusSource(nexusUrl) ||
+    (entry.fields.exchange as { format?: string } | undefined)?.format ===
+      "nexus" ||
+    isNexusSource(entry.pack?.source.url) ||
+    (importSource.success && isNexusSource(importSource.data.url));
   const [tableHistory, setTableHistory] = useState<
     import("../utility-schema").TableWidgetTool["history"]
   >([]);
@@ -302,9 +384,11 @@ export function ReferenceBody({
     <>
       <p className="content-meta">
         {entry.kind} · {entry.category}
-        {entry.pack
-          ? ` · ${entry.pack.version.slice(0, 7)}`
-          : " · Campaign content"}
+        {preview
+          ? " · Import preview"
+          : entry.pack
+            ? ` · ${entry.pack.version.slice(0, 7)}`
+            : " · Campaign content"}
       </p>
       {!!entry.fields.exchange && (
         <p className="hint">
@@ -334,6 +418,32 @@ export function ReferenceBody({
             )
             .join(" / ")}
         </p>
+      )}
+      {typeof nexusUrl === "string" &&
+        /^https:\/\/nimble\.nexus\/(monsters|items|encounters)\/[a-zA-Z0-9_.-]+$/.test(
+          nexusUrl,
+        ) && (
+          <p className="hint">
+            <a href={nexusUrl} target="_blank" rel="noopener noreferrer">
+              View on Nimble Nexus
+            </a>
+          </p>
+        )}
+      {!entry.pack && importSource.success && (
+        <details className="content-attribution">
+          <summary>Source and attribution</summary>
+          <p>{importSource.data.license}</p>
+          {fromNexus && <NexusCredit />}
+          {importSource.data.url && (
+            <a
+              href={importSource.data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Source content
+            </a>
+          )}
+        </details>
       )}
       {entry.kind === "monster" &&
         (() => {
@@ -492,6 +602,7 @@ export function ReferenceBody({
         all={all}
         open={open}
         pack={entry.pack ?? all.find((r) => r.target === entry.origin)?.pack}
+        assets={importAssets.success ? importAssets.data : undefined}
       />
       {entry.kind === "item" && !!entry.fields.moreInfo && (
         <Markdown
@@ -499,6 +610,8 @@ export function ReferenceBody({
           all={all}
           open={open}
           onRoll={rollFormula}
+          pack={entry.pack ?? all.find((r) => r.target === entry.origin)?.pack}
+          assets={importAssets.success ? importAssets.data : undefined}
         />
       )}
       {!!entry.related.length && (
@@ -525,6 +638,7 @@ export function ReferenceBody({
         <details className="content-attribution">
           <summary>Source and attribution</summary>
           <p>{entry.pack.source.license}</p>
+          {fromNexus && <NexusCredit />}
           {entry.pack.source.url && (
             <a
               href={entry.pack.source.url}
@@ -534,6 +648,12 @@ export function ReferenceBody({
               Nexus source · {entry.pack.source.revision.slice(0, 7)}
             </a>
           )}
+        </details>
+      )}
+      {!entry.pack && !importSource.success && fromNexus && (
+        <details className="content-attribution">
+          <summary>Source and attribution</summary>
+          <NexusCredit />
         </details>
       )}
     </>

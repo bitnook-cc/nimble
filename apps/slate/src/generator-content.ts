@@ -46,6 +46,7 @@ export function generatorRecord(
     sources: original?.sources ?? [],
     related: original?.related ?? [],
     ...(original?.origin ? { origin: original.origin } : {}),
+    ...(original?.importedFrom ? { importedFrom: original.importedFrom } : {}),
     fields: generatorDefinitionSchema.parse(definition),
   };
 }

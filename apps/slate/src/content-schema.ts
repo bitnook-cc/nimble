@@ -10,6 +10,21 @@ const key = z
   .min(1)
   .max(160)
   .regex(/^[a-zA-Z0-9_./-]+$/);
+const contentSourceSchema = z.object({
+  url: z
+    .url()
+    .refine((url) => /^https?:\/\//i.test(url), "Source must be an HTTP(S) URL")
+    .optional(),
+  revision: z.string().max(100),
+  license: z.string().max(500),
+});
+const contentAssetsSchema = z.record(
+  z.string(),
+  z
+    .string()
+    .max(1500000)
+    .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
+);
 export const recordSchema = z
   .object({
     id: key,
@@ -43,6 +58,16 @@ export const recordSchema = z
     related: z.array(z.string().max(500)).max(100).default([]),
     fields: z.record(z.string(), z.unknown()).default({}),
     origin: z.string().max(500).optional(),
+    importedFrom: z
+      .object({
+        name: z.string().min(1).max(160),
+        source: contentSourceSchema,
+        assets: contentAssetsSchema.refine(
+          (assets) => Object.keys(assets).length <= 100,
+          "Too many imported images",
+        ),
+      })
+      .optional(),
   })
   .superRefine((record, ctx) => {
     if (
@@ -80,17 +105,7 @@ export const packSchema = z
     id: key,
     version: key,
     name: z.string().min(1).max(160),
-    source: z.object({
-      url: z
-        .url()
-        .refine(
-          (url) => /^https?:\/\//i.test(url),
-          "Source must be an HTTP(S) URL",
-        )
-        .optional(),
-      revision: z.string().max(100),
-      license: z.string().max(500),
-    }),
+    source: contentSourceSchema,
     records: z.array(recordSchema).min(1).max(3000),
     terms: z
       .array(
@@ -102,13 +117,7 @@ export const packSchema = z
         }),
       )
       .max(2000),
-    assets: z.record(
-      z.string(),
-      z
-        .string()
-        .max(1500000)
-        .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
-    ),
+    assets: contentAssetsSchema,
   })
   .superRefine((p, ctx) => {
     if (new Set(p.records.map((r) => r.id)).size !== p.records.length)

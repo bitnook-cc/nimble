@@ -98,15 +98,19 @@ export function Modal({
   onClose,
   wide = false,
   actions,
+  dismissible = true,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   wide?: boolean;
   actions?: ReactNode;
+  dismissible?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const dismiss = useDialogDismiss(onClose);
+  const dismiss = useDialogDismiss(() => {
+    if (dismissible) onClose();
+  });
   const titleId = useId();
   useEffect(() => {
     const dialog = ref.current!;
@@ -128,6 +132,10 @@ export function Modal({
       onKeyDown={trapDialogFocus}
       onCancel={(event) => {
         if (event.target !== event.currentTarget) return;
+        if (!dismissible) {
+          event.preventDefault();
+          return;
+        }
         onClose();
       }}
       onClose={(event) => {
@@ -143,6 +151,7 @@ export function Modal({
           <button
             className="icon-button"
             aria-label="Close dialog"
+            disabled={!dismissible}
             onClick={onClose}
           >
             <X size={18} />

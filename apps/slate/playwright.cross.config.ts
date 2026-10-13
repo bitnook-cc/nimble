@@ -14,6 +14,8 @@ export default defineConfig({
     "slate.spec.ts",
     "initiative-modes.spec.ts",
     "image-gestures.spec.ts",
+    "nexus-import.spec.ts",
+    "storage-recovery.spec.ts",
   ],
   outputDir: "test-results-cross",
   workers: 2,

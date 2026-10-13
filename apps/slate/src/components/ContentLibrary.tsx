@@ -1,20 +1,22 @@
 import { TableEditor } from "./TableEditor";
 import { FileInput } from "./FileInput";
+import { NexusCredit } from "./NexusCredit";
 import { EncounterLibrary } from "./EncounterLibrary";
 import { ItemLibrary } from "./ItemLibrary";
 import { ExchangeDialog } from "./ExchangeDialog";
+import { ImportRecordList } from "./ImportRecordList";
+import {
+  prepareContentImport,
+  installContentImportPack,
+} from "../content-import";
+import { applyExchange, type ImportPreview } from "../exchange";
 import { useMemo, useRef, useState } from "react";
-import { PenLine, Trash2, Pin } from "lucide-react";
+import { PenLine, Trash2, Pin, ArrowDownUp } from "lucide-react";
 import { Modal } from "./Modal";
 import { useContent } from "./ContentWorkspace";
 import { searchContent, type Entry } from "../content";
 import { tableDefinition } from "../table-content";
-import {
-  mergePacks,
-  packKey,
-  parsePack,
-  type ContentPack,
-} from "../content-schema";
+import { packKey, parsePack, type ContentPack } from "../content-schema";
 import { appStore } from "../storage";
 import { uid } from "../model";
 import { download } from "../backup";
@@ -44,6 +46,11 @@ export function ContentLibrary({
   const [tab, setTab] = useState(initialTab);
   const [limit, setLimit] = useState(40);
   const [incoming, setIncoming] = useState<ContentPack | null>(null);
+  const [incomingPreview, setIncomingPreview] = useState<ImportPreview | null>(
+    null,
+  );
+  const [importDestination, setImportDestination] = useState("pack");
+  const importGeneration = useRef(0);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const officialOrder = ["nimble-core-rules", "nimble-gmg", "nimble-heroes"];
@@ -83,18 +90,22 @@ export function ContentLibrary({
     setBusy(true);
     setError("");
     try {
-      await appStore.change((data) => ({
-        ...data,
-        packs: mergePacks(data.packs, [incoming]),
-        campaigns: data.campaigns.map((c) =>
-          c.id === campaign.id
-            ? {
-                ...c,
-                packRefs: [...new Set([...c.packRefs, packKey(incoming)])],
-              }
-            : c,
-        ),
-      }));
+      await appStore.change((data) => {
+        if (importDestination === "pack")
+          return installContentImportPack(data, campaign.id, incoming);
+        if (!incomingPreview || incomingPreview.campaignError)
+          throw new Error("Campaign import is unavailable.");
+        if (!data.campaigns.some((c) => c.id === campaign.id && !c.archivedAt))
+          throw new Error("This campaign is no longer available.");
+        return {
+          ...data,
+          campaigns: data.campaigns.map((c) =>
+            c.id === campaign.id
+              ? applyExchange(c, incomingPreview.records, "skip")
+              : c,
+          ),
+        };
+      });
       setIncoming(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -132,6 +143,11 @@ export function ContentLibrary({
             }
           </button>
         ))}
+        {!choose && (
+          <button className="primary" onClick={() => setExchange(true)}>
+            <ArrowDownUp size={15} /> Import / export content
+          </button>
+        )}
       </div>
       {!choose && (
         <div className="content-actions">
@@ -140,9 +156,6 @@ export function ContentLibrary({
           </button>
           <button className="quiet" onClick={() => setEncounterManager(true)}>
             Manage encounters
-          </button>
-          <button className="quiet" onClick={() => setExchange(true)}>
-            Import / export content
           </button>
         </div>
       )}
@@ -443,6 +456,7 @@ export function ContentLibrary({
             original version. Disabling a pack hides its content and generators
             in this campaign; saved references and NPCs are retained.
           </p>
+          <NexusCredit />
           {packs.map((p) => (
             <article className="pack-row" key={packKey(p)}>
               <strong>{p.name}</strong>
@@ -526,6 +540,9 @@ export function ContentLibrary({
                 e.target.value = "";
                 setError("");
                 setIncoming(null);
+                setIncomingPreview(null);
+                setImportDestination("pack");
+                const ticket = ++importGeneration.current;
                 if (!file) return;
                 if (file.size > 8 * 1024 * 1024) {
                   setError("Content pack exceeds 8 MiB.");
@@ -533,12 +550,20 @@ export function ContentLibrary({
                 }
                 void file
                   .text()
-                  .then((text) => setIncoming(parsePack(text)))
-                  .catch(() =>
-                    setError(
-                      "Invalid or unsupported content pack. No changes were made.",
-                    ),
-                  );
+                  .then(async (text) => {
+                    const pack = parsePack(text);
+                    const preview = await prepareContentImport(text, all);
+                    if (importGeneration.current === ticket) {
+                      setIncoming(pack);
+                      setIncomingPreview(preview);
+                    }
+                  })
+                  .catch(() => {
+                    if (importGeneration.current === ticket)
+                      setError(
+                        "Invalid or unsupported content pack. No changes were made.",
+                      );
+                  });
               }}
             />
           </label>
@@ -551,14 +576,57 @@ export function ContentLibrary({
                 {incoming.version.slice(0, 12)}
               </p>
               <p>{incoming.source.license}</p>
+              <p className="hint">
+                Nothing has been stored. Preview each record before importing.
+              </p>
+              {incomingPreview && (
+                <ImportRecordList
+                  key={packKey(incoming)}
+                  preview={incomingPreview}
+                />
+              )}
+              <label>
+                Import destination
+                <select
+                  value={importDestination}
+                  disabled={busy}
+                  onChange={(e) => setImportDestination(e.target.value)}
+                >
+                  <option value="pack">Content pack</option>
+                  <option value="campaign">Campaign content</option>
+                </select>
+              </label>
+              {importDestination === "campaign" && (
+                <p className="hint">
+                  Create editable campaign records. Existing matching records
+                  will be kept.
+                </p>
+              )}
+              {importDestination === "campaign" &&
+                incomingPreview?.campaignError && (
+                  <p role="alert">{incomingPreview.campaignError}</p>
+                )}
               <button
                 className="primary"
-                disabled={busy}
+                disabled={
+                  busy ||
+                  (importDestination === "campaign" &&
+                    !!incomingPreview?.campaignError)
+                }
                 onClick={() => void install()}
               >
-                Install content pack
+                {importDestination === "pack"
+                  ? "Install content pack"
+                  : "Import into campaign"}
               </button>
-              <button className="quiet" onClick={() => setIncoming(null)}>
+              <button
+                className="quiet"
+                disabled={busy}
+                onClick={() => {
+                  importGeneration.current++;
+                  setIncoming(null);
+                }}
+              >
                 Cancel import
               </button>
             </div>

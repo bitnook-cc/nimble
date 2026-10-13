@@ -15,6 +15,27 @@ export class ConflictError extends Error {
     );
   }
 }
+function hydrateStoredPacks(data: unknown, packs: ContentPack[]) {
+  const version = (data as { version?: unknown } | null)?.version;
+  return typeof version === "number" &&
+    Number.isInteger(version) &&
+    version >= 4 &&
+    version <= SCHEMA_VERSION
+    ? { ...(data as object), packs }
+    : data;
+}
+
+export function freshResetData(previousRevision: unknown): AppData {
+  const data = newApp();
+  data.revision =
+    typeof previousRevision === "number" &&
+    Number.isSafeInteger(previousRevision) &&
+    previousRevision >= 0 &&
+    previousRevision < Number.MAX_SAFE_INTEGER
+      ? previousRevision + 1
+      : 1;
+  return data;
+}
 export type Recovery = {
   id: string;
   at: string;
@@ -106,6 +127,60 @@ export class Repository {
       };
     });
   }
+  static async recreate(name = "nimble-slate"): Promise<Repository> {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(name);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+      // Keep the confirmed reset pending when another tab holds the database.
+      // Rejecting here would leave an uncancellable deletion queued in the browser.
+    });
+    return Repository.open(name);
+  }
+  async reset(): Promise<AppData> {
+    let tx: IDBTransaction;
+    try {
+      tx = this.database.transaction(
+        ["state", "assets", "recovery", "packs"],
+        "readwrite",
+      );
+    } catch (error) {
+      // Recreate a structurally damaged or closed database. A quota/write
+      // failure later in the transaction must roll back instead of deleting it.
+      if (
+        !(error instanceof Error) ||
+        !["NotFoundError", "InvalidStateError"].includes(error.name)
+      )
+        throw error;
+      const name = this.database.name;
+      this.database.close();
+      const replacement = await Repository.recreate(name);
+      this.database = replacement.database;
+      return this.reset();
+    }
+    return new Promise((resolve, reject) => {
+      const state = tx.objectStore("state");
+      const raw = state.get("app");
+      let data: AppData;
+      let failure: unknown;
+      raw.onsuccess = () => {
+        try {
+          data = freshResetData(raw.result?.revision);
+          for (const name of ["state", "assets", "recovery", "packs"])
+            tx.objectStore(name).clear();
+          state.put({ ...data, packs: [] }, "app");
+          for (const pack of data.packs)
+            tx.objectStore("packs").put(pack, packKey(pack));
+        } catch (error) {
+          failure = error;
+          tx.abort();
+        }
+      };
+      tx.oncomplete = () => resolve(data);
+      tx.onabort = tx.onerror = () =>
+        reject(failure ?? tx.error ?? new Error("Unable to reset local data."));
+    });
+  }
   load(): Promise<AppData> {
     return new Promise((resolve, reject) => {
       const tx = this.database.transaction(
@@ -120,23 +195,7 @@ export class Repository {
       let failure: unknown;
       packs.onsuccess = () => {
         try {
-          const hydrated = [
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            SCHEMA_VERSION,
-          ].includes(raw.result?.version)
-            ? { ...raw.result, packs: packs.result }
-            : raw.result;
+          const hydrated = hydrateStoredPacks(raw.result, packs.result);
           result = raw.result === undefined ? newApp() : migrateApp(hydrated);
           assertAssets(
             result,
@@ -305,23 +364,7 @@ export class Repository {
       const packs = tx.objectStore("packs").getAll();
       tx.oncomplete = () =>
         resolve({
-          data: [
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            SCHEMA_VERSION,
-          ].includes(data.result?.version)
-            ? { ...data.result, packs: packs.result }
-            : data.result,
+          data: hydrateStoredPacks(data.result, packs.result),
           assets: (assets.result as PersistedAsset[]).map(decodeAsset),
           packs: packs.result,
         });
@@ -368,7 +411,7 @@ export class Repository {
 // A native durable adapter must satisfy the same transactional contract.
 export type StorageBackend = Pick<
   Repository,
-  "load" | "save" | "raw" | "bundle" | "recoveryPoints" | "asset"
+  "load" | "save" | "raw" | "bundle" | "recoveryPoints" | "asset" | "reset"
 >;
 type Snapshot = {
   data: AppData | null;
@@ -394,6 +437,8 @@ export class AppStore {
   constructor(
     private openRepository: () => Promise<StorageBackend> = () =>
       import("./native-storage").then(({ openStorage }) => openStorage()),
+    private resetRepository: () => Promise<StorageBackend> = () =>
+      import("./native-storage").then(({ resetStorage }) => resetStorage()),
   ) {}
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -427,6 +472,39 @@ export class AppStore {
         status: "error",
         error: `Cannot open local data. ${String(e)}`,
       });
+    }
+  }
+  async resetLocalData() {
+    await this.initializing;
+    if (
+      this.snapshot.data ||
+      this.snapshot.status !== "error" ||
+      this.snapshot.busy
+    )
+      throw new Error(
+        "Reset is available only when local data cannot be opened.",
+      );
+    this.emit({ ...this.snapshot, busy: true });
+    try {
+      this.repository ??= await this.resetRepository();
+      const data = await this.repository.reset();
+      this.revision = data.revision;
+      this.generation++;
+      this.emit({
+        data,
+        status: "saved",
+        error: "",
+        conflict: false,
+        busy: false,
+      });
+    } catch (error) {
+      this.emit({
+        ...this.snapshot,
+        status: "error",
+        busy: false,
+        error: `Unable to reset local data. ${String(error)}`,
+      });
+      throw error;
     }
   }
   update(transform: (data: AppData) => AppData) {

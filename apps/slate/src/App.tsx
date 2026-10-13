@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { CampaignManager } from "./components/CampaignManager";
 import { PartyManager } from "./components/PartyManager";
-import { download, encodeRecovery } from "./backup";
+import { LocalDataRecovery } from "./components/LocalDataRecovery";
 import { appStore } from "./storage";
 import {
   canPlace,
@@ -179,58 +179,15 @@ export default function App() {
   }, [data?.appearance, data?.palette]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
-      if (
-        appStore.getSnapshot().status !== "saved" ||
-        appStore.getSnapshot().busy
-      )
+      const state = appStore.getSnapshot();
+      if (state.busy || (state.data && state.status !== "saved"))
         event.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, []);
   if (!data)
-    return (
-      <main className="loading-screen">
-        <img
-          src={`${import.meta.env.BASE_URL}slate.svg`}
-          alt=""
-          width={52}
-          height={52}
-        />
-        <h1>Slate</h1>
-        <p role={snapshot.status === "error" ? "alert" : "status"}>
-          {snapshot.error || "Opening your table…"}
-        </p>
-        {snapshot.error && (
-          <>
-            <p>Your saved data has not been replaced.</p>
-            <button
-              className="secondary"
-              onClick={() => {
-                void (async () => {
-                  try {
-                    download(
-                      new Blob([await encodeRecovery(await appStore.raw())], {
-                        type: "application/zip",
-                      }),
-                      "slate-original-recovery.zip",
-                    );
-                  } catch (e) {
-                    setError(String(e));
-                  }
-                })();
-              }}
-            >
-              Export original data
-            </button>
-            {error && <p role="alert">{error}</p>}
-            <button onClick={() => location.reload()} className="primary">
-              Try again
-            </button>
-          </>
-        )}
-      </main>
-    );
+    return <LocalDataRecovery error={snapshot.error} busy={snapshot.busy} />;
   const campaign = data.campaigns.find((c) => c.id === data.activeCampaignId)!;
   if (!campaign)
     return (

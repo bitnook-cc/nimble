@@ -17,6 +17,7 @@ import {
   referenceHref,
   referenceMarkdown,
   type ContentRecord,
+  type ContentPack,
 } from "./content-schema";
 import { itemFieldsSchema } from "./item-schema";
 import { encounterFieldsSchema } from "./encounter-schema";
@@ -42,6 +43,7 @@ const documentSchema = z.looseObject({
   data: z.union([resourceSchema, z.array(resourceSchema).max(3000)]),
   included: z.array(resourceSchema).max(3000).default([]),
 });
+export { documentSchema as nexusDocumentSchema };
 const abilitySchema = z.looseObject({
   name: z.string().trim().max(160),
   description: text.optional(),
@@ -198,6 +200,10 @@ export type ImportPreview = {
   records: ContentRecord[];
   warnings: string[];
   format: string;
+  name?: string;
+  sourceUrl?: string;
+  pack?: ContentPack;
+  campaignError?: string;
 };
 
 export function parseExchange(input: string, all: Entry[] = []): ImportPreview {

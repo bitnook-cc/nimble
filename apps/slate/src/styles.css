@@ -2285,6 +2285,27 @@ main#main > .screen-panel,
   max-height: 18rem;
   overflow: auto;
 }
+.exchange-import-records {
+  padding: 0;
+  list-style: none;
+  max-height: 45vh;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.exchange-import-records > li + li {
+  border-top: 1px solid var(--line);
+}
+.exchange-import-records summary {
+  padding: 9px 12px;
+  font-weight: 600;
+}
+.exchange-record-preview {
+  padding: 0 12px 10px;
+}
+.exchange-record-preview .content-meta {
+  margin-top: 0;
+}
 .exchange-warnings {
   max-height: 16rem;
   overflow: auto;

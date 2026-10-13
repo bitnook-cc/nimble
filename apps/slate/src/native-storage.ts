@@ -6,6 +6,7 @@ import { digest, validateBundle, type StoredAsset } from "./backup";
 import {
   ConflictError,
   Repository,
+  freshResetData,
   type CommitOptions,
   type Recovery,
   type StorageBackend,
@@ -215,6 +216,22 @@ export class NativeRepository implements StorageBackend {
       return data;
     });
   }
+  reset() {
+    return this.transaction(async () => {
+      let previousRevision: unknown;
+      try {
+        previousRevision = (
+          (await this.document())?.data as { revision?: unknown } | undefined
+        )?.revision;
+      } catch {
+        // A broken JSON envelope must not prevent an explicitly requested reset.
+      }
+      const data = freshResetData(previousRevision);
+      await this.db.run("DELETE FROM slate_blobs", [], false);
+      await this.write({ data, assets: [], recovery: [] });
+      return data;
+    });
+  }
   save(data: AppData, expectedRevision: number, options: CommitOptions = {}) {
     const checked = appSchema.parse(data);
     return this.transaction(async () => {
@@ -335,20 +352,29 @@ export class NativeRepository implements StorageBackend {
     });
   }
 }
-export async function openStorage(): Promise<StorageBackend> {
-  if (!Capacitor.isNativePlatform()) return Repository.open();
+let sqlite: import("@capacitor-community/sqlite").SQLiteConnection | undefined;
+async function nativeConnection() {
   const { CapacitorSQLite, SQLiteConnection } =
     await import("@capacitor-community/sqlite");
-  const sqlite = new SQLiteConnection(CapacitorSQLite);
-  const connection = await sqlite.createConnection(
-    "slate",
-    false,
-    "no-encryption",
-    1,
-    false,
-  );
+  sqlite ??= new SQLiteConnection(CapacitorSQLite);
+  return (await sqlite.isConnection("slate", false)).result
+    ? sqlite.retrieveConnection("slate", false)
+    : sqlite.createConnection("slate", false, "no-encryption", 1, false);
+}
+export async function openStorage(): Promise<StorageBackend> {
+  if (!Capacitor.isNativePlatform()) return Repository.open();
+  const connection = await nativeConnection();
   await connection.open();
   // SQLite retains the database in app-private storage across app upgrades.
   await connection.execute("PRAGMA synchronous=FULL;", false);
   return new NativeRepository(connection, () => Repository.open()).initialize();
+}
+export async function resetStorage(): Promise<StorageBackend> {
+  if (!Capacitor.isNativePlatform()) return Repository.recreate();
+  const connection = await nativeConnection();
+  await connection.delete();
+  await connection.open();
+  await connection.execute("PRAGMA synchronous=FULL;", false);
+  // Do not re-import legacy WebView data after a confirmed fresh start.
+  return new NativeRepository(connection).initialize();
 }

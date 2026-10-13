@@ -396,6 +396,52 @@ it("exports an unreadable native envelope and attachment rows verbatim for recov
   expect(raw.assets).toEqual([]);
 });
 
+it("explicitly resets unreadable native data, attachments and recovery without re-importing legacy content", async () => {
+  const db = database();
+  const legacy = {
+    raw: async () => {
+      throw new Error("Broken legacy data");
+    },
+  } as unknown as Repository;
+  const repo = await new NativeRepository(db.driver, legacy).initialize();
+  await repo.reset();
+  const { data, asset } = await image(await repo.load());
+  await repo.save(data, data.revision, {
+    assets: [asset],
+    checkpoint: "Original",
+  });
+  db.sql.prepare("UPDATE slate_state SET payload=?").run("{broken JSON");
+  await expect(repo.load()).rejects.toThrow();
+  const fresh = await repo.reset();
+  expect(fresh.campaigns).toHaveLength(1);
+  expect(fresh.campaigns[0].id).not.toBe(data.campaigns[0].id);
+  expect(await repo.load()).toEqual(fresh);
+  expect((await repo.raw()).assets).toEqual([]);
+  expect(await repo.recoveryPoints()).toEqual([]);
+  expect(
+    db.sql.prepare("SELECT count(*) AS total FROM slate_blobs").get()!.total,
+  ).toBe(0);
+  const reopened = await new NativeRepository(db.driver, legacy).initialize();
+  expect(await reopened.load()).toEqual(fresh);
+});
+
+it("rolls back a failed native reset without losing recovery data or attachment bytes", async () => {
+  const db = database();
+  const repo = await new NativeRepository(db.driver).initialize();
+  const { data, asset } = await image(await repo.load());
+  await repo.save(data, 0, { assets: [asset], checkpoint: "Original" });
+  const before = await repo.raw(),
+    points = await repo.recoveryPoints();
+  db.fail(true);
+  await expect(repo.reset()).rejects.toThrow("disk full");
+  db.fail(false);
+  expect(await repo.raw()).toEqual(before);
+  expect(await repo.recoveryPoints()).toEqual(points);
+  expect(
+    await (await repo.asset(asset.campaignId, asset.id))!.arrayBuffer(),
+  ).toEqual(await asset.blob.arrayBuffer());
+});
+
 it("upgrades native schema 11 stopwatch and timer state once without changing their timestamps", async () => {
   const db = database(),
     repo = await new NativeRepository(db.driver).initialize();

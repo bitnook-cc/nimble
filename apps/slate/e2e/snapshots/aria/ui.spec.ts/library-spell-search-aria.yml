@@ -5,9 +5,9 @@
     - button "Browse" [pressed]
     - button "Create content"
     - button "Content packs"
+    - button "Import / export content"
   - button "Manage items"
   - button "Manage encounters"
-  - button "Import / export content"
   - text: Search content
   - searchbox "Search content": Flame Dart
   - text: Content source

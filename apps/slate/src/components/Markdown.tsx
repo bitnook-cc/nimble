@@ -101,6 +101,7 @@ export function Markdown({
   all,
   open,
   pack,
+  assets = pack?.assets,
   onRoll,
 }: {
   onRoll: (formula: string) => Roll;
@@ -108,6 +109,7 @@ export function Markdown({
   all: Entry[];
   open: (target: string) => void;
   pack?: ContentPack;
+  assets?: Record<string, string>;
 }) {
   const [results, setResults] = useState<Record<string, string>>({});
   return (
@@ -124,8 +126,8 @@ export function Markdown({
           components={{
             a: MarkdownLink,
             img: ({ src, alt }) =>
-              pack?.assets[src ?? ""] ? (
-                <img src={pack.assets[src!]} alt={alt ?? ""} loading="lazy" />
+              assets?.[src ?? ""] ? (
+                <img src={assets[src!]} alt={alt ?? ""} loading="lazy" />
               ) : (
                 <span className="hint">
                   [Image unavailable offline: {alt || "image"}]
