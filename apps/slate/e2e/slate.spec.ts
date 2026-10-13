@@ -1,5 +1,5 @@
 import { test, slateURL, disconnect } from "./browser-fixtures";
-import { resizeWidget } from "./ui-fixtures";
+import { resizeWidget, ready as offlineReady } from "./ui-fixtures";
 import { openWidgetPicker } from "./ui-fixtures";
 import { expect, type Page } from "@playwright/test";
 
@@ -23,6 +23,49 @@ async function combatant(page: Page, name: string, initiative: string) {
     .getByRole("button", { name: "Add combatant", exact: true })
     .click();
 }
+
+test("double-digit advantage uses three dice and survives offline reload", async ({
+  page,
+  context,
+}) => {
+  await ready(page);
+  await offlineReady(page);
+  const dice = page.getByRole("region", { name: "Dice roller", exact: true });
+  for (const sides of [44, 66, 88, 100]) {
+    const base = sides === 100 ? 10 : sides / 11;
+    for (const advantage of [1, -1]) {
+      const values = advantage > 0 ? [2, 4, 1] : [4, 1, 3];
+      await dice.getByLabel("Dice formula", { exact: true }).fill(`1d${sides}`);
+      await dice
+        .getByLabel("Advantage", { exact: true })
+        .selectOption(String(advantage));
+      await page.evaluate(
+        ({ values, base }) => {
+          const original = Math.random;
+          let index = 0;
+          Math.random = () =>
+            index < values.length ? (values[index++] - 0.5) / base : original();
+        },
+        { values, base },
+      );
+      await dice.getByRole("button", { name: /^Roll dice/ }).click();
+      await expect(dice.locator(".result-total")).toHaveText(
+        advantage > 0 ? "24" : "13",
+      );
+      await expect(dice.locator(".die-result")).toHaveCount(3);
+      await expect(dice.locator(".die-result.dropped")).toHaveCount(1);
+      await expect(dice.locator(".die-result:not(.dropped)")).toHaveText(
+        (advantage > 0 ? [2, 4] : [1, 3]).map((value) => `${value}d${base}`),
+      );
+    }
+  }
+  await saved(page);
+  await disconnect(context);
+  await page.reload();
+  await expect(dice.locator(".result-total")).toHaveText("13");
+  await expect(dice.locator(".die-result")).toHaveCount(3);
+  await expect(dice.locator(".die-result.dropped")).toHaveCount(1);
+});
 test("dice and combat survive reload and campaign switching", async ({
   page,
 }) => {

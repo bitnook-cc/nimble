@@ -5,7 +5,7 @@
  * - Modifiers: 2d6+5, 1d20-3
  * - Exploding criticals: 1d20! (explodes on max roll)
  * - Vicious: 1d8v (adds extra die on critical)
- * - Double-digit dice: 1d44, 1d66, 1d88
+ * - Double-digit dice: 1d44, 1d66, 1d88, 1d100
  * - Advantage/disadvantage system
  */
 
@@ -76,14 +76,19 @@ export class DiceService {
         throw new Error(`Dice count must be between 1 and ${this.config.maxDiceCount}`);
       }
       if (
-        ![...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].some(sides => sides === token.sides)
+        ![...this.config.validDiceTypes, ...this.config.doubleDigitDiceTypes].some(
+          (sides) => sides === token.sides,
+        )
       ) {
         throw new Error("Invalid dice type");
       }
       const advantage = this.parseTokenModifiers(token.modifiers, options).advantageLevel ?? 0;
       validateAdvantage(advantage);
-      dice += this.config.doubleDigitDiceTypes.some(sides => sides === token.sides)
-        ? 2 * (token.count + Math.abs(advantage))
+      const doubleDigit = this.config.doubleDigitDiceTypes.some((sides) => sides === token.sides);
+      if (doubleDigit && token.sides !== 100 && token.count !== 1)
+        throw new Error(`Double-digit dice (d${token.sides}) can only be rolled one at a time.`);
+      dice += doubleDigit
+        ? token.count * (2 + Math.abs(advantage))
         : token.count + Math.abs(advantage);
       if (dice > this.config.maxTotalDice)
         throw new Error(
@@ -220,7 +225,9 @@ export class DiceService {
     criticalHits?: number;
   } {
     // Check if this is a double-digit die
-    const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(notation.sides as 44 | 66 | 88);
+    const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(
+      notation.sides as 44 | 66 | 88 | 100,
+    );
 
     if (isDoubleDigit) {
       return this.rollDoubleDigitDice(notation, options);
@@ -358,70 +365,39 @@ export class DiceService {
     isDoubleDigit: boolean;
     criticalHits: number;
   } {
-    if (notation.count !== 1) {
-      throw new Error(`Double-digit dice (d${notation.sides}) can only be rolled one at a time.`);
-    }
-
-    // Use advantage level from notation if specified, otherwise from options
+    // Each number uses one pool; retained digits keep their original roll order.
     const advantageLevel =
       notation.advantageLevel !== undefined ? notation.advantageLevel : options.advantageLevel || 0;
-    const baseDie = notation.sides === 44 ? 4 : notation.sides === 66 ? 6 : 8;
-    const totalDicePerPosition = 1 + Math.abs(advantageLevel);
-
-    // Roll all dice for tens position
-    const tensRolls: number[] = [];
-    for (let i = 0; i < totalDicePerPosition; i++) {
-      tensRolls.push(this.rollSingleDie(baseDie));
-    }
-
-    // Roll all dice for ones position
-    const onesRolls: number[] = [];
-    for (let i = 0; i < totalDicePerPosition; i++) {
-      onesRolls.push(this.rollSingleDie(baseDie));
-    }
-
-    // Determine which to keep
-    const tensIndices = tensRolls.map((value, index) => ({ value, index }));
-    const onesIndices = onesRolls.map((value, index) => ({ value, index }));
-    const tensSorted = [...tensIndices].sort((a, b) => a.value - b.value);
-    const onesSorted = [...onesIndices].sort((a, b) => a.value - b.value);
-
-    let keptTensIndex: number;
-    let keptOnesIndex: number;
-
-    if (advantageLevel > 0) {
-      keptTensIndex = tensSorted[tensSorted.length - 1].index;
-      keptOnesIndex = onesSorted[onesSorted.length - 1].index;
-    } else if (advantageLevel < 0) {
-      keptTensIndex = tensSorted[0].index;
-      keptOnesIndex = onesSorted[0].index;
-    } else {
-      keptTensIndex = 0;
-      keptOnesIndex = 0;
-    }
-
-    // Build dice array
+    const baseDie = notation.sides === 100 ? 10 : notation.sides / 11;
     const allDice: CategorizedDie[] = [];
-    tensRolls.forEach((value, index) => {
-      allDice.push({
-        value,
-        size: baseDie,
-        kept: index === keptTensIndex,
-        category: (index === keptTensIndex ? "normal" : "dropped") as DiceCategory,
-        index: allDice.length,
+    let keptSum = 0;
+    for (let number = 0; number < notation.count; number++) {
+      const rolls = Array.from({ length: 2 + Math.abs(advantageLevel) }, () => {
+        const value = this.rollSingleDie(baseDie);
+        return notation.sides === 100 ? value % 10 : value;
       });
-    });
-    onesRolls.forEach((value, index) => {
-      allDice.push({
-        value,
-        size: baseDie,
-        kept: index === keptOnesIndex,
-        category: (index === keptOnesIndex ? "normal" : "dropped") as DiceCategory,
-        index: allDice.length,
-      });
-    });
-
-    const keptSum = tensRolls[keptTensIndex] * 10 + onesRolls[keptOnesIndex];
+      const ranked = rolls
+        .map((value, index) => ({ value, index }))
+        .sort((a, b) => a.value - b.value || a.index - b.index);
+      // On ties, advantage drops the earliest low digit; disadvantage drops
+      // the latest high digit, matching the engine's standard dice tie rule.
+      const keptIndices = new Set(
+        (advantageLevel < 0 ? ranked.slice(0, 2) : ranked.slice(-2)).map((d) => d.index),
+      );
+      const digits = rolls.filter((_, index) => keptIndices.has(index));
+      const total = digits[0] * 10 + digits[1];
+      keptSum += notation.sides === 100 && total === 0 ? 100 : total;
+      for (const [index, value] of rolls.entries()) {
+        const kept = keptIndices.has(index);
+        allDice.push({
+          value,
+          size: baseDie,
+          kept,
+          category: kept ? "normal" : "dropped",
+          index: allDice.length,
+        });
+      }
+    }
 
     return {
       allDice,
@@ -442,10 +418,13 @@ export class DiceService {
   }
 
   private formatDoubleDigitDiceDisplay(allDice: CategorizedDie[], result: number): string {
+    let kept = 0;
     const formattedDice = allDice
       .map((die) => {
+        const separator = die.kept && kept > 0 && kept % 2 === 0 ? "+ " : "";
+        if (die.kept) kept++;
         const dieStr = `[${die.value}]`;
-        return die.kept ? dieStr : `~~${dieStr}~~`;
+        return separator + (die.kept ? dieStr : `~~${dieStr}~~`);
       })
       .join(" ");
     return `${formattedDice} = ${result}`;
@@ -669,7 +648,9 @@ export class DiceService {
           }
 
           // Validate dice type
-          const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(sides as 44 | 66 | 88);
+          const isDoubleDigit = this.config.doubleDigitDiceTypes.includes(
+            sides as 44 | 66 | 88 | 100,
+          );
           if (
             !this.config.validDiceTypes.includes(sides as 4 | 6 | 8 | 10 | 12 | 20 | 100) &&
             !isDoubleDigit
@@ -813,6 +794,37 @@ function singleDieAverage(sides: number, advantageLevel: number): number {
   return advantageLevel > 0 ? expectedMax(sides, numDice) : expectedMin(sides, numDice);
 }
 
+/** Expected value of an ordered digit pair, including deterministic tie drops. */
+function doubleDigitAverage(sides: number, advantageLevel: number): number {
+  const baseDie = sides === 100 ? 10 : sides / 11;
+  const lowest = sides === 100 ? 0 : 1;
+  let distribution = new Map<number, number>();
+  for (let tens = lowest; tens < lowest + baseDie; tens++)
+    for (let ones = lowest; ones < lowest + baseDie; ones++) distribution.set(tens * 10 + ones, 1);
+  // Adding one digit and discarding the lowest/highest yields the same retained
+  // pair as selecting from the full pool. There are at most 100 pair states.
+  for (let extra = 0; extra < Math.abs(advantageLevel); extra++) {
+    const next = new Map<number, number>();
+    for (const [pair, frequency] of distribution) {
+      for (let digit = lowest; digit < lowest + baseDie; digit++) {
+        const values = [Math.floor(pair / 10), pair % 10, digit];
+        const dropped =
+          advantageLevel > 0
+            ? values.indexOf(Math.min(...values))
+            : values.lastIndexOf(Math.max(...values));
+        const retained = values.filter((_, index) => index !== dropped);
+        const key = retained[0] * 10 + retained[1];
+        next.set(key, (next.get(key) ?? 0) + frequency);
+      }
+    }
+    distribution = next;
+  }
+  let average = 0;
+  for (const [pair, frequency] of distribution)
+    average += (sides === 100 && pair === 0 ? 100 : pair) * frequency;
+  return average / Math.pow(baseDie, 2 + Math.abs(advantageLevel));
+}
+
 /**
  * Calculate the naive average value of a dice token, accounting for advantage/disadvantage.
  * For NdX with advantage, each die is rolled with extra dice and the best is kept.
@@ -822,6 +834,7 @@ function diceTokenAverage(count: number, sides: number, modifiers: string[]): nu
   if (baseAvg === undefined) return 0;
 
   const advantageLevel = parseAdvantageFromModifiers(modifiers);
+  if (DOUBLE_DIGIT_DICE.includes(sides)) return count * doubleDigitAverage(sides, advantageLevel);
   if (advantageLevel === 0) {
     return count * baseAvg;
   }
@@ -838,7 +851,7 @@ function diceTokenAverage(count: number, sides: number, modifiers: string[]): nu
  * - First die rolling 1 = miss (entire attack does 0 damage including modifier)
  * - First die rolling max = crit (roll one extra exploding die)
  * - Vicious (v): crit adds an additional non-exploding die
- * - Double-digit dice (d44, d66, d88) and d100 skip miss/crit rules
+ * - Double-digit dice (d44, d66, d88, d100) skip miss/crit rules
  *
  * When nimbleDice=false, uses naive averages (N * avg(dX) + M).
  */
