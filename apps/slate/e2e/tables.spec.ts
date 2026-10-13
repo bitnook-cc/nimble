@@ -310,7 +310,8 @@ test("weighted tables show two compact columns, highlight each roll and clear se
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
-    Math.random = () => 0.03;
+    // Percentile 00 = 100 maps to the fourth weighted outcome.
+    Math.random = () => 0.95;
   });
   await page.goto("/");
   await ready(page);

@@ -9,7 +9,7 @@ A comprehensive dice rolling engine for the Nimble RPG system with support for a
 - Exploding dice on critical rolls
 - Vicious dice (extra non-exploding dice on criticals)
 - Advantage/disadvantage system
-- Double-digit dice (d44, d66, d88)
+- Double-digit dice (d44, d66, d88, d100)
 - Full TypeScript support with Zod validation
 
 ## Installation
@@ -98,8 +98,25 @@ Special dice that roll two separate dice for tens and ones:
 - `d44` - Rolls 2d4 (tens and ones)
 - `d66` - Rolls 2d6 (tens and ones)
 - `d88` - Rolls 2d8 (tens and ones)
+- `d100` - Rolls 2d10 as percentile digits 0–9, with `00` counting as 100
 
 Results range from 11-44, 11-66, or 11-88 respectively.
+
+Advantage/disadvantage applies to a single shared digit pool. With single
+advantage, roll three dice and discard the lowest; with single disadvantage,
+discard the highest. The first retained die is tens and the second is ones,
+preserving the original roll order. For example, `d44a` rolling `[2, 4, 1]`
+discards `1` and produces **24**, without rearranging the retained digits.
+Each extra advantage/disadvantage level adds one die and one discard, leaving
+exactly two digits. Ties discard the earliest low digit for advantage and the
+latest high digit for disadvantage.
+
+For d100, an underlying d10 roll of 10 becomes digit 0 before comparing or
+combining digits. Normal rolls remain uniform over 1–100. Multiple percentiles
+(e.g. `2d100a`) use one shared pool per percentile and sum the resulting numbers;
+d44/d66/d88 remain limited to one per dice token. Double-digit dice do not
+explode, fumble or trigger vicious dice. Roll and histogram limits count the
+underlying dice: `d66a` costs three rolls and `d100a2` costs four.
 
 ## Options
 
@@ -150,7 +167,7 @@ interface DiceFormulaResult {
   total: number; // Final calculated total
   diceData?: {
     dice: CategorizedDie[]; // Individual die results
-    total: number; // Sum of kept dice
+    total: number; // Combined digit number, or sum of standard dice
     isDoubleDigit: boolean; // Whether double-digit dice were used
     isFumble: boolean; // Whether a fumble occurred
     advantageLevel: number; // Advantage/disadvantage level used
@@ -162,7 +179,7 @@ interface DiceFormulaResult {
 ## Supported Dice Types
 
 Standard: d4, d6, d8, d10, d12, d20, d100
-Double-digit: d44, d66, d88
+Double-digit: d44, d66, d88, d100 (percentile)
 
 ## License
 

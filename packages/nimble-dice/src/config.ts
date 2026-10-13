@@ -29,7 +29,7 @@ export const diceConfig = {
   /**
    * Double-digit dice types (roll two dice for tens and ones)
    */
-  doubleDigitDiceTypes: [44, 66, 88] as const,
+  doubleDigitDiceTypes: [44, 66, 88, 100] as const,
 };
 
 export type ValidDiceType = (typeof diceConfig.validDiceTypes)[number];

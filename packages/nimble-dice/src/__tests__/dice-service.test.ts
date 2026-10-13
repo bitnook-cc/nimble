@@ -227,40 +227,34 @@ describe("DiceService", () => {
 
     it("should handle d44 with advantage", () => {
       // Roll d44 with advantage 1:
-      // Tens: [3], [4] - keep [4] (higher)
-      // Ones: [1], [2] - keep [2] (higher)
-      // Result = 42
+      // Shared pool: [3], [4], [1] - drop [1], keep [3], [4] in order.
       vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
-        .mockReturnValueOnce(3) // tens die 1
-        .mockReturnValueOnce(4) // tens die 2 (kept - higher)
-        .mockReturnValueOnce(1) // ones die 1
-        .mockReturnValueOnce(2); // ones die 2 (kept - higher)
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(1);
 
       const result = diceService.evaluateDiceFormula("d44", {
         advantageLevel: 1,
       });
 
-      expect(result.displayString).toBe("~~[3]~~ [4] ~~[1]~~ [2] = 42");
-      expect(result.total).toBe(42);
+      expect(result.displayString).toBe("[3] [4] ~~[1]~~ = 34");
+      expect(result.total).toBe(34);
     });
 
     it("should handle d66 with disadvantage", () => {
       // Roll d66 with disadvantage 1:
-      // Tens: [5], [3] - keep [3] (lower)
-      // Ones: [6], [2] - keep [2] (lower)
-      // Result = 32
+      // Shared pool: [5], [3], [6] - drop [6], keep [5], [3] in order.
       vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
-        .mockReturnValueOnce(5) // tens die 1
-        .mockReturnValueOnce(3) // tens die 2 (kept - lower)
-        .mockReturnValueOnce(6) // ones die 1
-        .mockReturnValueOnce(2); // ones die 2 (kept - lower)
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(6);
 
       const result = diceService.evaluateDiceFormula("d66", {
         advantageLevel: -1,
       });
 
-      expect(result.displayString).toBe("~~[5]~~ [3] ~~[6]~~ [2] = 32");
-      expect(result.total).toBe(32);
+      expect(result.displayString).toBe("[5] [3] ~~[6]~~ = 53");
+      expect(result.total).toBe(53);
     });
 
     it("should work in expressions", () => {
@@ -571,19 +565,16 @@ describe("DiceService", () => {
 
     it("should handle d44a for double-digit dice with advantage", () => {
       // Roll d44 with advantage
-      // Tens: [2], [4] - keep [4] (higher)
-      // Ones: [1], [3] - keep [3] (higher)
-      // Result = 43
+      // Shared pool: [2], [4], [1] - drop [1], keep [2], [4] in order.
       vi.spyOn(diceService as unknown as DiceServiceWithPrivates, "rollSingleDie")
-        .mockReturnValueOnce(2) // tens die 1
-        .mockReturnValueOnce(4) // tens die 2 (kept - higher)
-        .mockReturnValueOnce(1) // ones die 1
-        .mockReturnValueOnce(3); // ones die 2 (kept - higher)
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(1);
 
       const result = diceService.evaluateDiceFormula("d44a");
 
-      expect(result.displayString).toBe("~~[2]~~ [4] ~~[1]~~ [3] = 43");
-      expect(result.total).toBe(43);
+      expect(result.displayString).toBe("[2] [4] ~~[1]~~ = 24");
+      expect(result.total).toBe(24);
     });
   });
 
