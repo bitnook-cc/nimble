@@ -5,7 +5,8 @@ import { UtilityEditor } from "./UtilityWidget";
 import { utilitySchema } from "../utility-schema";
 import { Modal } from "./Modal";
 import { widgetTypes } from "../widgets";
-import type { Tool } from "../model";
+import { changeRun, type Tool } from "../model";
+import { setInitiativeMode, type InitiativeMode } from "../initiative";
 
 export function ConfigureButton({
   onClick,
@@ -57,6 +58,9 @@ function ToolNameSettings({
   onClose: () => void;
 }) {
   const [name, setName] = useState(tool.name);
+  const [mode, setMode] = useState<InitiativeMode>(
+    tool.kind === "initiative" ? tool.run.mode : "nimble",
+  );
   return (
     <Modal
       title={"Configure " + widgetTypes[tool.kind].title}
@@ -66,7 +70,12 @@ function ToolNameSettings({
         onSubmit={(event) => {
           event.preventDefault();
           if (!name.trim()) return;
-          save({ ...tool, name: name.trim() });
+          const next = { ...tool, name: name.trim() };
+          save(
+            next.kind === "initiative" && next.run.mode !== mode
+              ? changeRun(next, setInitiativeMode(next.run, mode))
+              : next,
+          );
         }}
       >
         <label>
@@ -78,6 +87,33 @@ function ToolNameSettings({
             maxLength={80}
           />
         </label>
+        {tool.kind === "initiative" && (
+          <>
+            <label>
+              Initiative mode
+              <select
+                value={mode}
+                onChange={(event) =>
+                  setMode(event.target.value as InitiativeMode)
+                }
+              >
+                <option value="nimble">Nimble</option>
+                <option value="classic">D&D classic</option>
+              </select>
+            </label>
+            <p className="hint">
+              {mode === "nimble"
+                ? "Heroes go first, then ordinary monsters. Legendary monsters act after each hero."
+                : "Enter initiative totals before combat. All combatants, including legendary monsters, take turns in descending order."}
+            </p>
+            {mode !== tool.run.mode && (
+              <p className="hint">
+                Saving restarts turn progress and keeps combatants and HP. You
+                can undo this change in the tracker.
+              </p>
+            )}
+          </>
+        )}
         <p className="hint">
           The name is shared by all widgets using this saved tool.
         </p>

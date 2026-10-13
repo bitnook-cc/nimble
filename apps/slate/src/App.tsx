@@ -665,6 +665,10 @@ export default function App() {
           </div>
           <WorkspaceStatus offlineReady={offlineReady} arranging={arranging} />
         </main>
+        <footer className="app-disclaimer">
+          Slate is an independent product published under the Nimble 3rd Party
+          Creator License and is not affiliated with Nimble Co.
+        </footer>
         {paletteOpen && (
           <CommandPalette
             key={campaign.id}

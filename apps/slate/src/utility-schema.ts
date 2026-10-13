@@ -218,8 +218,8 @@ export const imageToolSchema = base.extend({
   caption: z.string().max(1000),
   fit: z.enum(["contain", "cover"]),
   zoom: number.min(1).max(4),
-  panX: number.min(-100).max(100),
-  panY: number.min(-100).max(100),
+  panX: number.min(-300).max(300),
+  panY: number.min(-300).max(300),
 });
 export const checklistToolSchema = base
   .extend({

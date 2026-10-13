@@ -185,11 +185,30 @@ button svg {
   border: 0;
 }
 .app-shell {
+  --disclaimer-height: 28px;
   height: 100dvh;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+.app-disclaimer {
+  flex: 0 0 var(--disclaimer-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  text-align: center;
+  font-size: 10px;
+  line-height: 14px;
+}
+@media (max-width: 720px) {
+  .app-shell {
+    --disclaimer-height: 44px;
+  }
 }
 .app-toolbar {
   flex-shrink: 0;
@@ -482,7 +501,9 @@ main#main > .screen-panel,
 .workspace-status {
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: calc(
+    var(--disclaimer-height) + max(12px, env(safe-area-inset-bottom))
+  );
   z-index: 20;
   display: flex;
   align-items: center;
@@ -497,7 +518,11 @@ main#main > .screen-panel,
 }
 .workspace-status-popover {
   position: fixed;
-  inset: auto auto max(50px, calc(env(safe-area-inset-bottom) + 38px))
+  inset: auto auto
+    calc(
+      var(--disclaimer-height) +
+        max(50px, calc(env(safe-area-inset-bottom) + 38px))
+    )
     max(12px, env(safe-area-inset-left));
   margin: 0;
   width: min(340px, calc(100vw - 24px));
@@ -772,22 +797,8 @@ main#main > .screen-panel,
   color: var(--muted);
   margin-top: 3px;
 }
-.initiative-mode {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: fit-content;
-  margin-top: 6px;
-  font-size: 10px;
-  color: var(--muted);
-}
 .initiative-tool [hidden] {
   display: none !important;
-}
-.initiative-mode select {
-  width: auto;
-  padding: 3px 6px;
-  font-size: 11px;
 }
 .initiative-entry-list {
   max-height: 55vh;
@@ -2386,7 +2397,6 @@ main#main > .screen-panel,
   margin: 0;
 }
 .utility-form-grid,
-.utility-pan,
 .utility-checklist-edit {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2562,6 +2572,25 @@ main#main > .screen-panel,
   overflow: hidden;
   border-radius: 6px;
   background: var(--surface);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+.image-viewport.image-dragging {
+  cursor: grabbing;
+}
+.image-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.image-controls output {
+  min-width: 4ch;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .image-viewport img {
   width: 100%;
@@ -2589,8 +2618,7 @@ main#main > .screen-panel,
   font-size: 12px;
 }
 @media (max-width: 480px) {
-  .utility-form-grid,
-  .utility-pan {
+  .utility-form-grid {
     grid-template-columns: 1fr;
   }
   .utility-checklist-edit {

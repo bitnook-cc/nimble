@@ -41,12 +41,7 @@ import { ReferenceBody, useContent } from "./ContentWorkspace";
 import { addMonsterToRun } from "../monsters";
 import { Modal } from "./Modal";
 import { addPartyToRun, missingPartyCharacters, type Party } from "../party";
-import {
-  prepareClassicInitiative,
-  setInitiativeMode,
-  sortInitiative,
-  type InitiativeMode,
-} from "../initiative";
+import { prepareClassicInitiative, sortInitiative } from "../initiative";
 
 export function InitiativeTracker({
   tool,
@@ -143,21 +138,6 @@ export function InitiativeTracker({
                   ? "Paused"
                   : "Finished"}
           </p>
-          <label className="initiative-mode">
-            Mode
-            <select
-              aria-label="Initiative mode"
-              value={run.mode}
-              title="Changing mode restarts turn order and keeps combatants and HP"
-              onChange={(event) => {
-                const mode = event.target.value as InitiativeMode;
-                mutate((r) => setInitiativeMode(r, mode));
-              }}
-            >
-              <option value="nimble">Nimble</option>
-              <option value="classic">D&D classic</option>
-            </select>
-          </label>
         </div>
         <div className="round-counter">
           <small>ROUND</small>

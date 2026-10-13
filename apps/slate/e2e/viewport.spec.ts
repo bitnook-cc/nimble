@@ -22,6 +22,8 @@ async function fitsViewport(page: Page, columns: number, rows: number) {
     const main = document.querySelector("main")!;
     const board = document.querySelector(".board")!;
     const toolbar = document.querySelector(".app-toolbar")!;
+    const footer = document.querySelector(".app-disclaimer")!;
+    const footerRect = footer.getBoundingClientRect();
     const rect = board.getBoundingClientRect();
     const style = getComputedStyle(main);
     const grid = getComputedStyle(board);
@@ -37,6 +39,13 @@ async function fitsViewport(page: Page, columns: number, rows: number) {
       paddingX: parseFloat(style.paddingLeft),
       paddingY: parseFloat(style.paddingTop),
       toolbarBottom: toolbar.getBoundingClientRect().bottom,
+      footerTop: footerRect.top,
+      footerBottom: footerRect.bottom,
+      footerText: footer.textContent,
+      footerFits: footer.scrollHeight <= footer.clientHeight,
+      statusBottom: document
+        .querySelector(".workspace-status")!
+        .getBoundingClientRect().bottom,
       columns: grid.gridTemplateColumns.split(" ").length,
       rows: grid.gridTemplateRows.split(" ").length,
       cellsInside: Array.from(board.children).every((child) => {
@@ -62,12 +71,18 @@ async function fitsViewport(page: Page, columns: number, rows: number) {
     0,
   );
   expect(dimensions.bottom).toBeCloseTo(
-    dimensions.height - dimensions.paddingY,
+    dimensions.footerTop - dimensions.paddingY,
     0,
   );
   expect(dimensions.columns).toBe(columns);
   expect(dimensions.rows).toBe(rows);
   expect(dimensions.cellsInside).toBe(true);
+  expect(dimensions.footerBottom).toBe(dimensions.height);
+  expect(dimensions.footerFits).toBe(true);
+  expect(dimensions.statusBottom).toBeLessThan(dimensions.footerTop);
+  expect(dimensions.footerText).toBe(
+    "Slate is an independent product published under the Nimble 3rd Party Creator License and is not affiliated with Nimble Co.",
+  );
 }
 
 test.beforeEach(async ({ page }) => {

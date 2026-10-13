@@ -1,6 +1,12 @@
 import { expect, type Page } from "@playwright/test";
 import { test, slateURL, disconnect } from "./browser-fixtures";
-import { combatant, ready, saved } from "./ui-fixtures";
+import {
+  combatant,
+  ready,
+  saved,
+  initiativeSettings,
+  configureInitiativeMode,
+} from "./ui-fixtures";
 
 test.use({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
 test.beforeEach(async ({ page }) => {
@@ -35,7 +41,14 @@ test("Nimble defaults to heroes before ordinary monsters regardless of initiativ
   await combatant(page, "Rook", 20);
   await expect(
     tool.getByRole("combobox", { name: "Initiative mode" }),
+  ).toHaveCount(0);
+  const settings = await initiativeSettings(page);
+  await expect(
+    settings.getByRole("combobox", { name: "Initiative mode" }),
   ).toHaveValue("nimble");
+  await settings
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
   await expect(
     tool.getByRole("button", { name: "Sort by initiative" }),
   ).toBeHidden();
@@ -63,9 +76,7 @@ test("classic initiative sorts entered totals, gives a boss one normal turn and 
   await combatant(page, "Mira", 1);
   await combatant(page, "Rook", 1);
   await addBoss(page);
-  await tool
-    .getByRole("combobox", { name: "Initiative mode" })
-    .selectOption("classic");
+  await configureInitiativeMode(page, "classic");
   await expect(
     tool.getByRole("button", { name: "Begin combat", exact: true }),
   ).toHaveCount(0);
@@ -114,9 +125,13 @@ test("classic initiative sorts entered totals, gives a boss one normal turn and 
   });
   await disconnect(context);
   await page.reload();
+  const settings = await initiativeSettings(page);
   await expect(
-    tool.getByRole("combobox", { name: "Initiative mode" }),
+    settings.getByRole("combobox", { name: "Initiative mode" }),
   ).toHaveValue("classic");
+  await settings
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
   await expect(current(page)).toContainText("Pudge the Blunderer");
   await tool.getByRole("button", { name: "Next turn", exact: true }).click();
   await expect(current(page)).toContainText("Mira");
@@ -133,9 +148,7 @@ test("dismissing initiative leaves combat unchanged and one undo restores a mode
   await expect(
     tool.getByRole("region", { name: "Legendary action" }),
   ).toBeVisible();
-  await tool
-    .getByRole("combobox", { name: "Initiative mode" })
-    .selectOption("classic");
+  await configureInitiativeMode(page, "classic");
   await tool
     .getByRole("button", { name: "Roll initiative", exact: true })
     .click();
@@ -166,8 +179,48 @@ test("dismissing initiative leaves combat unchanged and one undo restores a mode
     .click();
   await expect(
     tool.getByRole("combobox", { name: "Initiative mode" }),
+  ).toHaveCount(0);
+  const settings = await initiativeSettings(page);
+  await expect(
+    settings.getByRole("combobox", { name: "Initiative mode" }),
   ).toHaveValue("nimble");
+  await settings
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
   await expect(
     tool.getByRole("region", { name: "Legendary action" }),
   ).toContainText("acts after Mira");
+});
+
+test("initiative configuration drafts cancel cleanly and saving the current mode preserves active combat", async ({
+  page,
+}) => {
+  const tool = tracker(page);
+  await combatant(page, "Mira", 5);
+  await combatant(page, "Rook", 9);
+  await tool.getByRole("button", { name: "Begin combat", exact: true }).click();
+  await tool.getByRole("button", { name: "Next turn", exact: true }).click();
+  await expect(current(page)).toContainText("Rook");
+  let settings = await initiativeSettings(page);
+  await settings
+    .getByRole("combobox", { name: "Initiative mode" })
+    .selectOption("classic");
+  await expect(settings).toContainText("Saving restarts turn progress");
+  if (!test.info().project.name)
+    await expect(settings).toHaveScreenshot("initiative-configuration.png");
+  await page.mouse.click(5, 5);
+  await expect(settings).toHaveCount(0);
+  await expect(current(page)).toContainText("Rook");
+  settings = await initiativeSettings(page);
+  await expect(
+    settings.getByRole("combobox", { name: "Initiative mode" }),
+  ).toHaveValue("nimble");
+  await settings
+    .getByRole("button", { name: "Save tool", exact: true })
+    .click();
+  await expect(current(page)).toContainText("Rook");
+  await tool
+    .getByRole("button", { name: "Undo combat change", exact: true })
+    .click();
+  await expect(current(page)).toContainText("Mira");
 });

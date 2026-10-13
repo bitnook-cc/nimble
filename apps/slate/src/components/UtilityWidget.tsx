@@ -1,4 +1,5 @@
 import { TimeWidget } from "./TimeWidget";
+import { ImageViewport } from "./ImageViewport";
 import { FileInput } from "./FileInput";
 import { ZodError } from "zod";
 import { useEffect, useState, type ReactNode } from "react";
@@ -405,7 +406,15 @@ export function UtilityWidget({
     case "image":
       body = (
         <>
-          <LocalImage campaignId={campaign.id} tool={tool} />
+          <LocalImage
+            campaignId={campaign.id}
+            tool={tool}
+            update={(fn) =>
+              change((t) =>
+                t.kind === "image" && t.assetId === tool.assetId ? fn(t) : t,
+              )
+            }
+          />
           <label className="field-label">
             Import local image
             <FileInput
@@ -420,73 +429,6 @@ export function UtilityWidget({
             />
           </label>
           {busy && <p role="status">Saving image…</p>}
-          {!!tool.assetId && (
-            <>
-              <label className="field-label">
-                Zoom
-                <input
-                  type="range"
-                  min={1}
-                  max={4}
-                  step={0.1}
-                  value={tool.zoom}
-                  onChange={(e) =>
-                    change((t) =>
-                      t.kind === "image"
-                        ? { ...t, zoom: Number(e.target.value) }
-                        : t,
-                    )
-                  }
-                />
-              </label>
-              <div className="utility-pan">
-                <label className="field-label">
-                  Pan horizontally
-                  <input
-                    type="range"
-                    min={-100}
-                    max={100}
-                    value={tool.panX}
-                    onChange={(e) =>
-                      change((t) =>
-                        t.kind === "image"
-                          ? { ...t, panX: Number(e.target.value) }
-                          : t,
-                      )
-                    }
-                  />
-                </label>
-                <label className="field-label">
-                  Pan vertically
-                  <input
-                    type="range"
-                    min={-100}
-                    max={100}
-                    value={tool.panY}
-                    onChange={(e) =>
-                      change((t) =>
-                        t.kind === "image"
-                          ? { ...t, panY: Number(e.target.value) }
-                          : t,
-                      )
-                    }
-                  />
-                </label>
-              </div>
-              <button
-                className="quiet"
-                onClick={() =>
-                  change((t) =>
-                    t.kind === "image"
-                      ? { ...t, zoom: 1, panX: 0, panY: 0, fit: "contain" }
-                      : t,
-                  )
-                }
-              >
-                Fit image
-              </button>
-            </>
-          )}
         </>
       );
       break;
@@ -506,9 +448,15 @@ export function UtilityWidget({
 function LocalImage({
   campaignId,
   tool,
+  update,
 }: {
   campaignId: string;
   tool: Extract<Utility, { kind: "image" }>;
+  update: (
+    fn: (
+      t: Extract<Utility, { kind: "image" }>,
+    ) => Extract<Utility, { kind: "image" }>,
+  ) => void;
 }) {
   const [image, setImage] = useState<{ key: string; url: string }>(),
     [error, setError] = useState<{ key: string; text: string }>();
@@ -557,23 +505,21 @@ function LocalImage({
     );
   return (
     <figure className="image-card">
-      <div className="image-viewport">
-        {image?.key === key ? (
-          <img
-            src={image.url}
-            alt={tool.caption || "Campaign image"}
-            style={{
-              objectFit: tool.fit,
-              transform: `translate(${tool.panX / 2}%,${tool.panY / 2}%) scale(${tool.zoom})`,
-            }}
-            onError={() =>
-              setError({ key, text: "The saved image cannot be displayed." })
-            }
-          />
-        ) : (
+      {image?.key === key ? (
+        <ImageViewport
+          key={key}
+          tool={tool}
+          src={image.url}
+          update={update}
+          onError={() =>
+            setError({ key, text: "The saved image cannot be displayed." })
+          }
+        />
+      ) : (
+        <div className="image-viewport">
           <p className="hint">Loading local image…</p>
-        )}
-      </div>
+        </div>
+      )}
       {tool.caption && <figcaption>{tool.caption}</figcaption>}
     </figure>
   );

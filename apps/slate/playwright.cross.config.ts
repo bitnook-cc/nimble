@@ -13,6 +13,7 @@ export default defineConfig({
     "release.spec.ts",
     "slate.spec.ts",
     "initiative-modes.spec.ts",
+    "image-gestures.spec.ts",
   ],
   outputDir: "test-results-cross",
   workers: 2,

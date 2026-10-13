@@ -79,6 +79,31 @@ export async function combatant(
     .click();
 }
 
+export async function initiativeSettings(page: Page) {
+  await page
+    .getByRole("region", { name: "Initiative tracker", exact: true })
+    .getByRole("button", { name: "Configure tool", exact: true })
+    .click();
+  return page.getByRole("dialog", {
+    name: "Configure Initiative tracker",
+    exact: true,
+  });
+}
+
+export async function configureInitiativeMode(
+  page: Page,
+  mode: "nimble" | "classic",
+) {
+  const settings = await initiativeSettings(page);
+  await settings
+    .getByRole("combobox", { name: "Initiative mode" })
+    .selectOption(mode);
+  await settings
+    .getByRole("button", { name: "Save tool", exact: true })
+    .click();
+  await expect(settings).toHaveCount(0);
+}
+
 export async function encounter(page: Page) {
   await page
     .getByRole("textbox", { name: "Encounter name", exact: true })
@@ -86,9 +111,7 @@ export async function encounter(page: Page) {
   await combatant(page, "Mira", 18);
   await combatant(page, "Goblin scout", 7, "enemy");
   await combatant(page, "Gatekeeper", 12, "ally");
-  await page
-    .getByRole("combobox", { name: "Initiative mode" })
-    .selectOption("classic");
+  await configureInitiativeMode(page, "classic");
   await page
     .getByRole("button", { name: "Roll initiative", exact: true })
     .click();

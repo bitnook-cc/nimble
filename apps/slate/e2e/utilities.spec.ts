@@ -395,8 +395,28 @@ test("image cards save local bytes, pan and zoom offline and produce a verified 
   const form = editor(page, "Image card");
   await form.getByLabel("Caption", { exact: true }).fill("Camp handout");
   await form.getByRole("button", { name: "Save tool", exact: true }).click();
-  await popup.getByLabel("Zoom", { exact: true }).fill("2");
-  await popup.getByLabel("Pan horizontally", { exact: true }).fill("20");
+  const imageView = popup.getByRole("region", { name: "Interactive image" });
+  await expect(popup.getByRole("slider")).toHaveCount(0);
+  await imageView.hover();
+  await page.mouse.wheel(0, -Math.log(2) / 0.002);
+  await expect(popup.getByLabel("Image zoom", { exact: true })).toHaveText(
+    "200%",
+  );
+  const bounds = (await imageView.boundingBox())!;
+  await page.mouse.move(
+    bounds.x + bounds.width / 2,
+    bounds.y + bounds.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    bounds.x + bounds.width / 2 + 40,
+    bounds.y + bounds.height / 2 + 25,
+    { steps: 5 },
+  );
+  await page.mouse.up();
+  const transform = await popup.getByRole("img").getAttribute("style");
+  expect(transform).toContain("scale(2)");
+  await saved(page);
   await popup.getByRole("heading", { name: "Image card", exact: true }).click();
   await expect(popup).toHaveScreenshot("image-card-light.png");
   await close(page);
@@ -407,7 +427,10 @@ test("image cards save local bytes, pan and zoom offline and produce a verified 
   await expect(
     popup.getByRole("img", { name: "Camp handout", exact: true }),
   ).toBeVisible();
-  await expect(popup.getByLabel("Zoom", { exact: true })).toHaveValue("2");
+  await expect(popup.getByLabel("Image zoom", { exact: true })).toHaveText(
+    "200%",
+  );
+  await expect(popup.getByRole("img")).toHaveAttribute("style", transform!);
   await close(page);
   await page
     .getByRole("button", { name: "Workspace status", exact: true })
