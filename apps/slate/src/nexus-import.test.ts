@@ -6,7 +6,7 @@ import {
   installContentImportPack,
 } from "./content-import";
 import { applyExchange, exportRecords, parseExchange } from "./exchange";
-import { entries } from "./content";
+import { entries, contentKind, searchContent } from "./content";
 import { inspectEncounter } from "./encounters";
 import { newApp, appSchema } from "./model";
 import {
@@ -103,6 +103,69 @@ const documents = {
   "users/author": { data: author },
   "items/lantern": { data: item },
 };
+
+it("imports hazard links through the monster API without inventing HP or losing the hazard on export", async () => {
+  const hazard = {
+    type: "monsters",
+    id: "falling-stones",
+    attributes: {
+      name: "Falling stones",
+      hazard: true,
+      level: "3",
+      abilities: [
+        { name: "Warning", description: "Dust falls from the ceiling." },
+      ],
+      actions: [
+        {
+          name: "Collapse",
+          description: "Dodge the debris.",
+          damage: { roll: "2d6" },
+        },
+      ],
+    },
+  };
+  expect(nexusLink("https://nimble.nexus/hazards/falling-stones")).toEqual({
+    type: "monsters",
+    id: hazard.id,
+    url: "https://nimble.nexus/hazards/falling-stones",
+  });
+  const fetcher = api({ "monsters/falling-stones": { data: hazard } });
+  const preview = await fetchNexusImport(
+    "https://nimble.nexus/hazards/falling-stones",
+    [],
+    undefined,
+    fetcher,
+  );
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(String(fetcher.mock.calls[0][0])).toContain(
+    "/api/monsters/falling-stones",
+  );
+  const record = preview.records[0];
+  expect(record).toMatchObject({
+    kind: "monster",
+    fields: { hazard: true, level: "3" },
+  });
+  expect(record.fields.hp).toBeUndefined();
+  expect(record.fields.nexus).toMatchObject({
+    url: "https://nimble.nexus/hazards/falling-stones",
+  });
+  expect(record.body).toContain("Dust falls from the ceiling.");
+  expect(record.body).toContain("roll:2d6");
+  const app = newApp();
+  const campaign = applyExchange(app.campaigns[0], preview.records, "skip");
+  const all = entries(campaign, app.packs);
+  const found = searchContent(all, "Falling stones", "hazard");
+  expect(found).toHaveLength(1);
+  expect(contentKind(found[0])).toBe("hazard");
+  expect(searchContent(all, "Falling stones", "monster")).toEqual(found);
+  const exported = exportRecords(preview.records, "nexus").value;
+  const restored = parseExchange(JSON.stringify(exported)).records[0];
+  expect(restored.fields.exchange).toMatchObject({
+    resource: { ...hazard, attributes: { ...hazard.attributes, level: 3 } },
+  });
+  expect(restored.fields.hazard).toBe(true);
+  expect(restored.fields.hp).toBeUndefined();
+});
 
 it("accepts canonical, readable, legacy and API links without trusting other origins", () => {
   const id = "2pmns04a9n8brtjcfx0s462hzt";

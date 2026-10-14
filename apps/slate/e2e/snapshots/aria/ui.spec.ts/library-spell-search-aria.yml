@@ -24,6 +24,7 @@
     - option "spell" [selected]
     - option "item"
     - option "monster"
+    - option "hazard"
     - option "encounter"
     - option "npc-generator"
     - option "note"

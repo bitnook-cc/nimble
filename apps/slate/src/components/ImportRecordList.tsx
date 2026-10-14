@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ImportPreviewContent, ReferenceBody } from "./ContentWorkspace";
 import type { ImportPreview } from "../exchange";
+import { contentKind } from "../content";
 
 export function ImportRecordList({ preview }: { preview: ImportPreview }) {
   const [expanded, setExpanded] = useState<string[]>(
@@ -40,7 +41,7 @@ export function ImportRecordList({ preview }: { preview: ImportPreview }) {
                 }}
               >
                 <summary>
-                  {record.title} · {record.kind}
+                  {record.title} · {contentKind(record)}
                   {record.fields.incomplete ? " · Incomplete statblock" : ""}
                 </summary>
                 {expanded.includes(record.id) && (

@@ -13,6 +13,11 @@ export type Entry = Omit<ContentRecord, "kind"> & {
   pack?: ContentPack;
   snippet?: string;
 };
+export function contentKind(record: Pick<Entry, "kind" | "fields">) {
+  return record.kind === "monster" && record.fields.hazard === true
+    ? "hazard"
+    : record.kind;
+}
 function tableText(record: Entry) {
   if (record.kind !== "table") return "";
   const parsed = tableDefinitionSchema.safeParse(record.fields.definition);
@@ -92,7 +97,7 @@ export function searchContent(all: Entry[], query: string, kind = "all") {
   const q = query.trim().toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
   const results = all
-    .filter((r) => kind === "all" || r.kind === kind)
+    .filter((r) => kind === "all" || r.kind === kind || contentKind(r) === kind)
     .filter((r) =>
       words.every((w) =>
         `${r.title} ${r.tags.join(" ")} ${r.category} ${r.body} ${tableText(r)} ${r.kind === "item" ? [r.fields.kind, r.fields.rarity, r.fields.moreInfo].filter((v) => typeof v === "string").join(" ") : ""}`

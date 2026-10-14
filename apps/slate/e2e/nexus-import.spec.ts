@@ -25,6 +25,23 @@ const family = {
     abilities: [{ name: "Shield wall", description: "Stand together." }],
   },
 };
+const hazard = {
+  type: "monsters",
+  id: "link-hazard",
+  attributes: {
+    name: "Link avalanche",
+    hazard: true,
+    level: "3",
+    abilities: [{ name: "Warning", description: "Snow begins to shift." }],
+    actions: [
+      {
+        name: "Collapse",
+        description: "Dodge the snow.",
+        damage: { roll: "2d6" },
+      },
+    ],
+  },
+};
 const gate = {
   type: "encounters",
   id: "link-gate",
@@ -102,6 +119,7 @@ test.beforeEach(async ({ page }) => {
         ],
       },
       "/api/monsters/link-guard": { data: guard, included: [family] },
+      "/api/monsters/link-hazard": { data: hazard },
       "/api/items/link-lantern": { data: item },
     };
     await route.fulfill({
@@ -132,10 +150,23 @@ async function open(page: Page) {
   await top
     .getByRole("button", { name: "Import / export content", exact: true })
     .click();
-  return page.getByRole("dialog", {
+  const dialog = page.getByRole("dialog", {
     name: "Import and export content",
     exact: true,
   });
+  await expect(
+    dialog.getByRole("button", { name: "Nexus link", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    dialog
+      .getByRole("group", { name: "Import source" })
+      .getByRole("button")
+      .first(),
+  ).toHaveText("Nexus link");
+  await expect(
+    dialog.getByLabel("Nimble Nexus link", { exact: true }),
+  ).toBeVisible();
+  return dialog;
 }
 async function preview(dialog: Locator, url: string) {
   await dialog.getByRole("button", { name: "Nexus link", exact: true }).click();
@@ -182,6 +213,100 @@ async function close(dialog: Locator) {
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
 }
+
+test("hazards import from links and remain usable as pinned references offline", async ({
+  page,
+  context,
+}) => {
+  const dialog = await open(page);
+  await preview(dialog, "https://nimble.nexus/hazards/link-hazard");
+  const list = dialog.getByRole("list", { name: "Records to import" });
+  await expect(list.locator(":scope > li > details > summary")).toContainText(
+    "Link avalanche · hazard",
+  );
+  await dialog
+    .getByRole("button", { name: "Expand all previews", exact: true })
+    .click();
+  await expect(list).toContainText("Snow begins to shift.");
+  await dialog
+    .getByRole("button", { name: "Import into campaign", exact: true })
+    .click();
+  await expect(dialog.getByRole("status")).toContainText("imported and saved");
+  await close(dialog);
+  const library = page.getByRole("dialog", {
+    name: "Campaign library",
+    exact: true,
+  });
+  await library
+    .getByRole("combobox", { name: "Content type", exact: true })
+    .selectOption("hazard");
+  await library
+    .getByRole("searchbox", { name: "Search content", exact: true })
+    .fill("Link avalanche");
+  await library.getByRole("button", { name: /Link avalanche hazard/ }).click();
+  const view = page.getByRole("dialog", {
+    name: "Link avalanche",
+    exact: true,
+  });
+  await expect(view).toContainText("Snow begins to shift.");
+  await expect(
+    view.getByRole("link", { name: "View on Nimble Nexus" }),
+  ).toHaveAttribute("href", "https://nimble.nexus/hazards/link-hazard");
+  await expect(view.locator("dt").filter({ hasText: /^HP$/ })).toHaveCount(0);
+  await view
+    .getByRole("button", { name: "Pin to screen", exact: true })
+    .click();
+  await close(view);
+  await expect(library).toBeHidden();
+  await saved(page);
+  await page.reload();
+  await ready(page);
+  await expect
+    .poll(() => page.evaluate(() => !!navigator.serviceWorker.controller))
+    .toBe(true);
+  await page.unrouteAll({ behavior: "wait" });
+  await disconnect(context);
+  await page.reload();
+  await ready(page);
+  await expect(
+    page.getByRole("region", { name: "Link avalanche", exact: true }),
+  ).toContainText("Snow begins to shift.");
+});
+
+test("campaign hazards can be authored as references", async ({ page }) => {
+  await page
+    .getByRole("button", { name: "Campaign library", exact: true })
+    .click();
+  const library = page.getByRole("dialog", {
+    name: "Campaign library",
+    exact: true,
+  });
+  const kind = "hazard";
+  await library
+    .getByRole("button", { name: "Create content", exact: true })
+    .click();
+  await library
+    .getByRole("combobox", { name: "New content type", exact: true })
+    .selectOption(kind);
+  await library
+    .getByLabel("New content title", { exact: true })
+    .fill(`Campaign ${kind}`);
+  await library
+    .getByLabel("New content Markdown", { exact: true })
+    .fill(`## ${kind} details\n\nRemember the ${kind}.`);
+  await library
+    .getByRole("button", { name: "Create reference", exact: true })
+    .click();
+  const view = page.getByRole("dialog", {
+    name: `Campaign ${kind}`,
+    exact: true,
+  });
+  await expect(view).toContainText(`Remember the ${kind}.`);
+  await expect(view.locator(".content-meta")).toContainText(
+    `${kind} · Campaign content`,
+  );
+  await close(view);
+});
 
 test("previews every dependency and inline rolls without writing; cancellation is harmless; campaign records survive offline", async ({
   page,
@@ -326,6 +451,7 @@ test("file pack previews offer campaign copies through both import entry points"
   page,
 }) => {
   const dialog = await open(page);
+  await dialog.getByRole("button", { name: "JSON file", exact: true }).click();
   await dialog
     .getByLabel("Import content JSON", { exact: true })
     .setInputFiles({

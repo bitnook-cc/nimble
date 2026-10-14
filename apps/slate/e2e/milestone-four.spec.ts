@@ -67,6 +67,7 @@ async function upload(page: Page, value: unknown) {
     name: "Import and export content",
     exact: true,
   });
+  await dialog.getByRole("button", { name: "JSON file", exact: true }).click();
   await dialog
     .getByLabel("Import content JSON", { exact: true })
     .setInputFiles({
@@ -407,6 +408,9 @@ test("invalid imports leave the campaign unchanged and Nimbrew previews nested a
     name: "Import and export content",
     exact: true,
   });
+  await exchange
+    .getByRole("button", { name: "JSON file", exact: true })
+    .click();
   await exchange
     .getByLabel("Import content JSON", { exact: true })
     .setInputFiles({

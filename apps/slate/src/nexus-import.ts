@@ -55,10 +55,11 @@ export function nexusLink(input: string) {
   const parts = url.pathname.split("/").filter(Boolean);
   if (parts[0] === "api") parts.shift();
   if (parts[0] === "m") parts[0] = "monsters";
-  const type = parts[0];
+  const pageType = parts[0];
+  const type = pageType === "hazards" ? "monsters" : pageType;
   if (parts.length !== 2 || !types.some((t) => t === type))
     throw new Error(
-      "Use a monster, item, encounter or collection link, rather than a search page.",
+      "Use a monster, hazard, item, encounter or collection link, rather than a search page.",
     );
   let slug: string;
   try {
@@ -70,7 +71,7 @@ export function nexusLink(input: string) {
     throw new Error("This Nexus link has an invalid identifier.");
   // Nexus page slugs end in the canonical 26-character identifier.
   const id = /(?:^|-)([a-zA-Z0-9]{26})$/.exec(slug)?.[1] ?? slug;
-  return { type, id, url: `https://nimble.nexus/${type}/${id}` };
+  return { type, id, url: `https://nimble.nexus/${pageType}/${id}` };
 }
 
 export async function fetchNexusImport(
@@ -215,7 +216,7 @@ export async function fetchNexusImport(
       const attribution =
         author?.attributes.displayName ?? author?.attributes.username;
       record.fields.nexus = {
-        url: `https://nimble.nexus/${exchange.resource.type}/${exchange.resource.id}`,
+        url: `https://nimble.nexus/${exchange.resource.type === "monsters" && exchange.resource.attributes.hazard === true ? "hazards" : exchange.resource.type}/${exchange.resource.id}`,
         importedAt: new Date().toISOString(),
         ...(typeof attribution === "string" ? { creator: attribution } : {}),
       };

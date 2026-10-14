@@ -47,6 +47,9 @@ async function importMonsters(page: Page) {
     exact: true,
   });
   await exchange
+    .getByRole("button", { name: "JSON file", exact: true })
+    .click();
+  await exchange
     .getByLabel("Import content JSON", { exact: true })
     .setInputFiles({
       name: "combat-fixtures.json",
@@ -554,11 +557,9 @@ test("dead monsters show a healing cross and revive at 1 HP with offline persist
     }),
   ).toBeEnabled();
   for (const name of ["Manual enemy", "Goblin", "Pudge the Blunderer"]) {
-    const row = tool
-      .locator(".combatant")
-      .filter({
-        has: page.getByRole("button", { name: `Edit ${name}`, exact: true }),
-      });
+    const row = tool.locator(".combatant").filter({
+      has: page.getByRole("button", { name: `Edit ${name}`, exact: true }),
+    });
     if (name !== "Goblin")
       await row
         .getByRole("button", { name: `Mark ${name} dead`, exact: true })

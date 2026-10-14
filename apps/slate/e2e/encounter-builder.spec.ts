@@ -83,6 +83,9 @@ async function importStatblocks(page: Page) {
     exact: true,
   });
   await exchange
+    .getByRole("button", { name: "JSON file", exact: true })
+    .click();
+  await exchange
     .getByLabel("Import content JSON", { exact: true })
     .setInputFiles({
       name: "statblocks.json",

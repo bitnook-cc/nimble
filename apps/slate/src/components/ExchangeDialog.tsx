@@ -29,7 +29,7 @@ export function ExchangeDialog({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [source, setSource] = useState<"file" | "nexus">("file");
+  const [source, setSource] = useState<"file" | "nexus">("nexus");
   const [link, setLink] = useState("");
   const [destination, setDestination] = useState<"campaign" | "pack">(
     "campaign",
@@ -84,21 +84,10 @@ export function ExchangeDialog({
   return (
     <Modal title="Import and export content" onClose={onClose} wide>
       <p className="hint">
-        Import a local JSON file or paste a public Nimble Nexus link. Preview
+        Paste a public Nimble Nexus link or import a local JSON file. Preview
         every record before saving it to this campaign or a content pack.
       </p>
       <div className="campaign-tabs" role="group" aria-label="Import source">
-        <button
-          className="secondary"
-          aria-pressed={source === "file"}
-          disabled={busy}
-          onClick={() => {
-            cancelPreview();
-            setSource("file");
-          }}
-        >
-          JSON file
-        </button>
         <button
           className="secondary"
           aria-pressed={source === "nexus"}
@@ -109,6 +98,17 @@ export function ExchangeDialog({
           }}
         >
           Nexus link
+        </button>
+        <button
+          className="secondary"
+          aria-pressed={source === "file"}
+          disabled={busy}
+          onClick={() => {
+            cancelPreview();
+            setSource("file");
+          }}
+        >
+          JSON file
         </button>
       </div>
       {source === "nexus" && (
@@ -162,10 +162,10 @@ export function ExchangeDialog({
             Preview Nexus import
           </button>
           <p className="hint">
-            Public monsters, items, encounters and collections. Full statblocks
-            and family abilities are fetched before preview. A connection is
-            needed to fetch; saved content works offline. Artwork remains source
-            links.
+            Public monsters, hazards, items, encounters and collections. Full
+            statblocks and family abilities are fetched before preview. A
+            connection is needed to fetch; saved content works offline. Artwork
+            remains source links.
           </p>
           <NexusCredit />
         </form>

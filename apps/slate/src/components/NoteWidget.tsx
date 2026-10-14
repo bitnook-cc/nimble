@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import type { NoteTool } from "../model";
-import { searchContent } from "../content";
+import { searchContent, contentKind } from "../content";
 import { referenceMarkdown } from "../content-schema";
 import { useContent } from "./ContentWorkspace";
 import { Markdown } from "./Markdown";
@@ -265,7 +265,7 @@ export function NoteWidget({
                 >
                   <span>{r.title}</span>
                   <small>
-                    {r.kind} · {r.pack ? "Nexus" : "Campaign"}
+                    {contentKind(r)} · {r.pack ? "Nexus" : "Campaign"}
                   </small>
                 </button>
               ))}

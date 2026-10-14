@@ -14,7 +14,7 @@ import { useMemo, useRef, useState } from "react";
 import { PenLine, Trash2, Pin, ArrowDownUp } from "lucide-react";
 import { Modal } from "./Modal";
 import { useContent } from "./ContentWorkspace";
-import { searchContent, type Entry } from "../content";
+import { searchContent, contentKind, type Entry } from "../content";
 import { tableDefinition } from "../table-content";
 import { packKey, parsePack, type ContentPack } from "../content-schema";
 import { appStore } from "../storage";
@@ -128,7 +128,14 @@ export function ContentLibrary({
             onClick={() => {
               if (
                 t === "create" &&
-                !["rule", "spell", "item", "monster", "table"].includes(kind)
+                ![
+                  "rule",
+                  "spell",
+                  "item",
+                  "monster",
+                  "hazard",
+                  "table",
+                ].includes(kind)
               )
                 setKind("rule");
               setTab(t);
@@ -220,6 +227,7 @@ export function ContentLibrary({
                   "spell",
                   "item",
                   "monster",
+                  "hazard",
                   "encounter",
                   "npc-generator",
                   "note",
@@ -276,7 +284,7 @@ export function ContentLibrary({
                       ? tableDefinition(r)
                         ? "Random table"
                         : "Reference table"
-                      : r.kind}{" "}
+                      : contentKind(r)}{" "}
                     · {r.category}
                     {r.pack
                       ? ` · ${r.pack.version.slice(0, 7)}`
@@ -344,11 +352,13 @@ export function ContentLibrary({
             value={kind}
             onChange={(event) => setKind(event.target.value)}
           >
-            {["rule", "spell", "item", "monster", "table"].map((kind) => (
-              <option key={kind} value={kind}>
-                {kind === "table" ? "Random table" : kind}
-              </option>
-            ))}
+            {["rule", "spell", "item", "monster", "hazard", "table"].map(
+              (kind) => (
+                <option key={kind} value={kind}>
+                  {kind === "table" ? "Random table" : kind}
+                </option>
+              ),
+            )}
           </select>
         </label>
       )}
@@ -376,7 +386,8 @@ export function ContentLibrary({
             const f = new FormData(e.currentTarget),
               id = uid(),
               title = String(f.get("title")).trim(),
-              newKind = kind as "rule" | "spell" | "item" | "monster";
+              newKind = (kind === "hazard" ? "monster" : kind) as
+                "rule" | "spell" | "item" | "monster";
             if (!title) return;
             update((c) => ({
               ...c,
@@ -394,9 +405,13 @@ export function ContentLibrary({
                   fields:
                     newKind === "monster"
                       ? {
-                          hp: Number(f.get("hp")),
+                          ...(kind === "hazard"
+                            ? { hazard: true }
+                            : { hp: Number(f.get("hp")) }),
                           level: String(f.get("level")),
-                          armor: String(f.get("armor")),
+                          ...(kind === "hazard"
+                            ? {}
+                            : { armor: String(f.get("armor")) }),
                         }
                       : {},
                 },
@@ -440,6 +455,12 @@ export function ContentLibrary({
                 <input name="armor" maxLength={80} defaultValue="none" />
               </label>
             </div>
+          )}
+          {kind === "hazard" && (
+            <label>
+              Hazard level
+              <input name="level" required maxLength={40} defaultValue="1" />
+            </label>
           )}
           <label>
             New content Markdown

@@ -26,6 +26,7 @@ import { Modal } from "./Modal";
 import { Markdown } from "./Markdown";
 import {
   entries,
+  contentKind,
   resolveEntry,
   backlinks,
   headingId,
@@ -383,7 +384,7 @@ export function ReferenceBody({
   return (
     <>
       <p className="content-meta">
-        {entry.kind} · {entry.category}
+        {contentKind(entry)} · {entry.category}
         {preview
           ? " · Import preview"
           : entry.pack
@@ -420,7 +421,7 @@ export function ReferenceBody({
         </p>
       )}
       {typeof nexusUrl === "string" &&
-        /^https:\/\/nimble\.nexus\/(monsters|items|encounters)\/[a-zA-Z0-9_.-]+$/.test(
+        /^https:\/\/nimble\.nexus\/(monsters|hazards|items|encounters)\/[a-zA-Z0-9_.-]+$/.test(
           nexusUrl,
         ) && (
           <p className="hint">
@@ -814,7 +815,7 @@ export function ContentEditor({
       {entry.kind === "monster" && (
         <div className="form-grid">
           <label>
-            Monster HP
+            {entry.fields.hazard ? "Hazard HP (optional)" : "Monster HP"}
             <input
               name="monsterHp"
               type="number"
@@ -829,7 +830,7 @@ export function ContentEditor({
             />
           </label>
           <label>
-            Monster level
+            {entry.fields.hazard ? "Hazard level" : "Monster level"}
             <input
               name="monsterLevel"
               required
@@ -837,14 +838,16 @@ export function ContentEditor({
               defaultValue={String(entry.fields.level)}
             />
           </label>
-          <label>
-            Monster armor
-            <input
-              name="monsterArmor"
-              maxLength={80}
-              defaultValue={String(entry.fields.armor ?? "none")}
-            />
-          </label>
+          {!entry.fields.hazard && (
+            <label>
+              Monster armor
+              <input
+                name="monsterArmor"
+                maxLength={80}
+                defaultValue={String(entry.fields.armor ?? "none")}
+              />
+            </label>
+          )}
         </div>
       )}
       <label>
@@ -917,7 +920,7 @@ export function ReferenceWidget({
         <p className="hint">
           {tool.target
             ? "This saved reference is unavailable. Choose another or restore its source."
-            : "Choose a rule, spell, item or note from your campaign library."}
+            : "Choose a rule, spell, item, monster, hazard or note from your campaign library."}
         </p>
       )}
     </div>
