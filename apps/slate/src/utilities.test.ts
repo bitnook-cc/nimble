@@ -1,3 +1,4 @@
+import { newNote } from "./notes";
 import "fake-indexeddb/auto";
 import { widgetCommands } from "./commands";
 import { zipSync, strToU8 } from "fflate";
@@ -361,9 +362,9 @@ it("duplicates utility IDs, linked trackers/tables, reference prose, assets and 
     image = tool("image"),
     list = tool("checklist"),
     note = tool("note");
-  note.body = "Camp";
+  c.content.push({ ...newNote("Notes", note.noteId), body: "Camp" });
   a.definition.rows[0].tableId = b.id;
-  a.definition.rows[0].body = "[Camp](slate:local%3A%3A" + note.id + ")";
+  a.definition.rows[0].body = "[Camp](slate:local%3A%3A" + note.noteId + ")";
   image.assetId = "asset";
   c.assets = [
     {
@@ -402,7 +403,7 @@ it("duplicates utility IDs, linked trackers/tables, reference prose, assets and 
       (record) => `local::${record.id}` === copiedDefinition.rows[0].tableId,
     ),
   ).toBe(true);
-  expect(copiedDefinition.rows[0].body).not.toContain(note.id);
+  expect(copiedDefinition.rows[0].body).not.toContain(note.noteId);
   expect(
     (
       copy.tools.find((t) => t.kind === "image") as Extract<
@@ -470,7 +471,7 @@ it("upgrades schema 9 with disabled packs intact and exactly one original recove
   db.close();
   const repo = await Repository.open(name),
     upgraded = await repo.load();
-  expect(upgraded.version).toBe(17);
+  expect(upgraded.version).toBe(18);
   expect(upgraded.campaigns[0].packRefs).toEqual([]);
   expect((await repo.recoveryPoints())[0].data).toMatchObject({ version: 9 });
   expect((await repo.load()).revision).toBe(1);
@@ -660,7 +661,7 @@ it("migrates clocks, countdowns, travel values, placements, layout history, pres
   const app = migrateApp(old),
     c = app.campaigns[0];
   expect(old).toEqual(original);
-  expect(app.version).toBe(17);
+  expect(app.version).toBe(18);
   expect(c.packRefs).toEqual([]);
   expect(c.tools.find((t) => t.id === "clock")).toMatchObject({
     kind: "counter",
@@ -782,7 +783,7 @@ it("upgrades schema 10 counters once and keeps an intact original recovery check
   db.close();
   const repo = await Repository.open(name),
     upgraded = await repo.load();
-  expect(upgraded.version).toBe(17);
+  expect(upgraded.version).toBe(18);
   expect(upgraded.packs).toEqual(old.packs);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "countdown"),
@@ -913,7 +914,7 @@ it("migrates schema 11 time tools, placements, presets and history while leaving
     app = migrateApp(old),
     c = app.campaigns[0];
   expect(old).toEqual(original);
-  expect(app.version).toBe(17);
+  expect(app.version).toBe(18);
   expect(c.packRefs).toEqual([]);
   const watch = c.tools.find((t) => t.id === "watch") as Extract<
     Tool,
@@ -1085,7 +1086,7 @@ it("upgrades stored schema 11 time tools once with their original packs and reco
   db.close();
   const repo = await Repository.open(name),
     upgraded = await repo.load();
-  expect(upgraded.version).toBe(17);
+  expect(upgraded.version).toBe(18);
   expect(upgraded.packs).toEqual(old.packs);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "watch"),

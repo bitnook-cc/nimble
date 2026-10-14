@@ -273,7 +273,7 @@ describe("Initiative modes", () => {
         activeCampaignId: old.id,
         campaigns: [old],
       }).version,
-    ).toBe(17);
+    ).toBe(18);
   });
 
   it("persists modes in portable campaigns and continues accepting version-16 ZIP manifests", async () => {

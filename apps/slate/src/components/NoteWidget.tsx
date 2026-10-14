@@ -2,6 +2,7 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 import type { NoteTool } from "../model";
 import { searchContent, contentKind } from "../content";
 import { referenceMarkdown } from "../content-schema";
+import { updateNote } from "../notes";
 import { useContent } from "./ContentWorkspace";
 import { Markdown } from "./Markdown";
 
@@ -57,15 +58,23 @@ function caretRect(editor: HTMLTextAreaElement, caret: number) {
   return { left: rect.left - editor.scrollLeft, top, bottom: top + lineHeight };
 }
 
-export function NoteWidget({
-  tool,
-  update,
-}: {
-  tool: NoteTool;
-  update: (fn: (t: NoteTool) => NoteTool) => void;
-}) {
-  const { all, open, rollFormula } = useContent();
-  const [editing, setEditing] = useState(!tool.body);
+export function NoteWidget({ tool }: { tool: NoteTool }) {
+  const {
+    all,
+    open,
+    rollFormula,
+    campaign,
+    update: changeCampaign,
+  } = useContent();
+  const note = campaign.content.find(
+    (record) => record.id === tool.noteId && record.kind === "note",
+  );
+  const body = note?.body ?? "";
+  const updateBody = (body: string) =>
+    changeCampaign((c) =>
+      updateNote(c, tool.noteId, (note) => ({ ...note, body })),
+    );
+  const [editing, setEditing] = useState(!body);
   const input = useRef<HTMLTextAreaElement>(null);
   const results = useRef<HTMLDivElement>(null);
   const listId = useId();
@@ -77,7 +86,7 @@ export function NoteWidget({
   const [active, setActive] = useState(0);
   const matches = mention
     ? searchContent(
-        all.filter((entry) => entry.target !== `local::${tool.id}`),
+        all.filter((entry) => entry.target !== `local::${tool.noteId}`),
         mention.query,
       ).slice(0, 8)
     : [];
@@ -169,9 +178,8 @@ export function NoteWidget({
     if (!mention || !matches[index]) return;
     const r = matches[index],
       text = referenceMarkdown(r.title, r.target),
-      body =
-        tool.body.slice(0, mention.start) + text + tool.body.slice(mention.end);
-    update((t) => ({ ...t, body }));
+      nextBody = body.slice(0, mention.start) + text + body.slice(mention.end);
+    updateBody(nextBody);
     const caret = mention.start + text.length;
     setMention(null);
     requestAnimationFrame(() => {
@@ -191,7 +199,7 @@ export function NoteWidget({
         >
           {editing ? "Read note" : "Edit note"}
         </button>
-        <button className="quiet" onClick={() => open(`local::${tool.id}`)}>
+        <button className="quiet" onClick={() => open(`local::${tool.noteId}`)}>
           Note details
         </button>
       </div>
@@ -203,7 +211,7 @@ export function NoteWidget({
           <textarea
             ref={input}
             id={listId + "-editor"}
-            value={tool.body}
+            value={body}
             maxLength={100000}
             placeholder="Write Markdown. Type @ to link a rule, spell, item, monster or note…"
             aria-autocomplete="list"
@@ -213,7 +221,7 @@ export function NoteWidget({
             }
             onChange={(e) => {
               const body = e.currentTarget.value;
-              update((t) => ({ ...t, body }));
+              updateBody(body);
               if (!(e.nativeEvent as InputEvent).isComposing)
                 detect(e.currentTarget);
             }}
@@ -283,8 +291,8 @@ export function NoteWidget({
           )}
           <p className="hint">Markdown · @ references · saved automatically</p>
         </>
-      ) : tool.body ? (
-        <Markdown onRoll={rollFormula} body={tool.body} all={all} open={open} />
+      ) : body ? (
+        <Markdown onRoll={rollFormula} body={body} all={all} open={open} />
       ) : (
         <p className="hint">This note is empty.</p>
       )}

@@ -21,6 +21,59 @@ import { newApp, uid } from "./model";
 import { indexedDB } from "fake-indexeddb";
 import { defaultTableDefinition } from "./utility-schema";
 import { newTool, SCHEMA_VERSION } from "./model";
+import { updateNote } from "./notes";
+
+it("promotes schema 17 notes into native content, preserves the original checkpoint and reopens edited documents offline", async () => {
+  const db = database(),
+    repo = await new NativeRepository(db.driver).initialize();
+  const app = await repo.load();
+  const original = {
+    ...app,
+    version: 17,
+    campaigns: app.campaigns.map((campaign) => ({
+      ...campaign,
+      tools: [
+        ...campaign.tools,
+        {
+          id: "old-note",
+          kind: "note",
+          name: "Greyhaven",
+          body: "An old port.",
+          tags: ["location"],
+        },
+      ],
+    })),
+  };
+  db.sql
+    .prepare("UPDATE slate_state SET payload=?")
+    .run(JSON.stringify({ data: original, assets: [], recovery: [] }));
+  const upgraded = await repo.load();
+  expect(upgraded.campaigns[0].content[0]).toMatchObject({
+    id: "old-note",
+    kind: "note",
+    title: "Greyhaven",
+    body: "An old port.",
+    tags: ["location"],
+  });
+  expect(upgraded.campaigns[0].tools.at(-1)).toEqual({
+    id: "old-note",
+    kind: "note",
+    name: "Greyhaven",
+    noteId: "old-note",
+  });
+  expect((await repo.recoveryPoints())[0].data).toEqual(original);
+  upgraded.campaigns[0] = updateNote(
+    upgraded.campaigns[0],
+    "old-note",
+    (note) => ({ ...note, body: "Edited on this device." }),
+  );
+  await repo.save(upgraded, upgraded.revision);
+  const reopened = await new NativeRepository(db.driver).initialize();
+  expect((await reopened.load()).campaigns[0].content[0].body).toBe(
+    "Edited on this device.",
+  );
+  expect(await reopened.recoveryPoints()).toHaveLength(1);
+});
 
 it("moves schema 15 table definitions into native campaign content once and retains original recovery", async () => {
   const db = database(),
@@ -326,7 +379,7 @@ it("migrates schema 10 native counters with exactly one original recovery point"
     .run(JSON.stringify({ data: original, assets: [], recovery: [] }));
   const upgraded = await repo.load();
   expect(upgraded.revision).toBe(1);
-  expect(upgraded.version).toBe(17);
+  expect(upgraded.version).toBe(18);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "duration"),
   ).toMatchObject({
@@ -476,7 +529,7 @@ it("upgrades native schema 11 stopwatch and timer state once without changing th
     .prepare("UPDATE slate_state SET payload=?")
     .run(JSON.stringify({ data: original, assets: [], recovery: [] }));
   const upgraded = await repo.load();
-  expect(upgraded.version).toBe(17);
+  expect(upgraded.version).toBe(18);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "watch"),
   ).toMatchObject({

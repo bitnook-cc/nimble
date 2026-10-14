@@ -10,6 +10,7 @@ import {
   type Widget,
   type Tool,
 } from "./model";
+import { addCampaignTool } from "./notes";
 
 export function editScreen(
   c: Campaign,
@@ -155,8 +156,7 @@ export function createScreen(
     })),
   };
   return campaignSchema.parse({
-    ...c,
-    tools: [...c.tools, ...tools],
+    ...tools.reduce(addCampaignTool, c),
     screens: [...c.screens, screen],
     activeScreenId: screen.id,
   });

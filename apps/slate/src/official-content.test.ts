@@ -23,7 +23,7 @@ import {
   packSchema,
   type ContentPack,
 } from "./content-schema";
-import { migrateApp } from "./migrations";
+import { migrateCampaign, migrateApp } from "./migrations";
 import { Repository } from "./storage";
 import { encodeBackup, decodeBackup, digest } from "./backup";
 import { parseExchange, exportRecords } from "./exchange";
@@ -121,9 +121,15 @@ function oldWorkspace() {
     pin = newTool("reference");
   if (note.kind !== "note" || pin.kind !== "reference")
     throw new Error("fixture");
-  note.body = referenceMarkdown("Initiative", target);
   pin.target = target;
-  campaign.tools.push(note, pin);
+  campaign.tools.push(pin);
+  const legacyNote = {
+    id: note.id,
+    kind: "note",
+    name: note.name,
+    body: referenceMarkdown("Initiative", target),
+    tags: [],
+  };
   campaign.content.push({
     ...starterPack.records[0],
     id: "edited-rule",
@@ -139,7 +145,11 @@ function oldWorkspace() {
   });
   tracker.run.combatants[0].hp = 2;
   tracker.history = [structuredClone(tracker.run)];
-  return { ...app, version: 13 };
+  return {
+    ...app,
+    version: 13,
+    campaigns: [{ ...campaign, tools: [...campaign.tools, legacyNote] }],
+  };
 }
 
 it("bundles every official seed category, rules/FAQs, all spell schools and official-source items", () => {
@@ -389,10 +399,8 @@ it("upgrades existing campaigns, pins, notes, edited copies and combat undo with
   const pin = next.campaigns[0].tools.find((t) => t.kind === "reference")!;
   if (pin.kind !== "reference") throw new Error("fixture");
   expect(resolveEntry(all, pin.target)?.title).toBe("Initiative");
-  const note = next.campaigns[0].tools.find((t) => t.kind === "note")!;
-  expect(note.kind === "note" && note.body).toBe(
-    referenceMarkdown("Initiative", pin.target),
-  );
+  const note = next.campaigns[0].content.find((r) => r.kind === "note")!;
+  expect(note.body).toBe(referenceMarkdown("Initiative", pin.target));
   const tracker = next.campaigns[0].tools.find((t) => t.kind === "initiative")!;
   if (tracker.kind !== "initiative") throw new Error("fixture");
   expect(tracker.run.combatants[0].hp).toBe(2);
@@ -417,12 +425,14 @@ it("upgrades a checksummed legacy campaign ZIP after validation, preserving camp
   const old = oldWorkspace();
   const files = unzipSync(
     await encodeBackup({
-      campaign: old.campaigns[0],
+      campaign: migrateCampaign(old.campaigns[0], 13),
       packs: old.packs,
       assets: [],
     }),
   );
   const manifest = JSON.parse(strFromU8(files["manifest.json"]));
+  files["campaign.json"] = strToU8(JSON.stringify(old.campaigns[0]));
+  manifest.campaignSha256 = await digest(files["campaign.json"]);
   files["manifest.json"] = strToU8(
     JSON.stringify({ ...manifest, schemaVersion: 13 }),
   );
@@ -461,7 +471,7 @@ it("persists the browser upgrade once and retains the original version in a reco
   const repo = await Repository.open(name);
   try {
     const upgraded: AppData = await repo.load();
-    expect(upgraded.version).toBe(17);
+    expect(upgraded.version).toBe(18);
     expect(upgraded.packs).toHaveLength(3);
     expect(entries(upgraded.campaigns[0], upgraded.packs)).toHaveLength(546); // Bundled entries, edited rule and note.
     const points = await repo.recoveryPoints();

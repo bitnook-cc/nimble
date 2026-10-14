@@ -56,10 +56,7 @@ export function copyCampaign(
     }));
     preset.tools = preset.tools.map((t) => ({ ...t, id: remap(t.id) }));
   }
-  const localIds = new Set([
-    ...source.content.map((r) => r.id),
-    ...source.tools.filter((t) => t.kind === "note").map((t) => t.id),
-  ]);
+  const localIds = new Set([...source.content.map((r) => r.id)]);
   const localRemap = (id: string) => (localIds.has(id) ? remap(id) : id);
   const targetRemap = (target: string) =>
     target.startsWith("local::")
@@ -137,7 +134,7 @@ export function copyCampaign(
       t.history = t.history.map(copyNpc);
       t.saved = t.saved.map(copyNpc);
     } else if (t.kind === "note") {
-      t.body = remapReferences(t.body, localRemap);
+      t.noteId = localRemap(t.noteId);
     } else if (t.kind === "reference") {
       t.target = targetRemap(t.target);
     } else if (t.kind === "initiative") {

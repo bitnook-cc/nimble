@@ -26,6 +26,7 @@ import {
 import { Repository, AppStore } from "./storage";
 import { decodeBackup, encodeBackup, digest } from "./backup";
 import { copyCampaign } from "./campaigns";
+import { newNote } from "./notes";
 const repos: Repository[] = [];
 it("deleting a note removes its widgets from screens, layout history and presets while preserving other references", () => {
   const campaign = newApp().campaigns[0],
@@ -34,7 +35,8 @@ it("deleting a note removes its widgets from screens, layout history and presets
   if (note.kind !== "note" || pin.kind !== "reference")
     throw new Error("fixture");
   campaign.tools.push(note, pin);
-  pin.target = `local::${note.id}`;
+  campaign.content.push(newNote(note.name, note.noteId));
+  pin.target = `local::${note.noteId}`;
   const screen = campaign.screens[0];
   const widget = {
     ...screen.widgets[0],
@@ -58,7 +60,9 @@ it("deleting a note removes its widgets from screens, layout history and presets
     body: referenceMarkdown("Notes", pin.target),
   });
   const before = structuredClone(campaign);
-  const result = campaignSchema.parse(removeCampaignContent(campaign, note.id));
+  const result = campaignSchema.parse(
+    removeCampaignContent(campaign, note.noteId),
+  );
   expect(campaign).toEqual(before);
   expect(result.tools).not.toContainEqual(note);
   expect(result.tools).toContainEqual(pin);
@@ -66,7 +70,7 @@ it("deleting a note removes its widgets from screens, layout history and presets
   expect(result.screens[0].undo[0].widgets).toEqual([]);
   expect(result.screens[0].redo[0].widgets).toEqual([]);
   expect(result.layoutPresets[0].widgets).toEqual([]);
-  expect(result.content[0].body).toBe(before.content[0].body);
+  expect(result.content[0].body).toBe(before.content[1].body);
 });
 afterEach(() => repos.splice(0).forEach((r) => r.close()));
 const extra: ContentPack = {
@@ -126,7 +130,7 @@ it("migrates a genuine schema 3 state and ZIP without changing existing views or
     campaigns: [oldC],
   });
   const next = migrateApp(old);
-  expect(next.version).toBe(17);
+  expect(next.version).toBe(18);
   expect(next.campaigns[0].screens).toEqual(c.screens);
   expect(next.packs).toHaveLength(3);
   const bytes = strToU8(JSON.stringify(oldC));
@@ -186,11 +190,13 @@ it("restores non-bundled pack dependencies and custom links into a fresh campaig
   if (note.kind !== "note") throw new Error();
   const local = { ...extra.records[0], id: crypto.randomUUID() };
   c.content.push(local);
-  note.body =
+  const document = newNote(note.name, note.noteId);
+  document.body =
     referenceMarkdown(local.title, "local::" + local.id) +
     " " +
     referenceMarkdown("Table rule", packTarget(extra, "rule/test"));
   c.tools.push(note);
+  c.content.push(document);
   c.packRefs.push(packKey(extra));
   const decoded = await decodeBackup(
     await encodeBackup({
@@ -207,8 +213,8 @@ it("restores non-bundled pack dependencies and custom links into a fresh campaig
   const campaign = restored.campaigns.find(
     (x) => x.id === restored.activeCampaignId,
   )!;
-  const body = campaign.tools.find((t) => t.kind === "note")!;
-  expect(body.kind === "note" && body.body).toContain(
+  const body = campaign.content.find((r) => r.kind === "note")!;
+  expect(body.body).toContain(
     encodeURIComponent("local::" + campaign.content[0].id),
   );
   expect(restored.packs.some((p) => p.id === "test")).toBe(true);
@@ -270,7 +276,10 @@ it("campaign copies remap local note links and pinned content while preserving p
   if (note.kind !== "note" || ref.kind !== "reference") throw new Error();
   const record = { ...extra.records[0], id: crypto.randomUUID() };
   c.content.push(record);
-  note.body = referenceMarkdown(record.title, "local::" + record.id);
+  c.content.push({
+    ...newNote(note.name, note.noteId),
+    body: referenceMarkdown(record.title, "local::" + record.id),
+  });
   ref.target = "local::" + record.id;
   c.tools.push(note, ref);
   const copy = copyCampaign(c);
@@ -300,12 +309,12 @@ it("all bundled links point to installed records and images remain packaged", ()
       expect(resolveEntry(all, target), `${r.title}: ${target}`).toBeDefined();
     }
   expect(Object.keys(starterPack.assets)).toHaveLength(6);
-  expect(appSchema.parse(newApp()).version).toBe(17);
+  expect(appSchema.parse(newApp()).version).toBe(18);
 });
 it("current backups identify their content dependency checksum", async () => {
   const c = newApp().campaigns[0],
     files = unzipSync(await encodeBackup({ campaign: c, assets: [] }));
   const manifest = JSON.parse(strFromU8(files["manifest.json"]));
-  expect(manifest.schemaVersion).toBe(17);
+  expect(manifest.schemaVersion).toBe(18);
   expect(manifest.packsSha256).toBe(await digest(files["packs.json"]));
 });

@@ -30,8 +30,10 @@ const contentAssetsSchema = z.record(
 );
 export const recordSchema = z
   .object({
-    id: key,
+    // Legacy note tools allowed arbitrary nonempty IDs; preserve their links.
+    id: z.string().min(1),
     kind: z.enum([
+      "note",
       "rule",
       "spell",
       "item",
@@ -73,6 +75,12 @@ export const recordSchema = z
       .optional(),
   })
   .superRefine((record, ctx) => {
+    if (record.kind !== "note" && !key.safeParse(record.id).success)
+      ctx.addIssue({
+        code: "custom",
+        path: ["id"],
+        message: "Invalid content ID",
+      });
     if (
       !["monster", "npc-generator", "item", "encounter", "table"].includes(
         record.kind,

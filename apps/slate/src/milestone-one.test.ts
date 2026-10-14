@@ -121,7 +121,7 @@ describe("versioned upgrades and campaign lifecycle", () => {
     await seed(name, before);
     const repo = await repository(name);
     const after = await repo.load();
-    expect(after.version).toBe(17);
+    expect(after.version).toBe(18);
     expect(after.revision).toBe(1);
     expect(after.campaigns[0].id).toBe(before.campaigns[0].id);
     expect(after.campaigns[0].screens[0]).toMatchObject({

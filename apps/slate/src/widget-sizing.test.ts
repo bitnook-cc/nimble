@@ -3,6 +3,7 @@ import { appSchema, newApp, newTool } from "./model";
 import { fitWidget, widgetTypes } from "./widgets";
 import { copyCampaign } from "./campaigns";
 import { encodeBackup, decodeBackup } from "./backup";
+import { newNote } from "./notes";
 
 it("every widget kind permits one-cell placements through validation, copying and portable backup", async () => {
   const app = newApp(),
@@ -10,6 +11,9 @@ it("every widget kind permits one-cell placements through validation, copying an
     screen = campaign.screens[0];
   campaign.tools = Object.keys(widgetTypes).map((kind) =>
     newTool(kind as keyof typeof widgetTypes),
+  );
+  campaign.content = campaign.tools.flatMap((tool) =>
+    tool.kind === "note" ? [newNote(tool.name, tool.noteId)] : [],
   );
   screen.widgets = campaign.tools.map((tool, x) => ({
     id: crypto.randomUUID(),

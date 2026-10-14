@@ -389,7 +389,7 @@ it("preserves encounter references, item favourites and hazards in copies and ZI
   expect(restored.campaign).toEqual(campaign);
   expect(
     appSchema.parse({ ...app, campaigns: [restored.campaign] }).version,
-  ).toBe(17);
+  ).toBe(18);
 });
 it("upgrades v8 transactionally with one recovery checkpoint and retains disabled packs", async () => {
   const previous = { ...newApp(), version: 8 };
@@ -421,7 +421,7 @@ it("upgrades v8 transactionally with one recovery checkpoint and retains disable
   const repo = await Repository.open(dbName);
   try {
     const migrated = await repo.load();
-    expect(migrated.version).toBe(17);
+    expect(migrated.version).toBe(18);
     expect(migrated.revision).toBe(1);
     expect(migrated.packs).toEqual(previous.packs);
     expect(migrated.campaigns[0].packRefs).toEqual([]);

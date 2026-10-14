@@ -24,7 +24,7 @@ import {
 import { generatedNpcSchema, npcOptionsSchema } from "@nimble/generators";
 import { initiativeModeSchema, type InitiativeMode } from "./initiative";
 
-export const SCHEMA_VERSION = 17;
+export const SCHEMA_VERSION = 18;
 const id = z.string().min(1);
 const integer = z.number().int();
 export const placementSchema = z.object({
@@ -273,8 +273,7 @@ const noteToolSchema = z.object({
   id,
   kind: z.literal("note"),
   name: z.string().trim().min(1).max(80),
-  body: z.string().max(100000),
-  tags: z.array(z.string().max(100)).max(30),
+  noteId: id,
 });
 const referenceToolSchema = z.object({
   id,
@@ -378,7 +377,7 @@ export const campaignSchema = z
     name: z.string().trim().min(1).max(80),
     archivedAt: z.iso.datetime().nullable(),
     assets: z.array(assetSchema).max(100),
-    content: z.array(recordSchema).max(1000),
+    content: z.array(recordSchema).max(2000),
     itemFavourites: z.array(z.string().min(1).max(500)).max(3000).default([]),
     packRefs: z.array(z.string().min(1).max(330)).max(24),
     screens: z.array(screenSchema).min(1).max(20),
@@ -399,6 +398,17 @@ export const campaignSchema = z
     layoutPresets: z.array(presetSchemaForScreen).max(20),
   })
   .superRefine((c, ctx) => {
+    for (const tool of c.tools)
+      if (
+        tool.kind === "note" &&
+        !c.content.some(
+          (record) => record.id === tool.noteId && record.kind === "note",
+        )
+      )
+        ctx.addIssue({
+          code: "custom",
+          message: "Note widget refers to a missing note",
+        });
     for (const collection of [
       c.tools,
       c.screens,
@@ -544,8 +554,7 @@ export function newTool(kind: Widget["kind"]): Tool {
       history: [],
       saved: [],
     };
-  if (kind === "note")
-    return { id: uid(), kind, name: "Notes", body: "", tags: [] };
+  if (kind === "note") return { id: uid(), kind, name: "Notes", noteId: uid() };
   if (kind === "reference")
     return { id: uid(), kind, name: "Reference", target: "" };
   return kind === "dice"

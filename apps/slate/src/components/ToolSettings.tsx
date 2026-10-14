@@ -7,6 +7,7 @@ import { Modal } from "./Modal";
 import { widgetTypes } from "../widgets";
 import { changeRun, type Tool } from "../model";
 import { setInitiativeMode, type InitiativeMode } from "../initiative";
+import { useContent } from "./ContentWorkspace";
 
 export function ConfigureButton({
   onClick,
@@ -58,6 +59,8 @@ function ToolNameSettings({
   onClose: () => void;
 }) {
   const [name, setName] = useState(tool.name);
+  const { campaign } = useContent();
+  const [noteId, setNoteId] = useState(tool.kind === "note" ? tool.noteId : "");
   const [mode, setMode] = useState<InitiativeMode>(
     tool.kind === "initiative" ? tool.run.mode : "nimble",
   );
@@ -70,7 +73,11 @@ function ToolNameSettings({
         onSubmit={(event) => {
           event.preventDefault();
           if (!name.trim()) return;
-          const next = { ...tool, name: name.trim() };
+          const next = {
+            ...tool,
+            name: name.trim(),
+            ...(tool.kind === "note" ? { noteId } : {}),
+          };
           save(
             next.kind === "initiative" && next.run.mode !== mode
               ? changeRun(next, setInitiativeMode(next.run, mode))
@@ -78,6 +85,30 @@ function ToolNameSettings({
           );
         }}
       >
+        {tool.kind === "note" && (
+          <label>
+            Campaign note
+            <select
+              value={noteId}
+              onChange={(event) => {
+                const note = campaign.content.find(
+                  (record) => record.id === event.target.value,
+                );
+                if (!note) return;
+                setNoteId(note.id);
+                setName(note.title.slice(0, 80));
+              }}
+            >
+              {campaign.content
+                .filter((record) => record.kind === "note")
+                .map((note) => (
+                  <option key={note.id} value={note.id}>
+                    {note.title}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
         <label>
           Tool name
           <input
@@ -115,7 +146,9 @@ function ToolNameSettings({
           </>
         )}
         <p className="hint">
-          The name is shared by all widgets using this saved tool.
+          {tool.kind === "note"
+            ? "Notes belong to the campaign. All views edit the same note; removing a widget keeps its note in the library."
+            : "The name is shared by all widgets using this saved tool."}
         </p>
         <button className="primary">Save tool</button>
       </form>

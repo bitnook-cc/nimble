@@ -6,7 +6,8 @@ import {
   type RandomSource,
   type GeneratorDefinition,
 } from "@nimble/generators";
-import { uid, type NpcEntry, type NpcTool, type NoteTool } from "./model";
+import { uid, type NpcEntry, type NpcTool } from "./model";
+import { newNote, type Note } from "./notes";
 
 export function generateNpcResults(
   tool: NpcTool,
@@ -43,11 +44,9 @@ export function saveNpcResult(tool: NpcTool): NpcTool {
     );
   return { ...tool, saved: [structuredClone(tool.current), ...rest] };
 }
-export function npcNote(npc: NpcEntry): NoteTool {
+export function npcNote(npc: NpcEntry): Note {
   return {
-    id: uid(),
-    kind: "note",
-    name: npc.name,
+    ...newNote(npc.name),
     body: [
       `# ${npc.name}`,
       "",

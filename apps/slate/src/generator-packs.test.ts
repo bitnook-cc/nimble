@@ -97,7 +97,7 @@ it("retains tables for saved rerolls and remaps campaign generator selections wh
     style: "local::" + "long-generator-id".repeat(20),
   });
   expect(note.tags).toEqual(["npc", "custom-generator"]);
-  campaign.tools.push(note);
+  campaign.content.push(note);
   campaign.content = [];
   expect(rerollNpcName(tool.saved[0], () => 0.99).name).toBe("Sable Vale");
 });
@@ -202,7 +202,7 @@ it("upgrades schema 7 transactionally once, preserving NPCs and disabled pack ch
   const repo = await Repository.open(name);
   repos.push(repo);
   const migrated = await repo.load();
-  expect(migrated.version).toBe(17);
+  expect(migrated.version).toBe(18);
   expect(migrated.revision).toBe(1);
   expect(migrated.campaigns).toEqual(previous.campaigns);
   expect(migrated.packs).toEqual(previous.packs);

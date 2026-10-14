@@ -19,7 +19,8 @@ import {
 } from "@nimble/generators";
 import { useContent } from "./ContentWorkspace";
 import { GeneratorLibrary } from "./GeneratorLibrary";
-import type { NpcTool, NpcEntry, NoteTool } from "../model";
+import type { NpcTool, NpcEntry } from "../model";
+import type { Note } from "../notes";
 import {
   generateNpcResults,
   replaceNpcResult,
@@ -35,7 +36,7 @@ export function NpcGenerator({
 }: {
   tool: NpcTool;
   update: (fn: (tool: NpcTool) => NpcTool) => void;
-  saveNote: (note: NoteTool) => void;
+  saveNote: (note: Note) => void;
   canSaveNote: boolean;
 }) {
   const { all } = useContent();

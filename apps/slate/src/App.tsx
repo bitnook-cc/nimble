@@ -6,6 +6,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { WorkspaceStatus } from "./components/WorkspaceStatus";
 import { NpcGenerator } from "./components/NpcGenerator";
 import { NoteWidget } from "./components/NoteWidget";
+import { addCampaignTool, updateNote } from "./notes";
 import { UtilityWidget } from "./components/UtilityWidget";
 import { utilityKinds } from "./utility-schema";
 import { applyToolUpdate, advanceCampaign } from "./utilities";
@@ -220,7 +221,24 @@ export default function App() {
   const changeLayout = (fn: (layout: Layout) => Layout) =>
     changeCampaign((c) => editScreen(c, screen.id, fn));
   function updateTool(id: string, fn: (tool: Tool) => Tool) {
-    changeCampaign((c) => applyToolUpdate(c, id, fn));
+    changeCampaign((c) => {
+      const next = applyToolUpdate(c, id, fn);
+      const after = next.tools.find((tool) => tool.id === id);
+      const document =
+        after?.kind === "note"
+          ? next.content.find(
+              (record) => record.id === after.noteId && record.kind === "note",
+            )
+          : undefined;
+      return after?.kind === "note" &&
+        document &&
+        after.name !== document.title.slice(0, 80)
+        ? updateNote(next, after.noteId, (note) => ({
+            ...note,
+            title: after.name,
+          }))
+        : next;
+    });
   }
   function renderTool(tool: Tool) {
     if (utilityKinds.includes(tool.kind as (typeof utilityKinds)[number]))
@@ -245,21 +263,14 @@ export default function App() {
           update={(fn) =>
             updateTool(tool.id, (t) => (t.kind === "npc" ? fn(t) : t))
           }
-          canSaveNote={campaign.tools.length < 1000}
+          canSaveNote={campaign.content.length < 2000}
           saveNote={(note) =>
-            changeCampaign((c) => ({ ...c, tools: [...c.tools, note] }))
+            changeCampaign((c) => ({ ...c, content: [...c.content, note] }))
           }
         />
       );
     if (tool.kind === "note")
-      return (
-        <NoteWidget
-          tool={tool}
-          update={(fn) =>
-            updateTool(tool.id, (t) => (t.kind === "note" ? fn(t) : t))
-          }
-        />
-      );
+      return <NoteWidget key={tool.noteId} tool={tool} />;
     if (tool.kind === "items")
       return (
         <ItemLibrary
@@ -310,7 +321,11 @@ export default function App() {
       );
       return;
     }
-    const tool = existing ?? newTool(kind);
+    const tool = existing ? { ...existing } : newTool(kind);
+    if (reference && tool.kind === "note" && !reference.pack) {
+      tool.noteId = reference.id;
+      tool.name = reference.title.slice(0, 80);
+    }
     if (reference && (tool.kind === "reference" || tool.kind === "table")) {
       tool.target = reference.target;
       tool.name = reference.title.slice(0, 80);
@@ -324,7 +339,7 @@ export default function App() {
     };
     changeCampaign((c) =>
       editScreen(
-        { ...c, tools: existing ? c.tools : [...c.tools, tool] },
+        existing ? c : addCampaignTool(c, tool),
         screen.id,
         (layout) => ({ ...layout, widgets: [...layout.widgets, widget] }),
       ),
@@ -338,10 +353,11 @@ export default function App() {
     setDialog("add");
   }
   const pin = (entry: Entry) => {
-    if (entry.kind === "note")
+    if (entry.kind === "note" && !entry.pack)
       addWidget(
         "note",
-        campaign.tools.find((t) => t.id === entry.id),
+        campaign.tools.find((t) => t.kind === "note" && t.noteId === entry.id),
+        entry,
       );
     else
       addWidget(
@@ -640,7 +656,7 @@ export default function App() {
                   "This campaign has reached its tool limit. Open a saved tool instead.",
                 );
               const tool = newTool(kind);
-              changeCampaign((c) => ({ ...c, tools: [...c.tools, tool] }));
+              changeCampaign((c) => addCampaignTool(c, tool));
               return tool;
             }}
           />

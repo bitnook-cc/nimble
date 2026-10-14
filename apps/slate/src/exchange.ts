@@ -233,7 +233,7 @@ export function parseExchange(input: string, all: Entry[] = []): ImportPreview {
       .strictObject({
         format: z.literal("slate-records"),
         schemaVersion: z.literal(1),
-        records: z.array(recordSchema).min(1).max(1000),
+        records: z.array(recordSchema).min(1).max(2000),
       })
       .parse(raw);
     if (
@@ -750,7 +750,19 @@ export function applyExchange(
       ? content.map((r) => (r.id === copy.id ? copy : r))
       : [...content, copy];
   }
-  return campaignSchema.parse({ ...campaign, content });
+  return campaignSchema.parse({
+    ...campaign,
+    content,
+    tools: campaign.tools.map((tool) => {
+      const note =
+        tool.kind === "note"
+          ? content.find(
+              (record) => record.id === tool.noteId && record.kind === "note",
+            )
+          : undefined;
+      return note ? { ...tool, name: note.title.slice(0, 80) } : tool;
+    }),
+  });
 }
 
 export function exportRecords(

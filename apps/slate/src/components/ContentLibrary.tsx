@@ -130,6 +130,7 @@ export function ContentLibrary({
               if (
                 t === "create" &&
                 ![
+                  "note",
                   "rule",
                   "spell",
                   "item",
@@ -353,13 +354,19 @@ export function ContentLibrary({
             value={kind}
             onChange={(event) => setKind(event.target.value)}
           >
-            {["rule", "spell", "item", "monster", "hazard", "table"].map(
-              (kind) => (
-                <option key={kind} value={kind}>
-                  {kind === "table" ? "Random table" : kind}
-                </option>
-              ),
-            )}
+            {[
+              "note",
+              "rule",
+              "spell",
+              "item",
+              "monster",
+              "hazard",
+              "table",
+            ].map((kind) => (
+              <option key={kind} value={kind}>
+                {kind === "table" ? "Random table" : kind}
+              </option>
+            ))}
           </select>
         </label>
       )}
@@ -388,7 +395,7 @@ export function ContentLibrary({
               id = uid(),
               title = String(f.get("title")).trim(),
               newKind = (kind === "hazard" ? "monster" : kind) as
-                "rule" | "spell" | "item" | "monster";
+                "note" | "rule" | "spell" | "item" | "monster";
             if (!title) return;
             update((c) => ({
               ...c,
@@ -400,7 +407,8 @@ export function ContentLibrary({
                   title,
                   body: String(f.get("body")),
                   tags: [],
-                  category: "Campaign content",
+                  category:
+                    newKind === "note" ? "Campaign notes" : "Campaign content",
                   sources: [],
                   related: [],
                   fields:

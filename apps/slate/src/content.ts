@@ -8,8 +8,7 @@ import {
   type ContentPack,
 } from "./content-schema";
 
-export type Entry = Omit<ContentRecord, "kind"> & {
-  kind: ContentRecord["kind"] | "note";
+export type Entry = ContentRecord & {
   target: string;
   pack?: ContentPack;
   snippet?: string;
@@ -35,20 +34,6 @@ export const headingId = (text: string) =>
 export function entries(campaign: Campaign, packs: AppData["packs"]): Entry[] {
   return [
     ...campaign.content.map((r) => ({ ...r, target: `local::${r.id}` })),
-    ...campaign.tools
-      .filter((t) => t.kind === "note")
-      .map((t) => ({
-        id: t.id,
-        title: t.name,
-        kind: "note" as const,
-        body: t.body,
-        tags: t.tags,
-        category: "Campaign notes",
-        sources: [],
-        related: [],
-        fields: {},
-        target: `local::${t.id}`,
-      })),
     ...packs
       .filter((p) => campaign.packRefs.includes(packKey(p)))
       .flatMap((pack) =>
@@ -152,8 +137,10 @@ export function removeCampaignContent(
   campaign: Campaign,
   id: string,
 ): Campaign {
-  const isNote = campaign.tools.some(
-    (tool) => tool.id === id && tool.kind === "note",
+  const noteTools = new Set(
+    campaign.tools
+      .filter((tool) => tool.kind === "note" && tool.noteId === id)
+      .map((tool) => tool.id),
   );
   const withoutNote = <
     T extends { widgets: Campaign["screens"][number]["widgets"] },
@@ -161,7 +148,7 @@ export function removeCampaignContent(
     layout: T,
   ): T => ({
     ...layout,
-    widgets: layout.widgets.filter((widget) => !isNote || widget.toolId !== id),
+    widgets: layout.widgets.filter((widget) => !noteTools.has(widget.toolId)),
   });
   return {
     ...campaign,
@@ -169,7 +156,7 @@ export function removeCampaignContent(
     itemFavourites: campaign.itemFavourites.filter(
       (target) => target !== `local::${id}`,
     ),
-    tools: campaign.tools.filter((tool) => !isNote || tool.id !== id),
+    tools: campaign.tools.filter((tool) => !noteTools.has(tool.id)),
     screens: campaign.screens.map((screen) => ({
       ...withoutNote(screen),
       undo: screen.undo.map(withoutNote),
@@ -177,7 +164,7 @@ export function removeCampaignContent(
     })),
     layoutPresets: campaign.layoutPresets.map((preset) => ({
       ...withoutNote(preset),
-      tools: preset.tools.filter((tool) => !isNote || tool.id !== id),
+      tools: preset.tools.filter((tool) => !noteTools.has(tool.id)),
     })),
   };
 }

@@ -13,6 +13,7 @@ import { GeneratorEditor } from "./GeneratorEditor";
 import { monsterStatsSchema, isCombatMonster } from "../monster-schema";
 import { roll } from "../rolls";
 import { newTool, type Roll } from "../model";
+import { updateNote } from "../notes";
 import { download } from "../backup";
 import {
   createContext,
@@ -187,7 +188,7 @@ export function ContentProvider({
               ),
             }
           : record.fields,
-      kind: record.kind === "note" ? "rule" : record.kind,
+      kind: record.kind,
       origin: record.target,
       ...(record.importedFrom ? { importedFrom: record.importedFrom } : {}),
       related: record.related.map((r) =>
@@ -754,45 +755,48 @@ export function ContentEditor({
             .map((t) => t.trim())
             .filter(Boolean);
         try {
-          update((c) => ({
-            ...c,
-            content: c.content.map((r) =>
-              r.id === entry.id
-                ? {
-                    ...r,
-                    title,
-                    body,
-                    tags,
-                    fields: isCombatMonster(r)
-                      ? {
-                          ...r.fields,
-                          hp: data.get("monsterHp")
-                            ? Number(data.get("monsterHp"))
-                            : undefined,
-                          level: String(data.get("monsterLevel")),
-                          armor: r.fields.hazard
-                            ? undefined
-                            : String(data.get("monsterArmor")),
-                        }
-                      : r.kind === "encounter"
+          update((c) => {
+            const next = {
+              ...c,
+              content: c.content.map((r) =>
+                r.id === entry.id
+                  ? {
+                      ...r,
+                      title,
+                      body,
+                      tags,
+                      ...(r.kind === "note"
+                        ? { category: String(data.get("category")) }
+                        : {}),
+                      fields: isCombatMonster(r)
                         ? {
                             ...r.fields,
-                            heroCount: Number(data.get("heroCount")),
-                            annotations: String(data.get("annotations")),
+                            hp: data.get("monsterHp")
+                              ? Number(data.get("monsterHp"))
+                              : undefined,
+                            level: String(data.get("monsterLevel")),
+                            armor: r.fields.hazard
+                              ? undefined
+                              : String(data.get("monsterArmor")),
                           }
-                        : r.fields,
-                  }
-                : r,
-            ),
-            tools: c.tools.map((t) =>
-              t.id === entry.id && t.kind === "note"
-                ? { ...t, name: title, body, tags }
-                : t,
-            ),
-          }));
+                        : r.kind === "encounter"
+                          ? {
+                              ...r.fields,
+                              heroCount: Number(data.get("heroCount")),
+                              annotations: String(data.get("annotations")),
+                            }
+                          : r.fields,
+                    }
+                  : r,
+              ),
+            };
+            return entry.kind === "note"
+              ? updateNote(next, entry.id, (note) => note)
+              : next;
+          });
           done();
         } catch {
-          setError("Unable to save. Use at most 30 tags and a shorter title.");
+          setError("Unable to save. Check the title, tags and content length.");
         }
       }}
     >
@@ -802,7 +806,7 @@ export function ContentEditor({
           name="title"
           defaultValue={entry.title}
           required
-          maxLength={80}
+          maxLength={entry.kind === "note" ? 160 : 80}
         />
       </label>
       <label>
@@ -813,6 +817,16 @@ export function ContentEditor({
           maxLength={1000}
         />
       </label>
+      {entry.kind === "note" && (
+        <label>
+          Note category
+          <input
+            name="category"
+            defaultValue={entry.category}
+            maxLength={160}
+          />
+        </label>
+      )}
       {isCombatMonster(entry) && (
         <div className="form-grid">
           <label>

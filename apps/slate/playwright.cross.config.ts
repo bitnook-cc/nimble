@@ -16,6 +16,7 @@ export default defineConfig({
     "image-gestures.spec.ts",
     "nexus-import.spec.ts",
     "pack-catalog.spec.ts",
+    "notes.spec.ts",
     "storage-recovery.spec.ts",
   ],
   outputDir: "test-results-cross",

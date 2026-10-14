@@ -1,6 +1,7 @@
 import { migrateLegendaryCampaign } from "./legendary";
 import { migrateInitiativeCampaign } from "./initiative";
 import { migrateTableContent } from "./table-content";
+import { migrateNoteContent } from "./notes";
 import {
   campaignSchema as v3CampaignSchema,
   appSchema as v3AppSchema,
@@ -29,13 +30,14 @@ import {
 export function migrateCampaign(
   raw: unknown,
   version:
-    2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17,
+    2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18,
 ): Campaign {
   if (version >= 4 && version < 11) raw = migrateCounters(raw);
   if (version >= 4 && version < 12) raw = migrateTimeTools(raw);
   if (version >= 4 && version < 13) raw = migrateLegendaryCampaign(raw);
   if (version >= 4 && version < 16) raw = migrateTableContent(raw);
   if (version < 17) raw = migrateInitiativeCampaign(raw);
+  if (version >= 4 && version < 18) raw = migrateNoteContent(raw);
   if (
     version === 7 ||
     version === 8 ||
@@ -47,6 +49,7 @@ export function migrateCampaign(
     version === 14 ||
     version === 15 ||
     version === 16 ||
+    version === 17 ||
     version === SCHEMA_VERSION
   )
     return campaignSchema.parse(raw);
@@ -134,7 +137,8 @@ function migrateAppData(raw: unknown): AppData {
     raw.version === 13 ||
     raw.version === 14 ||
     raw.version === 15 ||
-    raw.version === 16
+    raw.version === 16 ||
+    raw.version === 17
   ) {
     const version = raw.version;
     const previous = z.object({ campaigns: z.array(z.unknown()) }).parse(raw);

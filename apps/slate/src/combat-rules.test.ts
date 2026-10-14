@@ -391,7 +391,7 @@ it("campaign copies and complete backups preserve phase pools and remap queued t
       activeCampaignId: copied.id,
       campaigns: [copied],
     }).version,
-  ).toBe(17);
+  ).toBe(18);
 });
 it("schema 12 upgrades preserve HP, active turn, undo and original recovery without guessing spent Last Stand HP", async () => {
   const old = { ...newApp(), version: 12 };
@@ -452,7 +452,7 @@ it("schema 12 upgrades preserve HP, active turn, undo and original recovery with
   seed.close();
   const repo = await Repository.open(dbName);
   try {
-    expect((await repo.load()).version).toBe(17);
+    expect((await repo.load()).version).toBe(18);
     expect((await repo.recoveryPoints())[0].data).toMatchObject({
       version: 12,
     });
