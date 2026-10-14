@@ -265,7 +265,12 @@ export function NoteWidget({
                 >
                   <span>{r.title}</span>
                   <small>
-                    {contentKind(r)} · {r.pack ? "Nexus" : "Campaign"}
+                    {contentKind(r)} ·{" "}
+                    {r.pack
+                      ? r.pack.system
+                        ? r.pack.name
+                        : "Nexus"
+                      : "Campaign"}
                   </small>
                 </button>
               ))}

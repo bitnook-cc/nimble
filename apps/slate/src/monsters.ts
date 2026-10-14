@@ -1,10 +1,14 @@
 import { legendaryState } from "./legendary";
-import { monsterStatsSchema } from "./monster-schema";
+import { monsterStatsSchema, isReferenceMonster } from "./monster-schema";
 import { recordSchema } from "./content-schema";
 import type { Entry } from "./content";
 import type { Run, Combatant } from "./model";
 
 export function addMonsterToRun(run: Run, entry: Entry, heroes = 1): Run {
+  if (isReferenceMonster(entry))
+    throw new Error(
+      "Reference-only monsters cannot be added to Nimble combat.",
+    );
   if (entry.kind !== "monster") throw new Error("Choose a monster statblock.");
   const record = recordSchema.parse(entry);
   const stats = monsterStatsSchema.parse(record.fields);

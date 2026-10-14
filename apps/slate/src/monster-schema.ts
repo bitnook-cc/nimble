@@ -1,5 +1,32 @@
 import { z } from "zod";
 
+type MonsterRecord = { kind: string; fields: Record<string, unknown> };
+export function isReferenceMonster(record: MonsterRecord) {
+  return (
+    (record.kind === "monster" && record.fields.referenceOnly === true) ||
+    // The first SRD pack used rule records. Keep its immutable IDs and links.
+    (record.kind === "rule" &&
+      record.fields.system === "dnd-5e-2024" &&
+      record.fields.referenceType === "monster")
+  );
+}
+export function isCombatMonster(record: MonsterRecord) {
+  return record.kind === "monster" && !isReferenceMonster(record);
+}
+export const referenceMonsterFieldsSchema = z
+  .object({
+    referenceOnly: z.literal(true),
+    system: z
+      .string()
+      .min(1)
+      .max(160)
+      .regex(/^[a-zA-Z0-9_./-]+$/),
+  })
+  .refine(
+    (fields) => fields.system !== "nimble",
+    "Nimble monsters require combat stats",
+  );
+
 const hp = z.number().int().min(1).max(99999);
 const memberSchema = z.object({
   name: z.string().trim().min(1).max(160),

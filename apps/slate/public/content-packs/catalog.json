@@ -1,0 +1,22 @@
+{
+  "format": "slate-pack-catalog",
+  "version": 1,
+  "packs": [
+    {
+      "id": "srd-5-2024",
+      "version": "5.2.1.2",
+      "name": "5.5e SRD 5.2.1 · 2024 rules",
+      "system": "dnd-5e-2024",
+      "description": "Rules, spells, equipment, magic items, character options and monster references. Reference content only; no D&D combat automation.",
+      "url": "srd-5-2024-5.2.1.2.slate-content.json",
+      "bytes": 2973160,
+      "sha256": "f9ea7453d43b37fb346441163bc1a021891837aa7ef190ff4a35ed6677ec5797",
+      "records": 1309,
+      "source": {
+        "url": "https://www.dndbeyond.com/srd",
+        "revision": "5.2.1",
+        "license": "This work includes material from the System Reference Document 5.2.1 (\"SRD 5.2.1\") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Markdown conversion by your5e; adapted for Slate with formatting and reference-link changes."
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { searchContent, type Entry } from "../content";
-import { monsterStatsSchema } from "../monster-schema";
+import { monsterStatsSchema, isReferenceMonster } from "../monster-schema";
 import { useContent } from "./ContentWorkspace";
 import { ContentLibrary } from "./ContentLibrary";
 
@@ -71,7 +71,9 @@ export function MonsterSearch({
       )}
       <ul className="monster-results" aria-label="Monster search results">
         {matches.slice(0, limit).map((entry) => {
-          const stats = monsterStatsSchema.parse(entry.fields);
+          const stats = isReferenceMonster(entry)
+            ? null
+            : monsterStatsSchema.parse(entry.fields);
           return (
             <li key={entry.target}>
               <button
@@ -81,21 +83,28 @@ export function MonsterSearch({
               >
                 <strong>{entry.title}</strong>
                 <small>
-                  Level {stats.level}
-                  {stats.legendary
-                    ? " Solo"
-                    : stats.minion
-                      ? " Minion"
-                      : ""} ·{" "}
-                  {stats.hazard
-                    ? "Hazard"
-                    : stats.members
-                      ? `${stats.members.length} members`
-                      : `${stats.hpPerHero ? stats.hpPerHero + "/hero" : stats.hp} HP`}{" "}
-                  {stats.armor ? `· ${stats.armor} armor` : ""}
+                  {stats ? (
+                    <>
+                      Level {stats.level}
+                      {stats.legendary
+                        ? " Solo"
+                        : stats.minion
+                          ? " Minion"
+                          : ""}{" "}
+                      ·{" "}
+                      {stats.hazard
+                        ? "Hazard"
+                        : stats.members
+                          ? `${stats.members.length} members`
+                          : `${stats.hpPerHero ? stats.hpPerHero + "/hero" : stats.hp} HP`}{" "}
+                      {stats.armor ? `· ${stats.armor} armor` : ""}
+                    </>
+                  ) : (
+                    "Reference only · combat automation unavailable"
+                  )}
                 </small>
                 <small>
-                  {stats.kind || entry.category} ·{" "}
+                  {stats?.kind || entry.category} ·{" "}
                   {entry.pack ? entry.pack.name : "Campaign"}
                 </small>
               </button>
@@ -103,7 +112,11 @@ export function MonsterSearch({
                 className="secondary"
                 aria-label={`Add ${entry.title} to encounter`}
                 disabled={
-                  full || !!stats.incomplete || heroes < 1 || heroes > 100
+                  !stats ||
+                  full ||
+                  !!stats.incomplete ||
+                  heroes < 1 ||
+                  heroes > 100
                 }
                 onClick={() => {
                   setError("");

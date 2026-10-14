@@ -15,7 +15,9 @@ async function files(directory, prefix = "") {
   }
   return result;
 }
-const assets = await files(join(root, "dist"));
+const assets = (await files(join(root, "dist"))).filter(
+  (file) => !file.startsWith("content-packs"),
+);
 let applicationId;
 for (const platform of ["android", "ios"]) {
   const folder = join(
@@ -32,6 +34,11 @@ for (const platform of ["android", "ios"]) {
   )
     throw new Error(`${platform}: unexpected remote server or application ID`);
   applicationId = config.appId;
+  const bundled = await files(join(folder, "public"));
+  if (bundled.some((file) => file.startsWith("content-packs")))
+    throw new Error(
+      `${platform}: optional hosted packs must not be bundled; run cap:sync`,
+    );
   for (const file of assets) {
     const [built, copied] = await Promise.all([
       readFile(join(root, "dist", file)),

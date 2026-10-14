@@ -14,6 +14,7 @@ import {
   newUtility,
 } from "./utility-schema";
 import { itemFilterSchema } from "./item-schema";
+import { isCombatMonster } from "./monster-schema";
 import { partySchema } from "./party";
 import {
   diceFormulaOptionsSchema,
@@ -67,7 +68,7 @@ const combatantSchema = z
       .object({
         target: z.string().min(1).max(500),
         record: recordSchema.refine(
-          (record) => record.kind === "monster",
+          isCombatMonster,
           "Expected a monster statblock",
         ),
       })
@@ -95,7 +96,7 @@ export const runSchema = z
           id,
           target: z.string().max(500),
           record: recordSchema.refine(
-            (r) => r.kind === "monster" && r.fields.hazard === true,
+            (r) => isCombatMonster(r) && r.fields.hazard === true,
             "Expected a hazard",
           ),
         }),

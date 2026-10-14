@@ -1,5 +1,6 @@
 import type { Campaign, AppData } from "./model";
 import { tableDefinitionSchema } from "./utility-schema";
+import { isReferenceMonster } from "./monster-schema";
 import {
   packKey,
   packTarget,
@@ -14,6 +15,7 @@ export type Entry = Omit<ContentRecord, "kind"> & {
   snippet?: string;
 };
 export function contentKind(record: Pick<Entry, "kind" | "fields">) {
+  if (isReferenceMonster(record)) return "monster";
   return record.kind === "monster" && record.fields.hazard === true
     ? "hazard"
     : record.kind;
@@ -97,7 +99,12 @@ export function searchContent(all: Entry[], query: string, kind = "all") {
   const q = query.trim().toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
   const results = all
-    .filter((r) => kind === "all" || r.kind === kind || contentKind(r) === kind)
+    .filter(
+      (r) =>
+        kind === "all" ||
+        contentKind(r) === kind ||
+        (kind === "monster" && r.kind === "monster"),
+    )
     .filter((r) =>
       words.every((w) =>
         `${r.title} ${r.tags.join(" ")} ${r.category} ${r.body} ${tableText(r)} ${r.kind === "item" ? [r.fields.kind, r.fields.rarity, r.fields.moreInfo].filter((v) => typeof v === "string").join(" ") : ""}`
@@ -115,7 +122,11 @@ export function searchContent(all: Entry[], query: string, kind = "all") {
         ) {
           const target = packTarget(pack!, term.target),
             found = resolveEntry(all, target);
-          if (found && !results.some((r) => r.target === target))
+          if (
+            found &&
+            (kind === "all" || contentKind(found) === kind) &&
+            !results.some((r) => r.target === target)
+          )
             results.push({ ...found, title: term.term, snippet: term.preview });
         }
     }

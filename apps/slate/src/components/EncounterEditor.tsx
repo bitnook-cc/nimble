@@ -3,7 +3,7 @@ import { useState } from "react";
 import { searchContent, type Entry } from "../content";
 import { encounterFieldsSchema } from "../encounter-schema";
 import { type ContentRecord } from "../content-schema";
-import { monsterStatsSchema } from "../monster-schema";
+import { monsterStatsSchema, isCombatMonster } from "../monster-schema";
 import { saveEncounterDefinition } from "../encounter-builder";
 import { encounterSummary } from "../encounters";
 import { uid } from "../model";
@@ -77,6 +77,7 @@ export function EncounterEditor({
     ? encounterSummary(draft, all, parsed.data.heroCount)
     : null;
   const matches = searchContent(all, query, "monster").filter((r) => {
+    if (!isCombatMonster(r)) return false;
     const stats = monsterStatsSchema.parse(r.fields);
     return (
       kind === "all" ||

@@ -2,7 +2,10 @@ import { z } from "zod";
 import { generatorDefinitionSchema } from "@nimble/generators";
 import { itemFieldsSchema } from "./item-schema";
 import { encounterFieldsSchema } from "./encounter-schema";
-import { monsterStatsSchema } from "./monster-schema";
+import {
+  monsterStatsSchema,
+  referenceMonsterFieldsSchema,
+} from "./monster-schema";
 import { tableDefinitionSchema } from "./utility-schema";
 
 const key = z
@@ -83,7 +86,10 @@ export const recordSchema = z
       record.kind === "table"
         ? tableDefinitionSchema.safeParse(record.fields.definition)
         : record.kind === "monster"
-          ? monsterStatsSchema.safeParse(record.fields)
+          ? (record.fields.referenceOnly === true
+              ? referenceMonsterFieldsSchema
+              : monsterStatsSchema
+            ).safeParse(record.fields)
           : record.kind === "item"
             ? itemFieldsSchema.safeParse(record.fields)
             : record.kind === "encounter"
@@ -105,6 +111,8 @@ export const packSchema = z
     id: key,
     version: key,
     name: z.string().min(1).max(160),
+    system: key.optional(),
+    referenceOnly: z.boolean().optional(),
     source: contentSourceSchema,
     records: z.array(recordSchema).min(1).max(3000),
     terms: z

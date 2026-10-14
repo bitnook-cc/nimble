@@ -1,5 +1,5 @@
 import { encounterFieldsSchema } from "./encounter-schema";
-import { monsterStatsSchema } from "./monster-schema";
+import { monsterStatsSchema, isCombatMonster } from "./monster-schema";
 import { resolveEntry, type Entry } from "./content";
 import { addMonsterToRun } from "./monsters";
 import { newRun, runSchema, type Run } from "./model";
@@ -12,7 +12,7 @@ export function inspectEncounter(entry: Entry, all: Entry[], heroes: number) {
   return fields.entries.map((link) => {
     const monster = resolveEntry(all, link.target);
     const stats =
-      monster?.kind === "monster"
+      monster && isCombatMonster(monster)
         ? monsterStatsSchema.parse(monster.fields)
         : undefined;
     const rawCount = stats?.legendary

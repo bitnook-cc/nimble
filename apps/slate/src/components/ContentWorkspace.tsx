@@ -10,7 +10,7 @@ import { encounterFieldsSchema } from "../encounter-schema";
 import { generatorDefinitionSchema } from "@nimble/generators";
 import { getDialogOpener } from "../dialog-focus";
 import { GeneratorEditor } from "./GeneratorEditor";
-import { monsterStatsSchema } from "../monster-schema";
+import { monsterStatsSchema, isCombatMonster } from "../monster-schema";
 import { roll } from "../rolls";
 import { newTool, type Roll } from "../model";
 import { download } from "../backup";
@@ -384,6 +384,7 @@ export function ReferenceBody({
   return (
     <>
       <p className="content-meta">
+        {entry.fields.system === "dnd-5e-2024" && "5.5e reference · "}
         {contentKind(entry)} · {entry.category}
         {preview
           ? " · Import preview"
@@ -446,7 +447,7 @@ export function ReferenceBody({
           )}
         </details>
       )}
-      {entry.kind === "monster" &&
+      {isCombatMonster(entry) &&
         (() => {
           const stats = monsterStatsSchema.parse(entry.fields);
           const facts = {
@@ -537,7 +538,7 @@ export function ReferenceBody({
           .
         </p>
       )}
-      {entry.kind === "spell" && (
+      {entry.kind === "spell" && entry.fields.system !== "dnd-5e-2024" && (
         <dl className="spell-facts">
           {["school", "tier", "actions", "utility", "reaction", "target"]
             .filter((k) => entry.fields[k] !== undefined)
@@ -646,7 +647,8 @@ export function ReferenceBody({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Nexus source · {entry.pack.source.revision.slice(0, 7)}
+              {fromNexus ? "Nexus source" : "Source document"} ·{" "}
+              {entry.pack.source.revision.slice(0, 7)}
             </a>
           )}
         </details>
@@ -761,25 +763,24 @@ export function ContentEditor({
                     title,
                     body,
                     tags,
-                    fields:
-                      r.kind === "monster"
+                    fields: isCombatMonster(r)
+                      ? {
+                          ...r.fields,
+                          hp: data.get("monsterHp")
+                            ? Number(data.get("monsterHp"))
+                            : undefined,
+                          level: String(data.get("monsterLevel")),
+                          armor: r.fields.hazard
+                            ? undefined
+                            : String(data.get("monsterArmor")),
+                        }
+                      : r.kind === "encounter"
                         ? {
                             ...r.fields,
-                            hp: data.get("monsterHp")
-                              ? Number(data.get("monsterHp"))
-                              : undefined,
-                            level: String(data.get("monsterLevel")),
-                            armor: r.fields.hazard
-                              ? undefined
-                              : String(data.get("monsterArmor")),
+                            heroCount: Number(data.get("heroCount")),
+                            annotations: String(data.get("annotations")),
                           }
-                        : r.kind === "encounter"
-                          ? {
-                              ...r.fields,
-                              heroCount: Number(data.get("heroCount")),
-                              annotations: String(data.get("annotations")),
-                            }
-                          : r.fields,
+                        : r.fields,
                   }
                 : r,
             ),
@@ -812,7 +813,7 @@ export function ContentEditor({
           maxLength={1000}
         />
       </label>
-      {entry.kind === "monster" && (
+      {isCombatMonster(entry) && (
         <div className="form-grid">
           <label>
             {entry.fields.hazard ? "Hazard HP (optional)" : "Monster HP"}

@@ -11,7 +11,7 @@
     "lint": "eslint src",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "cap:sync": "cap sync",
+    "cap:sync": "node scripts/sync-native.mjs",
     "cap:android": "cap open android",
     "cap:ios": "cap open ios",
     "test:ui": "playwright test e2e/ui.spec.ts",
@@ -19,10 +19,11 @@
     "test:e2e:dev": "playwright test --config playwright.dev.config.ts",
     "test:e2e:cross": "playwright test --config playwright.cross.config.ts",
     "build:all": "npm run build -w @nimble/dice && npm run build -w @nimble/generators && npm run build",
-    "cap:prepare": "npm run build:all && cap sync && npm run cap:verify",
+    "cap:prepare": "npm run build:all && npm run cap:sync && npm run cap:verify",
     "cap:verify": "node scripts/verify-native.mjs",
     "test:a11y": "playwright test e2e/accessibility.spec.ts",
-    "test:release": "playwright test e2e/release.spec.ts"
+    "test:release": "playwright test e2e/release.spec.ts",
+    "content:srd": "node scripts/build-srd-pack.mjs --download"
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^8.1.1",

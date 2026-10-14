@@ -5,6 +5,7 @@ import { EncounterLibrary } from "./EncounterLibrary";
 import { ItemLibrary } from "./ItemLibrary";
 import { ExchangeDialog } from "./ExchangeDialog";
 import { ImportRecordList } from "./ImportRecordList";
+import { PackCatalog } from "./PackCatalog";
 import {
   prepareContentImport,
   installContentImportPack,
@@ -287,7 +288,7 @@ export function ContentLibrary({
                       : contentKind(r)}{" "}
                     · {r.category}
                     {r.pack
-                      ? ` · ${r.pack.version.slice(0, 7)}`
+                      ? ` · ${r.pack.name} · ${r.pack.version.slice(0, 7)}`
                       : " · Campaign"}
                   </small>
                 </button>
@@ -478,6 +479,28 @@ export function ContentLibrary({
             in this campaign; saved references and NPCs are retained.
           </p>
           <NexusCredit />
+          <PackCatalog
+            installed={packs}
+            busy={busy}
+            preview={async (pack, signal) => {
+              const ticket = ++importGeneration.current;
+              const preview = await prepareContentImport(
+                JSON.stringify(pack),
+                all,
+              );
+              if (signal.aborted || ticket !== importGeneration.current) return;
+              setError("");
+              setIncoming(pack);
+              setIncomingPreview(preview);
+              setImportDestination("pack");
+              requestAnimationFrame(() =>
+                document
+                  .getElementById("pack-install-preview")
+                  ?.scrollIntoView({ block: "start", behavior: "smooth" }),
+              );
+            }}
+          />
+          <h3>Installed packs</h3>
           {packs.map((p) => (
             <article className="pack-row" key={packKey(p)}>
               <strong>{p.name}</strong>
@@ -589,7 +612,7 @@ export function ContentLibrary({
             />
           </label>
           {incoming && (
-            <div className="notice">
+            <div className="notice" id="pack-install-preview">
               <h3>{incoming.name}</h3>
               <p>
                 {incoming.records.length} records ·{" "}

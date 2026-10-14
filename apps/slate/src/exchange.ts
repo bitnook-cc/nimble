@@ -21,7 +21,7 @@ import {
 } from "./content-schema";
 import { itemFieldsSchema } from "./item-schema";
 import { encounterFieldsSchema } from "./encounter-schema";
-import { monsterStatsSchema } from "./monster-schema";
+import { monsterStatsSchema, isReferenceMonster } from "./monster-schema";
 import { type Entry } from "./content";
 import { campaignSchema, uid, type Campaign } from "./model";
 
@@ -872,6 +872,10 @@ export function exportRecords(
   }
   const warnings: string[] = [];
   const included = new Map<string, Resource>();
+  if (records.some(isReferenceMonster))
+    throw new Error(
+      "Reference-only monsters require Slate JSON, a content pack or Markdown export; Nexus and Nimbrew exports require Nimble combat stats.",
+    );
   if (format === "nexus" && records.some((record) => tableDefinition(record)))
     throw new Error(
       "Nexus reference tables do not encode Slate roll mappings. Export random tables as Slate records or a Slate content pack.",
@@ -1090,6 +1094,10 @@ export function exportRecords(
                 const referenced =
                   records.find((r) => "local::" + r.id === e.target) ??
                   all.find((r) => r.target === e.target);
+                if (referenced && isReferenceMonster(referenced))
+                  throw new Error(
+                    "Reference-only monsters cannot be exported as Nexus encounter combatants. Use Slate export.",
+                  );
                 if (referenced && referenced.kind === "monster")
                   return exportId(referenced as ContentRecord);
                 return e.target.startsWith("local::nexus/monsters/")

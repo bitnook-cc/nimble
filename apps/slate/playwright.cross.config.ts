@@ -15,6 +15,7 @@ export default defineConfig({
     "initiative-modes.spec.ts",
     "image-gestures.spec.ts",
     "nexus-import.spec.ts",
+    "pack-catalog.spec.ts",
     "storage-recovery.spec.ts",
   ],
   outputDir: "test-results-cross",
