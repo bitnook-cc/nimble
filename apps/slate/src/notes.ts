@@ -1,5 +1,6 @@
 import { recordSchema, type ContentRecord } from "./content-schema";
 import { uid, type Campaign, type Tool } from "./model";
+import { readDocument, writeDocument } from "./document-markdown";
 
 export type Note = ContentRecord & { kind: "note" };
 
@@ -41,7 +42,28 @@ export function updateNote(
     (record) => record.id === id && record.kind === "note",
   );
   if (!current) throw new Error("This note is no longer available.");
-  const next = recordSchema.parse(change(current as Note));
+  let changed = change(current as Note);
+  const parsed = readDocument(changed.body);
+  if (parsed.hasHeader && !parsed.errors.length) {
+    const patch: Record<string, unknown> = {};
+    for (const key of ["title", "category", "tags"] as const)
+      if (JSON.stringify(changed[key]) !== JSON.stringify(current[key]))
+        patch[key] = changed[key];
+    if (Object.keys(patch).length)
+      changed = { ...changed, body: writeDocument(changed.body, patch) };
+    const metadata = readDocument(changed.body).metadata;
+    changed = {
+      ...changed,
+      ...(typeof metadata.title === "string" ? { title: metadata.title } : {}),
+      ...(typeof metadata.category === "string"
+        ? { category: metadata.category }
+        : {}),
+      ...(Array.isArray(metadata.tags)
+        ? { tags: metadata.tags as string[] }
+        : {}),
+    };
+  }
+  const next = recordSchema.parse(changed);
   if (next.id !== id || next.kind !== "note")
     throw new Error("A note's identity cannot change.");
   return {

@@ -379,7 +379,7 @@ it("migrates schema 10 native counters with exactly one original recovery point"
     .run(JSON.stringify({ data: original, assets: [], recovery: [] }));
   const upgraded = await repo.load();
   expect(upgraded.revision).toBe(1);
-  expect(upgraded.version).toBe(18);
+  expect(upgraded.version).toBe(19);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "duration"),
   ).toMatchObject({
@@ -529,7 +529,7 @@ it("upgrades native schema 11 stopwatch and timer state once without changing th
     .prepare("UPDATE slate_state SET payload=?")
     .run(JSON.stringify({ data: original, assets: [], recovery: [] }));
   const upgraded = await repo.load();
-  expect(upgraded.version).toBe(18);
+  expect(upgraded.version).toBe(19);
   expect(
     upgraded.campaigns[0].tools.find((t) => t.id === "watch"),
   ).toMatchObject({

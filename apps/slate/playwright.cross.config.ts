@@ -17,6 +17,7 @@ export default defineConfig({
     "nexus-import.spec.ts",
     "pack-catalog.spec.ts",
     "notes.spec.ts",
+    "world.spec.ts",
     "storage-recovery.spec.ts",
   ],
   outputDir: "test-results-cross",

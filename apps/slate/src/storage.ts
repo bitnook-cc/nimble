@@ -2,6 +2,7 @@ import { packKey, mergePacks, type ContentPack } from "./content-schema";
 import { appSchema, SCHEMA_VERSION, newApp, uid, type AppData } from "./model";
 import { migrateApp } from "./migrations";
 import { copyCampaign } from "./campaigns";
+import { relationshipCache } from "./relationship-cache";
 import {
   validateBundle,
   type CampaignBundle,
@@ -488,6 +489,7 @@ export class AppStore {
     try {
       this.repository ??= await this.resetRepository();
       const data = await this.repository.reset();
+      await relationshipCache.clear().catch(() => {});
       this.revision = data.revision;
       this.generation++;
       this.emit({
@@ -590,6 +592,9 @@ export class AppStore {
     options?: CommitOptions,
   ) {
     this.revision = await repo.save(data, this.revision, options);
+    for (const campaign of this.snapshot.data?.campaigns ?? [])
+      if (!data.campaigns.some((next) => next.id === campaign.id))
+        await relationshipCache.clear(campaign.id).catch(() => {});
     this.emit({
       ...this.snapshot,
       data: { ...data, revision: this.revision },

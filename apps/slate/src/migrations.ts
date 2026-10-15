@@ -30,7 +30,24 @@ import {
 export function migrateCampaign(
   raw: unknown,
   version:
-    2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18,
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17
+    | 18
+    | 19,
 ): Campaign {
   if (version >= 4 && version < 11) raw = migrateCounters(raw);
   if (version >= 4 && version < 12) raw = migrateTimeTools(raw);
@@ -50,6 +67,7 @@ export function migrateCampaign(
     version === 15 ||
     version === 16 ||
     version === 17 ||
+    version === 18 ||
     version === SCHEMA_VERSION
   )
     return campaignSchema.parse(raw);
@@ -138,7 +156,8 @@ function migrateAppData(raw: unknown): AppData {
     raw.version === 14 ||
     raw.version === 15 ||
     raw.version === 16 ||
-    raw.version === 17
+    raw.version === 17 ||
+    raw.version === 18
   ) {
     const version = raw.version;
     const previous = z.object({ campaigns: z.array(z.unknown()) }).parse(raw);

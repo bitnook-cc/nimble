@@ -7,11 +7,14 @@ import {
   type ComponentProps,
 } from "react";
 import { readTarget } from "../content-schema";
+import { readReference } from "../references";
+import { markdownForDisplay } from "../document-markdown";
 import { headingId, resolveEntry, type Entry } from "../content";
 import type { ContentPack } from "../content-schema";
 import type { Roll } from "../model";
 
 type LinkContext = {
+  preserveLabels: boolean;
   all: Entry[];
   open: (target: string) => void;
   onRoll: (formula: string) => Roll;
@@ -24,7 +27,7 @@ const MarkdownLinks = createContext<LinkContext | null>(null);
 function MarkdownLink({ href, children }: ComponentProps<"a">) {
   const context = useContext(MarkdownLinks);
   if (!context) throw new Error("Markdown link context missing");
-  const { all, open, onRoll, results, setResults } = context;
+  const { all, open, onRoll, results, setResults, preserveLabels } = context;
 
   const target = href ? readTarget(href) : null;
   if (target) {
@@ -32,10 +35,15 @@ function MarkdownLink({ href, children }: ComponentProps<"a">) {
     return (
       <button
         className={`reference-link ${found ? "" : "missing-reference"}`}
-        title={found?.title ?? "Reference unavailable offline"}
+        title={
+          (found?.title ?? "Reference unavailable offline") +
+          (readReference(href!)?.tags.length
+            ? " · " + readReference(href!)!.tags.join(", ")
+            : "")
+        }
         onClick={() => open(target)}
       >
-        {found?.title ?? children}
+        {preserveLabels ? children : (found?.title ?? children)}
         {!found ? " (missing)" : ""}
       </button>
     );
@@ -103,6 +111,7 @@ export function Markdown({
   pack,
   assets = pack?.assets,
   onRoll,
+  preserveLabels = false,
 }: {
   onRoll: (formula: string) => Roll;
   body: string;
@@ -110,10 +119,13 @@ export function Markdown({
   open: (target: string) => void;
   pack?: ContentPack;
   assets?: Record<string, string>;
+  preserveLabels?: boolean;
 }) {
   const [results, setResults] = useState<Record<string, string>>({});
   return (
-    <MarkdownLinks.Provider value={{ all, open, onRoll, results, setResults }}>
+    <MarkdownLinks.Provider
+      value={{ all, open, onRoll, results, setResults, preserveLabels }}
+    >
       <div className="markdown">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
@@ -144,7 +156,10 @@ export function Markdown({
             ),
           }}
         >
-          {body}
+          {markdownForDisplay(
+            body,
+            pack ? `${pack.id}@${pack.version}::document` : undefined,
+          )}
         </ReactMarkdown>
       </div>
     </MarkdownLinks.Provider>

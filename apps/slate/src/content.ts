@@ -1,6 +1,7 @@
 import type { Campaign, AppData } from "./model";
 import { tableDefinitionSchema } from "./utility-schema";
 import { isReferenceMonster } from "./monster-schema";
+import { documentReferences } from "./document-markdown";
 import {
   packKey,
   packTarget,
@@ -129,7 +130,10 @@ export function backlinks(all: Entry[], target: string) {
   return all.filter(
     (r) =>
       r.target !== base &&
-      `${r.body} ${tableText(r)}`.includes(`slate:${encodeURIComponent(base)}`),
+      documentReferences(
+        `${r.body}\n${tableText(r)}`,
+        r.target,
+      ).references.some((reference) => reference.target.split("#")[0] === base),
   );
 }
 

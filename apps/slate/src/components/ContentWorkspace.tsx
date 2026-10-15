@@ -14,6 +14,8 @@ import { monsterStatsSchema, isCombatMonster } from "../monster-schema";
 import { roll } from "../rolls";
 import { newTool, type Roll } from "../model";
 import { updateNote } from "../notes";
+import { readDocument } from "../document-markdown";
+import { useRelationships } from "./useRelationships";
 import { download } from "../backup";
 import {
   createContext,
@@ -29,7 +31,6 @@ import {
   entries,
   contentKind,
   resolveEntry,
-  backlinks,
   headingId,
   removeCampaignContent,
   type Entry,
@@ -44,6 +45,7 @@ import { uid, type Campaign } from "../model";
 import type { AppData, Tool } from "../model";
 
 type Workspace = {
+  relationships: ReturnType<typeof useRelationships>;
   rollFormula: (formula: string) => Roll;
   all: Entry[];
   campaign: Campaign;
@@ -133,6 +135,17 @@ export function ContentProvider({
   children: ReactNode;
 }) {
   const all = useMemo(() => entries(campaign, packs), [campaign, packs]);
+  const relationships = useRelationships(campaign.id, all);
+  const referencedBy = (target: string) =>
+    all.filter(
+      (record) =>
+        record.target !== target.split("#")[0] &&
+        relationships.rows.some(
+          (ref) =>
+            ref.source === record.target &&
+            ref.targetDocument === target.split("#")[0],
+        ),
+    );
   const opener = useRef<HTMLElement | null>(null);
   const openerDialog = useRef<HTMLDialogElement | null>(null);
   const [history, setHistory] = useState<string[]>([]);
@@ -228,6 +241,7 @@ export function ContentProvider({
     <Context.Provider
       value={{
         all,
+        relationships,
         campaign,
         packs,
         update,
@@ -283,9 +297,18 @@ export function ContentProvider({
                   className="secondary"
                   onClick={() =>
                     download(
-                      new Blob(["# " + entry.title + "\n\n" + entry.body], {
-                        type: "text/markdown",
-                      }),
+                      new Blob(
+                        [
+                          entry.kind === "note" &&
+                          (readDocument(entry.body).hasHeader ||
+                            readDocument(entry.body).errors.length)
+                            ? entry.body
+                            : "# " + entry.title + "\n\n" + entry.body,
+                        ],
+                        {
+                          type: "text/markdown",
+                        },
+                      ),
                       entry.title.replace(/[^a-z0-9_-]/gi, "-") + ".md",
                     )
                   }
@@ -324,8 +347,8 @@ export function ContentProvider({
                 <ReferenceBody key={entry.target} entry={entry} />
                 <div className="backlinks">
                   <h3>Referenced by</h3>
-                  {backlinks(all, entry.target).length ? (
-                    backlinks(all, entry.target).map((r) => (
+                  {referencedBy(entry.target).length ? (
+                    referencedBy(entry.target).map((r) => (
                       <button
                         className="reference-link"
                         key={r.target}
@@ -756,6 +779,14 @@ export function ContentEditor({
             .filter(Boolean);
         try {
           update((c) => {
+            if (entry.kind === "note")
+              return updateNote(c, entry.id, (note) => ({
+                ...note,
+                title,
+                body,
+                tags,
+                category: String(data.get("category")),
+              }));
             const next = {
               ...c,
               content: c.content.map((r) =>
@@ -790,9 +821,7 @@ export function ContentEditor({
                   : r,
               ),
             };
-            return entry.kind === "note"
-              ? updateNote(next, entry.id, (note) => note)
-              : next;
+            return next;
           });
           done();
         } catch {

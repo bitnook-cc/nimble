@@ -135,6 +135,23 @@ export const builtInPresets: ScreenPreset[] = [
     ],
   },
 ];
+export function createWorldScreen(campaign: Campaign, name: string): Campaign {
+  const screen: Screen = {
+    id: uid(),
+    name,
+    kind: "world",
+    grid: { columns: 12, rows: 8 },
+    widgets: [],
+    undo: [],
+    redo: [],
+    world: { selectedNoteId: null, positions: {} },
+  };
+  return campaignSchema.parse({
+    ...campaign,
+    screens: [...campaign.screens, screen],
+    activeScreenId: screen.id,
+  });
+}
 export function createScreen(
   c: Campaign,
   name: string,
@@ -167,6 +184,8 @@ export function savePreset(
   name: string,
 ): Campaign {
   const screen = c.screens.find((s) => s.id === screenId)!;
+  if (screen.kind === "world")
+    throw new Error("Layout presets are only available for dashboard tabs.");
   const preset: ScreenPreset = {
     id: uid(),
     name,

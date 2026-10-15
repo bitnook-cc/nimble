@@ -40,6 +40,7 @@ const manifestSchema = z.strictObject({
     z.literal(15),
     z.literal(16),
     z.literal(17),
+    z.literal(18),
     z.literal(SCHEMA_VERSION),
   ]),
   createdAt: z.iso.datetime(),

@@ -6,6 +6,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { WorkspaceStatus } from "./components/WorkspaceStatus";
 import { NpcGenerator } from "./components/NpcGenerator";
 import { NoteWidget } from "./components/NoteWidget";
+import { WorldEditor } from "./components/WorldEditor";
 import { addCampaignTool, updateNote } from "./notes";
 import { UtilityWidget } from "./components/UtilityWidget";
 import { utilityKinds } from "./utility-schema";
@@ -307,11 +308,23 @@ export default function App() {
     );
   }
   function addWidget(kind: Widget["kind"], existing?: Tool, reference?: Entry) {
+    const targetScreen =
+      screen.kind === "world"
+        ? campaign.screens.find((candidate) => candidate.kind !== "world")
+        : screen;
+    if (!targetScreen) {
+      setNotice("Create a dashboard tab before pinning widgets.");
+      return;
+    }
     const defaultSize = {
-      w: Math.min(defaultSpan[kind].w, screen.grid.columns),
-      h: Math.min(defaultSpan[kind].h, screen.grid.rows),
+      w: Math.min(defaultSpan[kind].w, targetScreen.grid.columns),
+      h: Math.min(defaultSpan[kind].h, targetScreen.grid.rows),
     };
-    const rect = fitWidget(screen, defaultSize, origin);
+    const rect = fitWidget(
+      targetScreen,
+      defaultSize,
+      screen.kind === "world" ? null : origin,
+    );
     if (!rect) {
       setNotice(
         "There is not enough free space. Enlarge the grid or move a widget.",
@@ -339,8 +352,11 @@ export default function App() {
     };
     changeCampaign((c) =>
       editScreen(
-        existing ? c : addCampaignTool(c, tool),
-        screen.id,
+        {
+          ...(existing ? c : addCampaignTool(c, tool)),
+          activeScreenId: targetScreen.id,
+        },
+        targetScreen.id,
         (layout) => ({ ...layout, widgets: [...layout.widgets, widget] }),
       ),
     );
@@ -428,7 +444,7 @@ export default function App() {
             >
               <BookOpen size={17} />
             </button>
-            {arranging && (
+            {arranging && screen.kind !== "world" && (
               <>
                 <button
                   className="icon-button"
@@ -454,30 +470,34 @@ export default function App() {
                 </button>
               </>
             )}
-            <button
-              aria-label={`${screen.grid.columns} × ${screen.grid.rows} grid`}
-              className="quiet"
-              onClick={() => {
-                setError("");
-                setDialog("grid");
-              }}
-            >
-              <Grid2X2 size={15} />
-              <span className="responsive-label">
-                {screen.grid.columns} × {screen.grid.rows} grid
-              </span>
-            </button>
-            <button
-              className={"secondary " + (arranging ? "arrange-active" : "")}
-              aria-label={arranging ? "Done arranging" : "Arrange"}
-              aria-pressed={arranging}
-              onClick={() => setArranging(!arranging)}
-            >
-              {arranging ? <Check size={15} /> : <Settings2 size={15} />}
-              <span className="responsive-label">
-                {arranging ? "Done arranging" : "Arrange"}
-              </span>
-            </button>
+            {screen.kind !== "world" && (
+              <>
+                <button
+                  aria-label={`${screen.grid.columns} × ${screen.grid.rows} grid`}
+                  className="quiet"
+                  onClick={() => {
+                    setError("");
+                    setDialog("grid");
+                  }}
+                >
+                  <Grid2X2 size={15} />
+                  <span className="responsive-label">
+                    {screen.grid.columns} × {screen.grid.rows} grid
+                  </span>
+                </button>
+                <button
+                  className={"secondary " + (arranging ? "arrange-active" : "")}
+                  aria-label={arranging ? "Done arranging" : "Arrange"}
+                  aria-pressed={arranging}
+                  onClick={() => setArranging(!arranging)}
+                >
+                  {arranging ? <Check size={15} /> : <Settings2 size={15} />}
+                  <span className="responsive-label">
+                    {arranging ? "Done arranging" : "Arrange"}
+                  </span>
+                </button>
+              </>
+            )}
             <button
               className="icon-button"
               aria-label="Command palette"
@@ -588,53 +608,61 @@ export default function App() {
             tabIndex={0}
             className="screen-panel"
           >
-            <fieldset
-              className="board-fieldset"
-              disabled={snapshot.conflict || snapshot.busy}
-            >
-              <Board
+            {screen.kind === "world" ? (
+              <WorldEditor
                 key={campaign.id + screen.id}
                 screen={screen}
-                tools={campaign.tools}
-                configure={setConfigureId}
-                arranging={arranging}
-                renderTool={(widget) =>
-                  renderTool(
-                    campaign.tools.find((tool) => tool.id === widget.toolId)!,
-                  )
-                }
-                addAt={openAdd}
-                place={(id, rect) =>
-                  changeLayout((c) =>
-                    canPlace(c, rect, id)
-                      ? {
-                          ...c,
-                          widgets: c.widgets.map((w) =>
-                            w.id === id
-                              ? {
-                                  ...w,
-                                  ...rect,
-                                  id: w.id,
-                                  toolId: w.toolId,
-                                  kind: w.kind,
-                                }
-                              : w,
-                          ),
-                        }
-                      : c,
-                  )
-                }
-                remove={(id) => {
-                  changeLayout((c) => ({
-                    ...c,
-                    widgets: c.widgets.filter((w) => w.id !== id),
-                  }));
-                  setNotice(
-                    "Widget removed from the screen. Click an empty cell, then Saved tools, to restore it.",
-                  );
-                }}
+                locked={snapshot.conflict || snapshot.busy}
               />
-            </fieldset>
+            ) : (
+              <fieldset
+                className="board-fieldset"
+                disabled={snapshot.conflict || snapshot.busy}
+              >
+                <Board
+                  key={campaign.id + screen.id}
+                  screen={screen}
+                  tools={campaign.tools}
+                  configure={setConfigureId}
+                  arranging={arranging}
+                  renderTool={(widget) =>
+                    renderTool(
+                      campaign.tools.find((tool) => tool.id === widget.toolId)!,
+                    )
+                  }
+                  addAt={openAdd}
+                  place={(id, rect) =>
+                    changeLayout((c) =>
+                      canPlace(c, rect, id)
+                        ? {
+                            ...c,
+                            widgets: c.widgets.map((w) =>
+                              w.id === id
+                                ? {
+                                    ...w,
+                                    ...rect,
+                                    id: w.id,
+                                    toolId: w.toolId,
+                                    kind: w.kind,
+                                  }
+                                : w,
+                            ),
+                          }
+                        : c,
+                    )
+                  }
+                  remove={(id) => {
+                    changeLayout((c) => ({
+                      ...c,
+                      widgets: c.widgets.filter((w) => w.id !== id),
+                    }));
+                    setNotice(
+                      "Widget removed from the screen. Click an empty cell, then Saved tools, to restore it.",
+                    );
+                  }}
+                />
+              </fieldset>
+            )}
           </div>
           <WorkspaceStatus offlineReady={offlineReady} arranging={arranging} />
         </main>

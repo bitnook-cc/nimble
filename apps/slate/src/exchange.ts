@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { mapDocumentTargets } from "./document-markdown";
+import { readReference } from "./references";
 import { parseTableImport } from "./utilities";
 import {
   tableDefinition,
@@ -14,7 +16,6 @@ import {
   recordSchema,
   packSchema,
   packTarget,
-  referenceHref,
   referenceMarkdown,
   type ContentRecord,
   type ContentPack,
@@ -700,17 +701,7 @@ export function applyExchange(
     let copy = structuredClone(record);
     if (mode === "copy") {
       copy.id = remap.get(record.id)!;
-      copy.body = copy.body.replace(
-        /slate:([^\s)]+)/g,
-        (whole, token: string) => {
-          try {
-            const target = decodeURIComponent(token);
-            return "slate:" + encodeURIComponent(targetRemap(target));
-          } catch {
-            return whole;
-          }
-        },
-      );
+      copy.body = mapDocumentTargets(copy.body, targetRemap);
       copy.related = copy.related.map(targetRemap);
       if (copy.kind === "item" && typeof copy.fields.moreInfo === "string")
         copy.fields.moreInfo = copy.fields.moreInfo.replace(
@@ -781,14 +772,7 @@ export function exportRecords(
       if (!record) return target;
       return packTarget(identity, record.id) + (anchor ? "#" + anchor : "");
     };
-    const mapBody = (body: string) =>
-      body.replace(/slate:([^\s)]+)/g, (whole, encoded: string) => {
-        try {
-          return referenceHref(mapTarget(decodeURIComponent(encoded)));
-        } catch {
-          return whole;
-        }
-      });
+    const mapBody = (body: string) => mapDocumentTargets(body, mapTarget);
     const portable = records.map((record) => {
       const definition = tableDefinition(record);
       if (definition)
@@ -965,7 +949,9 @@ export function exportRecords(
       (whole, label: string, encoded: string) => {
         let target: string;
         try {
-          target = decodeURIComponent(encoded);
+          target =
+            readReference(`slate:${encoded}`)?.target ??
+            decodeURIComponent(encoded);
         } catch {
           return whole;
         }

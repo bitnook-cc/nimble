@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { mapDocumentTargets } from "./document-markdown";
+export { referenceHref, referenceMarkdown, readTarget } from "./references";
 import { generatorDefinitionSchema } from "@nimble/generators";
 import { itemFieldsSchema } from "./item-schema";
 import { encounterFieldsSchema } from "./encounter-schema";
@@ -166,23 +168,11 @@ export const packTarget = (
   pack: Pick<ContentPack, "id" | "version">,
   id: string,
 ) => `${packKey(pack)}::${id}`;
-export const referenceHref = (target: string) =>
-  `slate:${encodeURIComponent(target)}`;
-export const referenceMarkdown = (title: string, target: string) =>
-  `[${title.replace(/[\\[\]]/g, "\\$&")}](${referenceHref(target)})`;
-export function readTarget(href: string) {
-  try {
-    return href.startsWith("slate:") ? decodeURIComponent(href.slice(6)) : null;
-  } catch {
-    return null;
-  }
-}
 export function remapReferences(body: string, remap: (id: string) => string) {
-  return body.replace(/slate:([^\s)]+)/g, (original, encoded: string) => {
-    const target = readTarget(`slate:${encoded}`);
-    if (!target?.startsWith("local::")) return original;
+  return mapDocumentTargets(body, (target) => {
+    if (!target.startsWith("local::")) return target;
     const [id, anchor] = target.slice(7).split("#");
-    return referenceHref(`local::${remap(id)}${anchor ? "#" + anchor : ""}`);
+    return `local::${remap(id)}${anchor ? "#" + anchor : ""}`;
   });
 }
 export function mergePacks(existing: ContentPack[], incoming: ContentPack[]) {

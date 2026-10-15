@@ -130,7 +130,7 @@ it("migrates a genuine schema 3 state and ZIP without changing existing views or
     campaigns: [oldC],
   });
   const next = migrateApp(old);
-  expect(next.version).toBe(18);
+  expect(next.version).toBe(19);
   expect(next.campaigns[0].screens).toEqual(c.screens);
   expect(next.packs).toHaveLength(3);
   const bytes = strToU8(JSON.stringify(oldC));
@@ -309,12 +309,12 @@ it("all bundled links point to installed records and images remain packaged", ()
       expect(resolveEntry(all, target), `${r.title}: ${target}`).toBeDefined();
     }
   expect(Object.keys(starterPack.assets)).toHaveLength(6);
-  expect(appSchema.parse(newApp()).version).toBe(18);
+  expect(appSchema.parse(newApp()).version).toBe(19);
 });
 it("current backups identify their content dependency checksum", async () => {
   const c = newApp().campaigns[0],
     files = unzipSync(await encodeBackup({ campaign: c, assets: [] }));
   const manifest = JSON.parse(strFromU8(files["manifest.json"]));
-  expect(manifest.schemaVersion).toBe(18);
+  expect(manifest.schemaVersion).toBe(19);
   expect(manifest.packsSha256).toBe(await digest(files["packs.json"]));
 });

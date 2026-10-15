@@ -81,7 +81,7 @@ it("stores, copies and exports complete NPCs and shared widget references", asyn
   expect((await decodeBackup(bytes)).campaign.tools).toEqual(campaign.tools);
   expect(
     JSON.parse(strFromU8(unzipSync(bytes)["manifest.json"])).schemaVersion,
-  ).toBe(18);
+  ).toBe(19);
   expect(npcNote(tool.current!)).toMatchObject({
     kind: "note",
     title: tool.current!.name,
@@ -113,7 +113,7 @@ it("upgrades schema 4 storage and backups without losing packs, views, or recove
   const repo = await Repository.open(name);
   repos.push(repo);
   const upgraded = await repo.load();
-  expect(upgraded.version).toBe(18);
+  expect(upgraded.version).toBe(19);
   expect(upgraded.packs).toEqual(old.packs);
   expect(upgraded.campaigns).toEqual(old.campaigns);
   expect(upgraded.revision).toBe(1);

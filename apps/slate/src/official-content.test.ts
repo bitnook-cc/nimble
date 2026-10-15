@@ -471,7 +471,7 @@ it("persists the browser upgrade once and retains the original version in a reco
   const repo = await Repository.open(name);
   try {
     const upgraded: AppData = await repo.load();
-    expect(upgraded.version).toBe(18);
+    expect(upgraded.version).toBe(19);
     expect(upgraded.packs).toHaveLength(3);
     expect(entries(upgraded.campaigns[0], upgraded.packs)).toHaveLength(546); // Bundled entries, edited rule and note.
     const points = await repo.recoveryPoints();

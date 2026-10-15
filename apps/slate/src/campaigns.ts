@@ -67,6 +67,19 @@ export function copyCampaign(
           .map((part, i) => (i === 0 ? localRemap(part) : part))
           .join("#")
       : target;
+  for (const screen of copy.screens)
+    if (screen.world)
+      screen.world = {
+        selectedNoteId: screen.world.selectedNoteId
+          ? localRemap(screen.world.selectedNoteId)
+          : null,
+        positions: Object.fromEntries(
+          Object.entries(screen.world.positions).map(([target, point]) => [
+            targetRemap(target),
+            point,
+          ]),
+        ),
+      };
   copy.itemFavourites = copy.itemFavourites.map(targetRemap);
   copy.content = copy.content.map((r) => ({
     ...r,

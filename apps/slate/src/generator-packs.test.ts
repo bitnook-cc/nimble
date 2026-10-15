@@ -202,7 +202,7 @@ it("upgrades schema 7 transactionally once, preserving NPCs and disabled pack ch
   const repo = await Repository.open(name);
   repos.push(repo);
   const migrated = await repo.load();
-  expect(migrated.version).toBe(18);
+  expect(migrated.version).toBe(19);
   expect(migrated.revision).toBe(1);
   expect(migrated.campaigns).toEqual(previous.campaigns);
   expect(migrated.packs).toEqual(previous.packs);

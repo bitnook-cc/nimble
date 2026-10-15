@@ -169,7 +169,7 @@ it("upgrades genuine schema 6 storage once while preserving the original recover
   const repo = await Repository.open(name);
   try {
     const migrated = await repo.load();
-    expect(migrated.version).toBe(18);
+    expect(migrated.version).toBe(19);
     expect(migrated.campaigns[0].tools).toEqual(old.campaigns[0].tools);
     expect(migrated.campaigns[0].packRefs).toContain(packKey(gmgPack));
     expect(migrated.packs).toHaveLength(3);

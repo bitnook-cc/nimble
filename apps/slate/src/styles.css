@@ -365,6 +365,268 @@ main#main > .screen-panel,
   width: 100%;
   overflow: clip;
 }
+.world-editor {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.world-toolbar,
+.world-pane-switch,
+.world-graph-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.world-toolbar > .hint {
+  margin-left: auto;
+}
+.world-pane-switch {
+  display: none;
+}
+.world-columns {
+  display: grid;
+  grid-template-columns: 200px minmax(290px, 1fr) minmax(300px, 1fr);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.world-notes,
+.world-document,
+.world-graph {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.world-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+.world-notes input,
+.world-notes select,
+.world-graph-controls select {
+  min-width: 0;
+  width: 100%;
+}
+.world-note-results {
+  overflow: auto;
+  min-height: 0;
+}
+.world-note-results button {
+  text-align: left;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 3px;
+  border-radius: 6px;
+}
+.world-note-results button.selected {
+  background: var(--soft);
+  color: var(--accent);
+}
+.world-note-results small {
+  color: var(--muted);
+}
+.world-document {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+}
+.world-document > .content-actions {
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.world-document h2 {
+  margin: 0;
+  font-size: 18px;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.world-metadata,
+.world-relationships {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+  flex-shrink: 0;
+}
+.world-metadata {
+  max-height: 230px;
+  overflow: auto;
+}
+.world-metadata summary,
+.world-relationships summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 5px 0;
+}
+.world-metadata label {
+  margin: 8px 0;
+}
+.world-relationship-list {
+  max-height: 140px;
+  overflow: auto;
+}
+.world-relationship-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(50px, 1fr) 28px 28px;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  border-top: 1px solid var(--line);
+  padding: 3px 0;
+}
+.world-relationship-row .reference-link {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.world-relationship-row small {
+  display: block;
+  opacity: 0.75;
+  font-size: 10px;
+}
+.world-text {
+  flex: 1;
+  min-height: 100px;
+  resize: none;
+  width: 100%;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+.world-read {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.world-selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.world-selection > span {
+  width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.world-selection label {
+  margin: 0;
+  flex: 1 1 150px;
+  font-size: 11px;
+}
+.world-empty {
+  margin: auto;
+  max-width: 350px;
+  padding: 20px;
+  text-align: center;
+}
+.world-graph {
+  display: flex;
+  flex-direction: column;
+}
+.world-graph-controls {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.world-graph-controls select {
+  flex: 1 1 140px;
+  width: auto;
+}
+.world-graph-canvas {
+  flex: 1;
+  min-height: 120px;
+  width: 100%;
+  touch-action: none;
+  background-image: radial-gradient(var(--line) 0.8px, transparent 0.8px);
+  background-size: 18px 18px;
+}
+.world-edge path {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  opacity: 0.6;
+}
+.world-node {
+  cursor: grab;
+}
+.world-node rect {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.world-node.selected rect,
+.world-node:focus rect {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.world-node.missing rect {
+  stroke-dasharray: 5 4;
+}
+.world-node text {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  pointer-events: none;
+}
+.world-node .node-kind {
+  fill: var(--muted);
+  font-size: 10px;
+}
+.world-graph-hint {
+  margin: 0;
+  padding: 7px 10px;
+  font-size: 10px;
+}
+@media (max-width: 1000px) {
+  .world-columns {
+    display: flex;
+  }
+  .world-columns > * {
+    flex: 1;
+  }
+  .world-pane-switch {
+    display: flex;
+  }
+  .world-pane-switch [aria-pressed="true"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .world-pane-notes > :not(.world-notes),
+  .world-pane-write > :not(.world-document),
+  .world-pane-graph > :not(.world-graph) {
+    display: none;
+  }
+  .world-toolbar > .hint {
+    display: none;
+  }
+  .world-toolbar > button {
+    font-size: 11px;
+    padding: 7px;
+  }
+  .world-document {
+    padding: 8px;
+  }
+  .world-selection {
+    max-height: 180px;
+    overflow: auto;
+  }
+}
 .board {
   height: 100%;
   width: 100%;

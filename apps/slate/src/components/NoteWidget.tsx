@@ -3,6 +3,7 @@ import type { NoteTool } from "../model";
 import { searchContent, contentKind } from "../content";
 import { referenceMarkdown } from "../content-schema";
 import { updateNote } from "../notes";
+import { mentionParts } from "../references";
 import { useContent } from "./ContentWorkspace";
 import { Markdown } from "./Markdown";
 
@@ -87,7 +88,7 @@ export function NoteWidget({ tool }: { tool: NoteTool }) {
   const matches = mention
     ? searchContent(
         all.filter((entry) => entry.target !== `local::${tool.noteId}`),
-        mention.query,
+        mentionParts(mention.query).query,
       ).slice(0, 8)
     : [];
 
@@ -177,7 +178,11 @@ export function NoteWidget({ tool }: { tool: NoteTool }) {
   function insert(index: number) {
     if (!mention || !matches[index]) return;
     const r = matches[index],
-      text = referenceMarkdown(r.title, r.target),
+      text = referenceMarkdown(
+        r.title,
+        r.target,
+        mentionParts(mention.query).tags,
+      ),
       nextBody = body.slice(0, mention.start) + text + body.slice(mention.end);
     updateBody(nextBody);
     const caret = mention.start + text.length;

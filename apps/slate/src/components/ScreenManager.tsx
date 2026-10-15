@@ -4,6 +4,7 @@ import { Modal } from "./Modal";
 import {
   builtInPresets,
   createScreen,
+  createWorldScreen,
   duplicateScreen,
   savePreset,
 } from "../screens";
@@ -22,6 +23,7 @@ export function ScreenManager({
     (s) => s.id === campaign.activeScreenId,
   )!;
   const [error, setError] = useState("");
+  const [screenType, setScreenType] = useState("grid");
   const [removing, setRemoving] = useState(false);
   const [message, setMessage] = useState("");
   function apply(fn: (c: Campaign) => Campaign, message = "") {
@@ -38,7 +40,8 @@ export function ScreenManager({
   return (
     <Modal title="Campaign screens" onClose={onClose}>
       <p className="hint">
-        Each screen has its own grid. Saved tools can appear on several screens.
+        Dashboards arrange widgets. World-editor tabs explore the campaign's
+        shared notes and relationships.
       </p>
       {error && (
         <p role="alert" className="notice error">
@@ -186,9 +189,27 @@ export function ScreenManager({
           const preset = [...builtInPresets, ...campaign.layoutPresets].find(
             (p) => p.id === fields.get("preset"),
           )!;
-          if (name && apply((c) => createScreen(c, name, preset))) onClose();
+          if (
+            name &&
+            apply((c) =>
+              screenType === "world"
+                ? createWorldScreen(c, name)
+                : createScreen(c, name, preset),
+            )
+          )
+            onClose();
         }}
       >
+        <label>
+          Tab type
+          <select
+            value={screenType}
+            onChange={(event) => setScreenType(event.target.value)}
+          >
+            <option value="grid">Dashboard</option>
+            <option value="world">World editor</option>
+          </select>
+        </label>
         <label>
           New screen name
           <input
@@ -198,16 +219,18 @@ export function ScreenManager({
             placeholder="Exploration, Combat, Town…"
           />
         </label>
-        <label>
-          Layout preset
-          <select name="preset" defaultValue="blank">
-            {[...builtInPresets, ...campaign.layoutPresets].map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {screenType === "grid" && (
+          <label>
+            Layout preset
+            <select name="preset" defaultValue="blank">
+              {[...builtInPresets, ...campaign.layoutPresets].map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <p className="hint">
           Presets create fresh tools. Duplicate a screen to reuse its existing
           tools.
@@ -216,37 +239,41 @@ export function ScreenManager({
           Create screen
         </button>
       </form>
-      <form
-        className="new-campaign-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const name = String(new FormData(e.currentTarget).get("name")).trim();
-          if (
-            name &&
-            apply(
-              (c) => savePreset(c, current.id, name),
-              "Layout preset saved without combat or roll history.",
+      {current.kind !== "world" && (
+        <form
+          className="new-campaign-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const name = String(
+              new FormData(e.currentTarget).get("name"),
+            ).trim();
+            if (
+              name &&
+              apply(
+                (c) => savePreset(c, current.id, name),
+                "Layout preset saved without combat or roll history.",
+              )
             )
-          )
-            e.currentTarget.reset();
-        }}
-      >
-        <label>
-          Save current layout as preset
-          <input
-            name="name"
-            maxLength={80}
-            required
-            placeholder="Preset name"
-          />
-        </label>
-        <button
-          className="secondary"
-          disabled={campaign.layoutPresets.length >= 20}
+              e.currentTarget.reset();
+          }}
         >
-          Save layout preset
-        </button>
-      </form>
+          <label>
+            Save current layout as preset
+            <input
+              name="name"
+              maxLength={80}
+              required
+              placeholder="Preset name"
+            />
+          </label>
+          <button
+            className="secondary"
+            disabled={campaign.layoutPresets.length >= 20}
+          >
+            Save layout preset
+          </button>
+        </form>
+      )}
       {campaign.layoutPresets.map((p) => (
         <div className="attachment-row" key={p.id}>
           <span>{p.name}</span>

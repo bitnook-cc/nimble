@@ -24,7 +24,7 @@ import {
 import { generatedNpcSchema, npcOptionsSchema } from "@nimble/generators";
 import { initiativeModeSchema, type InitiativeMode } from "./initiative";
 
-export const SCHEMA_VERSION = 18;
+export const SCHEMA_VERSION = 19;
 const id = z.string().min(1);
 const integer = z.number().int();
 export const placementSchema = z.object({
@@ -330,6 +330,19 @@ export type Layout = z.infer<typeof layoutSchema>;
 export const screenSchema = layoutSchema.safeExtend({
   id,
   name: z.string().trim().min(1).max(80),
+  kind: z.enum(["grid", "world"]).optional(),
+  world: z
+    .object({
+      selectedNoteId: id.nullable(),
+      positions: z.record(
+        z.string(),
+        z.object({
+          x: z.number().finite().min(-100000).max(100000),
+          y: z.number().finite().min(-100000).max(100000),
+        }),
+      ),
+    })
+    .optional(),
   undo: z.array(layoutSchema).max(20),
   redo: z.array(layoutSchema).max(20),
 });
@@ -408,6 +421,12 @@ export const campaignSchema = z
         ctx.addIssue({
           code: "custom",
           message: "Note widget refers to a missing note",
+        });
+    for (const screen of c.screens)
+      if (screen.kind === "world" && screen.widgets.length)
+        ctx.addIssue({
+          code: "custom",
+          message: "World-editor tabs cannot contain grid widgets",
         });
     for (const collection of [
       c.tools,

@@ -7,7 +7,6 @@ import {
   packSchema,
   recordSchema,
   mergePacks,
-  referenceHref,
   type ContentPack,
   type ContentRecord,
 } from "./content-schema";
@@ -19,6 +18,7 @@ import {
   nexusPlatform,
   isNexusSource,
 } from "./nexus-attribution";
+import { mapDocumentTargets } from "./document-markdown";
 
 export async function prepareContentImport(
   text: string,
@@ -63,13 +63,7 @@ export async function prepareContentImport(
       : value;
   };
   const body = (value: string) =>
-    value.replace(/slate:([^\s)]+)/g, (whole, encoded: string) => {
-      try {
-        return referenceHref(target(decodeURIComponent(encoded)));
-      } catch {
-        return whole;
-      }
-    });
+    mapDocumentTargets(value, target, packTarget(pack, "document"));
   const fields = (value: unknown, field = ""): unknown => {
     if (typeof value === "string")
       return body(
