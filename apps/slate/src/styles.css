@@ -456,6 +456,32 @@ main#main > .screen-panel,
   flex: 1;
   overflow-wrap: anywhere;
 }
+.world-title {
+  min-width: 100px;
+}
+.world-title-button,
+.world-title input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+.world-title-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  overflow-wrap: anywhere;
+}
+.world-title-button:hover:not(:disabled) {
+  color: var(--accent);
+  background: transparent;
+}
+.world-title input {
+  padding: 2px 4px;
+}
 .world-metadata,
 .world-relationships {
   border-bottom: 1px solid var(--line);

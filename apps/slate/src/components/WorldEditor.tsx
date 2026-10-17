@@ -5,6 +5,7 @@ import { ContentLibrary } from "./ContentLibrary";
 import { Markdown } from "./Markdown";
 import { Modal } from "./Modal";
 import { WorldGraph } from "./WorldGraph";
+import { ReferenceTextarea } from "./ReferenceTextarea";
 import { newNote, updateNote } from "../notes";
 import {
   readDocument,
@@ -93,8 +94,8 @@ export function WorldEditor({
     }
   }
   function metadata(patch: Record<string, unknown>) {
-    if (!note) return;
-    attempt((c) =>
+    if (!note) return false;
+    return attempt((c) =>
       updateNote(c, note.id, (record) => ({
         ...record,
         body: writeDocument(record.body, {
@@ -352,7 +353,12 @@ export function WorldEditor({
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <h2>{note.title}</h2>
+                <EditableNoteTitle
+                  key={note.id}
+                  title={note.title}
+                  disabled={!!document.errors.length}
+                  rename={(title) => metadata({ title })}
+                />
                 <button
                   className="quiet"
                   aria-pressed={mode === "read"}
@@ -517,9 +523,14 @@ export function WorldEditor({
                   />
                 </div>
               ) : (
-                <textarea
+                <ReferenceTextarea
                   key={note.id + mode}
-                  ref={input}
+                  editorRef={input}
+                  all={all}
+                  excludeTarget={note.target}
+                  referencesEnabled={
+                    mode === "write" && !document.errors.length
+                  }
                   className="world-text"
                   aria-label={
                     mode === "source"
@@ -535,10 +546,9 @@ export function WorldEditor({
                   onSelect={captureSelection}
                   onMouseUp={captureSelection}
                   onKeyUp={captureSelection}
-                  onChange={(event) => {
-                    const text = event.target.value;
+                  onTextChange={(text) => {
                     setSelection(null);
-                    attempt((c) =>
+                    return attempt((c) =>
                       updateNote(c, note.id, (record) => ({
                         ...record,
                         body:
@@ -556,7 +566,7 @@ export function WorldEditor({
                       })),
                     );
                   }}
-                  placeholder="Write about your world. Select a passage to expand or link it. Use @id:tag for a quick reference."
+                  placeholder="Write about your world. Type @ to find a reference, or select a passage to expand or link it."
                 />
               )}
               {selection && mode === "write" && (
@@ -778,5 +788,76 @@ export function WorldEditor({
         </Modal>
       )}
     </fieldset>
+  );
+}
+
+function EditableNoteTitle({
+  title,
+  disabled,
+  rename,
+}: {
+  title: string;
+  disabled: boolean;
+  rename: (title: string) => boolean;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(title);
+  const restoreFocus = useRef(false);
+  return (
+    <h2 className="world-title" aria-label={title}>
+      {editing ? (
+        <input
+          aria-label="Note title"
+          value={draft}
+          maxLength={160}
+          autoFocus
+          onFocus={(event) => event.currentTarget.select()}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={() => {
+            const next = draft.trim();
+            if (!next || next === title || rename(next)) {
+              setDraft(title);
+              setEditing(false);
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              restoreFocus.current = true;
+              event.currentTarget.blur();
+            } else if (event.key === "Escape") {
+              event.preventDefault();
+              event.stopPropagation();
+              restoreFocus.current = true;
+              setDraft(title);
+              setEditing(false);
+            }
+          }}
+        />
+      ) : (
+        <button
+          className="world-title-button"
+          aria-label="Edit document title"
+          title={
+            disabled
+              ? "Fix the Markdown metadata to rename this note"
+              : "Edit title"
+          }
+          disabled={disabled}
+          ref={(element) => {
+            if (element && restoreFocus.current) {
+              element.focus();
+              restoreFocus.current = false;
+            }
+          }}
+          onClick={() => {
+            setDraft(title);
+            setEditing(true);
+          }}
+        >
+          {title}
+        </button>
+      )}
+    </h2>
   );
 }

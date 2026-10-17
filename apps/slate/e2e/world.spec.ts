@@ -385,11 +385,139 @@ test("world views fit desktop and phone themes, preserve node positions, and kee
   ).toBeVisible();
 });
 
+test.describe("world reference picker", () => {
+  test.use({ hasTouch: true });
+
+  test("world @ search inserts tagged relationships and pack references with keyboard and pointer controls offline", async ({
+    page,
+    context,
+  }) => {
+    await worldTab(page);
+    await namedNote(page, "Ashen Court", "The court controls the harbour.");
+    const document = await namedNote(page, "Mara", "Serves the court.");
+    await addHeader(page, "Ashen Court", "ally");
+    const editor = document.getByRole("textbox", {
+      name: "Document text",
+      exact: true,
+    });
+    const list = document.getByRole("listbox", {
+      name: "Reference suggestions",
+      exact: true,
+    });
+    await editor.fill("Serves @Ashen Court:member-of,secret");
+    await expect(
+      list.getByRole("option", { name: /^Ashen Court note/ }),
+    ).toBeVisible();
+    await editor.press("ArrowDown");
+    await editor.press("ArrowUp");
+    await editor.press("Tab");
+    await expect(list).toHaveCount(0);
+    await expect(editor).toBeFocused();
+    await expect(editor).toHaveValue(
+      /Serves \[Ashen Court\]\(slate:local%3A%3A[^)]+\?tag=member-of&tag=secret\)/,
+    );
+    const taggedBody = await editor.inputValue();
+    await settled(page);
+    await expect(
+      document.locator("summary").filter({ hasText: /^Relationships \(2\)$/ }),
+    ).toBeVisible();
+    await expect(document).toContainText("member-of · secret");
+    await editor.fill(taggedBody + "\nFind @no-such-world-reference-123");
+    await expect(list.getByRole("status")).toHaveText("No matching content.");
+    await editor.press("Escape");
+    await expect(list).toHaveCount(0);
+    await editor.fill(taggedBody + "\nCasts @Flame Dart");
+    await list.getByRole("option", { name: /^Flame Dart spell/ }).click();
+    await expect(editor).toHaveValue(/\nCasts \[Flame Dart\]\(slate:/);
+    const withSpell = await editor.inputValue();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await editor.fill(withSpell + "\nAvoids @Goblin");
+    await expect(list).toBeVisible();
+    const bounds = (await list.boundingBox())!;
+    expect(bounds.x).toBeGreaterThanOrEqual(8);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(382);
+    expect(bounds.y).toBeGreaterThanOrEqual(8);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(836);
+    await list.getByRole("option", { name: /^Goblin monster/ }).tap();
+    await expect(editor).toHaveValue(/\nAvoids \[Goblin\]\(slate:/);
+    await saved(page);
+    await expect(
+      document.locator("summary").filter({ hasText: /^Relationships \(4\)$/ }),
+    ).toBeVisible();
+    await disconnect(context);
+    await page.reload();
+    await ready(page);
+    await expect(editor).toHaveValue(/tag=member-of&tag=secret/);
+    await expect(
+      document.locator("summary").filter({ hasText: /^Relationships \(4\)$/ }),
+    ).toBeVisible();
+    await document.getByRole("button", { name: "Read", exact: true }).click();
+    await document
+      .locator(".world-read")
+      .getByRole("button", { name: "Goblin", exact: true })
+      .click();
+    const monster = page.getByRole("dialog", { name: "Goblin", exact: true });
+    await expect(
+      monster.getByRole("heading", { name: "Actions", exact: true }),
+    ).toBeVisible();
+    await monster
+      .getByRole("button", { name: "Close dialog", exact: true })
+      .click();
+    await document
+      .locator(".world-read")
+      .getByRole("button", { name: "Ashen Court", exact: true })
+      .click();
+    await expect(
+      document.getByRole("heading", { name: "Ashen Court", exact: true }),
+    ).toBeVisible();
+    await document
+      .locator("summary")
+      .filter({ hasText: /^Referenced by \(2\)$/ })
+      .click();
+    await expect(
+      document.getByRole("button", {
+        name: "Mara · member-of, secret",
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+});
+
 test("library edits and Markdown export preserve world metadata, with accessible desktop and mobile views", async ({
   page,
 }) => {
   await worldTab(page);
   const document = await namedNote(page, "Greyhaven", "The harbour is open.");
+  const editTitle = document.getByRole("button", {
+    name: "Edit document title",
+    exact: true,
+  });
+  const title = document.getByRole("textbox", {
+    name: "Note title",
+    exact: true,
+  });
+  await editTitle.click();
+  await expect(title).toBeFocused();
+  await title.fill("Discard this rename");
+  await title.press("Escape");
+  await expect(editTitle).toBeFocused();
+  await expect(editTitle).toHaveText("Greyhaven");
+  await editTitle.click();
+  await title.fill("   ");
+  await title.press("Enter");
+  await expect(editTitle).toHaveText("Greyhaven");
+  await editTitle.click();
+  await title.fill("  Greyhaven Harbour  ");
+  await title.press("Enter");
+  await expect(editTitle).toBeFocused();
+  await expect(editTitle).toHaveText("Greyhaven Harbour");
+  await editTitle.click();
+  await title.fill("Greyhaven Docks");
+  await document.getByRole("button", { name: "Read", exact: true }).click();
+  await expect(editTitle).toHaveText("Greyhaven Docks");
+  await expect(
+    page.getByRole("button", { name: "Open Greyhaven Docks", exact: true }),
+  ).toBeVisible();
   await page
     .getByRole("button", { name: "Campaign library", exact: true })
     .click();
@@ -401,9 +529,12 @@ test("library edits and Markdown export preserve world metadata, with accessible
     .getByRole("searchbox", { name: "Search content", exact: true })
     .fill("Greyhaven");
   await library
-    .getByRole("button", { name: "Edit Greyhaven", exact: true })
+    .getByRole("button", { name: "Edit Greyhaven Docks", exact: true })
     .click();
-  const preview = page.getByRole("dialog", { name: "Greyhaven", exact: true });
+  const preview = page.getByRole("dialog", {
+    name: "Greyhaven Docks",
+    exact: true,
+  });
   await preview
     .getByLabel("Content title", { exact: true })
     .fill("Greyhaven Port");
@@ -454,4 +585,18 @@ test("library edits and Markdown export preserve world metadata, with accessible
         .analyze()
     ).violations,
   ).toEqual([]);
+  await disconnect(page.context());
+  await page.reload();
+  await ready(page);
+  await page.getByRole("button", { name: "Write", exact: true }).click();
+  await expect(editTitle).toHaveText("Greyhaven Port");
+  await document
+    .getByRole("button", { name: "Markdown source", exact: true })
+    .click();
+  await expect(
+    document.getByRole("textbox", {
+      name: "Document Markdown source",
+      exact: true,
+    }),
+  ).toHaveValue(/title: Greyhaven Port/);
 });

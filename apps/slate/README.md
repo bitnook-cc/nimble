@@ -24,6 +24,8 @@ npm run preview -w @nimble/slate
 
 The build produces static files in `apps/slate/dist`. Serve that directory over HTTPS or localhost. The development server does not install a service worker. Wait for **Ready for offline play** in the production preview before disconnecting. A web installation needs one successful online load; packaged native builds use bundled assets.
 
+Deployed web builds include Vercel Web Analytics. Enable **Web Analytics** for the Slate project in Vercel before deploying. Analytics is disabled in development, localhost previews and packaged native apps.
+
 ## This first version
 
 - A default local campaign, creation, renaming, switching, duplication, archive/restore, and confirmed permanent deletion.
@@ -111,6 +113,8 @@ Notes are standalone campaign content (`kind: "note"`), with their own permanent
 ## World editor tabs
 
 Open **Manage screens**, choose **Tab type → World editor**, name the tab, and create it. World tabs share the campaign's notes and content with dashboards. Use the note list, category filter, document editor and focused graph; on smaller screens, **Notes / Write / Graph** switch between panels. Selecting text offers **Expand selection** to create a linked note atomically or **Link selected text** to choose existing campaign or pack content. Tags on those connections are free-form comma-separated strings. The graph groups connections visually while preserving every separate declaration; drag nodes to arrange them, drag the background to pan, and use the wheel or zoom controls to zoom. Node positions and the selected note belong to each tab. Pack records open their normal reference previews.
+
+In **Write** mode, type **@** to search campaign notes and enabled content packs by name. Use ↑/↓ and Enter/Tab to choose a result, click or tap a result, and press Escape or click elsewhere to dismiss. Add relationship tags after a colon, for example `@Ashen Court:member-of,secret`; the chosen reference updates the relationships list, backlinks and graph automatically. The same picker is shared with notes widgets and works offline.
 
 **Document metadata** edits title, category and tags in the note's Markdown YAML frontmatter. **Relationships** merges separate entries from the header with inline references, indicating **Header** or **In text** for each occurrence. Header entries contain only a `target` and optional string `tags`, with no relationship IDs. Several entries may point to the same target with different tags. Use **Add relationship**, the pen icon to change tags, or the bin icon to remove one declaration; unlinking an inline reference keeps its text and leaves header relationships intact. **Markdown source** edits the full authoritative document, including the header. Existing untagged `slate:` links remain valid. The picker writes tagged links such as `[Court](slate:local%3A%3Acourt?tag=member-of&tag=secret)`; compact `@court:member-of,secret` references also work. Code blocks, inline code, escaped mentions and email addresses are not indexed as references. Relative targets in packs resolve within that pack version.
 
