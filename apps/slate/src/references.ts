@@ -8,7 +8,7 @@ export function referenceHref(target: string, tags: string[] = []) {
     /[!'()*]/g,
     (value) => "%" + value.charCodeAt(0).toString(16).toUpperCase(),
   );
-  return `slate:${encoded}${query.size ? "?" + query : ""}`;
+  return `slate:${encoded.replaceAll("%3A", ":")}${query.size ? "?" + query : ""}`;
 }
 export function referenceMarkdown(
   title: string,

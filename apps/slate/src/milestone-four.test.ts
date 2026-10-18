@@ -311,7 +311,7 @@ it("imports independent copies with consistent encounter and Markdown references
   const withLink = monster("guard", { description: "Carries @item:sword" });
   const preview = parseExchange(doc([encounter, withLink, item]));
   expect(preview.records.find((r) => r.kind === "monster")!.body).toContain(
-    "slate:local%3A%3Anexus%2Fitems%2Fsword",
+    "slate:local::nexus%2Fitems%2Fsword",
   );
   let campaign = applyExchange(
     newApp().campaigns[0],

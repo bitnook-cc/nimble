@@ -203,7 +203,7 @@ it("content packs preserve definitions, nested targets and reference Markdown wi
   const result = rollContentTable(all[0], all, undefined, () => 1);
   expect(result.steps).toHaveLength(2);
   expect(result.steps[0].body).toContain(
-    encodeURIComponent(`${packKey(pack)}::b`),
+    encodeURIComponent(`${packKey(pack)}::b`).replaceAll("%3A", ":"),
   );
   expect(campaign.tools.some((tool) => tool.kind === "table")).toBe(false);
   expect(result.steps[1].tableId).toBe(`${packKey(pack)}::b`);

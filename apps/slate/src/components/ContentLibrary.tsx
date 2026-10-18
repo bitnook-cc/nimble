@@ -12,7 +12,7 @@ import {
 } from "../content-import";
 import { applyExchange, type ImportPreview } from "../exchange";
 import { useMemo, useRef, useState } from "react";
-import { PenLine, Trash2, Pin, ArrowDownUp } from "lucide-react";
+import { PenLine, Trash2, Pin, ArrowDownUp, ArrowUp } from "lucide-react";
 import { Modal } from "./Modal";
 import { useContent } from "./ContentWorkspace";
 import { searchContent, contentKind, type Entry } from "../content";
@@ -507,80 +507,105 @@ export function ContentLibrary({
                   ?.scrollIntoView({ block: "start", behavior: "smooth" }),
               );
             }}
+            renderInstalled={({
+              upgrades,
+              download: previewUpgrade,
+              disabled,
+              downloading,
+            }) => (
+              <>
+                <h3>Installed packs</h3>
+                {packs.map((p) => {
+                  const upgrade = upgrades.get(packKey(p));
+                  return (
+                    <article className="pack-row" key={packKey(p)}>
+                      <strong>{p.name}</strong>
+                      <p className="hint">
+                        {p.records.length} records · version{" "}
+                        {p.version.slice(0, 12)} ·{" "}
+                        {campaign.packRefs.includes(packKey(p))
+                          ? "Enabled for this campaign"
+                          : "Installed on this device"}
+                      </p>
+                      <div className="content-actions">
+                        {upgrade && (
+                          <button
+                            className="secondary"
+                            disabled={disabled}
+                            onClick={() => void previewUpgrade(upgrade)}
+                          >
+                            <ArrowUp size={16} aria-hidden="true" />
+                            {downloading === packKey(upgrade)
+                              ? "Downloading…"
+                              : `Upgrade to ${upgrade.version}`}
+                          </button>
+                        )}
+                        {!campaign.packRefs.includes(packKey(p)) && (
+                          <button
+                            className="secondary"
+                            onClick={() =>
+                              update((c) => ({
+                                ...c,
+                                packRefs: [...c.packRefs, packKey(p)],
+                              }))
+                            }
+                          >
+                            Enable pack
+                          </button>
+                        )}
+                        {campaign.packRefs.includes(packKey(p)) && (
+                          <button
+                            className="secondary"
+                            onClick={() => {
+                              if (source === packKey(p)) {
+                                setSource("all");
+                                setCategory("all");
+                                setLimit(40);
+                              }
+                              update((c) => ({
+                                ...c,
+                                packRefs: c.packRefs.filter(
+                                  (ref) => ref !== packKey(p),
+                                ),
+                              }));
+                            }}
+                          >
+                            Disable pack
+                          </button>
+                        )}
+                        <button
+                          className="quiet"
+                          onClick={() =>
+                            download(
+                              new Blob([JSON.stringify(p, null, 2)], {
+                                type: "application/json",
+                              }),
+                              `${p.id}-${p.version.slice(0, 12)}.slate-content.json`,
+                            )
+                          }
+                        >
+                          Export pack
+                        </button>
+                      </div>
+                      <details>
+                        <summary>Attribution</summary>
+                        <p>{p.source.license}</p>
+                        {p.source.url && (
+                          <a
+                            href={p.source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Source revision
+                          </a>
+                        )}
+                      </details>
+                    </article>
+                  );
+                })}
+              </>
+            )}
           />
-          <h3>Installed packs</h3>
-          {packs.map((p) => (
-            <article className="pack-row" key={packKey(p)}>
-              <strong>{p.name}</strong>
-              <p className="hint">
-                {p.records.length} records · version {p.version.slice(0, 12)} ·{" "}
-                {campaign.packRefs.includes(packKey(p))
-                  ? "Enabled for this campaign"
-                  : "Installed on this device"}
-              </p>
-              <div className="content-actions">
-                {!campaign.packRefs.includes(packKey(p)) && (
-                  <button
-                    className="secondary"
-                    onClick={() =>
-                      update((c) => ({
-                        ...c,
-                        packRefs: [...c.packRefs, packKey(p)],
-                      }))
-                    }
-                  >
-                    Enable pack
-                  </button>
-                )}
-                {campaign.packRefs.includes(packKey(p)) && (
-                  <button
-                    className="secondary"
-                    onClick={() => {
-                      if (source === packKey(p)) {
-                        setSource("all");
-                        setCategory("all");
-                        setLimit(40);
-                      }
-                      update((c) => ({
-                        ...c,
-                        packRefs: c.packRefs.filter(
-                          (ref) => ref !== packKey(p),
-                        ),
-                      }));
-                    }}
-                  >
-                    Disable pack
-                  </button>
-                )}
-                <button
-                  className="quiet"
-                  onClick={() =>
-                    download(
-                      new Blob([JSON.stringify(p, null, 2)], {
-                        type: "application/json",
-                      }),
-                      `${p.id}-${p.version.slice(0, 12)}.slate-content.json`,
-                    )
-                  }
-                >
-                  Export pack
-                </button>
-              </div>
-              <details>
-                <summary>Attribution</summary>
-                <p>{p.source.license}</p>
-                {p.source.url && (
-                  <a
-                    href={p.source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Source revision
-                  </a>
-                )}
-              </details>
-            </article>
-          ))}
           <label>
             Import content pack
             <FileInput

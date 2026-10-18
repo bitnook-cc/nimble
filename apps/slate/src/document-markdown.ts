@@ -296,6 +296,13 @@ export function updateReferenceTags(
   reference: RelationshipReference,
   tags: string[],
 ) {
+  return updateDocumentReference(markdown, reference, { tags });
+}
+export function updateDocumentReference(
+  markdown: string,
+  reference: RelationshipReference,
+  patch: { target?: string; label?: string; tags?: string[] },
+) {
   // Reuse the same stale-occurrence check as unlinking before touching source.
   removeDocumentReference(markdown, reference);
   if (reference.origin === "header") {
@@ -303,16 +310,23 @@ export function updateReferenceTags(
     return writeDocument(markdown, {
       relationships: doc.relationships.map((row, index) =>
         index === reference.index
-          ? { ...row, tags: normalizeRelationshipTags(tags) }
+          ? {
+              target: patch.target ?? row.target,
+              tags: normalizeRelationshipTags(patch.tags ?? row.tags),
+            }
           : row,
       ),
     });
   }
   const original = markdown.slice(reference.start, reference.end);
+  const target = patch.target ?? reference.target;
+  const tags = patch.tags ?? reference.tags;
   const replacement =
-    reference.href && original.includes(reference.href)
-      ? original.replace(reference.href, referenceHref(reference.target, tags))
-      : referenceMarkdown(reference.label, reference.target, tags);
+    patch.label === undefined &&
+    reference.href &&
+    original.includes(reference.href)
+      ? original.replace(reference.href, referenceHref(target, tags))
+      : referenceMarkdown(patch.label ?? reference.label, target, tags);
   return (
     markdown.slice(0, reference.start) +
     replacement +

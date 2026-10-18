@@ -254,7 +254,10 @@ it("preserves complete character progression, choice lists, parent links and eve
       expect(parent.kind).toBe("class");
       expect(parent.related).toContain(record.id);
       expect(record.body).toContain(
-        referenceMarkdown(parent.title, packTarget(starterPack, parent.id)),
+        referenceMarkdown(
+          parent.title,
+          packTarget(starterPack, parent.id),
+        ).replaceAll("::", "%3A%3A"),
       );
     }
   }

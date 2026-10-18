@@ -215,7 +215,10 @@ it("restores non-bundled pack dependencies and custom links into a fresh campaig
   )!;
   const body = campaign.content.find((r) => r.kind === "note")!;
   expect(body.body).toContain(
-    encodeURIComponent("local::" + campaign.content[0].id),
+    encodeURIComponent("local::" + campaign.content[0].id).replaceAll(
+      "%3A",
+      ":",
+    ),
   );
   expect(restored.packs.some((p) => p.id === "test")).toBe(true);
   expect((await r.bundle(campaign.id, restored.revision)).packs).toHaveLength(

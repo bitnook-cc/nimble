@@ -8,6 +8,7 @@ import {
   mapDocumentTargets,
   removeDocumentReference,
   markdownForDisplay,
+  updateDocumentReference,
 } from "./document-markdown";
 import { referenceMarkdown, referenceHref, readReference } from "./references";
 import { RelationshipCache } from "./relationship-cache";
@@ -84,9 +85,36 @@ it("parses Markdown links and definitions while ignoring code, HTML, images, esc
   expect(body.slice(refs.at(-1)!.start, refs.at(-1)!.end)).toBe("@real:tag");
   expect(refs[0].tags).toEqual(["some free-form tag", "secret"]);
   expect(markdownForDisplay(body)).toContain(
-    "[real](slate:local%3A%3Areal?tag=tag)",
+    "[real](slate:local::real?tag=tag)",
   );
   expect(markdownForDisplay(body)).toContain("`@ignored:tag`");
+});
+
+it("writes readable reference colons, accepts existing encoded links, and edits one declaration safely", () => {
+  expect(referenceHref("local::mara")).toBe("slate:local::mara");
+  expect(readReference("slate:local%3A%3Amara")).toEqual({
+    target: "local::mara",
+    tags: [],
+  });
+  const target = "pack@1::a path(with parentheses)?#section";
+  expect(readReference(referenceHref(target))?.target).toBe(target);
+  expect(referenceHref(target)).not.toContain(" ");
+  const legacy = writeDocument(
+    "Visit [the Court](slate:local%3A%3Acourt?tag=secret).",
+    { relationships: [{ target: "court", tags: ["ally"] }] },
+  );
+  const reference = documentReferences(legacy, source).references[1];
+  const changed = updateDocumentReference(legacy, reference, {
+    target: "local::harbour",
+    label: "the docks",
+  });
+  expect(changed).toContain("[the docks](slate:local::harbour?tag=secret)");
+  expect(readDocument(changed).relationships).toEqual([
+    { target: "court", tags: ["ally"] },
+  ]);
+  expect(() =>
+    updateDocumentReference("Changed\n" + legacy, reference, { label: "Oops" }),
+  ).toThrow("references changed");
 });
 
 it("preserves free-form tags, anchors and unknown metadata through remapping and safe unlinking", () => {

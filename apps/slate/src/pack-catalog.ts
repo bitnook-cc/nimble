@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parsePack, type ContentPack } from "./content-schema";
+import { parsePack, packKey, type ContentPack } from "./content-schema";
 import { digest } from "./backup";
 import { Capacitor } from "@capacitor/core";
 
@@ -43,6 +43,70 @@ export const catalogSchema = z
       ctx.addIssue({ code: "custom", message: "Duplicate catalog versions" });
   });
 export type CatalogPack = z.infer<typeof catalogSchema>["packs"][number];
+
+// Pack versions can also be opaque revision IDs. Only comparable numeric
+// releases (including the SRD's four-part versions) imply an upgrade.
+export function comparePackVersions(
+  left: string,
+  right: string,
+): number | null {
+  if (left === right) return 0;
+  const parse = (value: string) =>
+    /^v?(\d+(?:\.\d+)*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.exec(value);
+  const a = parse(left),
+    b = parse(right);
+  if (!a || !b) return null;
+  const numbers = (x: string, y: string) =>
+    BigInt(x) > BigInt(y) ? 1 : BigInt(x) < BigInt(y) ? -1 : 0;
+  const av = a[1].split("."),
+    bv = b[1].split(".");
+  for (let index = 0; index < Math.max(av.length, bv.length); index++) {
+    const result = numbers(av[index] ?? "0", bv[index] ?? "0");
+    if (result) return result;
+  }
+  if (!a[2] || !b[2]) return a[2] ? -1 : b[2] ? 1 : 0;
+  const ap = a[2].split("."),
+    bp = b[2].split(".");
+  for (let index = 0; index < Math.max(ap.length, bp.length); index++) {
+    const x = ap[index],
+      y = bp[index];
+    if (x === undefined) return -1;
+    if (y === undefined) return 1;
+    if (x === y) continue;
+    const xn = /^\d+$/.test(x),
+      yn = /^\d+$/.test(y);
+    if (xn && yn) {
+      const result = numbers(x, y);
+      if (result) return result;
+    } else return xn !== yn ? (xn ? -1 : 1) : x > y ? 1 : -1;
+  }
+  return 0;
+}
+
+export function catalogUpgrades(
+  catalog: CatalogPack[],
+  installed: Pick<ContentPack, "id" | "version">[],
+) {
+  const upgrades = new Map<string, CatalogPack>();
+  for (const entry of catalog) {
+    const family = installed.filter((pack) => pack.id === entry.id);
+    if (
+      !family.length ||
+      !family.every(
+        (pack) => comparePackVersions(entry.version, pack.version) === 1,
+      )
+    )
+      continue;
+    const latest = family.reduce((a, b) =>
+      comparePackVersions(a.version, b.version) === -1 ? b : a,
+    );
+    const current = upgrades.get(packKey(latest));
+    if (!current || comparePackVersions(entry.version, current.version) === 1)
+      upgrades.set(packKey(latest), entry);
+  }
+  return upgrades;
+}
+
 function safeURL(input: string, base?: string) {
   const url = new URL(input, base);
   if (

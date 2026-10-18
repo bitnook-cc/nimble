@@ -204,9 +204,11 @@ test("the optional SRD downloads only by choice, previews without writes, and in
   await expect(monster).toContainText("Legendary Actions");
 });
 
-test("first-version SRD packs keep their references and show monsters under the correct type, including editable campaign copies", async ({
+test("older SRD versions stay installed and upgrade through preview without breaking saved references or campaign copies", async ({
   page,
+  context,
 }) => {
+  test.setTimeout(60_000);
   const library = await packs(page);
   await library
     .getByLabel("Import content pack", { exact: true })
@@ -223,6 +225,35 @@ test("first-version SRD packs keep their references and show monsters under the 
     .getByRole("button", { name: "Install content pack", exact: true })
     .click();
   await expect(preview).toHaveCount(0);
+  const available = library.getByRole("region", {
+    name: "Available content packs",
+    exact: true,
+  });
+  await expect(available).not.toContainText(name);
+  await expect(available).toContainText(
+    "All listed packs are already installed.",
+  );
+  const installed = library.locator(".pack-row").filter({ hasText: name });
+  await installed
+    .getByRole("button", { name: "Disable pack", exact: true })
+    .click();
+  await saved(page);
+  await page.reload();
+  await ready(page);
+  await packs(page);
+  await expect(available).toContainText(
+    "All listed packs are already installed.",
+  );
+  await expect(
+    available.getByRole("button", { name: "Preview pack", exact: true }),
+  ).toHaveCount(0);
+  await expect(installed).toContainText("version 5.2.1.1");
+  await expect(
+    installed.getByRole("button", { name: "Upgrade to 5.2.1.2", exact: true }),
+  ).toBeVisible();
+  await installed
+    .getByRole("button", { name: "Enable pack", exact: true })
+    .click();
   await library.getByRole("button", { name: "Browse", exact: true }).click();
   await library
     .getByRole("combobox", { name: "Content source", exact: true })
@@ -260,6 +291,75 @@ test("first-version SRD packs keep their references and show monsters under the 
   await expect(
     library.getByRole("button", { name: /^Campaign Aboleth monster/ }),
   ).toBeVisible();
+  await library
+    .getByRole("combobox", { name: "Content source", exact: true })
+    .selectOption("srd-5-2024@5.2.1.1");
+  await library
+    .getByRole("searchbox", { name: "Search content", exact: true })
+    .fill("Aboleth");
+  await library.getByRole("button", { name: /^Aboleth monster/ }).click();
+  await view
+    .getByRole("button", { name: "Pin to screen", exact: true })
+    .click();
+  await view.getByRole("button", { name: "Close dialog", exact: true }).click();
+  await packs(page);
+  const upgrade = installed.getByRole("button", {
+    name: "Upgrade to 5.2.1.2",
+    exact: true,
+  });
+  await upgrade.click();
+  await expect(preview).toContainText("version 5.2.1.2");
+  expect(
+    (await storedPacks(page)).filter((id) => id === "srd-5-2024"),
+  ).toHaveLength(1);
+  await preview
+    .getByRole("button", { name: "Cancel import", exact: true })
+    .click();
+  expect(
+    (await storedPacks(page)).filter((id) => id === "srd-5-2024"),
+  ).toHaveLength(1);
+  await expect(upgrade).toBeEnabled();
+  await upgrade.click();
+  await expect(preview).toContainText("version 5.2.1.2");
+  await preview
+    .getByRole("button", { name: "Install content pack", exact: true })
+    .click();
+  await expect(preview).toHaveCount(0);
+  await saved(page);
+  expect(
+    (await storedPacks(page)).filter((id) => id === "srd-5-2024"),
+  ).toHaveLength(2);
+  await expect(installed).toHaveCount(2);
+  await expect(installed.filter({ hasText: "version 5.2.1.1" })).toHaveCount(1);
+  await expect(installed.filter({ hasText: "version 5.2.1.2" })).toHaveCount(1);
+  await expect(
+    library.getByRole("button", { name: /^Upgrade to / }),
+  ).toHaveCount(0);
+  await expect(available).not.toContainText(name);
+  await library
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
+  await page.reload();
+  await ready(page);
+  await expect(
+    page.getByRole("region", { name: "Aboleth", exact: true }),
+  ).toContainText("Legendary Actions");
+  await packs(page);
+  await expect(available).toContainText(
+    "All listed packs are already installed.",
+  );
+  await expect(
+    library.getByRole("button", { name: /^Upgrade to / }),
+  ).toHaveCount(0);
+  await library
+    .getByRole("button", { name: "Close dialog", exact: true })
+    .click();
+  await disconnect(context);
+  await page.reload();
+  await ready(page);
+  await expect(
+    page.getByRole("region", { name: "Aboleth", exact: true }),
+  ).toContainText("Legendary Actions");
 });
 
 test("corrupted downloads and cancellation leave storage untouched", async ({

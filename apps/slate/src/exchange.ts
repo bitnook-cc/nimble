@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { mapDocumentTargets } from "./document-markdown";
-import { readReference } from "./references";
+import { readReference, mapReferenceLinks } from "./references";
 import { parseTableImport } from "./utilities";
 import {
   tableDefinition,
@@ -704,18 +704,9 @@ export function applyExchange(
       copy.body = mapDocumentTargets(copy.body, targetRemap);
       copy.related = copy.related.map(targetRemap);
       if (copy.kind === "item" && typeof copy.fields.moreInfo === "string")
-        copy.fields.moreInfo = copy.fields.moreInfo.replace(
-          /slate:([^\s)]+)/g,
-          (whole, token: string) => {
-            try {
-              return (
-                "slate:" +
-                encodeURIComponent(targetRemap(decodeURIComponent(token)))
-              );
-            } catch {
-              return whole;
-            }
-          },
+        copy.fields.moreInfo = mapReferenceLinks(
+          copy.fields.moreInfo,
+          targetRemap,
         );
       if (copy.kind === "encounter") {
         const fields = encounterFieldsSchema.parse(copy.fields);

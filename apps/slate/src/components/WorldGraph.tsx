@@ -1,7 +1,21 @@
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import type { Entry } from "../content";
 import type { CachedRelationship } from "../relationship-cache";
+import {
+  graphHierarchy,
+  graphEdgeEndpoints,
+  layoutGraph,
+  projectGraph,
+  type GraphMode,
+} from "../world-graph";
 
 type Point = { x: number; y: number };
 export function WorldGraph({
@@ -19,8 +33,14 @@ export function WorldGraph({
   select: (target: string) => void;
   move: (target: string, point: Point) => void;
 }) {
-  const [overview, setOverview] = useState(false),
+  const [mode, setMode] = useState<GraphMode>("focused"),
     [tag, setTag] = useState("");
+  const [expanded, setExpanded] = useState(new Set<string>());
+  const [collapsed, setCollapsed] = useState(new Set<string>());
+  const [revealed, setRevealed] = useState(new Set<string>());
+  const [groupPositions, setGroupPositions] = useState<Record<string, Point>>(
+    {},
+  );
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 });
   const [draft, setDraft] = useState<{ target: string; point: Point } | null>(
     null,
@@ -47,62 +67,122 @@ export function WorldGraph({
     observer.observe(svg.current!);
     return () => observer.disconnect();
   }, []);
-  const filtered = relationships.filter(
-    (row) =>
-      !tag ||
-      (tag === "__untagged" ? !row.tags.length : row.tags.includes(tag)),
+  const hierarchy = useMemo(
+    () => graphHierarchy(entries, relationships, selected, mode, tag),
+    [entries, relationships, selected, mode, tag],
   );
-  const targets = new Set<string>();
-  if (selected) targets.add(selected);
-  if ((overview || !selected) && !tag)
-    for (const entry of entries.filter(
-      (entry) => entry.kind === "note" && !entry.pack,
-    ))
-      targets.add(entry.target);
-  for (const row of filtered)
-    if (
-      overview ||
-      row.source === selected ||
-      row.targetDocument === selected
-    ) {
-      targets.add(row.source);
-      targets.add(row.targetDocument);
+  const overview = useMemo(
+    () => projectGraph(hierarchy, 0, new Set()),
+    [hierarchy],
+  );
+  const basePoints = useMemo(
+    () => layoutGraph(overview, selected),
+    [overview, selected],
+  );
+  const bounds = [...basePoints.values()];
+  const minX = Math.min(...bounds.map((p) => p.x), 400) - 100;
+  const maxX = Math.max(...bounds.map((p) => p.x), 400) + 100;
+  const minY = Math.min(...bounds.map((p) => p.y), 300) - 50;
+  const maxY = Math.max(...bounds.map((p) => p.y), 300) + 50;
+  const center = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  const fit = Math.min(
+    1,
+    Math.max(
+      0.2,
+      Math.min(
+        (size.width - 32) / (maxX - minX),
+        (size.height - 32) / (maxY - minY),
+      ),
+    ),
+  );
+  const zoom = view.zoom * fit;
+  const visibleRoots = new Set(
+    hierarchy.roots
+      .filter((node) => {
+        const point = groupPositions[node.id] ?? basePoints.get(node.id)!;
+        return (
+          Math.abs((point.x - center.x) * zoom + view.x) <
+            size.width / 2 + 80 &&
+          Math.abs((point.y - center.y) * zoom + view.y) < size.height / 2 + 50
+        );
+      })
+      .map((node) => node.id),
+  );
+  const detail = Math.max(
+    0,
+    Math.floor(Math.log(view.zoom) / Math.log(1.7) + 0.001),
+  );
+  const visibleRootKey = JSON.stringify([...visibleRoots].sort());
+  useEffect(() => {
+    setRevealed((previous) => {
+      if (!detail) return previous.size ? new Set() : previous;
+      const next = new Set<string>([
+        ...previous,
+        ...JSON.parse(visibleRootKey),
+      ]);
+      return next.size === previous.size ? previous : next;
+    });
+  }, [detail, visibleRootKey]);
+  // Retain a revealed branch while panning through its descendants. It can
+  // collapse again on zoom-out, explicit collapse, or a scope/filter change.
+  const zoomRoots = new Set([...visibleRoots, ...revealed]);
+  const graph = projectGraph(hierarchy, detail, expanded, collapsed, zoomRoots);
+  const savedPositions = { ...positions, ...groupPositions };
+  const points = layoutGraph(graph, selected, savedPositions);
+  if (draft) points.set(draft.target, draft.point);
+  const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
+  const openGroups = new Set(
+    graph.nodes.filter((node) => node.parent).map((node) => node.parent!),
+  );
+  function resetGroups() {
+    setExpanded(new Set());
+    setCollapsed(new Set());
+    setRevealed(new Set());
+    setGroupPositions({});
+    setView({ x: 0, y: 0, zoom: 1 });
+  }
+  function activate(id: string) {
+    const node = nodes.get(id)!;
+    if (node.target) {
+      select(node.target);
+      return;
     }
-  const visible = [...targets].slice(0, 150);
-  const points = new Map(
-    visible.map((target, index) => [
-      target,
-      draft?.target === target
-        ? draft.point
-        : (positions[target] ??
-          (target === selected
-            ? { x: 400, y: 300 }
-            : {
-                x:
-                  400 +
-                  Math.cos(index * 2.399) * (150 + Math.floor(index / 8) * 60),
-                y:
-                  300 +
-                  Math.sin(index * 2.399) * (150 + Math.floor(index / 8) * 60),
-              })),
-    ]),
-  );
-  const edges = new Map<
-    string,
-    { source: string; target: string; count: number; tags: Set<string> }
-  >();
-  for (const row of filtered) {
-    if (!points.has(row.source) || !points.has(row.targetDocument)) continue;
-    const key = JSON.stringify([row.source, row.targetDocument]);
-    const edge = edges.get(key) ?? {
-      source: row.source,
-      target: row.targetDocument,
-      count: 0,
-      tags: new Set<string>(),
-    };
-    edge.count++;
-    row.tags.forEach((value) => edge.tags.add(value));
-    edges.set(key, edge);
+    const nextExpanded = new Set([...expanded, ...openGroups]),
+      nextCollapsed = new Set(collapsed);
+    if (openGroups.has(id)) {
+      nextExpanded.delete(id);
+      nextCollapsed.add(id);
+    } else {
+      nextExpanded.add(id);
+      nextCollapsed.delete(id);
+    }
+    const nextGraph = projectGraph(
+      hierarchy,
+      0,
+      nextExpanded,
+      nextCollapsed,
+      zoomRoots,
+    );
+    const nextPoints = layoutGraph(nextGraph, selected, savedPositions);
+    const branch = [node, ...(node.children ?? [])]
+      .filter((child) => nextPoints.has(child.id))
+      .map((child) => nextPoints.get(child.id)!);
+    const left = Math.min(...branch.map((point) => point.x)) - 96;
+    const right = Math.max(...branch.map((point) => point.x)) + 96;
+    const top = Math.min(...branch.map((point) => point.y)) - 42;
+    const bottom = Math.max(...branch.map((point) => point.y)) + 42;
+    const scale = Math.min(
+      zoom,
+      (size.width - 24) / (right - left),
+      (size.height - 24) / (bottom - top),
+    );
+    setView({
+      zoom: scale / fit,
+      x: -((left + right) / 2 - center.x) * scale,
+      y: -((top + bottom) / 2 - center.y) * scale,
+    });
+    setExpanded(nextExpanded);
+    setCollapsed(nextCollapsed);
   }
   const coordinates = (event: { clientX: number; clientY: number }) => {
     const point = svg.current!.createSVGPoint();
@@ -113,15 +193,33 @@ export function WorldGraph({
   return (
     <section className="world-graph" aria-label="Relationship graph">
       <div className="world-graph-controls">
+        <label className="sr-only" htmlFor="world-graph-mode">
+          Graph view
+        </label>
+        <select
+          id="world-graph-mode"
+          value={mode}
+          onChange={(event) => {
+            setMode(event.target.value as GraphMode);
+            resetGroups();
+          }}
+        >
+          <option value="focused">Focused</option>
+          <option value="neighborhood">Neighborhood</option>
+          <option value="world">Entire world</option>
+        </select>
         <label className="sr-only" htmlFor="world-relationship-tag">
           Filter relationship tags
         </label>
         <select
           id="world-relationship-tag"
           value={tag}
-          onChange={(event) => setTag(event.target.value)}
+          onChange={(event) => {
+            setTag(event.target.value);
+            resetGroups();
+          }}
         >
-          <option value="">All relationship tags</option>
+          <option value="">All tags</option>
           <option value="__untagged">Untagged</option>
           {[...new Set(relationships.flatMap((row) => row.tags))]
             .sort()
@@ -130,17 +228,10 @@ export function WorldGraph({
             ))}
         </select>
         <button
-          className="quiet"
-          aria-pressed={overview}
-          onClick={() => setOverview(!overview)}
-        >
-          {overview ? "Focused graph" : "Whole world"}
-        </button>
-        <button
           className="icon-button"
           aria-label="Zoom graph in"
           onClick={() =>
-            setView((v) => ({ ...v, zoom: Math.min(3, v.zoom * 1.2) }))
+            setView((v) => ({ ...v, zoom: Math.min(8, v.zoom * 1.2) }))
           }
         >
           <Plus size={15} />
@@ -161,6 +252,11 @@ export function WorldGraph({
         >
           <RotateCcw size={15} />
         </button>
+        {graph.nodes.some((node) => node.members) && (
+          <button className="quiet" onClick={resetGroups}>
+            Collapse groups
+          </button>
+        )}
       </div>
       <svg
         ref={svg}
@@ -172,7 +268,7 @@ export function WorldGraph({
           setView((v) => {
             const zoom = Math.max(
               0.3,
-              Math.min(3, v.zoom * (event.deltaY < 0 ? 1.1 : 1 / 1.1)),
+              Math.min(8, v.zoom * (event.deltaY < 0 ? 1.1 : 1 / 1.1)),
             );
             return {
               zoom,
@@ -189,14 +285,14 @@ export function WorldGraph({
         }}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
-          const element = (event.target as Element).closest("[data-target]");
-          const target = element?.getAttribute("data-target") ?? undefined;
+          const element = (event.target as Element).closest("[data-node]");
+          const target = element?.getAttribute("data-node") ?? undefined;
           pointer.current = {
             id: event.pointerId,
             target,
             start: coordinates(event),
             origin: target ? points.get(target)! : { x: view.x, y: view.y },
-            zoom: view.zoom,
+            zoom,
             moved: false,
           };
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -227,12 +323,18 @@ export function WorldGraph({
             dx = point.x - p.start.x,
             dy = point.y - p.start.y;
           if (p.target) {
-            if (p.moved || Math.abs(dx) + Math.abs(dy) > 3)
-              move(p.target, {
+            if (p.moved || Math.abs(dx) + Math.abs(dy) > 3) {
+              const point = {
                 x: p.origin.x + dx / p.zoom,
                 y: p.origin.y + dy / p.zoom,
-              });
-            else select(p.target);
+              };
+              if (nodes.get(p.target)?.target) move(p.target, point);
+              else
+                setGroupPositions((previous) => ({
+                  ...previous,
+                  [p.target!]: point,
+                }));
+            } else activate(p.target);
           }
           event.currentTarget.releasePointerCapture(event.pointerId);
           setDraft(null);
@@ -256,66 +358,87 @@ export function WorldGraph({
           </marker>
         </defs>
         <g
-          transform={`translate(${view.x + size.width / 2} ${view.y + size.height / 2}) scale(${view.zoom}) translate(-400 -300)`}
+          transform={`translate(${view.x + size.width / 2} ${view.y + size.height / 2}) scale(${zoom}) translate(${-center.x} ${-center.y})`}
         >
-          {[...edges].map(([key, edge]) => {
+          {graph.edges.map((edge) => {
             const from = points.get(edge.source)!,
               to = points.get(edge.target)!;
-            const distance = Math.hypot(to.x - from.x, to.y - from.y) || 1;
-            const fraction = Math.min(0.45, 82 / distance);
+            const { start, end } = graphEdgeEndpoints(from, to);
             return (
-              <g key={key} className="world-edge">
+              <g
+                key={JSON.stringify([edge.source, edge.target])}
+                className={`world-edge ${edge.count ? "" : "collection"}`}
+              >
                 <path
-                  markerEnd={`url(#${markerId})`}
+                  markerEnd={edge.count ? `url(#${markerId})` : undefined}
                   d={
                     edge.source === edge.target
                       ? `M ${from.x - 35} ${from.y} C ${from.x - 120} ${from.y - 100}, ${from.x + 120} ${from.y - 100}, ${from.x + 35} ${from.y}`
-                      : `M ${from.x + (to.x - from.x) * fraction} ${from.y + (to.y - from.y) * fraction} L ${to.x - (to.x - from.x) * fraction} ${to.y - (to.y - from.y) * fraction}`
+                      : `M ${start.x} ${start.y} L ${end.x} ${end.y}`
                   }
                 />
-                <title>{`${edge.count} declarations · ${[...edge.tags].join(", ") || "untagged"}`}</title>
+                <title>
+                  {edge.count
+                    ? `${edge.count} declarations · ${[...edge.tags].join(", ") || "untagged"}`
+                    : "Grouped pages"}
+                </title>
               </g>
             );
           })}
-          {visible.map((target) => {
-            const entry = entries.find((entry) => entry.target === target),
-              point = points.get(target)!;
+          {graph.nodes.map((node) => {
+            const point = points.get(node.id)!;
+            const isGroup = !!node.members;
             return (
               <g
-                key={target}
-                data-target={target}
+                key={node.id}
+                data-node={node.id}
+                data-target={node.target}
+                data-group={isGroup || undefined}
                 role="button"
                 tabIndex={0}
-                aria-label={`Open ${entry?.title ?? target}`}
-                className={`world-node ${target === selected ? "selected" : ""} ${!entry ? "missing" : ""}`}
+                aria-expanded={isGroup ? openGroups.has(node.id) : undefined}
+                aria-label={
+                  isGroup
+                    ? `${openGroups.has(node.id) ? "Collapse" : "Expand"} ${node.title} (${node.members!.length} pages)`
+                    : `Open ${node.title}`
+                }
+                className={`world-node ${node.id === selected ? "selected" : ""} ${isGroup ? "group" : ""} ${node.title === "Missing reference" ? "missing" : ""}`}
                 transform={`translate(${point.x} ${point.y})`}
                 onKeyDown={(event) => {
                   if (["Enter", " "].includes(event.key)) {
                     event.preventDefault();
-                    select(target);
+                    activate(node.id);
                   }
                 }}
               >
                 <rect x={-78} y={-26} width={156} height={52} rx={9} />
                 <text textAnchor="middle" y={-2}>
-                  {(entry?.title ?? "Missing reference").slice(0, 24)}
+                  {node.title.length > 22
+                    ? `${node.title.slice(0, 21)}…`
+                    : node.title}
                 </text>
                 <text className="node-kind" textAnchor="middle" y={15}>
-                  {entry?.category.slice(0, 28) ||
-                    entry?.kind ||
-                    target.slice(0, 28)}
+                  {isGroup
+                    ? `${node.subtitle} · ${openGroups.has(node.id) ? "−" : "+"}`
+                    : node.subtitle.slice(0, 28)}
                 </text>
-                <title>{entry?.title ?? `Missing: ${target}`}</title>
+                <title>
+                  {isGroup
+                    ? `${node.title}: ${node.subtitle}. Click to ${openGroups.has(node.id) ? "collapse" : "expand"}, or zoom in to reveal pages.`
+                    : node.title}
+                </title>
               </g>
             );
           })}
         </g>
       </svg>
       <p className="hint world-graph-hint">
+        {graph.total} {graph.total === 1 ? "page" : "pages"} ·{" "}
+        {graph.nodes.filter((node) => node.target).length} shown individually.
+        {graph.nodes.some((node) => node.members) &&
+          " Click groups or zoom in to reveal pages."}{" "}
         Drag nodes to arrange; drag empty space to pan. Scroll or use +/− to
         zoom.
-        {targets.size > 150 &&
-          " Showing 150 nodes; focus a document or filter tags to narrow the graph."}
       </p>
     </section>
   );

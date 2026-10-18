@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 import { test, slateURL, disconnect } from "./browser-fixtures";
 import { ready, saved, appearance } from "./ui-fixtures";
 import type { AppData } from "../src/model";
+import type { ContentRecord } from "../src/content-schema";
+import { referenceMarkdown } from "../src/references";
 
 test.use({
   viewport: { width: 1440, height: 1000 },
@@ -12,8 +14,34 @@ test.use({
 });
 test.beforeEach(async ({ page }) => {
   await page.goto(slateURL(page));
-  await ready(page);
+  await readyWorld(page);
 });
+async function readyWorld(page: Page) {
+  // The writing surface need not display Cinzel. Explicitly load it so the
+  // existing offline font check verifies availability even when it is unused.
+  await expect(
+    page.getByRole("main", { name: "GM screen", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Ready for offline play", { exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
+  await saved(page);
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        [...document.fonts].some((face) => face.family.includes("Cinzel")),
+      ),
+    )
+    .toBe(true);
+  await page.evaluate(async () => {
+    await Promise.all(
+      [...document.fonts]
+        .filter((face) => face.family.includes("Cinzel"))
+        .map((face) => face.load()),
+    );
+  });
+  await ready(page);
+}
 async function worldTab(page: Page) {
   await page
     .getByRole("button", { name: "Manage screens", exact: true })
@@ -65,13 +93,37 @@ async function namedNote(page: Page, title: string, body: string) {
   return document;
 }
 async function selectText(editor: Locator, text: string) {
-  await editor.evaluate((element, selection) => {
-    const input = element as HTMLTextAreaElement;
-    input.focus();
-    const start = input.value.indexOf(selection);
-    input.setSelectionRange(start, start + selection.length);
+  await editor.evaluate((element, text) => {
+    element.focus();
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      const start = node.textContent!.indexOf(text);
+      if (start < 0) continue;
+      const range = document.createRange();
+      range.setStart(node, start);
+      range.setEnd(node, start + text.length);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.dispatchEvent(new Event("selectionchange"));
+      return;
+    }
+    throw new Error("Selected passage not found");
   }, text);
   await editor.dispatchEvent("mouseup");
+}
+async function markdownBody(document: Locator) {
+  await document
+    .getByRole("button", { name: "Markdown source", exact: true })
+    .click();
+  const source = await document
+    .getByRole("textbox", { name: "Document Markdown source", exact: true })
+    .inputValue();
+  await document
+    .getByRole("button", { name: "Markdown source", exact: true })
+    .click();
+  return source.slice(source.indexOf("\n---\n") + 5);
 }
 async function addHeader(page: Page, title: string, tags: string) {
   await page
@@ -215,7 +267,7 @@ test("selected text expands into linked notes, separate header relationships sur
   await expect(document.locator(".world-relationship-row")).toHaveCount(2);
   await expect(
     document.getByRole("textbox", { name: "Document text", exact: true }),
-  ).toHaveValue("Mara secretly serves the Ashen Court.");
+  ).toHaveText("Mara secretly serves the Ashen Court.");
   await expect(
     page.getByRole("button", { name: "Open Ashen Court", exact: true }),
   ).toBeVisible();
@@ -224,11 +276,11 @@ test("selected text expands into linked notes, separate header relationships sur
     .click();
   await settled(page);
   await page.reload();
-  await ready(page);
+  await readyWorld(page);
   await settled(page);
   await disconnect(context);
   await page.reload();
-  await ready(page);
+  await readyWorld(page);
   await settled(page);
   await expect(
     page
@@ -343,7 +395,7 @@ test("world views fit desktop and phone themes, preserve node positions, and kee
   await page.mouse.up();
   await saved(page);
   await page.reload();
-  await ready(page);
+  await readyWorld(page);
   await settled(page);
   const restored = (await node.boundingBox())!;
   expect(restored.x).toBeGreaterThan(box.x + 25);
@@ -385,6 +437,173 @@ test("world views fit desktop and phone themes, preserve node positions, and kee
   ).toBeVisible();
 });
 
+test("writing renders legacy references as links and right-click actions edit links or selected passages safely", async ({
+  page,
+  context,
+}) => {
+  await worldTab(page);
+  await namedNote(page, "Ashen Court", "The court.");
+  const court = await page
+    .getByRole("button", { name: "Open Ashen Court", exact: true })
+    .getAttribute("data-target");
+  await namedNote(page, "Harbour", "The harbour.");
+  const document = await namedNote(
+    page,
+    "Mara",
+    `Mara serves [the Court](slate:${encodeURIComponent(court!)}?tag=old) by the docks.`,
+  );
+  await settled(page);
+  await addHeader(page, "Ashen Court", "ally");
+  const editor = document.getByRole("textbox", {
+    name: "Document text",
+    exact: true,
+  });
+  await expect(
+    editor.getByRole("link", { name: "the Court", exact: true }),
+  ).toHaveAttribute("href", /^slate:local::/);
+  await expect(editor).not.toContainText("slate:");
+  expect(await markdownBody(document)).toContain("%3A%3A");
+  const menu = page.getByRole("menu", { name: "Edit document", exact: true });
+  async function onLink(label: string, action: string) {
+    await editor
+      .getByRole("link", { name: label, exact: true })
+      .click({ button: "right" });
+    await menu.getByRole("menuitem", { name: action, exact: true }).click();
+  }
+  await onLink("the Court", "Edit relationship tags");
+  const tags = page.getByRole("dialog", {
+    name: "Edit relationship tags",
+    exact: true,
+  });
+  await tags
+    .getByLabel("Relationship tags", { exact: true })
+    .fill("loyal, covert");
+  await tags
+    .getByRole("button", { name: "Save relationship tags", exact: true })
+    .click();
+  await expect(
+    editor.getByRole("link", { name: "the Court", exact: true }),
+  ).toHaveAttribute("href", /tag=loyal&tag=covert/);
+  await onLink("the Court", "Edit link text");
+  const edit = page.getByRole("dialog", {
+    name: "Edit reference",
+    exact: true,
+  });
+  await edit.getByLabel("Link text", { exact: true }).fill("The Ashen Court");
+  await edit
+    .getByRole("button", { name: "Save reference", exact: true })
+    .click();
+  await onLink("The Ashen Court", "Change reference");
+  let picker = page.getByRole("dialog", {
+    name: "Choose reference",
+    exact: true,
+  });
+  await picker
+    .getByRole("searchbox", { name: "Search content", exact: true })
+    .fill("Harbour");
+  await picker.getByRole("button", { name: /^Harbour note/ }).click();
+  const link = editor.getByRole("link", {
+    name: "The Ashen Court",
+    exact: true,
+  });
+  await expect(link).toHaveAttribute("href", /tag=loyal&tag=covert/);
+  await onLink("The Ashen Court", "Remove link");
+  await expect(link).toHaveCount(0);
+  await expect(editor).toContainText(
+    "Mara serves The Ashen Court by the docks.",
+  );
+  await editor.press("Control+z");
+  await expect(link).toBeVisible();
+  await onLink("The Ashen Court", "Open reference");
+  await expect(
+    document.getByRole("heading", { name: "Harbour", exact: true }),
+  ).toBeVisible();
+  await document
+    .getByRole("button", { name: "Back to previous document", exact: true })
+    .click();
+  await selectText(editor, "the docks");
+  await expect(
+    document.getByRole("group", { name: "Selected text actions", exact: true }),
+  ).toBeVisible();
+  const rect = await page.evaluate(() => {
+    const rect = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  });
+  await page.mouse.click(rect.x, rect.y, { button: "right" });
+  await menu
+    .getByRole("menuitem", { name: "Create linked note", exact: true })
+    .click();
+  const expand = page.getByRole("dialog", {
+    name: "Expand into a linked note",
+    exact: true,
+  });
+  await expand.getByLabel("New note title", { exact: true }).fill("Dockside");
+  await expand
+    .getByRole("button", { name: "Create linked note", exact: true })
+    .click();
+  await expect(
+    document.getByRole("heading", { name: "Dockside", exact: true }),
+  ).toBeVisible();
+  await document
+    .getByRole("button", { name: "Back to previous document", exact: true })
+    .click();
+  await expect(
+    editor.getByRole("link", { name: "the docks", exact: true }),
+  ).toBeVisible();
+  await selectText(editor, "Mara");
+  await editor.press("Shift+F10");
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(editor).toBeFocused();
+  await editor.press("Shift+F10");
+  await menu
+    .getByRole("menuitem", { name: "Add reference", exact: true })
+    .click();
+  picker = page.getByRole("dialog", { name: "Choose reference", exact: true });
+  await picker
+    .getByRole("searchbox", { name: "Search content", exact: true })
+    .fill("Ashen Court");
+  await picker.getByRole("button", { name: /^Ashen Court note/ }).click();
+  await expect(
+    editor.getByRole("link", { name: "Mara", exact: true }),
+  ).toBeVisible();
+  const raw = await markdownBody(document);
+  expect(raw).toContain("slate:local::");
+  expect(raw).not.toContain("%3A%3A");
+  await saved(page);
+  if (context.browser()?.browserType().name() === "chromium")
+    await page.screenshot({ path: "work/editable-links-desktop.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await appearance(page, "Dark");
+  await editor
+    .getByRole("link", { name: "Mara", exact: true })
+    .evaluate((element) =>
+      element.dispatchEvent(
+        new MouseEvent("contextmenu", {
+          clientX: 380,
+          clientY: 830,
+          button: 2,
+          bubbles: true,
+          cancelable: true,
+        }),
+      ),
+    );
+  const bounds = (await menu.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(8);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(382);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(836);
+  if (context.browser()?.browserType().name() === "chromium")
+    await page.screenshot({ path: "work/editable-links-mobile-menu.png" });
+  await page.keyboard.press("Escape");
+  await disconnect(context);
+  await page.reload();
+  await readyWorld(page);
+  await expect(
+    editor.getByRole("link", { name: "the docks", exact: true }),
+  ).toBeVisible();
+});
+
 test.describe("world reference picker", () => {
   test.use({ hasTouch: true });
 
@@ -400,36 +619,40 @@ test.describe("world reference picker", () => {
       name: "Document text",
       exact: true,
     });
-    const list = document.getByRole("listbox", {
-      name: "Reference suggestions",
+    const list = page.getByRole("listbox", {
+      name: "Completions",
       exact: true,
     });
     await editor.fill("Serves @Ashen Court:member-of,secret");
     await expect(
-      list.getByRole("option", { name: /^Ashen Court note/ }),
+      list.getByRole("option", { name: /^Ashen Court.*note/ }),
     ).toBeVisible();
     await editor.press("ArrowDown");
     await editor.press("ArrowUp");
     await editor.press("Tab");
     await expect(list).toHaveCount(0);
     await expect(editor).toBeFocused();
-    await expect(editor).toHaveValue(
-      /Serves \[Ashen Court\]\(slate:local%3A%3A[^)]+\?tag=member-of&tag=secret\)/,
+    await expect(editor).toContainText("Serves Ashen Court");
+    await expect(editor).not.toContainText("slate:");
+    const taggedBody = await markdownBody(document);
+    expect(taggedBody).toMatch(
+      /Serves \[Ashen Court\]\(slate:local::[^)]+\?tag=member-of&tag=secret\)/,
     );
-    const taggedBody = await editor.inputValue();
     await settled(page);
     await expect(
       document.locator("summary").filter({ hasText: /^Relationships \(2\)$/ }),
     ).toBeVisible();
     await expect(document).toContainText("member-of · secret");
     await editor.fill(taggedBody + "\nFind @no-such-world-reference-123");
-    await expect(list.getByRole("status")).toHaveText("No matching content.");
+    await expect(document.getByRole("status")).toHaveText(
+      "No matching content.",
+    );
     await editor.press("Escape");
     await expect(list).toHaveCount(0);
     await editor.fill(taggedBody + "\nCasts @Flame Dart");
-    await list.getByRole("option", { name: /^Flame Dart spell/ }).click();
-    await expect(editor).toHaveValue(/\nCasts \[Flame Dart\]\(slate:/);
-    const withSpell = await editor.inputValue();
+    await list.getByRole("option", { name: /^Flame Dart.*spell/ }).click();
+    await expect(editor).toContainText("Casts Flame Dart");
+    const withSpell = await markdownBody(document);
     await page.setViewportSize({ width: 390, height: 844 });
     await editor.fill(withSpell + "\nAvoids @Goblin");
     await expect(list).toBeVisible();
@@ -438,16 +661,18 @@ test.describe("world reference picker", () => {
     expect(bounds.x + bounds.width).toBeLessThanOrEqual(382);
     expect(bounds.y).toBeGreaterThanOrEqual(8);
     expect(bounds.y + bounds.height).toBeLessThanOrEqual(836);
-    await list.getByRole("option", { name: /^Goblin monster/ }).tap();
-    await expect(editor).toHaveValue(/\nAvoids \[Goblin\]\(slate:/);
+    await list.getByRole("option", { name: /^Goblin\s*monster/ }).tap();
+    await expect(editor).toContainText("Avoids Goblin");
     await saved(page);
     await expect(
       document.locator("summary").filter({ hasText: /^Relationships \(4\)$/ }),
     ).toBeVisible();
     await disconnect(context);
     await page.reload();
-    await ready(page);
-    await expect(editor).toHaveValue(/tag=member-of&tag=secret/);
+    await readyWorld(page);
+    await expect(
+      editor.getByRole("link", { name: "Ashen Court", exact: true }),
+    ).toHaveAttribute("href", /tag=member-of&tag=secret/);
     await expect(
       document.locator("summary").filter({ hasText: /^Relationships \(4\)$/ }),
     ).toBeVisible();
@@ -479,6 +704,215 @@ test.describe("world reference picker", () => {
         name: "Mara · member-of, secret",
         exact: true,
       }),
+    ).toBeVisible();
+  });
+});
+
+test.describe("Graph hierarchy", () => {
+  test.use({ hasTouch: true });
+  test("graph neighborhoods count real hops and dense groups expand by zoom, keyboard and touch offline", async ({
+    page,
+    context,
+  }, info) => {
+    await worldTab(page);
+    await settled(page);
+    const newNote = (title: string, id: string): ContentRecord => ({
+      id,
+      kind: "note",
+      title,
+      body: "",
+      category: "Note",
+      tags: [],
+      sources: [],
+      related: [],
+      fields: {},
+    });
+    const root = newNote("Explorer", "graph-root");
+    const hub = newNote("Spell archive", "graph-hub");
+    const third = newNote("Beyond two hops", "graph-third");
+    const isolated = newNote("Distant island", "graph-island");
+    const leaves = Array.from({ length: 32 }, (_, index) => ({
+      ...newNote(
+        `Spell ${String(index + 1).padStart(2, "0")}`,
+        `graph-leaf-${index}`,
+      ),
+      category: "Spell",
+    }));
+    hub.body = [
+      referenceMarkdown(root.title, `local::${root.id}`, ["knows"]),
+      ...leaves.map((note) =>
+        referenceMarkdown(note.title, `local::${note.id}`, ["casts"]),
+      ),
+    ].join("\n\n");
+    leaves[0].body = referenceMarkdown(third.title, `local::${third.id}`);
+    await page.evaluate(
+      (notes) =>
+        new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open("nimble-slate", 3);
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => {
+            const db = request.result,
+              tx = db.transaction("state", "readwrite"),
+              state = tx.objectStore("state"),
+              read = state.get("app");
+            read.onsuccess = () => {
+              const data = read.result as AppData;
+              const campaign = data.campaigns.find(
+                (campaign) => campaign.id === data.activeCampaignId,
+              )!;
+              campaign.content.push(...notes);
+              campaign.packRefs = [];
+              const screen = campaign.screens.find(
+                (screen) => screen.id === campaign.activeScreenId,
+              )!;
+              screen.world = { selectedNoteId: "graph-root", positions: {} };
+              data.revision++;
+              state.put(data, "app");
+            };
+            tx.oncomplete = () => {
+              db.close();
+              resolve();
+            };
+            tx.onerror = () => {
+              db.close();
+              reject(tx.error);
+            };
+          };
+        }),
+      [root, hub, third, isolated, ...leaves],
+    );
+    await page.reload();
+    await readyWorld(page);
+    await settled(page);
+    const graph = page.getByRole("region", {
+      name: "Relationship graph",
+      exact: true,
+    });
+    const mode = graph.getByRole("combobox", {
+      name: "Graph view",
+      exact: true,
+    });
+    await expect(graph.locator("[data-target]")).toHaveCount(2);
+    await mode.selectOption("neighborhood");
+    await expect(graph.locator("[data-target]")).toHaveCount(2);
+    await expect(graph).toContainText("34 pages · 2 shown individually.");
+    const group = graph.getByRole("button", {
+      name: "Expand Spell (32 pages)",
+      exact: true,
+    });
+    await expect(group).toBeVisible();
+    await expect(
+      graph.getByRole("button", { name: "Open Beyond two hops", exact: true }),
+    ).toHaveCount(0);
+    for (let n = 0; n < 3; n++)
+      await graph
+        .getByRole("button", { name: "Zoom graph in", exact: true })
+        .click();
+    await expect(
+      graph.getByRole("button", {
+        name: "Collapse Spell (32 pages)",
+        exact: true,
+      }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(graph.locator("[data-group]")).toHaveCount(9);
+    const canvas = (await graph
+      .locator("svg.world-graph-canvas")
+      .boundingBox())!;
+    await page.mouse.move(canvas.x + 10, canvas.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(canvas.x - 600, canvas.y + 10, { steps: 4 });
+    await page.mouse.up();
+    await expect(graph.locator("[data-group]")).toHaveCount(9);
+    await graph
+      .getByRole("button", { name: "Collapse groups", exact: true })
+      .click();
+    await group.press("Enter");
+    await expect(graph.locator("[data-group]")).toHaveCount(9);
+    const batch = graph.getByRole("button", {
+      name: "Expand Spell 01 – Spell 04 (4 pages)",
+      exact: true,
+    });
+    await batch.press("Space");
+    await expect(
+      graph.getByRole("button", { name: "Open Spell 01", exact: true }),
+    ).toHaveCount(1);
+    // The expanded hierarchy retains readable, separate node rectangles.
+    const rectangles = await graph.locator(".world-node").evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+      }),
+    );
+    for (let a = 0; a < rectangles.length; a++)
+      for (let b = a + 1; b < rectangles.length; b++) {
+        const first = rectangles[a],
+          second = rectangles[b];
+        expect(
+          first.x + first.width <= second.x ||
+            second.x + second.width <= first.x ||
+            first.y + first.height <= second.y ||
+            second.y + second.height <= first.y,
+        ).toBe(true);
+      }
+    if (!info.project.name)
+      await expect(graph).toHaveScreenshot("world-neighborhood-expanded.png");
+    await graph
+      .getByRole("button", { name: "Collapse groups", exact: true })
+      .click();
+    if (!info.project.name)
+      await expect(graph).toHaveScreenshot("world-neighborhood-groups.png");
+    await graph
+      .getByRole("combobox", { name: "Filter relationship tags", exact: true })
+      .selectOption("knows");
+    await expect(graph).toContainText("2 pages · 2 shown individually.");
+    await graph
+      .getByRole("combobox", { name: "Filter relationship tags", exact: true })
+      .selectOption("");
+    await mode.selectOption("world");
+    await expect(graph).toContainText("36 pages");
+    await expect(
+      graph.getByRole("button", { name: "Open Distant island", exact: true }),
+    ).toHaveCount(1);
+    await expect(
+      graph.getByRole("button", { name: "Open Beyond two hops", exact: true }),
+    ).toHaveCount(1);
+    await mode.selectOption("neighborhood");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button", { name: "Graph", exact: true }).click();
+    await appearance(page, "Dark");
+    await group.tap();
+    await batch.tap();
+    await expect(
+      graph.getByRole("button", { name: "Open Spell 01", exact: true }),
+    ).toHaveCount(1);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await saved(page);
+    await disconnect(context);
+    await page.reload();
+    await readyWorld(page);
+    await expect(
+      page.getByRole("button", {
+        name: "Rebuild relationship cache",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await page.getByRole("button", { name: "Graph", exact: true }).click();
+    await mode.selectOption("neighborhood");
+    await group.tap();
+    await batch.tap();
+    await graph
+      .getByRole("button", { name: "Open Spell 01", exact: true })
+      .press("Enter");
+    await expect(
+      page
+        .getByRole("region", { name: "World document", exact: true })
+        .getByRole("heading", { name: "Spell 01", exact: true }),
     ).toBeVisible();
   });
 });
@@ -587,7 +1021,7 @@ test("library edits and Markdown export preserve world metadata, with accessible
   ).toEqual([]);
   await disconnect(page.context());
   await page.reload();
-  await ready(page);
+  await readyWorld(page);
   await page.getByRole("button", { name: "Write", exact: true }).click();
   await expect(editTitle).toHaveText("Greyhaven Port");
   await document

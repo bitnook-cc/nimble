@@ -239,7 +239,9 @@ it("copies note identities and links together while presets create new independe
   expect(backlinks(entries(copy, []), `local::${note.id}`)).toHaveLength(1);
   expect(
     copy.content.find((record) => record.title === "Ashen Court")?.body,
-  ).toContain(encodeURIComponent(`local::${note.id}#harbour`));
+  ).toContain(
+    encodeURIComponent(`local::${note.id}#harbour`).replaceAll("%3A", ":"),
+  );
   const saved = savePreset(campaign, campaign.activeScreenId, "Note layout");
   const next = createScreen(
     saved,

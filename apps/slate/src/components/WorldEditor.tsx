@@ -6,12 +6,19 @@ import { Markdown } from "./Markdown";
 import { Modal } from "./Modal";
 import { WorldGraph } from "./WorldGraph";
 import { ReferenceTextarea } from "./ReferenceTextarea";
+import {
+  WorldMarkdownEditor,
+  type DocumentSelection,
+  type ReferenceAction,
+} from "./WorldMarkdownEditor";
 import { newNote, updateNote } from "../notes";
 import {
   readDocument,
   writeDocument,
   removeDocumentReference,
   updateReferenceTags,
+  updateDocumentReference,
+  documentReferences,
   type RelationshipReference,
 } from "../document-markdown";
 import { referenceMarkdown, normalizeRelationshipTags } from "../references";
@@ -41,13 +48,19 @@ export function WorldEditor({
   } | null>(null);
   const [selectionTags, setSelectionTags] = useState("");
   const [expanding, setExpanding] = useState(false),
-    [picker, setPicker] = useState<"selection" | "relationship" | null>(null);
+    [picker, setPicker] = useState<
+      "selection" | "relationship" | "replace" | null
+    >(null);
   const [addingRelationship, setAddingRelationship] = useState(false),
     [relationshipTarget, setRelationshipTarget] = useState<Entry | null>(null);
   const [editingReference, setEditingReference] =
       useState<RelationshipReference | null>(null),
     [deleting, setDeleting] = useState(false);
-  const input = useRef<HTMLTextAreaElement>(null);
+  const [editingLink, setEditingLink] = useState<RelationshipReference | null>(
+    null,
+  );
+  const [replacingLink, setReplacingLink] =
+    useState<RelationshipReference | null>(null);
   const notes = all.filter((entry) => entry.kind === "note" && !entry.pack);
   const note =
     notes.find((entry) => entry.id === screen.world?.selectedNoteId) ??
@@ -212,21 +225,64 @@ export function WorldEditor({
       setPicker(null);
     }
   }
-  function captureSelection() {
-    const editor = input.current;
-    if (
-      !editor ||
-      mode !== "write" ||
-      document.errors.length ||
-      editor.selectionStart === editor.selectionEnd
-    )
+  function changeText(text: string) {
+    if (!note) return false;
+    setSelection(null);
+    return attempt((c) =>
+      updateNote(c, note.id, (record) => ({
+        ...record,
+        body:
+          mode === "source" || document.errors.length
+            ? text
+            : writeDocument(
+                record.body,
+                {
+                  title: record.title,
+                  category: record.category,
+                  tags: record.tags,
+                },
+                text,
+              ),
+      })),
+    );
+  }
+  function interactWithReference(
+    action: ReferenceAction,
+    reference: RelationshipReference,
+  ) {
+    if (!note) return;
+    if (action === "open") {
+      select(reference.target);
       return;
-    setSelection({
-      start: editor.selectionStart,
-      end: editor.selectionEnd,
-      text: editor.value.slice(editor.selectionStart, editor.selectionEnd),
-      body: editor.value,
-    });
+    }
+    const full = documentReferences(note.body, note.target).references.find(
+      (row) =>
+        row.origin === "inline" &&
+        row.start === reference.start + document.prefixLength &&
+        row.end === reference.end + document.prefixLength &&
+        row.target === reference.target,
+    );
+    if (!full) {
+      setError("The document changed. Right-click the reference again.");
+      return;
+    }
+    if (action === "tags") setEditingReference(full);
+    else if (action === "edit") setEditingLink(full);
+    else if (action === "replace") {
+      setReplacingLink(full);
+      setPicker("replace");
+    } else if (action === "unlink")
+      attempt((c) =>
+        updateNote(c, note.id, (record) => ({
+          ...record,
+          body: removeDocumentReference(record.body, full),
+        })),
+      );
+  }
+  function selectPassage(selected: DocumentSelection, create: boolean) {
+    setSelection(selected);
+    if (create) setExpanding(true);
+    else setPicker("selection");
   }
   const issues =
     relationships.issues.find((issue) => issue.source === note?.target)
@@ -522,10 +578,22 @@ export function WorldEditor({
                     preserveLabels
                   />
                 </div>
+              ) : mode === "write" && !document.errors.length ? (
+                <WorldMarkdownEditor
+                  key={note.id}
+                  source={note.target}
+                  value={document.content}
+                  all={all}
+                  disabled={locked}
+                  onTextChange={changeText}
+                  onSelection={setSelection}
+                  onReference={interactWithReference}
+                  onCreateNote={(selected) => selectPassage(selected, true)}
+                  onLinkSelection={(selected) => selectPassage(selected, false)}
+                />
               ) : (
                 <ReferenceTextarea
                   key={note.id + mode}
-                  editorRef={input}
                   all={all}
                   excludeTarget={note.target}
                   referencesEnabled={
@@ -543,29 +611,7 @@ export function WorldEditor({
                       : document.content
                   }
                   maxLength={100000}
-                  onSelect={captureSelection}
-                  onMouseUp={captureSelection}
-                  onKeyUp={captureSelection}
-                  onTextChange={(text) => {
-                    setSelection(null);
-                    return attempt((c) =>
-                      updateNote(c, note.id, (record) => ({
-                        ...record,
-                        body:
-                          mode === "source" || document.errors.length
-                            ? text
-                            : writeDocument(
-                                record.body,
-                                {
-                                  title: record.title,
-                                  category: record.category,
-                                  tags: record.tags,
-                                },
-                                text,
-                              ),
-                      })),
-                    );
-                  }}
+                  onTextChange={changeText}
                   placeholder="Write about your world. Type @ to find a reference, or select a passage to expand or link it."
                 />
               )}
@@ -717,12 +763,60 @@ export function WorldEditor({
           onClose={() => setPicker(null)}
           choose={(entry) => {
             if (picker === "selection") linkSelection(entry.target);
-            else {
+            else if (picker === "replace" && note && replacingLink) {
+              if (
+                attempt((c) =>
+                  updateNote(c, note.id, (record) => ({
+                    ...record,
+                    body: updateDocumentReference(record.body, replacingLink, {
+                      target: entry.target,
+                    }),
+                  })),
+                )
+              ) {
+                setReplacingLink(null);
+                setPicker(null);
+              }
+            } else {
               setRelationshipTarget(entry);
               setPicker(null);
             }
           }}
         />
+      )}
+      {editingLink && note && (
+        <Modal title="Edit reference" onClose={() => setEditingLink(null)}>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const fields = new FormData(event.currentTarget);
+              const label = String(fields.get("label")).trim();
+              if (!label) return;
+              if (
+                attempt((c) =>
+                  updateNote(c, note.id, (record) => ({
+                    ...record,
+                    body: updateDocumentReference(record.body, editingLink, {
+                      label,
+                    }),
+                  })),
+                )
+              )
+                setEditingLink(null);
+            }}
+          >
+            <label>
+              Link text
+              <input
+                name="label"
+                required
+                maxLength={1000}
+                defaultValue={editingLink.label}
+              />
+            </label>
+            <button className="primary">Save reference</button>
+          </form>
+        </Modal>
       )}
       {editingReference && note && (
         <Modal

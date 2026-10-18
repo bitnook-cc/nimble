@@ -373,7 +373,10 @@ it("copies pack files into editable campaign records with stable IDs, local link
   const preview = await prepareContentImport(JSON.stringify(pack));
   expect(contentImportPack(preview, "Ignored").value).toEqual(pack);
   expect(preview.records[0].body).toContain(
-    encodeURIComponent("local::" + preview.records[1].id),
+    encodeURIComponent("local::" + preview.records[1].id).replaceAll(
+      "%3A",
+      ":",
+    ),
   );
   expect(preview.records[0].fields.annotations).toBe(records[1].id);
   expect(preview.records[0].importedFrom).toMatchObject({

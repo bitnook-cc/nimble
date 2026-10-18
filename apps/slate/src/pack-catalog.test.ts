@@ -5,6 +5,8 @@ import {
   fetchCatalog,
   fetchCatalogPack,
   boundedDownload,
+  comparePackVersions,
+  catalogUpgrades,
 } from "./pack-catalog";
 import {
   packSchema,
@@ -53,6 +55,55 @@ const fetcher = (body: Uint8Array | string, status = 200) =>
         headers: { "Content-Type": "application/json" },
       }),
   );
+
+it("compares numeric pack releases, four-part revisions and prereleases without guessing opaque hashes", () => {
+  for (const [older, newer] of [
+    ["5.2.1.1", "5.2.1.2"],
+    ["1.9", "1.10"],
+    ["1.99.99", "2.0.0"],
+    ["1.0.0-beta.2", "1.0.0-beta.10"],
+    ["1.0.0-2", "1.0.0-alpha"],
+    ["1.0.0-alpha", "1.0.0-alpha.1"],
+    ["1.0.0-rc.1", "1.0.0"],
+    ["99999999999999999999", "100000000000000000000"],
+  ]) {
+    expect(comparePackVersions(older, newer)).toBe(-1);
+    expect(comparePackVersions(newer, older)).toBe(1);
+  }
+  expect(comparePackVersions("v1.2", "1.2.0.0")).toBe(0);
+  expect(comparePackVersions("abc123", "abc123")).toBe(0);
+  expect(comparePackVersions("abc123", "def456")).toBeNull();
+  expect(comparePackVersions("1.0.0", "nexus-abcdef")).toBeNull();
+});
+
+it("offers only the newest catalog upgrade on the latest installed row, never an installed version or a downgrade", () => {
+  const catalog = ["1.9", "1.10", "2.0", "1.8"].map((version) => ({
+    ...entry,
+    version,
+  }));
+  const installed = [
+    { id: entry.id, version: "1.8" },
+    { id: entry.id, version: "1.9" },
+  ];
+  const upgrades = catalogUpgrades(catalog, installed);
+  expect([...upgrades.keys()]).toEqual([`${entry.id}@1.9`]);
+  expect(upgrades.get(`${entry.id}@1.9`)?.version).toBe("2.0");
+  expect(catalogUpgrades([...catalog].reverse(), installed)).toEqual(upgrades);
+  expect(
+    catalogUpgrades(catalog, [...installed, { id: entry.id, version: "2.0" }])
+      .size,
+  ).toBe(0);
+  expect(
+    catalogUpgrades(catalog, [{ id: entry.id, version: "3.0" }]).size,
+  ).toBe(0);
+  expect(
+    catalogUpgrades(catalog, [{ id: entry.id, version: "nexus-abcdef" }]).size,
+  ).toBe(0);
+  expect(
+    catalogUpgrades(catalog, [{ id: "different", version: "1.0" }]).size,
+  ).toBe(0);
+  expect(catalogUpgrades(catalog, []).size).toBe(0);
+});
 
 it("ships a complete, attributed reference library separately from the initial campaign", async () => {
   expect(pack).toMatchObject({

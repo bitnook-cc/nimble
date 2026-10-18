@@ -6,6 +6,7 @@ import {
   type ContentRecord,
 } from "./content-schema";
 export const starterPack = packSchema.parse(data);
+import { mapReferenceLinks } from "./references";
 
 import monsters from "./content/nexus-monsters.json";
 export const monsterPack = packSchema.parse(monsters);
@@ -37,6 +38,13 @@ export const legacyOfficialKeys = [starterPack, monsterPack].flatMap((pack) =>
   ),
 );
 export function remapOfficialReference(text: string) {
+  text = mapReferenceLinks(text, (target) => {
+    const separator = target.indexOf("::");
+    if (!legacyOfficialKeys.includes(target.slice(0, separator))) return target;
+    const id = target.slice(separator + 2);
+    const destination = destinations.get(id.split("#")[0]);
+    return destination ? packTarget(destination, id) : target;
+  });
   // Match whole targets so IDs which are prefixes of other IDs stay distinct.
   for (const previousKey of legacyOfficialKeys) {
     const escape = (value: string) =>
