@@ -68,7 +68,7 @@ export function AuthButton() {
 
   if (loading) {
     return (
-      <Button variant="ghost" size="sm" disabled>
+      <Button variant="ghost" size="sm" aria-label="Loading account" disabled>
         <User className="w-4 h-4" />
       </Button>
     );
@@ -76,7 +76,7 @@ export function AuthButton() {
 
   if (!user) {
     return (
-      <Button variant="outline" size="sm" onClick={handleLogin}>
+      <Button variant="outline" size="sm" aria-label="Sign in with Google" onClick={handleLogin}>
         <LogIn className="w-4 h-4 sm:mr-2" />
         <span className="hidden sm:inline">Sign in with Google</span>
       </Button>
@@ -86,7 +86,12 @@ export function AuthButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-0 hover:opacity-80 transition-opacity">
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={`Account menu for ${user.name}`}
+          className="p-0 hover:opacity-80 transition-opacity"
+        >
           <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-primary/50 transition-all cursor-pointer">
             <AvatarImage src={user.picture || undefined} alt={user.name} />
             <AvatarFallback>{user.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>

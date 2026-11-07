@@ -42,18 +42,29 @@ export function BackgroundSelection({
             return (
               <Card
                 key={background.id}
-                className={`cursor-pointer transition-all ${
+                className={`relative focus-within:ring-2 focus-within:ring-ring transition-all ${
                   isSelected
                     ? "ring-2 ring-primary bg-primary/5"
                     : "hover:shadow-md hover:bg-muted/50"
                 }`}
-                onClick={() => handleBackgroundSelect(background.id)}
               >
                 <Collapsible open={isSelected}>
                   <CardHeader className="pb-2 pt-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-sm mb-1">{background.name}</CardTitle>
+                        <CardTitle className="text-sm mb-1">
+                          <label className="cursor-pointer after:absolute after:inset-0 after:rounded-xl">
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              name="builder-background"
+                              value={background.id}
+                              checked={isSelected}
+                              onChange={() => handleBackgroundSelect(background.id)}
+                            />
+                            {background.name}
+                          </label>
+                        </CardTitle>
                         {!isSelected && (
                           <div className="text-xs text-muted-foreground line-clamp-2 break-words">
                             <MarkdownRenderer content={background.description} />

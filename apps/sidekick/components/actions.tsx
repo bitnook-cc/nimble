@@ -170,9 +170,10 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
                         <Button
                           variant="destructive"
                           size="sm"
+                          aria-label={`Attack with ${weapon.name}`}
                           onClick={() => handleAttack(weapon)}
                           disabled={isDisabled}
-                          className="h-7 text-xs"
+                          className="min-h-11 min-w-11 text-xs sm:min-h-8"
                         >
                           <Sword className="w-3 h-3 sm:mr-1" />
                           <span className="hidden sm:inline">
@@ -314,9 +315,10 @@ export function Actions({ character, advantageLevel }: ActionsProps) {
                         <Button
                           variant={isDisabled ? "outline" : "default"}
                           size="sm"
+                          aria-label={`Use ${ability.name}`}
                           onClick={() => handleUseAbility(ability)}
                           disabled={isDisabled}
-                          className="h-7 text-xs"
+                          className="min-h-11 min-w-11 text-xs sm:min-h-8"
                           title={
                             isUsed
                               ? "Used"

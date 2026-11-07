@@ -163,6 +163,7 @@ export function SyncButton() {
           <Button
             variant="ghost"
             size="sm"
+            aria-label={isSyncing ? "Syncing characters" : "Sync characters"}
             onClick={handleSync}
             disabled={isSyncing || (isSynced && !hasChanges)}
             className="h-8"

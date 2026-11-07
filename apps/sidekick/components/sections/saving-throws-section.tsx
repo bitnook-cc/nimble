@@ -78,8 +78,8 @@ export function SavingThrowsSection() {
     <TooltipProvider>
       <Collapsible open={isOpen} onOpenChange={onToggle}>
         <Card>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer py-3">
+          <CardHeader className="py-1 px-4">
+            <CollapsibleTrigger className="min-h-11 w-full text-left">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Saving Throws</CardTitle>
                 <div className="flex items-center gap-2">
@@ -90,8 +90,8 @@ export function SavingThrowsSection() {
                   )}
                 </div>
               </div>
-            </CardHeader>
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+          </CardHeader>
           <CollapsibleContent>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-2">
@@ -103,10 +103,10 @@ export function SavingThrowsSection() {
                   return (
                     <div
                       key={name}
-                      className="flex items-center justify-between p-2 rounded border"
+                      className="flex items-center justify-between gap-1 p-1 rounded border"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium min-w-8">{label}</span>
+                        <span className="text-sm font-medium">{label}</span>
                         <span className="text-sm font-mono">{formatModifier(value)}</span>
                         {saveAdvantage !== "normal" && (
                           <span className={`text-xs ${getAdvantageColor(saveAdvantage)}`}>
@@ -120,8 +120,9 @@ export function SavingThrowsSection() {
                             <Button
                               variant="outline"
                               size="sm"
+                              aria-label={`Roll ${name} save`}
                               onClick={() => handleSaveRoll(name)}
-                              className="h-7 w-7 p-0"
+                              className="size-11 sm:size-8 p-0"
                             >
                               <Shield className="h-3 w-3" />
                             </Button>

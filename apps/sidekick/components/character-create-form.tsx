@@ -98,6 +98,10 @@ export function CharacterCreateForm({
       </div>
 
       <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          Choose a class for a level 1 character with a generated name, random ancestry and
+          background, and starting gear.
+        </p>
         <Label htmlFor="character-class">Class</Label>
         <select
           id="character-class"

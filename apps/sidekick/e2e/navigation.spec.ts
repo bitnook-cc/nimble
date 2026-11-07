@@ -2,30 +2,27 @@ import { expect, test } from "@playwright/test";
 
 import { CharacterTestUtils } from "./utils/character-utils";
 
-test.describe("Character Sheet Navigation", () => {
-  let characterUtils: CharacterTestUtils;
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    characterUtils = new CharacterTestUtils(page);
-  });
-
-  test("navigate between character sheet tabs", async ({ page }) => {
-    await test.step("Ensure character exists", async () => {
-      await characterUtils.ensureCharacterExists();
-    });
-
-    await test.step("Navigate through character sheet tabs", async () => {
-      const tabs = ["Combat", "Skills", "Character", "Equipment"];
-
-      for (const tabName of tabs) {
-        const tab = page.getByRole("tab", { name: new RegExp(tabName, "i") });
-        if (await tab.isVisible()) {
-          await characterUtils.navigateToTab(tabName);
-          await expect(page.getByRole("tabpanel")).toBeVisible();
-        }
-      }
-    });
-  });
+test("phone navigation reaches every section and wounds adjust one at a time", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const sheet = new CharacterTestUtils(page);
+  await sheet.createCharacter();
+  const nav = page.getByRole("navigation", { name: "Character sheet" });
+  expect(await nav.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+  for (const label of ["Explore", "Equipment", "Character", "Notes", "Log", "Combat"]) {
+    await sheet.navigateToTab(label);
+  }
+  const add = page.getByRole("button", { name: "Add wound" });
+  const remove = page.getByRole("button", { name: "Remove wound" });
+  expect((await add.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(
+    (await page.getByRole("button", { name: "Damage", exact: true }).boundingBox())!.height,
+  ).toBeGreaterThanOrEqual(44);
+  await expect(remove).toBeDisabled();
+  await add.click();
+  await add.click();
+  await remove.click();
+  await expect(remove).toBeEnabled();
+  await remove.click();
+  await expect(remove).toBeDisabled();
 });

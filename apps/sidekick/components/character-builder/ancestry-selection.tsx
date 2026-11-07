@@ -68,6 +68,7 @@ export function AncestrySelection({
                 <Input
                   value={characterName}
                   onChange={(e) => onNameChange(e.target.value)}
+                  aria-label="Character name"
                   placeholder="Enter character name"
                   className="text-sm"
                 />
@@ -102,19 +103,30 @@ export function AncestrySelection({
             return (
               <Card
                 key={ancestry.id}
-                className={`cursor-pointer transition-all ${
+                className={`relative focus-within:ring-2 focus-within:ring-ring transition-all ${
                   isSelected
                     ? "ring-2 ring-primary bg-primary/5"
                     : "hover:shadow-md hover:bg-muted/50"
                 }`}
-                onClick={() => handleAncestrySelect(ancestry.id)}
               >
                 <Collapsible open={isSelected}>
                   <CardHeader className="pb-2 pt-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 mb-1">
-                          <CardTitle className="text-sm">{ancestry.name}</CardTitle>
+                          <CardTitle className="text-sm">
+                            <label className="cursor-pointer after:absolute after:inset-0 after:rounded-xl">
+                              <input
+                                type="radio"
+                                className="sr-only"
+                                name="builder-ancestry"
+                                value={ancestry.id}
+                                checked={isSelected}
+                                onChange={() => handleAncestrySelect(ancestry.id)}
+                              />
+                              {ancestry.name}
+                            </label>
+                          </CardTitle>
                           <Badge variant="outline" className="text-xs capitalize px-1 py-0">
                             {ancestry.size}
                           </Badge>

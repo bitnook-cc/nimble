@@ -13,13 +13,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-const STANDARD_ARRAYS = {
+export const STANDARD_ARRAYS = {
   standard: { name: "Standard", values: [2, 2, 0, -1] },
   balanced: { name: "Balanced", values: [2, 1, 1, 0] },
   minMax: { name: "Min-Max", values: [3, 1, -1, -1] },
 } as const;
 
 const ATTRIBUTE_NAMES: AttributeName[] = ["strength", "dexterity", "intelligence", "will"];
+export function startingAttributes(keys: readonly AttributeName[]) {
+  const order = [...new Set([...keys, ...ATTRIBUTE_NAMES])];
+  const result = { strength: 0, dexterity: 0, intelligence: 0, will: 0 };
+  order.forEach((attr, index) => {
+    result[attr] = STANDARD_ARRAYS.standard.values[index];
+  });
+  return result;
+}
+
 const ATTRIBUTE_LABELS = {
   strength: "Strength",
   dexterity: "Dexterity",
@@ -76,69 +85,27 @@ export function AttributeSelection({
     const array = STANDARD_ARRAYS[selectedArray].values;
     const sortedArray = [...array].sort((a, b) => b - a);
 
-    // If no class selected or no key attributes, use default distribution
-    if (!keyAttributes.length) {
-      onAttributesChange({
-        strength: sortedArray[0],
-        dexterity: sortedArray[1],
-        intelligence: sortedArray[2],
-        will: sortedArray[3],
-      });
-      return;
-    }
-
-    // Intelligent distribution based on key attributes
+    const key = ATTRIBUTE_NAMES.filter((attr) => keyAttributes.includes(attr));
+    const other = ATTRIBUTE_NAMES.filter((attr) => !keyAttributes.includes(attr));
+    // Swap within each group so the highest scores stay on class attributes.
+    const shuffle = (group: AttributeName[]) => {
+      for (let i = group.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [group[i], group[j]] = [group[j], group[i]];
+      }
+      return group;
+    };
+    const order = [...shuffle(key), ...shuffle(other)];
     const newAttributes = { ...attributes };
-    const availableValues = [...sortedArray];
-    const nonKeyAttributes = ATTRIBUTE_NAMES.filter((attr) => !keyAttributes.includes(attr));
-
-    // Assign highest values to key attributes
-    if (keyAttributes.length === 1) {
-      // One key attribute gets the highest value
-      newAttributes[keyAttributes[0]] = availableValues.shift()!;
-
-      // Distribute remaining values to non-key attributes (highest to lowest)
-      nonKeyAttributes.forEach((attr, index) => {
-        newAttributes[attr] = availableValues[index];
-      });
-    } else if (keyAttributes.length === 2) {
-      // Two key attributes: randomly assign the two highest values
-      const highestTwo = availableValues.splice(0, 2);
-      const randomIndex = Math.random() < 0.5 ? 0 : 1;
-      newAttributes[keyAttributes[0]] = highestTwo[randomIndex];
-      newAttributes[keyAttributes[1]] = highestTwo[1 - randomIndex];
-
-      // Randomly distribute remaining values to non-key attributes
-      const shuffledNonKey = [...nonKeyAttributes].sort(() => Math.random() - 0.5);
-      shuffledNonKey.forEach((attr, index) => {
-        newAttributes[attr] = availableValues[index];
-      });
-    } else {
-      // 3+ key attributes: distribute highest values evenly
-      keyAttributes.forEach((attr, index) => {
-        if (index < availableValues.length) {
-          newAttributes[attr] = availableValues.shift()!;
-        }
-      });
-
-      // Assign remaining values to non-key attributes
-      nonKeyAttributes.forEach((attr) => {
-        if (availableValues.length > 0) {
-          newAttributes[attr] = availableValues.shift()!;
-        }
-      });
-    }
-
+    order.forEach((attr, index) => {
+      newAttributes[attr] = sortedArray[index];
+    });
     onAttributesChange(newAttributes);
   };
 
   const resetAttributes = () => {
-    onAttributesChange({
-      strength: 0,
-      dexterity: 0,
-      intelligence: 0,
-      will: 0,
-    });
+    setSelectedArray("standard");
+    onAttributesChange(startingAttributes(keyAttributes));
   };
 
   const isArrayApplied = () => {
@@ -155,7 +122,7 @@ export function AttributeSelection({
         <div>
           <h3 className="text-lg font-semibold">Assign Attributes</h3>
           <p className="text-sm text-muted-foreground">
-            Distribute your attribute scores using a standard array or manual assignment
+            Your class starts with a recommended array. Choose another or adjust individual scores.
           </p>
         </div>
         <Button onClick={resetAttributes} variant="outline" size="sm">
@@ -169,12 +136,12 @@ export function AttributeSelection({
           <CardTitle className="text-base">Standard Arrays</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Select
               value={selectedArray}
               onValueChange={(value: keyof typeof STANDARD_ARRAYS) => setSelectedArray(value)}
             >
-              <SelectTrigger className="flex-1">
+              <SelectTrigger aria-label="Attribute array" className="w-full sm:flex-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -187,7 +154,6 @@ export function AttributeSelection({
             </Select>
             <Button
               onClick={assignArray}
-              disabled={false}
               title={
                 isArrayApplied() && keyAttributes.length > 0
                   ? "Reshuffle array values (click again for different distribution)"
@@ -218,9 +184,10 @@ export function AttributeSelection({
           {ATTRIBUTE_NAMES.map((attr) => {
             const isKeyAttribute = keyAttributes.includes(attr);
             return (
-              <div key={attr} className="flex items-center gap-4">
-                <div className="flex items-center w-32 justify-between">
+              <div key={attr} className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex basis-full sm:basis-auto items-center gap-2">
                   <label
+                    htmlFor={`builder-${attr}`}
                     className="text-sm font-medium"
                     title={isKeyAttribute ? "Key attribute for this class" : undefined}
                   >
@@ -242,11 +209,14 @@ export function AttributeSelection({
                         Math.max(gameConfig.character.attributeRange.min, attributes[attr] - 1),
                       )
                     }
+                    aria-label={`Decrease ${attr}`}
+                    className="size-11 sm:size-8 p-0"
                     disabled={attributes[attr] <= gameConfig.character.attributeRange.min}
                   >
                     -
                   </Button>
                   <Input
+                    id={`builder-${attr}`}
                     type="number"
                     value={attributes[attr]}
                     onChange={(e) => {
@@ -273,6 +243,8 @@ export function AttributeSelection({
                         Math.min(gameConfig.character.attributeRange.max, attributes[attr] + 1),
                       )
                     }
+                    aria-label={`Increase ${attr}`}
+                    className="size-11 sm:size-8 p-0"
                     disabled={attributes[attr] >= gameConfig.character.attributeRange.max}
                   >
                     +

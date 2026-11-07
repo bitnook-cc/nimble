@@ -4,8 +4,8 @@ import { gameConfig } from "@/lib/config/game-config";
 
 export const diceRollSchema = z.object({
   id: z.string(),
-  name: z.string().min(1, "Name is required").max(50, "Name too long"),
-  formula: z.string().min(1, "Formula is required").max(100, "Formula too long"),
+  name: z.string().max(50, "Name too long"),
+  formula: z.string().max(100, "Formula too long"),
 });
 
 export const noteSchema = z.object({

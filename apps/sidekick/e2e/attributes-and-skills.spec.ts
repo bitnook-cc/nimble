@@ -23,7 +23,7 @@ test.describe("Attributes and Skills", () => {
 
     await test.step("Test skill checks", async () => {
       await page.getByRole("button", { name: "Roll Arcana check", exact: true }).click();
-      await page.getByRole("button", { name: "Log", exact: true }).click();
+      await new CharacterTestUtils(page).navigateToTab("Log");
       const log = page
         .locator('[data-slot="card"]')
         .filter({ has: page.getByText("Character Log", { exact: true }) });

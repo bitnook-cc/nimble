@@ -50,7 +50,6 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
         // Check if we need to show character selection
         if (characterList.length === 0) {
           setShowCharacterSelection(true);
-          setLoadError("No characters found. Please create your first character.");
         } else {
           // Load active character through CharacterService
           const characterService = getCharacterService();
@@ -140,7 +139,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       if (updatedCharacters.length === 0) {
         // No characters remain, show selection to create a new one
         setShowCharacterSelection(true);
-        setLoadError("No characters remaining. Please create a new character.");
+        setLoadError(null);
       } else if (wasActiveCharacter) {
         // The active character was deleted — the service auto-switched to another
         // character, but show selector so the user can pick a different one if desired
@@ -156,11 +155,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
       setCharacters(updatedCharacters);
 
       // If we had no characters before and got some from sync, hide the selection screen
-      if (
-        updatedCharacters.length > 0 &&
-        showCharacterSelection &&
-        loadError?.includes("No characters")
-      ) {
+      if (updatedCharacters.length > 0 && showCharacterSelection && characters.length === 0) {
         setShowCharacterSelection(false);
         setLoadError(null);
 
@@ -187,7 +182,7 @@ export function useCharacterManagement(): UseCharacterManagementReturn {
     settingsService,
     settings.activeCharacterId,
     showCharacterSelection,
-    loadError,
+    characters.length,
   ]);
 
   const handleSettingsChange = async (newSettings: AppSettings) => {

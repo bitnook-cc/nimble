@@ -158,9 +158,10 @@ export function SkillsList({
                       <Button
                         variant="outline"
                         size="sm"
+                        aria-label={`Decrease ${skill.label} points`}
                         onClick={() => handleSkillChange(skill.name, -1)}
                         disabled={!canDecreaseSkill(skill.name)}
-                        className="w-6 h-6 p-0"
+                        className="size-11 sm:size-7 p-0"
                       >
                         <Minus className="w-3 h-3" />
                       </Button>
@@ -170,9 +171,10 @@ export function SkillsList({
                       <Button
                         variant="outline"
                         size="sm"
+                        aria-label={`Increase ${skill.label} points`}
                         onClick={() => handleSkillChange(skill.name, 1)}
                         disabled={!canIncreaseSkill(skill.name)}
-                        className="w-6 h-6 p-0"
+                        className="size-11 sm:size-7 p-0"
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
@@ -184,7 +186,7 @@ export function SkillsList({
                               size="sm"
                               onClick={() => handleSkillRoll(skill.name, skill.attribute)}
                               aria-label={`Roll ${skill.label} check`}
-                              className="w-6 h-6 p-0 ml-1"
+                              className="size-11 sm:size-7 p-0 ml-1"
                             >
                               <Dice6 className="w-3 h-3" />
                             </Button>

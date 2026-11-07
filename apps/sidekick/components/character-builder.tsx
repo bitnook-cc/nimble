@@ -4,18 +4,26 @@ import { Wand2 } from "lucide-react";
 
 import { useState } from "react";
 
+import { gameConfig } from "@/lib/config/game-config";
 import { useToastService } from "@/lib/hooks/use-toast-service";
 import { TraitSelection } from "@/lib/schemas/character";
+import type { CharacterFeature, FeatureTrait } from "@/lib/schemas/features";
 import { ContentRepositoryService } from "@/lib/services/content-repository-service";
+import { FeatureSelectionService } from "@/lib/services/feature-selection-service";
 import { getCharacterCreation, getCharacterService } from "@/lib/services/service-factory";
 
 import { AncestrySelection } from "./character-builder/ancestry-selection";
-import { AttributeSelection } from "./character-builder/attribute-selection";
+import {
+  AttributeSelection,
+  STANDARD_ARRAYS,
+  startingAttributes,
+} from "./character-builder/attribute-selection";
 import { BackgroundSelection } from "./character-builder/background-selection";
 import { ClassSelection } from "./character-builder/class-selection";
 import { EquipmentSelection } from "./character-builder/equipment-selection";
 import { FeaturesOverview } from "./character-builder/features-overview";
 import { SkillsSelection } from "./character-builder/skills-selection";
+import { Button } from "./ui/button";
 import { WizardDialog } from "./wizard/wizard-dialog";
 
 // Character builder state - maintains all character data until final creation
@@ -42,7 +50,49 @@ interface CharacterBuilderState {
 
   // Equipment
   selectedEquipment: string[];
-  equipmentReady: boolean;
+}
+
+function remainingChoices(trait: FeatureTrait, selections: TraitSelection[]) {
+  const chosen = selections.filter((s) => s.grantedByTraitId === trait.id);
+  switch (trait.type) {
+    case "choice": {
+      const choice = chosen.find((s) => s.type === "choice");
+      return (
+        !choice ||
+        choice.selectedOptions.length < trait.numSelections ||
+        choice.selectedOptions.some(
+          (option) =>
+            trait.options.some(
+              (t) => t.id === option.traitId && t.type === "pick_feature_from_pool",
+            ) && !option.selection,
+        )
+      );
+    }
+    case "pick_feature_from_pool":
+      return chosen.length < trait.choicesAllowed;
+    case "spell_school_choice":
+      return chosen.length < (trait.numberOfChoices ?? 1);
+    case "attribute_boost":
+    case "subclass_choice":
+      return chosen.length === 0;
+    case "utility_spells": {
+      const schools = trait.schools?.length
+        ? trait.schools
+        : selections.filter((s) => s.type === "spell_school").map((s) => s.schoolId);
+      const needed = FeatureSelectionService.getInstance().getUtilitySpellSelectionCount(
+        trait,
+        schools,
+      );
+      return chosen.length < needed;
+    }
+    default:
+      return false;
+  }
+}
+
+function withoutOldChoices(selections: TraitSelection[], features?: CharacterFeature[]) {
+  const obsolete = new Set(features?.flatMap((f) => f.traits?.map((t) => t.id) ?? []));
+  return selections.filter((s) => !obsolete.has(s.grantedByTraitId));
 }
 
 // Builder steps
@@ -54,6 +104,7 @@ const STEPS = [
   { id: "attributes", label: "Attributes" },
   { id: "skills", label: "Skills" },
   { id: "equipment", label: "Equipment" },
+  { id: "review", label: "Review" },
 ];
 
 interface CharacterBuilderProps {
@@ -75,9 +126,10 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
     },
     skillAllocations: {},
     selectedEquipment: [],
-    equipmentReady: false,
   });
 
+  const [acceptCustom, setAcceptCustom] = useState(false);
+  const [creating, setCreating] = useState(false);
   const { showError } = useToastService();
   const contentRepository = ContentRepositoryService.getInstance();
   const characterCreationService = getCharacterCreation();
@@ -88,15 +140,47 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
   const availableBackgrounds = contentRepository.getAllBackgrounds();
 
   const handleClassSelect = (classId: string) => {
-    setBuilderState((prev) => ({ ...prev, classId }));
+    const cls = contentRepository.getClassDefinition(classId);
+    if (!cls || classId === builderState.classId) return;
+    setAcceptCustom(false);
+    setBuilderState((prev) => ({
+      ...prev,
+      classId,
+      attributes: startingAttributes(cls.keyAttributes),
+      traitSelections: withoutOldChoices(
+        prev.traitSelections,
+        availableClasses.find((c) => c.id === prev.classId)?.features,
+      ),
+      selectedEquipment: cls.startingEquipment ?? [],
+    }));
   };
 
   const handleAncestrySelect = (ancestryId: string) => {
-    setBuilderState((prev) => ({ ...prev, ancestryId }));
+    setBuilderState((prev) => ({
+      ...prev,
+      ancestryId,
+      traitSelections:
+        prev.ancestryId === ancestryId
+          ? prev.traitSelections
+          : withoutOldChoices(
+              prev.traitSelections,
+              availableAncestries.find((c) => c.id === prev.ancestryId)?.features,
+            ),
+    }));
   };
 
   const handleBackgroundSelect = (backgroundId: string) => {
-    setBuilderState((prev) => ({ ...prev, backgroundId }));
+    setBuilderState((prev) => ({
+      ...prev,
+      backgroundId,
+      traitSelections:
+        prev.backgroundId === backgroundId
+          ? prev.traitSelections
+          : withoutOldChoices(
+              prev.traitSelections,
+              availableBackgrounds.find((c) => c.id === prev.backgroundId)?.features,
+            ),
+    }));
   };
 
   const handleNameChange = (name: string) => {
@@ -107,7 +191,6 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
     setBuilderState((prev) => ({
       ...prev,
       selectedEquipment: equipment,
-      equipmentReady: true,
     }));
   };
 
@@ -116,6 +199,7 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
   };
 
   const handleAttributesChange = (attributes: typeof builderState.attributes) => {
+    setAcceptCustom(false);
     setBuilderState((prev) => ({ ...prev, attributes }));
   };
 
@@ -141,9 +225,10 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
   };
 
   const createCharacterFromBuilder = async () => {
-    if (!canProceedFromBackground()) return;
+    if (creating || !canProceedFromBackground() || (customScores && !acceptCustom)) return;
     if (!builderState.classId || !builderState.ancestryId || !builderState.backgroundId) return;
 
+    setCreating(true);
     try {
       // Effect selections are already in the correct format
       const traitSelections = builderState.traitSelections;
@@ -169,107 +254,33 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
     } catch (error) {
       console.error("Failed to create character:", error);
       showError("Failed to create character. Please try again.");
+    } finally {
+      setCreating(false);
     }
   };
 
-  const handleFinalizeCharacter = async () => {
-    await createCharacterFromBuilder();
-  };
-
-  // Determine if we can proceed from current step
-  const canProceedFromCurrentStep = (): boolean => {
-    switch (STEPS[currentStep].id) {
-      case "class":
-        return !!builderState.classId;
-      case "ancestry":
-        return canProceedFromAncestry();
-      case "background":
-        return canProceedFromBackground();
-      case "features":
-        return canProceedFromHeritage();
-      case "attributes":
-        return true; // Can always proceed from attributes
-      case "skills":
-        return true; // Skills are optional, can always proceed
-      case "equipment":
-        return !!builderState.equipmentReady; // Equipment step is ready when items are selected
-      default:
-        return false;
-    }
-  };
-
-  const handleNext = async () => {
-    const currentStepId = STEPS[currentStep].id;
-
-    switch (currentStepId) {
-      case "class":
-        setCurrentStep(1); // Go to ancestry
-        break;
-      case "ancestry":
-        setCurrentStep(2); // Go to background
-        break;
-      case "background":
-        setCurrentStep(3); // Go to features
-        break;
-      case "features":
-        setCurrentStep(4); // Go to attributes
-        break;
-      case "attributes":
-        setCurrentStep(5); // Go to skills
-        break;
-      case "skills":
-        setCurrentStep(6); // Go to equipment
-        break;
-      case "equipment":
-        await handleFinalizeCharacter();
-        break;
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const getNextButtonText = (): string => {
-    switch (STEPS[currentStep].id) {
-      case "class":
-        return "Next: Ancestry";
-      case "ancestry":
-        return "Next: Background";
-      case "background":
-        return "Next: Features";
-      case "features":
-        return "Next: Attributes";
-      case "attributes":
-        return "Next: Skills";
-      case "skills":
-        return "Next: Equipment";
-      case "equipment":
-        return "Finish Character";
-      default:
-        return "Next";
-    }
-  };
-
-  const getPreviousButtonText = (): string => {
-    switch (STEPS[currentStep].id) {
-      case "ancestry":
-        return "Back to Class";
-      case "background":
-        return "Back to Ancestry";
-      case "features":
-        return "Back to Background";
-      case "attributes":
-        return "Back to Features";
-      case "skills":
-        return "Back to Attributes";
-      case "equipment":
-        return "Back to Skills";
-      default:
-        return "Previous";
-    }
+  const sortedScores = Object.values(builderState.attributes)
+    .sort((a, b) => b - a)
+    .join(",");
+  const customScores = !Object.values(STANDARD_ARRAYS).some(
+    (array) => array.values.join(",") === sortedScores,
+  );
+  const stepId = STEPS[currentStep].id;
+  const canProceed =
+    !creating &&
+    (stepId === "class"
+      ? !!builderState.classId
+      : stepId === "ancestry"
+        ? canProceedFromAncestry()
+        : stepId === "background"
+          ? canProceedFromBackground()
+          : stepId === "review"
+            ? canProceedFromHeritage() && (!customScores || acceptCustom)
+            : true);
+  const handleNext = () => {
+    if (!canProceed) return;
+    if (stepId === "review") void createCharacterFromBuilder();
+    else setCurrentStep(currentStep + 1);
   };
 
   const renderStepContent = () => {
@@ -332,47 +343,78 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
       case "equipment":
         return (
           <EquipmentSelection
-            classId={builderState.classId!}
             selectedEquipment={builderState.selectedEquipment}
             onEquipmentReady={handleEquipmentReady}
           />
         );
+      case "review": {
+        const pointsLeft =
+          gameConfig.character.initialSkillPoints -
+          Object.values(builderState.skillAllocations).reduce((sum, n) => sum + n, 0);
+
+        const cls = availableClasses.find((c) => c.id === builderState.classId);
+        const ancestry = availableAncestries.find((a) => a.id === builderState.ancestryId);
+        const background = availableBackgrounds.find((b) => b.id === builderState.backgroundId);
+        const pending = [
+          ...(cls?.features.filter((f) => f.level === 1) ?? []),
+          ...(ancestry?.features ?? []),
+          ...(background?.features ?? []),
+        ].filter((f) => f.traits?.some((t) => remainingChoices(t, builderState.traitSelections)));
+        return (
+          <section className="space-y-4" aria-label="Character review">
+            <h3 className="text-xl font-semibold">Review {builderState.name}</h3>
+            <p>
+              Level 1 {ancestry?.name} {cls?.name} · {background?.name}
+            </p>
+            <div className="rounded-lg border p-4 space-y-2">
+              <h4 className="font-semibold">Starting attributes</h4>
+              <p>
+                {Object.entries(builderState.attributes)
+                  .map(
+                    ([attr, n]) => attr.slice(0, 3).toUpperCase() + " " + (n >= 0 ? "+" : "") + n,
+                  )
+                  .join(" · ")}
+              </p>
+              <Button variant="outline" size="sm" onClick={() => setCurrentStep(4)}>
+                Edit attributes
+              </Button>
+              {customScores && (
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={acceptCustom}
+                    onChange={(e) => setAcceptCustom(e.target.checked)}
+                  />
+                  Use these custom scores instead of a standard array.
+                </label>
+              )}
+            </div>
+            <div className="rounded-lg border p-4 space-y-2">
+              <h4 className="font-semibold">Skills and features</h4>
+              <p>
+                {pointsLeft
+                  ? `${pointsLeft} unspent skill point${pointsLeft === 1 ? "" : "s"}. You can assign them in Explore later.`
+                  : "All starting skill points assigned."}
+              </p>
+              <Button variant="outline" size="sm" onClick={() => setCurrentStep(5)}>
+                Edit skills
+              </Button>
+              {pending.length > 0 && (
+                <div>
+                  <p>Feature choices to finish: {pending.map((f) => f.name).join(", ")}.</p>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentStep(3)}>
+                    Review features
+                  </Button>
+                </div>
+              )}
+            </div>
+            <p>Starting equipment: {builderState.selectedEquipment.length} items</p>
+          </section>
+        );
+      }
       default:
         return null;
     }
-  };
-
-  // Determine which steps are completed for visual indication
-  const getCompletedSteps = (): number[] => {
-    const completed: number[] = [];
-
-    if (builderState.classId) {
-      completed.push(0); // Class step
-    }
-
-    if (canProceedFromAncestry()) {
-      completed.push(1); // Ancestry step
-    }
-
-    if (canProceedFromBackground()) {
-      completed.push(2); // Background step
-    }
-
-    if (canProceedFromHeritage()) {
-      completed.push(3); // Features step (available after heritage)
-
-      // Mark subsequent steps as available once features are done
-      if (currentStep > 3) {
-        completed.push(4); // Attributes step
-        completed.push(5); // Skills step
-      }
-    }
-
-    if (builderState.equipmentReady) {
-      completed.push(6); // Equipment step
-    }
-
-    return completed;
   };
 
   return (
@@ -383,24 +425,20 @@ export function CharacterBuilder({ isOpen, onClose, onCharacterCreated }: Charac
       titleIcon={<Wand2 className="h-5 w-5 text-primary" />}
       steps={STEPS}
       currentStep={currentStep}
-      onStepChange={(step) => {
-        // Only allow direct step navigation if the step is accessible
-        if (
-          step < currentStep ||
-          step === 0 ||
-          (step === 1 && builderState.classId) ||
-          (step === 2 && canProceedFromAncestry())
-        ) {
-          setCurrentStep(step);
-        }
-      }}
+      onStepChange={setCurrentStep}
       onNext={handleNext}
-      onPrevious={handlePrevious}
-      canProceed={canProceedFromCurrentStep()}
-      nextButtonText={getNextButtonText()}
-      previousButtonText={getPreviousButtonText()}
+      onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
+      canProceed={canProceed}
+      nextButtonText={
+        creating
+          ? "Creating…"
+          : stepId === "review"
+            ? "Finish Character"
+            : "Next: " + STEPS[currentStep + 1].label
+      }
+      previousButtonText={currentStep ? "Back to " + STEPS[currentStep - 1].label : "Previous"}
       className="sm:max-w-4xl w-[95vw]"
-      completedSteps={getCompletedSteps()}
+      completedSteps={STEPS.slice(0, currentStep).map((_, i) => i)}
     >
       <div className="min-w-0 px-4 sm:px-6 py-4">{renderStepContent()}</div>
     </WizardDialog>

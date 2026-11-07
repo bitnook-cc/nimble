@@ -99,7 +99,9 @@ export function WizardDialog({
         />
 
         {/* Step Content */}
-        <div className={cn("flex-1 overflow-y-auto", contentClassName)}>{children}</div>
+        <div key={currentStep} className={cn("min-h-0 flex-1 overflow-y-auto", contentClassName)}>
+          {children}
+        </div>
 
         {/* Navigation Buttons */}
         <WizardNavigation
@@ -151,12 +153,16 @@ export function WizardStepIndicator({
   }, [currentStep]);
 
   return (
-    <div className="w-full py-4">
-      <div ref={containerRef} className="px-6 overflow-x-auto scrollbar-hide">
+    <div className="w-full px-4 py-1 sm:px-0 sm:py-3">
+      <p className="text-sm font-medium sm:hidden" aria-live="polite">
+        Step {currentStep + 1} of {steps.length} · {steps[currentStep].label}
+      </p>
+      <div ref={containerRef} className="hidden sm:block px-4 overflow-x-auto">
         <div className="flex items-center justify-center min-w-max px-4 sm:px-0">
           {steps.map((step, index) => (
             <div
               key={step.id}
+              aria-current={index === currentStep ? "step" : undefined}
               ref={index === currentStep ? activeStepRef : null}
               className="flex items-center shrink-0"
             >
@@ -211,7 +217,7 @@ export function WizardNavigation({
   previousButtonText?: string;
 }) {
   return (
-    <div className="flex items-center justify-between p-6 border-t">
+    <div className="flex flex-wrap items-center justify-between gap-2 p-3 sm:p-6 border-t [&>button]:min-h-11">
       <Button variant="outline" onClick={onPrevious} disabled={isFirstStep}>
         <ChevronLeft className="h-4 w-4 mr-1" />
         {previousButtonText || "Previous"}

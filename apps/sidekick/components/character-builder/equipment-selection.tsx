@@ -2,10 +2,10 @@
 
 import { Beaker, Package, Plus, Search, Shield, Shirt, Sword, Target, Trash2 } from "lucide-react";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Item } from "@/lib/schemas/inventory";
-import { getContentRepository, getItemService } from "@/lib/services/service-factory";
+import { getItemService } from "@/lib/services/service-factory";
 
 import { ItemBrowser } from "../item-browser";
 import { Badge } from "../ui/badge";
@@ -13,21 +13,17 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface EquipmentSelectionProps {
-  classId: string;
   selectedEquipment: string[];
   onEquipmentReady: (equipment: string[]) => void;
 }
 
 export function EquipmentSelection({
-  classId,
   selectedEquipment,
   onEquipmentReady,
 }: EquipmentSelectionProps) {
   const [isItemBrowserOpen, setIsItemBrowserOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const itemService = getItemService();
-  const contentRepository = getContentRepository();
 
   // Convert selectedEquipment repository IDs to display items
   const equipment = selectedEquipment
@@ -35,31 +31,6 @@ export function EquipmentSelection({
       return itemService.createInventoryItem(repositoryId);
     })
     .filter((item) => item !== null) as Item[];
-
-  const loadStartingEquipment = useCallback(() => {
-    // Get starting equipment for the class
-    const classDefinition = contentRepository.getClassDefinition(classId);
-    if (classDefinition?.startingEquipment) {
-      // Notify parent with original repository IDs
-      onEquipmentReady(classDefinition.startingEquipment);
-    } else {
-      // No starting equipment
-      onEquipmentReady([]);
-    }
-  }, [classId, contentRepository, onEquipmentReady]);
-
-  useEffect(() => {
-    if (!isInitialized && classId) {
-      loadStartingEquipment();
-      setIsInitialized(true);
-    }
-  }, [classId, isInitialized, loadStartingEquipment]);
-
-  // Sync with selectedEquipment changes
-  useEffect(() => {
-    // This effect ensures the component re-renders when selectedEquipment changes
-    // The equipment array is computed from selectedEquipment above
-  }, [selectedEquipment]);
 
   const handleAddItem = (repositoryId: string) => {
     // Add to the selectedEquipment array
@@ -108,7 +79,7 @@ export function EquipmentSelection({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
           <h3 className="text-lg font-semibold">Select Starting Equipment</h3>
           <p className="text-sm text-muted-foreground">Choose your starting gear and equipment</p>
@@ -159,7 +130,12 @@ export function EquipmentSelection({
                       </div>
                     </div>
                   </div>
-                  <Button onClick={() => handleRemoveItem(item.id)} variant="ghost" size="sm">
+                  <Button
+                    aria-label={`Remove ${item.name}`}
+                    onClick={() => handleRemoveItem(item.id)}
+                    variant="ghost"
+                    size="sm"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

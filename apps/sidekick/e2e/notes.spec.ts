@@ -2,133 +2,75 @@ import { expect, test } from "@playwright/test";
 
 import { CharacterTestUtils } from "./utils/character-utils";
 
-test.describe("Notes Management", () => {
-  let characterUtils: CharacterTestUtils;
+test("notes autosave through navigation, reload and switching characters", async ({ page }) => {
+  await page.goto("/");
+  const sheet = new CharacterTestUtils(page);
+  await sheet.createCharacter();
+  const name = "Note Keeper";
+  const characterName = page.getByRole("textbox", { name: "Character Name", exact: true });
+  await characterName.fill(name);
+  await characterName.press("Tab");
+  await sheet.navigateToTab("Notes");
+  await page.getByRole("button", { name: "Add Note" }).click();
+  const title = page.getByRole("textbox", { name: "Note title" });
+  const body = page.getByRole("textbox", { name: "Note content" });
+  await title.fill("Map fragments");
+  await body.fill("# The hidden gate");
+  await sheet.navigateToTab("Combat");
+  await sheet.navigateToTab("Notes");
+  await expect(page.getByRole("heading", { name: "The hidden gate" })).toBeVisible();
+  await page.getByRole("button", { name: "Note options" }).click();
+  await page.getByRole("menuitem", { name: "Edit" }).click();
+  await title.fill("Gate clues");
+  await page.getByRole("button", { name: "Add Roll" }).click();
+  await page.getByRole("textbox", { name: "Roll 1 formula" }).fill("");
+  await body.fill("The key is **silver**.");
+  await page.reload();
+  await sheet.navigateToTab("Notes");
+  await expect(page.getByRole("button", { name: "Gate clues", exact: true })).toBeVisible();
+  await expect(page.locator("strong").getByText("silver", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Roll New roll" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Note options" })).toHaveCount(1);
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.getByRole("menuitem", { name: "New Character" }).click();
+  await page.getByRole("button", { name: "Quick Create" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await sheet.navigateToTab("Notes");
+  await expect(page.getByText(/No notes yet/)).toBeVisible();
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.getByRole("menuitem", { name: "Characters", exact: true }).click();
+  await page.getByRole("button", { name: "Open " + name, exact: true }).press("Enter");
+  await sheet.navigateToTab("Notes");
+  await expect(page.getByRole("button", { name: "Gate clues", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Note options" }).click();
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
+  await expect(page.getByText(/No notes yet/)).toBeVisible();
+});
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    characterUtils = new CharacterTestUtils(page);
-  });
-
-  test("create and edit notes", async ({ page }) => {
-    await test.step("Setup character", async () => {
-      await characterUtils.ensureCharacterExists();
-    });
-
-    await test.step("Navigate to Notes tab", async () => {
-      const notesTab = page.getByRole("button", { name: /^notes$/i });
-      await notesTab.scrollIntoViewIfNeeded();
-      await expect(notesTab).toBeVisible();
-      await notesTab.click();
-
-      // Wait for tab content to load
-      await page.waitForTimeout(500);
-    });
-
-    await test.step("Create a new note", async () => {
-      // Click Add Note button
-      const addNoteButton = page.getByRole("button", { name: /add note/i });
-      await expect(addNoteButton).toBeVisible();
-      await addNoteButton.click();
-
-      // Fill in note title
-      const titleInput = page.getByPlaceholder(/title/i);
-      await expect(titleInput).toBeVisible();
-      await titleInput.fill("Test Note");
-
-      // Fill in note content
-      const contentTextarea = page.getByPlaceholder(/content.*markdown/i);
-      await expect(contentTextarea).toBeVisible();
-      await contentTextarea.fill("# Test Heading\n\nThis is **bold** and this is *italic*.");
-
-      // Save the note
-      const saveButton = page.getByRole("button", { name: /save/i });
-      await expect(saveButton).toBeVisible();
-      await saveButton.click();
-
-      // Verify note was created and is visible
-      await expect(page.getByText("Test Note")).toBeVisible();
-
-      // Verify markdown is rendered (look for the heading)
-      await expect(page.getByRole("heading", { name: /test heading/i })).toBeVisible();
-    });
-
-    await test.step("Edit the note", async () => {
-      // Find and click the note's dropdown menu
-      const moreButton = page.getByRole("button", { name: /note options/i });
-      await expect(moreButton).toBeVisible();
-      await moreButton.click();
-
-      // Click Edit option
-      const editMenuItem = page.getByRole("menuitem", { name: /edit/i });
-      await expect(editMenuItem).toBeVisible();
-      await editMenuItem.click();
-
-      // Wait for edit mode to activate
-      await page.waitForTimeout(300);
-
-      // Update the title
-      const titleInput = page.getByRole("textbox", { name: /note title/i });
-      await expect(titleInput).toBeVisible();
-      await titleInput.selectText();
-      await titleInput.fill("Updated Test Note");
-
-      // Update the content
-      const contentTextarea = page.getByRole("textbox", { name: /note content/i });
-      await expect(contentTextarea).toBeVisible();
-      await contentTextarea.selectText();
-      await contentTextarea.pressSequentially(
-        "# Updated Heading\n\nThis content has been **updated**.",
-        { delay: 10 },
-      );
-
-      // Save the changes
-      const saveButton = page.getByRole("button", { name: /save/i });
-      await saveButton.click();
-
-      // Wait for save to complete and UI to update
-      await page.waitForTimeout(1000);
-
-      // Verify the note title was updated
-      const noteTitle = page.getByText("Updated Test Note");
-      await expect(noteTitle).toBeVisible();
-
-      // The note should be collapsed after saving, expand it to check content
-      const isExpanded = await page
-        .getByRole("heading", { name: /updated heading/i })
-        .isVisible()
-        .catch(() => false);
-      if (!isExpanded) {
-        // Click the chevron or title to expand
-        await noteTitle.click();
-        await page.waitForTimeout(500);
+test("a failed autosave keeps the note editable and offers a retry", async ({ page }) => {
+  await page.goto("/");
+  const sheet = new CharacterTestUtils(page);
+  await sheet.createCharacter();
+  await sheet.navigateToTab("Notes");
+  await page.getByRole("button", { name: "Add Note" }).click();
+  const title = page.getByRole("textbox", { name: "Note title" });
+  await expect(title).toBeVisible();
+  await page.evaluate(() => {
+    const write = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "sheets-characters") {
+        Storage.prototype.setItem = write;
+        throw new DOMException("Storage is full", "QuotaExceededError");
       }
-
-      // Verify the markdown content was updated
-      await expect(page.getByRole("heading", { name: /updated heading/i })).toBeVisible();
-    });
-
-    await test.step("Delete the note", async () => {
-      // Find and click the note's dropdown menu
-      const moreButton = page.getByRole("button", { name: /note options/i });
-      await expect(moreButton).toBeVisible();
-      await moreButton.click();
-
-      // Click Delete option
-      const deleteMenuItem = page.getByRole("menuitem", { name: /delete/i });
-      await expect(deleteMenuItem).toBeVisible();
-
-      await deleteMenuItem.click();
-
-      // Confirm in the AlertDialog
-      const confirmButton = page.getByRole("alertdialog").getByRole("button", { name: /delete/i });
-      await expect(confirmButton).toBeVisible();
-      await confirmButton.click();
-
-      // Verify the note was deleted
-      await expect(page.getByText("Updated Test Note")).not.toBeVisible();
-      await expect(page.getByText(/no notes yet/i)).toBeVisible();
-    });
+      return write.call(this, key, value);
+    };
   });
+  await title.fill("Recovered note");
+  await expect(title).toHaveValue("Recovered note");
+  await page.getByRole("button", { name: "Retry save" }).click();
+  await expect(title).toHaveCount(0);
+  await page.reload();
+  await sheet.navigateToTab("Notes");
+  await expect(page.getByRole("button", { name: "Recovered note", exact: true })).toBeVisible();
 });

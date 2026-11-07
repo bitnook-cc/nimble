@@ -29,6 +29,15 @@ export function useSwipeNavigation({
   });
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (
+      e.target instanceof Element &&
+      e.target.closest(
+        'nav, [role="dialog"], [role="alertdialog"], [role="menu"], input, textarea, select, button, [contenteditable="true"]',
+      )
+    ) {
+      touchStartX.current = 0;
+      return;
+    }
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchCurrentX.current = e.touches[0].clientX;

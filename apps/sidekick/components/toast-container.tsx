@@ -11,10 +11,12 @@ import { DiceFormulaDisplay } from "@/lib/utils/dice-display-components";
 export function ToastContainer() {
   const { toasts, removeToast } = useToastService();
 
-  if (toasts.length === 0) return null;
-
   return (
-    <div className="fixed top-18 right-4 z-40 space-y-2 max-w-sm">
+    <div
+      aria-live="polite"
+      aria-atomic="false"
+      className="fixed top-18 right-4 z-40 space-y-2 max-w-sm"
+    >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
       ))}
@@ -80,6 +82,7 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
           variant="ghost"
           size="sm"
           className="h-6 w-6 p-0 hover:bg-muted"
+          aria-label="Dismiss notification"
           onClick={() => onRemove(toast.id)}
         >
           <X className="w-4 h-4" />

@@ -17,7 +17,7 @@ import {
   Swords,
 } from "lucide-react";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useDiceActions } from "@/lib/hooks/use-dice-actions";
@@ -85,141 +85,39 @@ function HealthBar() {
   );
 }
 
-// Hook to track viewport width
-function useViewportWidth() {
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    function updateWidth() {
-      setWidth(window.innerWidth);
-    }
-
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  return width;
-}
-
-// Wounds Display Subcomponent
+// Explicit adjustments keep a second tap from unexpectedly clearing all wounds.
 function WoundsDisplay() {
   const { character, updateWounds, getMaxWounds } = useCharacterService();
-  const [hoveredWound, setHoveredWound] = useState<number | null>(null);
-  const viewportWidth = useViewportWidth();
-
-  // All hooks called first, then safety check
   if (!character) return null;
-
-  const { wounds } = character;
-  const maxWounds = getMaxWounds();
-
-  // Calculate if icons would exceed 70% of viewport width
-  // Each icon is roughly 24px (w-5 h-5 = 20px + gap-1 = 4px between icons)
-  const iconWidth = 24; // 20px icon + 4px gap
-  const iconsWidth = maxWounds * iconWidth;
-  const shouldUseIcons = iconsWidth <= viewportWidth * 0.6;
-
-  const handleWoundClick = (woundIndex: number) => {
-    const newWoundCount = woundIndex + 1;
-    if (newWoundCount === wounds.current) {
-      // Clicking on the current highest wound clears all wounds
-      updateWounds(0);
-    } else {
-      // Set wounds to the clicked position
-      updateWounds(newWoundCount);
-    }
-  };
-
-  const adjustWounds = (delta: number) => {
-    const newWounds = Math.max(0, Math.min(maxWounds, wounds.current + delta));
-    updateWounds(newWounds);
-  };
-
-  if (!shouldUseIcons) {
-    // Determine status icon based on wound percentage
-    const getStatusIcon = () => {
-      if (wounds.current >= maxWounds) {
-        return <Skull className="w-4 h-4 text-red-600" />;
-      }
-
-      const criticalThreshold = Math.min(maxWounds * 0.8, maxWounds - 1);
-      if (wounds.current > criticalThreshold) {
-        return <Heart className="w-4 h-4 text-red-500" />;
-      }
-
-      if (wounds.current > maxWounds * 0.5) {
-        return <Bandage className="w-4 h-4 text-orange-600" />;
-      }
-
-      return <Heart className="w-4 h-4 text-green-600" />;
-    };
-
-    return (
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => adjustWounds(-1)}
-          disabled={wounds.current <= 0}
-          className="h-6 w-6 p-0 text-xs"
-          aria-label="Remove wound"
-        >
-          <Minus className="w-4 h-4" />
-        </Button>
-        {getStatusIcon()}
-        <span className="text-sm font-medium text-muted-foreground min-w-[3ch] text-center">
-          {wounds.current}/{maxWounds}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => adjustWounds(1)}
-          disabled={wounds.current >= maxWounds}
-          className="h-6 w-6 p-0 text-xs"
-          aria-label="Add wound"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-    );
-  }
-
-  const woundIcons = [];
-  for (let i = 0; i < maxWounds; i++) {
-    const isLastWound = i === maxWounds - 1;
-    const currentWounds = hoveredWound !== null ? hoveredWound + 1 : wounds.current;
-    const isWounded = i < currentWounds;
-    const isHovered = hoveredWound === i;
-    const IconComponent = isLastWound ? Skull : Bandage;
-
-    woundIcons.push(
-      <button
-        key={i}
-        onClick={() => handleWoundClick(i)}
-        onMouseEnter={() => setHoveredWound(i)}
-        onMouseLeave={() => setHoveredWound(null)}
-        className={`transition-all duration-200 hover:scale-110 ${
-          isHovered ? "drop-shadow-lg" : ""
-        }`}
-        title={`Click to ${i + 1 === wounds.current ? "clear all wounds" : `set wounds to ${i + 1}`}`}
+  const max = getMaxWounds();
+  const current = character.wounds.current;
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-11 sm:size-8"
+        aria-label="Remove wound"
+        disabled={current <= 0}
+        onClick={() => updateWounds(current - 1)}
       >
-        <IconComponent
-          className={`w-5 h-5 transition-colors duration-200 ${
-            isWounded
-              ? isHovered
-                ? "text-red-400"
-                : "text-red-500"
-              : isHovered
-                ? "text-red-300"
-                : "text-muted-foreground/50"
-          }`}
-        />
-      </button>,
-    );
-  }
-
-  return <div className="flex items-center gap-1">{woundIcons}</div>;
+        <Minus />
+      </Button>
+      <span className="min-w-9 text-center text-sm tabular-nums" aria-live="polite">
+        {current}/{max}
+      </span>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-11 sm:size-8"
+        aria-label="Add wound"
+        disabled={current >= max}
+        onClick={() => updateWounds(current + 1)}
+      >
+        <Plus />
+      </Button>
+    </div>
+  );
 }
 
 // HP Action Panel Types
@@ -295,7 +193,7 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(-5)}
-              className="h-8 flex-1 p-0 text-xs"
+              className="h-11 sm:h-8 flex-1 p-0 text-xs"
             >
               -5
             </Button>
@@ -303,12 +201,13 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(-1)}
-              className="h-8 flex-1 p-0 text-xs"
+              className="h-11 sm:h-8 flex-1 p-0 text-xs"
             >
               -1
             </Button>
 
             <input
+              aria-label="Amount"
               type="number"
               min="1"
               value={amount}
@@ -326,7 +225,7 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(1)}
-              className="h-8 flex-1 p-0 text-xs"
+              className="h-11 sm:h-8 flex-1 p-0 text-xs"
             >
               +1
             </Button>
@@ -334,13 +233,17 @@ function HPActionDialog({
               variant="outline"
               size="sm"
               onClick={() => adjustAmount(5)}
-              className="h-8 flex-1 p-0 text-xs"
+              className="h-11 sm:h-8 flex-1 p-0 text-xs"
             >
               +5
             </Button>
           </div>
 
-          <Button onClick={handleApply} className={`w-full ${config.buttonClass}`} size="sm">
+          <Button
+            onClick={handleApply}
+            className={`w-full min-h-11 ${config.buttonClass}`}
+            size="sm"
+          >
             {config.icon}
             <span className="ml-2">{config.title}</span>
           </Button>
@@ -382,7 +285,7 @@ function QuickActionsBar() {
           size="sm"
           onClick={() => setOpenDialog("damage")}
           disabled={currentHp <= 0}
-          className="text-destructive border-destructive hover:bg-destructive/10 text-xs h-7"
+          className="text-destructive border-destructive hover:bg-destructive/10 text-xs min-h-11 sm:min-h-8"
         >
           <Droplets className="w-3 h-3 mr-1" />
           Damage
@@ -393,7 +296,7 @@ function QuickActionsBar() {
           size="sm"
           onClick={() => setOpenDialog("healing")}
           disabled={currentHp >= maxHp}
-          className="text-green-600 border-green-600 hover:bg-green-600/10 text-xs h-7"
+          className="text-green-600 border-green-600 hover:bg-green-600/10 text-xs min-h-11 sm:min-h-8"
         >
           <HeartPlus className="w-3 h-3 mr-1" />
           Healing
@@ -403,7 +306,7 @@ function QuickActionsBar() {
           variant="outline"
           size="sm"
           onClick={() => setOpenDialog("tempHP")}
-          className="text-primary border-primary hover:bg-primary/10 text-xs h-7"
+          className="text-primary border-primary hover:bg-primary/10 text-xs min-h-11 sm:min-h-8"
         >
           <ShieldPlus className="w-3 h-3 mr-1" />
           Temp HP
@@ -820,7 +723,7 @@ function CombatStatusBar() {
           {/* Wounds Column */}
           <div className="flex flex-col">
             <span className="text-sm font-medium text-muted-foreground mb-1">Wounds</span>
-            <div className="flex items-center h-8">
+            <div className="flex items-center">
               <WoundsDisplay />
             </div>
           </div>
@@ -836,7 +739,7 @@ function CombatStatusBar() {
                       variant="outline"
                       size="sm"
                       onClick={handleInitiativeRoll}
-                      className="h-8 px-2 text-xs"
+                      className="min-h-11 sm:min-h-8 px-2 text-xs"
                       aria-label="Roll Initiative"
                     >
                       <span className="mr-1">
@@ -853,7 +756,12 @@ function CombatStatusBar() {
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <Button variant="destructive" size="sm" onClick={endEncounter} className="text-xs">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={endEncounter}
+                  className="min-h-11 sm:min-h-8 text-xs"
+                >
                   <Square className="w-3 h-3" />
                   End Combat
                 </Button>
@@ -876,13 +784,10 @@ export function CombatSummary() {
       <div className="space-y-3">
         <CombatStatusBar />
 
-        <ResourceTracker />
-
-        <DicePoolCards />
-
         <ActionTracker />
-
         <GeneralActionsRow />
+        <ResourceTracker />
+        <DicePoolCards />
       </div>
     </TooltipProvider>
   );

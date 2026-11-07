@@ -70,6 +70,7 @@ export function ItemBrowser({
   onItemsChange,
   onItemAdd,
 }: ItemBrowserProps) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<ItemType | "all">("all");
   const [selectedCategory, setSelectedCategory] = useState<"all" | "mundane" | "magical">("all");
@@ -95,6 +96,9 @@ export function ItemBrowser({
   }, [searchTerm, selectedType, selectedCategory, selectedRarity, itemService]);
 
   // Group items by type and category
+  const filterCount = [selectedType, selectedCategory, selectedRarity].filter(
+    (value) => value !== "all",
+  ).length;
   const groupedItems = useMemo(() => {
     const groups: Record<string, RepositoryItem[]> = {};
 
@@ -198,7 +202,7 @@ export function ItemBrowser({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-[96vw] sm:max-w-4xl max-h-[90dvh] min-w-0 overflow-hidden flex flex-col p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -209,7 +213,7 @@ export function ItemBrowser({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden flex flex-col gap-3">
           {/* Status Message */}
           {addedMessage && (
             <div className="p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
@@ -218,7 +222,7 @@ export function ItemBrowser({
           )}
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-4 items-end gap-2">
             <div>
               <Label htmlFor="search" className="text-sm font-medium">
                 Search
@@ -235,68 +239,88 @@ export function ItemBrowser({
               </div>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium">Type</Label>
-              <Select
-                value={selectedType}
-                onValueChange={(value) => setSelectedType(value as ItemType | "all")}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="weapon">Weapons</SelectItem>
-                  <SelectItem value="armor">Armor</SelectItem>
-                  <SelectItem value="consumable">Consumables</SelectItem>
-                  <SelectItem value="ammunition">Ammunition</SelectItem>
-                  <SelectItem value="freeform">Other Items</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              aria-expanded={filtersOpen}
+              aria-controls="item-filters"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="min-h-11 md:hidden"
+            >
+              Filters{filterCount > 0 && ` (${filterCount})`}
+            </Button>
+            <div
+              id="item-filters"
+              className={`col-span-2 grid-cols-2 gap-2 md:contents ${filtersOpen ? "grid" : "hidden"}`}
+            >
+              <div>
+                <Label htmlFor="item-Type" className="text-sm font-medium">
+                  Type
+                </Label>
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) => setSelectedType(value as ItemType | "all")}
+                >
+                  <SelectTrigger id="item-Type" className="w-full min-w-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="weapon">Weapons</SelectItem>
+                    <SelectItem value="armor">Armor</SelectItem>
+                    <SelectItem value="consumable">Consumables</SelectItem>
+                    <SelectItem value="ammunition">Ammunition</SelectItem>
+                    <SelectItem value="freeform">Other Items</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label className="text-sm font-medium">Category</Label>
-              <Select
-                value={selectedCategory}
-                onValueChange={(value) =>
-                  setSelectedCategory(value as "all" | "mundane" | "magical")
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="mundane">Mundane</SelectItem>
-                  <SelectItem value="magical">Magical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label htmlFor="item-Category" className="text-sm font-medium">
+                  Category
+                </Label>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={(value) =>
+                    setSelectedCategory(value as "all" | "mundane" | "magical")
+                  }
+                >
+                  <SelectTrigger id="item-Category" className="w-full min-w-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="mundane">Mundane</SelectItem>
+                    <SelectItem value="magical">Magical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label className="text-sm font-medium">Rarity</Label>
-              <Select
-                value={selectedRarity}
-                onValueChange={(value) => setSelectedRarity(value as typeof selectedRarity)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Rarities</SelectItem>
-                  <SelectItem value="common">Common</SelectItem>
-                  <SelectItem value="uncommon">Uncommon</SelectItem>
-                  <SelectItem value="rare">Rare</SelectItem>
-                  <SelectItem value="very-rare">Very Rare</SelectItem>
-                  <SelectItem value="legendary">Legendary</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <Label htmlFor="item-Rarity" className="text-sm font-medium">
+                  Rarity
+                </Label>
+                <Select
+                  value={selectedRarity}
+                  onValueChange={(value) => setSelectedRarity(value as typeof selectedRarity)}
+                >
+                  <SelectTrigger id="item-Rarity" className="w-full min-w-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Rarities</SelectItem>
+                    <SelectItem value="common">Common</SelectItem>
+                    <SelectItem value="uncommon">Uncommon</SelectItem>
+                    <SelectItem value="rare">Rare</SelectItem>
+                    <SelectItem value="very-rare">Very Rare</SelectItem>
+                    <SelectItem value="legendary">Legendary</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-
           {/* Items List */}
-          <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto space-y-3">
             {Object.keys(groupedItems).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -310,8 +334,8 @@ export function ItemBrowser({
                 return (
                   <Card key={groupKey}>
                     <Collapsible open={isExpanded} onOpenChange={() => toggleGroup(groupKey)}>
-                      <CollapsibleTrigger asChild>
-                        <CardHeader className="cursor-pointer hover:bg-muted/50 pb-3">
+                      <CardHeader className="p-3 sm:p-4">
+                        <CollapsibleTrigger className="w-full min-h-11 text-left">
                           <CardTitle className="flex items-center justify-between text-base">
                             <div className="flex items-center gap-2">
                               {getTypeIcon(items[0].type)}
@@ -324,18 +348,18 @@ export function ItemBrowser({
                               <ChevronRight className="h-4 w-4" />
                             )}
                           </CardTitle>
-                        </CardHeader>
-                      </CollapsibleTrigger>
+                        </CollapsibleTrigger>
+                      </CardHeader>
                       <CollapsibleContent>
-                        <CardContent className="pt-0">
+                        <CardContent className="px-3 pb-3 pt-0 sm:px-5">
                           <div className="grid gap-2">
                             {items.map((repositoryItem) => (
                               <div
                                 key={repositoryItem.id}
-                                className="flex items-center justify-between p-3 border rounded hover:bg-muted/30"
+                                className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between p-3 border rounded hover:bg-muted/30"
                               >
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
+                                <div className="min-w-0 flex-1 break-words">
+                                  <div className="flex flex-wrap items-center gap-2 mb-1">
                                     <span className="font-medium">{repositoryItem.name}</span>
                                     <Badge
                                       variant="outline"
@@ -433,7 +457,13 @@ export function ItemBrowser({
                                       : "outline"
                                   }
                                   onClick={() => handleAddItem(repositoryItem.id)}
-                                  className="ml-4"
+                                  aria-pressed={
+                                    multiSelect
+                                      ? selectedItems.includes(repositoryItem.id)
+                                      : undefined
+                                  }
+                                  aria-label={`${multiSelect ? "Select" : "Add"} ${repositoryItem.name}`}
+                                  className="min-h-11 sm:ml-4"
                                 >
                                   {multiSelect ? (
                                     selectedItems.includes(repositoryItem.id) ? (
@@ -468,8 +498,7 @@ export function ItemBrowser({
 
           {/* Footer Summary */}
           <div className="border-t pt-4 text-sm text-muted-foreground">
-            Showing {filteredItems.length} items • Repository contains{" "}
-            {itemService.getAllItems().length} total items
+            Showing {filteredItems.length} of {itemService.getAllItems().length} items
             {multiSelect && selectedItems.length > 0 && (
               <span className="ml-2 text-primary font-medium">
                 • {selectedItems.length} selected

@@ -1,17 +1,28 @@
 "use client";
 
-import { Compass, FileText, Package, ScrollText, Sparkles, Sword, User } from "lucide-react";
+import {
+  Compass,
+  Ellipsis,
+  FileText,
+  Package,
+  ScrollText,
+  Sparkles,
+  Sword,
+  User,
+} from "lucide-react";
 
-import { useEffect, useRef, useState } from "react";
-
-import { useCharacterService } from "@/lib/hooks/use-character-service";
-import { getCharacterService } from "@/lib/services/service-factory";
 import { TabType } from "@/lib/services/ui-state-service";
 
-import { LicenseDisclaimer } from "./license-disclaimer";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface BottomTabBarProps {
+  visible: TabType[];
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
 }
@@ -32,109 +43,66 @@ const tabs: TabDefinition[] = [
   { id: "log", label: "Log", icon: ScrollText },
 ];
 
-export function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
-  const { character } = useCharacterService();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const activeButtonRef = useRef<HTMLButtonElement>(null);
-  const [needsScroll, setNeedsScroll] = useState(false);
-
-  // Filter tabs based on character capabilities
-  const visibleTabs = tabs.filter((tab) => {
-    // Hide spells tab if character has no spell schools unlocked
-    if (tab.id === "spells") {
-      if (!character) return false;
-      // Show spells tab if character has any spell abilities (even tier 0)
-      const characterService = getCharacterService();
-      const abilities = characterService.getAbilities();
-      const hasSpells = abilities.some((ability) => ability.type === "spell");
-      return hasSpells;
-    }
-    return true;
-  });
-
-  // Check if scrolling is needed on mount and when tabs change
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const checkScroll = () => {
-        setNeedsScroll(container.scrollWidth > container.clientWidth);
-      };
-      checkScroll();
-      window.addEventListener("resize", checkScroll);
-      return () => window.removeEventListener("resize", checkScroll);
-    }
-  }, [visibleTabs.length]);
-
-  // Auto-scroll to active tab button when it changes
-  useEffect(() => {
-    if (activeButtonRef.current && scrollContainerRef.current && needsScroll) {
-      const button = activeButtonRef.current;
-      const container = scrollContainerRef.current;
-
-      // Get the button's position relative to its container
-      const buttonLeft = button.offsetLeft;
-      const buttonWidth = button.offsetWidth;
-      const containerClientWidth = container.clientWidth;
-
-      // Calculate scroll position to center the button in the viewport
-      const targetScrollLeft = buttonLeft - containerClientWidth / 2 + buttonWidth / 2;
-
-      // Clamp to valid scroll range
-      const maxScroll = container.scrollWidth - containerClientWidth;
-      const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
-
-      container.scrollTo({
-        left: clampedScrollLeft,
-        behavior: "smooth",
-      });
-    }
-  }, [activeTab, needsScroll]);
+export function BottomTabBar({ visible, activeTab, onTabChange }: BottomTabBarProps) {
+  const destinations = tabs.filter((tab) => visible.includes(tab.id));
+  const secondary = destinations.filter((tab) => ["character", "notes", "log"].includes(tab.id));
+  const activeSecondary = secondary.find((tab) => tab.id === activeTab);
+  const buttonClass = (active: boolean) =>
+    `min-w-0 flex-1 sm:flex-none flex-col gap-1 h-12 px-1 sm:px-3 text-xs ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`;
 
   return (
-    <>
-      {/* Sticky navigation bar - full width */}
-      <div
-        className="sticky bottom-0 left-0 right-0 w-full bg-background border-t z-50"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        {/* Centered container matching top bar width - scrollable tabs */}
-        <div className="container mx-auto px-4">
-          <div
-            ref={scrollContainerRef}
-            className={`flex items-center h-16 gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide ${
-              needsScroll ? "justify-start" : "justify-center"
-            }`}
+    <nav
+      aria-label="Character sheet"
+      className="shrink-0 border-t bg-background"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="container mx-auto flex h-16 items-center justify-center gap-1 px-2">
+        {destinations.map((tab) => (
+          <Button
+            key={tab.id}
+            variant="ghost"
+            aria-current={activeTab === tab.id ? "page" : undefined}
+            onClick={() => onTabChange(tab.id)}
+            className={
+              buttonClass(activeTab === tab.id) +
+              (secondary.includes(tab) ? " hidden sm:inline-flex" : "")
+            }
           >
-            {visibleTabs.map((tab) => {
-              const IconComponent = tab.icon;
-              const isActive = activeTab === tab.id;
-
-              return (
-                <Button
-                  key={tab.id}
-                  ref={isActive ? activeButtonRef : null}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onTabChange(tab.id)}
-                  className={`flex flex-col items-center gap-1 h-12 px-3 min-w-[60px] shrink-0 ${
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                  <span className="text-xs font-medium leading-tight whitespace-nowrap">
-                    {tab.label}
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+            <tab.icon className="size-4" />
+            <span>{tab.label}</span>
+          </Button>
+        ))}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              aria-current={activeSecondary ? "page" : undefined}
+              aria-label={
+                activeSecondary
+                  ? `More sections, current: ${activeSecondary.label}`
+                  : "More sections"
+              }
+              className={buttonClass(!!activeSecondary) + " sm:hidden"}
+            >
+              <Ellipsis className="size-4" />
+              <span>{activeSecondary?.label ?? "More"}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top" aria-label="More sections">
+            {secondary.map((tab) => (
+              <DropdownMenuItem
+                key={tab.id}
+                aria-current={tab.id === activeTab ? "page" : undefined}
+                className="min-h-11"
+                onSelect={() => onTabChange(tab.id)}
+              >
+                <tab.icon className="size-4" />
+                {tab.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
-      {/* License disclaimer - appears below sticky nav when scrolled to bottom */}
-      <LicenseDisclaimer />
-    </>
+    </nav>
   );
 }

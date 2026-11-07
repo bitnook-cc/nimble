@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useCharacterService } from "@/lib/hooks/use-character-service";
 import { useSwipeNavigation } from "@/lib/hooks/use-swipe-navigation";
@@ -10,6 +10,7 @@ import { TabType } from "@/lib/services/ui-state-service";
 
 import { BottomTabBar } from "./bottom-tab-bar";
 import { CharacterHeader } from "./character-header";
+import { LicenseDisclaimer } from "./license-disclaimer";
 import { CharacterTab } from "./tabs/character-tab";
 import { CombatTab } from "./tabs/combat-tab";
 import { EquipmentTab } from "./tabs/equipment-tab";
@@ -27,6 +28,10 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
   const { uiState, updateActiveTab } = useUIStateService();
   const { character } = useCharacterService();
   const activeTab = uiState.activeTab;
+  const scrollArea = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollArea.current?.scrollTo({ top: 0 });
+  }, [activeTab, character?.id]);
 
   // Check if spells tab should be accessible
   // Tier 0 access is allowed as long as the character has spell schools unlocked
@@ -107,7 +112,7 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
       case "equipment":
         return <EquipmentTab />;
       case "notes":
-        return <NotesTab />;
+        return <NotesTab key={character?.id} />;
       case "spells":
         return <SpellsTab />;
       case "log":
@@ -135,7 +140,7 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
   return (
     <>
       {/* Content area with container */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollArea} className="flex-1 min-h-0 overflow-y-auto">
         <div className="container mx-auto py-6 px-4 space-y-6 min-h-[calc(100dvh-3.5rem-4rem)]">
           <CharacterHeader onNameChange={onNameChange} onOpenConfig={onOpenConfig} />
 
@@ -166,9 +171,9 @@ export function TabbedCharacterSheet({ onNameChange, onOpenConfig }: TabbedChara
           </div>
         </div>
 
-        {/* Bottom tab navigation with disclaimer - tab bar sticky, disclaimer scrolls */}
-        <BottomTabBar activeTab={activeTab} onTabChange={updateActiveTab} />
+        <LicenseDisclaimer />
       </div>
+      <BottomTabBar visible={tabOrder} activeTab={activeTab} onTabChange={updateActiveTab} />
     </>
   );
 }

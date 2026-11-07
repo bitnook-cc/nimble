@@ -40,19 +40,30 @@ export function ClassSelection({
           return (
             <Card
               key={cls.id}
-              className={`cursor-pointer transition-all ${
+              className={`relative focus-within:ring-2 focus-within:ring-ring transition-all ${
                 isSelected
                   ? "ring-2 ring-primary bg-primary/5"
                   : "hover:shadow-md hover:bg-muted/50"
               }`}
-              onClick={() => handleCardClick(cls.id)}
             >
               <Collapsible open={isSelected}>
                 <CardHeader className="pb-2 pt-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <CardTitle className="text-base">{cls.name}</CardTitle>
+                        <CardTitle className="text-base">
+                          <label className="cursor-pointer after:absolute after:inset-0 after:rounded-xl">
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              name="builder-class"
+                              value={cls.id}
+                              checked={isSelected}
+                              onChange={() => handleCardClick(cls.id)}
+                            />
+                            {cls.name}
+                          </label>
+                        </CardTitle>
                       </div>
                       {!isSelected && (
                         <div className="text-xs text-muted-foreground line-clamp-2 break-words">

@@ -1,6 +1,7 @@
 import { type Page, expect, test } from "@playwright/test";
 
 import mage from "./fixtures/mage.json";
+import { CharacterTestUtils } from "./utils/character-utils";
 
 async function setup(page: Page, spent = false) {
   await page.addInitScript(
@@ -41,7 +42,7 @@ test("per-turn abilities stay available outside combat in both views and after r
 }) => {
   await setup(page, true);
   for (const view of ["Combat", "Character"] as const) {
-    await page.getByRole("button", { name: view, exact: true }).click();
+    await new CharacterTestUtils(page).navigateToTab(view);
     const turn = ability(page, "Turn step");
     const use = turn.getByTitle("Use Ability", { exact: true });
     await expect(use).toBeEnabled();

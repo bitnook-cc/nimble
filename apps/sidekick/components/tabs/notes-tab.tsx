@@ -26,7 +26,6 @@ import {
   Pencil,
   Plus,
   Trash2,
-  X,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
 import { v4 as uuidv4 } from "uuid";
@@ -73,8 +72,8 @@ interface SortableNoteProps {
   editDiceRolls: DiceRoll[];
   onToggle: () => void;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
+  onDone: () => void;
+  saveStatus: string;
   onDelete: () => void;
   onEditTitleChange: (value: string) => void;
   onEditContentChange: (value: string) => void;
@@ -91,8 +90,8 @@ function SortableNote({
   editDiceRolls,
   onToggle,
   onEdit,
-  onSave,
-  onCancel,
+  onDone,
+  saveStatus,
   onDelete,
   onEditTitleChange,
   onEditContentChange,
@@ -150,6 +149,7 @@ function SortableNote({
                 </DropdownMenu>
                 <div
                   {...attributes}
+                  aria-label={`Reorder ${note.title}`}
                   {...listeners}
                   className="cursor-grab active:cursor-grabbing p-1"
                 >
@@ -198,8 +198,8 @@ function SortableNote({
                         onClick={() => {
                           const newRoll: DiceRoll = {
                             id: uuidv4(),
-                            name: "",
-                            formula: "",
+                            name: "New roll",
+                            formula: "1d20",
                           };
                           onEditDiceRollsChange([...editDiceRolls, newRoll]);
                         }}
@@ -212,6 +212,7 @@ function SortableNote({
                     {editDiceRolls.map((roll, index) => (
                       <div key={roll.id} className="flex gap-2 items-start">
                         <Input
+                          aria-label={`Roll ${index + 1} name`}
                           placeholder="Name"
                           value={roll.name}
                           onChange={(e) => {
@@ -223,6 +224,7 @@ function SortableNote({
                           className="flex-1"
                         />
                         <Input
+                          aria-label={`Roll ${index + 1} formula`}
                           placeholder="Formula (e.g., 1d20+5)"
                           value={roll.formula}
                           onChange={(e) => {
@@ -247,15 +249,14 @@ function SortableNote({
                     ))}
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button onClick={onSave} size="sm">
-                      <Check className="h-4 w-4 mr-2" />
-                      Save
+                  <div className="flex items-center gap-3">
+                    <Button onClick={onDone} disabled={saveStatus === "Saving…"} size="sm">
+                      <Check className="h-4 w-4" />{" "}
+                      {saveStatus === "Couldn’t save" ? "Retry save" : "Done"}
                     </Button>
-                    <Button variant="outline" onClick={onCancel} size="sm">
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
+                    <span role="status" className="text-sm text-muted-foreground">
+                      {saveStatus}
+                    </span>
                   </div>
                 </>
               ) : (
@@ -277,12 +278,20 @@ function SortableNote({
                           className="flex items-center justify-between gap-2 p-2 rounded-md border bg-muted/30"
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">{roll.name}</div>
+                            <div className="font-medium text-sm truncate">
+                              {roll.name || "Unnamed roll"}
+                            </div>
                             <div className="text-xs text-muted-foreground font-mono">
                               {roll.formula}
                             </div>
                           </div>
-                          <Button variant="outline" size="sm" onClick={() => onRollDice(roll.id)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            aria-label={`Roll ${roll.name || "dice"}`}
+                            disabled={!roll.formula.trim()}
+                            onClick={() => onRollDice(roll.id)}
+                          >
                             <Dice6 className="h-4 w-4 mr-1" />
                             Roll
                           </Button>
@@ -311,10 +320,8 @@ export function NotesTab() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editDiceRolls, setEditDiceRolls] = useState<DiceRoll[]>([]);
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newContent, setNewContent] = useState("");
-  const [newDiceRolls, setNewDiceRolls] = useState<DiceRoll[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("Saved on this device");
   const [openNotes, setOpenNotes] = useState<Set<string>>(
     new Set(initialNotes.map((note) => note.id)),
   );
@@ -324,54 +331,47 @@ export function NotesTab() {
     setNotes(noteService.getNotes());
   };
 
-  const handleAddNote = async () => {
-    if (!newTitle.trim()) return;
-
-    try {
-      const newNote = await noteService.addNote(newTitle, newContent, newDiceRolls);
-      setNewTitle("");
-      setNewContent("");
-      setNewDiceRolls([]);
-      setIsAddingNew(false);
-      refreshNotes();
-      // Auto-expand the new note
-      setOpenNotes((prev) => new Set([...prev, newNote.id]));
-    } catch (error) {
-      showError(error instanceof Error ? error.message : "Failed to add note");
-    }
-  };
-
   const handleEditNote = (note: Note) => {
     setEditingNoteId(note.id);
-    setEditTitle(note.title);
+    setEditTitle(note.title === "Untitled note" ? "" : note.title);
     setEditContent(note.content);
-    setEditDiceRolls(note.diceRolls || []);
+    setEditDiceRolls(note.diceRolls);
+    setOpenNotes((prev) => new Set([...prev, note.id]));
+    setSaveStatus("Saved on this device");
   };
 
-  const handleSaveEdit = async () => {
-    if (!editingNoteId) return;
-
+  const handleAddNote = async () => {
+    if (creating) return;
+    setCreating(true);
     try {
-      await noteService.updateNote(editingNoteId, {
-        title: editTitle,
-        content: editContent,
-        diceRolls: editDiceRolls,
-      });
-      setEditingNoteId(null);
-      setEditTitle("");
-      setEditContent("");
-      setEditDiceRolls([]);
+      const note = await noteService.addNote("Untitled note", "");
       refreshNotes();
+      handleEditNote(note);
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Failed to update note");
+      showError(error instanceof Error ? error.message : "Couldn’t add note");
+    } finally {
+      setCreating(false);
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditingNoteId(null);
-    setEditTitle("");
-    setEditContent("");
-    setEditDiceRolls([]);
+  // Save in the input event. Tab changes, character switches and reloads
+  // need no timer, teardown callback or manual save.
+  const persist = async (title: string, content: string, diceRolls: DiceRoll[]) => {
+    if (!editingNoteId) return false;
+    setSaveStatus("Saving…");
+    try {
+      await noteService.updateNote(editingNoteId, {
+        title: title.trim() || "Untitled note",
+        content,
+        diceRolls,
+      });
+      refreshNotes();
+      setSaveStatus("Saved on this device");
+      return true;
+    } catch {
+      setSaveStatus("Couldn’t save");
+      return false;
+    }
   };
 
   const handleRollDice = async (noteId: string, rollId: string) => {
@@ -445,123 +445,13 @@ export function NotesTab() {
         <DiceFormulaHelpDialog />
       </div>
 
-      {/* Add New Note Section */}
-      {isAddingNew ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">New Note</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Input
-                placeholder="Title"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                maxLength={100}
-              />
-            </div>
-            <div>
-              <Textarea
-                placeholder="Content (Markdown supported)"
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-                maxLength={gameConfig.notes.maxContentLength}
-                rows={6}
-                className="font-mono text-sm"
-              />
-              <div className="text-xs text-muted-foreground mt-1">
-                {newContent.length} / {gameConfig.notes.maxContentLength} characters
-              </div>
-            </div>
-
-            {/* Dice Rolls Editor */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Dice Rolls</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newRoll: DiceRoll = {
-                      id: uuidv4(),
-                      name: "",
-                      formula: "",
-                    };
-                    setNewDiceRolls([...newDiceRolls, newRoll]);
-                  }}
-                  disabled={newDiceRolls.length >= 20}
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Roll
-                </Button>
-              </div>
-              {newDiceRolls.map((roll, index) => (
-                <div key={roll.id} className="flex gap-2 items-start">
-                  <Input
-                    placeholder="Name"
-                    value={roll.name}
-                    onChange={(e) => {
-                      const updated = [...newDiceRolls];
-                      updated[index] = { ...roll, name: e.target.value };
-                      setNewDiceRolls(updated);
-                    }}
-                    maxLength={50}
-                    className="flex-1"
-                  />
-                  <Input
-                    placeholder="Formula (e.g., 1d20+5)"
-                    value={roll.formula}
-                    onChange={(e) => {
-                      const updated = [...newDiceRolls];
-                      updated[index] = { ...roll, formula: e.target.value };
-                      setNewDiceRolls(updated);
-                    }}
-                    maxLength={100}
-                    className="flex-1"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setNewDiceRolls(newDiceRolls.filter((_, i) => i !== index));
-                    }}
-                    aria-label={`Remove dice roll ${roll.name || `#${index + 1}`}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={handleAddNote} disabled={!newTitle.trim()}>
-                <Check className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAddingNew(false);
-                  setNewTitle("");
-                  setNewContent("");
-                  setNewDiceRolls([]);
-                }}
-              >
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Button onClick={() => setIsAddingNew(true)} disabled={!canAddMore} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Note {!canAddMore && `(Max ${gameConfig.notes.maxNotes} reached)`}
-        </Button>
-      )}
+      <Button onClick={handleAddNote} disabled={!canAddMore || creating} className="w-full">
+        <Plus className="w-4 h-4" /> Add Note{" "}
+        {!canAddMore && `(Max ${gameConfig.notes.maxNotes} reached)`}
+      </Button>
 
       {/* Notes List */}
-      {notes.length === 0 && !isAddingNew && (
+      {notes.length === 0 && (
         <div className="text-center text-muted-foreground p-8">
           No notes yet. Click "Add Note" to create your first note.
         </div>
@@ -580,12 +470,27 @@ export function NotesTab() {
               editDiceRolls={editDiceRolls}
               onToggle={() => toggleNote(note.id)}
               onEdit={() => handleEditNote(note)}
-              onSave={handleSaveEdit}
-              onCancel={handleCancelEdit}
+              saveStatus={saveStatus}
+              onDone={async () => {
+                if (
+                  saveStatus !== "Couldn’t save" ||
+                  (await persist(editTitle, editContent, editDiceRolls))
+                )
+                  setEditingNoteId(null);
+              }}
               onDelete={() => handleDeleteNote(note.id)}
-              onEditTitleChange={setEditTitle}
-              onEditContentChange={setEditContent}
-              onEditDiceRollsChange={setEditDiceRolls}
+              onEditTitleChange={(title) => {
+                setEditTitle(title);
+                void persist(title, editContent, editDiceRolls);
+              }}
+              onEditContentChange={(content) => {
+                setEditContent(content);
+                void persist(editTitle, content, editDiceRolls);
+              }}
+              onEditDiceRollsChange={(rolls) => {
+                setEditDiceRolls(rolls);
+                void persist(editTitle, editContent, rolls);
+              }}
               onRollDice={(rollId) => handleRollDice(note.id, rollId)}
             />
           ))}

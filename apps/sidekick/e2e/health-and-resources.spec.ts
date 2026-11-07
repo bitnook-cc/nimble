@@ -1,40 +1,23 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { CharacterTestUtils } from "./utils/character-utils";
 
-test.describe("Health and Resources", () => {
-  let characterUtils: CharacterTestUtils;
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    characterUtils = new CharacterTestUtils(page);
-  });
-
-  test("health and resources management", async ({ page }) => {
-    await test.step("Setup character", async () => {
-      await characterUtils.ensureCharacterExists();
-    });
-
-    await test.step("Test health management", async () => {
-      const damageButtons = page.getByRole("button", { name: /damage|\-1|\-5|\-10/i });
-      const healButtons = page.getByRole("button", { name: /heal|\+1|\+5|\+10/i });
-
-      if ((await damageButtons.count()) > 0) {
-        await characterUtils.performHealthAction("damage", 1);
-      }
-
-      if ((await healButtons.count()) > 0) {
-        await characterUtils.performHealthAction("heal", 1);
-      }
-    });
-
-    await test.step("Test resource management", async () => {
-      const resourceButtons = page.getByRole("button", { name: /mana|action|resource/i });
-
-      if ((await resourceButtons.count()) > 0) {
-        await resourceButtons.first().click();
-      }
-    });
-  });
+test("damage and healing change HP by the confirmed amount", async ({ page }) => {
+  await page.goto("/");
+  await new CharacterTestUtils(page).createCharacter();
+  const hp = page.getByText(/^\d+\/\d+ HP$/);
+  const maximum = Number((await hp.innerText()).split("/")[1].split(" ")[0]);
+  const healing = page.getByRole("button", { name: "Healing", exact: true });
+  await expect(healing).toBeDisabled();
+  await page.getByRole("button", { name: "Damage", exact: true }).click();
+  const damage = page.getByRole("dialog", { name: "Apply Damage" });
+  await damage.getByRole("spinbutton", { name: "Amount" }).fill("2");
+  await damage.getByRole("button", { name: "Apply Damage" }).click();
+  await expect(hp).toHaveText(maximum - 2 + "/" + maximum + " HP");
+  await healing.click();
+  const heal = page.getByRole("dialog", { name: "Apply Healing" });
+  await heal.getByRole("spinbutton", { name: "Amount" }).fill("2");
+  await heal.getByRole("button", { name: "Apply Healing" }).click();
+  await expect(hp).toHaveText(maximum + "/" + maximum + " HP");
+  await expect(healing).toBeDisabled();
 });

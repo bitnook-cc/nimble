@@ -109,10 +109,19 @@ export function CharacterSelector({
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       )}
+      {!characters.length && !errorMessage && !showCreateForm && (
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Create your first character</h2>
+          <p className="text-sm text-muted-foreground">
+            Your sheet saves in this browser. No account needed. Export a backup from Characters, or
+            sign in to sync across devices.
+          </p>
+        </div>
+      )}
       {/* Create New Character Section */}
       {!showCreateForm ? (
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowCreateForm(true)} className="flex-1">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="default" onClick={() => setShowCreateForm(true)} className="flex-1">
             <Plus className="w-4 h-4 mr-2" />
             Create New Character
           </Button>
@@ -129,79 +138,70 @@ export function CharacterSelector({
 
       {/* Character List */}
       <div className="space-y-2">
-        {sortedCharacters.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No characters found. Create your first character above!
-          </div>
-        ) : (
-          sortedCharacters.map((character) => {
-            const details = getCharacterDetails(character);
-            const isActive = character.id === activeCharacterId;
+        {sortedCharacters.map((character) => {
+          const details = getCharacterDetails(character);
+          const isActive = character.id === activeCharacterId;
 
-            return (
-              <Card
-                key={character.id}
-                className={`cursor-pointer transition-all ${
-                  isActive
-                    ? "ring-2 ring-primary scale-[1.02]"
-                    : "hover:scale-[1.01] hover:shadow-md"
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div
-                    onClick={() => {
-                      if (!isActive) {
-                        switchCharacter(character.id);
-                        onClose?.();
-                      }
+          return (
+            <Card
+              key={character.id}
+              className={`cursor-pointer transition-all ${
+                isActive ? "ring-2 ring-primary scale-[1.02]" : "hover:scale-[1.01] hover:shadow-md"
+              }`}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 items-center space-x-3 rounded-lg text-left focus-visible:outline-2"
+                    aria-label={`Open ${character.name}`}
+                    aria-current={isActive ? "true" : undefined}
+                    onClick={async () => {
+                      if (!isActive || fullScreen) await switchCharacter(character.id);
+                      onClose?.();
                     }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="shrink-0">
-                          <User className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-medium truncate">
-                            {character.name}
-                            {isActive && (
-                              <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                                Active
-                              </span>
-                            )}
-                          </h3>
-                          <div className="text-sm text-muted-foreground">
-                            Level {details.level} {details.ancestryName} {details.className}
-                          </div>
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {formatLastPlayed(
-                              new Date(character.timestamps?.updatedAt || Date.now()),
-                            )}
-                          </div>
-                        </div>
+                    <div className="shrink-0">
+                      <User className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium truncate">
+                        {character.name}
+                        {isActive && (
+                          <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                            Active
+                          </span>
+                        )}
+                      </h3>
+                      <div className="text-sm text-muted-foreground">
+                        Level {details.level} {details.ancestryName} {details.className}
                       </div>
-                      <div className="shrink-0 flex gap-1">
-                        <CharacterExportButton character={character} />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDeleteDialog(character);
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {formatLastPlayed(new Date(character.timestamps?.updatedAt || Date.now()))}
                       </div>
                     </div>
+                  </button>
+                  <div className="shrink-0 flex gap-1">
+                    <CharacterExportButton character={character} />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteDialog(character);
+                      }}
+                      aria-label={`Delete ${character.name}`}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
@@ -209,7 +209,7 @@ export function CharacterSelector({
   if (fullScreen) {
     return (
       <>
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col px-4">
           <div className="container mx-auto py-8 flex-1">
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="text-center">

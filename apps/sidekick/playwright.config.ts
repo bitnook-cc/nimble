@@ -56,7 +56,12 @@ export default defineConfig({
     /* Test against mobile viewports. */
     {
       name: "Mobile Chrome",
-      use: { ...devices["Pixel 5"] },
+      use: {
+        ...devices["Pixel 5"],
+        ...(process.env.PLAYWRIGHT_CHROMIUM_CHANNEL
+          ? { channel: process.env.PLAYWRIGHT_CHROMIUM_CHANNEL }
+          : {}),
+      },
     },
     {
       name: "Mobile Safari",

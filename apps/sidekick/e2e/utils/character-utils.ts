@@ -51,10 +51,18 @@ export class CharacterTestUtils {
    * @param tabName - Name of the tab (case insensitive)
    */
   async navigateToTab(tabName: string): Promise<void> {
-    const tab = this.page.getByRole("tab", { name: new RegExp(tabName, "i") });
-    await expect(tab).toBeVisible();
-    await tab.click();
-    await expect(tab).toHaveAttribute("aria-selected", "true");
+    const nav = this.page.getByRole("navigation", { name: "Character sheet" });
+    const direct = nav.getByRole("button", { name: tabName, exact: true });
+    const more = nav.getByRole("button", { name: /More sections/ });
+    await expect(direct.or(more).first()).toBeVisible();
+    if (await direct.isVisible()) {
+      await direct.click();
+      await expect(direct).toHaveAttribute("aria-current", "page");
+    } else {
+      await more.click();
+      await this.page.getByRole("menuitem", { name: tabName, exact: true }).click();
+      await expect(more).toHaveAccessibleName("More sections, current: " + tabName);
+    }
   }
 
   /**
@@ -88,7 +96,7 @@ export class CharacterTestUtils {
     await panel.getByRole("button", { name: "d20", exact: true }).click();
     await panel.getByRole("button", { name: "Roll (1 dice)", exact: true }).click();
     await this.page.keyboard.press("Escape");
-    await this.page.getByRole("button", { name: "Log", exact: true }).click();
+    await this.navigateToTab("Log");
     const log = this.page
       .locator('[data-slot="card"]')
       .filter({ has: this.page.getByText("Character Log", { exact: true }) });
@@ -108,30 +116,5 @@ export class CharacterTestUtils {
     await expect(this.page.getByRole("heading", { name: /initiative roll/i })).toBeVisible({
       timeout: 3000,
     });
-  }
-
-  /**
-   * Performs a health action (damage or heal)
-   * @param action - 'damage' or 'heal'
-   * @param amount - Amount to damage/heal (1, 5, 10, or 'custom')
-   */
-  async performHealthAction(
-    action: "damage" | "heal",
-    amount: 1 | 5 | 10 | "custom" = 1,
-  ): Promise<void> {
-    let buttonPattern: RegExp;
-
-    if (action === "damage") {
-      buttonPattern = amount === "custom" ? /damage/i : new RegExp(`damage|\\-${amount}`, "i");
-    } else {
-      buttonPattern = amount === "custom" ? /heal/i : new RegExp(`heal|\\+${amount}`, "i");
-    }
-
-    const actionButton = this.page.getByRole("button", { name: buttonPattern });
-    await expect(actionButton).toBeVisible();
-    await actionButton.click();
-
-    // Verify HP indicator is visible - be more specific to avoid matching multiple elements
-    await expect(this.page.getByText(/^\d+\/\d+ HP$/)).toBeVisible();
   }
 }

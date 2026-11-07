@@ -1,6 +1,7 @@
 import { type Page, expect, test } from "@playwright/test";
 
 import mage from "./fixtures/mage.json";
+import { CharacterTestUtils } from "./utils/character-utils";
 
 // A prepared level-six Mage has known schools, tier-three access, 12 mana
 // and three combat actions. Tests fail if that setup stops working.
@@ -53,7 +54,7 @@ async function upcast(page: Page) {
 test.describe("Abilities and Spells", () => {
   test("view and interact with character tab", async ({ page }) => {
     await setupMage(page);
-    await page.getByRole("button", { name: "Character", exact: true }).click();
+    await new CharacterTestUtils(page).navigateToTab("Character");
     await expect(page.getByText("Attributes", { exact: true })).toBeVisible();
   });
   test("view spells tab for spellcasting characters", async ({ page }) => {
@@ -90,7 +91,7 @@ test.describe("Abilities and Spells", () => {
   test("verify spell cast appears in activity log", async ({ page }) => {
     await setupMage(page);
     await spell(page, "Flame Dart").getByRole("button", { name: "Cast", exact: true }).click();
-    await page.getByRole("button", { name: "Log", exact: true }).click();
+    await new CharacterTestUtils(page).navigateToTab("Log");
     const log = page
       .locator('[data-slot="card"]')
       .filter({ has: page.getByText("Character Log", { exact: true }) });

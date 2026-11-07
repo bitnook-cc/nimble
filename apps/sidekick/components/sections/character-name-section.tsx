@@ -80,16 +80,20 @@ export function CharacterNameSection({
           {characterImageService.isImageUploadSupported() ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div>
+                <button
+                  type="button"
+                  aria-label={`Portrait options for ${character.name}`}
+                  className="shrink-0 rounded-lg focus-visible:outline-2 hover:ring-2 hover:ring-primary"
+                >
                   <CharacterAvatar
                     characterId={character.id}
                     characterName={character.name}
                     imageId={character.imageId}
                     classId={character.classId}
                     size="profile"
-                    clickable={true}
+                    clickable={false}
                   />
-                </div>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onClick={() => setShowImageUpload(true)}>
@@ -119,6 +123,7 @@ export function CharacterNameSection({
             <div className="flex items-center gap-2">
               <Input
                 id="character-name"
+                aria-label="Character Name"
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
                 onBlur={() => {

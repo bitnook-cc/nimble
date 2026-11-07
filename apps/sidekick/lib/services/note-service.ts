@@ -150,6 +150,7 @@ export class NoteService {
 
     const diceRoll = note.diceRolls.find((r) => r.id === rollId);
     if (!diceRoll) throw new Error("Dice roll not found");
+    if (!diceRoll.formula.trim()) throw new Error("Enter a dice formula before rolling");
 
     const characterService = getCharacterService();
     const character = characterService.getCurrentCharacter();
