@@ -50,11 +50,7 @@ export interface DicePoolChangeEffect extends BaseEffect {
 
 // Union type for all effects
 export type Effect =
-  | DamageEffect
-  | HealingEffect
-  | TempHPEffect
-  | ResourceChangeEffect
-  | DicePoolChangeEffect;
+  DamageEffect | HealingEffect | TempHPEffect | ResourceChangeEffect | DicePoolChangeEffect;
 
 // Effect result for tracking applied effects
 export interface EffectResult {

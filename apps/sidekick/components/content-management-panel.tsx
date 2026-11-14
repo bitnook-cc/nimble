@@ -706,8 +706,7 @@ export function ContentManagementPanel({ isOpen, onClose }: ContentManagementPan
                                           {
                                             (
                                               regularItem as
-                                                | AncestryDefinition
-                                                | BackgroundDefinition
+                                                AncestryDefinition | BackgroundDefinition
                                             ).features.length
                                           }{" "}
                                           features

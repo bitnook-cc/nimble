@@ -74,8 +74,7 @@ export function TraitSelectionDisplay({
     if (effect.type === "choice" && character) {
       const choiceEffect = effect as ChoiceFeatureTrait;
       const existingChoice = existingSelections.find((s) => s.type === "choice") as
-        | ChoiceTraitSelection
-        | undefined;
+        ChoiceTraitSelection | undefined;
 
       return (
         <ChoiceTraitSelectionComponent
