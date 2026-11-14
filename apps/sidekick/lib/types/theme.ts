@@ -45,11 +45,4 @@ export interface Theme {
 }
 
 export type ThemeFamily =
-  | "default"
-  | "nimble"
-  | "forest"
-  | "ocean"
-  | "sunset"
-  | "midnight"
-  | "ironforge"
-  | "parchment";
+  "default" | "nimble" | "forest" | "ocean" | "sunset" | "midnight" | "ironforge" | "parchment";
